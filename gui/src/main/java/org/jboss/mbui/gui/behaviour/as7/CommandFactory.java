@@ -120,7 +120,7 @@ public class CommandFactory {
      * TODO: This is considered a temporary solution.
      *
      * It's difficult to manage the states of all interaction units after modification to the model.
-     * This is a very naiv and pragmatic approach with certain (usability) drawbacks.
+     * This is a very naive and pragmatic approach with certain (usability) drawbacks.
      *
      * @param context
      */

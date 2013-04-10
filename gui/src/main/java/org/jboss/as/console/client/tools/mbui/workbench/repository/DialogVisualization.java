@@ -147,7 +147,7 @@ public class DialogVisualization
             if (interactionUnit.doesProduce())
                 tooltip.append("[output]\n").append(interactionUnit.getOutputs()).append("\n\n");
 
-            tooltip.append("[statement context]\n").append(scope).append("\n");
+            tooltip.append("[scope]\n").append(scope).append("\n");
 
 
             dataTable.addRow();

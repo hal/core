@@ -12,5 +12,4 @@ public class GlobalQNames {
     public final static QName RESET_ID = QName.valueOf("org.jboss.as:reset");
     public final static QName LOAD_ID = QName.valueOf("org.jboss.as:load");
     public final static QName SAVE_ID = QName.valueOf("org.jboss.as:save");
-
 }

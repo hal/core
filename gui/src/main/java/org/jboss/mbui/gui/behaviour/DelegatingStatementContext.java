@@ -1,10 +1,5 @@
 package org.jboss.mbui.gui.behaviour;
 
-import org.jboss.mbui.gui.behaviour.Constants;
-import org.jboss.mbui.gui.behaviour.StatementContext;
-
-import java.lang.Override;
-import java.lang.String;
 import java.util.LinkedList;
 
 /**

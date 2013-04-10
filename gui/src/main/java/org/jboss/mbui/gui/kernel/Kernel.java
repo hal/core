@@ -112,7 +112,7 @@ public class Kernel implements NavigationDelegate {
                     {
                         @Override
                         public void onError(Throwable caught) {
-                            Log.error("Reification failed: " + caught.getMessage());
+                            Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
                             control.abort();
                         }
 
@@ -151,7 +151,7 @@ public class Kernel implements NavigationDelegate {
                         @Override
                         public void onError(final Throwable caught)
                         {
-                            Log.error("Reification failed: " + caught.getMessage());
+                            Log.error("ReadResourceDescription failed: " + caught.getMessage(), caught);
                             control.abort();
                         }
                     });

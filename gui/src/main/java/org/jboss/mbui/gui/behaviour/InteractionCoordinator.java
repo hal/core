@@ -9,6 +9,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import org.jboss.mbui.gui.behaviour.as7.ActivationProcedure;
 import org.jboss.mbui.gui.behaviour.as7.BehaviourMap;
+import org.jboss.mbui.gui.behaviour.as7.GlobalQNames;
 import org.jboss.mbui.gui.behaviour.as7.NavigationProcedure;
 import org.jboss.mbui.gui.behaviour.as7.SelectStatementProcedure;
 import org.jboss.mbui.model.Dialog;
@@ -36,6 +37,7 @@ public class InteractionCoordinator implements KernelContract,
         StatementEvent.StatementHandler, BehaviourExecution {
 
     private static final String PROJECT_NAMESPACE = "org.jboss.as";
+
     final static SystemEvent RESET = new SystemEvent(new QName(PROJECT_NAMESPACE, "reset"));
 
     final static SystemEvent REVEAL = new SystemEvent(new QName(PROJECT_NAMESPACE, "reveal"));

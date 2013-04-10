@@ -16,7 +16,6 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
     Map<String,String> delegate = new HashMap<String,String>();
     private final List<Integer> parentScopeIds;
     private final StatementContext externalContext;
-    private final StatementContext localContext;
     private final StatementScope.Scopes availableScopes;
     private final Integer scopeId;
 
@@ -25,18 +24,6 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         this.parentScopeIds = parentScopeIds;
         this.availableScopes = scopes;
         this.scopeId = scopeId;
-
-        this.localContext = new DelegatingStatementContext() {
-            @Override
-            public String resolve(String key) {
-                return delegate.get(key);
-            }
-
-            @Override
-            public String[] resolveTuple(String key) {
-                return null; // doesn't support tuples
-            }
-        } ;
     }
 
     @Override
@@ -69,7 +56,7 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         String resolvedValue = null;
 
         // local
-        resolvedValue = localContext.resolve(key);
+        resolvedValue = get(key);
 
         // iterate delegates
         Iterator<Integer> delegateIds = parentScopeIds.iterator();
@@ -91,7 +78,7 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         String[] resolvedTuple = null;
 
         // local
-        resolvedTuple = localContext.resolveTuple(key);
+        resolvedTuple = getTuple(key);
 
         // iterate delegates
         Iterator<Integer> delegateIds = parentScopeIds.iterator();
@@ -113,8 +100,8 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         LinkedList<String> resolvedValues = new LinkedList<String>();
 
         // local
-        if(localContext.get(key) !=null)
-            resolvedValues.add(localContext.get(key));
+        if(get(key) !=null)
+            resolvedValues.add(get(key));
 
         // iterate delegates
         Iterator<Integer> delegateIds = parentScopeIds.iterator();
@@ -138,8 +125,8 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         LinkedList<String[]> resolvedTuple = new LinkedList<String[]>();
 
         // local
-        if(localContext.getTuple(key) !=null)
-            resolvedTuple.add(localContext.getTuple(key));
+        if(getTuple(key) !=null)
+            resolvedTuple.add(getTuple(key));
 
         // iterate delegates
         Iterator<Integer> delegateIds = parentScopeIds.iterator();
@@ -157,4 +144,5 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
 
         return resolvedTuple;
     }
+
 }
