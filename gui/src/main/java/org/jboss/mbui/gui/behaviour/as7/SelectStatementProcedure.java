@@ -15,11 +15,10 @@ import org.jboss.mbui.model.structure.QName;
  */
 public class SelectStatementProcedure extends Procedure {
 
-    public final static QName ID = QName.valueOf("org.jboss.as:select");
-    private final static Resource<ResourceType> SELECT = new Resource<ResourceType>(ID, ResourceType.Statement);
+    private final static Resource<ResourceType> SELECT = new Resource<ResourceType>(GlobalQNames.SELECT_ID, ResourceType.Statement);
 
     public SelectStatementProcedure(final InteractionCoordinator coordinator) {
-        super(ID);
+        super(GlobalQNames.SELECT_ID);
         this.coordinator = coordinator;
 
 
