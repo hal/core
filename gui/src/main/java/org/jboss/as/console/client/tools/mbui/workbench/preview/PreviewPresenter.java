@@ -37,7 +37,7 @@ import org.jboss.as.console.client.tools.mbui.workbench.ResetEvent;
 import org.jboss.as.console.client.tools.mbui.workbench.repository.SampleRepository;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.mbui.gui.behaviour.NavigationDelegate;
-import org.jboss.mbui.gui.behaviour.as7.CoreGUIContext;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.mbui.gui.kernel.Framework;
 import org.jboss.mbui.gui.kernel.Kernel;
 import org.jboss.mbui.model.structure.QName;

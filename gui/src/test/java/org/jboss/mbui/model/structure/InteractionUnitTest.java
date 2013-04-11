@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 import org.jboss.mbui.gui.behaviour.Integrity;
 import org.jboss.mbui.gui.behaviour.IntegrityErrors;
 import org.jboss.mbui.gui.behaviour.Procedure;
-import org.jboss.mbui.gui.behaviour.as7.BehaviourMap;
+import org.jboss.mbui.gui.behaviour.BehaviourMap;
 import org.jboss.mbui.model.behaviour.Behaviour;
 import org.jboss.mbui.model.behaviour.Resource;
 import org.jboss.mbui.model.behaviour.ResourceType;

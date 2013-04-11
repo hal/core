@@ -1,0 +1,52 @@
+package org.jboss.as.console.mbui.behaviour;
+
+import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
+import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
+import org.jboss.mbui.gui.behaviour.Procedure;
+import org.jboss.mbui.gui.behaviour.StatementEvent;
+import org.jboss.mbui.model.Dialog;
+import org.jboss.mbui.model.behaviour.Resource;
+import org.jboss.mbui.model.behaviour.ResourceType;
+import org.jboss.mbui.model.structure.QName;
+
+/**
+ * @author Heiko Braun
+ * @date 2/26/13
+ */
+public class SelectStatementProcedure extends Procedure {
+
+    private final static Resource<ResourceType> SELECT = new Resource<ResourceType>(GlobalQNames.SELECT_ID, ResourceType.Statement);
+
+    public SelectStatementProcedure(final InteractionCoordinator coordinator) {
+        super(GlobalQNames.SELECT_ID);
+        this.coordinator = coordinator;
+
+
+        setCommand(new ModelDrivenCommand() {
+            @Override
+            public void execute(Dialog dialog, Object data) {
+
+                StatementEvent event = (StatementEvent)data;
+
+                QName sourceId = (QName)event.getSource();
+                String key = event.getKey();
+                String value = event.getValue();
+
+
+                if(value!=null)
+                    coordinator.setStatement(sourceId, key, value);
+                else
+                    coordinator.clearStatement(sourceId, key, value);
+
+                // when statement change, the system will be reset
+                coordinator.reset();
+            }
+        });
+
+        setInputs(SELECT);
+
+    }
+
+
+
+}

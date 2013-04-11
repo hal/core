@@ -18,13 +18,12 @@
  */
 package org.jboss.mbui.gui.reification.preparation;
 
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
-import org.jboss.mbui.gui.behaviour.Constants;
 import org.jboss.mbui.gui.behaviour.DelegatingStatementContext;
 import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
 import org.jboss.mbui.gui.behaviour.StatementContext;
@@ -86,7 +85,7 @@ public class ReadResourceDescription extends ReificationPreperation
         compsite.get(ADDRESS).setEmptyList();
         compsite.get(STEPS).set(visitor.steps);
 
-        dispatcher.execute(new DMRAction(compsite), new SimpleCallback<DMRResponse>()
+        dispatcher.execute(new DMRAction(compsite), new AsyncCallback<DMRResponse>()
         {
             @Override
             public void onFailure(final Throwable caught)
