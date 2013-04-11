@@ -31,6 +31,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
 import org.jboss.mbui.gui.behaviour.StatementEvent;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.mbui.gui.behaviour.common.CommonQNames;
 import org.jboss.mbui.model.Dialog;
 import org.jboss.mbui.model.behaviour.Resource;
 import org.jboss.mbui.model.behaviour.ResourceType;
@@ -128,7 +129,7 @@ public class CommandFactory {
         // clear the select statement
         context.getCoordinator().fireEvent(
                 new StatementEvent(
-                        GlobalQNames.SELECT_ID,
+                        CommonQNames.SELECT_ID,
                         "selected.entity",
                         null)
         );

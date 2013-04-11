@@ -1,4 +1,4 @@
-package org.jboss.as.console.mbui.behaviour;
+package org.jboss.mbui.gui.behaviour.common;
 
 import org.jboss.mbui.model.structure.QName;
 
@@ -6,7 +6,7 @@ import org.jboss.mbui.model.structure.QName;
  * @author Heiko Braun
  * @date 3/19/13
  */
-public class GlobalQNames {
+public class CommonQNames {
 
     public final static QName SELECT_ID = QName.valueOf("org.jboss.as:select");
     public final static QName RESET_ID = QName.valueOf("org.jboss.as:reset");

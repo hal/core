@@ -1,9 +1,8 @@
-package org.jboss.as.console.mbui.behaviour;
+package org.jboss.mbui.gui.behaviour.common;
 
 import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
 import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
 import org.jboss.mbui.gui.behaviour.Procedure;
-import org.jboss.mbui.gui.behaviour.SystemEvent;
 import org.jboss.mbui.model.Dialog;
 import org.jboss.mbui.model.behaviour.Resource;
 import org.jboss.mbui.model.behaviour.ResourceType;
@@ -13,12 +12,12 @@ import org.jboss.mbui.model.structure.QName;
  * @author Heiko Braun
  * @date 2/26/13
  */
-public class ActivationProcedure extends Procedure {
+public class NavigationProcedure extends Procedure {
 
-    public final static QName ID = QName.valueOf("org.jboss.as:activate");
-    Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
+    public final static QName ID = QName.valueOf("org.jboss.as:navigate#next");
+    Resource<ResourceType> navigation = new Resource<ResourceType>(ID, ResourceType.Interaction);
 
-    public ActivationProcedure(final InteractionCoordinator coordinator) {
+    public NavigationProcedure(final InteractionCoordinator coordinator) {
         super(ID);
         this.coordinator = coordinator;
 
@@ -29,17 +28,14 @@ public class ActivationProcedure extends Procedure {
                 // activate target unit
 
                 QName targetUnit = (QName)data;
-                System.out.println("activate "+targetUnit);
-                SystemEvent activationEvent = new SystemEvent(SystemEvent.ACTIVATE_ID);
-                activationEvent.setPayload(targetUnit);
+                System.out.println("navigate "+targetUnit);
 
-                coordinator.fireEvent(activationEvent);
 
             }
         });
 
         // complement model
-        setOutputs(activation);
+        setInputs(navigation);
 
     }
 

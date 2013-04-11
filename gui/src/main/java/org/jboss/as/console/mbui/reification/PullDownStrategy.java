@@ -12,7 +12,7 @@ import org.jboss.mbui.gui.behaviour.InteractionEvent;
 import org.jboss.mbui.gui.behaviour.PresentationEvent;
 import org.jboss.mbui.gui.behaviour.StatementEvent;
 import org.jboss.mbui.gui.behaviour.SystemEvent;
-import org.jboss.as.console.mbui.behaviour.GlobalQNames;
+import org.jboss.mbui.gui.behaviour.common.CommonQNames;
 import org.jboss.mbui.gui.reification.Context;
 import org.jboss.mbui.gui.reification.ContextKey;
 import org.jboss.mbui.gui.reification.strategy.ReificationStrategy;
@@ -70,7 +70,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
                         // create a select statement
                         eventBus.fireEventFromSource(
                                 new StatementEvent(
-                                        GlobalQNames.SELECT_ID,
+                                        CommonQNames.SELECT_ID,
                                         "selected.entity",
                                         selection),   // synthetic key (convention), see LoadResourceProcedure
                                 getInteractionUnit().getId());
@@ -81,7 +81,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
                         // clear the select statement
                         eventBus.fireEventFromSource(
                                 new StatementEvent(
-                                        GlobalQNames.SELECT_ID,
+                                        CommonQNames.SELECT_ID,
                                         "selected.entity",
                                         null),
                                 getInteractionUnit().getId());
@@ -97,7 +97,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
                 @Override
                 public boolean accepts(SystemEvent event) {
 
-                    return event.getId().equals(GlobalQNames.RESET_ID);
+                    return event.getId().equals(CommonQNames.RESET_ID);
                 }
 
                 @Override
@@ -105,7 +105,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
                     comboBox.clear();
 
                     // request loading of data
-                    InteractionEvent reset = new InteractionEvent(GlobalQNames.LOAD_ID);
+                    InteractionEvent reset = new InteractionEvent(CommonQNames.LOAD_ID);
 
                     // update interaction units
                     eventBus.fireEventFromSource(
@@ -154,13 +154,13 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
             // Register inputs & outputs
 
             getInteractionUnit().setInputs(
-                    new Resource<ResourceType>(GlobalQNames.RESET_ID, ResourceType.System),
+                    new Resource<ResourceType>(CommonQNames.RESET_ID, ResourceType.System),
                     new Resource<ResourceType>(getInteractionUnit().getId(), ResourceType.Presentation)
             );
 
             getInteractionUnit().setOutputs(
-                    new Resource<ResourceType>(GlobalQNames.LOAD_ID, ResourceType.Interaction),
-                    new Resource<ResourceType>(GlobalQNames.SELECT_ID, ResourceType.Statement)
+                    new Resource<ResourceType>(CommonQNames.LOAD_ID, ResourceType.Interaction),
+                    new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement)
             );
 
         }

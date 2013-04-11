@@ -60,7 +60,7 @@ import java.util.Set;
 import static org.jboss.mbui.model.behaviour.ResourceType.*;
 import static org.jboss.mbui.model.behaviour.ResourceType.System;
 
-import static org.jboss.as.console.mbui.behaviour.GlobalQNames.*;
+import static org.jboss.mbui.gui.behaviour.common.CommonQNames.*;
 
 /**
  * @author Harald Pehl

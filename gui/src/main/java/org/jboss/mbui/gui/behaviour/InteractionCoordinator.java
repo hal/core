@@ -7,10 +7,10 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import org.jboss.as.console.mbui.behaviour.ActivationProcedure;
-import org.jboss.as.console.mbui.behaviour.GlobalQNames;
-import org.jboss.as.console.mbui.behaviour.NavigationProcedure;
-import org.jboss.as.console.mbui.behaviour.SelectStatementProcedure;
+import org.jboss.mbui.gui.behaviour.common.ActivationProcedure;
+import org.jboss.mbui.gui.behaviour.common.CommonQNames;
+import org.jboss.mbui.gui.behaviour.common.NavigationProcedure;
+import org.jboss.mbui.gui.behaviour.common.SelectStatementProcedure;
 import org.jboss.mbui.model.Dialog;
 import org.jboss.mbui.model.behaviour.Resource;
 import org.jboss.mbui.model.behaviour.ResourceType;
@@ -249,7 +249,7 @@ public class InteractionCoordinator implements KernelContract,
 
         Log.debug("StatementEvent " + event.getKey() + "=" + event.getValue());
 
-        Procedure stmtProcedure = procedures.getSingle(GlobalQNames.SELECT_ID);
+        Procedure stmtProcedure = procedures.getSingle(CommonQNames.SELECT_ID);
         stmtProcedure.getCommand().execute(dialog, event);
 
     }

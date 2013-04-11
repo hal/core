@@ -1,4 +1,4 @@
-package org.jboss.as.console.mbui.behaviour;
+package org.jboss.mbui.gui.behaviour.common;
 
 import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
 import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
@@ -15,10 +15,10 @@ import org.jboss.mbui.model.structure.QName;
  */
 public class SelectStatementProcedure extends Procedure {
 
-    private final static Resource<ResourceType> SELECT = new Resource<ResourceType>(GlobalQNames.SELECT_ID, ResourceType.Statement);
+    private final static Resource<ResourceType> SELECT = new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement);
 
     public SelectStatementProcedure(final InteractionCoordinator coordinator) {
-        super(GlobalQNames.SELECT_ID);
+        super(CommonQNames.SELECT_ID);
         this.coordinator = coordinator;
 
 
