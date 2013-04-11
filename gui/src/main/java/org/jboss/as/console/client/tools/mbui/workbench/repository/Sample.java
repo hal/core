@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.tools.mbui.workbench.repository;
 
-import org.jboss.mbui.model.Dialog;
+import org.useware.kernel.model.Dialog;
 
 /**
  * @author Harald Pehl

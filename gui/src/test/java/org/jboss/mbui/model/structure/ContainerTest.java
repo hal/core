@@ -20,6 +20,9 @@ package org.jboss.mbui.model.structure;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.TemporalOperator;
 
 import static org.jboss.mbui.TestNamespace.NAMESPACE;
 import static org.junit.Assert.assertEquals;

@@ -19,25 +19,31 @@
 package org.jboss.mbui.model.structure;
 
 import static org.jboss.mbui.TestNamespace.NAMESPACE;
-import static org.jboss.mbui.model.behaviour.ResourceType.Interaction;
-import static org.jboss.mbui.model.behaviour.ResourceType.Presentation;
-import static org.jboss.mbui.model.mapping.MappingType.DMR;
-import static org.jboss.mbui.model.structure.TemporalOperator.Choice;
-import static org.jboss.mbui.model.structure.TemporalOperator.OrderIndependance;
+import static org.useware.kernel.model.behaviour.ResourceType.Interaction;
+import static org.useware.kernel.model.behaviour.ResourceType.Presentation;
+import static org.useware.kernel.model.mapping.MappingType.DMR;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
+import static org.useware.kernel.model.structure.TemporalOperator.OrderIndependance;
 import static org.junit.Assert.*;
 
-import org.jboss.mbui.gui.behaviour.Integrity;
-import org.jboss.mbui.gui.behaviour.IntegrityErrors;
-import org.jboss.mbui.gui.behaviour.Procedure;
-import org.jboss.mbui.gui.behaviour.BehaviourMap;
-import org.jboss.mbui.model.behaviour.Behaviour;
-import org.jboss.mbui.model.behaviour.Resource;
-import org.jboss.mbui.model.behaviour.ResourceType;
-import org.jboss.mbui.model.mapping.Predicate;
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
-import org.jboss.mbui.model.structure.impl.Builder;
+import org.useware.kernel.gui.behaviour.Integrity;
+import org.useware.kernel.gui.behaviour.IntegrityErrors;
+import org.useware.kernel.gui.behaviour.Procedure;
+import org.useware.kernel.gui.behaviour.BehaviourMap;
+import org.useware.kernel.model.behaviour.Behaviour;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.mapping.Predicate;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.Select;
+import org.useware.kernel.model.structure.TemporalOperator;
+import org.useware.kernel.model.structure.impl.Builder;
 import org.junit.Before;
 import org.junit.Test;
+import org.useware.kernel.model.structure.Input;
 
 /**
  * @author Harald Pehl

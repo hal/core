@@ -19,15 +19,19 @@
 package org.jboss.mbui.model.structure;
 
 import static org.jboss.mbui.TestNamespace.NAMESPACE;
-import static org.jboss.mbui.model.structure.TemporalOperator.*;
-import static org.jboss.mbui.model.structure.as7.StereoTypes.EditorPanel;
-import static org.jboss.mbui.model.structure.as7.StereoTypes.Form;
+import static org.useware.kernel.model.structure.TemporalOperator.*;
+import static org.useware.kernel.model.structure.as7.StereoTypes.EditorPanel;
+import static org.useware.kernel.model.structure.as7.StereoTypes.Form;
 import static org.junit.Assert.assertEquals;
 
-import org.jboss.mbui.model.mapping.Mapping;
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
-import org.jboss.mbui.model.structure.impl.Builder;
+import org.useware.kernel.model.mapping.Mapping;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.Select;
+import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.useware.kernel.model.structure.impl.Builder;
 import org.junit.Before;
 import org.junit.Test;
 

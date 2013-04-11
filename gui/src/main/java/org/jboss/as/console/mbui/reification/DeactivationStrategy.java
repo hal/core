@@ -26,25 +26,24 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-import org.jboss.mbui.gui.behaviour.SystemEvent;
-import org.jboss.mbui.gui.reification.Context;
-import org.jboss.mbui.gui.reification.ContextKey;
-import org.jboss.mbui.gui.reification.strategy.ReificationStrategy;
-import org.jboss.mbui.gui.reification.strategy.ReificationWidget;
-import org.jboss.mbui.model.behaviour.Resource;
-import org.jboss.mbui.model.behaviour.ResourceType;
-import org.jboss.mbui.model.structure.Container;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.gui.behaviour.SystemEvent;
+import org.useware.kernel.gui.reification.Context;
+import org.useware.kernel.gui.reification.ContextKey;
+import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
+import org.useware.kernel.gui.reification.strategy.ReificationWidget;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jboss.mbui.model.structure.TemporalOperator.Deactivation;
+import static org.useware.kernel.model.structure.TemporalOperator.Deactivation;
 
 /**
  * Strategy for a container with temporal operator == Deactivation.

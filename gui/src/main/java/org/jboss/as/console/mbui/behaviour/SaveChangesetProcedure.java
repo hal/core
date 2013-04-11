@@ -7,17 +7,17 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
-import org.jboss.mbui.gui.behaviour.Procedure;
-import org.jboss.mbui.gui.behaviour.StatementContext;
-import org.jboss.mbui.model.behaviour.Resource;
-import org.jboss.mbui.model.behaviour.ResourceType;
-import org.jboss.mbui.model.mapping.MappingType;
-import org.jboss.mbui.model.mapping.as7.AddressMapping;
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
-import org.jboss.mbui.model.Dialog;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
+import org.useware.kernel.gui.behaviour.ModelDrivenCommand;
+import org.useware.kernel.gui.behaviour.Procedure;
+import org.useware.kernel.gui.behaviour.StatementContext;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.mapping.MappingType;
+import org.useware.kernel.model.mapping.as7.AddressMapping;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.Dialog;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.HashMap;
 
@@ -25,11 +25,11 @@ import java.util.HashMap;
  * A default procedure that writes attributes change sets to resource.
  * It creates a composite operation with write-attribute operations for each changed attribute of a resource.
  * <p/>
- * The {@link org.jboss.mbui.gui.behaviour.StatementContext} is used to resolve the resource parent context (i.e. profile, server, host).
+ * The {@link org.useware.kernel.gui.behaviour.StatementContext} is used to resolve the resource parent context (i.e. profile, server, host).
  * <p/>
- * The actual address is resolved from the {@link org.jboss.mbui.model.mapping.as7.DMRMapping} attached to the {@link InteractionUnit} that triggered this procedure (justification).
+ * The actual address is resolved from the {@link org.useware.kernel.model.mapping.as7.DMRMapping} attached to the {@link InteractionUnit} that triggered this procedure (justification).
  *
- * @see org.jboss.mbui.gui.behaviour.InteractionEvent#getSource()
+ * @see org.useware.kernel.gui.behaviour.InteractionEvent#getSource()
  *
  * @author Heiko Braun
  * @date 1/21/13

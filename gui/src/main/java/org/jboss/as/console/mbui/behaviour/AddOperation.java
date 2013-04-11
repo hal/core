@@ -1,7 +1,7 @@
 package org.jboss.as.console.mbui.behaviour;
 
-import org.jboss.mbui.gui.behaviour.ModelDrivenCommand;
-import org.jboss.mbui.model.Dialog;
+import org.useware.kernel.gui.behaviour.ModelDrivenCommand;
+import org.useware.kernel.model.Dialog;
 
 /**
  * @author Heiko Braun

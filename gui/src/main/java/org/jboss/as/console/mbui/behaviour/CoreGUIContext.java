@@ -2,11 +2,9 @@ package org.jboss.as.console.mbui.behaviour;
 
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
-import org.jboss.mbui.gui.behaviour.Constants;
-import org.jboss.mbui.gui.behaviour.StatementContext;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.LinkedList;
 
 /**

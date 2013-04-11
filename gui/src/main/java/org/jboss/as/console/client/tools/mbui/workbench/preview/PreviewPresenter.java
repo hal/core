@@ -36,11 +36,11 @@ import org.jboss.as.console.client.tools.mbui.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.mbui.workbench.ResetEvent;
 import org.jboss.as.console.client.tools.mbui.workbench.repository.SampleRepository;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.mbui.gui.behaviour.NavigationDelegate;
+import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.mbui.gui.kernel.Framework;
-import org.jboss.mbui.gui.kernel.Kernel;
-import org.jboss.mbui.model.structure.QName;
+import org.useware.kernel.gui.kernel.Framework;
+import org.useware.kernel.gui.kernel.Kernel;
+import org.useware.kernel.model.structure.QName;
 
 import static org.jboss.as.console.client.tools.mbui.workbench.NameTokens.preview;
 

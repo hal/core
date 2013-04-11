@@ -18,7 +18,9 @@
  */
 package org.jboss.mbui.model.structure;
 
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
 /**
  * @author Harald Pehl

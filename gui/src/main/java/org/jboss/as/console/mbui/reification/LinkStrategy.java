@@ -5,15 +5,15 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.ballroom.client.widgets.InlineLink;
-import org.jboss.mbui.gui.behaviour.NavigationEvent;
-import org.jboss.mbui.gui.reification.Context;
-import org.jboss.mbui.gui.reification.ContextKey;
-import org.jboss.mbui.gui.reification.strategy.ReificationStrategy;
-import org.jboss.mbui.gui.reification.strategy.ReificationWidget;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.Link;
-import org.jboss.mbui.model.structure.QName;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.reification.Context;
+import org.useware.kernel.gui.reification.ContextKey;
+import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
+import org.useware.kernel.gui.reification.strategy.ReificationWidget;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.Link;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
 /**
  * @author Heiko Braun

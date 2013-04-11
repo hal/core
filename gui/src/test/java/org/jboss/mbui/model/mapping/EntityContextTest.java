@@ -18,7 +18,8 @@
  */
 package org.jboss.mbui.model.mapping;
 
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.mapping.EntityContext;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
 import org.junit.Before;
 import org.junit.Test;
 

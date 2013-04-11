@@ -18,20 +18,20 @@
  */
 package org.jboss.as.console.client.tools.mbui.workbench.repository;
 
-import static org.jboss.mbui.model.structure.TemporalOperator.Choice;
-import static org.jboss.mbui.model.structure.TemporalOperator.Concurrency;
-import static org.jboss.mbui.model.structure.as7.StereoTypes.*;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
+import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
+import static org.useware.kernel.model.structure.as7.StereoTypes.*;
 
-import org.jboss.mbui.model.Dialog;
-import org.jboss.mbui.model.mapping.Mapping;
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
-import org.jboss.mbui.model.structure.Container;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
-import org.jboss.mbui.model.structure.Select;
-import org.jboss.mbui.model.structure.Trigger;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
-import org.jboss.mbui.model.structure.impl.Builder;
+import org.useware.kernel.model.Dialog;
+import org.useware.kernel.model.mapping.Mapping;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.Select;
+import org.useware.kernel.model.structure.Trigger;
+import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.useware.kernel.model.structure.impl.Builder;
 
 /**
  * @author Harald Pehl

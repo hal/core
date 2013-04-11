@@ -27,22 +27,22 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.widgets.pages.Pages;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-import org.jboss.mbui.gui.behaviour.NavigationEvent;
-import org.jboss.mbui.gui.reification.Context;
-import org.jboss.mbui.gui.reification.ContextKey;
-import org.jboss.mbui.gui.reification.strategy.ReificationStrategy;
-import org.jboss.mbui.gui.reification.strategy.ReificationWidget;
-import org.jboss.mbui.model.behaviour.Resource;
-import org.jboss.mbui.model.behaviour.ResourceType;
-import org.jboss.mbui.model.structure.Container;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.reification.Context;
+import org.useware.kernel.gui.reification.ContextKey;
+import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
+import org.useware.kernel.gui.reification.strategy.ReificationWidget;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.jboss.mbui.model.structure.TemporalOperator.Choice;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 
 /**
  * Strategy for a container with temporal operator == Choice.

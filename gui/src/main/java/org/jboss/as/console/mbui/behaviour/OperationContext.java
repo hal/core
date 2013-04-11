@@ -2,12 +2,12 @@ package org.jboss.as.console.mbui.behaviour;
 
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
-import org.jboss.mbui.gui.behaviour.StatementContext;
-import org.jboss.mbui.model.Dialog;
-import org.jboss.mbui.model.mapping.as7.AddressMapping;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
+import org.useware.kernel.gui.behaviour.InteractionCoordinator;
+import org.useware.kernel.gui.behaviour.StatementContext;
+import org.useware.kernel.model.Dialog;
+import org.useware.kernel.model.mapping.as7.AddressMapping;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.Map;
 

@@ -1,8 +1,8 @@
 package org.jboss.mbui.model.structure;
 
-import org.jboss.mbui.model.behaviour.Behaviour;
-import org.jboss.mbui.model.behaviour.BehaviourResolution;
-import org.jboss.mbui.model.structure.QName;
+import org.useware.kernel.model.behaviour.Behaviour;
+import org.useware.kernel.model.behaviour.BehaviourResolution;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.HashMap;
 import java.util.Map;

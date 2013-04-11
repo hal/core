@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.tools.mbui.workbench.repository;
 
-import org.jboss.mbui.gui.kernel.DialogRepository;
-import org.jboss.mbui.model.Dialog;
+import org.useware.kernel.gui.kernel.DialogRepository;
+import org.useware.kernel.model.Dialog;
 
 import java.util.ArrayList;
 import java.util.List;

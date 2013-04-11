@@ -1,6 +1,7 @@
 package org.jboss.mbui.model.structure;
 
-import org.jboss.mbui.gui.behaviour.Procedure;
+import org.useware.kernel.gui.behaviour.Procedure;
+import org.useware.kernel.model.structure.QName;
 
 /**
  * @author Heiko Braun

@@ -4,19 +4,19 @@ import com.google.gwt.user.client.Window;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-import org.jboss.mbui.gui.behaviour.InteractionCoordinator;
-import org.jboss.mbui.gui.behaviour.Precondition;
-import org.jboss.mbui.gui.behaviour.Procedure;
-import org.jboss.mbui.gui.behaviour.StatementContext;
-import org.jboss.mbui.model.Dialog;
-import org.jboss.mbui.model.behaviour.Resource;
-import org.jboss.mbui.model.behaviour.ResourceType;
-import org.jboss.mbui.model.mapping.MappingType;
-import org.jboss.mbui.model.mapping.as7.AddressMapping;
-import org.jboss.mbui.model.mapping.as7.DMRMapping;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.QName;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.gui.behaviour.InteractionCoordinator;
+import org.useware.kernel.gui.behaviour.Precondition;
+import org.useware.kernel.gui.behaviour.Procedure;
+import org.useware.kernel.gui.behaviour.StatementContext;
+import org.useware.kernel.model.Dialog;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.mapping.MappingType;
+import org.useware.kernel.model.mapping.as7.AddressMapping;
+import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * Executes an operation on a DMR resource.
  * <p/>
- * The actual entity address is resolved from the {@link org.jboss.mbui.model.mapping.as7.DMRMapping}
+ * The actual entity address is resolved from the {@link org.useware.kernel.model.mapping.as7.DMRMapping}
  * attached to the {@link InteractionUnit} that triggered this procedure (justification).
  * <p/>
  * The operation name is derived from the suffix of {@link Resource} being produced.

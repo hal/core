@@ -1,7 +1,7 @@
 package org.jboss.as.console.mbui.reification;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.mbui.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.InteractionUnit;
 
 /**
  * @author Heiko Braun

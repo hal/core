@@ -1,7 +1,7 @@
 package org.jboss.as.console.mbui.behaviour;
 
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.mbui.gui.behaviour.Procedure;
+import org.useware.kernel.gui.behaviour.Procedure;
 
 /**
  * Contract between {@link Procedure}'s and business logic components

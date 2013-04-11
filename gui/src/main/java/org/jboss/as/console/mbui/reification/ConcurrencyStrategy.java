@@ -21,14 +21,14 @@ package org.jboss.as.console.mbui.reification;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.SimpleLayout;
-import org.jboss.mbui.gui.reification.Context;
-import org.jboss.mbui.gui.reification.strategy.ReificationStrategy;
-import org.jboss.mbui.gui.reification.strategy.ReificationWidget;
-import org.jboss.mbui.model.structure.Container;
-import org.jboss.mbui.model.structure.InteractionUnit;
-import org.jboss.mbui.model.structure.as7.StereoTypes;
+import org.useware.kernel.gui.reification.Context;
+import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
+import org.useware.kernel.gui.reification.strategy.ReificationWidget;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 
-import static org.jboss.mbui.model.structure.TemporalOperator.Concurrency;
+import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 
 /**
  * Strategy for a container with temporal operator Concurrency.
