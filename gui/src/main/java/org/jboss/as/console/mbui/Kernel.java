@@ -4,6 +4,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.mbui.bootstrap.ReificationBootstrap;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -20,9 +21,8 @@ import org.useware.kernel.gui.reification.pipeline.IntegrityStep;
 import org.useware.kernel.gui.reification.pipeline.ReificationPipeline;
 import org.useware.kernel.gui.reification.pipeline.StatementContextStep;
 import org.useware.kernel.gui.reification.pipeline.UniqueIdCheckStep;
-import org.useware.kernel.gui.reification.preparation.ReadOperationDescriptions;
-import org.useware.kernel.gui.reification.preparation.ReadResourceDescription;
-import org.useware.kernel.gui.reification.preparation.ReificationPreperation;
+import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
+import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
 import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.structure.QName;
@@ -108,7 +108,7 @@ public class Kernel implements NavigationDelegate {
                 @Override
                 public void execute(final Control<Context> control) {
                     ReadOperationDescriptions operationMetaData = new ReadOperationDescriptions(framework.getDispatcher());
-                    operationMetaData.prepareAsync(dialog, context, new ReificationPreperation.Callback()
+                    operationMetaData.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
                     {
                         @Override
                         public void onError(Throwable caught) {
@@ -128,8 +128,8 @@ public class Kernel implements NavigationDelegate {
             Function<Context> readResourceMetaData = new Function<Context>() {
                 @Override
                 public void execute(final Control<Context> control) {
-                    ReificationPreperation readResourceDescription = new ReadResourceDescription(framework.getDispatcher());
-                    readResourceDescription.prepareAsync(dialog, context, new ReificationPreperation.Callback()
+                    ReificationBootstrap readResourceDescription = new ReadResourceDescription(framework.getDispatcher());
+                    readResourceDescription.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
                     {
                         @Override
                         public void onSuccess()

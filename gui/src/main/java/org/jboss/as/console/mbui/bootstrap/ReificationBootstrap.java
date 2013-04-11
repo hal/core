@@ -1,4 +1,4 @@
-package org.useware.kernel.gui.reification.preparation;
+package org.jboss.as.console.mbui.bootstrap;
 
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.model.Dialog;
@@ -13,11 +13,11 @@ import org.useware.kernel.model.Dialog;
  * @author Harald Pehl
  * @date 02/22/2013
  */
-public abstract class ReificationPreperation
+public abstract class ReificationBootstrap
 {
     private final String name;
 
-    protected ReificationPreperation(final String name)
+    protected ReificationBootstrap(final String name)
     {
         this.name = name;
     }

@@ -16,11 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.gui.reification.preparation;
+package org.jboss.as.console.mbui.bootstrap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -30,12 +29,15 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.model.Dialog;
-import org.useware.kernel.model.mapping.Predicate;
+import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.as7.AddressMapping;
 import org.useware.kernel.model.mapping.as7.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.Trigger;
+import org.useware.kernel.model.structure.as7.StereoTypes;
 import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
 
 import java.util.ArrayList;
@@ -47,22 +49,23 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.useware.kernel.gui.reification.ContextKey.MODEL_DESCRIPTIONS;
 import static org.useware.kernel.model.mapping.MappingType.DMR;
 
 /**
- * TODO Implement caching for resource descriptions (memory, local storage, ...)
  *
- * @author Harald Pehl
+ * Reads the operation meta data associated to {@link Trigger} units.
+ *
+ * @author Heiko Braun
  * @date 11/12/2012
  */
-public class ReadResourceDescription extends ReificationPreperation
+public class ReadOperationDescriptions extends ReificationBootstrap
 {
     final DispatchAsync dispatcher;
+    private static final QName RESOURCE_OP = QName.valueOf("org.jboss.as:resource-operation");
 
-    public ReadResourceDescription(final DispatchAsync dispatcher)
+    public ReadOperationDescriptions(final DispatchAsync dispatcher)
     {
-        super("read resource description");
+        super("read operation description");
         this.dispatcher = dispatcher;
     }
 
@@ -103,32 +106,30 @@ public class ReadResourceDescription extends ReificationPreperation
                 {
                     ModelNode stepResponse = response.get(RESULT).get(step);
 
-                    // might be a LIST response type (resource=*:read-resource-description)
-                    ModelNode description = ModelType.LIST == stepResponse.get(RESULT).getType() ?
-                            stepResponse.get(RESULT).asList().get(0).get(RESULT).asObject() :
-                            stepResponse.get(RESULT).asObject();
-
-
-                    if (!context.has(MODEL_DESCRIPTIONS))
+                    if (!context.has(ContextKey.OPERATION_DESCRIPTIONS))
                     {
-                        context.set(MODEL_DESCRIPTIONS, new HashMap<QName, ModelNode>());
+                        context.set(ContextKey.OPERATION_DESCRIPTIONS, new HashMap<QName, ModelNode>());
                     }
 
-                    DMRMapping mapping = (DMRMapping) visitor.stepReference.get(step).findMapping(DMR);
-                    context.<Map>get(MODEL_DESCRIPTIONS).put(mapping.getCorrelationId(), description);
+                    Resource<ResourceType> output = visitor.stepReference.get(step);
+                    ModelNode operationMetaData = stepResponse.get(RESULT);
+                    context.<Map>get(ContextKey.OPERATION_DESCRIPTIONS).put(output.getId(), operationMetaData);
+
+                    //System.out.println(output.getId() + " > " + operationMetaData);
                 }
                 callback.onSuccess();
             }
         });
+
     }
 
 
-    class CollectOperationsVisitor implements InteractionUnitVisitor
+    class CollectOperationsVisitor implements InteractionUnitVisitor<StereoTypes>
     {
         final Context context;
         List<ModelNode> steps = new ArrayList<ModelNode>();
-        Set<String> resolvedAdresses = new HashSet<String>();
-        Map<String, InteractionUnit> stepReference = new HashMap<String, InteractionUnit>();
+        Set<QName> resolvedOperations = new HashSet<QName>();
+        Map<String, Resource<ResourceType>> stepReference = new HashMap<String, Resource<ResourceType>>();
 
         public CollectOperationsVisitor(final Context context)
         {
@@ -138,13 +139,15 @@ public class ReadResourceDescription extends ReificationPreperation
         @Override
         public void startVisit(final Container container)
         {
-            addStep(container);
+            // ignore
         }
 
         @Override
-        public void visit(final InteractionUnit interactionUnit)
+        public void visit(final InteractionUnit<StereoTypes> interactionUnit)
         {
-            addStep(interactionUnit);
+            if(interactionUnit instanceof Trigger
+                    && interactionUnit.doesProduce())
+                addStep((Trigger) interactionUnit);
         }
 
         @Override
@@ -153,62 +156,63 @@ public class ReadResourceDescription extends ReificationPreperation
             // noop
         }
 
-        private void addStep(InteractionUnit interactionUnit)
+        private void addStep(Trigger<StereoTypes> interactionUnit)
         {
             InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
 
             final StatementContext delegate = coordinator.getStatementScope().getContext(interactionUnit.getId());
             assert delegate != null : "StatementContext not provided";
+            assert interactionUnit.doesProduce();
 
-            DMRMapping mapping = (DMRMapping) interactionUnit.findMapping(DMR, new Predicate<DMRMapping>()
+            Resource<ResourceType> output = interactionUnit.getOutputs().iterator().next();
+
+            // skip unqualified trigger that don't point to a resource operation
+            if(!output.getId().equalsIgnoreSuffix(RESOURCE_OP))
+                return;
+
+            String operationName = output.getId().getSuffix();
+            if(operationName==null)
+                throw new IllegalArgumentException("Illegal operation name mapping: "+ output.getId()+ " (suffix required)");
+
+            DMRMapping mapping = interactionUnit.findMapping(DMR);
+            String address = mapping.getAddress();
+
+            if (!resolvedOperations.contains(output.getId()))
             {
-                @Override
-                public boolean appliesTo(final DMRMapping candidate)
+                AddressMapping addressMapping = AddressMapping.fromString(address);
+                ModelNode op = addressMapping.asResource(new DelegatingStatementContext()
                 {
-                    // the read-resource operation only needs the address of a resource
-                    // hence we can skip mapping without address declarations (i.e. just attributes)
-                    return candidate.getAddress() != null;
-                }
-            });
-            if (mapping != null)
-            {
-                String address = mapping.getAddress();
-                if (!resolvedAdresses.contains(address))
-                {
-                    AddressMapping addressMapping = AddressMapping.fromString(address);
-                    ModelNode op = addressMapping.asResource(new DelegatingStatementContext()
+                    @Override
+                    public String resolve(String key)
                     {
-                        @Override
-                        public String resolve(String key)
-                        {
-                            // fallback strategy for values that are created at runtime, i.e. datasource={selected.entity}
-                            String resolved = delegate.resolve(key);
-                            if (null == resolved) { resolved = "*"; }
-                            return resolved;
-                        }
+                        // fallback strategy for values that are created at runtime, i.e. datasource={selected.entity}
+                        String resolved = delegate.resolve(key);
+                        if (null == resolved) { resolved = "*"; }
+                        return resolved;
+                    }
 
-                        @Override
-                        public String[] resolveTuple(String key)
-                        {
-                            return delegate.resolveTuple(key);
-                        }
+                    @Override
+                    public String[] resolveTuple(String key)
+                    {
+                        return delegate.resolveTuple(key);
+                    }
 
-                        @Override
-                        public LinkedList<String> collect(String key) {
-                            LinkedList<String> items = new LinkedList<String>();
-                            items.add("*");
-                            return items;
-                        }
+                    @Override
+                    public LinkedList<String> collect(String key) {
+                        LinkedList<String> items = new LinkedList<String>();
+                        items.add("*");
+                        return items;
+                    }
+                });
+                op.get(OP).set(READ_OPERATION_DESCRIPTION_OPERATION);
+                op.get(NAME).set(operationName);
 
-                    });
+                steps.add(op);
 
-                    op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-                    steps.add(op);
-
-                    resolvedAdresses.add(address);
-                    stepReference.put("step-" + steps.size(), interactionUnit);
-                }
+                resolvedOperations.add(output.getId());
+                stepReference.put("step-" + steps.size(), output);
             }
+
         }
     }
 }
