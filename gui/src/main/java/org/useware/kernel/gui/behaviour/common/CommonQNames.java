@@ -10,6 +10,6 @@ public class CommonQNames {
 
     public final static QName SELECT_ID = QName.valueOf("org.useware:select");
     public final static QName RESET_ID = QName.valueOf("org.useware:reset");
-    public final static QName LOAD_ID = QName.valueOf("org.useware:load");
-    public final static QName SAVE_ID = QName.valueOf("org.useware:save");
+    public final static QName NAVIGATION_ID = QName.valueOf("org.useware:navigation");
+    public final static QName ACTIVATION_ID = QName.valueOf("org.useware:activate");
 }

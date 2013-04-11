@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.ballroom.client.widgets.InlineLink;
 import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
@@ -59,7 +60,7 @@ public class LinkStrategy implements ReificationStrategy<ReificationWidget, Ster
                     QName target = ((Link)interactionUnit).getTarget();
 
                     NavigationEvent navigationEvent  = new NavigationEvent(
-                            NavigationEvent.ID, target
+                            CommonQNames.NAVIGATION_ID, target
                     );
 
                     eventBus.fireEventFromSource(

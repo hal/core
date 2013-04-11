@@ -26,6 +26,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.InteractionEvent;
@@ -183,7 +184,7 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
                     dataProvider.refresh();
 
                     // request loading of data
-                    InteractionEvent reset = new InteractionEvent(CommonQNames.LOAD_ID);
+                    InteractionEvent reset = new InteractionEvent(JBossQNames.LOAD_ID);
 
                     // update interaction units
                     coordinator.fireEventFromSource(
@@ -219,7 +220,7 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
                     );
 
             getInteractionUnit().setOutputs(
-                    new Resource<ResourceType>(CommonQNames.LOAD_ID, ResourceType.Interaction),
+                    new Resource<ResourceType>(JBossQNames.LOAD_ID, ResourceType.Interaction),
                     new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement)
             );
 

@@ -1,6 +1,7 @@
 package org.useware.kernel.model.structure;
 
 import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 
@@ -18,7 +19,7 @@ public class Link<S extends Enum<S>> extends InteractionUnit<S> {
         this.target = target;
 
         // explicit output
-        setOutputs(new Resource<ResourceType>(NavigationEvent.ID, ResourceType.Navigation));
+        setOutputs(new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation));
     }
 
     public QName getTarget() {

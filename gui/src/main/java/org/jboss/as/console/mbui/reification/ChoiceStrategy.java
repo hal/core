@@ -28,6 +28,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.widgets.pages.Pages;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
@@ -178,7 +179,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
 
             // complement model
-            Resource<ResourceType> navigation = new Resource<ResourceType>(NavigationEvent.ID, ResourceType.Navigation);
+            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
             //Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
 
             getInteractionUnit().setOutputs(navigation);

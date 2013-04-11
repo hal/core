@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -36,6 +37,7 @@ import org.jboss.dmr.client.Property;
 import org.useware.kernel.gui.behaviour.InteractionEvent;
 import org.useware.kernel.gui.behaviour.PresentationEvent;
 import org.useware.kernel.gui.behaviour.SystemEvent;
+import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
@@ -238,7 +240,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                         @Override
                         public void onSave(Map<String, Object> changeset) {
 
-                            InteractionEvent saveEvent = new InteractionEvent(SAVE_ID);
+                            InteractionEvent saveEvent = new InteractionEvent(JBossQNames.SAVE_ID);
                             saveEvent.setPayload(form.getChangedValues());
 
                             coordinator.fireEventFromSource(
@@ -263,7 +265,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
             coordinator.addHandler(SystemEvent.TYPE, new SystemEvent.Handler() {
                 @Override
                 public boolean accepts(SystemEvent event) {
-                    return event.getId().equals(RESET_ID) ;
+                    return event.getId().equals(CommonQNames.RESET_ID) ;
                 }
 
                 @Override
@@ -274,7 +276,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                         @Override
                         public void execute() {
                             // request loading of data
-                            InteractionEvent loadEvent = new InteractionEvent(LOAD_ID);
+                            InteractionEvent loadEvent = new InteractionEvent(JBossQNames.LOAD_ID);
 
                             // update interaction units
                             coordinator.fireEventFromSource(
@@ -311,8 +313,8 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
 
             // Register inputs and outputs
 
-            Resource<ResourceType> saveEvent = new Resource<ResourceType>(SAVE_ID, Interaction);
-            Resource<ResourceType> loadEvent = new Resource<ResourceType>(LOAD_ID, Interaction);
+            Resource<ResourceType> saveEvent = new Resource<ResourceType>(JBossQNames.SAVE_ID, Interaction);
+            Resource<ResourceType> loadEvent = new Resource<ResourceType>(JBossQNames.LOAD_ID, Interaction);
             Resource<ResourceType> reset = new Resource<ResourceType>(RESET_ID, System);
             Resource<ResourceType> update = new Resource<ResourceType>(getInteractionUnit().getId(), Presentation);
 

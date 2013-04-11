@@ -38,8 +38,8 @@ import org.jboss.as.console.client.tools.mbui.workbench.repository.SampleReposit
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.useware.kernel.gui.kernel.Framework;
-import org.useware.kernel.gui.kernel.Kernel;
+import org.jboss.as.console.mbui.Framework;
+import org.jboss.as.console.mbui.Kernel;
 import org.useware.kernel.model.structure.QName;
 
 import static org.jboss.as.console.client.tools.mbui.workbench.NameTokens.preview;

@@ -1,21 +1,21 @@
-package org.useware.kernel.gui.kernel;
+package org.jboss.as.console.mbui;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.tools.mbui.workbench.repository.SampleRepository;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
+import org.useware.kernel.gui.behaviour.KernelContract;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
-import org.useware.kernel.gui.reification.pipeline.BuildUserInterfaceStep;
-import org.useware.kernel.gui.reification.pipeline.ImplicitBehaviourStep;
+import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
+import org.jboss.as.console.mbui.reification.pipeline.ImplicitBehaviourStep;
 import org.useware.kernel.gui.reification.pipeline.IntegrityStep;
 import org.useware.kernel.gui.reification.pipeline.ReificationPipeline;
 import org.useware.kernel.gui.reification.pipeline.StatementContextStep;
@@ -36,16 +36,16 @@ import java.util.Map;
  */
 public class Kernel implements NavigationDelegate {
 
-    private SampleRepository repository;
+    private DialogRepository repository;
     private final StatementContext globalContext;
 
-    private Map<String, InteractionCoordinator> coordinators = new HashMap<String, InteractionCoordinator>();
+    private Map<String, KernelContract> coordinators = new HashMap<String, KernelContract>();
     private Map<String, ReificationWidget> cachedWidgets = new HashMap<String, ReificationWidget>();
     private String activeDialog;
     private final Framework framework;
 
     public Kernel(DialogRepository repository, Framework framework, StatementContext globalContext) {
-        this.repository = (SampleRepository)repository;
+        this.repository = repository;
         this.globalContext = globalContext;
         this.framework = framework;
     }
@@ -199,7 +199,7 @@ public class Kernel implements NavigationDelegate {
         getActiveCoordinator().reset();
     }
 
-    private InteractionCoordinator getActiveCoordinator() {
+    private KernelContract getActiveCoordinator() {
         return coordinators.get(activeDialog);
     }
 

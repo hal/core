@@ -15,11 +15,10 @@ import org.useware.kernel.model.structure.QName;
  */
 public class ActivationProcedure extends Procedure {
 
-    public final static QName ID = QName.valueOf("org.jboss.as:activate");
     Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
 
     public ActivationProcedure(final InteractionCoordinator coordinator) {
-        super(ID);
+        super(CommonQNames.ACTIVATION_ID);
         this.coordinator = coordinator;
 
 

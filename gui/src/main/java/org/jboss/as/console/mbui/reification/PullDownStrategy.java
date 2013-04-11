@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.InteractionEvent;
@@ -105,7 +106,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
                     comboBox.clear();
 
                     // request loading of data
-                    InteractionEvent reset = new InteractionEvent(CommonQNames.LOAD_ID);
+                    InteractionEvent reset = new InteractionEvent(JBossQNames.LOAD_ID);
 
                     // update interaction units
                     eventBus.fireEventFromSource(
@@ -159,7 +160,7 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
             );
 
             getInteractionUnit().setOutputs(
-                    new Resource<ResourceType>(CommonQNames.LOAD_ID, ResourceType.Interaction),
+                    new Resource<ResourceType>(JBossQNames.LOAD_ID, ResourceType.Interaction),
                     new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement)
             );
 

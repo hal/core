@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.gui.reification.pipeline;
+package org.jboss.as.console.mbui.reification.pipeline;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,6 +29,7 @@ import org.jboss.as.console.mbui.reification.DeactivationStrategy;
 import org.jboss.as.console.mbui.reification.FormStrategy;
 import org.jboss.as.console.mbui.reification.LinkStrategy;
 import org.jboss.as.console.mbui.reification.PullDownStrategy;
+import org.useware.kernel.gui.reification.pipeline.ReificationStep;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
 import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.jboss.as.console.mbui.reification.SelectStrategy;

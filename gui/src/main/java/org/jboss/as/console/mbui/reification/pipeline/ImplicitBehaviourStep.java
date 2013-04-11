@@ -1,4 +1,4 @@
-package org.useware.kernel.gui.reification.pipeline;
+package org.jboss.as.console.mbui.reification.pipeline;
 
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
@@ -9,6 +9,7 @@ import org.jboss.as.console.mbui.behaviour.SaveChangesetProcedure;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.ReificationException;
+import org.useware.kernel.gui.reification.pipeline.ReificationStep;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;

@@ -35,11 +35,7 @@ public class InteractionCoordinator implements KernelContract,
         InteractionEvent.InteractionHandler, NavigationEvent.NavigationHandler,
         StatementEvent.StatementHandler, BehaviourExecution {
 
-    private static final String PROJECT_NAMESPACE = "org.jboss.as";
-
-    final static SystemEvent RESET = new SystemEvent(new QName(PROJECT_NAMESPACE, "reset"));
-
-    final static SystemEvent REVEAL = new SystemEvent(new QName(PROJECT_NAMESPACE, "reveal"));
+    final static SystemEvent RESET = new SystemEvent(CommonQNames.RESET_ID);
 
     // a bus scoped to this coordinator and the associated models
     private EventBus bus;
@@ -227,7 +223,7 @@ public class InteractionCoordinator implements KernelContract,
             }
             else // absolute, local
             {
-                Procedure activateProcedure = procedures.getSingle(ActivationProcedure.ID);
+                Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
                 activateProcedure.getCommand().execute(dialog, targetUnit.getId());
             }
         }
