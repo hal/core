@@ -8,6 +8,7 @@ import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import org.jboss.as.console.mbui.behaviour.ActivationProcedure;
+import org.jboss.as.console.mbui.behaviour.GlobalQNames;
 import org.jboss.as.console.mbui.behaviour.NavigationProcedure;
 import org.jboss.as.console.mbui.behaviour.SelectStatementProcedure;
 import org.jboss.mbui.model.Dialog;
@@ -248,7 +249,7 @@ public class InteractionCoordinator implements KernelContract,
 
         Log.debug("StatementEvent " + event.getKey() + "=" + event.getValue());
 
-        Procedure stmtProcedure = procedures.getSingle(SelectStatementProcedure.ID);
+        Procedure stmtProcedure = procedures.getSingle(GlobalQNames.SELECT_ID);
         stmtProcedure.getCommand().execute(dialog, event);
 
     }
