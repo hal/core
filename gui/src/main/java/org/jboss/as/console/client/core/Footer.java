@@ -84,7 +84,7 @@ public class Footer {
         }
 
         // TODO: exclude from prod build
-        toolReference.add(new String[] {"MBUI Workbench", "mbui-workbench"});
+        toolReference.add(new String[] {"Modelling", "mbui-workbench"});
 
         final VerticalPanel toolsList = new VerticalPanel();
         toolsList.getElement().setAttribute("width", "160px");
