@@ -1,0 +1,138 @@
+package org.useware.kernel.model;
+
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.junit.Before;
+import org.junit.Test;
+import org.useware.kernel.gui.behaviour.StatementContext;
+import org.useware.kernel.gui.behaviour.StatementScope;
+import org.useware.kernel.model.mapping.Mapping;
+import org.useware.kernel.model.scopes.InterfaceStructureShim;
+import org.useware.kernel.model.scopes.ScopeAssignment;
+import org.useware.kernel.model.structure.Container;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.builder.Builder;
+
+import java.util.LinkedList;
+
+import static org.jboss.as.console.mbui.model.StereoTypes.Form;
+import static org.junit.Assert.*;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
+
+/**
+ * Verify scope assignment semantics.
+ *
+ * @author Heiko Braun
+ * @date 4/12/13
+ */
+public class ScopeTest {
+
+    private Dialog dialog;
+    private static String ns = "org.jboss.transactions";
+    private ScopeAssignment scopeAssignment;
+
+    static final QName basicAttributes = new QName(ns, "transactionManager#basicAttributes");
+    static final QName processAttributes = new QName(ns, "transactionManager#processAttributes");
+    static final QName recoveryAttributes = new QName(ns, "transactionManager#recoveryAttributes");
+
+    @Before
+    public void setUp()
+    {
+        Container overview = new Container(ns, "transactionManager", "TransactionManager");
+
+        Container basicAttributes = new Container(ns, "transactionManager#basicAttributes", "Attributes",Form);
+
+        Container details = new Container(ns, "configGroups", "Details", Choice);
+
+        Container processAttributes = new Container(ns, "transactionManager#processAttributes", "Process ID",Form);
+
+        Container recoveryAttributes = new Container(ns, "transactionManager#recoveryAttributes", "Recovery",Form);
+
+        // structure & mapping
+        InteractionUnit root = new Builder()
+                .start(overview)
+                    .add(basicAttributes)
+                    .start(details)
+                        .add(processAttributes)
+                        .add(recoveryAttributes)
+                    .end()
+                .end()
+        .build();
+
+        this.dialog = new Dialog(QName.valueOf("org.jboss.as:transaction-subsystem"), root);
+
+        // assign scopes
+        scopeAssignment = new ScopeAssignment();
+        dialog.getInterfaceModel().accept(scopeAssignment);
+        dialog.setScopeModel(scopeAssignment.getShim());
+    }
+
+    @Test
+    public void testScopeAssignment()
+    {
+
+        assertEquals("Expected 3 scopes within model", 3, scopeAssignment.getContextIds().size());
+
+        InterfaceStructureShim<Integer> shim = scopeAssignment.getShim();
+        Integer basicAttScope = shim.findNode(basicAttributes).getData();
+        Integer processAttScope = shim.findNode(processAttributes).getData();
+        Integer recoveryAttScope = shim.findNode(recoveryAttributes).getData();
+
+        // choice operators create separate scopes for container children
+        assertNotEquals("Unit's should not share the same scope", basicAttScope, processAttScope);
+        assertNotEquals("Unit's should not share the same scope", processAttScope, recoveryAttScope);
+    }
+
+    @Test
+    public void testStatementResolution() {
+        StatementScope statementScope = new StatementScope(dialog, new StatementContext() {
+            @Override
+            public String get(String key) {
+                return null;
+            }
+
+            @Override
+            public String[] getTuple(String key) {
+                return null;
+            }
+
+            @Override
+            public String resolve(String key) {
+                return null;
+            }
+
+            @Override
+            public String[] resolveTuple(String key) {
+                return null;
+            }
+
+            @Override
+            public LinkedList<String> collect(String key) {
+                return null;
+            }
+
+            @Override
+            public LinkedList<String[]> collectTuples(String key) {
+                return null;
+            }
+        });
+
+        // statement resolved form parent scope
+        statementScope.setStatement(basicAttributes, "foo", "bar");
+        String statement = statementScope.getContext(processAttributes).resolve("foo");
+        assertNotNull("Statement should be resolved from parent scope", statement);
+        assertEquals("bar", statement);
+
+        // child scope overrides statement
+        statementScope.setStatement(processAttributes, "foo", "anotherBar");
+        statement = statementScope.getContext(processAttributes).resolve("foo");
+        assertEquals("anotherBar", statement);
+
+        // collect statement across scopes
+        LinkedList<String> statements = statementScope.getContext(processAttributes).collect("foo");
+        assertTrue("Expected two statement for key 'foo'", statements.size()==2);
+        assertTrue("Expected correct statement values in right order", statements.get(0).equals("anotherBar"));
+        assertTrue("Expected correct statement values in right order", statements.get(1).equals("bar"));
+    }
+
+}

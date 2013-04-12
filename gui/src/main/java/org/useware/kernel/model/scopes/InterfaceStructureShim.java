@@ -7,6 +7,14 @@ import org.useware.kernel.model.structure.QName;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A mirror representation of the dialog structure.
+ * It is used to create associated models without overloading the actual interface model.
+ *
+ * @param <T> the data assigned to a node in the structure model.
+ *
+ * @author Heiko Braun
+ */
 public class InterfaceStructureShim<T> {
 
     private Node<T> rootElement;

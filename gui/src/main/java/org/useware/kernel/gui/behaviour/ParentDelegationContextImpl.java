@@ -115,7 +115,8 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         }
 
         // last but not least: external context
-        resolvedValues.addAll(externalContext.collect(key));
+        LinkedList<String> external = externalContext.collect(key);
+        if(external!=null) resolvedValues.addAll(external);
 
         return resolvedValues;
     }
@@ -140,7 +141,8 @@ class ParentDelegationContextImpl implements StatementScope.MutableContext{
         }
 
         // last but not least: external context
-        resolvedTuple.addAll(externalContext.collectTuples(key));
+        LinkedList<String[]> external = externalContext.collectTuples(key);
+        if(external!=null) resolvedTuple.addAll(external);
 
         return resolvedTuple;
     }
