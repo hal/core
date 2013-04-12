@@ -14,7 +14,7 @@ import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.Link;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 /**
  * @author Heiko Braun

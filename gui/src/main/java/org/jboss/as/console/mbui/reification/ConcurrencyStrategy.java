@@ -26,7 +26,7 @@ import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
 import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 

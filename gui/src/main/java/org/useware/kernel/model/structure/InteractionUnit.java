@@ -25,9 +25,9 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.mapping.Predicate;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
-import org.useware.kernel.model.structure.impl.ResourceConsumption;
-import org.useware.kernel.model.structure.impl.ResourceProduction;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.ResourceConsumption;
+import org.useware.kernel.model.structure.builder.ResourceProduction;
 
 import java.util.EnumMap;
 import java.util.Map;

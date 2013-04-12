@@ -16,8 +16,8 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.as7.StereoTypes;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.jboss.as.console.mbui.model.StereoTypes;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.Collections;
 import java.util.Map;

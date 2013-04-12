@@ -16,13 +16,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.mbui;
+package org.useware.kernel.model.structure;
+
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 /**
  * @author Harald Pehl
- * @date 11/14/2012
+ * @date 10/31/2012
  */
-public interface TestNamespace
+public class TestableInteractionUnit extends InteractionUnit<StereoTypes>
 {
-    String NAMESPACE = "org.jboss.test";
+    public TestableInteractionUnit(final String namespace, final String id, final String label)
+    {
+        super(new QName(namespace, id), label, null);
+    }
 }

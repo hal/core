@@ -4,7 +4,7 @@ import org.useware.kernel.model.mapping.Tree;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 /**
  * A dialog contains a set of hierarchically structured abstract interaction objects,

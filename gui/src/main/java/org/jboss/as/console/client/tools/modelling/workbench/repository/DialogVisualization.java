@@ -11,7 +11,7 @@ import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.TemporalOperator;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.Stack;
 

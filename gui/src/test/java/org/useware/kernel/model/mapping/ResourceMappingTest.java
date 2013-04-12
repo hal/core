@@ -16,9 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.mbui.model.mapping;
+package org.useware.kernel.model.mapping;
 
-import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -21,7 +21,7 @@ import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.List;
 

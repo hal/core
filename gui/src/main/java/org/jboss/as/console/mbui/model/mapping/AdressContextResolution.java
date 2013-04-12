@@ -1,4 +1,4 @@
-package org.useware.kernel.model.mapping.as7;
+package org.jboss.as.console.mbui.model.mapping;
 
 /**
  * Resolves an address mapping against a statement context.

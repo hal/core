@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.model.mapping.as7;
+package org.jboss.as.console.mbui.model.mapping;
 
 /**
  * @author Harald Pehl

@@ -12,11 +12,11 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
-import org.useware.kernel.model.mapping.as7.AddressMapping;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.Set;
 /**
  * Executes an operation on a DMR resource.
  * <p/>
- * The actual entity address is resolved from the {@link org.useware.kernel.model.mapping.as7.DMRMapping}
+ * The actual entity address is resolved from the {@link org.jboss.as.console.mbui.model.mapping.DMRMapping}
  * attached to the {@link InteractionUnit} that triggered this procedure (justification).
  * <p/>
  * The operation name is derived from the suffix of {@link Resource} being produced.

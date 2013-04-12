@@ -38,8 +38,8 @@ import org.jboss.as.console.mbui.reification.TriggerStrategy;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.as7.StereoTypes;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.jboss.as.console.mbui.model.StereoTypes;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.LinkedList;
 import java.util.List;

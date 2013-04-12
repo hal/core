@@ -6,8 +6,8 @@ import org.useware.kernel.model.behaviour.Producer;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.impl.ResourceConsumption;
-import org.useware.kernel.model.structure.impl.ResourceProduction;
+import org.useware.kernel.model.structure.builder.ResourceConsumption;
+import org.useware.kernel.model.structure.builder.ResourceProduction;
 
 import java.util.Set;
 

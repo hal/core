@@ -20,15 +20,15 @@ package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Mapping;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.impl.Builder;
+import org.useware.kernel.model.structure.builder.Builder;
 
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 
-import static org.useware.kernel.model.structure.as7.StereoTypes.*;
+import static org.jboss.as.console.mbui.model.StereoTypes.*;
 
 /**
  * @author Harald Pehl

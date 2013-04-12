@@ -31,12 +31,12 @@ import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Predicate;
-import org.useware.kernel.model.mapping.as7.AddressMapping;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;

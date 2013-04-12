@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.widgets.pages.Pages;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-import org.useware.kernel.gui.behaviour.NavigationEvent;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
@@ -38,7 +37,7 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.HashMap;
 import java.util.Map;

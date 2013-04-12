@@ -16,20 +16,45 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.model.structure.impl;
+package org.useware.kernel.model.structure;
 
-import org.useware.kernel.model.structure.Container;
-import org.useware.kernel.model.structure.InteractionUnit;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.useware.kernel.TestNamespace.NAMESPACE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * @author Harald Pehl
- * @date 11/14/2012
+ * @date 10/26/2012
  */
-public interface InteractionUnitVisitor<S extends Enum<S>>
+public class ContainerTest
 {
-    void startVisit(Container container);
+    Container cut;
 
-    void visit(InteractionUnit<S> interactionUnit);
+    @Before
+    public void setUp()
+    {
+        this.cut = new Container(NAMESPACE, "test", "Test", TemporalOperator.Choice);
+    }
 
-    void endVisit(Container container);
+    @Test
+    public void parentChild()
+    {
+        InteractionUnit foo = new TestableInteractionUnit(NAMESPACE, "foo", "Foo");
+        InteractionUnit bar = new TestableInteractionUnit(NAMESPACE, "bar", "Bar");
+
+        cut.add(foo);
+        assertEquals(foo, cut.getChildren().get(0));
+
+        cut.add(bar);
+        assertEquals(bar, cut.getChildren().get(1));
+
+        cut.remove(bar);
+        assertFalse(cut.getChildren().contains(bar));
+
+        cut.remove(foo);
+        assertFalse(cut.getChildren().contains(foo));
+    }
 }

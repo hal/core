@@ -1,4 +1,4 @@
-package org.useware.kernel.model.structure.impl;
+package org.useware.kernel.model.structure.builder;
 
 import org.useware.kernel.model.behaviour.Consumer;
 import org.useware.kernel.model.behaviour.ResourceType;

@@ -16,22 +16,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.mbui.model.structure;
+package org.useware.kernel.model.structure;
 
-import static org.jboss.mbui.TestNamespace.NAMESPACE;
+import static org.useware.kernel.TestNamespace.NAMESPACE;
 import static org.useware.kernel.model.structure.TemporalOperator.*;
-import static org.useware.kernel.model.structure.as7.StereoTypes.EditorPanel;
-import static org.useware.kernel.model.structure.as7.StereoTypes.Form;
+import static org.jboss.as.console.mbui.model.StereoTypes.EditorPanel;
+import static org.jboss.as.console.mbui.model.StereoTypes.Form;
 import static org.junit.Assert.assertEquals;
 
 import org.useware.kernel.model.mapping.Mapping;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
-import org.useware.kernel.model.structure.Container;
-import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.Select;
-import org.useware.kernel.model.structure.as7.StereoTypes;
-import org.useware.kernel.model.structure.impl.Builder;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.jboss.as.console.mbui.model.StereoTypes;
+import org.useware.kernel.model.structure.builder.Builder;
 import org.junit.Before;
 import org.junit.Test;
 

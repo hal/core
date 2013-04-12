@@ -16,48 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.mbui.model.structure;
+package org.useware.kernel.model.structure.builder;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.TemporalOperator;
-
-import static org.jboss.mbui.TestNamespace.NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 /**
  * @author Harald Pehl
- * @date 10/26/2012
+ * @date 11/14/2012
  */
-public class ContainerTest
+public interface InteractionUnitVisitor<S extends Enum<S>>
 {
-    Container cut;
+    void startVisit(Container container);
 
-    @Before
-    public void setUp()
-    {
-        this.cut = new Container(NAMESPACE, "test", "Test", TemporalOperator.Choice);
-    }
+    void visit(InteractionUnit<S> interactionUnit);
 
-    @Test
-    public void parentChild()
-    {
-        InteractionUnit foo = new TestableInteractionUnit(NAMESPACE, "foo", "Foo");
-        InteractionUnit bar = new TestableInteractionUnit(NAMESPACE, "bar", "Bar");
-
-        cut.add(foo);
-        assertEquals(foo, cut.getChildren().get(0));
-
-        cut.add(bar);
-        assertEquals(bar, cut.getChildren().get(1));
-
-        cut.remove(bar);
-        assertFalse(cut.getChildren().contains(bar));
-
-        cut.remove(foo);
-        assertFalse(cut.getChildren().contains(foo));
-    }
+    void endVisit(Container container);
 }

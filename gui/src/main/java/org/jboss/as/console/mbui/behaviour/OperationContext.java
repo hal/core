@@ -5,7 +5,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.model.Dialog;
-import org.useware.kernel.model.mapping.as7.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 

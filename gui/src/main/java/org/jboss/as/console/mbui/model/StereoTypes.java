@@ -1,4 +1,4 @@
-package org.useware.kernel.model.structure.as7;
+package org.jboss.as.console.mbui.model;
 
 /**
  * @author Heiko Braun

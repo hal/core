@@ -1,4 +1,4 @@
-package org.useware.kernel.model.mapping.as7;
+package org.jboss.as.console.mbui.model.mapping;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.dmr.client.ModelNode;

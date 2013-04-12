@@ -9,7 +9,7 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 /**
  * @author Harald Pehl

@@ -18,7 +18,7 @@
  */
 package org.useware.kernel.model.structure;
 
-import org.useware.kernel.model.structure.impl.InteractionUnitVisitor;
+import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.LinkedList;
 import java.util.List;

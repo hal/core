@@ -16,9 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.mbui.model.structure;
+package org.useware.kernel.model.structure;
 
-import static org.jboss.mbui.TestNamespace.NAMESPACE;
+import static org.useware.kernel.TestNamespace.NAMESPACE;
 import static org.useware.kernel.model.behaviour.ResourceType.Interaction;
 import static org.useware.kernel.model.behaviour.ResourceType.Presentation;
 import static org.useware.kernel.model.mapping.MappingType.DMR;
@@ -34,16 +34,10 @@ import org.useware.kernel.model.behaviour.Behaviour;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.Predicate;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
-import org.useware.kernel.model.structure.Container;
-import org.useware.kernel.model.structure.InteractionUnit;
-import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.Select;
-import org.useware.kernel.model.structure.TemporalOperator;
-import org.useware.kernel.model.structure.impl.Builder;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.useware.kernel.model.structure.builder.Builder;
 import org.junit.Before;
 import org.junit.Test;
-import org.useware.kernel.model.structure.Input;
 
 /**
  * @author Harald Pehl

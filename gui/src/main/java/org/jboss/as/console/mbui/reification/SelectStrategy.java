@@ -42,11 +42,11 @@ import org.jboss.as.console.mbui.widgets.ModelNodeCellTable;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
-import org.useware.kernel.model.mapping.as7.ResourceAttribute;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.Select;
-import org.useware.kernel.model.structure.as7.StereoTypes;
+import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.List;
 

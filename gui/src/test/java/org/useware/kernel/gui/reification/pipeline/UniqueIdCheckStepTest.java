@@ -1,4 +1,4 @@
-package org.jboss.mbui.gui.reification.pipeline;
+package org.useware.kernel.gui.reification.pipeline;
 
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
@@ -7,14 +7,12 @@ import static org.junit.Assert.fail;
 
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ReificationException;
-import org.useware.kernel.gui.reification.pipeline.ReificationPipeline;
-import org.useware.kernel.gui.reification.pipeline.UniqueIdCheckStep;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.Select;
-import org.useware.kernel.model.structure.impl.Builder;
+import org.useware.kernel.model.structure.builder.Builder;
 import org.junit.Before;
 import org.junit.Test;
 

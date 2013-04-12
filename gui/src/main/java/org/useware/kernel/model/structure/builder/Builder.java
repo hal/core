@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.model.structure.impl;
+package org.useware.kernel.model.structure.builder;
 
 import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.structure.Container;

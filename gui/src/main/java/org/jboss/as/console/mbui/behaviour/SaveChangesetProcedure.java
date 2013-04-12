@@ -13,8 +13,8 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
-import org.useware.kernel.model.mapping.as7.AddressMapping;
-import org.useware.kernel.model.mapping.as7.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -27,7 +27,7 @@ import java.util.HashMap;
  * <p/>
  * The {@link org.useware.kernel.gui.behaviour.StatementContext} is used to resolve the resource parent context (i.e. profile, server, host).
  * <p/>
- * The actual address is resolved from the {@link org.useware.kernel.model.mapping.as7.DMRMapping} attached to the {@link InteractionUnit} that triggered this procedure (justification).
+ * The actual address is resolved from the {@link org.jboss.as.console.mbui.model.mapping.DMRMapping} attached to the {@link InteractionUnit} that triggered this procedure (justification).
  *
  * @see org.useware.kernel.gui.behaviour.InteractionEvent#getSource()
  *
