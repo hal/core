@@ -1,6 +1,6 @@
 package org.useware.kernel.model;
 
-import org.useware.kernel.model.mapping.Tree;
+import org.useware.kernel.model.scopes.InterfaceStructureShim;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -16,7 +16,7 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 public class Dialog {
     private QName id;
     private InteractionUnit root;
-    private Tree<Integer> scopeModel;
+    private InterfaceStructureShim<Integer> scopeModel;
     //private BehaviourResolution behaviour;
 
     public Dialog(QName id, InteractionUnit root) {
@@ -64,11 +64,11 @@ public class Dialog {
         return result.getUnit();
     }
 
-    public void setScopeModel(Tree<Integer> scopeModel) {
+    public void setScopeModel(InterfaceStructureShim<Integer> scopeModel) {
         this.scopeModel = scopeModel;
     }
 
-    public Tree<Integer> getScopeModel() {
+    public InterfaceStructureShim<Integer> getScopeModel() {
         return this.scopeModel;
     }
 

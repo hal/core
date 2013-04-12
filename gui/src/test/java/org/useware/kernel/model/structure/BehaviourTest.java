@@ -45,12 +45,12 @@ import org.junit.Test;
  */
 public class BehaviourTest
 {
-    InteractionUnit cut;
+    InteractionUnit unit;
 
     @Before
     public void setUp()
     {
-        this.cut = new TestableInteractionUnit(NAMESPACE, "test", "Test");
+        this.unit = new TestableInteractionUnit(NAMESPACE, "test", "Test");
     }
 
     @Test

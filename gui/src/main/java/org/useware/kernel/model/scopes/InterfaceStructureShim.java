@@ -1,11 +1,13 @@
-package org.useware.kernel.model.mapping;
+package org.useware.kernel.model.scopes;
 
+import org.useware.kernel.model.mapping.Node;
+import org.useware.kernel.model.mapping.NodePredicate;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Tree<T> {
+public class InterfaceStructureShim<T> {
 
     private Node<T> rootElement;
 
