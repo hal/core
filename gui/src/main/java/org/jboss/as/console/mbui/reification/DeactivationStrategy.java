@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.useware.kernel.gui.behaviour.SystemEvent;
+import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
@@ -99,7 +100,7 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
                         @Override
                         public boolean accepts(SystemEvent event) {
 
-                            return event.getId().equals(SystemEvent.ACTIVATE_ID)
+                            return event.getId().equals(CommonQNames.ACTIVATION_ID)
                                     && index2child.containsValue(event.getPayload()
                             );
                         }
@@ -122,7 +123,7 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
             );
 
             // complement model
-            Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
+            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
             getInteractionUnit().setInputs(activation);
 
         }

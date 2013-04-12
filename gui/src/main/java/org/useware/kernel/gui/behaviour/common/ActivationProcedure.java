@@ -15,7 +15,7 @@ import org.useware.kernel.model.structure.QName;
  */
 public class ActivationProcedure extends Procedure {
 
-    Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
+    Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
     public ActivationProcedure(final InteractionCoordinator coordinator) {
         super(CommonQNames.ACTIVATION_ID);
@@ -27,9 +27,15 @@ public class ActivationProcedure extends Procedure {
             public void execute(Dialog dialog, Object data) {
                 // activate target unit
 
+
+
                 QName targetUnit = (QName)data;
+
+                // activate scope
+                coordinator.getStatementScope().activateScope(targetUnit);
+
                 System.out.println("activate "+targetUnit);
-                SystemEvent activationEvent = new SystemEvent(SystemEvent.ACTIVATE_ID);
+                SystemEvent activationEvent = new SystemEvent(CommonQNames.ACTIVATION_ID);
                 activationEvent.setPayload(targetUnit);
 
                 coordinator.fireEvent(activationEvent);

@@ -2,7 +2,7 @@ package org.jboss.as.console.mbui.reification.pipeline;
 
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
-import org.useware.kernel.gui.behaviour.BehaviourExecution;
+import org.useware.kernel.gui.behaviour.ProcedureExecution;
 import org.jboss.as.console.mbui.behaviour.DMROperationProcedure;
 import org.jboss.as.console.mbui.behaviour.LoadResourceProcedure;
 import org.jboss.as.console.mbui.behaviour.SaveChangesetProcedure;
@@ -41,7 +41,7 @@ public class ImplicitBehaviourStep extends ReificationStep
     @Override
     public void execute(final Dialog dialog, final Context context) throws ReificationException
     {
-        final BehaviourExecution behaviourExecution = context.get(ContextKey.COORDINATOR);
+        final ProcedureExecution procedureExecution = context.get(ContextKey.COORDINATOR);
         InteractionUnit<StereoTypes> root = dialog.getInterfaceModel();
 
         root.accept(new InteractionUnitVisitor()
@@ -50,13 +50,13 @@ public class ImplicitBehaviourStep extends ReificationStep
             @Override
             public void startVisit(Container container)
             {
-                registerDefaultBehaviour(dialog, container, behaviourExecution, context);
+                registerDefaultBehaviour(dialog, container, procedureExecution, context);
             }
 
             @Override
             public void visit(InteractionUnit interactionUnit)
             {
-                registerDefaultBehaviour(dialog, interactionUnit, behaviourExecution, context);
+                registerDefaultBehaviour(dialog, interactionUnit, procedureExecution, context);
             }
 
             @Override
@@ -70,7 +70,7 @@ public class ImplicitBehaviourStep extends ReificationStep
     private void registerDefaultBehaviour(
             Dialog dialog,
             InteractionUnit<StereoTypes> unit,
-            BehaviourExecution behaviourExecution,
+            ProcedureExecution procedureExecution,
             Context context) {
 
 
@@ -88,19 +88,19 @@ public class ImplicitBehaviourStep extends ReificationStep
             {
                 if(LoadResourceProcedure.ID.equals(output.getId()))
                 {
-                    behaviourExecution.addProcedure(
+                    procedureExecution.addProcedure(
                             new LoadResourceProcedure(dialog, unit.getId(), dispatcher)
                     );
                 }
                 else if(SaveChangesetProcedure.ID.equals(output.getId()))
                 {
-                    behaviourExecution.addProcedure(
+                    procedureExecution.addProcedure(
                             new SaveChangesetProcedure(dialog, unit.getId(), dispatcher)
                     );
                 }
                 else if(DMROperationProcedure.PREFIX.equalsIgnoreSuffix(output.getId()))
                 {
-                    behaviourExecution.addProcedure(
+                    procedureExecution.addProcedure(
                             new DMROperationProcedure(dialog, output.getId(), unit.getId(), dispatcher, operationDescriptions)
                     );
                 }

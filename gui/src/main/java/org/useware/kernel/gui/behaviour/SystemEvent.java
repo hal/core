@@ -15,9 +15,6 @@ import org.useware.kernel.model.structure.QName;
  */
 public class SystemEvent extends GwtEvent<SystemEvent.Handler> {
 
-
-    public static final QName ACTIVATE_ID = QName.valueOf("org.jboss.activate");
-
     public static final Type TYPE = new Type<Handler>();
 
     private QName id;

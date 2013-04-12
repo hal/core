@@ -18,8 +18,11 @@
  */
 package org.jboss.as.console.mbui.reification;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
+import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -27,6 +30,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.widgets.pages.Pages;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.useware.kernel.gui.behaviour.NavigationEvent;
+import org.useware.kernel.gui.behaviour.SystemEvent;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
@@ -41,6 +46,7 @@ import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 
@@ -79,7 +85,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
     {
         private TabPanelContract delegate;
         private InteractionUnit interactionUnit;
-        private Map<Integer, QName> index2tab = new HashMap<Integer, QName>();
+        private Map<Integer, QName> childUnits = new HashMap<Integer, QName>();
 
         TabPanelAdapter(final InteractionUnit<StereoTypes> interactionUnit)
         {
@@ -109,25 +115,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
             final DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
             tabLayoutpanel.addStyleName("default-tabpanel");
 
-           /* tabLayoutpanel.addBeforeSelectionHandler(new BeforeSelectionHandler<Integer>() {
-                @Override
-                public void onBeforeSelection(BeforeSelectionEvent<Integer> event) {
-
-                    QName targetTab = index2tab.get(event.getItem());
-
-                    if(targetTab!=null)
-                    {
-                        eventBus.fireEventFromSource(
-                                new NavigationEvent(
-                                        NavigationEvent.ID,
-                                        targetTab
-                                ), interactionUnit.getId() //source
-                        );
-
-                    }
-                    event.cancel();
-                }
-            });  */
+            tabLayoutpanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
 
             TabPanelContract tabPanelContract = new TabPanelContract() {
                 @Override
@@ -140,7 +128,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                     tabLayoutpanel.add(scroll, unit.getLabel());
 
                     // register tab2index mapping
-                    index2tab.put(tabLayoutpanel.getWidgetCount() - 1, unit.getId());
+                    childUnits.put(tabLayoutpanel.getWidgetCount() - 1, unit.getId());
                 }
 
                 @Override
@@ -151,13 +139,22 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
 
             // activation listener
-          /*  eventBus.addHandler(SystemEvent.TYPE,
+            eventBus.addHandler(SystemEvent.TYPE,
+                    new ChildActivationHandler<DefaultTabLayoutPanel>(tabLayoutpanel, childUnits, new ChildUnitCommand<DefaultTabLayoutPanel>() {
+                        @Override
+                        public void execute(DefaultTabLayoutPanel parent, int key) {
+                            tabLayoutpanel.selectTab(key, false);
+                        }
+                    })
+            );
+
+            eventBus.addHandler(SystemEvent.TYPE,
                     new SystemEvent.Handler() {
                         @Override
                         public boolean accepts(SystemEvent event) {
 
-                            return event.getId().equals(SystemEvent.ACTIVATE_ID)
-                                    && index2tab.containsValue(event.getPayload()
+                            return event.getId().equals(CommonQNames.ACTIVATION_ID)
+                                    && childUnits.containsValue(event.getPayload()
                             );
                         }
 
@@ -165,24 +162,24 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                         public void onSystemEvent(SystemEvent event) {
                             QName id = (QName) event.getPayload();
 
-                            Set<Integer> keys = index2tab.keySet();
+                            Set<Integer> keys = childUnits.keySet();
                             for (Integer key : keys) {
-                                if (index2tab.get(key).equals(id)) {
+                                if (childUnits.get(key).equals(id)) {
                                     tabLayoutpanel.selectTab(key, false);
                                     break;
                                 }
                             }
                         }
                     }
-            );*/
+            );
 
 
             // complement model
             Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
-            //Resource<ResourceType> activation = new Resource<ResourceType>(SystemEvent.ACTIVATE_ID, ResourceType.System);
+            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
             getInteractionUnit().setOutputs(navigation);
-            //getInteractionUnit().setInputs(activation);
+            getInteractionUnit().setInputs(activation);
 
             return tabPanelContract;
         }
@@ -190,7 +187,22 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
         private TabPanelContract createPages(InteractionUnit<StereoTypes> interactionUnit, EventBus eventBus) {
             final Pages pagedView = new Pages();
 
-            return new TabPanelContract() {
+            pagedView.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
+
+            // activation listener
+
+            eventBus.addHandler(SystemEvent.TYPE,
+                    new ChildActivationHandler<Pages>(pagedView, childUnits, new ChildUnitCommand<Pages>() {
+                        @Override
+                        public void execute(Pages parent, int key) {
+                            // TODO: this doesn't really work (rendering bugs) ...
+                            parent.selectTab(key, false);
+                            parent.getDeckPanel().showWidget(key); // workaround
+                        }
+                    })
+            );
+
+            TabPanelContract tabPanelContract = new TabPanelContract() {
 
                 @Override
                 public void add(InteractionUnit unit, Widget widget) {
@@ -200,7 +212,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                     pagedView.add(widget, unit.getLabel());
 
                     // register tab2index mapping
-                    index2tab.put(pagedView.getWidgetCount()-1, unit.getId());
+                    childUnits.put(pagedView.getWidgetCount() - 1, unit.getId());
                 }
 
                 @Override
@@ -211,8 +223,8 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                     widget.addAttachHandler(new AttachEvent.Handler() {
                         @Override
                         public void onAttachOrDetach(AttachEvent attachEvent) {
-                            if(pagedView.getWidgetCount()>0)
-                                pagedView.selectTab(0);
+                            if (pagedView.getWidgetCount() > 0)
+                                pagedView.selectTab(0, true);
                         }
                     });
 
@@ -220,11 +232,23 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                     return pagedView;
                 }
             };
+
+
+            // complement model
+            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
+            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
+
+            getInteractionUnit().setOutputs(navigation);
+            getInteractionUnit().setInputs(activation);
+
+            return tabPanelContract;
         }
 
         private TabPanelContract createDefaultTabPanel(InteractionUnit interactionUnit, EventBus eventBus) {
             final TabPanel tabPanel = new TabPanel();
             tabPanel.setStyleName("default-tabpanel");
+
+            tabPanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
 
             tabPanel.addAttachHandler(new AttachEvent.Handler() {
                 @Override
@@ -234,10 +258,26 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                 }
             });
 
-            return new TabPanelContract() {
+
+            // activation listener
+            eventBus.addHandler(SystemEvent.TYPE,
+                    new ChildActivationHandler<TabPanel>(tabPanel, childUnits, new ChildUnitCommand<TabPanel>() {
+                        @Override
+                        public void execute(TabPanel parent, int key) {
+                            // TODO: this doesn't really work (rendering bugs) ...
+                            parent.selectTab(key, false);
+                            parent.getDeckPanel().showWidget(key); // workaround
+                        }
+                    })
+            );
+
+            TabPanelContract tabPanelContract = new TabPanelContract() {
                 @Override
                 public void add(InteractionUnit unit, Widget widget) {
                     tabPanel.add(widget, unit.getLabel());
+
+                    // register tab2index mapping
+                    childUnits.put(tabPanel.getWidgetCount() - 1, unit.getId());
                 }
 
                 @Override
@@ -245,6 +285,16 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                     return tabPanel;
                 }
             };
+
+            // complement model
+            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
+            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
+
+            getInteractionUnit().setOutputs(navigation);
+            getInteractionUnit().setInputs(activation);
+
+
+            return tabPanelContract;
         }
 
         @Override
@@ -255,11 +305,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
         @Override
         public void add(final ReificationWidget widget)
         {
-            if (widget != null)
-            {
-                //System.out.println("Add "+widget.getInteractionUnit() +" to " + getInteractionUnit());
-                delegate.add(widget.getInteractionUnit(), widget.asWidget());
-            }
+            delegate.add(widget.getInteractionUnit(), widget.asWidget());
         }
 
         @Override
@@ -267,5 +313,82 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
         {
             return delegate.as();
         }
+    }
+
+    class NavigationHandler implements BeforeSelectionHandler<Integer>
+    {
+        private InteractionUnit interactionUnit;
+        private Map<Integer, QName> childUnits = new HashMap<Integer, QName>();
+
+        NavigationHandler(InteractionUnit interactionUnit, Map<Integer, QName> childUnits) {
+            this.interactionUnit = interactionUnit;
+            this.childUnits = childUnits;
+        }
+
+        @Override
+        public void onBeforeSelection(BeforeSelectionEvent<Integer> event) {
+
+            QName targetTab = childUnits.get(event.getItem());
+
+            if (targetTab != null) {
+                eventBus.fireEventFromSource(
+                        new NavigationEvent(
+                                CommonQNames.NAVIGATION_ID,
+                                targetTab
+                        ), interactionUnit.getId() //source
+                );
+
+            }
+            event.cancel();
+        }
+    };
+
+    class ChildActivationHandler<T> implements SystemEvent.Handler {
+
+        private final T parent;
+        private Map<Integer, QName> childUnits = new HashMap<Integer, QName>();
+        private ChildUnitCommand<T> cmd;
+
+        ChildActivationHandler(T parent, Map<Integer, QName> childUnits, ChildUnitCommand<T> cmd) {
+            this.parent = parent;
+            this.childUnits = childUnits;
+            this.cmd = cmd;
+        }
+
+        @Override
+        public boolean accepts(SystemEvent event) {
+
+            return event.getId().equals(CommonQNames.ACTIVATION_ID)
+                    && childUnits.containsValue(event.getPayload()
+            );
+        }
+
+        @Override
+        public void onSystemEvent(SystemEvent event) {
+            QName id = (QName) event.getPayload();
+
+            Set<Integer> keys = childUnits.keySet();
+            for (final Integer key : keys) {
+                if (childUnits.get(key).equals(id)) {
+
+                    Scheduler.get().scheduleDeferred(
+                            new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    cmd.execute(parent, key);
+                                }
+                            }
+                    );
+
+                    break;
+                }
+            }
+        }
+
+
+    };
+
+    interface ChildUnitCommand<T> {
+        void execute(T parent, int key);
     }
 }

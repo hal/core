@@ -1,6 +1,7 @@
 
 package org.jboss.as.console.client.widgets.pages;
 
+import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -11,11 +12,13 @@ import com.google.gwt.user.client.ui.TabListener;
 import com.google.gwt.user.client.ui.TabListenerCollection;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.mbui.reification.ChoiceStrategy;
 
 import java.util.Iterator;
 
 public class Pages extends Composite implements TabListener,
         SourcesTabEvents, HasWidgets, IndexedPanel {
+
 
     /**
      * This extension of DeckPanel overrides the public mutator methods to prevent
@@ -158,6 +161,11 @@ public class Pages extends Composite implements TabListener,
         setStyleName("pages-panel");
         deck.setStyleName("pages-panel-bottom");
         //deck.getElement().setAttribute("style", "border-left:1px solid #cccccc; border-right:1px solid #cccccc; border-bottom:1px solid #cccccc");
+    }
+
+
+    public void addBeforeSelectionHandler(BeforeSelectionHandler<Integer> beforeSelectionHandler) {
+        this.tabBar.addBeforeSelectionHandler(beforeSelectionHandler);
     }
 
     public void add(Widget w) {
@@ -330,8 +338,9 @@ public class Pages extends Composite implements TabListener,
      * Programmatically selects the specified tab.
      *
      * @param index the index of the tab to be selected
+     * @param b fire events
      */
-    public void selectTab(int index) {
-        tabBar.selectTab(index);
+    public void selectTab(int index, boolean b) {
+        tabBar.selectTab(index,b);
     }
 }

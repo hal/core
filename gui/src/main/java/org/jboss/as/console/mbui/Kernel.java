@@ -58,7 +58,7 @@ public class Kernel implements NavigationDelegate {
     @Override
     public void onNavigation(QName source, QName dialog) {
 
-
+        System.out.println("absolute navigation " + source + ">" + dialog);
     }
 
     public void reify(final String name, final AsyncCallback<Widget> callback) {

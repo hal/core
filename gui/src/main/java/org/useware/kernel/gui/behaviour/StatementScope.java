@@ -23,7 +23,7 @@ public class StatementScope {
     private Dialog dialog;
     private final StatementContext externalContext;
     private Map<Integer, MutableContext> scope2context;
-
+    private int activeScope = -1;
 
     public StatementScope(Dialog dialog, StatementContext parentContext) {
         this.dialog = dialog;
@@ -91,6 +91,26 @@ public class StatementScope {
         }
 
         return scope2context.get(scope);
+    }
+
+    public void activateScope(QName targetUnit) {
+        MutableContext context = (MutableContext)getContext(targetUnit);
+        this.activeScope = context.getScopeId();
+
+        System.out.println("<< active scope "+this.activeScope+" >>");
+    }
+
+    /**
+     * Check if the scope local to the unit is active.
+     *
+     * @param unitId
+     * @return
+     */
+    public boolean isWithinActiveScope(QName unitId) {
+
+        // scope local to unit
+        MutableContext context = (MutableContext)getContext(unitId);
+        return activeScope == context.getScopeId();
     }
 
     interface MutableContext extends StatementContext {

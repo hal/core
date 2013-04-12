@@ -31,12 +31,15 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
     protected StatementScope statementScope;
     protected Precondition precondition;
 
+    private ProcedureRuntimeAPI runtimeAPI;
+
     public final static Precondition NOT_GUARDED = new Precondition() {
         @Override
         public boolean isMet(StatementContext context) {
             return true;
         }
     };
+
 
     public Procedure(QName id) {
         this.id = id;
@@ -135,6 +138,14 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
         return production.getOutputs();
     }
 
+    public void setRuntimeAPI(ProcedureRuntimeAPI runtimeAPI) {
+        this.runtimeAPI = runtimeAPI;
+    }
+
+    public ProcedureRuntimeAPI getRuntimeAPI() {
+        return runtimeAPI;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -155,4 +166,5 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
         result = 31 * result + id.hashCode();
         return result;
     }
+
 }

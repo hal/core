@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public class InteractionCoordinator implements KernelContract,
         InteractionEvent.InteractionHandler, NavigationEvent.NavigationHandler,
-        StatementEvent.StatementHandler, BehaviourExecution {
+        StatementEvent.StatementHandler, ProcedureExecution, ProcedureRuntimeAPI {
 
     final static SystemEvent RESET = new SystemEvent(CommonQNames.RESET_ID);
 
@@ -71,6 +71,11 @@ public class InteractionCoordinator implements KernelContract,
         return this.bus;
     }
 
+    @Override
+    public boolean isActive(QName interactionUnit) {
+        return statementScope.isWithinActiveScope(interactionUnit);
+    }
+
     /**
      * Procedures of same kind (same ID) can coexist if they can be further distinguished.<br/>
      * A typical example stock procedures (save, load, etc) that are registered for different origins (interaction units).
@@ -88,6 +93,7 @@ public class InteractionCoordinator implements KernelContract,
         // provide context
         procedure.setCoordinator(this);
         procedure.setStatementScope(statementScope);
+        procedure.setRuntimeAPI(this);
 
         procedures.add(procedure);
     }
@@ -193,7 +199,6 @@ public class InteractionCoordinator implements KernelContract,
         return true;
     }
 
-
     /**
      * Find and activate another IU.
      * Can delegate to another context (i.e. gwtp placemanager) or handle it internally (same dialog)
@@ -206,20 +211,24 @@ public class InteractionCoordinator implements KernelContract,
         QName source = (QName)event.getSource();
         QName target = event.getTarget();
 
+        System.out.println("Navigate to " + target);
+
         InteractionUnit targetUnit = dialog.findUnit(target);
         if(targetUnit!=null)  // local to dialog
         {
             String suffix = target.getSuffix();
-            if(suffix !=null) // relative, local (#prev, #next)
+            if("prev".equals(suffix) || "next".equals(suffix)) // relative, local (#prev, #next)
             {
-                if(NavigationEvent.RELATION.next.equals(suffix))
+                throw new RuntimeException("Relative navigation ot implemented: "+suffix);
+
+                /*if(NavigationEvent.RELATION.next.equals(suffix))
                 {
 
                 }
                 else if(NavigationEvent.RELATION.prev.equals(suffix))
                 {
 
-                }
+                } */
             }
             else // absolute, local
             {

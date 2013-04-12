@@ -92,6 +92,11 @@ public class DMROperationProcedure extends Procedure implements OperationContext
             setPrecondition(new Precondition() {
                 @Override
                 public boolean isMet(StatementContext statementContext) {
+
+
+                    // fail fast if not scope active
+                    if(!getRuntimeAPI().isActive(unit.getId())) return false;
+
                     boolean isMet = false;
                     for(String key : requiredStatements)
                     {
