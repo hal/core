@@ -17,6 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * Verify that interaction unit id's are unique within a model.
+ *
  * @author Harald Pehl
  * @date 03/14/2013
  */
