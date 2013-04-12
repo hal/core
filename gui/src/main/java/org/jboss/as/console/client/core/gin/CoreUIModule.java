@@ -90,6 +90,19 @@ import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationView;
+import org.jboss.as.console.client.tools.modelling.workbench.FooterPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.FooterView;
+import org.jboss.as.console.client.tools.modelling.workbench.HeaderPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.HeaderView;
+import org.jboss.as.console.client.tools.modelling.workbench.context.ContextPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.context.ContextView;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewView;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.as.console.client.shared.state.ResponseProcessorFactory;
@@ -588,9 +601,9 @@ public class CoreUIModule extends AbstractPresenterModule {
                 TXMetricPresenter.MyProxy.class);
 
         bindPresenter(TXLogPresenter.class,
-                        TXLogPresenter.MyView.class,
-                        TXLogView.class,
-                        TXLogPresenter.MyProxy.class);
+                TXLogPresenter.MyView.class,
+                TXLogView.class,
+                TXLogPresenter.MyProxy.class);
 
         bindPresenter(JpaPresenter.class,
                 JpaPresenter.MyView.class,
@@ -662,6 +675,19 @@ public class CoreUIModule extends AbstractPresenterModule {
                 EnvironmentView.class,
                 EnvironmentPresenter.MyProxy.class);
 
+
+        // mbui workbench
+        bindPresenter(ApplicationPresenter.class, ApplicationPresenter.MyView.class, ApplicationView.class,
+                ApplicationPresenter.MyProxy.class);
+        bindPresenterWidget(ContextPresenter.class, ContextPresenter.MyView.class, ContextView.class);
+        bindPresenterWidget(FooterPresenter.class, FooterPresenter.MyView.class, FooterView.class);
+        bindPresenterWidget(HeaderPresenter.class, HeaderPresenter.MyView.class, HeaderView.class);
+        bindPresenter(PreviewPresenter.class, PreviewPresenter.MyView.class, PreviewView.class,
+                PreviewPresenter.MyProxy.class);
+        bindPresenterWidget(RepositoryPresenter.class, RepositoryPresenter.MyView.class, RepositoryView.class);
+
+        // Application
+        bind(SampleRepository.class).in(Singleton.class);
 
     }
 }

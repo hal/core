@@ -59,6 +59,8 @@ import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
@@ -321,4 +323,10 @@ public interface CoreUI {
     AsyncProvider<PathManagementPresenter> PathManagementPresenter();
 
     AsyncProvider<EnvironmentPresenter> EnvironmentPresenter();
+
+    // mbui workbench
+
+    Provider<ApplicationPresenter> getWorkbenchPresenter();
+    Provider<PreviewPresenter> getPreviewPresenter();
+
 }
