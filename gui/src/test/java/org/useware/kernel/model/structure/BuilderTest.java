@@ -18,12 +18,13 @@
  */
 package org.useware.kernel.model.structure;
 
-import static org.useware.kernel.TestNamespace.NAMESPACE;
+import static org.useware.kernel.mock.TestNamespace.NAMESPACE;
 import static org.useware.kernel.model.structure.TemporalOperator.*;
 import static org.jboss.as.console.mbui.model.StereoTypes.EditorPanel;
 import static org.jboss.as.console.mbui.model.StereoTypes.Form;
 import static org.junit.Assert.assertEquals;
 
+import org.useware.kernel.mock.TestableInteractionUnit;
 import org.useware.kernel.model.mapping.Mapping;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.as.console.mbui.model.StereoTypes;

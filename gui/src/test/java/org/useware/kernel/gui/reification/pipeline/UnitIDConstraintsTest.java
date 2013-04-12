@@ -20,7 +20,7 @@ import org.junit.Test;
  * @author Harald Pehl
  * @date 03/14/2013
  */
-public class UniqueIdCheckStepTest
+public class UnitIDConstraintsTest
 {
     ReificationPipeline pipeline;
 

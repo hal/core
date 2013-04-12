@@ -1,6 +1,7 @@
-package org.useware.kernel.model.structure;
+package org.useware.kernel.mock;
 
 import org.useware.kernel.gui.behaviour.Procedure;
+import org.useware.kernel.model.structure.QName;
 
 /**
  * @author Heiko Braun

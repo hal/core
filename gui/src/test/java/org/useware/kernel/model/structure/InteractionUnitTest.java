@@ -18,7 +18,7 @@
  */
 package org.useware.kernel.model.structure;
 
-import static org.useware.kernel.TestNamespace.NAMESPACE;
+import static org.useware.kernel.mock.TestNamespace.NAMESPACE;
 import static org.useware.kernel.model.behaviour.ResourceType.Interaction;
 import static org.useware.kernel.model.behaviour.ResourceType.Presentation;
 import static org.useware.kernel.model.mapping.MappingType.DMR;
@@ -30,6 +30,8 @@ import org.useware.kernel.gui.behaviour.Integrity;
 import org.useware.kernel.gui.behaviour.IntegrityErrors;
 import org.useware.kernel.gui.behaviour.Procedure;
 import org.useware.kernel.gui.behaviour.BehaviourMap;
+import org.useware.kernel.mock.TestProcedure;
+import org.useware.kernel.mock.TestableInteractionUnit;
 import org.useware.kernel.model.behaviour.Behaviour;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;

@@ -20,8 +20,9 @@ package org.useware.kernel.model.structure;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.useware.kernel.mock.TestableInteractionUnit;
 
-import static org.useware.kernel.TestNamespace.NAMESPACE;
+import static org.useware.kernel.mock.TestNamespace.NAMESPACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 

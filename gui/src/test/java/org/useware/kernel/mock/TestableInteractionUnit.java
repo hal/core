@@ -16,9 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.useware.kernel.model.structure;
+package org.useware.kernel.mock;
 
 import org.jboss.as.console.mbui.model.StereoTypes;
+import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 
 /**
  * @author Harald Pehl
