@@ -26,6 +26,7 @@ When the hosted browser is started, it's enough to hit the 'refresh' button to r
 and verify changes. You can get the OOPHM Plugin, required for attaching your browser to the
 hosted mode execution here: http://gwt.google.com/samples/MissingPlugin/MissingPlugin.html
 
+NOTE: you need to add user with JBoss 8 add-user script.
 
 ## Running in web mode
 
