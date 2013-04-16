@@ -65,10 +65,6 @@ public interface ConnectionFactory {
     boolean isFailoverInitial();
     void setFailoverInitial(boolean b);
 
-    @Binding(detypedName = "failover-on-server-shutdown")
-    boolean isFailoverShutdown();
-    void setFailoverShutdown(boolean b);
-
     @Binding(detypedName = "connection-load-balancing-policy-class-name")
     String getLoadbalancingClassName();
     void setLoadbalancingClassName(String name);

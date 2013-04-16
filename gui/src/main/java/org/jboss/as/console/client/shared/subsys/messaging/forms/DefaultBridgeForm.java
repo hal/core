@@ -62,8 +62,6 @@ public class DefaultBridgeForm {
         queueName.setOracle(oracle);
         forward.setOracle(oracle);
 
-        CheckBoxItem failoverShutdown = new CheckBoxItem("failoverShutdown", "Failover Shutdown?");
-
         CheckBoxItem started = new CheckBoxItem("started", "Started?");
 
         TextBoxItem discoveryGroup = new TextBoxItem("discoveryGroup", "Discovery Group", false);
@@ -88,8 +86,7 @@ public class DefaultBridgeForm {
                     name, started,
                     queueName, forward,
                     discoveryGroup, connectors,
-                    filter,transformer,
-                    failoverShutdown
+                    filter,transformer
             );
         }
 
