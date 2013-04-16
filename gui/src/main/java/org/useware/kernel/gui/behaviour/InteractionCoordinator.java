@@ -211,7 +211,7 @@ public class InteractionCoordinator implements KernelContract,
         QName source = (QName)event.getSource();
         QName target = event.getTarget();
 
-        System.out.println("Navigate to " + target);
+        //System.out.println("Navigate to " + target);
 
         InteractionUnit targetUnit = dialog.findUnit(target);
         if(targetUnit!=null)  // local to dialog

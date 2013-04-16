@@ -34,7 +34,8 @@ public class ActivationProcedure extends Procedure {
                 // activate scope
                 coordinator.getStatementScope().activateScope(targetUnit);
 
-                System.out.println("activate "+targetUnit);
+                System.out.println("Activate: "+targetUnit);
+
                 SystemEvent activationEvent = new SystemEvent(CommonQNames.ACTIVATION_ID);
                 activationEvent.setPayload(targetUnit);
 

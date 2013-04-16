@@ -40,7 +40,7 @@ import java.util.Set;
 public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Producer
 {
     private final QName id;
-    private InteractionUnit parent;
+    private Container parent;
     private String label;
 
     private final Map<MappingType, Mapping> mappings;
@@ -197,12 +197,12 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
 
     // ------------------------------------------------------ properties
 
-    public InteractionUnit getParent()
+    public Container getParent()
     {
         return parent;
     }
 
-    void setParent(InteractionUnit parent)
+    void setParent(Container parent)
     {
         this.parent = parent;
     }

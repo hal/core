@@ -97,7 +97,7 @@ public class StatementScope {
         MutableContext context = (MutableContext)getContext(targetUnit);
         this.activeScope = context.getScopeId();
 
-        System.out.println("<< active scope "+this.activeScope+" >>");
+        //System.out.println("<< active scope "+this.activeScope+" >>");
     }
 
     /**

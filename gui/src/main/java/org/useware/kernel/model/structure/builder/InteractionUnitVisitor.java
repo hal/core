@@ -32,4 +32,5 @@ public interface InteractionUnitVisitor<S extends Enum<S>>
     void visit(InteractionUnit<S> interactionUnit);
 
     void endVisit(Container container);
+
 }
