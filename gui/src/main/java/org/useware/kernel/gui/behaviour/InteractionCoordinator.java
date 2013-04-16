@@ -11,6 +11,7 @@ import org.useware.kernel.gui.behaviour.common.ActivationProcedure;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.behaviour.common.NavigationProcedure;
 import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
+import org.useware.kernel.gui.reification.ActivationVisitor;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
@@ -122,7 +123,14 @@ public class InteractionCoordinator implements KernelContract,
 
     @Override
     public void activate() {
+        ActivationVisitor activation = new ActivationVisitor();
+        dialog.getInterfaceModel().accept(activation);
+        Map<Integer,QName> activeItems = activation.getActiveItems();
 
+        Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
+
+        for(QName targetUnit : activeItems.values())
+            activateProcedure.getCommand().execute(dialog, targetUnit);
     }
 
     @Override

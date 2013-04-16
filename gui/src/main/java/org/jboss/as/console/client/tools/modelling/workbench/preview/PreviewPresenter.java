@@ -111,9 +111,10 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
 
             @Override
             public void onSuccess(Widget widget) {
-                // TODO Call activate instead?
-//                kernel.activate();
+
                 getView().show(widget);
+                kernel.activate();
+
             }
         });
     }

@@ -117,14 +117,14 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
             tabLayoutpanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
 
-            tabLayoutpanel.addAttachHandler(new AttachEvent.Handler() {
+           /* tabLayoutpanel.addAttachHandler(new AttachEvent.Handler() {
                 @Override
                 public void onAttachOrDetach(AttachEvent attachEvent) {
 
                     if(attachEvent.isAttached() && tabLayoutpanel.getWidgetCount()>0)
                         tabLayoutpanel.selectTab(0);
                 }
-            });
+            });*/
 
             TabPanelContract tabPanelContract = new TabPanelContract() {
                 @Override
@@ -259,14 +259,14 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
             tabPanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
 
-            tabPanel.addAttachHandler(new AttachEvent.Handler() {
+            /*tabPanel.addAttachHandler(new AttachEvent.Handler() {
                 @Override
                 public void onAttachOrDetach(AttachEvent attachEvent) {
 
                     if(attachEvent.isAttached() && tabPanel.getWidgetCount()>0)
                         tabPanel.selectTab(0);
                 }
-            });
+            });*/
 
 
             // activation listener

@@ -2,59 +2,69 @@ package org.useware.kernel.gui.reification;
 
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
-import static org.useware.kernel.model.structure.TemporalOperator.Choice;
-
+/**
+ * Activate the first child of each container in the LHS branch
+ */
 public class ActivationVisitor implements InteractionUnitVisitor {
 
     private Stack<Container> stack = new Stack<Container>();
-    private InteractionUnit candidate = null;
+    private Map<Integer, QName> activeItems = new HashMap<Integer,QName>();
+    boolean pivot = false;
+    int max = 0;
 
     @Override
     public void startVisit(Container container) {
 
+        Container prev = null;
+        if(!stack.isEmpty())
+            prev = stack.peek();
+
         stack.push(container);
 
-        if(null==candidate && canBePromoted(container))
-            candidate = container;
-        else if(isDiscrimiator(container)) // discriminating types replace anything else
-            candidate = null;
+        if(prev!=null
+                && prev.getTemporalOperator().equals(TemporalOperator.Choice)
+                && !pivot)
+        {
+            QName activeChild = activeItems.get(stack.size()-1);
+            if(null==activeChild)
+                activeItems.put(stack.size()-1, container.getId());
+        }
 
     }
 
     @Override
     public void visit(InteractionUnit unit) {
 
-        if(null==candidate && canBePromoted(unit))   // units replace container
-            candidate = unit;
+
+        QName activeChild = activeItems.get(stack.size()-1);
+        if(null==activeChild && !pivot)
+        {
+            activeItems.put(stack.size()-1, unit.getId());
+        }
     }
 
     @Override
     public void endVisit(Container container) {
 
-        Container prev = stack.pop();
+        if(max<stack.size())
+            max =  stack.size();
+        else
+            pivot = true;
+
+        stack.pop();
+
     }
 
-    boolean canBePromoted(Container container)
-    {
-        return !isDiscrimiator(container); // only non-discriminating types
-    }
-
-    boolean canBePromoted(InteractionUnit unit)
-    {
-        return true; // any at the moment
-    }
-
-    boolean isDiscrimiator(Container container)
-    {
-        return container.getTemporalOperator() == Choice;
-    }
-
-    public InteractionUnit getCandidate() {
-        return candidate;
+    public Map<Integer, QName> getActiveItems() {
+        return activeItems;
     }
 }
 

@@ -174,7 +174,7 @@ public class Kernel implements NavigationDelegate {
                     cachedWidgets.put(name, widget);
                     ActivationVisitor activation = new ActivationVisitor();
                     dialog.getInterfaceModel().accept(activation);
-                    System.out.println("<< Default Activation: "+activation.getCandidate()+">>");
+                    //System.out.println("<< Default Activation: "+activation.getCandidate()+">>");
 
                     callback.onSuccess(widget.asWidget());
                 }

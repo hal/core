@@ -5,14 +5,16 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.OrgChart;
+import org.useware.kernel.gui.reification.ActivationVisitor;
 import org.useware.kernel.model.Dialog;
-import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
+import java.util.Map;
 import java.util.Stack;
 
 import static com.google.gwt.visualization.client.AbstractDataTable.ColumnType.STRING;
@@ -24,8 +26,8 @@ import static com.google.gwt.visualization.client.AbstractDataTable.ColumnType.S
 public class DialogVisualization
 {
     static final NameTemplate NAME_TEMPLATE = GWT.create(NameTemplate.class);
-    private static final String MAPPED_STYLE = "";//"icon attachment";
-    private static final String UNMAPPED_STYLE = "";
+    private static final String ACTIVE_STYLE = "active-default";
+    private static final String INACTIVE_STYLE = "inactive-default";
     private final OrgChart chart;
     private final Dialog dialog;
 
@@ -117,7 +119,13 @@ public class DialogVisualization
             String name = interactionUnit.getLabel() == null ? interactionUnit.getId().getLocalPart() : interactionUnit.getLabel();
             Container container = this.container.isEmpty() ? null : this.container.peek();
             String parentId = container != null ? container.getId().toString() : null;
-            String style = interactionUnit.hasMapping(MappingType.DMR) ? MAPPED_STYLE : UNMAPPED_STYLE;
+
+            // default activation
+            ActivationVisitor activation = new ActivationVisitor();
+            dialog.getInterfaceModel().accept(activation);
+            Map<Integer,QName> activeItems = activation.getActiveItems();
+
+            String style = activeItems.values().contains(interactionUnit.getId()) ? ACTIVE_STYLE : INACTIVE_STYLE;
 
             // statement context shim visualisation
             Node<Integer> self = dialog.getScopeModel().findNode(interactionUnit.getId());

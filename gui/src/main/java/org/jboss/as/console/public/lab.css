@@ -520,6 +520,14 @@ input[type="checkbox"] {
 /* mbui customizations */
 
 
+.active-default {
+    border:1px solid red;
+}
+
+.inactive-default {
+    border:none;
+}
+
 .link-bar a {
     text-decoration: underline;
 }
