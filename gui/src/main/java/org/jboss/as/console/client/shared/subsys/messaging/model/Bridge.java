@@ -45,10 +45,6 @@ public interface Bridge {
     Long getReconnectAttempts();
     void setReconnectAttempts(Long numAttempts);
 
-    @Binding(detypedName = "failover-on-server-shutdown")
-    boolean isFailoverShutdown();
-    void setFailoverShutdown(boolean b);
-
     @Binding(detypedName = "use-duplicate-detection")
     boolean isDuplicateDetection();
     void setDuplicateDetection(boolean b);
