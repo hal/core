@@ -50,7 +50,6 @@ public class DefaultCFForm {
         TextBoxItem connector = new TextBoxItem("connector", "Connector");
 
         CheckBoxItem failoverInitial = new CheckBoxItem("failoverInitial", "Failover Initial?");
-        CheckBoxItem failoverShutdown = new CheckBoxItem("failoverShutdown", "Failover Shutdown=");
 
         CheckBoxItem globalPools = new CheckBoxItem("useGlobalPools", "Global Pools?");
 
@@ -72,7 +71,7 @@ public class DefaultCFForm {
             form.setFields(
                     name, jndiName,
                     connector, groupId,
-                    failoverInitial, failoverShutdown,
+                    failoverInitial,
                     threadPool, txBatch,
                     globalPools);
         }
