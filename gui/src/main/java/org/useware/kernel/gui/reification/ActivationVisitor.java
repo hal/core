@@ -12,12 +12,14 @@ import java.util.Stack;
 
 /**
  * Activate the first child of each container in the LHS branch
+ *
+ * @author Heiko Braun
  */
 public class ActivationVisitor implements InteractionUnitVisitor {
 
     private Stack<Container> stack = new Stack<Container>();
     private Map<Integer, QName> activeItems = new HashMap<Integer,QName>();
-    boolean pivot = false;
+    boolean pastPivot = false;
     int max = 0;
 
     @Override
@@ -31,24 +33,27 @@ public class ActivationVisitor implements InteractionUnitVisitor {
 
         if(prev!=null
                 && prev.getTemporalOperator().equals(TemporalOperator.Choice)
-                && !pivot)
+                && !pastPivot)
         {
             QName activeChild = activeItems.get(stack.size()-1);
             if(null==activeChild)
                 activeItems.put(stack.size()-1, container.getId());
         }
-
     }
 
     @Override
     public void visit(InteractionUnit unit) {
 
 
+        /*  Ignore atomic units
+
         QName activeChild = activeItems.get(stack.size()-1);
-        if(null==activeChild && !pivot)
+
+        if(null==activeChild && !pastPivot)
         {
             activeItems.put(stack.size()-1, unit.getId());
         }
+         */
     }
 
     @Override
@@ -57,7 +62,7 @@ public class ActivationVisitor implements InteractionUnitVisitor {
         if(max<stack.size())
             max =  stack.size();
         else
-            pivot = true;
+            pastPivot = true;
 
         stack.pop();
 

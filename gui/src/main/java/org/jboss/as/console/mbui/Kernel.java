@@ -20,7 +20,6 @@ import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
 import org.jboss.as.console.mbui.reification.pipeline.ImplicitBehaviourStep;
 import org.useware.kernel.gui.reification.pipeline.IntegrityStep;
 import org.useware.kernel.gui.reification.pipeline.ReificationPipeline;
-import org.useware.kernel.gui.reification.pipeline.ScopeAssignmentStep;
 import org.useware.kernel.gui.reification.pipeline.UniqueIdCheckStep;
 import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
 import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
@@ -93,14 +92,6 @@ public class Kernel implements NavigationDelegate {
                     context.set(ContextKey.EVENTBUS, coordinator.getLocalBus());
                     context.set(ContextKey.COORDINATOR, coordinator);
 
-                    control.proceed();
-                }
-            };
-
-            Function<Context> statementShim = new Function<Context>() {
-                @Override
-                public void execute(Control<Context> control) {
-                    new ScopeAssignmentStep().execute(dialog,context);
                     control.proceed();
                 }
             };
@@ -183,7 +174,7 @@ public class Kernel implements NavigationDelegate {
             // execute pipeline
             new Async<Context>().waterfall(
                     context, outcome,
-                    prepareContext, statementShim, readOperationMetaData, readResourceMetaData
+                    prepareContext, readOperationMetaData, readResourceMetaData
             );
         }
         else

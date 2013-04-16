@@ -1,5 +1,6 @@
 package org.useware.kernel.gui.behaviour;
 
+import org.useware.kernel.gui.reification.ActivationVisitor;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
@@ -23,12 +24,30 @@ public class StatementScope {
     private Dialog dialog;
     private final StatementContext externalContext;
     private Map<Integer, MutableContext> scope2context;
-    private int activeScope = -1;
+
+    /**
+     * Maps the active units under their parent (!) scope
+     */
+    private Map<Integer, QName> activeBelowScope = new HashMap<Integer, QName>();
 
     public StatementScope(Dialog dialog, StatementContext parentContext) {
         this.dialog = dialog;
         this.externalContext = parentContext;
         this.scope2context = new HashMap<Integer, MutableContext>();
+
+        resetActivation();
+    }
+
+    public void resetActivation() {
+
+        activeBelowScope.clear();
+
+        ActivationVisitor activation = new ActivationVisitor();
+        dialog.getInterfaceModel().accept(activation);
+        for(QName unitId : activation.getActiveItems().values())
+        {
+            activeBelowScope.put(getParentScopeId(unitId), unitId);
+        }
     }
 
     public void clearStatement(QName sourceId, String key) {
@@ -43,7 +62,6 @@ public class StatementScope {
     }
 
     public StatementContext getContext(QName interactionUnitId) {
-
 
         final Node<Integer> self = dialog.getScopeModel().findNode(interactionUnitId);
         assert self!=null : "Unit not present in shim: "+ interactionUnitId;
@@ -94,23 +112,40 @@ public class StatementScope {
     }
 
     public void activateScope(QName targetUnit) {
-        MutableContext context = (MutableContext)getContext(targetUnit);
-        this.activeScope = context.getScopeId();
 
-        //System.out.println("<< active scope "+this.activeScope+" >>");
+        int parentScopeId = getParentScopeId(targetUnit);
+
+        QName currentlyActive = activeBelowScope.get(parentScopeId);
+
+        if(!targetUnit.equals(currentlyActive))
+        {
+            System.out.println("Replace "+currentlyActive+" with "+ targetUnit);
+        }
+
+        activeBelowScope.put(parentScopeId, targetUnit);
+
     }
 
-    /**
-     * Check if the scope local to the unit is active.
-     *
-     * @param unitId
-     * @return
-     */
     public boolean isWithinActiveScope(QName unitId) {
 
-        // scope local to unit
-        MutableContext context = (MutableContext)getContext(unitId);
-        return activeScope == context.getScopeId();
+        return activeBelowScope.get(getParentScopeId(unitId)).equals(unitId);
+    }
+
+    private int getParentScopeId(QName targetUnit) {
+        final int selfScope = getScopeId(targetUnit);
+        Node<Integer> parent = dialog.getScopeModel().findNode(targetUnit).findParent(new NodePredicate<Integer>() {
+            @Override
+            public boolean appliesTo(Node<Integer> node) {
+                return node.getData() != selfScope;
+            }
+        });
+
+        return parent.getData();
+    }
+
+    private int getScopeId(QName targetUnit) {
+        MutableContext context = (MutableContext)getContext(targetUnit);
+        return context.getScopeId();
     }
 
     interface MutableContext extends StatementContext {
