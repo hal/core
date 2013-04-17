@@ -1,6 +1,7 @@
 package org.useware.kernel.model;
 
 import org.useware.kernel.model.scopes.InterfaceStructureShim;
+import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.scopes.ScopeAssignment;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
@@ -17,8 +18,7 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 public class Dialog {
     private QName id;
     private InteractionUnit root;
-    private InterfaceStructureShim<Integer> scopeModel;
-    //private BehaviourResolution behaviour;
+    private InterfaceStructureShim<Scope> scopeModel;
 
     public Dialog(QName id, InteractionUnit root) {
         this.id = id;
@@ -70,7 +70,7 @@ public class Dialog {
         return result.getUnit();
     }
 
-    public InterfaceStructureShim<Integer> getScopeModel() {
+    public InterfaceStructureShim<Scope> getScopeModel() {
         assert this.scopeModel !=null : "Scope model not set";
         return this.scopeModel;
     }

@@ -5,9 +5,10 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.OrgChart;
-import org.useware.kernel.gui.reification.ActivationVisitor;
+import org.useware.kernel.model.scopes.DefaultActivationVisitor;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
+import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -117,20 +118,21 @@ public class DialogVisualization
         {
             String id = interactionUnit.getId().toString();
             String name = interactionUnit.getLabel() == null ? interactionUnit.getId().getLocalPart() : interactionUnit.getLabel();
+
             Container container = this.container.isEmpty() ? null : this.container.peek();
             String parentId = container != null ? container.getId().toString() : null;
 
             // default activation
-            ActivationVisitor activation = new ActivationVisitor();
+            DefaultActivationVisitor activation = new DefaultActivationVisitor();
             dialog.getInterfaceModel().accept(activation);
             Map<Integer,QName> activeItems = activation.getActiveItems();
 
             String style = activeItems.values().contains(interactionUnit.getId()) ? ACTIVE_STYLE : INACTIVE_STYLE;
 
             // statement context shim visualisation
-            Node<Integer> self = dialog.getScopeModel().findNode(interactionUnit.getId());
-            Integer scope = self.getData();
-            String color = scope>colors.length ? "#ffffff" : colors[scope];
+            Node<Scope> self = dialog.getScopeModel().findNode(interactionUnit.getId());
+            Integer scopeId = self.getData().getScopeId();
+            String color = scopeId>colors.length ? "#ffffff" : colors[scopeId];
 
             if (interactionUnit instanceof Container)
             {
@@ -155,7 +157,7 @@ public class DialogVisualization
             if (interactionUnit.doesProduce())
                 tooltip.append("[output]\n").append(interactionUnit.getOutputs()).append("\n\n");
 
-            tooltip.append("[scope]\n").append(scope).append("\n");
+            tooltip.append("[scope]\n").append(scopeId).append("\n");
 
 
             dataTable.addRow();

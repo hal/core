@@ -1,13 +1,11 @@
 package org.useware.kernel.model;
 
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.junit.Before;
 import org.junit.Test;
 import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.gui.behaviour.StatementScope;
-import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.scopes.InterfaceStructureShim;
-import org.useware.kernel.model.scopes.ScopeAssignment;
+import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -29,7 +27,6 @@ public class ScopeTest {
 
     private Dialog dialog;
     private static String ns = "org.jboss.transactions";
-    private ScopeAssignment scopeAssignment;
 
     static final QName basicAttributes = new QName(ns, "transactionManager#basicAttributes");
     static final QName processAttributes = new QName(ns, "transactionManager#processAttributes");
@@ -60,23 +57,16 @@ public class ScopeTest {
         .build();
 
         this.dialog = new Dialog(QName.valueOf("org.jboss.as:transaction-subsystem"), root);
-
-        // assign scopes
-        scopeAssignment = new ScopeAssignment();
-        dialog.getInterfaceModel().accept(scopeAssignment);
-        dialog.setScopeModel(scopeAssignment.getShim());
     }
 
     @Test
     public void testScopeAssignment()
     {
 
-        assertEquals("Expected 3 scopes within model", 3, scopeAssignment.getContextIds().size());
-
-        InterfaceStructureShim<Integer> shim = scopeAssignment.getShim();
-        Integer basicAttScope = shim.findNode(basicAttributes).getData();
-        Integer processAttScope = shim.findNode(processAttributes).getData();
-        Integer recoveryAttScope = shim.findNode(recoveryAttributes).getData();
+        InterfaceStructureShim<Scope> shim = dialog.getScopeModel();
+        Integer basicAttScope = shim.findNode(basicAttributes).getData().getScopeId();
+        Integer processAttScope = shim.findNode(processAttributes).getData().getScopeId();
+        Integer recoveryAttScope = shim.findNode(recoveryAttributes).getData().getScopeId();
 
         // choice operators create separate scopes for container children
         assertNotEquals("Unit's should not share the same scope", basicAttScope, processAttScope);

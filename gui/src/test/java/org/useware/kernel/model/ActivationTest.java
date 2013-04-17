@@ -3,8 +3,7 @@ package org.useware.kernel.model;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SecurityDomainsSample;
 import org.junit.Before;
 import org.junit.Test;
-import org.useware.kernel.gui.reification.ActivationVisitor;
-import org.useware.kernel.model.scopes.ScopeAssignment;
+import org.useware.kernel.model.scopes.DefaultActivationVisitor;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.Map;
@@ -19,23 +18,17 @@ import static org.junit.Assert.assertFalse;
 public class ActivationTest {
 
     private Dialog dialog;
-    private ScopeAssignment scopeAssignment;
 
     @Before
     public void setUp()
     {
         this.dialog = new SecurityDomainsSample().getDialog();
-
-        // assign scopes
-        scopeAssignment = new ScopeAssignment();
-        dialog.getInterfaceModel().accept(scopeAssignment);
-        dialog.setScopeModel(scopeAssignment.getShim());
     }
 
     @Test
     public void testDefaultActivation() {
 
-        ActivationVisitor activation = new ActivationVisitor();
+        DefaultActivationVisitor activation = new DefaultActivationVisitor();
         dialog.getInterfaceModel().accept(activation);
         Map<Integer,QName> activeItems = activation.getActiveItems();
         assertFalse(activeItems.isEmpty());

@@ -11,7 +11,7 @@ import org.useware.kernel.gui.behaviour.common.ActivationProcedure;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.behaviour.common.NavigationProcedure;
 import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
-import org.useware.kernel.gui.reification.ActivationVisitor;
+import org.useware.kernel.model.scopes.DefaultActivationVisitor;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
@@ -123,7 +123,7 @@ public class InteractionCoordinator implements KernelContract,
 
     @Override
     public void activate() {
-        ActivationVisitor activation = new ActivationVisitor();
+        DefaultActivationVisitor activation = new DefaultActivationVisitor();
         dialog.getInterfaceModel().accept(activation);
         Map<Integer,QName> activeItems = activation.getActiveItems();
 

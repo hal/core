@@ -1,4 +1,4 @@
-package org.useware.kernel.gui.reification;
+package org.useware.kernel.model.scopes;
 
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
@@ -15,7 +15,7 @@ import java.util.Stack;
  *
  * @author Heiko Braun
  */
-public class ActivationVisitor implements InteractionUnitVisitor {
+public class DefaultActivationVisitor implements InteractionUnitVisitor {
 
     private Stack<Container> stack = new Stack<Container>();
     private Map<Integer, QName> activeItems = new HashMap<Integer,QName>();

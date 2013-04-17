@@ -1,9 +1,10 @@
 package org.useware.kernel.gui.behaviour;
 
-import org.useware.kernel.gui.reification.ActivationVisitor;
+import org.useware.kernel.model.scopes.DefaultActivationVisitor;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
+import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class StatementScope {
 
         activeBelowScope.clear();
 
-        ActivationVisitor activation = new ActivationVisitor();
+        DefaultActivationVisitor activation = new DefaultActivationVisitor();
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {
@@ -56,6 +57,7 @@ public class StatementScope {
 
     public void setStatement(QName interactionUnitId, String key, String value) {
         MutableContext context = (MutableContext) getContext(interactionUnitId);
+        assert context!=null : "No context for " + interactionUnitId;
 
         System.out.println(">> Set '"+key+"' on scope ["+context.getScopeId()+"]: "+value);
         context.setStatement(key, value);
@@ -63,25 +65,25 @@ public class StatementScope {
 
     public StatementContext getContext(QName interactionUnitId) {
 
-        final Node<Integer> self = dialog.getScopeModel().findNode(interactionUnitId);
+        final Node<Scope> self = dialog.getScopeModel().findNode(interactionUnitId);
         assert self!=null : "Unit not present in shim: "+ interactionUnitId;
 
-        Integer scope = self.getData();
+        Scope scope = self.getData();
 
         // lazy initialisation
-        if(!scope2context.containsKey(scope))
+        if(!scope2context.containsKey(scope.getScopeId()))
         {
 
             // extract parent scopes
 
-            List<Node<Integer>> parentScopeNodes = self.collectParents(new NodePredicate<Integer>() {
+            List<Node<Scope>> parentScopeNodes = self.collectParents(new NodePredicate<Scope>() {
                 Set<Integer> tracked = new HashSet<Integer>();
 
                 @Override
-                public boolean appliesTo(Node<Integer> candidate) {
-                    if (self.getData() != candidate.getData()) {
-                        if (!tracked.contains(candidate.getData())) {
-                            tracked.add(candidate.getData());
+                public boolean appliesTo(Node<Scope> candidate) {
+                    if (self.getData().getScopeId() != candidate.getData().getScopeId()) {
+                        if (!tracked.contains(candidate.getData().getScopeId())) {
+                            tracked.add(candidate.getData().getScopeId());
                             return true;
                         }
 
@@ -94,12 +96,12 @@ public class StatementScope {
 
             // delegation scheme
             List<Integer> parentScopeIds = new LinkedList<Integer>();
-            for(Node<Integer> parentNode : parentScopeNodes)
+            for(Node<Scope> parentNode : parentScopeNodes)
             {
-                parentScopeIds.add(parentNode.getData());
+                parentScopeIds.add(parentNode.getData().getScopeId());
             }
 
-            scope2context.put(scope, new ParentDelegationContextImpl(scope, externalContext, parentScopeIds,
+            scope2context.put(scope.getScopeId(), new ParentDelegationContextImpl(scope.getScopeId(), externalContext, parentScopeIds,
                     new Scopes() {
                         @Override
                         public StatementContext get(Integer scopeId) {
@@ -108,7 +110,7 @@ public class StatementScope {
                     }));
         }
 
-        return scope2context.get(scope);
+        return scope2context.get(scope.getScopeId());
     }
 
     public void activateScope(QName targetUnit) {
@@ -127,24 +129,26 @@ public class StatementScope {
     }
 
     public boolean isWithinActiveScope(QName unitId) {
+        QName activeUnit= activeBelowScope.get(getParentScopeId(unitId));
+        return activeUnit!=null && activeUnit.equals(unitId);
 
-        return activeBelowScope.get(getParentScopeId(unitId)).equals(unitId);
     }
 
     private int getParentScopeId(QName targetUnit) {
         final int selfScope = getScopeId(targetUnit);
-        Node<Integer> parent = dialog.getScopeModel().findNode(targetUnit).findParent(new NodePredicate<Integer>() {
+        Node<Scope> parent = dialog.getScopeModel().findNode(targetUnit).findParent(new NodePredicate<Scope>() {
             @Override
-            public boolean appliesTo(Node<Integer> node) {
-                return node.getData() != selfScope;
+            public boolean appliesTo(Node<Scope> node) {
+                return node.getData().getScopeId() != selfScope;
             }
         });
 
-        return parent.getData();
+        return parent.getData().getScopeId();
     }
 
     private int getScopeId(QName targetUnit) {
         MutableContext context = (MutableContext)getContext(targetUnit);
+        assert context!=null : "No context for "+targetUnit;
         return context.getScopeId();
     }
 

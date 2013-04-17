@@ -1,28 +1,32 @@
 package org.useware.kernel.model.scopes;
 
-import org.useware.kernel.model.mapping.Node;
+/**
+ * @author Heiko Braun
+ * @date 4/17/13
+ */
+public final class Scope {
 
-public abstract class Scope {
+    private int scopeId;
+    private boolean demarcationType;
 
-    Node<Integer> node;
-    Integer previousContext = null;
-
-    protected Scope(Node<Integer> container) {
-        this.node = container;
+    public Scope(int scopeId, boolean demarcationType) {
+        this.scopeId = scopeId;
+        this.demarcationType = demarcationType;
     }
 
-    public Integer getPreviousContext() {
-        return previousContext;
+    public int getScopeId() {
+        return scopeId;
     }
 
-    protected Scope(Node<Integer> container, Integer previousContext) {
-        this.node = container;
-        this.previousContext = previousContext;
+    public boolean isDemarcationType() {
+        return demarcationType;
     }
 
-    public Node<Integer> getNode() {
-        return node;
+    @Override
+    public String toString() {
+        return "Scope{" +
+                "id=" + scopeId +
+                ", demarcation=" + demarcationType +
+                '}';
     }
-
-    abstract Integer getContextId();
 }
