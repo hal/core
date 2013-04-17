@@ -48,81 +48,106 @@ public class ScopeTest {
         // structure & mapping
         InteractionUnit root = new Builder()
                 .start(overview)
-                    .add(basicAttributes)
-                    .start(details)
-                        .add(processAttributes)
-                        .add(recoveryAttributes)
-                    .end()
+                .add(basicAttributes)
+                .start(details)
+                .add(processAttributes)
+                .add(recoveryAttributes)
                 .end()
-        .build();
+                .end()
+                .build();
 
         this.dialog = new Dialog(QName.valueOf("org.jboss.as:transaction-subsystem"), root);
     }
 
+    /**
+     * Test assignment of scopes
+     */
     @Test
     public void testScopeAssignment()
     {
 
-        InterfaceStructureShim<Scope> shim = dialog.getScopeModel();
-        Integer basicAttScope = shim.findNode(basicAttributes).getData().getScopeId();
-        Integer processAttScope = shim.findNode(processAttributes).getData().getScopeId();
-        Integer recoveryAttScope = shim.findNode(recoveryAttributes).getData().getScopeId();
+        InterfaceStructureShim<Scope> scopeModel = dialog.getScopeModel();
+        Integer basicAttScope = scopeModel.findNode(basicAttributes).getData().getScopeId();
+        Integer processAttScope = scopeModel.findNode(processAttributes).getData().getScopeId();
+        Integer recoveryAttScope = scopeModel.findNode(recoveryAttributes).getData().getScopeId();
 
         // choice operators create separate scopes for container children
         assertNotEquals("Unit's should not share the same scope", basicAttScope, processAttScope);
         assertNotEquals("Unit's should not share the same scope", processAttScope, recoveryAttScope);
     }
 
+    /**
+     * Test resolution of statements across scope hierarchy
+     */
     @Test
     public void testStatementResolution() {
-        DialogState statementScope = new DialogState(dialog, new StatementContext() {
-            @Override
-            public String get(String key) {
-                return null;
-            }
-
-            @Override
-            public String[] getTuple(String key) {
-                return null;
-            }
-
-            @Override
-            public String resolve(String key) {
-                return null;
-            }
-
-            @Override
-            public String[] resolveTuple(String key) {
-                return null;
-            }
-
-            @Override
-            public LinkedList<String> collect(String key) {
-                return null;
-            }
-
-            @Override
-            public LinkedList<String[]> collectTuples(String key) {
-                return null;
-            }
-        });
+        DialogState dialogState = new DialogState(dialog, new NoopContext());
 
         // statement resolved form parent scope
-        statementScope.setStatement(basicAttributes, "foo", "bar");
-        String statement = statementScope.getContext(processAttributes).resolve("foo");
+        dialogState.setStatement(basicAttributes, "foo", "bar");
+        String statement = dialogState.getContext(processAttributes).resolve("foo");
         assertNotNull("Statement should be resolved from parent scope", statement);
         assertEquals("bar", statement);
 
         // child scope overrides statement
-        statementScope.setStatement(processAttributes, "foo", "anotherBar");
-        statement = statementScope.getContext(processAttributes).resolve("foo");
+        dialogState.setStatement(processAttributes, "foo", "anotherBar");
+        statement = dialogState.getContext(processAttributes).resolve("foo");
         assertEquals("anotherBar", statement);
 
         // collect statement across scopes
-        LinkedList<String> statements = statementScope.getContext(processAttributes).collect("foo");
+        LinkedList<String> statements = dialogState.getContext(processAttributes).collect("foo");
         assertTrue("Expected two statement for key 'foo'", statements.size()==2);
         assertTrue("Expected correct statement values in right order", statements.get(0).equals("anotherBar"));
         assertTrue("Expected correct statement values in right order", statements.get(1).equals("bar"));
+    }
+
+    /**
+     * Deactivation of units on the same level
+     */
+    @Test
+    public void testDeactivation() {
+        DialogState dialogState = new DialogState(dialog, new NoopContext());
+
+        assertTrue("Unit should be active by default", dialogState.isWithinActiveScope(processAttributes));
+        assertFalse("Unit should be deactive by default", dialogState.isWithinActiveScope(recoveryAttributes));
+
+        dialogState.activateScope(recoveryAttributes);
+
+        assertTrue("Unit should be active", dialogState.isWithinActiveScope(recoveryAttributes));
+        assertFalse("Unit should be inactive", dialogState.isWithinActiveScope(processAttributes));
+    }
+
+    class NoopContext implements StatementContext {
+
+        @Override
+        public String get(String key) {
+            return null;
+        }
+
+        @Override
+        public String[] getTuple(String key) {
+            return null;
+        }
+
+        @Override
+        public String resolve(String key) {
+            return null;
+        }
+
+        @Override
+        public String[] resolveTuple(String key) {
+            return null;
+        }
+
+        @Override
+        public LinkedList<String> collect(String key) {
+            return null;
+        }
+
+        @Override
+        public LinkedList<String[]> collectTuples(String key) {
+            return null;
+        }
     }
 
 }
