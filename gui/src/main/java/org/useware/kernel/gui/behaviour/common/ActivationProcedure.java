@@ -32,10 +32,7 @@ public class ActivationProcedure extends Procedure {
 
                 // activate scope
                 coordinator.getStatementScope().activateScope(targetUnit);
-                //assert getRuntimeAPI().canBeActivated(targetUnit) : "Unit is not activatable: "+ targetUnit;
-
-                if(!getRuntimeAPI().canBeActivated(targetUnit))
-                    System.out.println("WARN: Unit is not activatable: "+ targetUnit);
+                assert getRuntimeAPI().canBeActivated(targetUnit) : "Unit is not activatable: "+ targetUnit;
 
                 System.out.println("Activate: "+targetUnit);
 
