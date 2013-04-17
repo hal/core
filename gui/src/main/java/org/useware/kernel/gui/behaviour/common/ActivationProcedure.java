@@ -10,6 +10,8 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.QName;
 
 /**
+ * Verifies activation constraints and activate a unit and it's corresponding scope.
+ *
  * @author Heiko Braun
  * @date 2/26/13
  */
@@ -29,15 +31,15 @@ public class ActivationProcedure extends Procedure {
                 // activate target unit
                 QName targetUnit = (QName)data;
 
-                // activate scope
-                coordinator.getDialogState().activateScope(targetUnit);
+                // 1.) verify activation constraints
                 assert getRuntimeAPI().canBeActivated(targetUnit) : "Unit is not activatable: "+ targetUnit;
 
-                System.out.println("Activate: "+targetUnit);
+                // 2.) activate the scope of the unit
+                coordinator.getDialogState().activateScope(targetUnit);
 
+                // 3.) activate the unit itself
                 SystemEvent activationEvent = new SystemEvent(CommonQNames.ACTIVATION_ID);
                 activationEvent.setPayload(targetUnit);
-
                 coordinator.fireEvent(activationEvent);
 
             }
