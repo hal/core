@@ -13,8 +13,15 @@ import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.useware.kernel.model.structure.TemporalOperator.Deactivation;
 
 /**
- * Assign scopes interaction units to scopes. Relies on a shim tree of the structure model.
- * @param <S>
+ * Assign scopes interaction units to scopes.Creates a shim tree of the structure model.
+ * <p/>
+ * Scopes are assigned by interpretation of {@link org.useware.kernel.model.structure.TemporalOperator}'s.
+ * If an operator acts as a scope boundary then a new scope id wil be assigned.
+ * Atomic units inherit the scoped of their parents.
+ *
+ * @param <S> the supported stereotypes
+ *
+ * @see org.useware.kernel.model.structure.TemporalOperator#isScopeBoundary()
  *
  * @author Heiko Braun
  */
@@ -68,7 +75,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
         if(container.getTemporalOperator().isScopeBoundary())
         {
-            // distinct context, new UUID
+            // scope boundary, assign new scope id
             stack.push(new Scope(containerNode, stack.peek().getContextId()) {
                 @Override
                 Integer getContextId() {
@@ -95,6 +102,9 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
     @Override
     public void visit(InteractionUnit<S> interactionUnit) {
+
+        // atomic units inherit the scope from their parents
+
         Scope scope = stack.peek();
         Node<Integer> node = scope.getNode().addChild(interactionUnit.getId());
         node.setData(stack.peek().getContextId());
