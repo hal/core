@@ -46,36 +46,45 @@ public enum TemporalOperator
     /**
      * Exactly one of two tasks will be fulfilled.
      */
-    Choice,
+    Choice(true),
 
     /**
      * The tasks must be accomplished in the given order. The second task
      * must wait until the first one has been fulfilled.
      */
-    Sequence,
+    Sequence(false),
 
     /**
      * The two tasks can be accomplished in any arbitrary
      * order. However, when the first task has been performed, the second one has to wait for
      * the first one to be finalized or aborted.
      */
-    OrderIndependance,
+    OrderIndependance(false),
 
     /**
      * The two tasks can be accomplished in any arbitrary order, even
      * in parallel at the same time (i.e., concurrently).
      */
-    Concurrency,
+    Concurrency(false),
 
     /**
      * The second task interrupts and deactivates the first task.
      */
-    Deactivation,
+    Deactivation(true),
 
     /**
      * First task can be interrupted by the second one.
      * When the second terminates then the first one can be reactivated from the state reached before.
      */
-    SuspendResume
+    SuspendResume(true);
 
+    private boolean scopeBoundary;
+
+    private TemporalOperator(boolean scopeBoundary) {
+        this.scopeBoundary = scopeBoundary;
+    }
+
+    public boolean isScopeBoundary() {
+        return scopeBoundary;
+    }
 }

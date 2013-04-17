@@ -32,7 +32,7 @@ public class ActivationVisitor implements InteractionUnitVisitor {
         stack.push(container);
 
         if(prev!=null
-                && prev.getTemporalOperator().equals(TemporalOperator.Choice)
+                && prev.getTemporalOperator().isScopeBoundary()
                 && !pastPivot)
         {
             QName activeChild = activeItems.get(stack.size()-1);

@@ -66,9 +66,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             containerNode = stack.peek().getNode().addChild(container.getId());
         }
 
-        boolean demarcationType = (Deactivation == container.getTemporalOperator() || Choice == container.getTemporalOperator());
-
-        if(demarcationType)
+        if(container.getTemporalOperator().isScopeBoundary())
         {
             // distinct context, new UUID
             stack.push(new Scope(containerNode, stack.peek().getContextId()) {
