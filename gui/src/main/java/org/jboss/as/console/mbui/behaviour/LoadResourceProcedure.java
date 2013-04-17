@@ -83,6 +83,10 @@ public class LoadResourceProcedure extends Procedure {
             setPrecondition(new Precondition() {
                 @Override
                 public boolean isMet(StatementContext statementContext) {
+
+                    // fail fast if not scope active
+                    if(!getRuntimeAPI().isActive(unit.getId())) return false;
+
                     boolean isMet = false;
                     for(String key : requiredStatements)
                     {
@@ -97,6 +101,8 @@ public class LoadResourceProcedure extends Procedure {
     }
 
     private void loadResource(final String name, AddressMapping address) {
+
+        System.out.println("Exec: "+ID+" on behalf of " + unit.getId());
 
         // TODO: resolve once and re-use
         StatementContext statementContext = statementScope.getContext(unit.getId());
