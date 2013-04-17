@@ -28,7 +28,7 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
     private ResourceConsumption consumption = new ResourceConsumption();
 
     protected InteractionCoordinator coordinator;
-    protected StatementScope statementScope;
+    protected DialogState statementScope;
     protected Precondition precondition;
 
     private ProcedureRuntimeAPI runtimeAPI;
@@ -81,7 +81,7 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
         this.coordinator = coordinator;
     }
 
-    void setStatementScope(StatementScope scope) {
+    void setStatementScope(DialogState scope) {
         this.statementScope = scope;
     }
 

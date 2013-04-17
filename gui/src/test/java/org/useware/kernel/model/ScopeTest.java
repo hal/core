@@ -2,8 +2,8 @@ package org.useware.kernel.model;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.useware.kernel.gui.behaviour.DialogState;
 import org.useware.kernel.gui.behaviour.StatementContext;
-import org.useware.kernel.gui.behaviour.StatementScope;
 import org.useware.kernel.model.scopes.InterfaceStructureShim;
 import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.Container;
@@ -75,7 +75,7 @@ public class ScopeTest {
 
     @Test
     public void testStatementResolution() {
-        StatementScope statementScope = new StatementScope(dialog, new StatementContext() {
+        DialogState statementScope = new DialogState(dialog, new StatementContext() {
             @Override
             public String get(String key) {
                 return null;

@@ -11,15 +11,15 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 3/20/13
  */
-class ParentDelegationContextImpl implements StatementScope.MutableContext{
+class ParentDelegationContextImpl implements DialogState.MutableContext{
 
     Map<String,String> delegate = new HashMap<String,String>();
     private final List<Integer> parentScopeIds;
     private final StatementContext externalContext;
-    private final StatementScope.Scopes availableScopes;
+    private final DialogState.Scopes availableScopes;
     private final Integer scopeId;
 
-    public ParentDelegationContextImpl(Integer scopeId, StatementContext externalContext, List<Integer> parentScopeIds, StatementScope.Scopes scopes) {
+    public ParentDelegationContextImpl(Integer scopeId, StatementContext externalContext, List<Integer> parentScopeIds, DialogState.Scopes scopes) {
         this.externalContext = externalContext;
         this.parentScopeIds = parentScopeIds;
         this.availableScopes = scopes;

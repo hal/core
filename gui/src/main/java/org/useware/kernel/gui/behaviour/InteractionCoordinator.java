@@ -44,7 +44,7 @@ public class InteractionCoordinator implements KernelContract,
     private EventBus bus;
     private BehaviourMap<Procedure> procedures = new BehaviourMap<Procedure>();
     private Dialog dialog;
-    private StatementScope statementScope;
+    private DialogState dialogState;
     private final NavigationDelegate navigationDelegate;
 
     @Inject
@@ -52,7 +52,7 @@ public class InteractionCoordinator implements KernelContract,
         this.dialog = dialog;
         this.bus = new SimpleEventBus();
         this.navigationDelegate = navigationDelegate;
-        this.statementScope = new StatementScope(dialog, parentContext);
+        this.dialogState = new DialogState(dialog, parentContext);
 
         // coordinator handles all events except presentation & system events
         bus.addHandler(InteractionEvent.TYPE, this);
@@ -67,8 +67,8 @@ public class InteractionCoordinator implements KernelContract,
 
     }
 
-    public StatementScope getStatementScope() {
-        return statementScope;
+    public DialogState getDialogState() {
+        return dialogState;
     }
 
     public EventBus getLocalBus()
@@ -78,7 +78,7 @@ public class InteractionCoordinator implements KernelContract,
 
     @Override
     public boolean isActive(QName interactionUnit) {
-        return statementScope.isWithinActiveScope(interactionUnit);
+        return dialogState.isWithinActiveScope(interactionUnit);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class InteractionCoordinator implements KernelContract,
 
         // provide context
         procedure.setCoordinator(this);
-        procedure.setStatementScope(statementScope);
+        procedure.setStatementScope(dialogState);
         procedure.setRuntimeAPI(this);
 
         procedures.add(procedure);
@@ -211,7 +211,7 @@ public class InteractionCoordinator implements KernelContract,
      * @return
      */
     private StatementContext getStatementContext(QName interactionUnitId) {
-        return statementScope.getContext(interactionUnitId);
+        return dialogState.getContext(interactionUnitId);
     }
 
     @Override
@@ -282,11 +282,11 @@ public class InteractionCoordinator implements KernelContract,
     @Override
     public void setStatement(QName sourceId, String key, String value) {
 
-        statementScope.setStatement(sourceId, key, value);
+        dialogState.setStatement(sourceId, key, value);
     }
 
     @Override
     public void clearStatement(QName sourceId, String key, String value) {
-        statementScope.clearStatement(sourceId, key);
+        dialogState.clearStatement(sourceId, key);
     }
 }

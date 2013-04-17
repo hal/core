@@ -157,7 +157,7 @@ public class ReadResourceDescription extends ReificationBootstrap
         {
             InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
 
-            final StatementContext delegate = coordinator.getStatementScope().getContext(interactionUnit.getId());
+            final StatementContext delegate = coordinator.getDialogState().getContext(interactionUnit.getId());
             assert delegate != null : "StatementContext not provided";
 
             DMRMapping mapping = (DMRMapping) interactionUnit.findMapping(DMR, new Predicate<DMRMapping>()

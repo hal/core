@@ -3,7 +3,6 @@ package org.useware.kernel.gui.behaviour.common;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.ModelDrivenCommand;
 import org.useware.kernel.gui.behaviour.Procedure;
-import org.useware.kernel.gui.behaviour.ProcedureRuntimeAPI;
 import org.useware.kernel.gui.behaviour.SystemEvent;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
@@ -31,7 +30,7 @@ public class ActivationProcedure extends Procedure {
                 QName targetUnit = (QName)data;
 
                 // activate scope
-                coordinator.getStatementScope().activateScope(targetUnit);
+                coordinator.getDialogState().activateScope(targetUnit);
                 assert getRuntimeAPI().canBeActivated(targetUnit) : "Unit is not activatable: "+ targetUnit;
 
                 System.out.println("Activate: "+targetUnit);

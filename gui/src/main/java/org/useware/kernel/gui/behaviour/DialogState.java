@@ -20,7 +20,7 @@ import java.util.Set;
  * @author Heiko Braun
  * @date 1/22/13
  */
-public class StatementScope {
+public class DialogState {
 
     private Dialog dialog;
     private final StatementContext externalContext;
@@ -31,7 +31,7 @@ public class StatementScope {
      */
     private Map<Integer, QName> activeBelowScope = new HashMap<Integer, QName>();
 
-    public StatementScope(Dialog dialog, StatementContext parentContext) {
+    public DialogState(Dialog dialog, StatementContext parentContext) {
         this.dialog = dialog;
         this.externalContext = parentContext;
         this.scope2context = new HashMap<Integer, MutableContext>();
