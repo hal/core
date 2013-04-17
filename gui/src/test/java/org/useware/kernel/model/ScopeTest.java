@@ -117,37 +117,6 @@ public class ScopeTest {
         assertFalse("Unit should be inactive", dialogState.isWithinActiveScope(processAttributes));
     }
 
-    class NoopContext implements StatementContext {
 
-        @Override
-        public String get(String key) {
-            return null;
-        }
-
-        @Override
-        public String[] getTuple(String key) {
-            return null;
-        }
-
-        @Override
-        public String resolve(String key) {
-            return null;
-        }
-
-        @Override
-        public String[] resolveTuple(String key) {
-            return null;
-        }
-
-        @Override
-        public LinkedList<String> collect(String key) {
-            return null;
-        }
-
-        @Override
-        public LinkedList<String[]> collectTuples(String key) {
-            return null;
-        }
-    }
 
 }

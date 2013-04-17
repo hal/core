@@ -128,6 +128,14 @@ public class DialogState {
 
     }
 
+    public boolean canBeActivated(QName interactionUnit) {
+
+        // a unit can be activated if the parent is a demarcation type
+        Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
+        assert node!=null : "Unit doesn't exist in shim: "+interactionUnit;
+        return node.getParent().getData().isDemarcationType();
+    }
+
     public boolean isWithinActiveScope(QName unitId) {
         QName activeUnit= activeBelowScope.get(getParentScopeId(unitId));
         return activeUnit!=null && activeUnit.equals(unitId);

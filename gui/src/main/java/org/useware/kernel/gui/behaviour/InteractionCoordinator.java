@@ -83,10 +83,7 @@ public class InteractionCoordinator implements KernelContract,
 
     @Override
     public boolean canBeActivated(QName interactionUnit) {
-
-        // a unit can be activated if the parent is a demarcation type
-        Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
-        return node.getParent().getData().isDemarcationType();
+        return dialogState.canBeActivated(interactionUnit);
     }
 
     /**

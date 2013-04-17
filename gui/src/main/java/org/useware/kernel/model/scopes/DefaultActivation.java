@@ -44,16 +44,13 @@ public class DefaultActivation implements InteractionUnitVisitor {
     @Override
     public void visit(InteractionUnit unit) {
 
-
-        /*  Ignore atomic units
-
-        QName activeChild = activeItems.get(stack.size()-1);
+        /*QName activeChild = activeItems.get(stack.size()-1);
 
         if(null==activeChild && !pastPivot)
         {
-            activeItems.put(stack.size()-1, unit.getOrCreateId());
-        }
-         */
+            activeItems.put(stack.size()-1, unit.getId());
+        }*/
+
     }
 
     @Override
