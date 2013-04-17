@@ -50,7 +50,15 @@ To run a customised EAP build (L&F) follow these steps:
 
 Due to the increased number of permutations (additional languages) the full compile times have increased quiet drastically. To work around this problem during development, we've added a development build profile that restricts the languages to english and the browser permutations to firefox:
 
+1. Build
+
 	mvn -Pdev clean install
+
+2. Run hosted mode
+
+    cd 'build/app'
+    mvn -Pdev gwt:run
+
 
 ## Bind Address
 
