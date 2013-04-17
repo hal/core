@@ -5,7 +5,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.OrgChart;
-import org.useware.kernel.model.scopes.DefaultActivationVisitor;
+import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.scopes.Scope;
@@ -123,7 +123,7 @@ public class DialogVisualization
             String parentId = container != null ? container.getId().toString() : null;
 
             // default activation
-            DefaultActivationVisitor activation = new DefaultActivationVisitor();
+            DefaultActivation activation = new DefaultActivation();
             dialog.getInterfaceModel().accept(activation);
             Map<Integer,QName> activeItems = activation.getActiveItems();
 
@@ -132,7 +132,7 @@ public class DialogVisualization
             // statement context shim visualisation
             Node<Scope> self = dialog.getScopeModel().findNode(interactionUnit.getId());
             Integer scopeId = self.getData().getScopeId();
-            String color = scopeId>colors.length ? "#ffffff" : colors[scopeId];
+            String color = scopeId>colors.length-1 ? "#ffffff" : colors[scopeId];
 
             if (interactionUnit instanceof Container)
             {
@@ -158,6 +158,7 @@ public class DialogVisualization
                 tooltip.append("[output]\n").append(interactionUnit.getOutputs()).append("\n\n");
 
             tooltip.append("[scope]\n").append(scopeId).append("\n");
+            tooltip.append("demarcation: ").append(self.getData().isDemarcationType()).append("\n");
 
 
             dataTable.addRow();

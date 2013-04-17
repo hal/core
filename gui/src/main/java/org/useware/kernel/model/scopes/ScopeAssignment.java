@@ -24,7 +24,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
     private final InterfaceStructureShim<Scope> scopeShim;
 
-    private Stack<ScopeRef> stack = new Stack<ScopeRef>();
+    private Stack<ChildStrategy> stack = new Stack<ChildStrategy>();
 
     private int scopeIdx = 0;
 
@@ -48,14 +48,15 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             final Node<Scope> rootNode = new Node<Scope>(container.getId());
             rootNode.setData(new Scope(createContextId(), true));
             scopeShim.setRootElement(rootNode);
-            stack.push(new ScopeRef(rootNode) {
+
+            stack.push(new ChildStrategy(rootNode) {
                 @Override
-                Integer getContextId() {
+                Integer getOrCreateId() {
                     return rootNode.getData().getScopeId();
                 }
 
                 @Override
-                boolean isDemarcationUnit() {
+                boolean childStartsNewScope() {
                     return true;
                 }
             });
@@ -70,15 +71,15 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
         if(container.getTemporalOperator().isScopeBoundary())
         {
-            // scope boundary, assign new scope id
-            stack.push(new ScopeRef(containerNode, stack.peek().getContextId()) {
+            // children of boundary units will assign new scopes
+            stack.push(new ChildStrategy(containerNode, stack.peek().getOrCreateId()) {
                 @Override
-                Integer getContextId() {
+                Integer getOrCreateId() {
                     return createContextId();
                 }
 
                 @Override
-                boolean isDemarcationUnit() {
+                boolean childStartsNewScope() {
                     return true;
                 }
             });
@@ -86,17 +87,17 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         }
         else
         {
-            // re-use parent context id
-            final Integer sharedContextId = stack.peek().getContextId();
-            stack.push(new ScopeRef(containerNode) {
+            // children of regular units will the the parent scope
+            final Integer sharedContextId = stack.peek().getOrCreateId();
+            stack.push(new ChildStrategy(containerNode) {
 
                 @Override
-                Integer getContextId() {
+                Integer getOrCreateId() {
                     return sharedContextId;
                 }
 
                 @Override
-                boolean isDemarcationUnit() {
+                boolean childStartsNewScope() {
                     return false;
                 }
             });
@@ -108,22 +109,40 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     @Override
     public void visit(InteractionUnit<S> interactionUnit) {
 
-        // atomic units inherit the scope from their parents
+        ChildStrategy strategy = stack.peek();
+        Node<Scope> node = strategy.getNode().addChild(interactionUnit.getId());
+        node.setData(new Scope(
+                strategy.getOrCreateId(),
+                strategy.childStartsNewScope())
+        );
 
-        ScopeRef scopeRef = stack.peek();
-        Node<Scope> node = scopeRef.getNode().addChild(interactionUnit.getId());
-        node.setData(new Scope(stack.peek().getContextId(), stack.peek().isDemarcationUnit()));
     }
 
     @Override
     public void endVisit(Container container) {
 
-        ScopeRef scope = stack.pop();
+        ChildStrategy strategy = stack.pop();
 
-        if(scope.getPreviousContext()!=null)
-            scope.getNode().setData(new Scope(scope.getPreviousContext(), scope.isDemarcationUnit()));
+        // the demarcation containers inherit the previous scope
+        // only their children may create new scopes (if necessary)
+        if(strategy.childStartsNewScope())
+        {
+            strategy.getNode().setData(
+                    new Scope(
+                            strategy.getPreviousScope(),
+                            strategy.childStartsNewScope()
+                    )
+            );
+        }
         else
-            scope.getNode().setData(new Scope(scope.getContextId(), scope.isDemarcationUnit()));
+        {
+            strategy.getNode().setData(
+                    new Scope(
+                            strategy.getOrCreateId(),
+                            strategy.childStartsNewScope()
+                    )
+            );
+        }
 
     }
 
@@ -132,30 +151,30 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     }
 
 
-    abstract class ScopeRef {
+    abstract class ChildStrategy {
 
         Node<Scope> node;
-        Integer previousContext = null;
+        Integer previousScope = null;
 
-        protected ScopeRef(Node<Scope> container) {
+        protected ChildStrategy(Node<Scope> container) {
             this.node = container;
         }
 
-        public Integer getPreviousContext() {
-            return previousContext;
+        public Integer getPreviousScope() {
+            return previousScope;
         }
 
-        protected ScopeRef(Node<Scope> container, Integer previousContext) {
+        protected ChildStrategy(Node<Scope> container, Integer previousScope) {
             this.node = container;
-            this.previousContext = previousContext;
+            this.previousScope = previousScope;
         }
 
         public Node<Scope> getNode() {
             return node;
         }
 
-        abstract Integer getContextId();
+        abstract Integer getOrCreateId();
 
-        abstract boolean isDemarcationUnit();
+        abstract boolean childStartsNewScope();
     }
 }

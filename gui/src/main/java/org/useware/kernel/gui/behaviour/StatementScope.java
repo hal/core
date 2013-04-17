@@ -1,6 +1,6 @@
 package org.useware.kernel.gui.behaviour;
 
-import org.useware.kernel.model.scopes.DefaultActivationVisitor;
+import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
@@ -43,7 +43,7 @@ public class StatementScope {
 
         activeBelowScope.clear();
 
-        DefaultActivationVisitor activation = new DefaultActivationVisitor();
+        DefaultActivation activation = new DefaultActivation();
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {

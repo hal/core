@@ -9,4 +9,5 @@ import org.useware.kernel.model.structure.QName;
 public interface ProcedureRuntimeAPI {
 
     boolean isActive(QName interactionUnit);
+    boolean canBeActivated(QName interactionUnit);
 }

@@ -143,6 +143,7 @@ public abstract class Procedure implements Behaviour, Consumer, Producer {
     }
 
     public ProcedureRuntimeAPI getRuntimeAPI() {
+        assert runtimeAPI!=null : "Runtime API not provided";
         return runtimeAPI;
     }
 

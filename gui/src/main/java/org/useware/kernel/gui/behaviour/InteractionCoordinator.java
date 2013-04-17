@@ -11,10 +11,12 @@ import org.useware.kernel.gui.behaviour.common.ActivationProcedure;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.behaviour.common.NavigationProcedure;
 import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
-import org.useware.kernel.model.scopes.DefaultActivationVisitor;
+import org.useware.kernel.model.mapping.Node;
+import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
@@ -58,9 +60,11 @@ public class InteractionCoordinator implements KernelContract,
         bus.addHandler(StatementEvent.TYPE, this);
 
         // global procedures
-        procedures.add(new SelectStatementProcedure(this));
-        procedures.add(new ActivationProcedure(this));
-        procedures.add(new NavigationProcedure(this));
+
+        addProcedure(new SelectStatementProcedure(this));
+        addProcedure(new ActivationProcedure(this));
+        addProcedure(new NavigationProcedure(this));
+
     }
 
     public StatementScope getStatementScope() {
@@ -75,6 +79,14 @@ public class InteractionCoordinator implements KernelContract,
     @Override
     public boolean isActive(QName interactionUnit) {
         return statementScope.isWithinActiveScope(interactionUnit);
+    }
+
+    @Override
+    public boolean canBeActivated(QName interactionUnit) {
+
+        // a unit can be activated if the parent is a demarcation type
+        Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
+        return node.getParent().getData().isDemarcationType();
     }
 
     /**
@@ -123,7 +135,7 @@ public class InteractionCoordinator implements KernelContract,
 
     @Override
     public void activate() {
-        DefaultActivationVisitor activation = new DefaultActivationVisitor();
+        DefaultActivation activation = new DefaultActivation();
         dialog.getInterfaceModel().accept(activation);
         Map<Integer,QName> activeItems = activation.getActiveItems();
 

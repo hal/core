@@ -15,7 +15,7 @@ import java.util.Stack;
  *
  * @author Heiko Braun
  */
-public class DefaultActivationVisitor implements InteractionUnitVisitor {
+public class DefaultActivation implements InteractionUnitVisitor {
 
     private Stack<Container> stack = new Stack<Container>();
     private Map<Integer, QName> activeItems = new HashMap<Integer,QName>();
@@ -51,7 +51,7 @@ public class DefaultActivationVisitor implements InteractionUnitVisitor {
 
         if(null==activeChild && !pastPivot)
         {
-            activeItems.put(stack.size()-1, unit.getId());
+            activeItems.put(stack.size()-1, unit.getOrCreateId());
         }
          */
     }
