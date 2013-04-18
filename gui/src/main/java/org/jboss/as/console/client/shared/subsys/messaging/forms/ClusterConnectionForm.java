@@ -112,14 +112,12 @@ public class ClusterConnectionForm {
         NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts");
 
         CheckBoxItem duplicateDetection = new CheckBoxItem("duplicateDetection","Duplicate Detection?");
-        CheckBoxItem allowDirect = new CheckBoxItem("allowDirect","Direct Connections?");
 
         if(isCreate)
             form.setFields(name, groupName, connectorRef, connectionAddress);
         else
             form.setFields(name, groupName, connectorRef, connectionAddress,
-                    duplicateDetection, allowDirect,
-                    forward, BlankItem.INSTANCE,
+                    duplicateDetection, forward, 
                     callTimeout, checkPeriod,
                     connectionTtl, maxHops,
                     retryInterval, maxRetryInterval,
