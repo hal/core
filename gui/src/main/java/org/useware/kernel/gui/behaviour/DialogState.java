@@ -45,10 +45,6 @@ public class DialogState {
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {
-            Scope scope = getScope(unitId);
-            scopeActivationState.put(scope.getScopeId(), true);
-            parent2childScopes.put(getParentScopeId(unitId), scope);
-
             // notify actual unit implementation
             stateCoordination.notifyActivation(unitId);
         }
@@ -118,16 +114,25 @@ public class DialogState {
         return scope2context.get(scope.getScopeId());
     }
 
+    /**
+     * Deactivates a previously active sibling scope and activate a new one.
+     * (Only a single sibling scope can be active at a time)
+     *
+     * @param targetUnit the unit from which the scope will be derived
+     */
     public void activateScope(QName targetUnit) {
 
         Scope nextScope = getScope(targetUnit);
         int parentScopeId = getParentScopeId(targetUnit);
 
         Scope activeScope = parent2childScopes.get(parentScopeId);
-        if(activeScope!=null && !activeScope.equals(nextScope))    // TODO: can be null for root elements
+        if(!nextScope.equals(activeScope))
         {
             System.out.println("Replace activation of scope "+activeScope+" with "+ nextScope);
-            scopeActivationState.put(activeScope.getScopeId(), false);
+
+            // root elements might not have an active scope
+            if(activeScope!=null)scopeActivationState.put(activeScope.getScopeId(), false);
+
             scopeActivationState.put(nextScope.getScopeId(), true);
             parent2childScopes.put(parentScopeId, nextScope);
         }
@@ -135,7 +140,7 @@ public class DialogState {
 
     /**
      * A unit can be activated if the parent is a demarcation type
-     * or it is a non demarcating root element
+     * or it is a root element
      *
      * @param interactionUnit
      * @return
