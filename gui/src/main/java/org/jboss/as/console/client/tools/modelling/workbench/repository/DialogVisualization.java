@@ -166,6 +166,7 @@ public class DialogVisualization
             dataTable.setCell(row, 0, id, name, null);
             dataTable.setValue(row, 1, parentId);
             dataTable.setValue(row, 2, tooltip.toString());
+
             row++;
         }
     }
@@ -173,7 +174,7 @@ public class DialogVisualization
 
     interface NameTemplate extends SafeHtmlTemplates
     {
-        @Template("<div style='background-color:{3}'>{1}<br/><span style=\"color:#666;\">&laquo;{2}&raquo;</span><div class='{0}'></div></div>")
+        @Template("<div class='{0}' style='background-color:{3}'>{1}<br/><span style=\"color:#666;\">&laquo;{2}&raquo;</span></div>")
         SafeHtml name(String css, String name, String stereotype, String color);
     }
 }
