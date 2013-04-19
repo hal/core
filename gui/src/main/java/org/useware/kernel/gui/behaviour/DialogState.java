@@ -120,7 +120,7 @@ public class DialogState {
         int parentScopeId = getParentScopeId(targetUnit);
 
         Scope activeScope = parent2childScopes.get(parentScopeId);
-        if(!activeScope.equals(nextScope))
+        if(activeScope!=null && !activeScope.equals(nextScope))    // TODO: can be null for root elements
         {
             System.out.println("Replace activation of scope "+activeScope+" with "+ nextScope);
             scopeActivationState.put(activeScope.getScopeId(), false);
@@ -140,10 +140,9 @@ public class DialogState {
 
         Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
         assert node!=null : "Unit doesn't exist in shim: "+interactionUnit;
-        boolean nonDemarcatingRootElement = node.getParent() == null
-                && !node.getData().isDemarcationType();
+        boolean isRootElement = node.getParent() == null;
         boolean parentIsDemarcationType = node.getParent()!=null && node.getParent().getData().isDemarcationType();
-        return nonDemarcatingRootElement || parentIsDemarcationType;
+        return isRootElement || parentIsDemarcationType;
     }
 
     public boolean isWithinActiveScope(final QName unitId) {

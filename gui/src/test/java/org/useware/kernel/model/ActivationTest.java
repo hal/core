@@ -41,7 +41,7 @@ public class ActivationTest {
             System.out.println(level + " > "+activeChild);
         }
 
-        assertEquals("Wrong number of active items", activeItems.size(), 2);
+        assertEquals("Wrong number of active items", activeItems.size(), 3);
         assertEquals(activeItems.get(3), QName.valueOf("org.jboss.security.domain:details#attributes"));
     }
 

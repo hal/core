@@ -33,8 +33,8 @@ public class DefaultActivation implements InteractionUnitVisitor {
 
         if(null==prev)
         {
-            if(!container.getTemporalOperator().isScopeBoundary())
-                activeItems.put(0, container.getId());
+            // the topmost element is always active
+            activeItems.put(0, container.getId());
         }
         else if(prev.getTemporalOperator().isScopeBoundary()
                 && !pastPivot)
