@@ -14,7 +14,7 @@ import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
-import org.useware.kernel.model.scopes.DefaultActivation;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class InteractionCoordinator implements KernelContract,
         InteractionEvent.InteractionHandler, NavigationEvent.NavigationHandler,
-        StatementEvent.StatementHandler, ProcedureExecution, ProcedureRuntimeAPI {
+        StatementEvent.StatementHandler, ProcedureExecution, ProcedureRuntimeAPI, StateCoordination {
 
     final static SystemEvent RESET = new SystemEvent(CommonQNames.RESET_ID);
 
@@ -50,7 +50,7 @@ public class InteractionCoordinator implements KernelContract,
         this.dialog = dialog;
         this.bus = new SimpleEventBus();
         this.navigationDelegate = navigationDelegate;
-        this.dialogState = new DialogState(dialog, parentContext);
+        this.dialogState = new DialogState(dialog, parentContext, this);
 
         // coordinator handles all events except presentation & system events
         bus.addHandler(InteractionEvent.TYPE, this);
@@ -127,17 +127,15 @@ public class InteractionCoordinator implements KernelContract,
 
     }
 
+    @Override
+    public void notifyActivation(QName unitId) {
+        Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
+        activateProcedure.getCommand().execute(dialog, unitId);
+    }
 
     @Override
     public void activate() {
-        DefaultActivation activation = new DefaultActivation();
-        dialog.getInterfaceModel().accept(activation);
-        Map<Integer,QName> activeItems = activation.getActiveItems();
-
-        Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
-
-        for(QName targetUnit : activeItems.values())
-            activateProcedure.getCommand().execute(dialog, targetUnit);
+        dialogState.resetActivation();
     }
 
     @Override

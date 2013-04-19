@@ -5,7 +5,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.visualizations.OrgChart;
-import org.useware.kernel.model.scopes.DefaultActivation;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.scopes.Scope;
@@ -123,7 +123,7 @@ public class DialogVisualization
             String parentId = container != null ? container.getId().toString() : null;
 
             // default activation
-            DefaultActivation activation = new DefaultActivation();
+            BranchActivation activation = new BranchActivation();
             dialog.getInterfaceModel().accept(activation);
             Map<Integer,QName> activeItems = activation.getActiveItems();
 

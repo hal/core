@@ -80,7 +80,7 @@ public class ScopeTest {
      */
     @Test
     public void testStatementResolution() {
-        DialogState dialogState = new DialogState(dialog, new NoopContext());
+        DialogState dialogState = new DialogState(dialog, new NoopContext(), new NoopStateCoordination());
 
         // statement resolved form parent scope
         dialogState.setStatement(basicAttributes, "foo", "bar");
@@ -112,7 +112,7 @@ public class ScopeTest {
      */
     @Test
     public void testDeactivation() {
-        DialogState dialogState = new DialogState(dialog, new NoopContext());
+        DialogState dialogState = new DialogState(dialog, new NoopContext(), new NoopStateCoordination());
 
         assertTrue("Unit should be active by default", dialogState.isWithinActiveScope(processAttributes));
         assertFalse("Unit should be deactive by default", dialogState.isWithinActiveScope(recoveryAttributes));

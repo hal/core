@@ -13,7 +13,7 @@ import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.KernelContract;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.gui.behaviour.StatementContext;
-import org.useware.kernel.model.scopes.DefaultActivation;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
@@ -163,7 +163,7 @@ public class Kernel implements NavigationDelegate {
                     assert widget !=null;
 
                     cachedWidgets.put(name, widget);
-                    DefaultActivation activation = new DefaultActivation();
+                    BranchActivation activation = new BranchActivation();
                     dialog.getInterfaceModel().accept(activation);
                     //System.out.println("<< Default Activation: "+activation.getCandidate()+">>");
 

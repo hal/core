@@ -15,7 +15,7 @@ import java.util.Stack;
  *
  * @author Heiko Braun
  */
-public class DefaultActivation implements InteractionUnitVisitor {
+public class BranchActivation implements InteractionUnitVisitor {
 
     private Stack<Container> stack = new Stack<Container>();
     private Map<Integer, QName> activeItems = new HashMap<Integer,QName>();
@@ -61,10 +61,6 @@ public class DefaultActivation implements InteractionUnitVisitor {
     @Override
     public void endVisit(Container container) {
 
-        if(max<stack.size())
-            max =  stack.size();
-        else
-            pastPivot = true;
 
         stack.pop();
 

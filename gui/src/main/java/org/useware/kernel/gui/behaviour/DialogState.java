@@ -3,7 +3,7 @@ package org.useware.kernel.gui.behaviour;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
-import org.useware.kernel.model.scopes.DefaultActivation;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.QName;
 
@@ -22,31 +22,35 @@ import java.util.Set;
  */
 public class DialogState {
 
+    private final StateCoordination stateCoordination;
     private Dialog dialog;
     private final StatementContext externalContext;
     private Map<Integer, MutableContext> scope2context;
     private Map<Integer, Scope> parent2childScopes = new HashMap<Integer, Scope>();
     private Map<Integer, Boolean> scopeActivationState = new HashMap<Integer, Boolean>();
 
-    public DialogState(Dialog dialog, StatementContext parentContext) {
+    public DialogState(Dialog dialog, StatementContext parentContext, StateCoordination coordination) {
+        this.stateCoordination = coordination;
         this.dialog = dialog;
         this.externalContext = parentContext;
         this.scope2context = new HashMap<Integer, MutableContext>();
-
-        resetActivation();
     }
+
 
     public void resetActivation() {
 
         parent2childScopes.clear();
 
-        DefaultActivation activation = new DefaultActivation();
+        BranchActivation activation = new BranchActivation();
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {
             Scope scope = getScope(unitId);
             scopeActivationState.put(scope.getScopeId(), true);
             parent2childScopes.put(getParentScopeId(unitId), scope);
+
+            // notify actual unit implementation
+            stateCoordination.notifyActivation(unitId);
         }
     }
 

@@ -4,7 +4,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Security
 import org.junit.Before;
 import org.junit.Test;
 import org.useware.kernel.gui.behaviour.DialogState;
-import org.useware.kernel.model.scopes.DefaultActivation;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.Map;
@@ -30,7 +30,7 @@ public class ActivationTest {
     @Test
     public void testDefaultActivation() {
 
-        DefaultActivation activation = new DefaultActivation();
+        BranchActivation activation = new BranchActivation();
         dialog.getInterfaceModel().accept(activation);
         Map<Integer,QName> activeItems = activation.getActiveItems();
         assertFalse(activeItems.isEmpty());
@@ -48,7 +48,7 @@ public class ActivationTest {
     @Test
     public void testActivationCapability() {
 
-        DialogState dialogState = new DialogState(dialog, new NoopContext());
+        DialogState dialogState = new DialogState(dialog, new NoopContext(), new NoopStateCoordination());
 
         QName availableDomains = QName.valueOf("org.jboss.security.domain:availableDomains");
         QName addButton = QName.valueOf("org.jboss.security.domain.authentication:add");
