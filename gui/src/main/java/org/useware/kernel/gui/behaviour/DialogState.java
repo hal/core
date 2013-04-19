@@ -1,9 +1,9 @@
 package org.useware.kernel.gui.behaviour;
 
-import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
+import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.QName;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A registry for dialog statements. It reflects the current dialog state.
+ * Reflects the dialog state. Breaks down into statements and scopes.
  *
  * @author Heiko Braun
  * @date 1/22/13
@@ -25,11 +25,8 @@ public class DialogState {
     private Dialog dialog;
     private final StatementContext externalContext;
     private Map<Integer, MutableContext> scope2context;
-
-    /**
-     * Maps the active units under their parent (!) scope
-     */
-    private Map<Integer, QName> activeInScope = new HashMap<Integer, QName>();
+    private Map<Integer, Scope> parent2childScopes = new HashMap<Integer, Scope>();
+    private Map<Integer, Boolean> scopeActivationState = new HashMap<Integer, Boolean>();
 
     public DialogState(Dialog dialog, StatementContext parentContext) {
         this.dialog = dialog;
@@ -41,14 +38,15 @@ public class DialogState {
 
     public void resetActivation() {
 
-        activeInScope.clear();
+        parent2childScopes.clear();
 
         DefaultActivation activation = new DefaultActivation();
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {
-            int scopeId = getScopeId(unitId);
-            activeInScope.put(scopeId, unitId);
+            Scope scope = getScope(unitId);
+            scopeActivationState.put(scope.getScopeId(), true);
+            parent2childScopes.put(getParentScopeId(unitId), scope);
         }
     }
 
@@ -60,7 +58,7 @@ public class DialogState {
         MutableContext context = (MutableContext) getContext(interactionUnitId);
         assert context!=null : "No context for " + interactionUnitId;
 
-        System.out.println(">> Set '"+key+"' on scope ["+context.getScopeId()+"]: "+value);
+        System.out.println(">> Set '"+key+"' on scope ["+context.getScope().getScopeId()+"]: "+value);
         context.setStatement(key, value);
     }
 
@@ -102,13 +100,15 @@ public class DialogState {
                 parentScopeIds.add(parentNode.getData().getScopeId());
             }
 
-            scope2context.put(scope.getScopeId(), new ParentDelegationContextImpl(scope.getScopeId(), externalContext, parentScopeIds,
-                    new Scopes() {
-                        @Override
-                        public StatementContext get(Integer scopeId) {
-                            return scope2context.get(scopeId);
-                        }
-                    }));
+            scope2context.put(scope.getScopeId(),
+                    new ParentDelegationContextImpl(scope, externalContext, parentScopeIds,
+                            new Scopes() {
+                                @Override
+                                public StatementContext get(Integer scopeId) {
+                                    return scope2context.get(scopeId);
+                                }
+                            })
+            );
         }
 
         return scope2context.get(scope.getScopeId());
@@ -116,17 +116,17 @@ public class DialogState {
 
     public void activateScope(QName targetUnit) {
 
+        Scope nextScope = getScope(targetUnit);
+        int parentScopeId = getParentScopeId(targetUnit);
 
-        int scopeId = getScopeId(targetUnit);
-        QName currentlyActive = activeInScope.get(scopeId);
-
-        if(!targetUnit.equals(currentlyActive))
+        Scope activeScope = parent2childScopes.get(parentScopeId);
+        if(!activeScope.equals(nextScope))
         {
-            System.out.println("Replace "+currentlyActive+" with "+ targetUnit);
+            System.out.println("Replace activation of scope "+activeScope+" with "+ nextScope);
+            scopeActivationState.put(activeScope.getScopeId(), false);
+            scopeActivationState.put(nextScope.getScopeId(), true);
+            parent2childScopes.put(parentScopeId, nextScope);
         }
-
-        activeInScope.put(scopeId, targetUnit);
-
     }
 
     /**
@@ -146,34 +146,46 @@ public class DialogState {
         return nonDemarcatingRootElement || parentIsDemarcationType;
     }
 
-    public boolean isWithinActiveScope(QName unitId) {
-        int scopeId = getScopeId(unitId);
-        QName activeUnit= activeInScope.get(scopeId); // does the scope have an active unit?
-        return activeUnit!=null;
+    public boolean isWithinActiveScope(final QName unitId) {
+        final Scope scopeOfUnit = getScope(unitId);
+        int parentScopeId = getParentScopeId(unitId);
+        Scope activeScope = parent2childScopes.get(parentScopeId);
+        boolean selfIsActive = activeScope != null && activeScope.equals(scopeOfUnit);
+
+        if(selfIsActive) // only verify parents if necessary
+        {
+            Node<Scope> inactiveParentScope = dialog.getScopeModel().findNode(unitId).findParent(
+                    new InActiveParentPredicate(unitId)
+            );
+
+            return inactiveParentScope==null;
+        }
+
+        return selfIsActive;
     }
 
-   /* private int getParentScopeId(QName targetUnit) {
-        final int selfScope = getScopeId(targetUnit);
+    private int getParentScopeId(QName targetUnit) {
+        final Scope scope = getScope(targetUnit);
         Node<Scope> parent = dialog.getScopeModel().findNode(targetUnit).findParent(new NodePredicate<Scope>() {
             @Override
             public boolean appliesTo(Node<Scope> node) {
-                return node.getData().getScopeId() != selfScope;
+                return node.getData().getScopeId() != scope.getScopeId();
             }
         });
 
         // fallback to root scope if none found
         return parent!= null ?
                 parent.getData().getScopeId() : 0;
-    }*/
+    }
 
-    private int getScopeId(QName targetUnit) {
+    private Scope getScope(QName targetUnit) {
         MutableContext context = (MutableContext)getContext(targetUnit);
         assert context!=null : "No context for "+targetUnit;
-        return context.getScopeId();
+        return context.getScope();
     }
 
     interface MutableContext extends StatementContext {
-        Integer getScopeId();
+        Scope getScope();
         String get(String key);
         String[] getTuple(String key);
         void setStatement(String key, String value);
@@ -184,4 +196,30 @@ public class DialogState {
         StatementContext get(Integer scopeId);
     }
 
+    class InActiveParentPredicate implements NodePredicate<Scope> {
+
+        private final Scope scopeOfUnit;
+        private QName unitId;
+
+        InActiveParentPredicate(QName unitId) {
+            this.unitId = unitId;
+            this.scopeOfUnit = getScope(unitId);
+        }
+
+        @Override
+        public boolean appliesTo(Node<Scope> node) {
+
+            Scope parentScope = node.getData();
+            boolean isParent = parentScope.getScopeId() != scopeOfUnit.getScopeId();
+            boolean isActive = scopeActivationState.get(parentScope.getScopeId())!=null
+                    ? scopeActivationState.get(parentScope.getScopeId()) : false;
+
+            if(!isActive)
+            {
+                System.out.println("Inactive parent scope: "+ parentScope.getScopeId() +" for "+ unitId);
+            }
+
+            return isParent && !isActive;
+        }
+    }
 }

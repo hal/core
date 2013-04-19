@@ -1,5 +1,7 @@
 package org.useware.kernel.gui.behaviour;
 
+import org.useware.kernel.model.scopes.Scope;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -17,18 +19,17 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
     private final List<Integer> parentScopeIds;
     private final StatementContext externalContext;
     private final DialogState.Scopes availableScopes;
-    private final Integer scopeId;
+    private final Scope scope;
 
-    public ParentDelegationContextImpl(Integer scopeId, StatementContext externalContext, List<Integer> parentScopeIds, DialogState.Scopes scopes) {
+    public ParentDelegationContextImpl(Scope scope, StatementContext externalContext, List<Integer> parentScopeIds, DialogState.Scopes scopes) {
         this.externalContext = externalContext;
         this.parentScopeIds = parentScopeIds;
         this.availableScopes = scopes;
-        this.scopeId = scopeId;
+        this.scope = scope;
     }
 
-    @Override
-    public Integer getScopeId() {
-        return scopeId;
+    public Scope getScope() {
+        return scope;
     }
 
     @Override

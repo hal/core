@@ -3,7 +3,6 @@ package org.useware.kernel.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.useware.kernel.gui.behaviour.DialogState;
-import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.model.scopes.InterfaceStructureShim;
 import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.Container;
@@ -102,7 +101,14 @@ public class ScopeTest {
     }
 
     /**
-     * Deactivation of units on the same level
+     * Deactivation of scopes.
+     *
+     * Rules:
+     *
+     * - scope siblings != unit siblings
+     * - scope parents != unit parents
+     * - siblings with diff. scopes deactivate each other
+     * - a scope is deactivated if itself or any of it's parent scopes are deactivated
      */
     @Test
     public void testDeactivation() {

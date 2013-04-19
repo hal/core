@@ -26,7 +26,19 @@ public final class Scope {
     public String toString() {
         return "Scope{" +
                 "id=" + scopeId +
-                ", demarcation=" + demarcationType +
+                ", demarcation=" + demarcationType+
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Scope scope = (Scope) o;
+
+        if (scopeId != scope.scopeId) return false;
+
+        return true;
     }
 }
