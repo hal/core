@@ -78,25 +78,24 @@ public class LoadResourceProcedure extends Procedure {
         final Set<String> requiredStatements = address.getRequiredStatements();
 
         // any value expression key becomes a precondition matched against the statement context
-        if(requiredStatements.size()>0)
-        {
-            setPrecondition(new Precondition() {
-                @Override
-                public boolean isMet(StatementContext statementContext) {
 
-                    // fail fast if not scope active
-                    if(!getRuntimeAPI().isActive(unit.getId())) return false;
+        setPrecondition(new Precondition() {
+            @Override
+            public boolean isMet(StatementContext statementContext) {
 
-                    boolean isMet = false;
-                    for(String key : requiredStatements)
-                    {
-                        isMet = statementContext.resolve(key)!=null;
-                        if(!isMet) break; // exit upon first value expression that cannot be resolved
-                    }
-                    return isMet;
+                // fail fast if not scope active
+                if(!getRuntimeAPI().isActive(unit.getId())) return false;
+
+                boolean missingStatement = false;
+                for(String key : requiredStatements)
+                {
+                    missingStatement = statementContext.resolve(key)==null;
+                    if(missingStatement) break; // exit upon first value expression that cannot be resolved
                 }
-            });
-        }
+                return !missingStatement;
+            }
+        });
+
 
     }
 

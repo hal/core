@@ -11,12 +11,10 @@ import org.useware.kernel.gui.behaviour.common.ActivationProcedure;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.behaviour.common.NavigationProcedure;
 import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
-import org.useware.kernel.model.mapping.Node;
-import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
-import org.useware.kernel.model.scopes.Scope;
+import org.useware.kernel.model.scopes.DefaultActivation;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
@@ -257,6 +255,14 @@ public class InteractionCoordinator implements KernelContract,
         {
             navigationDelegate.onNavigation(dialog.getId(), target); // TODO: dialog || unit as source?
         }
+
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                InteractionCoordinator.this.reset();
+            }
+        });
 
     }
 

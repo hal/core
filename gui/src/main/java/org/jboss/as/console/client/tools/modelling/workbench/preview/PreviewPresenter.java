@@ -114,7 +114,7 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
 
                 getView().show(widget);
                 kernel.activate();
-
+                kernel.reset();
             }
         });
     }

@@ -29,7 +29,7 @@ public class DialogState {
     /**
      * Maps the active units under their parent (!) scope
      */
-    private Map<Integer, QName> activeBelowScope = new HashMap<Integer, QName>();
+    private Map<Integer, QName> activeInScope = new HashMap<Integer, QName>();
 
     public DialogState(Dialog dialog, StatementContext parentContext) {
         this.dialog = dialog;
@@ -41,13 +41,14 @@ public class DialogState {
 
     public void resetActivation() {
 
-        activeBelowScope.clear();
+        activeInScope.clear();
 
         DefaultActivation activation = new DefaultActivation();
         dialog.getInterfaceModel().accept(activation);
         for(QName unitId : activation.getActiveItems().values())
         {
-            activeBelowScope.put(getParentScopeId(unitId), unitId);
+            int scopeId = getScopeId(unitId);
+            activeInScope.put(scopeId, unitId);
         }
     }
 
@@ -115,21 +116,22 @@ public class DialogState {
 
     public void activateScope(QName targetUnit) {
 
-        int parentScopeId = getParentScopeId(targetUnit);
 
-        QName currentlyActive = activeBelowScope.get(parentScopeId);
+        int scopeId = getScopeId(targetUnit);
+        QName currentlyActive = activeInScope.get(scopeId);
 
         if(!targetUnit.equals(currentlyActive))
         {
             System.out.println("Replace "+currentlyActive+" with "+ targetUnit);
         }
 
-        activeBelowScope.put(parentScopeId, targetUnit);
+        activeInScope.put(scopeId, targetUnit);
 
     }
 
     /**
      * A unit can be activated if the parent is a demarcation type
+     * or it is a non demarcating root element
      *
      * @param interactionUnit
      * @return
@@ -138,16 +140,19 @@ public class DialogState {
 
         Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
         assert node!=null : "Unit doesn't exist in shim: "+interactionUnit;
-        return node.getParent().getData().isDemarcationType();
+        boolean nonDemarcatingRootElement = node.getParent() == null
+                && !node.getData().isDemarcationType();
+        boolean parentIsDemarcationType = node.getParent()!=null && node.getParent().getData().isDemarcationType();
+        return nonDemarcatingRootElement || parentIsDemarcationType;
     }
 
     public boolean isWithinActiveScope(QName unitId) {
-        QName activeUnit= activeBelowScope.get(getParentScopeId(unitId));
-        return activeUnit!=null && activeUnit.equals(unitId);
-
+        int scopeId = getScopeId(unitId);
+        QName activeUnit= activeInScope.get(scopeId); // does the scope have an active unit?
+        return activeUnit!=null;
     }
 
-    private int getParentScopeId(QName targetUnit) {
+   /* private int getParentScopeId(QName targetUnit) {
         final int selfScope = getScopeId(targetUnit);
         Node<Scope> parent = dialog.getScopeModel().findNode(targetUnit).findParent(new NodePredicate<Scope>() {
             @Override
@@ -156,8 +161,10 @@ public class DialogState {
             }
         });
 
-        return parent.getData().getScopeId();
-    }
+        // fallback to root scope if none found
+        return parent!= null ?
+                parent.getData().getScopeId() : 0;
+    }*/
 
     private int getScopeId(QName targetUnit) {
         MutableContext context = (MutableContext)getContext(targetUnit);

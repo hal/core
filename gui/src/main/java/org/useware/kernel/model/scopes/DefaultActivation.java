@@ -31,10 +31,15 @@ public class DefaultActivation implements InteractionUnitVisitor {
 
         stack.push(container);
 
-        if(prev!=null
-                && prev.getTemporalOperator().isScopeBoundary()
+        if(null==prev)
+        {
+            if(!container.getTemporalOperator().isScopeBoundary())
+                activeItems.put(0, container.getId());
+        }
+        else if(prev.getTemporalOperator().isScopeBoundary()
                 && !pastPivot)
         {
+            // select first child and skip the remaining ones
             QName activeChild = activeItems.get(stack.size()-1);
             if(null==activeChild)
                 activeItems.put(stack.size()-1, container.getId());
