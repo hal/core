@@ -60,8 +60,4 @@ public interface ClusterConnection {
     boolean isDuplicateDetection();
     void setDuplicateDetection(boolean b);
 
-    @Binding(detypedName = "allow-direct-connections-only")
-    boolean isAllowDirect();
-    void setAllowDirect(boolean b);
-
 }
