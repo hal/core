@@ -122,6 +122,9 @@ public class DialogState {
      */
     public void activateScope(QName targetUnit) {
 
+        // TODO: If branch has not been activated yet,
+        // then redo branch activation from targetUnit
+
         Scope nextScope = getScope(targetUnit);
         int parentScopeId = getParentScopeId(targetUnit);
 
