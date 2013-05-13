@@ -147,7 +147,7 @@ public class Header implements ValueChangeHandler<String> {
         }
         else {
             logo = new Image("images/logo/community_title.png");
-            logo.setAltText("JBoss Application Server");
+            logo.setAltText("Wildfly");
         }
 
         logo.setStyleName("logo");
