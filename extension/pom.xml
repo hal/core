@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>JBoss 7 - Management Console :: Extension Module Parent</name>
+    <name>HAL Core Console :: Extension Module Parent</name>
     <artifactId>jboss-as-console-extension</artifactId>
     <packaging>pom</packaging>
     <description>Extension modules should inherit from this pom</description>
