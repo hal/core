@@ -488,30 +488,39 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                         }
 
                                         // ---- interfaces
-                                        List<Property> interfaces = compositeResponse.get("step-2").get(RESULT).asPropertyList();
 
-                                        for(Property intf : interfaces)
+                                        List<Property> interfaces = Collections.EMPTY_LIST;
+
+                                        if(compositeResponse.hasDefined("step-2"))
                                         {
-                                            if(intf.getValue().hasDefined("resolved-address"))
+                                            interfaces = compositeResponse.get("step-2").get(RESULT).asPropertyList();
+
+                                            for(Property intf : interfaces)
                                             {
-                                                instance.getInterfaces().put(
-                                                        intf.getName(),
-                                                        intf.getValue().get("resolved-address").asString()
-                                                );
+                                                if(intf.getValue().hasDefined("resolved-address"))
+                                                {
+                                                    instance.getInterfaces().put(
+                                                            intf.getName(),
+                                                            intf.getValue().get("resolved-address").asString()
+                                                    );
+                                                }
                                             }
                                         }
 
-
                                         // ---- socket binding
-                                        List<Property> sockets = compositeResponse.get("step-3").get(RESULT).asPropertyList();
-
-                                        for(Property socket : sockets)
+                                        List<Property> sockets = Collections.EMPTY_LIST;
+                                        if(compositeResponse.hasDefined("step-3"))
                                         {
-                                            instance.getSocketBindings().put(
-                                                    socket.getName(),
-                                                    socket.getValue().get("port-offset").asString()
-                                            );
+                                            sockets = compositeResponse.get("step-3").get(RESULT).asPropertyList();
 
+                                            for(Property socket : sockets)
+                                            {
+                                                instance.getSocketBindings().put(
+                                                        socket.getName(),
+                                                        socket.getValue().get("port-offset").asString()
+                                                );
+
+                                            }
                                         }
                                     }
 
