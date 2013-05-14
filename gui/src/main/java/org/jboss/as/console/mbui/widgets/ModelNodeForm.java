@@ -158,12 +158,23 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     }
 
     private Map<String, String> getExpressions(ModelNode bean) {
-        Map<String, String> exprMap = (Map<String,String>)bean.getTag(EXPR_TAG);
-        if(null==exprMap)
+        final Map<String, String> exprMap = new HashMap<String,String>();
+
+        // parse expressions
+        ModelNodeInspector inspector = new ModelNodeInspector(bean);
+        inspector.accept(new ModelNodeVisitor()
         {
-            exprMap = new HashMap<String,String>();
-            bean.setTag(EXPR_TAG, exprMap);
-        }
+            @Override
+            public boolean visitValueProperty(String propertyName, ModelNode value, PropertyContext ctx) {
+                if(value.getType() == ModelType.EXPRESSION)
+                {
+                    exprMap.put(propertyName, value.asString());
+                }
+                return true;
+            }
+        });
+
+        bean.setTag(EXPR_TAG, exprMap);
 
         return exprMap;
     }
