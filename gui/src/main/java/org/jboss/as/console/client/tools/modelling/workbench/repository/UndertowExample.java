@@ -44,22 +44,21 @@ public class UndertowExample implements Sample {
         Container errorHandler = new Container(ns, "errorHandler", "Error Handler", Concurrency);
 
         Container fileHandler = new Container(ns, "undertow#fileHandler", "File Handler", Concurrency);
-        Container fileHandlerAttributes = new Container(ns, "undertow#fileHandlerAttributes", "File Handler Attributes",Form);
 
-        Container attributes = new Container(ns, "undertow#basicAttributes", "Attributes",Form);
+        /*Container attributes = new Container(ns, "undertow#basicAttributes", "Attributes",Form);
         Mapping basicAttributesMapping = new DMRMapping()
                 .addAttributes(
                         "default-server", "instance-id",
                         "default-virtual-host", "default-servlet-container"
-                );
+                );*/
 
         // structure & mapping
         InteractionUnit root = new Builder()
                 .start(overview)
                     .mappedBy(global)
 
+                    // handler section
                     .start(handler)
-                        //.add(attributes).mappedBy(basicAttributesMapping)
                         .start(fileHandler)
                             .add(new Select(ns, "fileHandler", "FileHandlerSelection"))
                                .mappedBy(
@@ -73,7 +72,6 @@ public class UndertowExample implements Sample {
                                     .addAttributes("path", "directory-listing", "cache-buffer-size", "cache-buffers")
                                    )
                         .end()
-
                     .end()
                     .start(filter).end()
                     .start(errorHandler).end()

@@ -40,6 +40,8 @@ public class SampleRepository implements DialogRepository
         samples.add(new TransactionSample());
         samples.add(new SecurityDomainsSample());
         samples.add(new UndertowExample());
+        samples.add(new ServletContainerExample());
+        samples.add(new UndertowServerExample());
     }
 
     public List<Sample> getSamples()
