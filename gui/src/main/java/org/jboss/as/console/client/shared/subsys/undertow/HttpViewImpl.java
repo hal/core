@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.shared.subsys.undertow;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -27,7 +26,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
  * @author Harald Pehl
  * @date 10/30/2012
  */
-public class HttpViewImpl extends SuspendableViewImpl implements SimpleView
+public class HttpViewImpl extends SuspendableViewImpl implements HttpView
 {
     private LayoutPanel container;
 
