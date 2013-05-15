@@ -95,7 +95,7 @@ public class AdminObjectList implements PropertyManagement {
         deleteBtn.addClickHandler(clickHandler);
         topLevelTools.addToolButtonRight(deleteBtn);
 
-        disableBtn = new ToolButton("", new ClickHandler() {
+        disableBtn = new ToolButton(Console.CONSTANTS.common_label_disable(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
