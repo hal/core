@@ -9,10 +9,12 @@ import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.Select;
 import org.useware.kernel.model.structure.TemporalOperator;
+import org.useware.kernel.model.structure.Trigger;
 import org.useware.kernel.model.structure.builder.Builder;
 
 import static org.jboss.as.console.mbui.model.StereoTypes.Form;
 import static org.jboss.as.console.mbui.model.StereoTypes.Pages;
+import static org.jboss.as.console.mbui.model.StereoTypes.Toolstrip;
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 
@@ -53,66 +55,146 @@ public class UndertowServerExample implements Sample {
 
 
         // structure & mapping
+        DMRMapping httpListenerCollection = new DMRMapping()
+                .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*")
+                .addAttributes("entity.key", "enabled");
+
+        DMRMapping singleHttpListener = new DMRMapping()
+                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}");
+
+        DMRMapping httpListenerTable = new DMRMapping()
+                        .addAttributes("entity.key", "enabled");
+
+
+
+        DMRMapping ajpListenerCollection = new DMRMapping()
+                       .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*")
+                       .addAttributes("entity.key", "enabled");
+
+        DMRMapping singleAjpListener = new DMRMapping()
+                .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}");
+
+        DMRMapping ajpListenerTable = new DMRMapping()
+                .addAttributes("entity.key", "enabled");
+
+
+
+        DMRMapping httpsListenerCollection = new DMRMapping()
+                .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*")
+                .addAttributes("entity.key", "enabled");
+
+        DMRMapping singleHTTPSListener = new DMRMapping()
+                .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}");
+
+        DMRMapping httpsListenerTable = new DMRMapping()
+                .addAttributes("entity.key", "enabled", "security-realm");
+
+
         InteractionUnit root = new Builder()
                 .start(overview)
-                    .mappedBy(global)
-                        //.add(attributes).mappedBy(attributesMapping)
 
-                        // handler section
+                    // handler section
                     .start(listener)
-                        .start(http)
-                            .add(new Select(ns, "httpListener", "HTTPListenerSelection"))
-                                .mappedBy(
-                                    new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*")
-                                        .addAttributes("entity.key", "enabled")
-                                )
 
-                                .add(new Container(ns, "undertow#httpListenerAttributes", "Attributes", Form))
+                       // ------------------- HTTP --------------------
+                        .start(http)
+                            .mappedBy(httpListenerCollection)
+
+                                .start(new Container<StereoTypes>(ns, "httptools", "Tools", Toolstrip))
+                                           .mappedBy(singleHttpListener)
+                                           .add(new Trigger(
+                                                   QName.valueOf("org.jboss.httpListener:add"),
+                                                   QName.valueOf("org.jboss.as:resource-operation#add"),
+                                                   "Add"))
+                                                   .mappedBy(httpListenerCollection)
+
+                                           .add(new Trigger(
+                                                   QName.valueOf("org.jboss.httpListener:remove"),
+                                                   QName.valueOf("org.jboss.as:resource-operation#remove"),
+                                                   "Remove"))
+                                .end()
+
+                            .add(new Select(ns, "httpListener", "HTTPListenerSelection"))
+                                .mappedBy(httpListenerTable)
+
+                                .start(new Container(ns, "undertow#httpListenerConfig", "httpConfig", Choice))
+                                    .mappedBy(singleHttpListener)
+                                    .add(new Container(ns, "undertow#httpListenerAttributes", "Attributes", Form))
+                                        .mappedBy(new DMRMapping()
+                                            .addAttributes(
+                                                    "worker", "enabled",
+                                                    "socket-binding", "buffer-pool"
+                                            )
+                                       )
+                                .end()
+                        .end()
+
+                    // ------------------- AJP --------------------
+                        .start(ajp)
+                            .mappedBy(ajpListenerCollection)
+
+
+                                .start(new Container<StereoTypes>(ns, "ajptools", "Tools", Toolstrip))
+                                    .mappedBy(singleAjpListener)
+                                        .add(new Trigger(
+                                            QName.valueOf("org.jboss.ajpListener:add"),
+                                            QName.valueOf("org.jboss.as:resource-operation#add"),
+                                            "Add"))
+                                            .mappedBy(ajpListenerCollection)
+
+                                        .add(new Trigger(
+                                            QName.valueOf("org.jboss.ajpListener:remove"),
+                                            QName.valueOf("org.jboss.as:resource-operation#remove"),
+                                            "Remove"))
+                                .end()
+
+                            .add(new Select(ns, "ajpListener", "AJPListenerSelection"))
+                                .mappedBy(ajpListenerTable)
+
+                             .start(new Container(ns, "undertow#ajpListenerConfig", "ajpConfig", Choice))
+                                .mappedBy(singleAjpListener)
+                                .add(new Container(ns, "undertow#ajpListenerAttributes", "Attributes", Form))
                                     .mappedBy(new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}")
                                         .addAttributes(
                                                 "worker", "enabled",
                                                 "socket-binding", "buffer-pool"
                                         )
                                     )
+                            .end()
                         .end()
 
-                        .start(ajp)
-                            .add(new Select(ns, "ajpListener", "AJPListenerSelection"))
-                                .mappedBy(
-                                    new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*")
-                                        .addAttributes("entity.key", "enabled")
-                                    )
-
-                             .add(new Container(ns, "undertow#ajpListenerAttributes", "Attributes", Form))
-                                .mappedBy(new DMRMapping()
-                                    .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}")
-                                    .addAttributes(
-                                        "worker", "enabled",
-                                        "socket-binding", "buffer-pool"
-                                        )
-                                    )
-                        .end()
+                    // ------------------- HTTPS--------------------
                         .start(https)
-                            .add(new Select(ns, "httpsListener", "HTTPSListenerSelection"))
-                                .mappedBy(
-                                    new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*")
-                                        .addAttributes("entity.key", "enabled")
-                                        )
+                            .mappedBy(httpsListenerCollection)
 
-                            .add(new Container(ns, "undertow#httpsListenerAttributes", "Attributes", Form))
-                                .mappedBy(
-                                        new DMRMapping()
-                                        .setAddress("/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}")
-                                        .addAttributes(
-                                        "worker", "enabled",
-                                        "socket-binding", "buffer-pool",
-                                        "security-realm"
-                                        )
-                                )
+
+                                    .start(new Container<StereoTypes>(ns, "httpstools", "Tools", Toolstrip))
+                                        .mappedBy(singleHTTPSListener)
+                                            .add(new Trigger(
+                                                QName.valueOf("org.jboss.httpsListener:add"),
+                                                QName.valueOf("org.jboss.as:resource-operation#add"),
+                                                "Add"))
+                                                .mappedBy(httpsListenerCollection)
+
+                                            .add(new Trigger(
+                                                QName.valueOf("org.jboss.httpsListener:remove"),
+                                                QName.valueOf("org.jboss.as:resource-operation#remove"),
+                                                "Remove"))
+                                    .end()
+
+                            .add(new Select(ns, "httpsListener", "HTTPSListenerSelection"))
+                                .mappedBy(httpsListenerTable)
+
+                                .start(new Container(ns, "undertow#httpsListenerConfig", "httpsConfig", Choice))
+                                          .mappedBy(singleHTTPSListener)
+                                          .add(new Container(ns, "undertow#httpsListenerAttributes", "Attributes", Form))
+                                            .mappedBy(new DMRMapping()
+                                            .addAttributes(
+                                            "worker", "enabled",
+                                             "socket-binding", "buffer-pool", "security-realm"
+                                             )
+                                             )
+                                .end()
                         .end()
                     .end()
 
