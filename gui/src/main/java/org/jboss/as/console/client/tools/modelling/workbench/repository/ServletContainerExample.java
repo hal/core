@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.Builder;
 
 import static org.jboss.as.console.mbui.model.StereoTypes.Form;
@@ -33,10 +35,10 @@ public class ServletContainerExample implements Sample {
                 .setAddress("/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp");
 
 
-        Container overview = new Container(ns, "servletContainer", "Servlet Container", Concurrency);
+        Container overview = new Container(ns, "servletContainer", "Servlet Container", TemporalOperator.Choice, StereoTypes.EditorPanel);
 
 
-        Container attributes = new Container(ns, "servletContainer#attributes", "Attributes", Form);
+        Container attributes = new Container(ns, "servletContainer#attributes", "JSP Settings", Form);
         Mapping attributesMapping = new DMRMapping()
                 .addAttributes(
                         "trim-spaces", "smap",
