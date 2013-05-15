@@ -39,7 +39,7 @@ import org.useware.kernel.model.structure.QName;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class UndertowServletPresenter extends Presenter<SimpleView, UndertowServletPresenter.MyProxy>
+public class UndertowServletPresenter extends Presenter<ServletView, UndertowServletPresenter.MyProxy>
         implements ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
         PassivateEvent.PassivateHandler, NavigationDelegate {
 
@@ -48,15 +48,15 @@ public class UndertowServletPresenter extends Presenter<SimpleView, UndertowServ
     private final UndertowDialogs dialogs;
 
     @ProxyCodeSplit
-    @NameToken("undertow-servlet")
-    @SubsystemExtension(name="Servlets", group="Web", key="undertow")
+    @NameToken(NameTokens.UndertowServlet)
+    //@SubsystemExtension(name="Servlets", group="Web", key="undertow")
     public interface MyProxy extends Proxy<UndertowServletPresenter>, Place {
     }
 
     @Inject
     public UndertowServletPresenter(
             final EventBus eventBus,
-            final SimpleView view,
+            final ServletView view,
             final MyProxy proxy,
             final DispatchAsync dispatcher,
             RevealStrategy revealStrategy)

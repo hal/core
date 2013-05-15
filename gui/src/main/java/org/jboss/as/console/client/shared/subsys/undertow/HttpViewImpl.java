@@ -27,7 +27,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
  * @author Harald Pehl
  * @date 10/30/2012
  */
-public class SimpleViewImpl extends SuspendableViewImpl implements SimpleView
+public class HttpViewImpl extends SuspendableViewImpl implements SimpleView
 {
     private LayoutPanel container;
 

@@ -15,6 +15,6 @@ public interface ExampleExtension {
 
     AsyncProvider<TransactionPresenter> getTransactionPresenter();
     AsyncProvider<UndertowHTTPPresenter> getUndertowHTTPPresenter();
-    //AsyncProvider<UndertowServletPresenter> getUndertowServletPresenter();
+    AsyncProvider<UndertowServletPresenter> getUndertowServletPresenter();
 
 }
