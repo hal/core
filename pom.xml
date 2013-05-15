@@ -23,7 +23,7 @@
     <description>HAL Core Console :: Parent Aggregator</description>
     <groupId>org.jboss.as</groupId>
     <artifactId>jboss-as-console-parent</artifactId>
-    <version>1.6.0-SNAPSHOT</version>
+    <version>1.6.0.Final</version>
     <packaging>pom</packaging>
 
 
