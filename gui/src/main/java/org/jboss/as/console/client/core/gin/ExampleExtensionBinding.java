@@ -3,6 +3,9 @@ package org.jboss.as.console.client.core.gin;
 import com.gwtplatform.mvp.client.gin.AbstractPresenterModule;
 import org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter;
 import org.jboss.as.console.client.shared.subsys.tx.TransactionView;
+import org.jboss.as.console.client.shared.subsys.undertow.CorePresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.CoreView;
+import org.jboss.as.console.client.shared.subsys.undertow.CoreViewImpl;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpViewImpl;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
@@ -35,5 +38,11 @@ public class ExampleExtensionBinding extends AbstractPresenterModule {
                 ServletView.class,
                 ServletViewImpl.class,
                 UndertowServletPresenter.MyProxy.class);
+
+        bindPresenter(CorePresenter.class,
+                CoreView.class,
+                CoreViewImpl.class,
+                CorePresenter.MyProxy.class);
+
     }
 }

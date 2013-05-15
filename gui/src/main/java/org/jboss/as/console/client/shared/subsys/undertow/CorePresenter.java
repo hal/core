@@ -27,7 +27,7 @@ import org.useware.kernel.model.structure.QName;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPresenter.MyProxy>
+public class CorePresenter extends Presenter<CoreView, CorePresenter.MyProxy>
         implements ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
         PassivateEvent.PassivateHandler, NavigationDelegate {
 
@@ -36,15 +36,15 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
     private final UndertowDialogs dialogs;
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.UndertowHTTP)
-    //@SubsystemExtension(name="HTTP Server", group="Web", key="undertow")
-    public interface MyProxy extends Proxy<UndertowHTTPPresenter>, Place {
+    @NameToken(NameTokens.UndertowCore)
+    //@SubsystemExtension(name="Servlets", group="Web", key="undertow")
+    public interface MyProxy extends Proxy<CorePresenter>, Place {
     }
 
     @Inject
-    public UndertowHTTPPresenter(
+    public CorePresenter(
             final EventBus eventBus,
-            final HttpView view,
+            final CoreView view,
             final MyProxy proxy,
             final DispatchAsync dispatcher,
             RevealStrategy revealStrategy)
@@ -99,7 +99,7 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
     }
 
     private void reify() {
-        kernel.reify("HTTP Server", new AsyncCallback<Widget>() {
+        kernel.reify("Undertow", new AsyncCallback<Widget>() {
             @Override
             public void onFailure(Throwable throwable) {
                 Console.error("Reification failed", throwable.getMessage());

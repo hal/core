@@ -1,36 +1,24 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
-import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.ProxyStandard;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
-import org.jboss.as.console.mbui.DialogRepository;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.SubsystemExtension;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
 
@@ -111,24 +99,21 @@ public class UndertowServletPresenter extends Presenter<ServletView, UndertowSer
     }
 
     private void reify() {
-        try {
-            kernel.reify("Servlet Container", new AsyncCallback<Widget>() {
-                @Override
-                public void onFailure(Throwable throwable) {
-                    Console.error("Reification failed", throwable.getMessage());
-                }
+        kernel.reify("Servlet Container", new AsyncCallback<Widget>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                Console.error("Reification failed", throwable.getMessage());
+            }
 
-                @Override
-                public void onSuccess(Widget widget) {
+            @Override
+            public void onSuccess(Widget widget) {
 
-                    getView().show(widget);
-                    kernel.activate();
-                    kernel.reset();
-                }
-            });
-        } catch (Exception e) {
-            Log.error("Reification failed", e);
-        }
+                getView().show(widget);
+                kernel.activate();
+                kernel.reset();
+            }
+        });
+
     }
 
     @Override
