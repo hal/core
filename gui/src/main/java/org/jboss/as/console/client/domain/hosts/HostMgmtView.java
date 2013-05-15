@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -60,7 +61,7 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
     }
 
     @Override
-    public void setInSlot(Object slot, Widget content) {
+    public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == HostMgmtPresenter.TYPE_MainContent) {
             if(content!=null)
@@ -69,7 +70,7 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
         }
     }
 
-    private void setContent(Widget newContent) {
+    private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }

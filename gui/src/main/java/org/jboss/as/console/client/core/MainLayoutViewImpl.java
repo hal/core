@@ -21,6 +21,7 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -80,7 +81,7 @@ public class MainLayoutViewImpl extends ViewImpl
     }
 
     @Override
-    public void setInSlot(Object slot, Widget content) {
+    public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == MainLayoutPresenter.TYPE_MainContent) {
             if(content!=null)
@@ -93,7 +94,7 @@ public class MainLayoutViewImpl extends ViewImpl
         }
     }
 
-    public void setMainContent(Widget content) {
+    public void setMainContent(IsWidget content) {
         mainContentPanel.clear();
 
         if (content != null) {

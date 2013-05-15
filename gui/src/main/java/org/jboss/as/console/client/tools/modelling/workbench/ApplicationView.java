@@ -20,6 +20,7 @@ package org.jboss.as.console.client.tools.modelling.workbench;
 
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimpleLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -59,7 +60,7 @@ public class ApplicationView extends ViewImpl implements ApplicationPresenter.My
 
 
     @Override
-    public void setInSlot(Object slot, Widget widget)
+    public void setInSlot(Object slot, IsWidget widget)
     {
         if (slot == TYPE_SetMainContent)
         {

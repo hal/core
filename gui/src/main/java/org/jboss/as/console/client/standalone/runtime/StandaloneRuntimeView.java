@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -46,7 +47,7 @@ public class StandaloneRuntimeView extends ViewImpl implements StandaloneRuntime
     }
 
     @Override
-    public void setInSlot(Object slot, Widget content) {
+    public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == StandaloneRuntimePresenter.TYPE_MainContent) {
             if(content!=null)
@@ -59,7 +60,7 @@ public class StandaloneRuntimeView extends ViewImpl implements StandaloneRuntime
         }
     }
 
-    private void setContent(Widget newContent) {
+    private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }

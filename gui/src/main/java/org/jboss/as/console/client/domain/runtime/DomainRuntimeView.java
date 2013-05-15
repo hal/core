@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.runtime;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -51,8 +52,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         return layout;
     }
 
+
     @Override
-    public void setInSlot(Object slot, Widget content) {
+    public void setInSlot(Object slot, IsWidget  content) {
 
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
             if(content!=null)
@@ -65,7 +67,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         }
     }
 
-    private void setContent(Widget newContent) {
+    private void setContent(IsWidget  newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }

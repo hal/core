@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools;
 
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -25,7 +26,7 @@ public class ToolsView extends SuspendableViewImpl implements ToolsPresenter.MyV
     }
 
     @Override
-    public void setInSlot(Object slot, Widget content) {
+    public void setInSlot(Object slot, IsWidget content) {
 
         if (slot == ToolsPresenter.TYPE_MainContent) {
             if(content!=null)
@@ -34,7 +35,7 @@ public class ToolsView extends SuspendableViewImpl implements ToolsPresenter.MyV
         }
     }
 
-    private void setContent(Widget newContent) {
+    private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }
