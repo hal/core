@@ -6,7 +6,9 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasTreeItems;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -39,7 +41,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     private RawView rawView;
     private Tree tree;
     private DescriptionView descView;
-    private DefaultWindow window;
+    private PopupPanel window;
 
     private NodeHeader nodeHeader;
 
@@ -55,6 +57,12 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         this.presenter = presenter;
         //TODO storageView.setPresenter(presenter);
         this.rawView.setPresenter(presenter);
+    }
+
+    @Override
+    public void center() {
+        //super.center();
+        window.center();
     }
 
     @Override
