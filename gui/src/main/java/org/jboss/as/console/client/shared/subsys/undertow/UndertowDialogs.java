@@ -23,9 +23,6 @@ public class UndertowDialogs implements DialogRepository{
     public UndertowDialogs() {
         dialogs = new ArrayList<Sample>();
 
-        dialogs.add(new DataSourceSample());
-        dialogs.add(new TransactionSample());
-        dialogs.add(new SecurityDomainsSample());
         dialogs.add(new UndertowExample());
         dialogs.add(new ServletContainerExample());
         dialogs.add(new UndertowServerExample());
