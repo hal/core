@@ -200,6 +200,11 @@ public class ReadResourceDescription extends ReificationBootstrap
                             return items;
                         }
 
+                        @Override
+                        public LinkedList<String[]> collectTuples(String key) {
+                            return delegate.collectTuples(key);
+                        }
+
                     });
 
                     op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);

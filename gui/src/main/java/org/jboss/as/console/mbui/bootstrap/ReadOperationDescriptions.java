@@ -203,6 +203,11 @@ public class ReadOperationDescriptions extends ReificationBootstrap
                         items.add("*");
                         return items;
                     }
+
+                    @Override
+                    public LinkedList<String[]> collectTuples(String key) {
+                        return delegate.collectTuples(key);
+                    }
                 });
                 op.get(OP).set(READ_OPERATION_DESCRIPTION_OPERATION);
                 op.get(NAME).set(operationName);

@@ -192,7 +192,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
     // ---------- Storage Presenter  ----
 
-    public void loadDmrDescription(ModelNode address, final AsyncCallback<ModelNode> callback) {
+    /*public void loadDmrDescription(ModelNode address, final AsyncCallback<ModelNode> callback) {
         ModelNode descriptionOp  = new ModelNode();
         descriptionOp.get(ADDRESS).set(address);
         descriptionOp.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
@@ -251,5 +251,5 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                 }
             }}
         );
-    }
+    }        */
 }
