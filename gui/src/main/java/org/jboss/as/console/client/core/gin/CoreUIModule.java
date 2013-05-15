@@ -90,6 +90,8 @@ import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
+import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
+import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
 import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.ApplicationView;
 import org.jboss.as.console.client.tools.modelling.workbench.FooterPresenter;
@@ -560,20 +562,15 @@ public class CoreUIModule extends AbstractPresenterModule {
                 JndiView.class,
                 JndiPresenter.MyProxy.class);
 
-        /*bindPresenter(VMMetricsPresenter.class,
+        bindPresenter(VMMetricsPresenter.class,
                 VMMetricsPresenter.MyView.class,
                 VMMetricsView.class,
-                VMMetricsPresenter.MyProxy.class);*/
+                VMMetricsPresenter.MyProxy.class);
 
         bindPresenter(HostVMMetricPresenter.class,
                 HostVMMetricPresenter.MyView.class,
                 HostVMMetricView.class,
                 HostVMMetricPresenter.MyProxy.class);
-
-        bindPresenter(TransactionPresenter.class,
-                TransactionPresenter.MyView.class,
-                TransactionView.class,
-                TransactionPresenter.MyProxy.class);
 
         bindPresenter(SecuritySubsystemPresenter.class,
                 SecuritySubsystemPresenter.MyView.class,
