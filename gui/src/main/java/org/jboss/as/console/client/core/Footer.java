@@ -83,8 +83,11 @@ public class Footer {
             toolReference.add(new String[]{"Diagnostics", "debug-panel"});
         }
 
-        // TODO: exclude from prod build
-        toolReference.add(new String[] {"Modelling", "mbui-workbench"});
+        // only enabled in dev mode
+        if(!GWT.isScript())
+        {
+            toolReference.add(new String[] {"Modelling", "mbui-workbench"});
+        }
 
         final VerticalPanel toolsList = new VerticalPanel();
         toolsList.getElement().setAttribute("width", "160px");
