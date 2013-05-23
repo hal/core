@@ -18,6 +18,8 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
     <modelVersion>4.0.0</modelVersion>
     <name>HAL Core Console :: Parent Aggregator</name>
     <description>HAL Core Console :: Parent Aggregator</description>
@@ -28,12 +30,12 @@
 
 
     <url>
-        http://github.com/heiko-braun/as7-console
+        https://github.com/hal/core
     </url>
     <scm>
-        <connection>scm:git@github.com:jbossas/console.git</connection>
-        <developerConnection>scm:git:git@github.com:jbossas/console.git</developerConnection>
-        <url>git@github.com:jbossas/console.git</url>
+        <connection>scm:git@github.com:har/core.git</connection>
+        <developerConnection>scm:git:git@github.com:hal/core.git</developerConnection>
+        <url>git@github.com:hal/core.git</url>
     </scm>
 
 
@@ -77,7 +79,7 @@
     <!-- IssueManagement -->
     <issueManagement>
         <system>jira</system>
-        <url>https://issues.jboss.org/browse/JBAS</url>
+        <url>https://issues.jboss.org/browse/WFLY/component/12317452</url>
     </issueManagement>
 
 
@@ -92,7 +94,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ballroom.version>1.5.2.Final</ballroom.version>
+        <ballroom.version>1.6.0.Final</ballroom.version>
         <gwt.version>2.5.1</gwt.version>
         <gwtp.version>1.0-RC-3.1</gwtp.version>
         <gwt.maven>2.5.1</gwt.maven>
