@@ -3,18 +3,18 @@
 ## Prerequisites
 
 - JDK 7
-- JBoss 8
+- JWildFly 8
 
-In order to work on the console you a need running JBoss 
+In order to work on the console you a need running WildFly
 instance on your local host. You can download it here:
 
-http://www.jboss.org/jbossas/downloads
+<http://www.wildfly.org/download/>
 
-You can run JBoss in either the 'domain' or 'standalone' mode.
+You can run WildFly in either the 'domain' or 'standalone' mode.
 
 ## Running in hosted mode
 
-1. Make sure JBoss 7 is started
+1. Make sure WildFly is started
 2. Make sure you build the top level module first (mvn -Pdev clean install).
 3. cd 'build/app'
 
@@ -26,14 +26,14 @@ When the hosted browser is started, it's enough to hit the 'refresh' button to r
 and verify changes. You can get the OOPHM Plugin, required for attaching your browser to the
 hosted mode execution here: http://gwt.google.com/samples/MissingPlugin/MissingPlugin.html
 
-NOTE: you need to add user with JBoss 8 add-user script.
+NOTE: you need to add user with WildFly add-user script.
 
 ## Running in web mode
 
 	cd build/app
 	mvn package
 
-Produces a war file in target/*-resources.jar, which needs to be deployed as a JBoss Module.
+Produces a war file in target/*-resources.jar, which needs to be deployed as a WildFly Module.
 
 
 ## EAP Build Profile
