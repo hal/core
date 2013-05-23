@@ -357,7 +357,7 @@ public class DeploymentStore
                             case jpa:
                                 subsystem = deploymentJpaSubsystemEntityAdapter.fromDMR(subsystemNode);
                                 break;
-                            case web:
+                            case undertow:
                                 subsystem = deploymentWebSubsystemnEntityAdapter.fromDMR(subsystemNode);
                                 break;
                             case webservices:
@@ -550,16 +550,16 @@ public class DeploymentStore
         DeploymentRecord deployment = subsystem.getDeployment();
         if (deployment.isSubdeployment())
         {
-            // /<deployment.getBaseAddress()>/deployment=<deployment>/subdeployment=<subdeployment>/subsystem=web/servlet=*:read-resource
+            // /<deployment.getBaseAddress()>/deployment=<deployment>/subdeployment=<subdeployment>/subsystem=undertow/servlet=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getParent().getName())
                     .add("subdeployment", deployment.getName());
         }
         else
         {
-            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=web/servlet=*:read-resource
+            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=undertow/servlet=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getName());
         }
-        operation.get(ADDRESS).add("subsystem", "web").add("servlet", "*");
+        operation.get(ADDRESS).add("subsystem", "undertow").add("servlet", "*");
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
@@ -605,7 +605,7 @@ public class DeploymentStore
         }
         else
         {
-            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=web/servlet=*:read-resource
+            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=undertow/servlet=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getName());
         }
         operation.get(ADDRESS).add("subsystem", "webservices").add("endpoint", "*");
