@@ -7,6 +7,7 @@ build.number
 *.bak
 gwt-unitCache
 
+build/app/overlays
 build/app/war
 build/war
 
