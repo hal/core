@@ -30,7 +30,7 @@ public interface EnumLabels extends ConstantsWithLookup
     String DeploymentData_subdeployment();
     String DeploymentData_ejb3();
     String DeploymentData_jpa();
-    String DeploymentData_web();
+    String DeploymentData_undertow();
     String DeploymentData_webservices();
     String DeploymentData_entityBean();
     String DeploymentData_messageDrivenBean();

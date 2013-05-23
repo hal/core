@@ -117,7 +117,7 @@ public class DeploymentNodeInfoFactory
                         }
                     });
                     break;
-                case web:
+                case undertow:
                     nodeInfo.setCommand(new Command()
                     {
                         @Override
@@ -182,7 +182,7 @@ public class DeploymentNodeInfoFactory
                             new DeploymentDataProvider<DeployedPersistenceUnit>(),
                             new DeploymentDataCell<DeployedPersistenceUnit>(deploymentBrowser));
                     break;
-                case web:
+                case undertow:
                     nodeInfo = (DeploymentNodeInfo<T>) new DeploymentNodeInfo<DeployedServlet>(
                             new DeploymentDataProvider<DeployedServlet>(),
                             new DeploymentDataCell<DeployedServlet>(deploymentBrowser));
