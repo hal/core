@@ -108,7 +108,8 @@ public class XmlHttpProxy {
                                Map headers,
                                String method,
                                String userName,
-                               String password) throws IOException, MalformedURLException {
+                               String password, String authHeader) throws IOException, MalformedURLException {
+        this.authHeader = authHeader;
         doProcess(urlString, out, xslInputStream, paramsMap, headers,method, null,null, userName,password);
     }
     /**
@@ -187,14 +188,14 @@ public class XmlHttpProxy {
         }
         else
         {
-            httpclient = new HttpClient(proxyHost, proxyPort, urlString, headers, method, callback);
+            httpclient = new HttpClient(proxyHost, proxyPort, urlString, headers, method, callback, authHeader);
         }
 
         // post data determines whether we are going to do a get or a post
         if (postData == null) {
             in = httpclient.getInputStream();
         } else {
-            in = httpclient.doPost(postData, postContentType, authHeader);
+            in = httpclient.doPost(postData, postContentType);
         }
 
         // Set-Cookie header

@@ -473,7 +473,7 @@ public class XmlHttpProxyServlet extends HttpServlet
 
             if (!isPost)
             {
-                xhp.processRequest(urlString, out, xslInputStream, paramsMap, headers, method, userName, password);
+                xhp.processRequest(urlString, out, xslInputStream, paramsMap, headers, method, userName, password, authHeader);
             }
             else
             {

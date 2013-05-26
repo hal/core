@@ -47,8 +47,8 @@ public class HttpClient {
     private boolean isProxy = false;
     private HttpURLConnection urlConnection = null;
     private Map headers;
-
     private String setCookieHeader;
+    private String authHeader;
 
     private XmlHttpProxy.CookieCallback callback;
 
@@ -64,7 +64,8 @@ public class HttpClient {
             String url,
             Map headers,
             String method,
-            XmlHttpProxy.CookieCallback callback)
+            XmlHttpProxy.CookieCallback callback,
+            String authHeader)
             throws MalformedURLException
     {
         this.callback = callback;
@@ -86,6 +87,10 @@ public class HttpClient {
             this.urlConnection.setRequestMethod(method);
         } catch (java.net.ProtocolException pe) {
             HttpClient.getLogger().severe("Unable protocol method to " + method + " : " + pe);
+        }
+        if (authHeader != null) {
+            this.authHeader = authHeader;
+            this.urlConnection.setRequestProperty( "Authorization", authHeader);
         }
         this.headers = headers;
         writeHeaders(headers);
@@ -159,11 +164,13 @@ public class HttpClient {
             } catch (java.net.ProtocolException pe) {
                 HttpClient.getLogger().severe("Unable protocol method to " + method + " : " + pe);
             }
-            // set basic authentication information
-            String auth = userName + ":" +  password;
-            String encoded = new sun.misc.BASE64Encoder().encode (auth.getBytes());
-            // set basic authorization
-            this.urlConnection.setRequestProperty ("Authorization", "Basic " + encoded);
+            // set authentication information
+            if (userName != null && password != null) {
+                String auth = userName + ":" +  password;
+                String encoded = new sun.misc.BASE64Encoder().encode (auth.getBytes());
+                // set basic authorization
+                this.urlConnection.setRequestProperty ("Authorization", "Basic " + encoded);
+            }
             this.headers = headers;
             writeHeaders(headers);
         } catch (Exception ex) {
@@ -254,7 +261,7 @@ public class HttpClient {
                 {
                     HttpClient redirectClient =
                             new HttpClient(proxyHost,proxyPort, urlConnection.getHeaderField("Location"),
-                                    headers, urlConnection.getRequestMethod(), callback);
+                                    headers, urlConnection.getRequestMethod(), callback, authHeader);
                     redirectClient.getInputStream().close();
                 }
             }
@@ -294,13 +301,11 @@ public class HttpClient {
      *
      * @param postData data to be posted. must be url-encoded already.
      * @param contentType allows you to set the contentType of the request.
-     * @param authHeader
      * @return InputStream input stream from URLConnection
      */
-    public InputStream doPost(byte[] postData, String contentType, String authHeader) {
+    public InputStream doPost(byte[] postData, String contentType) {
         this.urlConnection.setDoOutput(true);
         if (contentType != null) this.urlConnection.setRequestProperty( "Content-type", contentType );
-        if (authHeader!= null) this.urlConnection.setRequestProperty( "Authorization", authHeader);
 
         OutputStream out = null;
         try {

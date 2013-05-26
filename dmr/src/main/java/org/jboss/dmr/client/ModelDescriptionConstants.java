@@ -71,6 +71,7 @@ public class ModelDescriptionConstants {
     public static final String INCLUDE = "include";
     public static final String INCLUDES = "includes";
     public static final String INCLUDE_RUNTIME = "include-runtime";
+    public static final String INHERITED = "inherited";
     public static final String INET_ADDRESS = "inet-address";
     public static final String INPUT_STREAM_INDEX = "input-stream-index";
     public static final String INTERFACE = "interface";
@@ -115,6 +116,7 @@ public class ModelDescriptionConstants {
     public static final String PRIORITY = "priority";
     public static final String PROFILE = "profile";
     public static final String PROFILE_NAME = "profile-name";
+    public static final String PROXIES = "proxies";
     public static final String READ_ATTRIBUTE_OPERATION = "read-attribute";
     public static final String READ_CHILDREN_NAMES_OPERATION = "read-children-names";
     public static final String READ_CHILDREN_TYPES_OPERATION = "read-children-types";
