@@ -143,6 +143,9 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             final String id = String.valueOf(idCounter++);
             trace(Type.BEGIN, id, operation);
 
+            final RequestBuilder requestBuilder = chooseRequestBuilder(operation);
+            trace(Type.SERIALIZED, id, operation);
+
             final RequestCallback requestCallback = new RequestCallback()
             {
                 @Override
@@ -153,7 +156,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     int statusCode = response.getStatusCode();
                     if (200 == statusCode)
                     {
-                        resultCallback.onSuccess(new DMRResponse(response.getText(),
+                        resultCallback.onSuccess(new DMRResponse(requestBuilder.getHTTPMethod(), response.getText(),
                                 response.getHeader(HEADER_CONTENT_TYPE)));
                     }
                     else if (401 == statusCode || 0 == statusCode)
@@ -196,9 +199,6 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     trace(Type.END, id, operation);
                 }
             };
-
-            RequestBuilder requestBuilder = chooseRequestBuilder(operation);
-            trace(Type.SERIALIZED, id, operation);
             requestBuilder.setCallback(requestCallback);
             request = requestBuilder.send();
             trace(Type.SEND, id, operation);

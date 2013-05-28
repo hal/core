@@ -20,6 +20,11 @@
 package org.jboss.dmr.client.dispatch.impl;
 
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.SUCCESS;
+
+import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.dispatch.Result;
 import org.jboss.dmr.client.ModelNode;
 
@@ -29,11 +34,13 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class DMRResponse implements Result<ModelNode> {
 
+    private String method;
     private String responseText;
     private String contentType;
     //private ResponseProcessor processor;
 
-    public DMRResponse(String responseText, String contentType) {
+    public DMRResponse(String method, String responseText, String contentType) {
+        this.method = method;
         this.responseText = responseText;
         this.contentType = contentType;
 
@@ -43,10 +50,21 @@ public class DMRResponse implements Result<ModelNode> {
     @Override
     public ModelNode get() {
 
-
         ModelNode response = null;
         try {
             response = ModelNode.fromBase64(responseText);
+
+            if ("GET".equals(method)) {
+                // For GET request the response is purley the model nodes result. The outcome
+                // is not send as part of the response but expressed with the HTTP status code.
+                // In order to not break existing code, we repackage the payload into a
+                // new model node with an "outcome" and "result" key.
+                ModelNode repackaged = new ModelNode();
+                repackaged.get(OUTCOME).set(SUCCESS);
+                repackaged.get(RESULT).set(response);
+                response = repackaged;
+            }
+
         } catch (Throwable e) {
 
             ModelNode err = new ModelNode();
