@@ -33,14 +33,12 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -76,17 +74,13 @@ public class Header implements ValueChangeHandler<String> {
     private BootstrapContext bootstrap;
     private MessageCenter messageCenter;
     private PlaceManager placeManager;
-    private ProductConfig productConfig;
 
     @Inject
-    public Header(
-            MessageCenter messageCenter, BootstrapContext bootstrap,
-            PlaceManager placeManager, ProductConfig productConfig) {
+    public Header(MessageCenter messageCenter, BootstrapContext bootstrap, PlaceManager placeManager) {
         this.messageBar = new MessageBar(messageCenter);
         this.bootstrap = bootstrap;
         this.messageCenter = messageCenter;
         this.placeManager = placeManager;
-        this.productConfig = productConfig;
         History.addValueChangeHandler(this);
 
     }
@@ -96,7 +90,7 @@ public class Header implements ValueChangeHandler<String> {
         LayoutPanel outerLayout = new LayoutPanel();
         outerLayout.addStyleName("page-header");
 
-        Widget logo = getLogoSection();
+        Widget logo = getProductSection();
         Widget links = getLinksSection();
 
         LayoutPanel rhs = new LayoutPanel();
@@ -131,39 +125,26 @@ public class Header implements ValueChangeHandler<String> {
         return outerLayout;
     }
 
-    private Widget getLogoSection() {
+    private Widget getProductSection() {
 
         HorizontalPanel panel = new HorizontalPanel();
-        panel.setStyleName("logo-section");
+        panel.setStyleName("product-section");
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
 
-        Image logo = null;
+        HTML productName = new HTML(bootstrap.getProductName());
+        productName.setStyleName("header-product-name");
+        panel.add(productName);
 
-        if(ProductConfig.Profile.EAP.equals(productConfig.getProfile()))
-        {
-            logo = new Image("images/logo/product_title.png");
-            logo.setAltText("JBoss Enterprise Application Platform");
-        }
-        else {
-            logo = new Image("images/logo/community_title.png");
-            logo.setAltText("Wildfly");
-        }
+        HTML productVersion = new HTML(bootstrap.getProductVersion());
+        productVersion.setStyleName("header-product-version");
+        panel.add(productVersion);
 
-        logo.setStyleName("logo");
+        productName.getElement().getParentElement().setAttribute("valign", "bottom");
+        productName.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
 
-        panel.add(logo);
-        HTML prodVersion = new HTML(bootstrap.getProdVersion());//new HTML(productConfig.getProductVersion());
-        prodVersion.setStyleName("header-prod-version");
-        panel.add(prodVersion);
-
-
-        logo.getElement().getParentElement().setAttribute("valign", "bottom");
-        logo.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
-
-        prodVersion.getElement().getParentElement().setAttribute("valign", "bottom");
-        prodVersion.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
-        prodVersion.getElement().getParentElement().setAttribute("width", "100%");
+        productVersion.getElement().getParentElement().setAttribute("valign", "bottom");
+        productVersion.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
         return panel;
     }
 

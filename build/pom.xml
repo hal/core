@@ -216,7 +216,6 @@
             <id>eap</id>
             <properties>
                 <env>default</env>
-                <gwt.console.product.version>6.1</gwt.console.product.version>
             </properties>
             <build>
                 <plugins>

@@ -171,8 +171,6 @@
                                     <property name="version" value="${project.version}"/>
                                     <property name="build.user" value="${user.name}"/>
                                     <property name="src.dir" value="${project.build.directory}/generated-sources/ant" />
-                                    <property name="console.profile" value="${console.profile}" />
-                                    <property name="product.version" value="${gwt.console.product.version}" />
                                     <!-- only used in hosted mode, see BootstrapContext -->
                                     <property name="dev.host" value="${gwt.bindAddress}" />
                                 </ant>
@@ -203,7 +201,6 @@
                             </processors>
                             <options>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
-                                <gwt.console.product.version>${gwt.console.product.version}</gwt.console.product.version>
                             </options>
                         </configuration>
                     </execution>

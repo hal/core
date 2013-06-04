@@ -105,7 +105,6 @@
         <guice.version>3.0</guice.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.console.dev.host>127.0.0.1</gwt.console.dev.host>
-        <gwt.console.product.version>7.2</gwt.console.product.version>
     </properties>
 
 

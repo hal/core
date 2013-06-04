@@ -40,7 +40,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ExecutionMode implements Function<BootstrapContext> {
 
-
     private DispatchAsync dispatcher;
 
     public ExecutionMode(DispatchAsync dispatcher) {
@@ -50,84 +49,95 @@ public class ExecutionMode implements Function<BootstrapContext> {
     @Override
     public void execute(final Control<BootstrapContext> control) {
 
-        // :read-attribute(name=process-type)
+        final BootstrapContext context = control.getContext();
+
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
         operation.get(ADDRESS).setEmptyList();
 
+        ModelNode step;
         List<ModelNode> steps = new ArrayList<ModelNode>();
 
         // exec type
-        ModelNode execType = new ModelNode();
-        execType.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        execType.get(NAME).set("process-type");
-        execType.get(ADDRESS).setEmptyList();
-        steps.add(execType);
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("process-type");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
 
-        // prod version
-        ModelNode prodVersion = new ModelNode();
-        prodVersion.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        prodVersion.get(NAME).set("product-version");
-        prodVersion.get(ADDRESS).setEmptyList();
-        steps.add(prodVersion);
+        // product name
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("product-name");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
+        // release codename
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("release-codename");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
+        // product version
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("product-version");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
 
         // release version
-        ModelNode releaseVersion = new ModelNode();
-        releaseVersion.get(OP).set(READ_ATTRIBUTE_OPERATION);
-        releaseVersion.get(NAME).set("release-version");
-        releaseVersion.get(ADDRESS).setEmptyList();
-        steps.add(releaseVersion);
-        
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("release-version");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
         operation.get(STEPS).set(steps);
 
-        final BootstrapContext bootstrap = control.getContext();
-
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+
             @Override
             public void onFailure(Throwable caught) {
-
-                bootstrap.setlastError(caught);
+                context.setlastError(caught);
                 Log.error(caught.getMessage());
-
                 control.abort();
             }
 
             @Override
             public void onSuccess(DMRResponse result) {
-
                 ModelNode response = result.get();
-
-                if(response.isFailure())
-                {
-                    bootstrap.setlastError(new RuntimeException(response.getFailureDescription()));
+                if(response.isFailure()) {
+                    context.setlastError(new RuntimeException(response.getFailureDescription()));
                     control.abort();
-                }
-                else
-                {
-
+                } else {
                     // capture exec mode
-                    ModelNode execResult = response.get(RESULT).get("step-1");
-                    boolean isServer = execResult.get(RESULT).asString().equals("Server");
-                    bootstrap.setProperty(BootstrapContext.STANDALONE, Boolean.valueOf(isServer).toString());
+                    ModelNode execMode = response.get(RESULT).get("step-1");
+                    boolean isServer = execMode.get(RESULT).asString().equals("Server");
+                    context.setProperty(BootstrapContext.STANDALONE, Boolean.valueOf(isServer).toString());
 
-                    ModelNode prodVersionResult = response.get(RESULT).get("step-2");
-                    String prodVersion = prodVersionResult.get(RESULT).isDefined() ?
-                            prodVersionResult.get(RESULT).asString() : "";
+                    // product name, release codename
+                    ModelNode productName = response.get(RESULT).get("step-2");
+                    ModelNode releaseCodename = response.get(RESULT).get("step-3");
+                    if (productName.get(RESULT).isDefined()) {
+                        context.setProductName(productName.get(RESULT).asString());
+                    } else if (releaseCodename.get(RESULT).isDefined()) {
+                        context.setProductName(releaseCodename.get(RESULT).asString());
+                    }
 
-                    ModelNode releaseResult = response.get(RESULT).get("step-3");
-                    String releaseVersion = releaseResult.get(RESULT).isDefined() ?
-                            releaseResult.get(RESULT).asString() : "";
+                    // product version, release version
+                    ModelNode productVersion = response.get(RESULT).get("step-4");
+                    ModelNode releaseVersion = response.get(RESULT).get("step-5");
+                    if (productVersion.get(RESULT).isDefined()) {
+                        context.setProductVersion(productVersion.get(RESULT).asString());
+                    } else if (releaseVersion.get(RESULT).isDefined()) {
+                        context.setProductVersion(releaseVersion.get(RESULT).asString());
+                    }
 
-                    bootstrap.setReleaseVersion(releaseVersion);
-                    bootstrap.setProdVersion(prodVersion);
-
+                    System.out.println(context.getProductName() + " " + context.getProductVersion());
                     control.proceed();
                 }
-
-
             }
-
         });
-
     }
 }
