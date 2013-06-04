@@ -85,6 +85,15 @@
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
+                        <configuration>
+                            <!--
+                                Don't include any composite gwt module descriptions in extension source jars
+                                as they might overwrite the composite gwt module description of the core console
+                            -->
+                            <excludes>
+                                <exclude>org/jboss/as/console/composite/App*.gwt.xml</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
