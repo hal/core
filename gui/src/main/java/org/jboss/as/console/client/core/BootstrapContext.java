@@ -35,28 +35,28 @@ import java.util.Map;
 public class BootstrapContext implements ApplicationProperties {
 
     private Map<String,String> ctx = new HashMap<String,String>();
-
-
     private String initialPlace = null;
     private Throwable lastError;
-    private String releaseVersion;
-    private String prodVersion;
+    private String productName;
+    private String productVersion;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
+
+        // Default values
+        this.productName = "Management Console";
+        this.productVersion = "";
 
         String devHost = productConfig.getDevHost();
 
         String domainApi = GWT.isScript() ? getBaseUrl()+"management" : "http://"+devHost+":8888/app/proxy";
         setProperty(DOMAIN_API, domainApi);
 
-
         String deploymentApi = GWT.isScript() ? getBaseUrl()+"management/add-content" : "http://"+devHost+":8888/app/upload";
         setProperty(DEPLOYMENT_API, deploymentApi);
 
         String logoutApi = GWT.isScript() ? getBaseUrl()+"logout" : "http://"+devHost+":8888/app/logout";
         setProperty(LOGOUT_API, logoutApi);
-
 
         System.out.println("Domain API Endpoint: "+domainApi);
     }
@@ -72,8 +72,8 @@ public class BootstrapContext implements ApplicationProperties {
         String protocol = base.substring(0, base.indexOf("//")+2);
         String remainder = base.substring(base.indexOf(protocol)+protocol.length(), base.length());
 
-        String host = null;
-        String port = null;
+        String host;
+        String port;
 
         int portDelim = remainder.indexOf(":");
         if(portDelim !=-1 )
@@ -163,16 +163,23 @@ public class BootstrapContext implements ApplicationProperties {
         return lastError;
     }
 
-    public void setReleaseVersion(String releaseVersion) {
-        this.releaseVersion = releaseVersion;
+    public String getProductName()
+    {
+        return productName;
     }
 
-    public void setProdVersion(String prodVersion) {
-        this.prodVersion = prodVersion;
+    public void setProductName(final String productName)
+    {
+        this.productName = productName;
     }
 
-    public String getProdVersion() {
-        return (null==prodVersion || prodVersion.equals("")) ?
-                releaseVersion : prodVersion;
+    public String getProductVersion()
+    {
+        return productVersion;
+    }
+
+    public void setProductVersion(final String productVersion)
+    {
+        this.productVersion = productVersion;
     }
 }

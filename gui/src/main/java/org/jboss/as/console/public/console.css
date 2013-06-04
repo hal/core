@@ -114,6 +114,25 @@ body {
     background-repeat: no-repeat;
 }
 
+.header-product-name, .header-product-version {
+    padding-top: 20px;
+    padding-bottom: 5px;
+    color: #ffffff !important;
+    vertical-align: bottom;
+}
+
+.header-product-name {
+    padding-left: 10px;
+    font-size: 20px !important;
+    font-weight: bold;
+}
+
+.header-product-version {
+    padding-left: 5px;
+    font-size: 15px !important;
+    vertical-align: bottom;
+}
+
 .logo {
     padding-top: 20px;
     padding-left: 10px;
@@ -368,7 +387,7 @@ body {
     height: 15px;
 }
 
-.logo-section {
+.product-section {
     height: 58px;
     vertical-align: bottom;
 }

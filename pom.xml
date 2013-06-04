@@ -88,6 +88,17 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <ballroom.version>1.6.0.Final</ballroom.version>
+        <gwt.version>2.5.1</gwt.version>
+        <gwtp.version>1.0-RC-3.1</gwtp.version>
+        <gwt.maven>2.5.1</gwt.maven>
+        <gwt-log.version>3.2.1</gwt-log.version>
+        <gwt-vis.version>1.1.1</gwt-vis.version>
+        <junit.version>4.11</junit.version>
+        <gin.version>2.0.0</gin.version>
+        <guice.version>3.0</guice.version>
+        <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
+        <gwt.console.dev.host>127.0.0.1</gwt.console.dev.host>
     </properties>
 
     <modules>
