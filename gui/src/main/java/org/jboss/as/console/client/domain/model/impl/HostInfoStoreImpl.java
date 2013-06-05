@@ -298,7 +298,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
     @Override
     public void getServerConfiguration(String host, String server, final AsyncCallback<Server> callback) {
 
-        if(host==null) throw new RuntimeException("Host parameter is null!");
+        if (host==null) throw new RuntimeException("Host parameter is null!");
+        if (NOT_SET.equals(host)) return;
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);

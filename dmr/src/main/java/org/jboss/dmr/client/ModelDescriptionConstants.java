@@ -102,6 +102,7 @@ public class ModelDescriptionConstants {
     public static final String NETWORK = "network";
     public static final String NILLABLE = "nillable";
     public static final String NOT = "not";
+    public static final String NOT_SET = "not-set";
     /** Use this as the standard operation name field in the operation *request* ModelNode */
     public static final String OP = "operation";
     /** Use this standard operation address field in the operation *request* ModelNode */
