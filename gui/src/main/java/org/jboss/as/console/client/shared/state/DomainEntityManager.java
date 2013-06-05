@@ -1,8 +1,12 @@
 package org.jboss.as.console.client.shared.state;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
+
+import java.util.Collections;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -11,9 +15,9 @@ import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * @author Heiko Braun
@@ -60,8 +64,8 @@ public class DomainEntityManager implements
                 if(serverInstances.isEmpty())
                 {
                     ServerInstance blank = factory.serverInstance().as();
-                    blank.setHost("not-set");
-                    blank.setName("not-set");
+                    blank.setHost(NOT_SET);
+                    blank.setName(NOT_SET);
                     callback.onSuccess(new ServerInstanceList(blank, Collections.EMPTY_LIST));
                 }
                 else
@@ -81,7 +85,7 @@ public class DomainEntityManager implements
                 if (serverConfigs.isEmpty()) {
                     // no server at all on this host
                     Server blank = factory.server().as();
-                    blank.setName("not-set");
+                    blank.setName(NOT_SET);
                     callback.onSuccess(new ServerConfigList(blank, Collections.EMPTY_LIST));
                 } else {
                     Server s = getSelectedServerConfig(serverConfigs);
@@ -104,7 +108,7 @@ public class DomainEntityManager implements
         if(null==selectedServer)
             Log.warn("server selection is null");//throw new IllegalStateException("server should not be null");
 
-        return selectedServer!=null ? selectedServer : "not-set";
+        return selectedServer!=null ? selectedServer : NOT_SET;
     }
 
     @Override
