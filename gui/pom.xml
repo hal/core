@@ -195,7 +195,7 @@
                         <configuration>
                             <outputDiagnostics>false</outputDiagnostics>
                             <addCompileSourceRoots>false</addCompileSourceRoots>
-                            <appendSourceArtifacts>true</appendSourceArtifacts>
+                            <appendSourceArtifacts>false</appendSourceArtifacts>
                             <processors>
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
