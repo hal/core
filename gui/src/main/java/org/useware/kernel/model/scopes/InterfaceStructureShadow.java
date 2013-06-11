@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Heiko Braun
  */
-public class InterfaceStructureShim<T> {
+public class InterfaceStructureShadow<T> {
 
     private Node<T> rootElement;
 

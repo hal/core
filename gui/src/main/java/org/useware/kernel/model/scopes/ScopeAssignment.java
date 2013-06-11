@@ -8,7 +8,7 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 import java.util.Stack;
 
 /**
- * Assign scopes interaction units to scopes.Creates a shim tree of the structure model.
+ * Assign scopes interaction units to scopes. Creates a shadow tree of the structure model.
  * <p/>
  * Scopes are assigned by interpretation of {@link org.useware.kernel.model.structure.TemporalOperator}'s.
  * If an operator acts as a scope boundary then a new scope id wil be assigned.
@@ -22,14 +22,14 @@ import java.util.Stack;
  */
 public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisitor<S> {
 
-    private final InterfaceStructureShim<Scope> scopeShim;
+    private final InterfaceStructureShadow<Scope> shadowTree;
 
     private Stack<ChildStrategy> stack = new Stack<ChildStrategy>();
 
     private int scopeIdx = 0;
 
     public ScopeAssignment() {
-        this.scopeShim = new InterfaceStructureShim<Scope>();
+        this.shadowTree = new InterfaceStructureShadow<Scope>();
     }
 
     private Integer createContextId() {
@@ -47,7 +47,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             // top level: create new root node
             final Node<Scope> rootNode = new Node<Scope>(container.getId());
             rootNode.setData(new Scope(createContextId(), true));
-            scopeShim.setRootElement(rootNode);
+            shadowTree.setRootElement(rootNode);
 
             stack.push(new ChildStrategy(rootNode) {
                 @Override
@@ -146,8 +146,8 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
     }
 
-    public InterfaceStructureShim<Scope> getShim() {
-        return scopeShim;
+    public InterfaceStructureShadow<Scope> getScopeModel() {
+        return shadowTree;
     }
 
 

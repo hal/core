@@ -9,7 +9,7 @@ import org.useware.kernel.model.structure.QName;
  */
 public class NoopStateCoordination implements StateCoordination{
     @Override
-    public void notifyActivation(QName unitId) {
+    public void notifyActivation(QName unitId, boolean b) {
         // noop
     }
 }

@@ -8,5 +8,5 @@ import org.useware.kernel.model.structure.QName;
  */
 public interface StateCoordination {
 
-    void notifyActivation(QName unitId);
+    void activateUnit(QName unitId);
 }

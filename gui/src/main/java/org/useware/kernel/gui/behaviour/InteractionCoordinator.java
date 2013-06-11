@@ -14,7 +14,6 @@ import org.useware.kernel.gui.behaviour.common.SelectStatementProcedure;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
-import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
@@ -112,7 +111,7 @@ public class InteractionCoordinator implements KernelContract,
     }
 
     /**
-     * Command entry point
+     * Event delegation. Uses the dialog ID as source.
      *
      * @param event
      */
@@ -121,21 +120,28 @@ public class InteractionCoordinator implements KernelContract,
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                bus.fireEventFromSource(event, this);
+                bus.fireEventFromSource(event, dialog.getId());
             }
         });
 
     }
 
     @Override
-    public void notifyActivation(QName unitId) {
-        Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
-        activateProcedure.getCommand().execute(dialog, unitId);
+    public void activateUnit(QName unitId) {
+        SystemEvent activationEvent = new SystemEvent(CommonQNames.ACTIVATION_ID);
+        activationEvent.setPayload(unitId);
+        fireEvent(activationEvent);
+
+        // activate the units scope
+        dialogState.activateScope(unitId);
     }
 
     @Override
     public void activate() {
-        dialogState.resetActivation();
+        dialogState.reset();
+
+        // navigate to root element
+        fireEvent(new NavigationEvent( CommonQNames.NAVIGATION_ID, dialog.getInterfaceModel().getId()));
     }
 
     @Override
@@ -232,7 +238,7 @@ public class InteractionCoordinator implements KernelContract,
             String suffix = target.getSuffix();
             if("prev".equals(suffix) || "next".equals(suffix)) // relative, local (#prev, #next)
             {
-                throw new RuntimeException("Relative navigation ot implemented: "+suffix);
+                throw new RuntimeException("Relative navigation not implemented: "+suffix);
 
                 /*if(NavigationEvent.RELATION.next.equals(suffix))
                 {

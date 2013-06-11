@@ -129,7 +129,7 @@ public class DialogVisualization
 
             String style = activeItems.values().contains(interactionUnit.getId()) ? ACTIVE_STYLE : INACTIVE_STYLE;
 
-            // statement context shim visualisation
+            // statement context shadow visualisation
             Node<Scope> self = dialog.getScopeModel().findNode(interactionUnit.getId());
             Integer scopeId = self.getData().getScopeId();
             String color = scopeId>colors.length-1 ? "#ffffff" : colors[scopeId];

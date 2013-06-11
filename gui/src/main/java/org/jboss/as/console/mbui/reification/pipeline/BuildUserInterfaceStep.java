@@ -107,7 +107,7 @@ public class BuildUserInterfaceStep extends ReificationStep
     {
         BuildUserInterfaceVisitor visitor = new BuildUserInterfaceVisitor(context);
         dialog.getInterfaceModel().accept(visitor);
-        System.out.println(logger.flush());
+        //System.out.println(logger.flush()); TODO: remove logger completely
         context.set(WIDGET, visitor.root);
         System.out.println("Finished " + getName());
     }

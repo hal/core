@@ -5,6 +5,7 @@ import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.scopes.Scope;
+import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.HashMap;
@@ -36,17 +37,53 @@ public class DialogState {
         this.scope2context = new HashMap<Integer, MutableContext>();
     }
 
-
-    public void resetActivation() {
+    public void reset() {
 
         parent2childScopes.clear();
+        scopeActivationState.clear();
+    }
+
+    /**
+     * Activate a branch of the interface model.
+     * @param unit the entry point
+     *
+     * @return the leaf unit of that branch (used for scope activation)
+     */
+    public QName activateBranch(InteractionUnit unit) {
 
         BranchActivation activation = new BranchActivation();
-        dialog.getInterfaceModel().accept(activation);
+        unit.accept(activation);
+
         for(QName unitId : activation.getActiveItems().values())
         {
-            // notify actual unit implementation
-            stateCoordination.notifyActivation(unitId);
+            // trigger activation procedure
+            stateCoordination.activateUnit(unitId);
+        }
+
+        return activation.getActiveItems().get(activation.getActiveItems().size()-1);
+    }
+
+    /**
+     * Deactivates a previously active sibling scope and activate a new one.
+     * (Only a single sibling scope can be active at a time)
+     *
+     * @param targetUnit the unit from which the scope will be derived
+     */
+    public void activateScope(QName targetUnit) {
+
+        Scope nextScope = getScope(targetUnit);
+        int parentScopeId = getParentScopeId(targetUnit);
+
+        Scope activeScope = parent2childScopes.get(parentScopeId);
+        if(!nextScope.equals(activeScope))
+        {
+            System.out.println("Replace activation of scope "+activeScope+" with "+ nextScope);
+
+            // root element might not have an active scope
+            if(activeScope!=null)scopeActivationState.put(activeScope.getScopeId(), false);
+
+            scopeActivationState.put(nextScope.getScopeId(), true);
+            parent2childScopes.put(parentScopeId, nextScope);
         }
     }
 
@@ -65,7 +102,7 @@ public class DialogState {
     public StatementContext getContext(QName interactionUnitId) {
 
         final Node<Scope> self = dialog.getScopeModel().findNode(interactionUnitId);
-        assert self!=null : "Unit not present in shim: "+ interactionUnitId;
+        assert self!=null : "Unit not present in scopeModel: "+ interactionUnitId;
 
         Scope scope = self.getData();
 
@@ -114,32 +151,7 @@ public class DialogState {
         return scope2context.get(scope.getScopeId());
     }
 
-    /**
-     * Deactivates a previously active sibling scope and activate a new one.
-     * (Only a single sibling scope can be active at a time)
-     *
-     * @param targetUnit the unit from which the scope will be derived
-     */
-    public void activateScope(QName targetUnit) {
 
-        // TODO: If branch has not been activated yet,
-        // then redo branch activation from targetUnit
-
-        Scope nextScope = getScope(targetUnit);
-        int parentScopeId = getParentScopeId(targetUnit);
-
-        Scope activeScope = parent2childScopes.get(parentScopeId);
-        if(!nextScope.equals(activeScope))
-        {
-            System.out.println("Replace activation of scope "+activeScope+" with "+ nextScope);
-
-            // root elements might not have an active scope
-            if(activeScope!=null)scopeActivationState.put(activeScope.getScopeId(), false);
-
-            scopeActivationState.put(nextScope.getScopeId(), true);
-            parent2childScopes.put(parentScopeId, nextScope);
-        }
-    }
 
     /**
      * A unit can be activated if the parent is a demarcation type
@@ -151,12 +163,19 @@ public class DialogState {
     public boolean canBeActivated(QName interactionUnit) {
 
         Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
-        assert node!=null : "Unit doesn't exist in shim: "+interactionUnit;
+        assert node!=null : "Unit doesn't exist in scopeModel: "+interactionUnit;
         boolean isRootElement = node.getParent() == null;
         boolean parentIsDemarcationType = node.getParent()!=null && node.getParent().getData().isDemarcationType();
         return isRootElement || parentIsDemarcationType;
     }
 
+    /**
+     * Is within active scope when itself and all it's parent scopes are active as well.
+     * This is necessary to ensure access to statements from parent scopes.
+     *
+     * @param unitId
+     * @return
+     */
     public boolean isWithinActiveScope(final QName unitId) {
         final Scope scopeOfUnit = getScope(unitId);
         int parentScopeId = getParentScopeId(unitId);

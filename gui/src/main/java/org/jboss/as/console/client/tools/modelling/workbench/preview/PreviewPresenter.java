@@ -91,6 +91,8 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
         super.onBind();
         getEventBus().addHandler(ReifyEvent.getType(), this);
         getEventBus().addHandler(ResetEvent.getType(), this);
+        getEventBus().addHandler(ActivateEvent.getType(), this);
+        getEventBus().addHandler(PassivateEvent.getType(), this);
     }
 
     @Override
@@ -113,7 +115,7 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
             public void onSuccess(Widget widget) {
 
                 getView().show(widget);
-                kernel.activate();
+                //kernel.activate();
                 kernel.reset();
             }
         });

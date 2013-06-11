@@ -23,6 +23,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionEvent;
 import com.google.gwt.event.logical.shared.BeforeSelectionHandler;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -115,7 +116,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
             final DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
             tabLayoutpanel.addStyleName("default-tabpanel");
 
-            tabLayoutpanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
+            tabLayoutpanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits, tabLayoutpanel));
 
            /* tabLayoutpanel.addAttachHandler(new AttachEvent.Handler() {
                 @Override
@@ -196,7 +197,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
         private TabPanelContract createPages(InteractionUnit<StereoTypes> interactionUnit, EventBus eventBus) {
             final Pages pagedView = new Pages();
 
-            pagedView.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
+            pagedView.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits, pagedView));
 
             // activation listener
 
@@ -257,7 +258,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
             final TabPanel tabPanel = new TabPanel();
             tabPanel.setStyleName("default-tabpanel");
 
-            tabPanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits));
+            tabPanel.addBeforeSelectionHandler(new NavigationHandler(interactionUnit, childUnits, tabPanel));
 
             /*tabPanel.addAttachHandler(new AttachEvent.Handler() {
                 @Override
@@ -327,16 +328,20 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
     class NavigationHandler implements BeforeSelectionHandler<Integer>
     {
+        private final Composite widget;
         private InteractionUnit interactionUnit;
         private Map<Integer, QName> childUnits = new HashMap<Integer, QName>();
 
-        NavigationHandler(InteractionUnit interactionUnit, Map<Integer, QName> childUnits) {
+        NavigationHandler(InteractionUnit interactionUnit, Map<Integer, QName> childUnits, Composite widget) {
             this.interactionUnit = interactionUnit;
             this.childUnits = childUnits;
+            this.widget = widget;
         }
 
         @Override
         public void onBeforeSelection(BeforeSelectionEvent<Integer> event) {
+
+            Object source = event.getSource();
 
             QName targetTab = childUnits.get(event.getItem());
 

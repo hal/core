@@ -49,12 +49,12 @@ public class BranchActivation implements InteractionUnitVisitor {
     @Override
     public void visit(InteractionUnit unit) {
 
-        /*QName activeChild = activeItems.get(stack.size()-1);
+        QName activeChild = activeItems.get(stack.size()-1);
 
         if(null==activeChild && !pastPivot)
         {
             activeItems.put(stack.size()-1, unit.getId());
-        }*/
+        }
 
     }
 
