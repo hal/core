@@ -3,6 +3,7 @@ package org.jboss.as.console.mbui.behaviour;
 import com.google.gwt.core.client.Scheduler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -36,7 +37,8 @@ import java.util.HashMap;
  */
 public class SaveChangesetProcedure extends Procedure {
 
-    public final static QName ID = new QName("org.jboss.as", "save");
+    public final static QName ID = JBossQNames.SAVE_ID;
+    private static final Resource<ResourceType> SAVE = new Resource<ResourceType>(ID, ResourceType.Interaction);
     private DispatchAsync dispatcher;
     private Dialog dialog;
 
@@ -63,7 +65,7 @@ public class SaveChangesetProcedure extends Procedure {
         });
 
         // behaviour model meta data
-        setInputs(new Resource<ResourceType>(ID, ResourceType.Interaction));
+        setInputs(SAVE);
 
         // TODO: Strictly speaking this should emit system events instead of calling the coordinator API directly
     }

@@ -15,7 +15,7 @@ import org.useware.kernel.model.structure.QName;
 public class NavigationProcedure extends Procedure {
 
     public final static QName ID = QName.valueOf("org.useware:navigate#next");
-    Resource<ResourceType> navigation = new Resource<ResourceType>(ID, ResourceType.Interaction);
+    private final static Resource<ResourceType> navigation = new Resource<ResourceType>(ID, ResourceType.Interaction);
 
     public NavigationProcedure(final InteractionCoordinator coordinator) {
         super(ID);

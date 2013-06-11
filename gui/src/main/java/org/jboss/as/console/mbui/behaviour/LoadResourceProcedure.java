@@ -3,6 +3,7 @@ package org.jboss.as.console.mbui.behaviour;
 import com.google.gwt.core.client.Scheduler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -35,7 +36,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class LoadResourceProcedure extends Procedure {
 
-    public final static QName ID = new QName("org.jboss.as", "load");
+    public final static QName ID = JBossQNames.LOAD_ID;
+    private static final Resource<ResourceType> LOAD = new Resource<ResourceType>(ID, ResourceType.Interaction);
 
     private final DispatchAsync dispatcher;
     private final Dialog dialog;
@@ -64,7 +66,7 @@ public class LoadResourceProcedure extends Procedure {
         });
 
         // behaviour model meta data
-        setInputs(new Resource<ResourceType>(ID, ResourceType.Interaction));
+        setInputs(LOAD);
         setOutputs(new Resource<ResourceType>(justification, ResourceType.Presentation));
     }
 

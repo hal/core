@@ -61,6 +61,8 @@ import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, StereoTypes>
 {
     private EventBus eventBus;
+    private static final Resource<ResourceType> NAVIGATION = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
+    private static final Resource<ResourceType> ACTIVATION = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
     @Override
     public boolean prepare(InteractionUnit<StereoTypes> interactionUnit, Context context) {
@@ -185,11 +187,9 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
 
             // complement model
-            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
-            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
-            getInteractionUnit().setOutputs(navigation);
-            getInteractionUnit().setInputs(activation);
+            getInteractionUnit().setOutputs(NAVIGATION);
+            getInteractionUnit().setInputs(ACTIVATION);
 
             return tabPanelContract;
         }
@@ -245,11 +245,9 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
 
 
             // complement model
-            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
-            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
-            getInteractionUnit().setOutputs(navigation);
-            getInteractionUnit().setInputs(activation);
+            getInteractionUnit().setOutputs(NAVIGATION);
+            getInteractionUnit().setInputs(ACTIVATION);
 
             return tabPanelContract;
         }
@@ -298,11 +296,9 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
             };
 
             // complement model
-            Resource<ResourceType> navigation = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
-            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
-            getInteractionUnit().setOutputs(navigation);
-            getInteractionUnit().setInputs(activation);
+            getInteractionUnit().setOutputs(NAVIGATION);
+            getInteractionUnit().setInputs(ACTIVATION);
 
 
             return tabPanelContract;

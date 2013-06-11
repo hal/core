@@ -22,7 +22,7 @@ import org.useware.kernel.model.structure.QName;
  */
 public class ActivationProcedure extends Procedure {
 
-    final static Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
+    private final static Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
     public ActivationProcedure(final InteractionCoordinator coordinator) {
         super(CommonQNames.ACTIVATION_ID);

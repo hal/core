@@ -31,6 +31,9 @@ import java.util.List;
  */
 public class PullDownStrategy implements ReificationStrategy<ReificationWidget, StereoTypes> {
 
+    private static final Resource<ResourceType> RESET = new Resource<ResourceType>(CommonQNames.RESET_ID, ResourceType.System);
+    private static final Resource<ResourceType> LOAD = new Resource<ResourceType>(JBossQNames.LOAD_ID, ResourceType.Interaction);
+    private static final Resource<ResourceType> SELECT = new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement);
     private EventBus eventBus;
 
     @Override
@@ -155,13 +158,13 @@ public class PullDownStrategy implements ReificationStrategy<ReificationWidget, 
             // Register inputs & outputs
 
             getInteractionUnit().setInputs(
-                    new Resource<ResourceType>(CommonQNames.RESET_ID, ResourceType.System),
+                    RESET,
                     new Resource<ResourceType>(getInteractionUnit().getId(), ResourceType.Presentation)
             );
 
             getInteractionUnit().setOutputs(
-                    new Resource<ResourceType>(JBossQNames.LOAD_ID, ResourceType.Interaction),
-                    new Resource<ResourceType>(CommonQNames.SELECT_ID, ResourceType.Statement)
+                    LOAD,
+                    SELECT
             );
 
         }

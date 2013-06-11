@@ -74,6 +74,9 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
 
     private ModelNode modelDescription;
     private EventBus eventBus;
+    private static final Resource<ResourceType> SAVE_EVENT = new Resource<ResourceType>(JBossQNames.SAVE_ID, Interaction);
+    private static final Resource<ResourceType> LOAD_EVENT = new Resource<ResourceType>(JBossQNames.LOAD_ID, Interaction);
+    private static final Resource<ResourceType> RESET = new Resource<ResourceType>(RESET_ID, System);
 
     @Override
     public boolean prepare(InteractionUnit<StereoTypes> interactionUnit, Context context) {
@@ -315,13 +318,10 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
 
             // Register inputs and outputs
 
-            Resource<ResourceType> saveEvent = new Resource<ResourceType>(JBossQNames.SAVE_ID, Interaction);
-            Resource<ResourceType> loadEvent = new Resource<ResourceType>(JBossQNames.LOAD_ID, Interaction);
-            Resource<ResourceType> reset = new Resource<ResourceType>(RESET_ID, System);
             Resource<ResourceType> update = new Resource<ResourceType>(getInteractionUnit().getId(), Presentation);
 
-            getInteractionUnit().setOutputs(saveEvent, loadEvent);
-            getInteractionUnit().setInputs(reset, update);
+            getInteractionUnit().setOutputs(SAVE_EVENT, LOAD_EVENT);
+            getInteractionUnit().setInputs(RESET, update);
 
             return layout;
         }

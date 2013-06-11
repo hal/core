@@ -11,6 +11,7 @@ import org.useware.kernel.model.behaviour.ResourceType;
  */
 public class Link<S extends Enum<S>> extends InteractionUnit<S> {
 
+    private static final Resource<ResourceType> NAVIGATION = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
     private QName target;
 
     public Link(QName id, QName target, String label) {
@@ -19,7 +20,7 @@ public class Link<S extends Enum<S>> extends InteractionUnit<S> {
         this.target = target;
 
         // explicit output
-        setOutputs(new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation));
+        setOutputs(NAVIGATION);
     }
 
     public QName getTarget() {

@@ -57,6 +57,7 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
 {
 
     private EventBus eventBus;
+    private static final Resource<ResourceType> ACTIVATION = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
 
 
     @Override
@@ -123,8 +124,7 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
             );
 
             // complement model
-            Resource<ResourceType> activation = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
-            getInteractionUnit().setInputs(activation);
+            getInteractionUnit().setInputs(ACTIVATION);
 
         }
 
