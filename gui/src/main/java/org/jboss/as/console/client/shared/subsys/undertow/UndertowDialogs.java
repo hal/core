@@ -1,10 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
-import org.jboss.as.console.client.tools.modelling.workbench.repository.DataSourceSample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.Sample;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.SecurityDomainsSample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.ServletContainerExample;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.TransactionSample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.UndertowExample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.UndertowServerExample;
 import org.jboss.as.console.mbui.DialogRepository;

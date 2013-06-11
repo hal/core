@@ -11,6 +11,7 @@ import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.Builder;
 
 import static org.jboss.as.console.mbui.model.StereoTypes.Form;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 
 /**
@@ -35,32 +36,53 @@ public class ServletContainerExample implements Sample {
                 .setAddress("/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp");
 
 
-        Container overview = new Container(ns, "servletContainer", "Servlet Container", TemporalOperator.Choice, StereoTypes.EditorPanel);
+        Container overview = new Container(ns, "servletContainer", "Servlet Container", TemporalOperator.Concurrency);
 
 
-        Container attributes = new Container(ns, "servletContainer#attributes", "JSP Settings", Form);
+        Container attributes = new Container(ns, "servletContainer#attributes", "Servlet Container", Form);
+
+        Container jsp = new Container(ns, "servletContainer#jsp", "JSP Settings", Form);
+        Container other = new Container(ns, "servletContainer#other", "Other", Form);
+
         Mapping attributesMapping = new DMRMapping()
                 .addAttributes(
-                        "trim-spaces", "smap",
-                        "development", "keep-generated",
-                        "recompile-on-fail","check-interval",
-                        "scratch-dir","modification-test-interval",
-                        "display-source-fragment","error-on-use-bean-invalid-class-attribute",
-                        "java-encoding","tag-pooling",
-                        "generate-strings-as-char-arrays","target-vm",
-                        "x-powered-by","dump-smap",
-                        "mapped-file","disabled",
+                        "development", "disabled"
+                );
+
+        // structure & mapping
+        DMRMapping jspAtts = new DMRMapping()
+                .addAttributes(
+                        "trim-spaces",
+                        "recompile-on-fail", "check-interval",
+                        "modification-test-interval",
+                        "display-source-fragment", "error-on-use-bean-invalid-class-attribute",
+                        "java-encoding", "tag-pooling",
+                        "generate-strings-as-char-arrays"
+                );
+
+        DMRMapping otherAtts = new DMRMapping()
+                .addAttributes(
+                        "smap",
+                        "keep-generated",
+                        "scratch-dir",
+                        "display-source-fragment", "error-on-use-bean-invalid-class-attribute",
+                        "target-vm",
+                        "x-powered-by", "dump-smap",
+                        "mapped-file",
                         "source-vm"
 
                 );
 
-        // structure & mapping
         InteractionUnit root = new Builder()
                 .start(overview)
                     .mappedBy(global)
                     .add(attributes).mappedBy(attributesMapping)
+                        .start(new Container(ns, "details", "Details", Choice))
+                            .add(jsp).mappedBy(jspAtts)
+                            .add(other).mappedBy(otherAtts)
+                        .end()
                 .end()
-        .build();
+                .build();
 
         Dialog dialog = new Dialog(QName.valueOf("org.jboss.as:servlet-container"), root);
         return dialog;

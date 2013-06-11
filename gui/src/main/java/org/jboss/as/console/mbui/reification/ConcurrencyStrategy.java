@@ -91,10 +91,11 @@ public class ConcurrencyStrategy implements ReificationStrategy<ReificationWidge
             else
             {
                 final SimpleLayout builder = new SimpleLayout()
-                        .setTitle(interactionUnit.getLabel()
-                        );
+                        .setTitle(interactionUnit.getLabel())
+                        .setHeadline("")            // TODO: retrieve from meta data
+                        .setDescription("");
 
-                this.delegate = new TabPanelContract() {
+                this.delegate = new TabPanelContract() {    // TODO: Why this contract for a simple panel?
                     @Override
                     public void add(InteractionUnit unit, Widget widget) {
                         builder.addContent("TODO: NAME", widget);
