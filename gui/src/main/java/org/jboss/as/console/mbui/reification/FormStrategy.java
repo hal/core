@@ -234,7 +234,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
             layout.setStyleName("fill-layout-width");
             layout.getElement().setAttribute("style", "margin-top:15px;");
 
-            FormToolStrip<ModelNode> tools = new FormToolStrip<ModelNode>(
+            final FormToolStrip<ModelNode> tools = new FormToolStrip<ModelNode>(
                     form,
                     new FormToolStrip.FormCallback<ModelNode>() {
                         @Override
@@ -271,6 +271,8 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                 @Override
                 public void onSystemEvent(SystemEvent event) {
                     form.clearValues();
+
+                    tools.doCancel();
 
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
