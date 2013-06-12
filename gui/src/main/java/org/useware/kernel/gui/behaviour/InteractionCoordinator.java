@@ -177,6 +177,8 @@ public class InteractionCoordinator implements KernelContract,
         if(collection!=null)
         {
             for(Procedure consumer : collection) {
+
+                // TODO: This isn't optimal (creation of new resource with every comparison)
                 Resource<ResourceType> resource = new Resource<ResourceType>(id, ResourceType.Interaction);
                 resource.setSource(source);
 
