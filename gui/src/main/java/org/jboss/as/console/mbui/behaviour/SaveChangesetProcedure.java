@@ -111,4 +111,9 @@ public class SaveChangesetProcedure extends Procedure {
         });
 
     }
+
+    @Override
+    public String toString() {
+        return "SaveChangeset "+ getJustification();
+    }
 }
