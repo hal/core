@@ -8,6 +8,9 @@ build.number
 build/app/war
 build/war
 build/app/gwt-unitCache/
+build/app/overlays
+
+gui.zanata-cache
 
 gui/war/WEB-INF
 gui/war/app
@@ -19,3 +22,4 @@ gui/generated
 gui/war/treelayout/clear.cache.gif
 gui/war/treelayout/hosted.html
 gui/war/treelayout/treelayout.nocache.js
+gui/.zanata-cache/etag-cache.xml
