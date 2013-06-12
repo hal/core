@@ -69,9 +69,9 @@ public class Integrity {
 
             for(QName id : behaviours.keySet())
             {
-                for (Behaviour candidate : behaviours.get(id)) {
-                    if (candidate.doesConsume(resource) ) {
-                        match = candidate.getJustification() == null || unit.getId().equals(candidate.getJustification());
+                for (Behaviour behaviour : behaviours.get(id)) {
+                    if (behaviour.doesConsume(resource) ) {
+                        match = behaviour.getJustification() == null || unit.getId().equals(behaviour.getJustification());
                         break;
                     }
                 }
