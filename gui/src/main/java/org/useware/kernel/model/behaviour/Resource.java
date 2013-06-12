@@ -9,11 +9,11 @@ import org.useware.kernel.model.structure.QName;
  * @author Heiko Braun
  * @date 10/31/12
  */
-public class Resource<T extends Enum<T>> {
+public final class Resource<T extends Enum<T>> {
 
-    private QName id;
+    private final QName id;
+    private final T type;
     private QName source;
-    private T type;
 
     public Resource(String namespace, String id, T type) {
         this.id = new QName(namespace, id);
@@ -44,8 +44,10 @@ public class Resource<T extends Enum<T>> {
 
     @Override
     public String toString() {
-        return "Resource { type=" + type +", "+
-                "id='" + id + '\'' +
+        return "Resource{" +
+                "id=" + id +
+                ", type=" + type +
+                //", source=" + source +
                 '}';
     }
 
@@ -54,10 +56,11 @@ public class Resource<T extends Enum<T>> {
         if (this == o) return true;
         if (!(o instanceof Resource)) return false;
 
-        Resource event = (Resource) o;
+        Resource resource = (Resource) o;
 
-        if (!id.equalsIgnoreSuffix(event.id)) return false;
-        if (!type.equals(event.type)) return false;
+        if (!id.equalsIgnoreSuffix(resource.id)) return false;
+        //if (source != null ? !source.equals(resource.source) : resource.source != null) return false;
+        if (!type.equals(resource.type)) return false;
 
         return true;
     }
@@ -66,6 +69,7 @@ public class Resource<T extends Enum<T>> {
     public int hashCode() {
         int result = id.hashCode();
         result = 31 * result + type.hashCode();
+        result = 31 * result + (source != null ? source.hashCode() : 0);
         return result;
     }
 }
