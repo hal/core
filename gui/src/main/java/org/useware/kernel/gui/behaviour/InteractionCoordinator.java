@@ -180,7 +180,10 @@ public class InteractionCoordinator implements KernelContract,
                 Resource<ResourceType> resource = new Resource<ResourceType>(id, ResourceType.Interaction);
                 resource.setSource(source);
 
-                if(consumer.doesConsume(resource))
+                boolean justified = consumer.getJustification() == null
+                        || source.equals(consumer.getJustification());
+
+                if(consumer.doesConsume(resource) && justified)
                 {
                     execution = consumer;
                     break;
