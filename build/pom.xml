@@ -100,7 +100,7 @@
                 <version>2.5.1</version>
                 <configuration>
                     <inplace>true</inplace>
-                    <logLevel>TRACE</logLevel>
+                    <logLevel>INFO</logLevel>
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
                     <extraJvmArgs>-Xmx1024m -DDEBUG -XX:MaxPermSize=256M</extraJvmArgs>
@@ -262,7 +262,7 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
                             <module>org.jboss.as.console.composite.App_dev</module>
-                            <style>DETAILED</style>
+                            <!--style>DETAILED</style-->
                             <!--enableClosureCompiler>false</enableClosureCompiler-->
                         </configuration>
                     </plugin>
