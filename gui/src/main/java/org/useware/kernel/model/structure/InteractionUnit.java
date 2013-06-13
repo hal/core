@@ -111,7 +111,7 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
         return mappings.get(type) != null;
     }
 
-    private <T extends Mapping> T getMapping(MappingType type)
+    public <T extends Mapping> T getMapping(MappingType type)
     {
         return (T) mappings.get(type);
     }
