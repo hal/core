@@ -247,7 +247,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
 
             VerticalPanel layout = new VerticalPanel();
             layout.setStyleName("fill-layout-width");
-            layout.getElement().setAttribute("style", "margin-top:15px;");
+            layout.getElement().setAttribute("style", "margin-top:15px;margin-bottom:15px;");
 
             final FormToolStrip<ModelNode> tools = new FormToolStrip<ModelNode>(
                     form,
