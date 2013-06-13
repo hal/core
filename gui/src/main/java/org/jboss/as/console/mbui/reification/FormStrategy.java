@@ -130,6 +130,18 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                     this.interactionUnit.findMapping(MappingType.DMR);
 
             List<ResourceAttribute> attributes = DMRMapping.getAttributes();
+
+            // catch-all directive, if no explicit attributes given
+            // TODO: optimisation, see below
+            if(attributes.isEmpty())
+            {
+                for(Property attr : attributeDescriptions)
+                {
+                    attributes.add(new ResourceAttribute(attr.getName(), attr.getName()));
+                }
+            }
+
+
             List<FormItem> items = new ArrayList<FormItem>(attributes.size());
 
             helpTexts = new SafeHtmlBuilder();
