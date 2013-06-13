@@ -553,7 +553,7 @@ input[type="checkbox"] {
 
 .pages-bar {
 
-     /* fallback */
+    /* fallback */
     background-color: #F3F3F3;
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#F3F3F3'); /* for IE */
@@ -631,4 +631,22 @@ input[type="checkbox"] {
 .pages-bar .gwt-TabBarItem-selected {
     text-decoration: none;
     color:#000000!important;
+}
+
+.gwt-ProgressBar-shell {
+    border: 1px solid #cccccc;
+    height: 20pt;
+    width: 100%;
+    margin-left:2px;
+    margin-right:2px;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
+    background-color: #E3A934;
+}
+.gwt-ProgressBar-shell .gwt-ProgressBar-text {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 20px;
+    margin: 0px;
+    color: #3B4D64;
 }

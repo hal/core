@@ -4,6 +4,8 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.widgets.progress.ProgressBar;
+import org.jboss.as.console.client.widgets.progress.ProgressWindow;
 import org.jboss.as.console.mbui.bootstrap.ReificationBootstrap;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
@@ -85,6 +87,9 @@ public class Kernel implements NavigationDelegate {
             // top level interaction unit & context
             final Context context = new Context();
 
+            final ProgressWindow progress = new ProgressWindow("Building Dialog");
+
+
             // build reification pipeline
             Function<Context> prepareContext = new Function<Context>() {
                 @Override
@@ -99,18 +104,21 @@ public class Kernel implements NavigationDelegate {
             Function<Context> readOperationMetaData = new Function<Context>() {
                 @Override
                 public void execute(final Control<Context> control) {
+
                     ReadOperationDescriptions operationMetaData = new ReadOperationDescriptions(framework.getDispatcher());
                     operationMetaData.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
                     {
                         @Override
                         public void onError(Throwable caught) {
                             Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
+                            progress.getBar().setProgress(50.0);
                             control.abort();
                         }
 
                         @Override
                         public void onSuccess() {
                             Log.info("Successfully retrieved operation meta data");
+                            progress.getBar().setProgress(50.0);
                             control.proceed();
                         }
                     });
@@ -137,6 +145,8 @@ public class Kernel implements NavigationDelegate {
 
                             pipeline.execute(dialog, context);
 
+                            progress.getBar().setProgress(100.0);
+
                             control.proceed();
                         }
 
@@ -144,6 +154,7 @@ public class Kernel implements NavigationDelegate {
                         public void onError(final Throwable caught)
                         {
                             Log.error("ReadResourceDescription failed: " + caught.getMessage(), caught);
+                            progress.getBar().setProgress(100.0);
                             control.abort();
                         }
                     });
@@ -153,11 +164,16 @@ public class Kernel implements NavigationDelegate {
             Outcome<Context> outcome = new Outcome<Context>() {
                 @Override
                 public void onFailure(final Context context) {
+
+                    progress.hide();
                     Window.alert("Reification failed");
                 }
 
                 @Override
                 public void onSuccess(final Context context) {
+
+                    progress.hide();
+
                     // show result
                     ReificationWidget widget = context.get(ContextKey.WIDGET);
                     assert widget !=null;
@@ -172,6 +188,9 @@ public class Kernel implements NavigationDelegate {
             };
 
             // execute pipeline
+            progress.center();
+            progress.getBar().setProgress(25.0);
+
             new Async<Context>().waterfall(
                     context, outcome,
                     prepareContext, readOperationMetaData, readResourceMetaData
