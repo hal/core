@@ -110,6 +110,12 @@ public class RepositoryView extends ViewImpl implements RepositoryPresenter.MyVi
         presenter.visualize(selectionModel.getSelectedObject());
     }
 
+    @UiHandler("marshall")
+    public void onMarshall(ClickEvent event)
+    {
+        presenter.marshall(selectionModel.getSelectedObject());
+    }
+
     @UiHandler("reify")
     public void onReify(ClickEvent event)
     {

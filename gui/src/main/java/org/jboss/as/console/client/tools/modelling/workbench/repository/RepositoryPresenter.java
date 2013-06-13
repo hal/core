@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -27,7 +28,9 @@ import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
+import org.jboss.as.console.mbui.marshall.Marshaller;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * Lists the available interaction units and let the user create new interaction units.
@@ -70,6 +73,23 @@ public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyV
         window.setHeight(600);
         window.setModal(true);
         window.setWidget(new ScrollPanel(visualization.getChart()));
+        window.center();
+    }
+
+    public void marshall(final Sample sample)
+    {
+        Marshaller m = new Marshaller();
+        ModelNode node = m.marshall(sample.getDialog());
+
+
+        HTMLPanel htmlPanel = new HTMLPanel("<pre>"+node.toString()+"</pre>");
+        htmlPanel.setStyleName("fill-layout-width");
+
+        DefaultWindow window = new DefaultWindow("Wireformat: "+sample.getDialog().getId());
+        window.setWidth(800);
+        window.setHeight(600);
+        window.setModal(true);
+        window.setWidget(new ScrollPanel(htmlPanel));
         window.center();
     }
 
