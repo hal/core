@@ -15,11 +15,21 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" addStyleNames="{style.repository}">
-        <g:south size="200">
+    <g:DockLayoutPanel unit="PCT" addStyleNames="{style.repository}">
+        <g:south size="50">
             <g:VerticalPanel addStyleNames="{style.list}">
+
+                <g:HTMLPanel>
+                    <h4>Tools</h4>
+                  </g:HTMLPanel>
+
                 <g:Button ui:field="visualize" addStyleNames="{style.button}">visualize</g:Button>
                 <g:Button ui:field="marshall" addStyleNames="{style.button}">marshall</g:Button>
+
+                <g:HTMLPanel>
+                    <h4>Lifecycle</h4>
+                </g:HTMLPanel>
+
                 <g:Button ui:field="reify" addStyleNames="{style.button}">reify</g:Button>
                 <g:Button ui:field="activate" addStyleNames="{style.button}">activate</g:Button>
                 <g:Button ui:field="reset" addStyleNames="{style.button}">reset</g:Button>
@@ -28,7 +38,11 @@
         </g:south>
         <g:center>
             <g:ScrollPanel addStyleNames="{style.list}">
-                <c:CellList ui:field="list" />
+                <g:HTMLPanel>
+                    <h3>Dialogs</h3>
+                    <c:CellList ui:field="list" />
+                </g:HTMLPanel>
+
             </g:ScrollPanel>
         </g:center>
     </g:DockLayoutPanel>
