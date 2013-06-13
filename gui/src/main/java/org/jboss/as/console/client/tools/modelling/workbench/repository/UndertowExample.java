@@ -40,24 +40,16 @@ public class UndertowExample implements Sample {
         Container overview = new Container(ns, "undertow", "Undertow Subsytem", Choice, StereoTypes.EditorPanel);
 
         Container handler = new Container(ns, "handler", "Handler", Choice, Pages);
-        Container filter = new Container(ns, "filter", "Filter", Concurrency);
-        Container errorHandler = new Container(ns, "errorHandler", "Error Handler", Concurrency);
-
+        Container filter = new Container(ns, "filter", "Filter",  Choice, Pages);
+        Container errorHandler = new Container(ns, "errorHandler", "Error Handler", Choice, Pages);
         Container fileHandler = new Container(ns, "undertow#fileHandler", "File Handler", Concurrency);
 
-        /*Container attributes = new Container(ns, "undertow#basicAttributes", "Attributes",Form);
-        Mapping basicAttributesMapping = new DMRMapping()
-                .addAttributes(
-                        "default-server", "instance-id",
-                        "default-virtual-host", "default-servlet-container"
-                );*/
 
         // structure & mapping
         InteractionUnit root = new Builder()
                 .start(overview)
                     .mappedBy(global)
 
-                    // handler section
                     .start(handler)
                         .start(fileHandler)
                             .add(new Select(ns, "fileHandler", "FileHandlerSelection"))
@@ -69,12 +61,57 @@ public class UndertowExample implements Sample {
                             .add(new Container(ns, "undertow#fileAttributes", "Attributes",Form))
                                 .mappedBy(new DMRMapping()
                                     .setAddress("/{selected.profile}/subsystem=undertow/configuration=handler/file={selected.entity}")
-                                    .addAttributes("path", "directory-listing", "cache-buffer-size", "cache-buffers")
                                    )
                         .end()
                     .end()
-                    .start(filter).end()
-                    .start(errorHandler).end()
+
+
+                    .start(errorHandler)
+                        .start(new Container(ns, "undertow#error", "Error Pages", Concurrency))
+                            .add(new Select(ns, "errorHandler", "ErrorHandlerSelection"))
+                                .mappedBy(
+                                    new DMRMapping()
+                                        .setAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page=*")
+                                        .addAttributes("entity.key", "path")
+                                )
+                            .add(new Container(ns, "undertow#errorHandlerAttributes", "Attributes",Form))
+                                .mappedBy(new DMRMapping()
+                                    .setAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page={selected.entity}")
+                                )
+                        .end()
+                    .end()
+
+
+                    .start(filter)
+                        .start(new Container(ns, "undertow#basicAuth", "Basic Auth", Concurrency))
+                            .add(new Select(ns, "undertow#basicAuthSelection", "BasicAuthSelection"))
+                               .mappedBy(
+                                   new DMRMapping()
+                                    .setAddress("/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*")
+                                    .addAttributes("entity.key")
+                                    )
+                            .add(new Container(ns, "undertow#filterAuthAttributes", "Attributes",Form))
+                                .mappedBy(new DMRMapping()
+                                    .setAddress("/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth={selected.entity}")
+                                   )
+                        .end()
+
+                        .start(new Container(ns, "undertow#connectionLimit", "Connection Limit", Concurrency))
+                            .add(new Select(ns, "undertow#connectionLimitSelection", "connectionLimitSelection"))
+                               .mappedBy(
+                                   new DMRMapping()
+                                        .setAddress("/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*")
+                                        .addAttributes("entity.key")
+                                    )
+                            .add(new Container(ns, "undertow#connectionLimitAttributes", "Attributes",Form))
+                                .mappedBy(new DMRMapping()
+                                  .setAddress("/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit={selected.entity}")
+                               )
+                        .end()
+
+                    .end()
+
+
                 .end()
         .build();
 
