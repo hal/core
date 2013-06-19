@@ -226,5 +226,6 @@ public class Kernel implements NavigationDelegate {
     public void setCaching(boolean enableCache) {
         this.enableCache = enableCache;
         cachedWidgets.clear();
+        coordinators.clear();
     }
 }

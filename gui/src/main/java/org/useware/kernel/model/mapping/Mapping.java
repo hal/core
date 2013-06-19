@@ -75,4 +75,6 @@ public abstract class Mapping
      */
     public abstract void complementFrom(Mapping parent);
 
+    public abstract Mapping clone();
+
 }

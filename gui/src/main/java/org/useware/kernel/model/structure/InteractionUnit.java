@@ -135,9 +135,6 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
      * <p/>
      * The predicate needs to apply.
      *
-     *
-     *
-     *
      * @param type
      * @param predicate Use {@code null} to ignore
      * @return
@@ -154,11 +151,16 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
             }
 
             // complement the mapping (i.e. resource address at a higher level)
+            // TODO: cloning prevents modifications to the actual model, but how is the footprint/performance?
             if(mapping!=null && parent!=null)
             {
                 Mapping parentMapping = parent.findMapping(type);
                 if(parentMapping!=null)
-                    mapping.complementFrom(parentMapping);
+                {
+                    T clone = (T) mapping.clone();
+                    clone.complementFrom(parentMapping);
+                    mapping = clone;
+                }
             }
 
         }

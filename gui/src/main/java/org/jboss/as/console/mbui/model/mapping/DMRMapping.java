@@ -41,6 +41,12 @@ public class DMRMapping extends Mapping
         this.attributes = new ArrayList<ResourceAttribute>();
     }
 
+    private DMRMapping(List<ResourceAttribute> attributes, String address) {
+        super(MappingType.DMR);
+        this.attributes = attributes;
+        this.address = address;
+    }
+
     public DMRMapping setAddress(String address)
     {
         assert address != null : "Address must not be null";
@@ -90,5 +96,10 @@ public class DMRMapping extends Mapping
             if(null==this.address)
                 this.address = parentDMRMapping.getAddress();
         }
+    }
+
+    @Override
+    public DMRMapping clone() {
+        return new DMRMapping(attributes, address);
     }
 }
