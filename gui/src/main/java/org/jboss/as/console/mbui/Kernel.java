@@ -45,6 +45,7 @@ public class Kernel implements NavigationDelegate {
     private Map<String, ReificationWidget> cachedWidgets = new HashMap<String, ReificationWidget>();
     private String activeDialog;
     private final Framework framework;
+    private boolean enableCache;
 
     public Kernel(DialogRepository repository, Framework framework, StatementContext globalContext) {
         this.repository = repository;
@@ -72,7 +73,7 @@ public class Kernel implements NavigationDelegate {
 
         activeDialog = name;
 
-        if (null == cachedWidgets.get(name) )
+        if (null == cachedWidgets.get(name) || this.enableCache == false)
         {
 
             // fetch dialog meta data
@@ -220,5 +221,10 @@ public class Kernel implements NavigationDelegate {
 
     public void passivate() {
         getActiveCoordinator().passivate();
+    }
+
+    public void setCaching(boolean enableCache) {
+        this.enableCache = enableCache;
+        cachedWidgets.clear();
     }
 }

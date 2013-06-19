@@ -22,12 +22,15 @@ import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.Key
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -72,6 +75,9 @@ public class RepositoryView extends ViewImpl implements RepositoryPresenter.MyVi
     @UiField Button activate;
     @UiField Button reset;
     @UiField Button passivate;
+    @UiField
+    CheckBox cacheDisabled;
+
     @UiField(provided = true) CellList<Sample> list;
 
     @Inject
@@ -96,6 +102,13 @@ public class RepositoryView extends ViewImpl implements RepositoryPresenter.MyVi
 
         this.widget = binder.createAndBindUi(this);
         this.reify.setEnabled(false);
+
+        this.cacheDisabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> disableCache) {
+                presenter.setDisableCache(disableCache.getValue());
+            }
+        });
     }
 
     @Override

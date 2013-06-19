@@ -22,14 +22,13 @@
                 <g:HTMLPanel>
                     <h4>Tools</h4>
                   </g:HTMLPanel>
-
                 <g:Button ui:field="visualize" addStyleNames="{style.button}">visualize</g:Button>
                 <g:Button ui:field="marshall" addStyleNames="{style.button}">marshall</g:Button>
 
                 <g:HTMLPanel>
                     <h4>Lifecycle</h4>
                 </g:HTMLPanel>
-
+                <g:CheckBox ui:field="cacheDisabled" addStyleNames="{style.button}">disable cache</g:CheckBox>
                 <g:Button ui:field="reify" addStyleNames="{style.button}">reify</g:Button>
                 <g:Button ui:field="activate" addStyleNames="{style.button}">activate</g:Button>
                 <g:Button ui:field="reset" addStyleNames="{style.button}">reset</g:Button>

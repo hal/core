@@ -25,13 +25,13 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.ProxyStandard;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.InstrumentEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
@@ -52,7 +52,7 @@ import static org.jboss.as.console.client.tools.modelling.workbench.NameTokens.p
  */
 public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, PreviewPresenter.MyProxy>
         implements ReifyEvent.ReifyHandler, ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
-        PassivateEvent.PassivateHandler, NavigationDelegate
+        PassivateEvent.PassivateHandler, InstrumentEvent.InstrumentHandler, NavigationDelegate
 {
     private final Kernel kernel;
 
@@ -81,6 +81,19 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
     }
 
     @Override
+    public void onInstrument(InstrumentEvent event) {
+        switch (event.getSingal())
+        {
+            case ENABLE_CACHE:
+                kernel.setCaching(true);
+                break;
+            case DISABLE_CACHE:
+                kernel.setCaching(false);
+                break;
+        }
+    }
+
+    @Override
     public void onNavigation(QName source, QName target) {
         System.out.println("absolute navigation " + source + ">" + target);
     }
@@ -93,6 +106,7 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
         getEventBus().addHandler(ResetEvent.getType(), this);
         getEventBus().addHandler(ActivateEvent.getType(), this);
         getEventBus().addHandler(PassivateEvent.getType(), this);
+        getEventBus().addHandler(InstrumentEvent.getType(), this);
     }
 
     @Override

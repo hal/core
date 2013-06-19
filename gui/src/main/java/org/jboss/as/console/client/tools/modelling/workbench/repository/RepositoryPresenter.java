@@ -25,6 +25,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import com.gwtplatform.mvp.client.View;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
+import org.jboss.as.console.client.tools.modelling.workbench.InstrumentEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
@@ -45,6 +46,13 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyView>
 {
+
+
+    public void setDisableCache(boolean disableCache) {
+
+        InstrumentEvent.SIGNALS signal = disableCache ? InstrumentEvent.SIGNALS.DISABLE_CACHE : InstrumentEvent.SIGNALS.ENABLE_CACHE;
+        InstrumentEvent.fire(this, new InstrumentEvent(signal));
+    }
 
     public interface MyView extends View
     {
