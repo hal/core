@@ -45,7 +45,7 @@ public class Kernel implements NavigationDelegate {
     private Map<String, ReificationWidget> cachedWidgets = new HashMap<String, ReificationWidget>();
     private String activeDialog;
     private final Framework framework;
-    private boolean enableCache;
+    private boolean enableCache = true;
 
     public Kernel(DialogRepository repository, Framework framework, StatementContext globalContext) {
         this.repository = repository;
