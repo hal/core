@@ -99,7 +99,7 @@ public class DMRMapping extends Mapping
     }
 
     @Override
-    public DMRMapping clone() {
+    public DMRMapping copy() {
         return new DMRMapping(attributes, address);
     }
 }

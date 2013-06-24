@@ -303,6 +303,7 @@ public class AddressMapping {
     }
 
     public static AddressMapping fromString(String address) {
+        assert address!=null : "Address cannot be null";
         return new AddressMapping(AddressMapping.parseAddressString(address));
     }
 

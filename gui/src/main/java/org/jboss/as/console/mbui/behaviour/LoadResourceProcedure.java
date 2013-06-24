@@ -34,7 +34,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 1/21/13
  */
-public class LoadResourceProcedure extends Procedure {
+public class    LoadResourceProcedure extends Procedure {
 
     public final static QName ID = JBossQNames.LOAD_ID;
     private static final Resource<ResourceType> LOAD = new Resource<ResourceType>(ID, ResourceType.Interaction);

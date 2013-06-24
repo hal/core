@@ -50,6 +50,13 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
 
     protected S stereotype;
 
+    private final static Predicate DEFAULT_PREDICATE = new Predicate() {
+        @Override
+        public boolean appliesTo(Mapping candidate) {
+            return true;
+        }
+    };
+
     protected InteractionUnit(QName id, final String label)
     {
         this(id, label, null);
@@ -111,6 +118,13 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
         return mappings.get(type) != null;
     }
 
+    /**
+     * Get a mapping local to this unit.
+     *
+     * @param type
+     * @param <T>
+     * @return
+     */
     public <T extends Mapping> T getMapping(MappingType type)
     {
         return (T) mappings.get(type);
@@ -126,7 +140,7 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
      */
     public <T extends Mapping> T findMapping(MappingType type)
     {
-        return this.findMapping(type, null);
+        return (T) this.findMapping(type, DEFAULT_PREDICATE);
     }
 
     /**
@@ -144,29 +158,31 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
         T mapping = getMapping(type);
         if (mapping != null)
         {
-            // check predicate
+
+            // check predicate: can invalidate the local mapping
             if (predicate != null)
             {
                 mapping = (predicate.appliesTo(mapping)) ? mapping : null;
             }
 
             // complement the mapping (i.e. resource address at a higher level)
-            // TODO: cloning prevents modifications to the actual model, but how is the footprint/performance?
             if(mapping!=null && parent!=null)
             {
-                Mapping parentMapping = parent.findMapping(type);
+                Mapping parentMapping = parent.findMapping(type, predicate);
                 if(parentMapping!=null)
                 {
-                    T clone = (T) mapping.clone();
+                    /*T clone = (T)mapping.copy();
                     clone.complementFrom(parentMapping);
-                    mapping = clone;
+                    mapping = clone;*/
+                    mapping.complementFrom(parentMapping);
                 }
             }
 
         }
+
         if (mapping == null && parent != null)
         {
-            mapping = (T) parent.findMapping(type);
+            mapping = (T) parent.findMapping(type, predicate);
         }
 
         return mapping;

@@ -25,11 +25,12 @@ package org.jboss.as.console.mbui.model.mapping;
 public class ResourceAttribute
 {
     private final String name;
-    private String label;
+    private final String label;
 
     public ResourceAttribute(final String name)
     {
         this.name = name;
+        this.label = null;
     }
 
     public ResourceAttribute(final String name, final String label)
@@ -70,10 +71,5 @@ public class ResourceAttribute
     public String getLabel()
     {
         return label;
-    }
-
-    public void setLabel(final String label)
-    {
-        this.label = label;
     }
 }
