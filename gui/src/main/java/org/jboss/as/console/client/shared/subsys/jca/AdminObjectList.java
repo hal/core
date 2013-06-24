@@ -296,7 +296,7 @@ public class AdminObjectList implements PropertyManagement {
 
         configProperties.clearValues();
 
-        headline.setText("Resource Adapter: "+adapter.getArchive());
+        headline.setText("Resource Adapter: "+adapter.getName());
 
         List<AdminObject> list = adapter.getAdminObjects();
         dataProvider.setList(list);
