@@ -1,9 +1,9 @@
-# The AS7 Web Management Interface
+# The Wildfly Web Management Interface
 
 ## Prerequisites
 
 - JDK 7
-- JWildFly 8
+- WildFly 8
 
 In order to work on the console you a need running WildFly
 instance on your local host. You can download it here:
