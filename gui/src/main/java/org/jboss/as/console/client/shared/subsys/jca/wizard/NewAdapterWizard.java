@@ -37,12 +37,13 @@ public class NewAdapterWizard {
         final Form<ResourceAdapter> form = new Form(ResourceAdapter.class);
 
         TextBoxItem archiveItem = new TextBoxItem("archive", "Archive");
+        TextBoxItem nameItem = new TextBoxItem("name", "Name");
 
         ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "TX");
         txItem.setDefaultToFirstOption(true);
         txItem.setValueMap(new String[]{"NoTransaction", "LocalTransaction", "XATransaction"});
 
-        form.setFields(archiveItem, txItem);
+        form.setFields(nameItem,archiveItem, txItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

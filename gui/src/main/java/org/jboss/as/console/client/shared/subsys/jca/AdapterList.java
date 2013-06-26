@@ -75,7 +75,7 @@ public class AdapterList implements PropertyManagement {
 
                 Feedback.confirm(
                         Console.MESSAGES.deleteTitle("Resource Adapter"),
-                        Console.MESSAGES.deleteConfirm("Resource Adapter " + selection.getArchive()),
+                        Console.MESSAGES.deleteConfirm("Resource Adapter " + selection.getName()),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
@@ -97,7 +97,7 @@ public class AdapterList implements PropertyManagement {
                 new ProvidesKey<ResourceAdapter>() {
                     @Override
                     public Object getKey(ResourceAdapter item) {
-                        return item.getArchive();
+                        return item.getName();
                     }
                 });
 
@@ -107,7 +107,7 @@ public class AdapterList implements PropertyManagement {
         TextColumn<ResourceAdapter> nameColumn = new TextColumn<ResourceAdapter>() {
             @Override
             public String getValue(ResourceAdapter record) {
-                return record.getArchive();
+                return record.getName();
             }
         };
 
@@ -123,7 +123,7 @@ public class AdapterList implements PropertyManagement {
                     @Override
                     public void execute(ResourceAdapter selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.ResourceAdapterPresenter).with("name", selection.getArchive())
+                                new PlaceRequest(NameTokens.ResourceAdapterPresenter).with("name", selection.getName())
                         );
                     }
                 })
@@ -134,7 +134,7 @@ public class AdapterList implements PropertyManagement {
             }
         };
 
-        table.addColumn(nameColumn, "Archive");
+        table.addColumn(nameColumn, "Name");
         table.addColumn(numberConnections, "Connection Def.");
         table.addColumn(option, "Option");
 
