@@ -148,8 +148,11 @@ public class ResourceAdapterPresenter
                 for(Property child : children)
                 {
                     ModelNode raModel = child.getValue();
-
+                    
                     ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
+
+                    String name = child.getName();
+                    resourceAdapter.setName(name);
 
                     List<PropertyRecord> props = parseConfigProperties(raModel);
                     resourceAdapter.setProperties(props);
@@ -260,7 +263,7 @@ public class ResourceAdapterPresenter
     public void onDelete(final ResourceAdapter ra) {
 
         AddressBinding address = raMetaData.getAddress();
-        ModelNode operation = address.asResource(Baseadress.get(), ra.getArchive());
+        ModelNode operation = address.asResource(Baseadress.get(), ra.getName());
         operation.get(OP).set(REMOVE);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -275,7 +278,7 @@ public class ResourceAdapterPresenter
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
                 if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.deleted("Resource Adapter "+ra.getArchive()));
+                    Console.info(Console.MESSAGES.deleted("Resource Adapter "+ra.getName()));
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Resource Adapter "+ra.getArchive()), result.toString());
 
@@ -288,7 +291,7 @@ public class ResourceAdapterPresenter
     public void onSave(final ResourceAdapter ra, Map<String, Object> changedValues) {
 
         AddressBinding address = raMetaData.getAddress();
-        ModelNode addressModel = address.asResource(Baseadress.get(), ra.getArchive());
+        ModelNode addressModel = address.asResource(Baseadress.get(), ra.getName());
         addressModel.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
 
@@ -309,7 +312,7 @@ public class ResourceAdapterPresenter
                 boolean success = response.get(OUTCOME).asString().equals(SUCCESS);
 
                 if(success)
-                    Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getArchive()));
+                    Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getName()));
                 else
                     Console.error(Console.MESSAGES.saveFailed("Resource Adapter " + ra.getArchive()),
                             response.getFailureDescription());
@@ -340,7 +343,7 @@ public class ResourceAdapterPresenter
     public void onCreateAdapter(final ResourceAdapter ra) {
         closeDialoge();
 
-        ModelNode addressModel = raMetaData.getAddress().asResource(Baseadress.get(), ra.getArchive());
+        ModelNode addressModel = raMetaData.getAddress().asResource(Baseadress.get(), ra.getName());
 
         ModelNode operation = adapter.fromEntity(ra);
         operation.get(OP).set(ADD);
@@ -358,7 +361,7 @@ public class ResourceAdapterPresenter
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
                 if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getArchive()));
+                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getName()));
                 else
                     Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getArchive()), result.toString());
 
@@ -375,7 +378,7 @@ public class ResourceAdapterPresenter
         createProp.get(OP).set(ADD);
         createProp.get(ADDRESS).set(Baseadress.get());
         createProp.get(ADDRESS).add("subsystem","resource-adapters");
-        createProp.get(ADDRESS).add("resource-adapter", ra.getArchive());
+        createProp.get(ADDRESS).add("resource-adapter", ra.getName());
         //createProp.get(ADDRESS).add("connection-definitions", ra.getJndiName());
         createProp.get(ADDRESS).add("config-properties", prop.getKey());
         createProp.get("value").set(prop.getValue());
@@ -408,7 +411,7 @@ public class ResourceAdapterPresenter
         operation.get(OP).set(REMOVE);
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem","resource-adapters");
-        operation.get(ADDRESS).add("resource-adapter", ra.getArchive());
+        operation.get(ADDRESS).add("resource-adapter", ra.getName());
         //operation.get(ADDRESS).add("connection-definitions", ra.getJndiName());
         operation.get(ADDRESS).add("config-properties", prop.getKey());
 
@@ -689,7 +692,7 @@ public class ResourceAdapterPresenter
 
     public void onCreateAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
         ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getArchive());
+                Baseadress.get(), adapter.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(ADD);
@@ -711,7 +714,7 @@ public class ResourceAdapterPresenter
 
     public void onRemoveAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
         ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getArchive());
+                Baseadress.get(), adapter.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(REMOVE);
