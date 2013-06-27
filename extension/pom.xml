@@ -56,31 +56,6 @@
     <build>
 
         <plugins>
-
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>2.0.7.2-redhat</version>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDiagnostics>false</outputDiagnostics>
-                            <processors>
-                                <processor>org.jboss.as.console.spi.SPIProcessor</processor>
-                            </processors>
-                            <appendSourceArtifacts>true</appendSourceArtifacts>
-                            <sourceClassifier>sources</sourceClassifier>
-                        </configuration>
-
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>

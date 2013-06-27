@@ -145,33 +145,26 @@
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
-                <version>2.0.7.2-redhat</version>
+                <version>2.2.0</version>
                 <executions>
                     <execution>
-                        <id>process</id>
+                        <id>process-spi@build</id>
                         <goals>
                             <goal>process</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
                             <outputDiagnostics>false</outputDiagnostics>
+                            <addCompileSourceRoots>false</addCompileSourceRoots>
+                            <appendSourceArtifacts>true</appendSourceArtifacts>
                             <processors>
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
-                            <appendSourceArtifacts>true</appendSourceArtifacts>
-                            <sourceClassifier>sources</sourceClassifier>
-
-                            <!--
-                                These are passed into the SPI processor
-                                and will end up in App.gwt.xml if prefixed with 'gwt.'
-                             -->
-
                             <options>
                                 <gwt.console.product.version>${gwt.console.product.version}</gwt.console.product.version>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>
                         </configuration>
-
                     </execution>
                 </executions>
             </plugin>
