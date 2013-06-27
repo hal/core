@@ -91,7 +91,6 @@ public class SPIProcessor extends AbstractProcessor {
         this.runtimeExtensions = new ArrayList<RuntimeExtensionMetaData>();
         this.nameTokens = new HashSet<String>();
 
-
         parseGwtProperties();
     }
 
@@ -386,6 +385,7 @@ public class SPIProcessor extends AbstractProcessor {
             new TemplateProcessor().process(MODULE_TEMPLATE, model, output);
             output.flush();
             output.close();
+            System.out.println("Written GWT module to " + sourceFile.toUri().toString());
         }
         catch (IOException e)
         {
@@ -407,6 +407,7 @@ public class SPIProcessor extends AbstractProcessor {
             new TemplateProcessor().process(MODULE_DEV_TEMPLATE, model, output);
             output.flush();
             output.close();
+            System.out.println("Written GWT dev module to " + sourceFile.toUri().toString());
         }
         catch (IOException e)
         {
