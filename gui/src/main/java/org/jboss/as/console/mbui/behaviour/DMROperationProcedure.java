@@ -76,8 +76,8 @@ public class DMROperationProcedure extends Procedure implements OperationContext
         if(operationName==null)
             throw new IllegalArgumentException("Illegal operation name mapping: "+ unit.getId()+ " (suffix required)");
 
-        DMRMapping DMRMapping = unit.findMapping(MappingType.DMR);
-        address = AddressMapping.fromString(DMRMapping.getAddress());
+        DMRMapping mapping = unit.findMapping(MappingType.DMR);
+        address = AddressMapping.fromString(mapping.getResolvedAddress());
 
 
         // TODO: Refactor init procedure into default precondition ...

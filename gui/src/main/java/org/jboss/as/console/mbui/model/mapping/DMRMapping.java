@@ -34,6 +34,7 @@ public class DMRMapping extends Mapping
 {
     private String address;
     private final List<ResourceAttribute> attributes;
+    private String parentAddress;
 
     public DMRMapping()
     {
@@ -66,6 +67,14 @@ public class DMRMapping extends Mapping
         return this;
     }
 
+    /**
+     * @see #complementFrom(org.useware.kernel.model.mapping.Mapping)
+     * @return either the local address or the one resolved from the parent
+     */
+    public String getResolvedAddress() {
+        return parentAddress !=null ? parentAddress : address;
+    }
+
     // TODO: Required? What's the purpose?
     public DMRMapping addAttribute(final ResourceAttribute attribute)
     {
@@ -76,6 +85,11 @@ public class DMRMapping extends Mapping
         return this;
     }
 
+    /**
+     * the local address
+     * @see #getResolvedAddress()
+     * @return
+     */
     public String getAddress()
     {
         return address;
@@ -94,7 +108,7 @@ public class DMRMapping extends Mapping
 
             // complementFrom address if not available
             if(null==this.address)
-                this.address = parentDMRMapping.getAddress();
+                this.parentAddress = parentDMRMapping.getAddress();
         }
     }
 

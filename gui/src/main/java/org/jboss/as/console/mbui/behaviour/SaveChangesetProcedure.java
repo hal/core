@@ -73,8 +73,8 @@ public class SaveChangesetProcedure extends Procedure {
     private void init() {
         unit = dialog.findUnit(getJustification());
 
-        DMRMapping DMRMapping = (DMRMapping) unit.findMapping(MappingType.DMR);
-        address = AddressMapping.fromString(DMRMapping.getAddress());
+        DMRMapping mapping = (DMRMapping) unit.findMapping(MappingType.DMR);
+        address = AddressMapping.fromString(mapping.getResolvedAddress());
 
     }
 

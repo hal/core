@@ -172,7 +172,7 @@ public class ReadResourceDescription extends ReificationBootstrap
             });
             if (mapping != null)
             {
-                String address = mapping.getAddress();
+                String address = mapping.getResolvedAddress();
                 if (!resolvedAdresses.contains(address))
                 {
                     AddressMapping addressMapping = AddressMapping.fromString(address);

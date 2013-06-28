@@ -175,7 +175,7 @@ public class ReadOperationDescriptions extends ReificationBootstrap
                 throw new IllegalArgumentException("Illegal operation name mapping: "+ output.getId()+ " (suffix required)");
 
             DMRMapping mapping = interactionUnit.findMapping(DMR);
-            String address = mapping.getAddress();
+            String address = mapping.getResolvedAddress();
 
             if (!resolvedOperations.contains(output.getId()))
             {

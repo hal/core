@@ -171,9 +171,6 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
                 Mapping parentMapping = parent.findMapping(type, predicate);
                 if(parentMapping!=null)
                 {
-                    /*T clone = (T)mapping.copy();
-                    clone.complementFrom(parentMapping);
-                    mapping = clone;*/
                     mapping.complementFrom(parentMapping);
                 }
             }
