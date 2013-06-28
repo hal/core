@@ -78,7 +78,7 @@ public class BuildUserInterfaceStep extends ReificationStep
 
         @Override
         public Widget asWidget() {
-            return new HTML("<div style='width:100%; padding:20px; background-color:yellow'>Placeholder</div>");
+            return new HTML("<div style='width:95%; padding:20px; border:1px solid red'>"+unit.getId()+"</div>");
         }
     };
 
