@@ -25,14 +25,16 @@ import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.as.console.client.rbac.ResourceAccessLog;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
@@ -66,6 +68,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
     private boolean trackInvocations = diagnostics.isEnabled();
     private DMREndpointConfig endpointConfig = GWT.create(DMREndpointConfig.class);
+    private ResourceAccessLog resourceLog = ResourceAccessLog.INSTANCE;
 
     @Inject
     public DMRHandler()
@@ -120,8 +123,50 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         assert action.getOperation() != null;
         final ModelNode operation = action.getOperation();
 
+        // access control facilities, development only
+        if(!GWT.isScript())
+        {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    decomposeAndLog(operation);
+                }
+            });
+
+        }
+
         Request request = executeRequest(resultCallback, operation);
         return new DispatchRequestHandle(request);
+    }
+
+    private void decomposeAndLog(ModelNode operation) {
+        if(operation.get(OP).asString().equals(COMPOSITE))
+        {
+            List<ModelNode> steps = operation.get(STEPS).asList();
+            for(ModelNode step : steps)
+                logAtomicOperation(step);
+        }
+        else
+        {
+            logAtomicOperation(operation);
+        }
+    }
+
+    private void logAtomicOperation(ModelNode operation){
+        if(operation.get(OP).asString().equals(COMPOSITE)) // nested composite ops?
+        {
+            Log.error("Failed to to log resources access", operation.toString());
+        }
+        else if(operation.hasDefined(CHILD_TYPE))
+        {
+            //ModelNode address = operation.get(ADDRESS).clone();
+            //address.add(operation.get(CHILD_TYPE).toString(), "*");
+            resourceLog.log(Window.Location.getHash(), operation.get(ADDRESS).toString()+" : "+operation.get(OP).asString()+"(child-type="+operation.get(CHILD_TYPE)+")");
+        }
+        else
+        {
+            resourceLog.log(Window.Location.getHash(), operation.get(ADDRESS).toString()+" : "+operation.get(OP).asString());
+        }
     }
 
     @Override
