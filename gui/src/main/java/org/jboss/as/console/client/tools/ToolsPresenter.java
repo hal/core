@@ -18,6 +18,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.AccessLogView;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
@@ -101,6 +102,29 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         else if("mbui-workbench".equals(requestedTool))
         {
             placeManager.revealPlace(new PlaceRequest("mbui-workbench"));
+        }
+        else if("access-log".equals(requestedTool))
+        {
+            if(window==null)
+            {
+                window = new DefaultWindow("Resource Access Log");
+                window.setWidth(480);
+                window.setHeight(360);
+
+
+                AccessLogView panel = new AccessLogView();
+                Widget w = panel.asWidget();
+                window.setWidget(new ScrollPanel(w));
+
+                window.setModal(false);
+                //window.setGlassEnabled(true);
+                window.center();
+            }
+            else
+            {
+                window.show();
+            }
+            //RevealRootPopupContentEvent.fire(this, debug);
         }
 
 
