@@ -31,15 +31,16 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.rbac.ResourceAccessLog;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
-import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -132,11 +133,19 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     decomposeAndLog(operation);
                 }
             });
-
         }
 
-        Request request = executeRequest(resultCallback, operation);
+        Request request = executeRequest(resultCallback, GWT.isScript() ? operation : runAsRole(operation));
         return new DispatchRequestHandle(request);
+    }
+
+    private ModelNode runAsRole(final ModelNode operation) {
+        // No Preferences class available here - do it yourself!
+        String role = Cookies.getCookie("as7_ui_run_as_role");
+        if (role != null) {
+            operation.get("operation-headers").get("roles").set(role.toUpperCase());
+        }
+        return operation;
     }
 
     private void decomposeAndLog(ModelNode operation) {
