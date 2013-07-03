@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.core;
 
+import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -38,6 +40,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.auth.CurrentUser;
+import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.InlineLink;
@@ -88,6 +91,13 @@ public class Footer {
         {
             toolReference.add(new String[] {"Modelling", "mbui-workbench"});
             toolReference.add(new String[] {"Resource Access", "access-log"});
+            StringBuilder runAsRole = new StringBuilder("Run as");
+            if (Preferences.has(RUN_AS_ROLE)) {
+                runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
+            } else {
+                runAsRole.append("...");
+            }
+            toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
         }
 
         final VerticalPanel toolsList = new VerticalPanel();

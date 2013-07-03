@@ -34,7 +34,8 @@ public class Preferences
     public enum Key {
 
         LOCALE("locale", "Locale", "en"),
-        ANALYTICS("analytics", "Analytics Enabled?", "true");
+        ANALYTICS("analytics", "Analytics Enabled?", "true"),
+        RUN_AS_ROLE("run_as_role", "Run as role", null);
 
         private String token;
         private String title;

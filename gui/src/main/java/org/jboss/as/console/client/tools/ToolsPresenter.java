@@ -19,6 +19,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.AccessLogView;
+import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
@@ -34,6 +35,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
     private String requestedTool;
     private DefaultWindow window;
+    private RunAsRoleTool runAsRoleTool;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ToolsPresenter)
@@ -105,7 +107,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         }
         else if("access-log".equals(requestedTool))
         {
-            if(window==null)
+            if(window == null)
             {
                 window = new DefaultWindow("Resource Access Log");
                 window.setWidth(480);
@@ -126,7 +128,11 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
             }
             //RevealRootPopupContentEvent.fire(this, debug);
         }
-
-
+        else if ("run-as-role".equals(requestedTool)) {
+            if (runAsRoleTool == null) {
+                runAsRoleTool = new RunAsRoleTool();
+            }
+            runAsRoleTool.launch();
+        }
     }
 }
