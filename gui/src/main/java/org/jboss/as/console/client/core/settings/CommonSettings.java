@@ -31,4 +31,7 @@ public interface CommonSettings {
     boolean isAnalytics();
     void setAnalytics(boolean b);
 
+    boolean isSecurityCache();
+    void setSecurityCache(boolean b);
+
 }

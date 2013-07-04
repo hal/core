@@ -35,7 +35,9 @@ public class Preferences
 
         LOCALE("locale", "Locale", "en"),
         ANALYTICS("analytics", "Analytics Enabled?", "true"),
-        RUN_AS_ROLE("run_as_role", "Run as role", null);
+        RUN_AS_ROLE("run_as_role", "Run as role", null),
+        SECURITY_CONTEXT("securityCache", "Cache Security Context?", "true");
+
 
         private String token;
         private String title;

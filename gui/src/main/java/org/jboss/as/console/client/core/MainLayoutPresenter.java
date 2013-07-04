@@ -26,6 +26,7 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -59,6 +60,7 @@ public class MainLayoutPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.mainLayout)
+    @NoGatekeeper
     public interface MainLayoutProxy extends ProxyPlace<MainLayoutPresenter> {}
 
     @Inject

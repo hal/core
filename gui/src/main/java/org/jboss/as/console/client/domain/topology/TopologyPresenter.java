@@ -28,13 +28,11 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -47,11 +45,11 @@ import org.jboss.as.console.client.domain.model.impl.ServerGroupLifecycleCallbac
 import org.jboss.as.console.client.domain.model.impl.ServerInstanceLifecycleCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +75,6 @@ public class TopologyPresenter extends
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
-    @UseGatekeeper(DomainGateKeeper.class)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
     }

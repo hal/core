@@ -22,7 +22,9 @@ package org.jboss.as.console.client.core.gin;
 import com.google.gwt.inject.client.AsyncProvider;
 import com.google.inject.Provider;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.DefaultGatekeeper;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
+import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
@@ -30,11 +32,9 @@ import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.StandaloneGateKeeper;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -56,14 +56,12 @@ import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
+import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
+import org.jboss.as.console.client.rbac.AuthorisationPresenter;
+import org.jboss.as.console.client.rbac.SecurityService;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.HandlerMapping;
-import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
 import org.jboss.as.console.client.shared.general.PathManagementPresenter;
@@ -130,8 +128,13 @@ import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtension;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.HandlerMapping;
+import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 
 
 /**
@@ -154,11 +157,8 @@ public interface CoreUI {
     //ProxyFailureHandler getProxyFailureHandler();
     TokenFormatter getTokenFormatter();
 
-    //@DefaultGatekeeper
-    //Gatekeeper getLoggedInGatekeeper();
-
-    StandaloneGateKeeper getStandaloneGatekeeper();
-    DomainGateKeeper getDomainGatekeeper();
+    @DefaultGatekeeper
+    Gatekeeper getRBACGatekeeper();
 
     CurrentUser getCurrentUser();
     BootstrapContext getBootstrapContext();
@@ -328,5 +328,9 @@ public interface CoreUI {
 
     Provider<ApplicationPresenter> getWorkbenchPresenter();
     Provider<PreviewPresenter> getPreviewPresenter();
+
+    AccessControlRegistry getAccessControlRegistry();
+    AsyncProvider<AuthorisationPresenter> AuthorisationPresenter();
+    SecurityService getSecurityService();
 
 }
