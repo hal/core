@@ -12,6 +12,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -46,6 +47,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
     @ProxyCodeSplit
     @NameToken(NameTokens.TransactionPresenter)
     @SubsystemExtension(name="Transactions", group="Container", key="transactions")
+    @AccessControl(resources = {"{selected.profile}/subsystem=transactions"})
     public interface MyProxy extends Proxy<TransactionPresenter>, Place {
     }
 

@@ -93,6 +93,8 @@ public class NameTokens {
     public static final String UndertowServlet = "undertow-servlet";
     public static final String UndertowCore = "undertow-core";
 
+    public static final String Unauthorized = "unauthorized";
+
     public static String getMainLayout() {
         return mainLayout;
     }

@@ -38,15 +38,11 @@ import org.jboss.as.console.client.auth.SignInPageView;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.DefaultPlaceManager;
-import org.jboss.as.console.client.core.DomainGateKeeper;
-import org.jboss.as.console.client.core.DomainUse;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.MainLayoutViewImpl;
 import org.jboss.as.console.client.core.NewTokenFormatter;
-import org.jboss.as.console.client.core.StandaloneGateKeeper;
-import org.jboss.as.console.client.core.StandaloneUse;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterImpl;
@@ -85,10 +81,17 @@ import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimeView;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyView;
+import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.AccessControlRegistryImpl;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
+import org.jboss.as.console.client.rbac.AuthorisationPresenter;
+import org.jboss.as.console.client.rbac.RBACGatekeeper;
+import org.jboss.as.console.client.rbac.SecurityService;
+import org.jboss.as.console.client.rbac.SecurityServiceImpl;
+import org.jboss.as.console.client.rbac.UnauthorizedView;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
@@ -209,8 +212,6 @@ import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPrese
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsView;
-import org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter;
-import org.jboss.as.console.client.shared.subsys.tx.TransactionView;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebSubsystemView;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
@@ -292,10 +293,8 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(RootPresenter.class).asEagerSingleton();
         //bind(ProxyFailureHandler.class).to(DefaultProxyFailureHandler.class).in(Singleton.class);
-        //bind(Gatekeeper.class).to(LoggedInGatekeeper.class);
 
-        bind(Gatekeeper.class).annotatedWith(DomainUse.class).to(DomainGateKeeper.class).in(Singleton.class);
-        bind(Gatekeeper.class).annotatedWith(StandaloneUse.class).to(StandaloneGateKeeper.class).in(Singleton.class);
+        bind(Gatekeeper.class).to(RBACGatekeeper.class).in(Singleton.class);
 
         bind(CurrentUser.class).in(Singleton.class);
         bind(BootstrapContext.class).in(Singleton.class);
@@ -686,6 +685,14 @@ public class CoreUIModule extends AbstractPresenterModule {
         // Application
         bind(SampleRepository.class).in(Singleton.class);
 
+        bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
+
+        bindPresenter(AuthorisationPresenter.class,
+                AuthorisationPresenter.MyView.class,
+                UnauthorizedView.class,
+                AuthorisationPresenter.MyProxy.class);
+
+        bind(SecurityService.class).to(SecurityServiceImpl.class).in(Singleton.class);
     }
 }
 
