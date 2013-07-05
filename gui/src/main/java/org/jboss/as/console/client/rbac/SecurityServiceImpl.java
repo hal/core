@@ -117,24 +117,27 @@ public class SecurityServiceImpl implements SecurityService {
                             else
                                 stepResult = modelNode;
 
-                            ModelNode accessControl = stepResult.hasDefined("access-control") ?
-                                    stepResult.get("access-control") : stepResult.get(RESULT).get("access-control");
+                            ModelNode accessControl = stepResult.hasDefined(RESULT) ?
+                                    stepResult.get(RESULT).get("access-control") : stepResult.get("access-control");
 
                             List<Property> properties = accessControl.asPropertyList();
-                            Property acl = properties.get(0);
-                            String address = acl.getName();
-                            ModelNode model = acl.getValue();
-
-                            if(!model.get("read-config").asBoolean())
+                            if(!properties.isEmpty())
                             {
-                                accessGranted = false;
-                                break; // all or nothing
+                                Property acl = properties.get(0);
+                                String address = acl.getName();
+                                ModelNode model = acl.getValue();
+
+                                if(!model.get("read-config").asBoolean())
+                                {
+                                    accessGranted = false;
+                                    break; // all or nothing
+                                }
                             }
                         }
                     }
                 } catch (Throwable e) {
                     Log.error("Failed to parse response", e);
-                    callback.onFailure(new RuntimeException("Failed to parse response",e));
+                    callback.onFailure(new RuntimeException("Failed to parse response", e));
                 }
 
                 SecurityContext context = new SecurityContext(
