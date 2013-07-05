@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
@@ -15,7 +14,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,6 +24,10 @@ import java.util.Set;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * The secuirty service creates and provides a {@link SecurityContext} per place
+ *
+ * @see com.gwtplatform.mvp.client.proxy.PlaceManager
+ *
  * @author Heiko Braun
  * @date 7/3/13
  */
@@ -68,17 +71,20 @@ public class SecurityServiceImpl implements SecurityService {
         final List<ModelNode> steps = new LinkedList<ModelNode>();
 
         final Set<String> resources = accessControlReg.getResources(nameToken);
+        final Map<String, String> step2address = new HashMap<String,String>();
 
         for(String resource : resources)
         {
 
             ModelNode step = AddressMapping.fromString(resource).asResource(statementContext);
+            step2address.put("step" + (steps.size() + 1), resource);   // we need this for later retrieval
+
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-            step.get("include-access").set(true);
+            step.get("access-control").set(true);
             //step.get("access-control").set(true);
             steps.add(step);
-        }
 
+        }
 
         operation.get(STEPS).set(steps);
 
@@ -99,17 +105,17 @@ public class SecurityServiceImpl implements SecurityService {
                 ModelNode response = dmrResponse.get();
                 ModelNode overalResult = response.get(RESULT);
 
-                boolean accessGranted = true;
+                SecurityContext context = new SecurityContext(nameToken, resources);
 
                 try {
+
+                    // retrieve access constraints per required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
                     {
                         String step = "step-"+i;
                         if(overalResult.hasDefined(step))
                         {
                             ModelNode modelNode = overalResult.get(step).get(RESULT);
-
-                            // TODO: why is it sometimes a list ?
 
                             ModelNode stepResult = null;
                             if(modelNode.getType() == ModelType.LIST)
@@ -120,18 +126,16 @@ public class SecurityServiceImpl implements SecurityService {
                             ModelNode accessControl = stepResult.hasDefined(RESULT) ?
                                     stepResult.get(RESULT).get("access-control") : stepResult.get("access-control");
 
-                            List<Property> properties = accessControl.asPropertyList();
+                            List<Property> properties = accessControl.isDefined() ?
+                                    accessControl.asPropertyList() : Collections.EMPTY_LIST;
+
                             if(!properties.isEmpty())
                             {
                                 Property acl = properties.get(0);
-                                String address = acl.getName();
+                                assert acl.getName().equals("default");
                                 ModelNode model = acl.getValue();
 
-                                if(!model.get("read-config").asBoolean())
-                                {
-                                    accessGranted = false;
-                                    break; // all or nothing
-                                }
+                                context.updateResourceConstraints(step2address.get(step), model);
                             }
                         }
                     }
@@ -139,12 +143,6 @@ public class SecurityServiceImpl implements SecurityService {
                     Log.error("Failed to parse response", e);
                     callback.onFailure(new RuntimeException("Failed to parse response", e));
                 }
-
-                SecurityContext context = new SecurityContext(
-                        nameToken, resources
-                );
-
-                context.setGrantPlaceAccess(accessGranted);
 
                 contextMapping.put(nameToken, context);
 
