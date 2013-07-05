@@ -36,6 +36,12 @@ public class SecurityContext {
      */
     private Map<String, ModelNode> accessConstraints = new HashMap<String,ModelNode>();
 
+    /**
+     * A sealed context cannot be modified
+     */
+    private boolean sealed;
+
+
     public SecurityContext(String nameToken, Set<String> requiredResources) {
         this.nameToken = nameToken;
         this.requiredResources = requiredResources;
@@ -47,6 +53,9 @@ public class SecurityContext {
      * @return
      */
     public boolean doesGrantPlaceAccess() {
+
+        assert sealed : "Should be sealed before policy decisions are evaluated";
+
         boolean accessGranted = true;
         for(String address : requiredResources)
         {
@@ -62,6 +71,15 @@ public class SecurityContext {
     }
 
     public void updateResourceConstraints(String resourceAddress, ModelNode model) {
+
+        assert !sealed : "Sealed security context cannot be modified";
+
         accessConstraints.put(resourceAddress, model);
+    }
+
+    public void seal() {
+        this.sealed = true;
+
+        // TODO: move all policies that can be evaluated once into this method
     }
 }

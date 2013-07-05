@@ -144,6 +144,8 @@ public class SecurityServiceImpl implements SecurityService {
                     callback.onFailure(new RuntimeException("Failed to parse response", e));
                 }
 
+                context.seal(); // makes it immutable
+
                 contextMapping.put(nameToken, context);
 
                 callback.onSuccess(context);
