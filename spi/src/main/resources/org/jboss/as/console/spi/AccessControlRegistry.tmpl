@@ -15,14 +15,18 @@ private Set<AccessControlMetaData> accessMetaData;
 
         <#list metaData as md>
 
-            resourceMapping.put("${md.getToken()}", "${md.getResource()}");
+            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.getFacet()}");
 
         </#list>
 
      }
 
      public Set<String> getResources(String token) {
-            return resourceMapping.getResources(token);
+         return resourceMapping.getResources(token);
      }
 
+
+    public String getFacet(String token) {
+         return resourceMapping.getFacet(token);
+    }
 }

@@ -24,6 +24,7 @@ import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -44,6 +45,15 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
+    @AccessControl(
+            resources = {
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
+            } ,
+            facet = "runtime"
+    )
     public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {
     }
 
@@ -56,7 +66,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
             DomainEntityManager domainManager,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData metaData, HostInformationStore hostInfoStore
-            ) {
+    ) {
         super(eventBus, view, proxy);
 
         this.domainManager = domainManager;
@@ -73,7 +83,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
             public void execute() {
                 if(isVisible()) refresh();
             }
-         });
+        });
     }
 
     @Override

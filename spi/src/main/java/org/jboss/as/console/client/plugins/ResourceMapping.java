@@ -11,12 +11,14 @@ import java.util.Set;
  */
 public class ResourceMapping {
     private Map<String, Set<String>> token2address = new HashMap<String, Set<String>>();
+    private Map<String, String> token2facet = new HashMap<String, String>();
 
-    public void put(String token, String address){
+    public void put(String token, String address, String facet){
         if(null==token2address.get(token))
             token2address.put(token, new HashSet<String>());
 
         token2address.get(token).add(address);
+        token2facet.put(token, facet);
     }
 
     public Set<String> getResources(String token)
@@ -25,5 +27,9 @@ public class ResourceMapping {
             token2address.put(token, new HashSet<String>());
 
         return token2address.get(token);
+    }
+
+    public String getFacet(String token) {
+        return token2facet.get(token) !=null ? token2facet.get(token) : "configuration";
     }
 }

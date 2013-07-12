@@ -3,14 +3,15 @@ package org.jboss.as.console.client.rbac.internal;
 import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 import java.util.Arrays;
+import java.util.List;
 
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.tools.Tool;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -59,9 +60,10 @@ public class RunAsRoleTool implements Tool {
 
         Form<Object> form = new Form<Object>(Object.class);
         role = new ListBoxItem("role", "Role");
-        role.setChoices(
-                Arrays.asList("No preselection", "Monitor", "Configurator", "Operator", "Maintainer", "Deployer",
-                        "Administrator", "Auditor", "SuperUser"), "No preselection");
+
+        List<String> roleNames = StandardRole.getRoleNames();
+        roleNames.add("No preselection");
+        role.setChoices(roleNames, "No preselection");
         form.setFields(role);
         panel.add(form.asWidget());
 
