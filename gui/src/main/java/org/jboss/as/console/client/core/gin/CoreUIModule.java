@@ -89,7 +89,6 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.rbac.AuthorisationPresenter;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
-import org.jboss.as.console.client.rbac.SecurityService;
 import org.jboss.as.console.client.rbac.SecurityServiceImpl;
 import org.jboss.as.console.client.rbac.UnauthorizedView;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
@@ -108,6 +107,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewView
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.as.console.client.shared.state.ResponseProcessorFactory;

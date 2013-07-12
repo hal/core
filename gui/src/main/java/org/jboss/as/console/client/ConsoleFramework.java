@@ -5,6 +5,7 @@ import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 
 /**
@@ -28,5 +29,10 @@ public class ConsoleFramework implements Framework {
     @Override
     public AutoBeanFactory getBeanFactory() {
         return factory;
+    }
+
+    @Override
+    public SecurityService getSecurityService() {
+        return Console.MODULES.getSecurityService();
     }
 }

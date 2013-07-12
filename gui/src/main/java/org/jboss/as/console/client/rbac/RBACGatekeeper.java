@@ -4,6 +4,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,7 +40,7 @@ public class RBACGatekeeper implements Gatekeeper {
         if(securityService.hasContext(token))
         {
             SecurityContext securityContext = securityService.getSecurityContext(token);
-            outcome = securityContext.doesGrantPlaceAccess();
+            outcome = securityContext.isReadable();
         }
 
         return outcome;

@@ -11,6 +11,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.jvm.LoadJVMMetricsCmd;
 import org.jboss.as.console.client.shared.jvm.model.CompositeVMMetric;
@@ -34,6 +35,15 @@ public class VMMetricsPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.VirtualMachine)
+    @AccessControl(
+            resources = {
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
+            } ,
+            facet = "runtime"
+    )
     public interface MyProxy extends Proxy<VMMetricsPresenter>, Place {
     }
 

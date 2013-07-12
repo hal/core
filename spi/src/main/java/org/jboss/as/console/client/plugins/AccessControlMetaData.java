@@ -8,6 +8,7 @@ public class AccessControlMetaData {
 
     private String resource;
     private String token;
+    private String facet;
 
     public AccessControlMetaData(String token, String resource) {
         this.token = token;
@@ -20,5 +21,13 @@ public class AccessControlMetaData {
 
     public String getResource() {
         return resource;
+    }
+
+    public String getFacet() {
+        return facet;
+    }
+
+    public void setFacet(String facet) {
+        this.facet = facet;
     }
 }

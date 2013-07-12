@@ -28,10 +28,10 @@ import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.rbac.SecurityContext;
-import org.jboss.as.console.client.rbac.SecurityService;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,8 +111,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
 
             // ability to invalidate the security context
-            if(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true").equals("false"))
-                securityService.flushContext(nameToken);
+            //if(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true").equals("false"))
+            //    securityService.flushContext(nameToken);
         }
 
 

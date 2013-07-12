@@ -207,6 +207,8 @@ public class SPIProcessor extends AbstractProcessor {
                                 nameToken.value(), resourceAddress
                         );
 
+                        declared.setFacet(accessControl.facet());
+
                         accessControlDeclararions.add(declared);
                     }
                 }

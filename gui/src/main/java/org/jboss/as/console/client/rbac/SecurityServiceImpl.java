@@ -6,6 +6,10 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.ballroom.client.rbac.Constraints;
+import org.jboss.ballroom.client.rbac.Facet;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -57,7 +61,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         SecurityContext securityContext = contextMapping.get(nameToken);
         if(null==securityContext)
-            throw new IllegalStateException("Security should have been created upfront");
+            throw new IllegalStateException("Security context should have been created upfront");
 
         return securityContext;
     }
@@ -77,7 +81,7 @@ public class SecurityServiceImpl implements SecurityService {
         {
 
             ModelNode step = AddressMapping.fromString(resource).asResource(statementContext);
-            step2address.put("step" + (steps.size() + 1), resource);   // we need this for later retrieval
+            step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
             step.get("access-control").set(true);
@@ -106,6 +110,7 @@ public class SecurityServiceImpl implements SecurityService {
                 ModelNode overalResult = response.get(RESULT);
 
                 SecurityContext context = new SecurityContext(nameToken, resources);
+                context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
 
                 try {
 
@@ -132,10 +137,18 @@ public class SecurityServiceImpl implements SecurityService {
                             if(!properties.isEmpty())
                             {
                                 Property acl = properties.get(0);
-                                assert acl.getName().equals("default");
+                                assert acl.getName().equals("default");   //TODO: overrides ...
                                 ModelNode model = acl.getValue();
 
-                                context.updateResourceConstraints(step2address.get(step), model);
+                                Constraints c = new Constraints();
+                                c.setReadConfig(model.get("read-config").asBoolean());
+                                c.setWriteConfig(model.get("write-config").asBoolean());
+                                c.setReadRuntime(model.get("read-runtime").asBoolean());
+                                c.setWriteRuntime(model.get("write-runtime").asBoolean());
+
+                                // TODO: attribute constraints
+
+                                context.updateResourceConstraints(step2address.get(step), c);
                             }
                         }
                     }

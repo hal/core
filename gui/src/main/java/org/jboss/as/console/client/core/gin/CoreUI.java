@@ -60,7 +60,7 @@ import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.rbac.AuthorisationPresenter;
-import org.jboss.as.console.client.rbac.SecurityService;
+
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -132,6 +132,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresente
 import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtension;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
