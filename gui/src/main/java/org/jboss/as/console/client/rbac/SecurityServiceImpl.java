@@ -141,10 +141,21 @@ public class SecurityServiceImpl implements SecurityService {
                                 ModelNode model = acl.getValue();
 
                                 Constraints c = new Constraints();
-                                c.setReadConfig(model.get("read-config").asBoolean());
-                                c.setWriteConfig(model.get("write-config").asBoolean());
-                                c.setReadRuntime(model.get("read-runtime").asBoolean());
-                                c.setWriteRuntime(model.get("write-runtime").asBoolean());
+
+                                if(model.hasDefined("access")
+                                        && model.get("access").asBoolean()==false)   // TODO: name change
+                                {
+                                    c.setAddress(false);
+                                }
+                                else
+                                {
+
+                                    c.setReadConfig(model.get("read-config").asBoolean());
+                                    c.setWriteConfig(model.get("write-config").asBoolean());
+                                    c.setReadRuntime(model.get("read-runtime").asBoolean());
+                                    c.setWriteRuntime(model.get("write-runtime").asBoolean());
+
+                                }
 
                                 // TODO: attribute constraints
 
