@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
+import org.jboss.as.console.spi.AccessControl;
 
 /**
  * @author David Bosschaert
@@ -38,6 +39,9 @@ public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPrese
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SecuritySubsystemPresenter)
+    @AccessControl(resources = {
+            "/{selected.profile}/subsystem=security"
+    })
     public interface MyProxy extends Proxy<SecuritySubsystemPresenter>, Place {
     }
 
