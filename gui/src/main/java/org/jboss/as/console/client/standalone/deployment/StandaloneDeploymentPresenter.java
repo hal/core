@@ -39,6 +39,7 @@ import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -63,6 +64,9 @@ public class StandaloneDeploymentPresenter
 {
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentBrowserPresenter)
+    @AccessControl(resources = {
+            "/deployment=*"
+    })
     public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place
     {
     }

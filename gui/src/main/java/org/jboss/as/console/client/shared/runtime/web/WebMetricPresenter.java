@@ -13,6 +13,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -45,6 +46,9 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebMetricPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/{selected.server}/subsystem=web"
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<WebMetricPresenter>, Place {
     }
 
