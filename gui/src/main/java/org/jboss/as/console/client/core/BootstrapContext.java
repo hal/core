@@ -23,6 +23,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.shared.Preferences;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -39,6 +40,7 @@ public class BootstrapContext implements ApplicationProperties {
     private Throwable lastError;
     private String productName;
     private String productVersion;
+    private String principal;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -181,5 +183,22 @@ public class BootstrapContext implements ApplicationProperties {
     public void setProductVersion(final String productVersion)
     {
         this.productVersion = productVersion;
+    }
+
+    public void setPrincipal(String principal) {
+        this.principal = principal;
+    }
+
+    public String getPrincipal() {
+        return principal;
+    }
+
+    public String getRole() {
+        return Preferences.get(Preferences.Key.RUN_AS_ROLE, "").toLowerCase();
+    }
+
+    public void setRole(String role)
+    {
+
     }
 }

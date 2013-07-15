@@ -93,6 +93,12 @@ public class ExecutionMode implements Function<BootstrapContext> {
         step.get(ADDRESS).setEmptyList();
         steps.add(step);
 
+        // whoami
+        step = new ModelNode();
+        step.get(OP).set("whoami");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
         operation.get(STEPS).set(steps);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
@@ -133,6 +139,11 @@ public class ExecutionMode implements Function<BootstrapContext> {
                     } else if (releaseVersion.get(RESULT).isDefined()) {
                         context.setProductVersion(releaseVersion.get(RESULT).asString());
                     }
+
+                    ModelNode whoami = response.get(RESULT).get("step-6");
+                    String username = whoami.get(RESULT).get("identity").get("username").asString();
+
+                    context.setPrincipal(username);
 
                     System.out.println(context.getProductName() + " " + context.getProductVersion());
                     control.proceed();
