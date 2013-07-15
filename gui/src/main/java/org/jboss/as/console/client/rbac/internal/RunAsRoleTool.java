@@ -71,14 +71,6 @@ public class RunAsRoleTool implements Tool {
                         "\n" +
                         "<tr>\n" +
                         "<td>\n" +
-                        "Configurator\n" +
-                        "</td>\n" +
-                        "<td>\n" +
-                        "The configurator role has the same permissions as the monitor role, and can change the persistent configuration. For example, the configurator can deploy an application. A configurator can change the application level security settings. The configurator role does not have permission to view sensitive data.\n" +
-                        "</td></tr>\n" +
-                        "\n" +
-                        "<tr>\n" +
-                        "<td>\n" +
                         "Operator\n" +
                         "</td>\n" +
                         "<td>\n" +
