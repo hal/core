@@ -22,6 +22,7 @@ package org.jboss.as.console.client.core;
 import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -185,11 +186,21 @@ public class Footer {
         layout.add(tools);
 
         HTML version = new HTML(productConfig.getCoreVersion());
-        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
+        version.getElement().setAttribute("style", "color:#ffffff;font-size:11px; align:left");
         layout.add(version);
+
+        String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
+        String roleHtml = "<i class='icon-tag'></i>&nbsp;"+Console.getBootstrapContext().getRole();
+
+        HTML principal = new HTML(userHtml+"&nbsp;|&nbsp;"+roleHtml);
+        principal.getElement().setAttribute("style", "color:#ffffff;font-size:11px; align:left");
+        layout.add(principal);
 
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
         layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
+
+        layout.setWidgetLeftWidth(principal, 210, Style.Unit.PX, 300, Style.Unit.PX);
+        layout.setWidgetTopHeight(principal, 3, Style.Unit.PX, 16, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);
