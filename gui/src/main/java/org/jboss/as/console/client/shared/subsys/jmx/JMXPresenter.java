@@ -14,6 +14,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -54,6 +55,9 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JMXPresenter)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=jmx"
+    })
     public interface MyProxy extends Proxy<JMXPresenter>, Place {
     }
 

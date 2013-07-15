@@ -18,6 +18,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
@@ -37,7 +38,9 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
 
     @ProxyCodeSplit
     @NameToken(NameTokens.UndertowHTTP)
-    //@SubsystemExtension(name="HTTP Server", group="Web", key="undertow")
+    @AccessControl(resources = {
+                   "{selected.profile}/subsystem=undertow/server=*"
+           })
     public interface MyProxy extends Proxy<UndertowHTTPPresenter>, Place {
     }
 
