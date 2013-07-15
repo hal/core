@@ -40,6 +40,7 @@ import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -70,6 +71,29 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     private DispatchAsync dispatcher;
     private ContentRepository contentRepository;
 
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.DeploymentsPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}",
+            "/{selected.host}/server-config=*",
+            "/{selected.host}/{selected.server}",
+            "/{selected.host}/{selected.server}/interface=*",
+            "/{selected.host}/{selected.server}/socket-binding-group=*",
+            "/deployment=*",
+            "/server-group=*",
+            "/server-group=*/deployment=*",
+    }, facet = "runtime")
+    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
+    {
+    }
+
+
+    public interface MyView extends SuspendableView
+    {
+        void setPresenter(DomainDeploymentPresenter presenter);
+        void reset(ContentRepository contentRepository);
+    }
 
     @Inject
     public DomainDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
@@ -107,6 +131,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
         loadContentRepository();
     }
 
+
     private void loadContentRepository()
     {
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>()
@@ -119,7 +144,6 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
             }
         });
     }
-
 
     // ------------------------------------------------------ TODO Refactor
 
@@ -391,6 +415,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
         }
     }
 
+
     public void onCreateUnmanaged(final DeploymentRecord entity)
     {
         window.hide();
@@ -427,19 +452,5 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
                 refreshDeployments();
             }
         });
-    }
-
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.DeploymentsPresenter)
-    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
-    {
-    }
-
-
-    public interface MyView extends SuspendableView
-    {
-        void setPresenter(DomainDeploymentPresenter presenter);
-        void reset(ContentRepository contentRepository);
     }
 }

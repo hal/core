@@ -8,6 +8,7 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -58,6 +59,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     private final DomainEntityManager domainManager;
 
 
+    @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {

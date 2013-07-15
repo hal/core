@@ -44,6 +44,7 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -65,6 +66,9 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/system-property=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {
     }
 

@@ -27,6 +27,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -68,6 +69,7 @@ public class ProfileMgmtPresenter
     private BootstrapContext bootstrap;
     private Header header;
 
+    @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
     public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {

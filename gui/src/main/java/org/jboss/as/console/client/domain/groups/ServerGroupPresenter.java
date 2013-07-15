@@ -19,6 +19,12 @@
 
 package org.jboss.as.console.client.domain.groups;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -56,18 +62,13 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Maintains a single server group.
@@ -95,6 +96,12 @@ public class ServerGroupPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
+    @AccessControl(resources = {
+            "/socket-binding-group=*",
+            "/server-group=*",
+            "/server-group=*/jvm=*",
+            "/server-group=*/system-property=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }
 
