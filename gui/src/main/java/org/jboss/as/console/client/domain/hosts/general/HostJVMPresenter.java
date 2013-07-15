@@ -43,6 +43,7 @@ import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -75,6 +76,9 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostJVMPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/jvm=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<HostJVMPresenter>, Place {
     }
 

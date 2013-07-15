@@ -62,6 +62,7 @@ import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -101,6 +102,13 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
+    @AccessControl(resources = {
+            "/socket-binding-group=*",
+            "/server-group=*",
+            "/{selected.host}/server-config=*",
+            "/{selected.host}/server-config=*/jvm=*",
+            "/{selected.host}/server-config=*/system-property",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
 

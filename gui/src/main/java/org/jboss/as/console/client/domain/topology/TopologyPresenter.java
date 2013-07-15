@@ -48,6 +48,7 @@ import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -62,19 +63,24 @@ import java.util.TreeSet;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
 
-/**
- * TODO Remove fake code when in production
- *
- * @author Harald Pehl
- * @date 10/15/12
- */
 public class TopologyPresenter extends
         Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager
 {
 
+    /**
+     * @author Harald Pehl
+     * @date 10/15/12
+     */
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
+    @AccessControl(resources = {
+            "/server-group=*",
+            "/extension=*", // extensions tab
+            "/{selected.host}/{selected-server}",
+            "/{selected.host}/{selected-server}/interface=*",
+            "/{selected.host}/{selected-server}/socket-binding-group=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
     }

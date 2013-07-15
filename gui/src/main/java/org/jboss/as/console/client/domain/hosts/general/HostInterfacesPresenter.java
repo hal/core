@@ -41,6 +41,7 @@ import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -63,6 +64,9 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostInterfacesPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/interface=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {
     }
 
