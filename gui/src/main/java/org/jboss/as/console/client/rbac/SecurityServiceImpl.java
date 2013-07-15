@@ -142,8 +142,8 @@ public class SecurityServiceImpl implements SecurityService {
 
                                 Constraints c = new Constraints();
 
-                                if(model.hasDefined("access")
-                                        && model.get("access").asBoolean()==false)   // TODO: name change
+                                if(model.hasDefined("address")
+                                        && model.get("address").asBoolean()==false)
                                 {
                                     c.setAddress(false);
                                 }
