@@ -58,7 +58,7 @@ public class UndertowServletPresenter extends Presenter<ServletView, UndertowSer
 
         CoreGUIContext globalContext = new CoreGUIContext(
                 Console.MODULES.getCurrentSelectedProfile(),
-                Console.MODULES.getCurrentUser()
+                Console.MODULES.getCurrentUser() , Console.MODULES.getDomainEntityManager()
         );
 
         // mbui kernel instance

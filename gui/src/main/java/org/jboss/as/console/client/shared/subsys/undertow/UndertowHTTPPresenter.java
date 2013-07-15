@@ -58,7 +58,7 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
 
         CoreGUIContext globalContext = new CoreGUIContext(
                 Console.MODULES.getCurrentSelectedProfile(),
-                Console.MODULES.getCurrentUser()
+                Console.MODULES.getCurrentUser() , Console.MODULES.getDomainEntityManager()
         );
 
         // mbui kernel instance

@@ -1,7 +1,9 @@
 package org.jboss.as.console.mbui.behaviour;
 
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
+import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import javax.inject.Inject;
@@ -21,22 +23,23 @@ public class CoreGUIContext implements StatementContext {
     public final static String SELECTED_PROFILE = "selected.profile";
     public final static String SELECTED_HOST = "selected.host";
     public final static String SELECTED_SERVER = "selected.server";
+    private final DomainEntityManager domainEntities;
 
     private CurrentProfileSelection profileSelection;
     private CurrentUser userSelection;
     private StatementContext delegate = null;
 
-
     @Inject
-    public CoreGUIContext(CurrentProfileSelection profileSelection, CurrentUser userSelection) {
+    public CoreGUIContext(CurrentProfileSelection profileSelection, CurrentUser userSelection, DomainEntityManager domainEntities) {
         this.profileSelection = profileSelection;
         this.userSelection = userSelection;
+        this.domainEntities = domainEntities;
     }
 
-    public CoreGUIContext(CurrentProfileSelection profileSelection, CurrentUser userSelection, StatementContext delegate) {
-        this(profileSelection, userSelection);
+    /*public CoreGUIContext(CurrentProfileSelection profileSelection, CurrentUser userSelection, DomainEntityManager domainEntities, StatementContext delegate) {
+        this(profileSelection, userSelection, domainEntities);
         this.delegate = delegate;
-    }
+    } */
 
     @Override
     public String resolve(String key) {
@@ -48,10 +51,18 @@ public class CoreGUIContext implements StatementContext {
         return null;
     }
 
+    private boolean isDomainMode() {
+        return !Console.getBootstrapContext().isStandalone();
+    }
+
     @Override
     public String[] resolveTuple(String key) {
         if(SELECTED_PROFILE.equals(key) && profileSelection.isSet())
             return new String[] {"profile", profileSelection.getName()};
+        else if(isDomainMode() && SELECTED_HOST.equals(key))
+            return new String[] {"host", domainEntities.getSelectedHost()};
+        else if(isDomainMode() && SELECTED_SERVER.equals(key))
+            return new String[] {"server", domainEntities.getSelectedServer()};
         return null;
     }
 
