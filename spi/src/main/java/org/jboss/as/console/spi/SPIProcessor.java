@@ -21,6 +21,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
@@ -28,6 +29,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
@@ -126,43 +128,61 @@ public class SPIProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnv) {
 
-        if (!roundEnv.processingOver()) {
+
+        if(!roundEnv.processingOver()) {
+
+            System.out.println("=================================");
             System.out.println("Begin Components discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> extensionElements = roundEnv.getElementsAnnotatedWith(GinExtension.class);
             for (Element element : extensionElements) {
                 handleGinExtensionElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin Bindings discovery ...");
-            Set<? extends Element> extensionBindingElements = roundEnv
-                    .getElementsAnnotatedWith(GinExtensionBinding.class);
-            for (Element element : extensionBindingElements) {
+            System.out.println("=================================");
+
+            Set<? extends Element> extensionBindingElements = roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class);
+
+            for (Element element: extensionBindingElements)
+            {
                 handleGinExtensionBindingElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin BeanFactory discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> beanFactoryElements = roundEnv.getElementsAnnotatedWith(BeanFactoryExtension.class);
             for (Element element : beanFactoryElements) {
                 handleBeanFactoryElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin Subsystem discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> subsystemElements = roundEnv.getElementsAnnotatedWith(SubsystemExtension.class);
             for (Element element : subsystemElements) {
                 handleSubsystemElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Parse AccessControl metadata ...");
-
-            Set<? extends Element> accessElements = roundEnv.getElementsAnnotatedWith(AccessControl.class);
+            System.out.println("=================================");
+            Set<? extends Element> accessElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
 
             for (Element element: accessElements)
             {
                 handleAccessControlElement(element);
             }
 
-
+            System.out.println("=================================");
             System.out.println("Begin Runtime Extension discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(RuntimeExtension.class);
             for (Element element : elements) {
                 handleRuntimeExtensions(element);
@@ -177,26 +197,27 @@ public class SPIProcessor extends AbstractProcessor {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to process SPI artifacts");
             }
+
+            System.out.println("=================================");
             System.out.println("SPI component discovery completed.");
         }
         return true;
     }
 
     private void handleAccessControlElement(Element element) {
-        List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
 
+
+        List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
         for (AnnotationMirror mirror: annotationMirrors)
         {
             final String annotationType = mirror.getAnnotationType().toString();
 
-            if ( annotationType.equals(AccessControl.class.getName()) )
+            if ( annotationType.equals(NameToken.class.getName()) )
             {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
                 AccessControl accessControl = element.getAnnotation(AccessControl.class);
 
-                if(nameToken!=null)   {
-                    System.out.println("Access: " + nameToken.value() + " requires " + accessControl.resources());
-
+                if(accessControl!=null)   {
 
                     for(String resourceAddress : accessControl.resources())
                     {
@@ -208,6 +229,11 @@ public class SPIProcessor extends AbstractProcessor {
 
                         accessControlDeclararions.add(declared);
                     }
+                }
+                else if(element.getAnnotation(NoGatekeeper.class)==null)
+                {
+                    Name simpleName = element.getEnclosingElement()!=null ? element.getEnclosingElement().getSimpleName() : element.getSimpleName();
+                    System.out.println(simpleName +"(#"+nameToken.value()+")" +" is missing @AccessControl annotation!");
                 }
             }
         }
