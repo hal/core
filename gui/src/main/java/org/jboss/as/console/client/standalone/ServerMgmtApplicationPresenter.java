@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
@@ -71,6 +72,7 @@ public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicat
 
     @ProxyCodeSplit
     @NameToken(NameTokens.serverConfig)
+    @NoGatekeeper
     public interface ServerManagementProxy extends ProxyPlace<ServerMgmtApplicationPresenter> {}
 
     @ContentSlot
