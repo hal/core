@@ -31,6 +31,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
@@ -63,6 +64,9 @@ public class InterfacePresenter extends Presenter<InterfacePresenter.MyView, Int
 
     @ProxyCodeSplit
     @NameToken(NameTokens.InterfacePresenter)
+    @AccessControl(resources = {
+            "interface=*"
+    })
     public interface MyProxy extends Proxy<InterfacePresenter>, Place {
     }
 

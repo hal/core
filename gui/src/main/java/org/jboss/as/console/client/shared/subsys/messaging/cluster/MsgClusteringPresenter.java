@@ -15,6 +15,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -68,6 +69,9 @@ public class MsgClusteringPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgClusteringPresenter)
     @SubsystemExtension(name="Clustering", group = "Messaging", key="messaging")
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=messaging"
+    })
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
     }
 

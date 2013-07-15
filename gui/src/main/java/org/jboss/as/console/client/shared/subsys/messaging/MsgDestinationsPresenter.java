@@ -38,6 +38,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -96,6 +97,9 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MessagingPresenter)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=messaging"
+    })
     public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {
     }
 

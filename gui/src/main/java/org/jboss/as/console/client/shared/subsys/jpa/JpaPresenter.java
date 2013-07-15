@@ -12,6 +12,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -43,6 +44,9 @@ public class JpaPresenter extends Presenter<JpaPresenter.MyView, JpaPresenter.My
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JpaPresenter)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=jpa"
+    })
     public interface MyProxy extends Proxy<JpaPresenter>, Place {
     }
 

@@ -58,7 +58,8 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
     @ProxyCodeSplit
     @NameToken(NameTokens.EJB3Presenter)
     @AccessControl(resources = {
-                "{selected.profile}/subsystem=ejb3"
+                "{selected.profile}/subsystem=ejb3",
+                "{selected.profile}/subsystem=threads/thread-factory=*"
         })
     public interface MyProxy extends Proxy<EJB3Presenter>, Place {
     }
