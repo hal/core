@@ -4,7 +4,7 @@
     <artifactId>jboss-as-console-bom</artifactId>
     <name>HAL Core Console :: BOM</name>
     <packaging>pom</packaging>
-    <version>2.0.0.Beta1</version>
+    <version>2.0.0.Beta2-SNAPSHOT</version>
     <description>
         AS 7 console "bill of materials" which can be imported by any project
         providing extensions to the console. It provides dependency management for the developer APIs and SPIs.
@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.0.0.Beta1</version>
+        <version>2.0.0.Beta2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
