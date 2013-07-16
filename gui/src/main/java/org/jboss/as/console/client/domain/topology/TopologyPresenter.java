@@ -69,6 +69,8 @@ public class TopologyPresenter extends
 {
 
     /**
+     * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
+     * the security service (race condition). So do not use them in the annotaions below!
      * @author Harald Pehl
      * @date 10/15/12
      */
@@ -77,9 +79,8 @@ public class TopologyPresenter extends
     @AccessControl(resources = {
             "/server-group=*",
             "/extension=*", // extensions tab
-            "/{selected.host}/{selected-server}",
-            "/{selected.host}/{selected-server}/interface=*",
-            "/{selected.host}/{selected-server}/socket-binding-group=*",
+            // TODO This one fails and I don't know why
+//            "/{selected.host}/server=*",
     }, facet = "runtime")
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
