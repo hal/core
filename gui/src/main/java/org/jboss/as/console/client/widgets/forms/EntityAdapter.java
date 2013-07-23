@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.widgets.forms;
 
 import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.as.console.client.rbac.RBACAdapter;
 import org.jboss.as.console.client.shared.expr.ExpressionAdapter;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -11,7 +12,9 @@ import org.jboss.dmr.client.Property;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +101,6 @@ public class EntityAdapter<T> {
      * @return an entity representation of type T
      */
     public T fromDMR(ModelNode dmr) {
-        dmr = dmr.clone(); // don't want our dmr.get() calls to have side effects TODO: necessary?
 
         if (isBaseTypeAdapter()) return convertToBaseType(dmr);
 
@@ -148,8 +150,27 @@ public class EntityAdapter<T> {
         BeanMetaData beanMetaData = metaData.getBeanMetaData(getType());
         Mutator mutator = metaData.getMutator(getType());
 
+        // TODO: https://issues.jboss.org/browse/WFLY-1700
+        //final Set<String> filteredDMRNames = actualPayload.getTag("filtered-attributes") !=null ?
+        //        (Set<String>)actualPayload.getTag("filtered-attributes") : Collections.EMPTY_SET;
+
+        final List<ModelNode> filteredDMRNames = actualPayload.hasDefined("_filtered-attributes") ?
+                        actualPayload.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
+
+        final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
+
         for(PropertyBinding propBinding : beanMetaData.getProperties())
         {
+
+            // RBAC: We need turn the filtered dmr names into java property names to compatible with the ballroom Form API
+            for(ModelNode item : filteredDMRNames)
+            {
+                if(item.asString().equals(propBinding.getDetypedName()))
+                {
+                    filteredJavaNames.add(propBinding.getJavaName());
+                    break;
+                }
+            }
 
             String[] splitDetypedName = propBinding.getDetypedName().split("/");
             ModelNode propValue = actualPayload.get(splitDetypedName);
@@ -287,6 +308,15 @@ public class EntityAdapter<T> {
 
 
         }
+
+        // pass the RBAC meta data along for further Form processing
+        // see Form#edit() ...
+        if(filteredDMRNames.size()>0)
+        {
+            System.out.println("filtered dmr: "+filteredDMRNames);
+            System.out.println("filtered java names: "+filteredJavaNames);
+        }
+        RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
 
         return entity;
     }
@@ -471,48 +501,6 @@ public class EntityAdapter<T> {
             propList.add(prop.getKey(), prop.getValue());
         }
         return propList;
-    }
-
-    /**
-     * use this method if the changeset was calculated based on DMR attributes opposed to Autobean's
-     * @param changeSet
-     * @param address
-     * @param extraSteps
-     * @return
-     */
-    public ModelNode fromDmrChangeset(Map<String, Object> changeSet, ModelNode address, ModelNode... extraSteps)
-    {
-        ModelNode protoType = new ModelNode();
-        protoType.get(ADDRESS).set(address.get(ADDRESS));
-        protoType.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(COMPOSITE);
-        operation.get(ADDRESS).setEmptyList();
-
-        List<ModelNode> steps = new ArrayList<ModelNode>();
-
-        Set<String> attributes = changeSet.keySet();
-
-        for(String attr : attributes)
-        {
-            Object value = changeSet.get(attr);
-            if (value == null) continue;
-
-            ModelNode step = protoType.clone();
-
-            step.get(NAME).set(attr);
-            ModelNode nodeToSetValueUpon = step.get(VALUE);
-            setValue(nodeToSetValueUpon, value);
-            steps.add(step);
-
-        }
-
-        // add extra steps
-        steps.addAll(Arrays.asList(extraSteps));
-
-        operation.get(STEPS).set(steps);
-        return operation;
     }
 
     /**
@@ -702,4 +690,11 @@ public class EntityAdapter<T> {
         return strings;
     }
 
+    private static Set<String> toSet(List<ModelNode> nodeList)
+    {
+        final Set<String> s = new HashSet<String>(nodeList.size());
+        for(ModelNode n : nodeList)
+            s.add(n.asString());
+        return s;
+    }
 }

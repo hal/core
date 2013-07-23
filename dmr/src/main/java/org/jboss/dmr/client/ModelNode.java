@@ -1337,6 +1337,12 @@ public class ModelNode implements Cloneable, Exportable {
     public ModelNode clone() {
         final ModelNode clone = new ModelNode();
         clone.value = value.copy();
+
+        if(tags!=null)
+        {
+            for(String k : tags.keySet())
+                clone.setTag(k, tags.get(k));
+        }
         return clone;
     }
 

@@ -92,7 +92,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         operation.get(STEPS).set(steps);
 
-        System.out.println(operation);
+        //System.out.println(operation);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 

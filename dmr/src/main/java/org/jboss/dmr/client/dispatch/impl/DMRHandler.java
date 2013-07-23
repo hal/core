@@ -55,7 +55,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private static final String KEEP_ALIVE = "Keep-Alive";
 
     /**
-     * The read reasource description supports the following parameters:
+     * The read resource description supports the following parameters:
      * recursive, proxies, operations, inherited plus one not documented: locale.
      * See https://docs.jboss.org/author/display/AS72/Global+operations#Globaloperations-readresourcedescription
      * for a more detailed description
@@ -124,7 +124,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         assert action.getOperation() != null;
         final ModelNode operation = action.getOperation();
 
-        // access control facilities, development only
+        // diagnostics, development only
         if(!GWT.isScript())
         {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -191,6 +191,9 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             idCounter = 0;
         }
 
+        // workaround https://issues.jboss.org/browse/WFLY-1732
+        final boolean collectionResponse = expectCollectionResponse(operation);
+
         Request request = null;
         try
         {
@@ -210,8 +213,14 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     int statusCode = response.getStatusCode();
                     if (200 == statusCode)
                     {
-                        resultCallback.onSuccess(new DMRResponse(requestBuilder.getHTTPMethod(), response.getText(),
-                                response.getHeader(HEADER_CONTENT_TYPE)));
+                        resultCallback.onSuccess(
+                                new DMRResponse(
+                                        requestBuilder.getHTTPMethod(),
+                                        response.getText(),
+                                        response.getHeader(HEADER_CONTENT_TYPE),
+                                        collectionResponse
+                                )
+                        );
                     }
                     else if (401 == statusCode || 0 == statusCode)
                     {
@@ -262,6 +271,22 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             resultCallback.onFailure(e);
         }
         return request;
+    }
+
+
+    final static String[] COLLECTION_OPS = {
+            READ_CHILDREN_RESOURCES_OPERATION
+    };
+
+    private static boolean expectCollectionResponse(ModelNode operation) {
+        for(String op : COLLECTION_OPS)
+        {
+            if(op.equals(operation.get(OP).asString()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private RequestBuilder chooseRequestBuilder(final ModelNode operation)
