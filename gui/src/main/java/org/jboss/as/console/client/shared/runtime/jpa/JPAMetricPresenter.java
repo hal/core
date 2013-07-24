@@ -127,12 +127,12 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
 
     @Override
     public void onServerSelectionChanged(boolean isRunning) {
-         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 refresh(true);
             }
-         });
+        });
     }
 
     public void refresh(final boolean paging) {
@@ -153,8 +153,8 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
         deploymentsOp.get(ADDRESS).set(RuntimeBaseAddress.get());
         deploymentsOp.get(ADDRESS).add("deployment", "*");
         deploymentsOp.get(ADDRESS).add("subsystem", "jpa");
-        deploymentsOp.get(ADDRESS).add("hibernate-persistence-unit", "*");
         deploymentsOp.get(INCLUDE_RUNTIME).set(true);
+        deploymentsOp.get(RECURSIVE).set(true);
 
         ModelNode subdeploymentOp = new ModelNode();
         subdeploymentOp.get(OP).set(READ_RESOURCE_OPERATION);
@@ -162,8 +162,8 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
         subdeploymentOp.get(ADDRESS).add("deployment", "*");
         subdeploymentOp.get(ADDRESS).add("subdeployment", "*");
         subdeploymentOp.get(ADDRESS).add("subsystem", "jpa");
-        subdeploymentOp.get(ADDRESS).add("hibernate-persistence-unit", "*");
         subdeploymentOp.get(INCLUDE_RUNTIME).set(true);
+        subdeploymentOp.get(RECURSIVE).set(true);
 
         steps.add(deploymentsOp);
         steps.add(subdeploymentOp);
@@ -185,8 +185,8 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
 
                     ModelNode compositeResult = compositeResponse.get(RESULT);
 
-                    ModelNode mainResponse = compositeResult.get("step-1").asObject();
-                    ModelNode subdeploymentResponse = compositeResult.get("step-2").asObject();
+                    ModelNode mainResponse = compositeResult.get("step-1");
+                    ModelNode subdeploymentResponse = compositeResult.get("step-2");
 
                     parseJpaResources(mainResponse, jpaUnits);
                     parseJpaResources(subdeploymentResponse, jpaUnits);
@@ -212,22 +212,30 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
         {
             ModelNode deploymentValue = deployment.get(RESULT).asObject();
 
-            List<Property> addressTokens = deployment.get(ADDRESS).asPropertyList();
+            if(deploymentValue.hasDefined("hibernate-persistence-unit"))
+            {
 
-            Property unit = addressTokens.get(addressTokens.size()-1);
+                List<Property> units = deploymentValue.get("hibernate-persistence-unit").asPropertyList();
 
-            JPADeployment jpaDeployment = factory.jpaDeployment().as();
-            String tokenString = unit.getValue().asString();
-            String[] tokens = tokenString.split("#");
-            jpaDeployment.setDeploymentName(tokens[0]);
-            jpaDeployment.setPersistenceUnit(tokens[1]);
+                for(Property unit : units)
+                {
 
-            // https://issues.jboss.org/browse/AS7-5157
-            boolean enabled = deploymentValue.hasDefined("enabled") ? deploymentValue.get("enabled").asBoolean() : false;
-            jpaDeployment.setMetricEnabled(enabled);
+                    JPADeployment jpaDeployment = factory.jpaDeployment().as();
+                    ModelNode unitValue = unit.getValue();
+                    System.out.println(unitValue);
+                    String tokenString = unit.getName();
+                    String[] tokens = tokenString.split("#");
+                    jpaDeployment.setDeploymentName(tokens[0]);
+                    jpaDeployment.setPersistenceUnit(tokens[1]);
 
-            jpaUnits.add(jpaDeployment);
+                    // https://issues.jboss.org/browse/AS7-5157
+                    boolean enabled = unitValue.hasDefined("enabled") ? unitValue.get("enabled").asBoolean() : false;
+                    jpaDeployment.setMetricEnabled(enabled);
 
+                    jpaUnits.add(jpaDeployment);
+                }
+
+            }
         }
     }
 

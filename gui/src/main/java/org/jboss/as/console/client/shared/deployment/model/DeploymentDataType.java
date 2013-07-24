@@ -37,5 +37,7 @@ public enum DeploymentDataType
     statelessSessionBean,
     persistenceUnit,
     servlet,
-    webserviceEndpoint
+    webserviceEndpoint,
+    unknown
+
 }

@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.deployment;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -81,7 +82,7 @@ public class DeploymentStore
 
     @Inject
     public DeploymentStore(DispatchAsync dispatcher, ApplicationProperties bootstrap,
-            ApplicationMetaData applicationMetaData)
+                           ApplicationMetaData applicationMetaData)
     {
         this.dispatcher = dispatcher;
         this.isStandalone = bootstrap.getProperty(ApplicationProperties.STANDALONE).equals("true");
@@ -214,7 +215,7 @@ public class DeploymentStore
     }
 
     public void loadSubdeployments(final DeploymentRecord deployment,
-            final AsyncCallback<List<DeploymentRecord>> callback)
+                                   final AsyncCallback<List<DeploymentRecord>> callback)
     {
         // /<relativeTo>/deployment=<deployment.getName()>:read-children-resources(child-type=subdeployment)
         ModelNode operation = new ModelNode();
@@ -226,7 +227,7 @@ public class DeploymentStore
     }
 
     private void loadDeployments(final ServerInstance server, final ModelNode operation, final DeploymentRecord parent,
-            final AsyncCallback<List<DeploymentRecord>> callback)
+                                 final AsyncCallback<List<DeploymentRecord>> callback)
     {
         final List<DeploymentRecord> deployments = new ArrayList<DeploymentRecord>();
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
@@ -249,7 +250,7 @@ public class DeploymentStore
     }
 
     private DeploymentRecord mapDeployment(final ServerInstance server, final DeploymentRecord parent,
-            final ModelNode node)
+                                           final ModelNode node)
     {
         ModelNode deploymentNode = node.asProperty().getValue().asObject();
         DeploymentRecord deployment = deploymentEntityAdapter.fromDMR(deploymentNode);
@@ -313,7 +314,7 @@ public class DeploymentStore
     }
 
     public void loadSubsystems(final DeploymentRecord deployment,
-            final AsyncCallback<List<DeploymentSubsystem>> callback)
+                               final AsyncCallback<List<DeploymentSubsystem>> callback)
     {
         final List<DeploymentSubsystem> subsystems = new ArrayList<DeploymentSubsystem>();
 
@@ -348,7 +349,13 @@ public class DeploymentStore
                         Property property = node.asProperty();
                         String name = property.getName();
                         ModelNode subsystemNode = property.getValue().asObject();
-                        DeploymentDataType type = DeploymentDataType.valueOf(name);
+                        DeploymentDataType type = null;
+                        try {
+                            type = DeploymentDataType.valueOf(name);
+                        } catch (IllegalArgumentException e) {
+                            Console.warning("Unknown deployment type: "+name);
+                            type = unknown;
+                        }
                         switch (type)
                         {
                             case ejb3:
@@ -362,6 +369,8 @@ public class DeploymentStore
                                 break;
                             case webservices:
                                 subsystem = deploymentWebserviceSubsystemEntityAdapter.fromDMR(subsystemNode);
+                                break;
+                            default:
                                 break;
                         }
                         if (subsystem != null)
@@ -472,7 +481,7 @@ public class DeploymentStore
     }
 
     public void loadPersistenceUnits(final DeploymentSubsystem subsystem,
-            final AsyncCallback<List<DeployedPersistenceUnit>> callback)
+                                     final AsyncCallback<List<DeployedPersistenceUnit>> callback)
     {
         final List<DeployedPersistenceUnit> pus = new ArrayList<DeployedPersistenceUnit>();
 
@@ -490,9 +499,10 @@ public class DeploymentStore
             // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=jpa/hibernate-persistence-unit=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getName());
         }
-        operation.get(ADDRESS).add("subsystem", "jpa").add("hibernate-persistence-unit", "*");
+        operation.get(ADDRESS).add("subsystem", "jpa");
         operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(INCLUDE_RUNTIME).set(true);
+        //operation.get(INCLUDE_RUNTIME).set(true); TODO: causes an exception
+        operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
         {
@@ -500,40 +510,46 @@ public class DeploymentStore
             public void onSuccess(DMRResponse result)
             {
                 ModelNode response = result.get();
+
                 if (ModelAdapter.wasSuccess(response))
                 {
                     List<ModelNode> nodes = response.get(RESULT).asList();
                     for (ModelNode node : nodes)
                     {
-                        if (ModelAdapter.wasSuccess(node))
+
+                        if(node.hasDefined("hibernate-persistence-unit"))
                         {
-                            List<ModelNode> address = node.get(ADDRESS).asList();
-                            String fullname = address.get(address.size() - 1).asProperty().getValue().asString();
-                            String name = fullname;
-                            int index = fullname.indexOf("#");
-                            if (index != -1)
+                            List<Property> units = node.get("hibernate-persistence-unit").asPropertyList();
+                            for(Property unit : units)
                             {
-                                name = fullname.substring(index + 1);
-                            }
-                            ModelNode puNode = node.get(RESULT);
-                            DeployedPersistenceUnit pu = deployedPersistenceUnitEntityAdapter.fromDMR(puNode);
-                            pu.setName(name);
-                            pu.setType(persistenceUnit);
-                            pu.setSubsystem(subsystem);
-                            pu.setAddress(addressFor(subsystem.getAddress(), "hibernate-persistence-unit", fullname));
-                            if (puNode.get("entity").isDefined())
-                            {
-                                List<ModelNode> entityNodes = puNode.get("entity").asList();
-                                List<String> names = new ArrayList<String>(entityNodes.size());
-                                for (ModelNode entityNode : entityNodes)
+                                String tokenString = unit.getName();
+                                String[] tokens = tokenString.split("#");
+
+                                ModelNode unitValue = unit.getValue();
+                                System.out.println(tokens[0]+">"+unitValue);
+                                DeployedPersistenceUnit pu = deployedPersistenceUnitEntityAdapter.fromDMR(unitValue);
+
+                                pu.setName(tokens[1]);
+                                pu.setType(persistenceUnit);
+                                pu.setSubsystem(subsystem);
+
+                                // TODO: re-enable?
+                                //pu.setAddress(addressFor(subsystem.getAddress(), "hibernate-persistence-unit", fullname));
+                                if (unitValue.hasDefined("entity"))
                                 {
-                                    String entityName = entityNode.asProperty().getName();
-                                    names.add(entityName);
+                                    List<ModelNode> entityNodes = unitValue.get("entity").asList();
+                                    List<String> names = new ArrayList<String>(entityNodes.size());
+                                    for (ModelNode entityNode : entityNodes)
+                                    {
+                                        String entityName = entityNode.asProperty().getName();
+                                        names.add(entityName);
+                                    }
+                                    pu.setEntities(names);
                                 }
-                                pu.setEntities(names);
+                                pus.add(pu);
                             }
-                            pus.add(pu);
                         }
+
                     }
                 }
                 callback.onSuccess(pus);
@@ -687,13 +703,13 @@ public class DeploymentStore
     }
 
     public void removeDeploymentFromGroup(DeploymentRecord deployment,
-            AsyncCallback<DMRResponse> callback)
+                                          AsyncCallback<DMRResponse> callback)
     {
         doDeploymentCommand(makeOperation("remove", deployment.getServerGroup(), deployment), callback);
     }
 
     public void enableDisableDeployment(DeploymentRecord deployment,
-            final AsyncCallback<DMRResponse> callback)
+                                        final AsyncCallback<DMRResponse> callback)
     {
         String command = "deploy";
         if (deployment.isEnabled())
@@ -704,9 +720,9 @@ public class DeploymentStore
     }
 
     public void addToServerGroups(Set<String> serverGroups,
-            boolean enable,
-            DeploymentRecord deploymentRecord,
-            AsyncCallback<DMRResponse> callback)
+                                  boolean enable,
+                                  DeploymentRecord deploymentRecord,
+                                  AsyncCallback<DMRResponse> callback)
     {
         ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -742,7 +758,7 @@ public class DeploymentStore
     }
 
     private void doDeploymentCommand(ModelNode operation,
-            final AsyncCallback<DMRResponse> callback)
+                                     final AsyncCallback<DMRResponse> callback)
     {
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>()
         {
