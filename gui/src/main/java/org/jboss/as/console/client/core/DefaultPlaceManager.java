@@ -26,9 +26,10 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.Preferences;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
@@ -43,17 +44,19 @@ import java.util.List;
 public class DefaultPlaceManager extends PlaceManagerImpl {
 
     private final SecurityService securityService;
+    private final UnauthorisedPresenter unauthPlace;
     private BootstrapContext bootstrap;
     private EventBus eventBus;
 
     @Inject
     public DefaultPlaceManager(
             EventBus eventBus,
-            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityService securityService ) {
+            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityService securityService, UnauthorisedPresenter unauthPlace) {
         super(eventBus, tokenFormatter);
         this.bootstrap = bootstrap;
         this.eventBus = eventBus;
         this.securityService = securityService;
+        this.unauthPlace = unauthPlace;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
         else
         {
             // this is where the gatekeeper kicks in ...
-            super.doRevealPlace(request, updateBrowserUrl);
+            super.doRevealPlace(request, true);
 
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
@@ -121,7 +124,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     @Override
     public void revealUnauthorizedPlace(String unauthorizedHistoryToken) {
 
-        revealPlace(new PlaceRequest(NameTokens.Unauthorized));
+        RevealRootPopupContentEvent.fire(this, unauthPlace, true);
 
     }
 }

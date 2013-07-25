@@ -171,7 +171,7 @@ public class DMRResponse implements Result<ModelNode> {
 
             if(cursor!=null)
             {
-                System.out.println("cursor @ "+ cursor);
+                //System.out.println("cursor @ "+ cursor);
 
                 // attributes names should exist on this resource
                 for(ModelNode att : attributeNames)

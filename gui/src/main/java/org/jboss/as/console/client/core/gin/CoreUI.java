@@ -59,8 +59,7 @@ import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
-import org.jboss.as.console.client.rbac.AuthorisationPresenter;
-
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -331,7 +330,7 @@ public interface CoreUI {
     Provider<PreviewPresenter> getPreviewPresenter();
 
     AccessControlRegistry getAccessControlRegistry();
-    AsyncProvider<AuthorisationPresenter> AuthorisationPresenter();
     SecurityService getSecurityService();
 
+    UnauthorisedPresenter getUnauthorisedPresenter();
 }

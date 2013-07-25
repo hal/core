@@ -311,11 +311,12 @@ public class EntityAdapter<T> {
 
         // pass the RBAC meta data along for further Form processing
         // see Form#edit() ...
-        if(filteredDMRNames.size()>0)     // TODO: remove ...
+       /* if(filteredDMRNames.size()>0)
         {
             System.out.println("filtered dmr: "+filteredDMRNames);
             System.out.println("filtered java names: "+filteredJavaNames);
         }
+        */
         RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
 
         return entity;

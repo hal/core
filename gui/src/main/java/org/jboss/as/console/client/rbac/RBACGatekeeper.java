@@ -35,6 +35,10 @@ public class RBACGatekeeper implements Gatekeeper {
     @Override
     public boolean canReveal() {
         String token = placemanager.getCurrentPlaceRequest().getNameToken();
+
+        // important: without this the UnauthorisedPresenter cannot successfully navigate back
+        placemanager.updateHistory(placemanager.getCurrentPlaceRequest(), true);
+
         boolean outcome = false;
 
         if(securityService.hasContext(token))

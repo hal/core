@@ -87,10 +87,10 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
-import org.jboss.as.console.client.rbac.AuthorisationPresenter;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityServiceImpl;
-import org.jboss.as.console.client.rbac.UnauthorizedView;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorisedView;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
@@ -687,12 +687,8 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
 
-        bindPresenter(AuthorisationPresenter.class,
-                AuthorisationPresenter.MyView.class,
-                UnauthorizedView.class,
-                AuthorisationPresenter.MyProxy.class);
-
         bind(SecurityService.class).to(SecurityServiceImpl.class).in(Singleton.class);
+        bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
     }
 }
 
