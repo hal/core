@@ -2,10 +2,12 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.Console;
+import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -19,13 +21,15 @@ import javax.inject.Inject;
 public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPresenter.MyView {
 
     private final DefaultWindow window;
+    private final HTML html;
     private UnauthorisedPresenter presenter;
+    private final static  String DESC = "You don't have the permissions to access these resources:<p/>";
 
     @Inject
     UnauthorisedView(EventBus eventBus) {
         super(eventBus);
 
-        HTML html = new HTML("You don't have the permissions to access this resource.");
+        html = new HTML(DESC);
 
         window = new DefaultWindow("Authorisation Required");
         DialogueOptions options = new DialogueOptions(
@@ -47,13 +51,25 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
 
 
         window.setWidget(new WindowContentBuilder(html, options).build());
-        window.setWidth(320);
-        window.setHeight(240);
+        window.setWidth(480);
+        window.setHeight(360);
         window.setGlassEnabled(true);
 
         initWidget(window);
 
         setAutoHideOnNavigationEventEnabled(true);
+    }
+
+    @Override
+    public void setLastDecision(AuthorisationDecision decision) {
+
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendHtmlConstant(DESC);
+        builder.appendHtmlConstant("<ul>");
+        for(String s : decision.getErrorMessages())
+            builder.appendHtmlConstant("<li>").appendEscaped(s).appendHtmlConstant("</li>");
+        builder.appendHtmlConstant("</ul>");
+        html.setHTML(builder.toSafeHtml());
     }
 
     @Override
