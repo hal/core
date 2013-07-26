@@ -27,6 +27,7 @@ import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
@@ -60,6 +61,7 @@ import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -323,6 +325,10 @@ public interface CoreUI {
     AsyncProvider<PathManagementPresenter> PathManagementPresenter();
 
     AsyncProvider<EnvironmentPresenter> EnvironmentPresenter();
+
+    // Administration
+    AsyncProvider<AdministrationPresenter> getAdministrationPresenter();
+    AsyncProvider<RoleAssignmentPresenter> getRoleAssignmentPresenter();
 
     // mbui workbench
 

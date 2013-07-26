@@ -56,6 +56,7 @@ public interface UIConstants extends Constants {
     String common_label_noRecords();
     String common_label_hostConfiguration();
     String common_label_systemProperties();
+    String common_label_roles();
     String common_label_socketBindingGroups();
     String common_label_virtualMachines();
     String common_label_paths();
@@ -103,6 +104,10 @@ public interface UIConstants extends Constants {
     String common_label_addToGroups();
     String common_label_updateContent();
     String common_label_useFileSystem();
+    String common_label_user();
+    String common_label_users();
+    String common_label_group();
+    String common_label_groups();
 
     // use the term "delete" instead
     @Deprecated
@@ -582,6 +587,12 @@ public interface UIConstants extends Constants {
 
     String subsys_jca_dataSource_metric_desc();
 
+    String role_assignment();
+    String role_assignment_desc();
+    String role_assignment_add_user();
+    String role_assignment_delete_user();
+    String role_assignment_add_group();
+    String role_assignment_delete_group();
 
     String subsys_messaging_queue_metric_desc();
 
@@ -646,4 +657,6 @@ public interface UIConstants extends Constants {
     String common_label_probe();
 
     String common_label_recover();
+
+    String administration_label();
 }

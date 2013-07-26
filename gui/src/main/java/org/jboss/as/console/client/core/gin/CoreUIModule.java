@@ -30,6 +30,10 @@ import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import org.jboss.as.console.client.administration.AdministrationPresenter;
+import org.jboss.as.console.client.administration.AdministrationView;
+import org.jboss.as.console.client.administration.role.RoleAssignementView;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.AnalyticsProvider;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
@@ -92,28 +96,6 @@ import org.jboss.as.console.client.rbac.SecurityServiceImpl;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedView;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
-import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
-import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationView;
-import org.jboss.as.console.client.tools.modelling.workbench.FooterPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.FooterView;
-import org.jboss.as.console.client.tools.modelling.workbench.HeaderPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.HeaderView;
-import org.jboss.as.console.client.tools.modelling.workbench.context.ContextPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.context.ContextView;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewView;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
-import org.jboss.ballroom.client.rbac.SecurityService;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.HandlerMapping;
-import org.jboss.as.console.client.shared.state.ResponseProcessorFactory;
-import org.jboss.dmr.client.dispatch.impl.DMRHandler;
-import org.jboss.dmr.client.dispatch.impl.DispatchAsyncImpl;
-import org.jboss.dmr.client.dispatch.impl.HandlerRegistry;
 import org.jboss.as.console.client.shared.expr.DefaultExpressionResolver;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -148,6 +130,7 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ReloadState;
+import org.jboss.as.console.client.shared.state.ResponseProcessorFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
@@ -227,12 +210,33 @@ import org.jboss.as.console.client.standalone.deployment.StandaloneDeploymentPre
 import org.jboss.as.console.client.standalone.deployment.StandaloneDeploymentView;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimeView;
+import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
+import org.jboss.as.console.client.standalone.runtime.VMMetricsView;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.BrowserView;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.ToolsView;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.ApplicationView;
+import org.jboss.as.console.client.tools.modelling.workbench.FooterPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.FooterView;
+import org.jboss.as.console.client.tools.modelling.workbench.HeaderPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.HeaderView;
+import org.jboss.as.console.client.tools.modelling.workbench.context.ContextPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.context.ContextView;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewView;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtensionBinding;
+import org.jboss.ballroom.client.rbac.SecurityService;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.HandlerMapping;
+import org.jboss.dmr.client.dispatch.impl.DMRHandler;
+import org.jboss.dmr.client.dispatch.impl.DispatchAsyncImpl;
+import org.jboss.dmr.client.dispatch.impl.HandlerRegistry;
 
 /**
  * Provides the bindings for the core UI widgets.
@@ -671,6 +675,16 @@ public class CoreUIModule extends AbstractPresenterModule {
                 EnvironmentView.class,
                 EnvironmentPresenter.MyProxy.class);
 
+        // Administration
+        bindPresenter(AdministrationPresenter.class,
+                AdministrationPresenter.MyView.class,
+                AdministrationView.class,
+                AdministrationPresenter.MyProxy.class);
+
+        bindPresenter(RoleAssignmentPresenter.class,
+                RoleAssignmentPresenter.MyView.class,
+                RoleAssignementView.class,
+                RoleAssignmentPresenter.MyProxy.class);
 
         // mbui workbench
         bindPresenter(ApplicationPresenter.class, ApplicationPresenter.MyView.class, ApplicationView.class,

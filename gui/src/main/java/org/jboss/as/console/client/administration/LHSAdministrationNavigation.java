@@ -17,97 +17,53 @@
  * MA  02110-1301, USA.
  */
 
-package org.jboss.as.console.client.standalone;
-
-import java.util.List;
+package org.jboss.as.console.client.administration;
 
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.subsys.SubsystemTreeBuilder;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
 
+
 /**
- * LHS navigation for standalone server management.
- *
  * @author Heiko Braun
- * @date 2/10/11
+ * @date 3/2/11
  */
-public class LHSStandaloneNavigation {
+class LHSAdministrationNavigation {
 
-    private ScrollPanel scroll ;
-
+    private ScrollPanel scroll;
     private VerticalPanel stack;
-
     private VerticalPanel layout;
     private LHSNavTree navigation;
-    private LHSTreeSection subsystemLeaf;
 
-    public LHSStandaloneNavigation() {
-        super();
-
+    public LHSAdministrationNavigation() {
         layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
 
-        // ----------------------------------------------------
-
-
-        navigation = new LHSNavTree("profiles");
-        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
-        //navigation.getElement().setAttribute("aria-controls", "rhs-content-area");
-
-        subsystemLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_subsystems(), true);
-        navigation.addItem(subsystemLeaf);
-
-        // ----------------------------------------------------
+        navigation = new LHSNavTree("administration");
+        navigation.getElement().setAttribute("aria-label", "Administration");
 
         LHSTreeSection commonLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_generalConfig());
         navigation.addItem(commonLeaf);
 
-        LHSNavTreeItem[] commonItems = new LHSNavTreeItem[] {
-                /*new LHSNavTreeItem("Server", NameTokens.StandaloneServerPresenter),*/
-                new LHSNavTreeItem(Console.CONSTANTS.common_label_interfaces(), NameTokens.InterfacePresenter),
-                new LHSNavTreeItem(Console.CONSTANTS.common_label_socketBinding(), NameTokens.SocketBindingPresenter),
-                new LHSNavTreeItem(Console.CONSTANTS.common_label_paths(), NameTokens.PathManagementPresenter),
-                new LHSNavTreeItem(Console.CONSTANTS.common_label_systemProperties(), NameTokens.PropertiesPresenter),
-        };
-
-        for(LHSNavTreeItem item : commonItems)
-        {
-            commonLeaf.addItem(item);
-        }
-
-
-        navigation.expandTopLevel();
+        LHSNavTreeItem rolesItem = new LHSNavTreeItem(Console.CONSTANTS.common_label_roles(),
+                NameTokens.RoleAssignmentPresenter);
+        commonLeaf.addItem(rolesItem);
 
         stack.add(navigation);
-
-        layout.add(stack);
-
-        scroll = new ScrollPanel(layout);
-
-    }
-
-    public Widget asWidget()
-    {
-        return scroll;
-    }
-
-    public void updateFrom(List<SubsystemRecord> subsystems) {
-
-        subsystemLeaf.removeItems();
-
-        SubsystemTreeBuilder.build(subsystemLeaf, subsystems);
-
         navigation.expandTopLevel();
+        layout.add(stack);
+        scroll = new ScrollPanel(layout);
+    }
 
+    public Widget asWidget() {
+        return scroll;
     }
 }
