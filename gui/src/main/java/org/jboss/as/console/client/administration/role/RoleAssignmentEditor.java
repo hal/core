@@ -30,9 +30,6 @@ public class RoleAssignmentEditor implements IsWidget {
     private RoleAssignmentTreeModel treeModel;
     private ToolButton addButton;
     private ToolButton deleteButton;
-    private boolean roleSelected;
-    private boolean roleAssignmentSelected;
-    private boolean principalSelected;
 
 
     public RoleAssignmentEditor(final Principal.Type principalType, final BeanFactory beanFactory,
@@ -49,21 +46,19 @@ public class RoleAssignmentEditor implements IsWidget {
         treeModel.getRoleSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
-                roleSelected = treeModel.getRoleSelectionModel().getSelectedObject() != null;
+                treeModel.getPrincipalSelectionModel().clear();
                 updateToolButtons();
             }
         });
         treeModel.getRoleAssignmentSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
-                roleAssignmentSelected = treeModel.getRoleAssignmentSelectionModel().getSelectedObject() != null;
                 updateToolButtons();
             }
         });
         treeModel.getPrincipalSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
-                principalSelected = treeModel.getPrincipalSelectionModel().getSelectedObject() != null;
                 updateToolButtons();
             }
         });
@@ -128,10 +123,12 @@ public class RoleAssignmentEditor implements IsWidget {
     }
 
     private void updateToolButtons() {
-        System.out.println(
-                "roleSelected && roleAssignmentSelected && principalSelected: " + roleSelected + " && " + roleAssignmentSelected + " && " + principalSelected);
-        addButton.setEnabled(roleSelected && roleAssignmentSelected);
-        deleteButton.setEnabled(roleSelected && roleAssignmentSelected && principalSelected);
+        StandardRole role = treeModel.getRoleSelectionModel().getSelectedObject();
+        RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
+        Principal principal = treeModel.getPrincipalSelectionModel().getSelectedObject();
+
+        addButton.setEnabled(role != null && roleAssignment != null);
+        deleteButton.setEnabled(role != null && roleAssignment != null && principal != null);
     }
 
     public void setPresenter(final RoleAssignmentPresenter presenter) {
@@ -139,12 +136,6 @@ public class RoleAssignmentEditor implements IsWidget {
     }
 
     public void refresh() {
-        final RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
-        treeModel.refreshRoleAssignments(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                treeModel.getRoleAssignmentSelectionModel().setSelected(roleAssignment, true);
-            }
-        });
+        treeModel.refreshRoleAssignments();
     }
 }

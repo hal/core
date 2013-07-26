@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -44,6 +46,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
     private final DispatchAsync dispatcher;
     private final DefaultNodeInfo<StandardRole> level0;
     private RoleAssignmentNodeInfo level1;
+    private PrincipalNodeInfo level2;
     private final SingleSelectionModel<StandardRole> roleSelectionModel;
     private final SingleSelectionModel<RoleAssignment> roleAssignmentSelectionModel;
     private final SingleSelectionModel<Principal> principalSelectionModel;
@@ -95,9 +98,9 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
         } else if (value instanceof RoleAssignment) {
             // Level 2: Principals (group or users)
             List<Principal> filtered = filterPrincipals(((RoleAssignment) value).getPrincipals());
-            return new DefaultNodeInfo<Principal>(
-                    new ListDataProvider<Principal>(filtered), new PrincipalCell(), principalSelectionModel,
-                    null);
+            level2 = new PrincipalNodeInfo(new ListDataProvider<Principal>(filtered),
+                    new PrincipalCell(), principalSelectionModel);
+            return level2;
         }
         return null;
     }
@@ -129,9 +132,16 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
         return principalSelectionModel;
     }
 
-    public void refreshRoleAssignments(final Scheduler.ScheduledCommand afterRefresh) {
+    public void refreshRoleAssignments() {
         if (level1 != null) {
-            level1.getDataProvider().refresh(afterRefresh);
+            level1.getDataProvider().refresh(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    if (level2 != null) {
+                        level2.getDataProvider().refresh();
+                    }
+                }
+            });
         }
     }
 
@@ -165,6 +175,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
     class RoleAssignmentNodeInfo extends DefaultNodeInfo<RoleAssignment> {
 
         private final RoleAssignmentDataProvider dataProvider;
+
         public RoleAssignmentNodeInfo(
                 final RoleAssignmentDataProvider dataProvider,
                 final RoleAssignmentCell cell,
@@ -265,6 +276,23 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
                 principals.add(principal);
             }
             return principals;
+        }
+    }
+
+    class PrincipalNodeInfo extends DefaultNodeInfo<Principal> {
+
+        private final ListDataProvider<Principal> dataProvider;
+
+        PrincipalNodeInfo(
+                final ListDataProvider<Principal> dataProvider,
+                final PrincipalCell cell,
+                final SelectionModel<? super Principal> selectionModel) {
+            super(dataProvider, cell, selectionModel, null);
+            this.dataProvider = dataProvider;
+        }
+
+        ListDataProvider<Principal> getDataProvider() {
+            return dataProvider;
         }
     }
 }

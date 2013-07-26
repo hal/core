@@ -77,7 +77,10 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
 
     @Override
     public void refresh() {
-        groupEditor.refresh();
-        userEditor.refresh();
+        if (editors.getTabBar().getSelectedTab() == 0) {
+            groupEditor.refresh();
+        } else {
+            userEditor.refresh();
+        }
     }
 }
