@@ -16,6 +16,7 @@ import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -122,8 +123,7 @@ public class RoleAssignmentPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
-    // Seems not to be implemented
-    // @AccessControl(resources = {"/core-services=management/access=authorization"})
+    @AccessControl(resources = {"/core-service=management/access=authorization"})
     public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {
     }
 
