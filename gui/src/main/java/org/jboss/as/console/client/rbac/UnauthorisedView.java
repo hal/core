@@ -2,8 +2,11 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.Console;
@@ -55,6 +58,13 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
         window.setHeight(360);
         window.setGlassEnabled(true);
 
+        window.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
+            public void onClose(CloseEvent<PopupPanel> event) {
+                presenter.onConfirmation();
+            }
+        }) ;
+
         initWidget(window);
 
         setAutoHideOnNavigationEventEnabled(true);
@@ -79,7 +89,6 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
 
     private void handleConfirmation() {
         window.hide();
-        presenter.onConfirmation();
 
     }
 
