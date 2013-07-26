@@ -52,6 +52,7 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
     @NameToken(NameTokens.WebServicePresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=webservices"
+
     })
     public interface MyProxy extends Proxy<WebServicePresenter>, Place {
     }
