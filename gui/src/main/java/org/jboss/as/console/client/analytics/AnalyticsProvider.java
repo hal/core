@@ -3,8 +3,10 @@ package org.jboss.as.console.client.analytics;
 import com.google.gwt.core.client.GWT;
 import com.google.inject.Provider;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
-import org.jboss.as.console.client.Build;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
+
+import javax.inject.Inject;
 
 /**
  * @author Heiko Braun
@@ -14,6 +16,13 @@ public class AnalyticsProvider implements Provider<GoogleAnalytics> {
 
     private GoogleAnalytics delegate;
     private static final GoogleAnalytics NOOP = new NoopAnalytics();
+
+    private ProductConfig prodConfig;
+
+    @Inject
+    public AnalyticsProvider(ProductConfig prodConfig) {
+        this.prodConfig = prodConfig;
+    }
 
     @Override
     public GoogleAnalytics get() {
@@ -25,7 +34,7 @@ public class AnalyticsProvider implements Provider<GoogleAnalytics> {
                 || Preferences.get(Preferences.Key.ANALYTICS).equals("true");
 
         // disabled for EAP by default
-        boolean isEAP = Build.PROFILE.equalsIgnoreCase("eap");
+        boolean isEAP = ProductConfig.Profile.EAP.equals(prodConfig.getProfile());
 
         // web mode only
         boolean isWebMode = GWT.isScript();
