@@ -135,15 +135,19 @@ public class ProductConfigGenerator extends Generator
     private void generateMethods(SourceWriter sourceWriter, GeneratorContext context) throws Throwable
     {
         PropertyOracle propertyOracle = context.getPropertyOracle();
-        String profile = failSafeGetProperty(propertyOracle, "console.profile", null);
-        if (null == profile)
-        {
+
+        String consoleProfileProperty =
+                propertyOracle.getConfigurationProperty("console.profile").getValues().get(0);
+
+        if(null==consoleProfileProperty) {
             throw new BadPropertyValueException("Missing configuration property 'console.profile'!");
         }
+
         String devHost = failSafeGetProperty(propertyOracle, "console.dev.host", "127.0.0.1");
 
         // most of the config attributes are by default empty
         // they need be overriden by custom gwt.xml descriptor on a project/product level
+
         sourceWriter.println("public String getCoreVersion() { ");
         sourceWriter.indent();
         sourceWriter.println("return org.jboss.as.console.client.Build.VERSION;");
@@ -152,9 +156,20 @@ public class ProductConfigGenerator extends Generator
 
         sourceWriter.println("public String getDevHost() { ");
         sourceWriter.indent();
-        sourceWriter.println("return \"" + devHost + "\";");
+        sourceWriter.println("return \""+devHost+"\";");
         sourceWriter.outdent();
         sourceWriter.println("}");
+
+        sourceWriter.println("public ProductConfig.Profile getProfile() { ");
+        sourceWriter.indent();
+
+        if("eap".equals(consoleProfileProperty))
+            sourceWriter.println("return ProductConfig.Profile.EAP;");
+        else
+            sourceWriter.println("return ProductConfig.Profile.JBOSS;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
     }
 
     private String failSafeGetProperty(PropertyOracle propertyOracle, String name, String defaultValue)
