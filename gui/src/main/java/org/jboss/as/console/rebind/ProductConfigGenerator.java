@@ -30,6 +30,7 @@ import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 import java_cup.version;
+import org.jboss.as.console.client.Build;
 
 import java.io.PrintWriter;
 
@@ -140,6 +141,12 @@ public class ProductConfigGenerator extends Generator {
                        propertyOracle.getConfigurationProperty("console.dev.host").getValues().get(0);
         String consoleDevHost = (devHostProperty!= null) ? devHostProperty : "127.0.0.1";
 
+        String consoleProfileProperty =
+                propertyOracle.getConfigurationProperty("console.profile").getValues().get(0);
+        if(null==consoleProfileProperty) {
+            throw new BadPropertyValueException("Missing configuration property 'console.profile'!");
+        }
+
         // most of the config attributes are by default empty
         // they need be overriden by custom gwt.xml descriptor on a project/product level
         sourceWriter.println("public String getCoreVersion() { ");
@@ -153,5 +160,16 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.println("return \""+consoleDevHost+"\";");
         sourceWriter.outdent();
         sourceWriter.println("}");
+
+        sourceWriter.println("public ProductConfig.Profile getProfile() { ");
+        sourceWriter.indent();
+
+        if("eap".equals(consoleProfileProperty))
+            sourceWriter.println("return ProductConfig.Profile.EAP;");
+        else
+            sourceWriter.println("return ProductConfig.Profile.JBOSS;");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
     }
 }
