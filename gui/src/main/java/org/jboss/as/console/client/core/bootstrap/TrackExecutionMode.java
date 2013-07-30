@@ -1,7 +1,8 @@
 package org.jboss.as.console.client.core.bootstrap;
 
+import com.google.gwt.core.client.GWT;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
-import org.jboss.as.console.client.Build;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -12,10 +13,12 @@ import org.jboss.gwt.flow.client.Function;
  */
 public class TrackExecutionMode implements Function<BootstrapContext> {
 
+    private final ProductConfig prodConfig;
     private GoogleAnalytics analytics;
 
     public TrackExecutionMode(GoogleAnalytics analytics) {
         this.analytics = analytics;
+        this.prodConfig =  GWT.create(ProductConfig.class);
     }
 
     @Override
@@ -28,7 +31,7 @@ public class TrackExecutionMode implements Function<BootstrapContext> {
         {
             String value = bootstrap.isStandalone() ? "standalone" : "domain";
             analytics.trackEvent("bootstrap", "exec-mode", value);
-            analytics.trackEvent("bootstrap", "console-version", Build.VERSION);
+            analytics.trackEvent("bootstrap", "console-version", prodConfig.getCoreVersion());
 
             control.proceed();
         }
