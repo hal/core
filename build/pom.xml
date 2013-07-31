@@ -164,7 +164,7 @@
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
-                                <version>${project.version}</version>
+                                <version>Core Console ${project.version}</version>
                             </options>
                         </configuration>
                     </execution>
