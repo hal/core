@@ -161,6 +161,7 @@
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
+                                <version>${project.version}</version>
                                 <gwt.console.product.version>${gwt.console.product.version}</gwt.console.product.version>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>

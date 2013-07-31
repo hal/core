@@ -36,6 +36,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.VersionInfo;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.debug.Diagnostics;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
@@ -162,7 +163,7 @@ public class Footer {
 
         layout.add(tools);
 
-        HTML version = new HTML(productConfig.getCoreVersion());
+        HTML version = new HTML(VersionInfo.getVersion());
         version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
         layout.add(version);
 
