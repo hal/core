@@ -55,6 +55,9 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
     private static final String RUNTIME_TEMPLATE = "RuntimeExtensions.tmpl";
 
+    private static final String VERSION_INFO_FILENAME = "org.jboss.as.console.client.VersionInfo";
+    private static final String VERSION_INFO_TEMPLATE = "VersionInfo.tmpl";
+
     private static final String MODULE_FILENAME = "App.gwt.xml";
     private static final String MODULE_DEV_FILENAME = "App_dev.gwt.xml";
     private static final String MODULE_PRODUCT_FILENAME = "App_RH.gwt.xml";
@@ -293,6 +296,7 @@ public class SPIProcessor extends AbstractProcessor {
         writeDevModuleFile();
         writeProductModuleFile();
         writeProxyConfigurations();
+        writeVersionInfo();
     }
 
     private void writeRuntimeFile() throws Exception {
@@ -419,7 +423,6 @@ public class SPIProcessor extends AbstractProcessor {
         }
     }
 
-
     private void writeProxyConfigurations() {
 
         try
@@ -454,5 +457,18 @@ public class SPIProcessor extends AbstractProcessor {
         {
             throw new RuntimeException("Failed to create file", e);
         }
+    }
+
+    private void writeVersionInfo() throws IOException {
+        Map<String, String> options = processingEnv.getOptions();
+        String version = options.containsKey("version") ? options.get("version") : "n/a";
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("version", version);
+
+        JavaFileObject sourceFile = filer.createSourceFile(VERSION_INFO_FILENAME);
+        OutputStream output = sourceFile.openOutputStream();
+        new TemplateProcessor().process(VERSION_INFO_TEMPLATE, model, output);
+        output.flush();
+        output.close();
     }
 }
