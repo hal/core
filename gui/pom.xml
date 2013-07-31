@@ -202,7 +202,7 @@
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
-                                <version>${project.version}</version>
+                                <version>Core Console ${project.version}</version>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>
                         </configuration>
