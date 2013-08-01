@@ -37,7 +37,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.VersionInfo;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
@@ -174,12 +173,16 @@ public class Footer {
 
         layout.add(tools);
 
-        HTML version = new HTML(VersionInfo.getVersion());
-        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
-        layout.add(version);
+        String version = productConfig.getConsoleVersion();
+        if (version == null) {
+            version = "Core Console " + productConfig.getCoreVersion();
+        }
+        HTML htmlVersion = new HTML(version);
+        htmlVersion.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
+        layout.add(htmlVersion);
 
-        layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
-        layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
+        layout.setWidgetLeftWidth(htmlVersion, 20, Style.Unit.PX, 200, Style.Unit.PX);
+        layout.setWidgetTopHeight(htmlVersion, 3, Style.Unit.PX, 16, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);

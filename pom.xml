@@ -104,7 +104,6 @@
         <gin.version>2.0.0</gin.version>
         <guice.version>3.0</guice.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
-        <gwt.console.dev.host>127.0.0.1</gwt.console.dev.host>
     </properties>
 
 

@@ -32,7 +32,6 @@
                         <configuration>
                             <sources>
                                 <source>../../gui/src/main/java</source>
-                                <source>../../gui/target/generated-sources/ant</source>
                             </sources>
                         </configuration>
                     </execution>

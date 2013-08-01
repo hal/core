@@ -38,8 +38,8 @@ import com.google.gwt.user.rebind.SourceWriter;
  * @author Heiko Braun
  * @date 4/19/11
  */
-public class ProductConfigGenerator extends Generator
-{
+public class ProductConfigGenerator extends Generator {
+
     /**
      * Simple name of class to be generated
      */
@@ -50,12 +50,10 @@ public class ProductConfigGenerator extends Generator
     private String packageName = null;
 
     public String generate(TreeLogger logger, GeneratorContext context, String typeName)
-            throws UnableToCompleteException
-    {
+            throws UnableToCompleteException {
         TypeOracle typeOracle = context.getTypeOracle();
 
-        try
-        {
+        try {
             // get classType and save instance variables
             JClassType classType = typeOracle.getType(typeName);
             packageName = classType.getPackage().getName();
@@ -64,9 +62,7 @@ public class ProductConfigGenerator extends Generator
             // Generate class source code
             generateClass(logger, context);
 
-        }
-        catch (Throwable e)
-        {
+        } catch (Throwable e) {
             // record to logger that Map generation threw an exception
             e.printStackTrace(System.out);
             logger.log(TreeLogger.ERROR, "Failed to generate product config", e);
@@ -83,8 +79,7 @@ public class ProductConfigGenerator extends Generator
      * @param logger  Logger object
      * @param context Generator context
      */
-    private void generateClass(TreeLogger logger, GeneratorContext context) throws Throwable
-    {
+    private void generateClass(TreeLogger logger, GeneratorContext context) throws Throwable {
 
         // get print writer that receives the source code
         PrintWriter printWriter = context.tryCreate(logger, packageName, className);
@@ -122,8 +117,7 @@ public class ProductConfigGenerator extends Generator
         context.commit(logger, printWriter);
     }
 
-    private void generateConstructor(SourceWriter sourceWriter)
-    {
+    private void generateConstructor(SourceWriter sourceWriter) {
         // start constructor source generation
         sourceWriter.println("public " + className + "() { ");
         sourceWriter.indent();
@@ -132,63 +126,93 @@ public class ProductConfigGenerator extends Generator
         sourceWriter.println("}");
     }
 
-    private void generateMethods(SourceWriter sourceWriter, GeneratorContext context) throws Throwable
-    {
+    private void generateMethods(SourceWriter sourceWriter, GeneratorContext context) throws Throwable {
         PropertyOracle propertyOracle = context.getPropertyOracle();
 
-        String consoleProfileProperty =
-                propertyOracle.getConfigurationProperty("console.profile").getValues().get(0);
-
-        if(null==consoleProfileProperty) {
-            throw new BadPropertyValueException("Missing configuration property 'console.profile'!");
-        }
-
-        String devHost = failSafeGetProperty(propertyOracle, "console.dev.host", "127.0.0.1");
-
-        // most of the config attributes are by default empty
-        // they need be overriden by custom gwt.xml descriptor on a project/product level
-
-        sourceWriter.println("public String getCoreVersion() { ");
-        sourceWriter.indent();
-        sourceWriter.println("return org.jboss.as.console.client.Build.VERSION;");
-        sourceWriter.outdent();
-        sourceWriter.println("}");
-
-        sourceWriter.println("public String getDevHost() { ");
-        sourceWriter.indent();
-        sourceWriter.println("return \""+devHost+"\";");
-        sourceWriter.outdent();
-        sourceWriter.println("}");
-
+        // getProfile() - mandatory
+        String consoleProfile = failFastGetProperty(propertyOracle, "console.profile");
         sourceWriter.println("public ProductConfig.Profile getProfile() { ");
         sourceWriter.indent();
-
-        if("eap".equals(consoleProfileProperty))
-            sourceWriter.println("return ProductConfig.Profile.EAP;");
-        else
-            sourceWriter.println("return ProductConfig.Profile.JBOSS;");
+        if ("product".equals(consoleProfile)) {
+            sourceWriter.println("return ProductConfig.Profile.PRODUCT;");
+        } else if ("community".equals(consoleProfile)) {
+            sourceWriter.println("return ProductConfig.Profile.COMMUNITY;");
+        } else {
+            throw new BadPropertyValueException(
+                    "Invalid value for 'console.profile'. Valid values are 'community' or 'product'!");
+        }
         sourceWriter.outdent();
         sourceWriter.println("}");
 
+        // getCoreVersion() - mandatory
+        String coreConsoleVersion = failFastGetProperty(propertyOracle, "console.core.version");
+        sourceWriter.println("public String getCoreVersion() { ");
+        sourceWriter.indent();
+        sourceWriter.println("return \"%s\";", coreConsoleVersion);
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        // getConsoleVersion() - optional
+        // If this is not built using the HAL release stream, this property is undefined.
+        String consoleVersion = failSafeGetProperty(propertyOracle, "console.version", null);
+        sourceWriter.println("public String getConsoleVersion() { ");
+        sourceWriter.indent();
+        if (consoleVersion == null) {
+            sourceWriter.println("return null;");
+        } else {
+            sourceWriter.println("return \"%s\";", consoleVersion);
+        }
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        // getProductTitle() - delegates to the BootstrapContext
+        sourceWriter.println("public String getProductName() { ");
+        sourceWriter.indent();
+        sourceWriter.println("return org.jboss.as.console.client.Console.MODULES.getBootstrapContext().getProductName();");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        // getProductVersion() - delegates to the BootstrapContext
+        sourceWriter.println("public String getProductVersion() { ");
+        sourceWriter.indent();
+        sourceWriter.println("return org.jboss.as.console.client.Console.MODULES.getBootstrapContext().getProductVersion();");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        // getDevHost() - mandatory
+        String devHost = failFastGetProperty(propertyOracle, "console.dev.host");
+        sourceWriter.println("public String getDevHost() { ");
+        sourceWriter.indent();
+        sourceWriter.println("return \"" + devHost + "\";");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
     }
 
-    private String failSafeGetProperty(PropertyOracle propertyOracle, String name, String defaultValue)
-    {
+    private String failFastGetProperty(PropertyOracle propertyOracle, String name) throws BadPropertyValueException {
+        ConfigurationProperty property = propertyOracle.getConfigurationProperty(name);
+        if (property != null) {
+            List<String> values = property.getValues();
+            if (values != null && !values.isEmpty()) {
+                return values.get(0);
+            } else {
+                throw new BadPropertyValueException("Missing configuration property '" + name + "'!");
+            }
+        } else {
+            throw new BadPropertyValueException("Missing configuration property '" + name + "'!");
+        }
+    }
+
+    private String failSafeGetProperty(PropertyOracle propertyOracle, String name, String defaultValue) {
         String value = defaultValue;
-        try
-        {
+        try {
             ConfigurationProperty property = propertyOracle.getConfigurationProperty(name);
-            if (property != null)
-            {
+            if (property != null) {
                 List<String> values = property.getValues();
-                if (values != null && !values.isEmpty())
-                {
+                if (values != null && !values.isEmpty()) {
                     value = values.get(0);
                 }
             }
-        }
-        catch (BadPropertyValueException e)
-        {
+        } catch (BadPropertyValueException e) {
             // ignore and return defaul value
         }
         return value;

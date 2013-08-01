@@ -164,30 +164,17 @@
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
-                                <version>Core Console ${project.version}</version>
+                                <!--
+                                    All properties prefixed with 'gwt' are written into the
+                                    generated GWT module (without the 'gwt.' prefix)
+                                -->
+                                <gwt.console.core.version>${project.version}</gwt.console.core.version>
+                                <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>build-helper-maven-plugin</artifactId>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>add-source</id>-->
-                        <!--<phase>generate-sources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>add-source</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<sources>-->
-                                <!--<source>${project.build.directory}/generated-sources/apt</source>-->
-                            <!--</sources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
