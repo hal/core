@@ -34,9 +34,9 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import java_cup.version;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.VersionInfo;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.debug.Diagnostics;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
@@ -163,7 +163,7 @@ public class Footer {
 
         layout.add(tools);
 
-        HTML version = new HTML(VersionInfo.getVersion());
+        HTML version = new HTML(productConfig.getConsoleVersion());
         version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
         layout.add(version);
 

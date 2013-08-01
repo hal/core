@@ -161,15 +161,17 @@
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
-                                <version>Core Console ${project.version}</version>
-                                <gwt.console.product.version>${gwt.console.product.version}</gwt.console.product.version>
+                                <!--
+                                    All properties prefixed with 'gwt' are written into the
+                                    generated GWT module (without the 'gwt.' prefix)
+                                -->
+                                <gwt.console.core.version>${project.version}</gwt.console.core.version>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>

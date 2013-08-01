@@ -39,6 +39,7 @@ import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -71,13 +72,16 @@ public class Header implements ValueChangeHandler<String> {
 
     //private Map<String,Widget> appLinks = new HashMap<String, Widget>();
 
+    private ProductConfig productConfig;
     private BootstrapContext bootstrap;
     private MessageCenter messageCenter;
     private PlaceManager placeManager;
 
     @Inject
-    public Header(MessageCenter messageCenter, BootstrapContext bootstrap, PlaceManager placeManager) {
+    public Header(MessageCenter messageCenter, ProductConfig productConfig, BootstrapContext bootstrap,
+            PlaceManager placeManager) {
         this.messageBar = new MessageBar(messageCenter);
+        this.productConfig = productConfig;
         this.bootstrap = bootstrap;
         this.messageCenter = messageCenter;
         this.placeManager = placeManager;
@@ -132,11 +136,11 @@ public class Header implements ValueChangeHandler<String> {
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
 
-        HTML productName = new HTML(bootstrap.getProductName());
+        HTML productName = new HTML(productConfig.getProductName());
         productName.setStyleName("header-product-name");
         panel.add(productName);
 
-        HTML productVersion = new HTML(bootstrap.getProductVersion());
+        HTML productVersion = new HTML(productConfig.getProductVersion());
         productVersion.setStyleName("header-product-version");
         panel.add(productVersion);
 

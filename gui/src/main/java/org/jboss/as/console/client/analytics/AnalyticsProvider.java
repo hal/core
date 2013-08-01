@@ -33,8 +33,8 @@ public class AnalyticsProvider implements Provider<GoogleAnalytics> {
         boolean prefEnabled = !Preferences.has(Preferences.Key.ANALYTICS)
                 || Preferences.get(Preferences.Key.ANALYTICS).equals("true");
 
-        // disabled for EAP by default
-        boolean isEAP = ProductConfig.Profile.EAP.equals(prodConfig.getProfile());
+        // disabled for PRODUCT by default
+        boolean isEAP = ProductConfig.Profile.PRODUCT.equals(prodConfig.getProfile());
 
         // web mode only
         boolean isWebMode = GWT.isScript();
