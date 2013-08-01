@@ -173,16 +173,12 @@ public class Footer {
 
         layout.add(tools);
 
-        String version = productConfig.getConsoleVersion();
-        if (version == null) {
-            version = "Core Console " + productConfig.getCoreVersion();
-        }
-        HTML htmlVersion = new HTML(version);
-        htmlVersion.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
-        layout.add(htmlVersion);
+        HTML version = new HTML(productConfig.getConsoleVersion());
+        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
+        layout.add(version);
 
-        layout.setWidgetLeftWidth(htmlVersion, 20, Style.Unit.PX, 200, Style.Unit.PX);
-        layout.setWidgetTopHeight(htmlVersion, 3, Style.Unit.PX, 16, Style.Unit.PX);
+        layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
+        layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);

@@ -158,7 +158,7 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.println("public String getConsoleVersion() { ");
         sourceWriter.indent();
         if (consoleVersion == null) {
-            sourceWriter.println("return null;");
+            sourceWriter.println("return \"Core Console \" + getCoreVersion();");
         } else {
             sourceWriter.println("return \"%s\";", consoleVersion);
         }
