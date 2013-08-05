@@ -58,10 +58,12 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String MODULE_FILENAME = "App.gwt.xml";
     private static final String MODULE_DEV_FILENAME = "App_dev.gwt.xml";
     private static final String MODULE_PRODUCT_FILENAME = "App_RH.gwt.xml";
+    private static final String MODULE_PRODUCT_DEV_FILENAME = "App_RH_dev.gwt.xml";
 
     private static final String MODULE_TEMPLATE = "App.gwt.xml.tmpl";
     private static final String MODULE_DEV_TEMPLATE = "App_dev.gwt.xml.tmpl";
     private static final String MODULE_PRODUCT_TEMPLATE = "App_RH.gwt.xml.tmpl";
+    private static final String MODULE_PRODUCT_DEV_TEMPLATE = "App_RH_dev.gwt.xml.tmpl";
 
     private static final String MODULE_PACKAGENAME = "org.jboss.as.console.composite";
 
@@ -265,6 +267,7 @@ public class SPIProcessor extends AbstractProcessor {
         writeModuleFile();
         writeDevModuleFile();
         writeProductModuleFile();
+        writeProductDevModuleFile();
         writeProxyConfigurations();
     }
 
@@ -372,6 +375,23 @@ public class SPIProcessor extends AbstractProcessor {
                     MODULE_PRODUCT_FILENAME);
             OutputStream output = sourceFile.openOutputStream();
             new TemplateProcessor().process(MODULE_PRODUCT_TEMPLATE, model, output);
+            output.flush();
+            output.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create file", e);
+        }
+    }
+
+    private void writeProductDevModuleFile() {
+        try {
+            Map<String, Object> model = new HashMap<>();
+            model.put("modules", modules);
+            model.put("properties", gwtConfigProps);
+
+            FileObject sourceFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, MODULE_PACKAGENAME,
+                    MODULE_PRODUCT_DEV_FILENAME);
+            OutputStream output = sourceFile.openOutputStream();
+            new TemplateProcessor().process(MODULE_PRODUCT_DEV_TEMPLATE, model, output);
             output.flush();
             output.close();
         } catch (IOException e) {
