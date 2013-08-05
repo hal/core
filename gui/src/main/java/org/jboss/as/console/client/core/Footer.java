@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -34,11 +35,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
-import java_cup.version;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.debug.Diagnostics;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.DialogueOptions;
+import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.InlineLink;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -70,7 +73,6 @@ public class Footer {
         layout.setStyleName("footer-panel");
 
         final PopupPanel toolsPopup = new DefaultPopup(DefaultPopup.Arrow.BOTTOM);
-
 
         final List<String[]> toolReference = new ArrayList<String[]>();
         toolReference.add(new String[]{"Management Model", "browser"});
@@ -116,7 +118,6 @@ public class Footer {
 
                 toolsPopup.setWidth("165");
                 toolsPopup.setHeight(listHeight +"");
-
                 toolsPopup.show();
             }
         });
@@ -131,7 +132,6 @@ public class Footer {
                 );
             }
         });
-
 
         HTML logout = new HTML("<i class='icon-signout'></i>&nbsp;"+Console.CONSTANTS.common_label_logout());
         logout.addStyleName("footer-link");
@@ -151,10 +151,8 @@ public class Footer {
                             }
                         }
                 );
-
             }
         });
-
 
         HorizontalPanel tools = new HorizontalPanel();
         tools.add(toolsLink);
@@ -164,17 +162,38 @@ public class Footer {
         layout.add(tools);
 
         HTML version = new HTML(productConfig.getConsoleVersion());
-        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; align:left");
-        layout.add(version);
+        version.setTitle("Version Information");
+        version.addStyleName("footer-link");
+        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; text-align:left");
+        version.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                final DefaultWindow window = new DefaultWindow("Version Information");
+                DialogueOptions options = new DialogueOptions(Console.CONSTANTS.common_label_finish(), new ClickHandler() {
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        window.hide();
+                    }
+                }, "", new ClickHandler() {
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        // noop
+                    }
+                }).showCancel(false);
+                window.setWidth(480);
+                window.setHeight(360);
+                window.trapWidget(new WindowContentBuilder(new ProductConfigPanel().asWidget(), options).build());
+                window.setGlassEnabled(true);
+                window.center();
+            }
+        });
 
+        layout.add(version);
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
         layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
-
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);
-
         layout.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
-
         layout.getElement().setAttribute("role", "complementary");
 
         return layout;
