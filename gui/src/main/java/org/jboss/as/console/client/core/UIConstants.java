@@ -116,6 +116,7 @@ public interface UIConstants extends Constants {
     String common_label_chooseFile();
     String common_label_chooseServerGroup();
     String common_label_finish();
+    String common_label_done();
     String common_label_addContent();
     String common_label_contentRepository();
     String common_label_enabled();
