@@ -35,6 +35,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import java_cup.version;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.auth.CurrentUser;
@@ -170,7 +171,12 @@ public class Footer {
 
         layout.add(tools);
 
-        HTML version = new HTML(productConfig.getConsoleVersion());
+        String versionToShow = productConfig.getConsoleVersion();
+        if (versionToShow == null) {
+            // That's no HAL build - fall back core version
+            versionToShow = productConfig.getCoreVersion();
+        }
+        HTML version = new HTML(versionToShow);
         version.setTitle("Version Information");
         version.addStyleName("footer-link");
         version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; text-align:left");
