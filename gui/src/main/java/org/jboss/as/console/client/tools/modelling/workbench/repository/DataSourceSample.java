@@ -78,6 +78,10 @@ public class DataSourceSample implements Sample
         Mapping connectionAttributesMapping = new DMRMapping()
                 .addAttributes("connection-url", "new-connection-sql", "transaction-isolation", "jta", "use-ccm");
 
+        Mapping securityAttributesMapping = new DMRMapping()
+                        .addAttributes("user-name", "password", "security-domain");
+
+
         // UI
         InteractionUnit root = new Builder()
                 .start(new Container<StereoTypes>(namespace, "datasources", "Datasources", Choice, EditorPanel))
@@ -122,6 +126,8 @@ public class DataSourceSample implements Sample
                                     .mappedBy(basicAttributesMapping)
                                 .add(new Container<StereoTypes>(namespace, "datasource#connectionAttributes", "Connection", Form))
                                     .mappedBy(connectionAttributesMapping)
+                                .add(new Container<StereoTypes>(namespace, "datasource#securityAttributes", "Security", Form))
+                                                    .mappedBy(securityAttributesMapping)
                         .end()
                     .end()
 

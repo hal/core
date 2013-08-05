@@ -72,12 +72,17 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         //CheckBoxItem useCache = new CheckBoxItem(Preferences.Key.USE_CACHE.getToken(), Preferences.Key.USE_CACHE.getTitle());
 
         CheckBoxItem enableAnalytics = new CheckBoxItem(Preferences.Key.ANALYTICS.getToken(), Preferences.Key.ANALYTICS.getTitle());
+
         ProductConfig productConfig = GWT.create(ProductConfig.class);
         if (productConfig.getProfile() == COMMUNITY) {
             form.setFields(localeItem, enableAnalytics);
         } else {
             form.setFields(localeItem);
         }
+
+        CheckBoxItem enableSecurityContextCache = new CheckBoxItem(Preferences.Key.SECURITY_CONTEXT.getToken(), Preferences.Key.SECURITY_CONTEXT.getTitle());
+
+        //form.setFields(localeItem, enableAnalytics, enableSecurityContextCache);
 
         Widget formWidget = form.asWidget();
         formWidget.getElement().setAttribute("style", "margin:15px");
@@ -130,6 +135,10 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
             html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
             html.appendEscaped("You can disable the analytics feature at anytime.");
         }
+
+        html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
+        html.appendEscaped("You can disable the analytics feature at anytime.");
+        //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");
         html.appendHtmlConstant("</ul>");
         StaticHelpPanel help = new StaticHelpPanel(html.toSafeHtml());
         layout.add(help.asWidget());

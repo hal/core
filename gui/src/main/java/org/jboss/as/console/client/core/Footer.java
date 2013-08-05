@@ -19,7 +19,10 @@
 
 package org.jboss.as.console.client.core;
 
+import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
+
 import com.google.gwt.core.client.GWT;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -35,13 +38,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
-import java_cup.version;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.InlineLink;
@@ -89,6 +92,14 @@ public class Footer {
         if(!GWT.isScript())
         {
             toolReference.add(new String[] {"Modelling", "mbui-workbench"});
+            toolReference.add(new String[] {"Resource Access", "access-log"});
+            StringBuilder runAsRole = new StringBuilder("Run as");
+            if (Preferences.has(RUN_AS_ROLE)) {
+                runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
+            } else {
+                runAsRole.append("...");
+            }
+            toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
         }
 
         final VerticalPanel toolsList = new VerticalPanel();
@@ -204,8 +215,21 @@ public class Footer {
         });
 
         layout.add(version);
+
+
+        String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
+        String roleHtml = "<i class='icon-tag'></i>&nbsp;"+Console.getBootstrapContext().getRole();
+
+        HTML principal = new HTML(userHtml+"&nbsp;|&nbsp;"+roleHtml);
+        principal.getElement().setAttribute("style", "color:#ffffff;font-size:11px; align:left");
+        layout.add(principal);
+
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
         layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
+
+        layout.setWidgetLeftWidth(principal, 210, Style.Unit.PX, 300, Style.Unit.PX);
+        layout.setWidgetTopHeight(principal, 3, Style.Unit.PX, 16, Style.Unit.PX);
+
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);
         layout.setWidgetHorizontalPosition(tools, Layout.Alignment.END);

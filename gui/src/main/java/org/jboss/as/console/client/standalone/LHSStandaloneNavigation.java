@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.standalone;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,8 +31,6 @@ import org.jboss.as.console.client.shared.subsys.SubsystemTreeBuilder;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
-
-import java.util.List;
 
 /**
  * LHS navigation for standalone server management.
@@ -77,7 +77,7 @@ public class LHSStandaloneNavigation {
                 new LHSNavTreeItem(Console.CONSTANTS.common_label_interfaces(), NameTokens.InterfacePresenter),
                 new LHSNavTreeItem(Console.CONSTANTS.common_label_socketBinding(), NameTokens.SocketBindingPresenter),
                 new LHSNavTreeItem(Console.CONSTANTS.common_label_paths(), NameTokens.PathManagementPresenter),
-                new LHSNavTreeItem(Console.CONSTANTS.common_label_systemProperties(), NameTokens.PropertiesPresenter)
+                new LHSNavTreeItem(Console.CONSTANTS.common_label_systemProperties(), NameTokens.PropertiesPresenter),
         };
 
         for(LHSNavTreeItem item : commonItems)

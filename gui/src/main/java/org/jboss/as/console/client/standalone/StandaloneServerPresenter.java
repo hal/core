@@ -10,8 +10,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
@@ -19,13 +19,8 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.StandaloneGateKeeper;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.AsyncCommand;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
@@ -35,6 +30,10 @@ import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.AsyncCommand;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.List;
 
@@ -55,7 +54,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
 
     @ProxyCodeSplit
     @NameToken(NameTokens.StandaloneServerPresenter)
-    @UseGatekeeper( StandaloneGateKeeper.class )
+    @NoGatekeeper
     public interface MyProxy extends Proxy<StandaloneServerPresenter>, Place {
     }
 

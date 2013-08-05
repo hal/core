@@ -14,6 +14,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -59,6 +60,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
+    @AccessControl(resources = {"{selected.profile}/subsystem=mail"})
     public interface MyProxy extends Proxy<MailPresenter>, Place {
     }
 

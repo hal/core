@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -56,6 +57,10 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EJB3Presenter)
+    @AccessControl(resources = {
+                "{selected.profile}/subsystem=ejb3",
+                "{selected.profile}/subsystem=threads/thread-factory=*"
+        })
     public interface MyProxy extends Proxy<EJB3Presenter>, Place {
     }
 

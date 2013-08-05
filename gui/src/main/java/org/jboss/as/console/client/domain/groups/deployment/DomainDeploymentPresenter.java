@@ -24,12 +24,10 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -42,12 +40,13 @@ import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,6 +71,29 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     private DispatchAsync dispatcher;
     private ContentRepository contentRepository;
 
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.DeploymentsPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}",
+            "/{selected.host}/server-config=*",
+            "/{selected.host}/{selected.server}",
+            "/{selected.host}/{selected.server}/interface=*",
+            "/{selected.host}/{selected.server}/socket-binding-group=*",
+            "/deployment=*",
+            "/server-group=*",
+            "/server-group=*/deployment=*",
+    }, facet = "runtime")
+    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
+    {
+    }
+
+
+    public interface MyView extends SuspendableView
+    {
+        void setPresenter(DomainDeploymentPresenter presenter);
+        void reset(ContentRepository contentRepository);
+    }
 
     @Inject
     public DomainDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
@@ -109,6 +131,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
         loadContentRepository();
     }
 
+
     private void loadContentRepository()
     {
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>()
@@ -121,7 +144,6 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
             }
         });
     }
-
 
     // ------------------------------------------------------ TODO Refactor
 
@@ -393,6 +415,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
         }
     }
 
+
     public void onCreateUnmanaged(final DeploymentRecord entity)
     {
         window.hide();
@@ -429,20 +452,5 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
                 refreshDeployments();
             }
         });
-    }
-
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.DeploymentsPresenter)
-    @UseGatekeeper(DomainGateKeeper.class)
-    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
-    {
-    }
-
-
-    public interface MyView extends SuspendableView
-    {
-        void setPresenter(DomainDeploymentPresenter presenter);
-        void reset(ContentRepository contentRepository);
     }
 }

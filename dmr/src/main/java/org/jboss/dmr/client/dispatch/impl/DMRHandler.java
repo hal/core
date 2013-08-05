@@ -25,19 +25,22 @@ import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.as.console.client.rbac.ResourceAccessLog;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
-import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -52,7 +55,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private static final String KEEP_ALIVE = "Keep-Alive";
 
     /**
-     * The read reasource description supports the following parameters:
+     * The read resource description supports the following parameters:
      * recursive, proxies, operations, inherited plus one not documented: locale.
      * See https://docs.jboss.org/author/display/AS72/Global+operations#Globaloperations-readresourcedescription
      * for a more detailed description
@@ -66,6 +69,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
     private boolean trackInvocations = diagnostics.isEnabled();
     private DMREndpointConfig endpointConfig = GWT.create(DMREndpointConfig.class);
+    private ResourceAccessLog resourceLog = ResourceAccessLog.INSTANCE;
 
     @Inject
     public DMRHandler()
@@ -120,8 +124,58 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         assert action.getOperation() != null;
         final ModelNode operation = action.getOperation();
 
-        Request request = executeRequest(resultCallback, operation);
+        // diagnostics, development only
+        if(!GWT.isScript())
+        {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    decomposeAndLog(operation);
+                }
+            });
+        }
+
+        Request request = executeRequest(resultCallback, GWT.isScript() ? operation : runAsRole(operation));
         return new DispatchRequestHandle(request);
+    }
+
+    private ModelNode runAsRole(final ModelNode operation) {
+        // No Preferences class available here - do it yourself!
+        String role = Cookies.getCookie("as7_ui_run_as_role");
+        if (role != null) {
+            operation.get("operation-headers").get("roles").set(role.toUpperCase());
+        }
+        return operation;
+    }
+
+    private void decomposeAndLog(ModelNode operation) {
+        if(operation.get(OP).asString().equals(COMPOSITE))
+        {
+            List<ModelNode> steps = operation.get(STEPS).asList();
+            for(ModelNode step : steps)
+                logAtomicOperation(step);
+        }
+        else
+        {
+            logAtomicOperation(operation);
+        }
+    }
+
+    private void logAtomicOperation(ModelNode operation){
+        if(operation.get(OP).asString().equals(COMPOSITE)) // nested composite ops?
+        {
+            Log.error("Failed to to log resources access", operation.toString());
+        }
+        else if(operation.hasDefined(CHILD_TYPE))
+        {
+            //ModelNode address = operation.get(ADDRESS).clone();
+            //address.add(operation.get(CHILD_TYPE).toString(), "*");
+            resourceLog.log(Window.Location.getHash(), operation.get(ADDRESS).toString()+" : "+operation.get(OP).asString()+"(child-type="+operation.get(CHILD_TYPE)+")");
+        }
+        else
+        {
+            resourceLog.log(Window.Location.getHash(), operation.get(ADDRESS).toString()+" : "+operation.get(OP).asString());
+        }
     }
 
     @Override
@@ -136,6 +190,9 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         {
             idCounter = 0;
         }
+
+        // workaround https://issues.jboss.org/browse/WFLY-1732
+        final boolean collectionResponse = expectCollectionResponse(operation);
 
         Request request = null;
         try
@@ -156,8 +213,14 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     int statusCode = response.getStatusCode();
                     if (200 == statusCode)
                     {
-                        resultCallback.onSuccess(new DMRResponse(requestBuilder.getHTTPMethod(), response.getText(),
-                                response.getHeader(HEADER_CONTENT_TYPE)));
+                        resultCallback.onSuccess(
+                                new DMRResponse(
+                                        requestBuilder.getHTTPMethod(),
+                                        response.getText(),
+                                        response.getHeader(HEADER_CONTENT_TYPE),
+                                        collectionResponse
+                                )
+                        );
                     }
                     else if (401 == statusCode || 0 == statusCode)
                     {
@@ -208,6 +271,22 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             resultCallback.onFailure(e);
         }
         return request;
+    }
+
+
+    final static String[] COLLECTION_OPS = {
+            READ_CHILDREN_RESOURCES_OPERATION
+    };
+
+    private static boolean expectCollectionResponse(ModelNode operation) {
+        for(String op : COLLECTION_OPS)
+        {
+            if(op.equals(operation.get(OP).asString()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private RequestBuilder chooseRequestBuilder(final ModelNode operation)

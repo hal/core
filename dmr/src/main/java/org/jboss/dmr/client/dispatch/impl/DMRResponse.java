@@ -24,9 +24,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
 import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 import static org.jboss.dmr.client.ModelDescriptionConstants.SUCCESS;
 
-import org.jboss.dmr.client.ModelDescriptionConstants;
+import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.Result;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -34,17 +40,24 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class DMRResponse implements Result<ModelNode> {
 
+    private static final String FILTERED_ATTRIBUTES = "filtered-attributes";
+    private static final String ABSOLUTE_ADDRESS = "absolute-address";
+    private static final String RELATIVE_ADDRESS = "relative-address";
+
     private String method;
     private String responseText;
     private String contentType;
-    //private ResponseProcessor processor;
+    private final boolean collectionResponse;
 
-    public DMRResponse(String method, String responseText, String contentType) {
+    public DMRResponse(String method, String responseText, String contentType, boolean collectionResponse) {
         this.method = method;
         this.responseText = responseText;
         this.contentType = contentType;
+        this.collectionResponse = collectionResponse;     // https://issues.jboss.org/browse/WFLY-1732
+    }
 
-        //this.processor = ResponseProcessorFactory.INSTANCE.get();
+    public boolean isCollectionResponse() {
+        return collectionResponse;
     }
 
     @Override
@@ -54,8 +67,42 @@ public class DMRResponse implements Result<ModelNode> {
         try {
             response = ModelNode.fromBase64(responseText);
 
+            if(response.hasDefined("response-headers"))
+            {
+                ModelNode responseHeaders = response.get("response-headers");
+                if(responseHeaders.hasDefined("access-control"))
+                {
+                    ModelNode accessHeader = responseHeaders.get("access-control");
+                    assert ModelType.LIST == accessHeader.getType();
+
+                    // workaround https://issues.jboss.org/browse/WFLY-1732
+                    if(isCollectionResponse())
+                    {
+                        List<ModelNode> collection = response.get(RESULT).asList();
+                        response.get(RESULT).set(collection);
+                    }
+
+                    if(ModelType.LIST == response.get(RESULT).getType())
+                    {
+                        for(ModelNode item : response.get(RESULT).asList())
+                        {
+                            inlineAccessControlMetaData(accessHeader.asList(), item);
+                        }
+                    }
+                    else if(ModelType.OBJECT == response.get(RESULT).getType())
+                    {
+                        inlineAccessControlMetaData(accessHeader.asList(), response.get(RESULT));
+                    }
+                    else
+                    {
+                        throw new RuntimeException("Unexpected response "+ response);
+                    }
+
+                }
+            }
+
             if ("GET".equals(method)) {
-                // For GET request the response is purley the model nodes result. The outcome
+                // For GET request the response is purely the model nodes result. The outcome
                 // is not send as part of the response but expressed with the HTTP status code.
                 // In order to not break existing code, we repackage the payload into a
                 // new model node with an "outcome" and "result" key.
@@ -71,7 +118,7 @@ public class DMRResponse implements Result<ModelNode> {
             err.get("outcome").set("failed");
             err.get("failure-description").set(
                     "Failed to decode response: "+
-                    e.getClass().getName() +": "+e.getMessage());
+                            e.getClass().getName() +": "+e.getMessage());
             response = err;
         }
 
@@ -81,4 +128,69 @@ public class DMRResponse implements Result<ModelNode> {
         return response;
     }
 
+    private void inlineAccessControlMetaData(List<ModelNode> accessHeader, ModelNode payload) {
+
+        if(accessHeader.isEmpty())
+        {
+            Log.debug("response-header w/o access control meta data found!");
+            return;
+        }
+
+        // match payload and inline response meta data
+        for(ModelNode header : accessHeader)
+        {
+            List<Property> relativeAddress = header.get(RELATIVE_ADDRESS).asPropertyList();
+            List<ModelNode> attributeNames = header.get(FILTERED_ATTRIBUTES).asList();
+
+            ModelNode cursor = null;
+
+            if(relativeAddress.isEmpty())
+            {
+                cursor = payload;
+            }
+            else
+            {
+
+                for(Property addressSegment : relativeAddress)
+                {
+                    ModelNode target = (cursor == null) ? payload : cursor;
+                    String type = addressSegment.getName();
+                    String id = addressSegment.getValue().asString();
+
+                    // TODO: https://issues.jboss.org/browse/WFLY-1741
+                    if(target.hasDefined(type))     // qualified response
+                    {
+                        cursor = target.get(type).get(id);
+                    }
+                    else if(target.hasDefined(id))  // unqualified response
+                    {
+                        cursor = target.get(id);
+                    }
+                }
+            }
+
+            if(cursor!=null)
+            {
+                //System.out.println("cursor @ "+ cursor);
+
+                // attributes names should exist on this resource
+                for(ModelNode att : attributeNames)
+                {
+                    String name = att.asString();
+                    assert cursor.keys().contains(name) : "Illegal cursor: attributes not found on resource";
+                }
+
+                cursor.get("_"+FILTERED_ATTRIBUTES).set(attributeNames);
+            }
+        }
+
+    }
+
+    private static Set<String> toSet(List<ModelNode> nodeList)
+    {
+        final Set<String> s = new HashSet<String>(nodeList.size());
+        for(ModelNode n : nodeList)
+            s.add(n.asString());
+        return s;
+    }
 }

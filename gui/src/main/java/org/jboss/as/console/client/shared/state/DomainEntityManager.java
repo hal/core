@@ -8,6 +8,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;

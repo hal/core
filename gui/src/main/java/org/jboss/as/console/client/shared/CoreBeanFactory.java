@@ -30,6 +30,8 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.administration.role.Principal;
+import org.jboss.as.console.client.administration.role.RoleAssignment;
 import org.jboss.as.console.client.shared.deployment.DeploymentReference;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEjb;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEndpoint;
@@ -296,4 +298,8 @@ public interface CoreBeanFactory {
 
     AutoBean<TXRecord> txRecord();
     AutoBean<TXParticipant> txParticipant();
+
+    // RBAC and related
+    AutoBean<RoleAssignment> roleAssignment();
+    AutoBean<Principal> principal();
 }

@@ -17,6 +17,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -79,9 +80,11 @@ public class ResourceAdapterPresenter
     private EntityAdapter<PoolConfig> poolAdapter;
     private EntityAdapter<AdminObject> adminAdapter;
 
-
     @ProxyCodeSplit
     @NameToken(NameTokens.ResourceAdapterPresenter)
+    @AccessControl(resources = {
+                "/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"
+        })
     public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
     }
 

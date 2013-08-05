@@ -21,6 +21,7 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
@@ -28,6 +29,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
@@ -51,8 +54,14 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String SUBSYSTEM_FILENAME = "org.jboss.as.console.client.plugins.SubsystemRegistryImpl";
     private static final String SUBSYSTEM_TEMPLATE = "SubsystemExtensions.tmpl";
 
+    private static final String ACCESS_FILENAME = "org.jboss.as.console.client.plugins.AccessControlRegistryImpl";
+    private static final String ACCESS_TEMPLATE = "AccessControlRegistry.tmpl";
+
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
     private static final String RUNTIME_TEMPLATE = "RuntimeExtensions.tmpl";
+
+    private static final String VERSION_INFO_FILENAME = "org.jboss.as.console.client.VersionInfo";
+    private static final String VERSION_INFO_TEMPLATE = "VersionInfo.tmpl";
 
     private static final String MODULE_FILENAME = "App.gwt.xml";
     private static final String MODULE_DEV_FILENAME = "App_dev.gwt.xml";
@@ -73,6 +82,7 @@ public class SPIProcessor extends AbstractProcessor {
     private List<String> discoveredBeanFactories;
     private List<String> categoryClasses;
     private List<SubsystemExtensionMetaData> subsystemDeclararions;
+    private List<AccessControlMetaData> accessControlDeclararions;
     private List<RuntimeExtensionMetaData> runtimeExtensions;
     private Set<String> modules = new LinkedHashSet<>();
     private Set<String> nameTokens;
@@ -87,6 +97,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.discoveredBeanFactories = new ArrayList<>();
         this.categoryClasses = new ArrayList<>();
         this.subsystemDeclararions = new ArrayList<>();
+        this.accessControlDeclararions = new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
 
@@ -120,33 +131,61 @@ public class SPIProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnv) {
 
-        if (!roundEnv.processingOver()) {
+
+        if(!roundEnv.processingOver()) {
+
+            System.out.println("=================================");
             System.out.println("Begin Components discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> extensionElements = roundEnv.getElementsAnnotatedWith(GinExtension.class);
             for (Element element : extensionElements) {
                 handleGinExtensionElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin Bindings discovery ...");
-            Set<? extends Element> extensionBindingElements = roundEnv
-                    .getElementsAnnotatedWith(GinExtensionBinding.class);
-            for (Element element : extensionBindingElements) {
+            System.out.println("=================================");
+
+            Set<? extends Element> extensionBindingElements = roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class);
+
+            for (Element element: extensionBindingElements)
+            {
                 handleGinExtensionBindingElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin BeanFactory discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> beanFactoryElements = roundEnv.getElementsAnnotatedWith(BeanFactoryExtension.class);
             for (Element element : beanFactoryElements) {
                 handleBeanFactoryElement(element);
             }
 
+            System.out.println("=================================");
             System.out.println("Begin Subsystem discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> subsystemElements = roundEnv.getElementsAnnotatedWith(SubsystemExtension.class);
             for (Element element : subsystemElements) {
                 handleSubsystemElement(element);
             }
 
+            System.out.println("=================================");
+            System.out.println("Parse AccessControl metadata ...");
+            System.out.println("=================================");
+            Set<? extends Element> accessElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
+
+            for (Element element: accessElements)
+            {
+                handleAccessControlElement(element);
+            }
+
+            System.out.println("=================================");
             System.out.println("Begin Runtime Extension discovery ...");
+            System.out.println("=================================");
+
             Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(RuntimeExtension.class);
             for (Element element : elements) {
                 handleRuntimeExtensions(element);
@@ -161,9 +200,46 @@ public class SPIProcessor extends AbstractProcessor {
                 e.printStackTrace();
                 throw new RuntimeException("Failed to process SPI artifacts");
             }
+
+            System.out.println("=================================");
             System.out.println("SPI component discovery completed.");
         }
         return true;
+    }
+
+    private void handleAccessControlElement(Element element) {
+
+
+        List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
+        for (AnnotationMirror mirror: annotationMirrors)
+        {
+            final String annotationType = mirror.getAnnotationType().toString();
+
+            if ( annotationType.equals(NameToken.class.getName()) )
+            {
+                NameToken nameToken = element.getAnnotation(NameToken.class);
+                AccessControl accessControl = element.getAnnotation(AccessControl.class);
+
+                if(accessControl!=null)   {
+
+                    for(String resourceAddress : accessControl.resources())
+                    {
+                        AccessControlMetaData declared = new AccessControlMetaData(
+                                nameToken.value(), resourceAddress
+                        );
+
+                        declared.setFacet(accessControl.facet());
+
+                        accessControlDeclararions.add(declared);
+                    }
+                }
+                else if(element.getAnnotation(NoGatekeeper.class)==null)
+                {
+                    Name simpleName = element.getEnclosingElement()!=null ? element.getEnclosingElement().getSimpleName() : element.getSimpleName();
+                    System.out.println(simpleName +"(#"+nameToken.value()+")" +" is missing @AccessControl annotation!");
+                }
+            }
+        }
     }
 
     private void handleGinExtensionBindingElement(Element element) {
@@ -262,15 +338,29 @@ public class SPIProcessor extends AbstractProcessor {
         writeBindingFile();
         writeBeanFactoryFile();
         writeSubsystemFile();
+        writeAccessControlFile();
         writeRuntimeFile();
         writeModuleFile();
         writeDevModuleFile();
         writeProductModuleFile();
         writeProductDevModuleFile();
         writeProxyConfigurations();
+        writeVersionInfo();
+    }
+
+    private void writeAccessControlFile() throws Exception {
+        Map<String, Object> model = new HashMap<>();
+        model.put("metaData", accessControlDeclararions);
+
+        JavaFileObject sourceFile = filer.createSourceFile(ACCESS_FILENAME);
+        OutputStream output = sourceFile.openOutputStream();
+        new TemplateProcessor().process(ACCESS_TEMPLATE, model, output);
+        output.flush();
+        output.close();
     }
 
     private void writeGinjectorFile() throws Exception {
+
         Map<String, Object> model = new HashMap<>();
         model.put("extensions", discoveredExtensions);
 
@@ -398,6 +488,7 @@ public class SPIProcessor extends AbstractProcessor {
         }
     }
 
+
     private void writeProxyConfigurations() {
         try {
             String devHostUrl = processingEnv.getOptions().get("console.dev.host") != null ?
@@ -428,5 +519,18 @@ public class SPIProcessor extends AbstractProcessor {
         } catch (IOException e) {
             throw new RuntimeException("Failed to create file", e);
         }
+    }
+
+    private void writeVersionInfo() throws IOException {
+        Map<String, String> options = processingEnv.getOptions();
+        String version = options.containsKey("version") ? options.get("version") : "n/a";
+        Map<String, Object> model = new HashMap<String, Object>();
+        model.put("version", version);
+
+        JavaFileObject sourceFile = filer.createSourceFile(VERSION_INFO_FILENAME);
+        OutputStream output = sourceFile.openOutputStream();
+        new TemplateProcessor().process(VERSION_INFO_TEMPLATE, model, output);
+        output.flush();
+        output.close();
     }
 }

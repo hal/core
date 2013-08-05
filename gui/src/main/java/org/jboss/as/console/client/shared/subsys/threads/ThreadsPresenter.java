@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.spi.AccessControl;
 
 
 /**
@@ -41,6 +42,9 @@ public class ThreadsPresenter extends Presenter<ThreadsPresenter.MyView, Threads
 
     @ProxyCodeSplit
     @NameToken(NameTokens.BoundedQueueThreadPoolPresenter)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=threads"
+    })
     public interface MyProxy extends Proxy<ThreadsPresenter>, Place {
     }
 

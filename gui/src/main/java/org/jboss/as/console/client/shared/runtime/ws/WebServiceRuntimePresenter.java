@@ -16,6 +16,7 @@ import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
+import org.jboss.as.console.spi.AccessControl;
 
 import java.util.List;
 
@@ -32,6 +33,9 @@ public class WebServiceRuntimePresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServiceRuntimePresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {
     }
 

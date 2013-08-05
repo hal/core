@@ -18,6 +18,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
@@ -37,7 +38,9 @@ public class UndertowServletPresenter extends Presenter<ServletView, UndertowSer
 
     @ProxyCodeSplit
     @NameToken(NameTokens.UndertowServlet)
-    //@SubsystemExtension(name="Servlets", group="Web", key="undertow")
+    @AccessControl(resources = {
+               "{selected.profile}/subsystem=undertow/servlet-container=*"
+       })
     public interface MyProxy extends Proxy<UndertowServletPresenter>, Place {
     }
 
@@ -55,7 +58,7 @@ public class UndertowServletPresenter extends Presenter<ServletView, UndertowSer
 
         CoreGUIContext globalContext = new CoreGUIContext(
                 Console.MODULES.getCurrentSelectedProfile(),
-                Console.MODULES.getCurrentUser()
+                Console.MODULES.getCurrentUser() , Console.MODULES.getDomainEntityManager()
         );
 
         // mbui kernel instance

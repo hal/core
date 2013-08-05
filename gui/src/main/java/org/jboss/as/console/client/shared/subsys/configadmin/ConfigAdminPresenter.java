@@ -14,6 +14,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -42,6 +43,9 @@ public class ConfigAdminPresenter extends Presenter<ConfigAdminPresenter.MyView,
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ConfigAdminPresenter)
+    @AccessControl(resources = {
+            "/{selected.profile}/subsystem=osgi"
+    })
     public interface MyProxy extends Proxy<ConfigAdminPresenter>, Place {
     }
 

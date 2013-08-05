@@ -6,18 +6,15 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.jvm.LoadJVMMetricsCmd;
 import org.jboss.as.console.client.shared.jvm.model.CompositeVMMetric;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -27,7 +24,9 @@ import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Heiko Braun
@@ -46,7 +45,15 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
-    @UseGatekeeper( DomainGateKeeper.class )
+    @AccessControl(
+            resources = {
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
+                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
+            } ,
+            facet = "runtime"
+    )
     public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {
     }
 
@@ -59,7 +66,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
             DomainEntityManager domainManager,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData metaData, HostInformationStore hostInfoStore
-            ) {
+    ) {
         super(eventBus, view, proxy);
 
         this.domainManager = domainManager;
@@ -76,7 +83,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
             public void execute() {
                 if(isVisible()) refresh();
             }
-         });
+        });
     }
 
     @Override

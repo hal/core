@@ -1,0 +1,32 @@
+
+package org.jboss.as.console.client.plugins;
+
+import java.util.*;
+
+public class AccessControlRegistryImpl implements AccessControlRegistry{
+
+private Set<AccessControlMetaData> accessMetaData;
+    private ResourceMapping resourceMapping;
+
+    public AccessControlRegistryImpl() {
+
+    this.accessMetaData = new HashSet<AccessControlMetaData>();
+        this.resourceMapping = new ResourceMapping();
+
+        <#list metaData as md>
+
+            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.getFacet()}");
+
+        </#list>
+
+     }
+
+     public Set<String> getResources(String token) {
+         return resourceMapping.getResources(token);
+     }
+
+
+    public String getFacet(String token) {
+         return resourceMapping.getFacet(token);
+    }
+}

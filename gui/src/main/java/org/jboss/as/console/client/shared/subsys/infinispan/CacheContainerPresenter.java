@@ -33,7 +33,7 @@ import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-
+import org.jboss.as.console.spi.AccessControl;
 
 
 /**
@@ -48,6 +48,9 @@ public class CacheContainerPresenter extends Presenter<CacheContainerPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.CacheContainerPresenter)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=infinispan"
+    })
     public interface MyProxy extends Proxy<CacheContainerPresenter>, Place {
     }
 

@@ -60,12 +60,14 @@ public class Header implements ValueChangeHandler<String> {
     public static final String[][] SECTIONS = {
             new String[]{NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_profiles()},
             new String[]{NameTokens.HostMgmtPresenter, "Hosts"},
-            new String[]{NameTokens.DomainRuntimePresenter, "Runtime"}
+            new String[]{NameTokens.DomainRuntimePresenter, "Runtime"},
+            new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
     };
 
     public static final String[][] SECTIONS_STANADLONE = {
             new String[]{NameTokens.serverConfig, "Profile"},
-            new String[]{NameTokens.StandaloneRuntimePresenter, "Runtime"}
+            new String[]{NameTokens.StandaloneRuntimePresenter, "Runtime"},
+            new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
     };
 
     private MessageBar messageBar;

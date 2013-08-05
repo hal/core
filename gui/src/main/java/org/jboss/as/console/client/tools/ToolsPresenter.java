@@ -10,6 +10,7 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -18,6 +19,8 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.AccessLogView;
+import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
@@ -33,9 +36,11 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
     private String requestedTool;
     private DefaultWindow window;
+    private RunAsRoleTool runAsRoleTool;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ToolsPresenter)
+    @NoGatekeeper
     public interface MyProxy extends Proxy<ToolsPresenter>, Place {
     }
 
@@ -102,7 +107,34 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
         {
             placeManager.revealPlace(new PlaceRequest("mbui-workbench"));
         }
+        else if("access-log".equals(requestedTool))
+        {
+            if(window == null)
+            {
+                window = new DefaultWindow("Resource Access Log");
+                window.setWidth(480);
+                window.setHeight(360);
 
 
+                AccessLogView panel = new AccessLogView();
+                Widget w = panel.asWidget();
+                window.setWidget(new ScrollPanel(w));
+
+                window.setModal(false);
+                //window.setGlassEnabled(true);
+                window.center();
+            }
+            else
+            {
+                window.show();
+            }
+            //RevealRootPopupContentEvent.fire(this, debug);
+        }
+        else if ("run-as-role".equals(requestedTool)) {
+            if (runAsRoleTool == null) {
+                runAsRoleTool = new RunAsRoleTool();
+            }
+            runAsRoleTool.launch();
+        }
     }
 }

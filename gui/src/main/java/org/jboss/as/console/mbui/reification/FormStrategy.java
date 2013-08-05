@@ -54,6 +54,7 @@ import org.useware.kernel.model.structure.QName;
 import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -327,7 +328,9 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                 public void onPresentationEvent(PresentationEvent event) {
 
                     assert (event.getPayload() instanceof ModelNode) : "Unexpected type "+event.getPayload().getClass();
-                    form.edit((ModelNode)event.getPayload());
+                    ModelNode payload = (ModelNode) event.getPayload();
+
+                    form.edit(payload);
                 }
             });
 

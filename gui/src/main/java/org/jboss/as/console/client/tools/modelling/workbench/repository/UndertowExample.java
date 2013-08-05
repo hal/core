@@ -66,7 +66,7 @@ public class UndertowExample implements Sample {
                     .end()
 
 
-                    .start(errorHandler)
+                    /*.start(errorHandler)
                         .start(new Container(ns, "undertow#error", "Error Pages", Concurrency))
                             .add(new Select(ns, "errorHandler", "ErrorHandlerSelection"))
                                 .mappedBy(
@@ -79,7 +79,7 @@ public class UndertowExample implements Sample {
                                     .setAddress("/{selected.profile}/subsystem=undertow/configuration=error-handler/error-page={selected.entity}")
                                 )
                         .end()
-                    .end()
+                    .end()  */
 
 
                     .start(filter)

@@ -15,6 +15,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -55,6 +56,9 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JPAMetricPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"
+    })
     public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {
     }
 

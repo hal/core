@@ -21,12 +21,18 @@ package org.jboss.as.console.client.core;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,16 +43,20 @@ import java.util.List;
  */
 public class DefaultPlaceManager extends PlaceManagerImpl {
 
+    private final SecurityService securityService;
+    private final UnauthorisedPresenter unauthPlace;
     private BootstrapContext bootstrap;
     private EventBus eventBus;
 
     @Inject
     public DefaultPlaceManager(
             EventBus eventBus,
-            TokenFormatter tokenFormatter, BootstrapContext bootstrap ) {
+            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityService securityService, UnauthorisedPresenter unauthPlace) {
         super(eventBus, tokenFormatter);
         this.bootstrap = bootstrap;
         this.eventBus = eventBus;
+        this.securityService = securityService;
+        this.unauthPlace = unauthPlace;
     }
 
     @Override
@@ -65,30 +75,56 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     }
 
     @Override
-    protected void doRevealPlace(final PlaceRequest request, boolean updateBrowserUrl) {
-        super.doRevealPlace(request, updateBrowserUrl);
+    protected void doRevealPlace(final PlaceRequest request, final boolean updateBrowserUrl) {
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                eventBus.fireEvent(
-                        new LHSHighlightEvent(request.getNameToken())
-                );
-            }
-        });
+        final String nameToken = request.getNameToken();
+
+        if(!securityService.hasContext(nameToken))
+        {
+            securityService.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
+                @Override
+                public void onFailure(Throwable throwable) {
+                    Console.error("SecurityServiceException", throwable.getMessage());
+                    unlock();
+                    revealUnauthorizedPlace(nameToken);
+                }
+
+                @Override
+                public void onSuccess(SecurityContext securityContext) {
+
+                    unlock();
+                    doRevealPlace(request, updateBrowserUrl);
+
+                }
+            });
+        }
+        else
+        {
+            // this is where the gatekeeper kicks in ...
+            super.doRevealPlace(request, true);
+
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    eventBus.fireEvent(
+                            new LHSHighlightEvent(nameToken)
+                    );
+                }
+            });
+
+
+            // ability to invalidate the security context
+            //if(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true").equals("false"))
+            //    securityService.flushContext(nameToken);
+        }
+
 
     }
 
     @Override
     public void revealUnauthorizedPlace(String unauthorizedHistoryToken) {
 
-        // for now this is only used to prevent access to screen that don't work in either execution mode
-        // i.e. domain screens accessed on a standalone server instance (linked from external URL)
-        // hence we can safely redirect to a default place.
-        // Once we move to actual authorization concept this practice needs to be reconsidered
-        Log.debug("Unauthorized place: "+unauthorizedHistoryToken+". Fallback to default place.");
-
-        revealDefaultPlace();
+        RevealRootPopupContentEvent.fire(this, unauthPlace, true);
 
     }
 }

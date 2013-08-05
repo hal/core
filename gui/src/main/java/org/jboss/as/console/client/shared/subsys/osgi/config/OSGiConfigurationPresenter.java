@@ -32,6 +32,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -70,6 +71,12 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
 
     @ProxyCodeSplit
     @NameToken(NameTokens.OSGiConfigurationPresenter)
+    @AccessControl(
+            resources = {
+                    "/{selected.host}/{selected.server}/subsystem=osgi"
+            } ,
+            facet = "runtime"
+    )
     public interface MyProxy extends Proxy<OSGiConfigurationPresenter>, Place {
     }
 
@@ -82,8 +89,8 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
 
     @Inject
     public OSGiConfigurationPresenter(EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, DispatchAsync dispatcher,
-            BeanFactory factory, RevealStrategy revealStrategy) {
+                                      PlaceManager placeManager, DispatchAsync dispatcher,
+                                      BeanFactory factory, RevealStrategy revealStrategy) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
@@ -219,13 +226,13 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
         operation.get(VALUE).set(stringValue);
 
         dispatcher.execute(new DMRAction(operation),
-            new SimpleDMRResponseHandler(WRITE_ATTRIBUTE_OPERATION, ACTIVATION_ATTRIBUTE, stringValue,
-                new Command() {
-                    @Override
-                    public void execute() {
-                        loadOSGiDetails();
-                    }
-                }));
+                new SimpleDMRResponseHandler(WRITE_ATTRIBUTE_OPERATION, ACTIVATION_ATTRIBUTE, stringValue,
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                loadOSGiDetails();
+                            }
+                        }));
     }
 
     public void onAddProperty(final PropertyRecord prop) {
@@ -244,13 +251,13 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
         operation.get("value").set(prop.getValue());
 
         dispatcher.execute(new DMRAction(operation),
-            new SimpleDMRResponseHandler(opName, Console.CONSTANTS.subsys_osgi_frameworkProperty(), prop.getKey(),
-                new Command() {
-                    @Override
-                    public void execute() {
-                        loadOSGiPropertyDetails();
-                    }
-                }));
+                new SimpleDMRResponseHandler(opName, Console.CONSTANTS.subsys_osgi_frameworkProperty(), prop.getKey(),
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                loadOSGiPropertyDetails();
+                            }
+                        }));
     }
 
     public void onDeleteProperty(final PropertyRecord property) {
@@ -258,13 +265,13 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
         operation.get(ADDRESS).add(FRAMEWORK_PROPERTY_RESOURCE, property.getKey());
 
         dispatcher.execute(new DMRAction(operation),
-            new SimpleDMRResponseHandler(REMOVE, Console.CONSTANTS.subsys_osgi_frameworkProperty(), property.getKey(),
-                new Command() {
-                    @Override
-                    public void execute() {
-                        loadOSGiPropertyDetails();
-                    }
-                }));
+                new SimpleDMRResponseHandler(REMOVE, Console.CONSTANTS.subsys_osgi_frameworkProperty(), property.getKey(),
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                loadOSGiPropertyDetails();
+                            }
+                        }));
     }
 
     public void onAddCapability(final OSGiCapability entity) {
@@ -276,13 +283,13 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
             operation.get(STARTLEVEL_ATTRIBUTE).set(entity.getStartLevel());
 
         dispatcher.execute(new DMRAction(operation),
-            new SimpleDMRResponseHandler(ADD, Console.CONSTANTS.subsys_osgi_capability(), entity.getIdentifier(),
-                new Command() {
-                    @Override
-                    public void execute() {
-                        loadOSGiCapabilityDetails();
-                    }
-                }));
+                new SimpleDMRResponseHandler(ADD, Console.CONSTANTS.subsys_osgi_capability(), entity.getIdentifier(),
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                loadOSGiCapabilityDetails();
+                            }
+                        }));
     }
 
     public void onDeleteCapability(final String identifier) {
@@ -290,13 +297,13 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
         operation.get(ADDRESS).add(CAPABILITY_RESOURCE, identifier);
 
         dispatcher.execute(new DMRAction(operation),
-            new SimpleDMRResponseHandler(REMOVE, Console.CONSTANTS.subsys_osgi_capability(), identifier,
-                new Command() {
-                    @Override
-                    public void execute() {
-                        loadOSGiCapabilityDetails();
-                    }
-                }));
+                new SimpleDMRResponseHandler(REMOVE, Console.CONSTANTS.subsys_osgi_capability(), identifier,
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                loadOSGiCapabilityDetails();
+                            }
+                        }));
     }
 
     private ModelNode createOperation(String operator) {

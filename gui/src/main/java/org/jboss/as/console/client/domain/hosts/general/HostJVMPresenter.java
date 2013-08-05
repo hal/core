@@ -28,29 +28,28 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,7 +76,9 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostJVMPresenter)
-    @UseGatekeeper( DomainGateKeeper.class )
+    @AccessControl(resources = {
+            "/{selected.host}/jvm=*",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<HostJVMPresenter>, Place {
     }
 

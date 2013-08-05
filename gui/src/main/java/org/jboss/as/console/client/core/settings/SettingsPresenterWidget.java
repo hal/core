@@ -98,6 +98,12 @@ public class SettingsPresenterWidget
                         Preferences.get(Preferences.Key.ANALYTICS, "true")
                 )
         );
+
+        settings.setSecurityCache(
+                Boolean.valueOf(
+                        Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true")
+                )
+        );
         return settings;
     }
 

@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.spi.AccessControl;
 
 
 /**
@@ -41,6 +42,9 @@ public class LoggingPresenter extends Presenter<LoggingPresenter.MyView, Logging
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Logger)
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=logging"
+    })
     public interface MyProxy extends Proxy<LoggingPresenter>, Place {
     }
 

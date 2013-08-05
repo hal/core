@@ -180,5 +180,19 @@ public class NameTokens {
     public static String getDeploymentBrowserPresenter() {
         return DeploymentBrowserPresenter;
     }
+
+
+    // ------------------------------------------------------
+    // administration tokens below
+
+    public static final String AdministrationPresenter = "administration";
+    public static String getAdministrationPresenter() {
+        return AdministrationPresenter;
+    }
+
+    public static final String RoleAssignmentPresenter = "role-assignement";
+    public static String getRoleAssignmentPresenter() {
+        return RoleAssignmentPresenter;
+    }
 }
 

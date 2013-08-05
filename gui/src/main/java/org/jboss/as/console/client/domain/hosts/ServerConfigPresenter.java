@@ -25,14 +25,12 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.DomainGateKeeper;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.core.message.Message;
@@ -44,9 +42,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
@@ -67,9 +62,13 @@ import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,7 +102,13 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
-    @UseGatekeeper( DomainGateKeeper.class )
+    @AccessControl(resources = {
+            "/socket-binding-group=*",
+            "/server-group=*",
+            "/{selected.host}/server-config=*",
+            "/{selected.host}/server-config=*/jvm=*",
+            "/{selected.host}/server-config=*/system-property",
+    }, facet = "runtime")
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
 

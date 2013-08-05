@@ -9,6 +9,7 @@ import org.jboss.dmr.client.ModelType;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,6 +30,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         this.editedEntity = bean;
 
         final Map<String, String> exprMap = getExpressions(editedEntity);
+
+        final List<ModelNode> filteredDMRNames = bean.hasDefined("_filtered-attributes") ?
+                bean.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
 
         // visit form
         ModelNodeInspector inspector = new ModelNodeInspector(bean);
@@ -67,6 +71,17 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         {
                             item.setUndefined(true);
                             item.setModified(true); // don't escape validation
+                        }
+
+                        // RBAC: attribute level constraints
+
+                        for(ModelNode att : filteredDMRNames)
+                        {
+                            if(att.asString().equals(propertyName))
+                            {
+                                item.setFiltered(true);
+                                break;
+                            }
                         }
                     }
                 });
