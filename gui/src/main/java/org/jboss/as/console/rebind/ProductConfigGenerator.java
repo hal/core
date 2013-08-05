@@ -129,7 +129,7 @@ public class ProductConfigGenerator extends Generator {
     private void generateMethods(SourceWriter sourceWriter, GeneratorContext context) throws Throwable {
         PropertyOracle propertyOracle = context.getPropertyOracle();
 
-        // getProfile() - mandatory
+        // console.profile - mandatory
         String consoleProfile = failFastGetProperty(propertyOracle, "console.profile");
         sourceWriter.println("public ProductConfig.Profile getProfile() { ");
         sourceWriter.indent();
@@ -144,7 +144,7 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // getCoreVersion() - mandatory
+        // console.core.version - mandatory
         String coreConsoleVersion = failFastGetProperty(propertyOracle, "console.core.version");
         sourceWriter.println("public String getCoreVersion() { ");
         sourceWriter.indent();
@@ -152,20 +152,21 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // getConsoleVersion() - optional
-        // If this is not built using the HAL release stream, this property is undefined.
+        // console.version - optional
+        // If this is not built using the HAL release stream, this property is undefined and
+        // the generated method delegates to getConsoleVersion()
         String consoleVersion = failSafeGetProperty(propertyOracle, "console.version", null);
         sourceWriter.println("public String getConsoleVersion() { ");
         sourceWriter.indent();
         if (consoleVersion == null) {
-            sourceWriter.println("return \"Core Console \" + getCoreVersion();");
+            sourceWriter.println("return getCoreVersion();");
         } else {
             sourceWriter.println("return \"%s\";", consoleVersion);
         }
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // getProductTitle() - delegates to the BootstrapContext
+        // getProductName() - delegates to the BootstrapContext
         sourceWriter.println("public String getProductName() { ");
         sourceWriter.indent();
         sourceWriter.println("return org.jboss.as.console.client.Console.MODULES.getBootstrapContext().getProductName();");
@@ -179,7 +180,7 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // getDevHost() - mandatory
+        // console.dev.host - mandatory
         String devHost = failFastGetProperty(propertyOracle, "console.dev.host");
         sourceWriter.println("public String getDevHost() { ");
         sourceWriter.indent();
