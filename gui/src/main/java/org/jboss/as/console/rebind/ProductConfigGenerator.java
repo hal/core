@@ -154,13 +154,12 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.println("}");
 
         // console.version - optional
-        // If this is not built using the HAL release stream, this property is undefined and
-        // the generated method delegates to getConsoleVersion()
+        // If this is not built using the HAL release stream, this property is undefined
         String consoleVersion = failSafeGetProperty(propertyOracle, "console.version", null);
         sourceWriter.println("public String getConsoleVersion() { ");
         sourceWriter.indent();
         if (consoleVersion == null) {
-            sourceWriter.println("return getCoreVersion();");
+            sourceWriter.println("return null;");
         } else {
             sourceWriter.println("return \"%s\";", consoleVersion);
         }

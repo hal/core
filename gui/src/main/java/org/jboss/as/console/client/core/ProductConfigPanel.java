@@ -22,8 +22,8 @@ public class ProductConfigPanel implements IsWidget {
     public Widget asWidget() {
         ProductConfig productConfig = GWT.create(ProductConfig.class);
 
-        TextItem consoleVersion = new TextItem("console_version", "Console version");
-        consoleVersion.setValue(productConfig.getConsoleVersion());
+        TextItem consoleVersion = new TextItem("console_version", "HAL version");
+        consoleVersion.setValue(productConfig.getConsoleVersion() == null ? "n/a" : productConfig.getConsoleVersion());
         consoleVersion.setUndefined(false);
         TextItem coreVersion = new TextItem("core_version", "Core version");
         coreVersion.setValue(productConfig.getCoreVersion());
