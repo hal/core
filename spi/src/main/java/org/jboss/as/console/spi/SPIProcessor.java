@@ -384,7 +384,7 @@ public class SPIProcessor extends AbstractProcessor {
 
     private void writeProductDevModuleFile() {
         try {
-            Map<String, Object> model = new HashMap<>();
+            Map<String, Object> model = new HashMap<String, Object>();
             model.put("modules", modules);
             model.put("properties", gwtConfigProps);
 
