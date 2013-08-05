@@ -98,6 +98,7 @@ public class EnvironmentProperties {
 
         TextItem name = new TextItem("key", "Name");
         TextAreaItem value = new TextAreaItem("value", "Value");
+        value.setEnabled(false);
 
         form.setFields(name, value);
         form.setNumColumns(2);
