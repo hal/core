@@ -2377,3 +2377,7 @@ input[type="checkbox"] {
     padding-left: 20px;
     margin: 0px;
 }
+
+.suppressed {
+    display: none;
+}
