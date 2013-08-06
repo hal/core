@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.state.HostList;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 /**
  * @author Heiko Braun
@@ -40,12 +41,12 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
 
     public HostMgmtView() {
 
-        layout = new SplitLayoutPanel(10);
+        layout = new DefaultSplitLayoutPanel(2);
 
         contentCanvas = new LayoutPanel();
         lhsNavigation = new LHSHostsNavigation();
 
-        layout.addWest(lhsNavigation.asWidget(), 197);
+        layout.addWest(lhsNavigation.asWidget(), 217);
         layout.add(contentCanvas);
 
     }

@@ -107,6 +107,11 @@ public class ContentRepositoryPanel implements IsWidget
         TextAreaItem runtimeName = new TextAreaItem("runtimeName", "Runtime Name");
         final ListItem groups = new ListItem("assignments", "Assigned Groups");
         form.setFields(name, runtimeName, groups);
+
+        runtimeName.setEnabled(false);
+        name.setEnabled(false);
+        groups.setEnabled(false);
+
         form.bind(deploymentsTable);
 
         deploymentSelection.addSelectionChangeHandler(
@@ -191,7 +196,12 @@ public class ContentRepositoryPanel implements IsWidget
         TextAreaItem path = new TextAreaItem("path", "Path");
         TextBoxItem relative = new TextBoxItem("relativeTo", "Relative To");
         form2.setFields(path, relative);
+
+        path.setEnabled(false);
+        relative.setEnabled(false);
+
         form2.bind(deploymentsTable);
+
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)

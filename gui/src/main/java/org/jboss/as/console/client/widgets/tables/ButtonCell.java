@@ -5,9 +5,12 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
 /**
+ * Use {@link TextLinkCell} instead!
+ *
  * @author Heiko Braun
  * @date 10/25/11
  */
+@Deprecated
 public class ButtonCell<T> extends ActionCell<T> {
 
     private String title;

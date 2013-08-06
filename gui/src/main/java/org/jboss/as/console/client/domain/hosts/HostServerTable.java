@@ -102,19 +102,20 @@ public class HostServerTable {
 
         final String panelId = "popup_"+ HTMLPanel.createUniqueId();
         popup = new DefaultPopup(DefaultPopup.Arrow.TOPLEFT);
+        popup.addStyleName("server-picker-popup");
 
         popup.getElement().setId(panelId);
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
-        layout.getElement().setAttribute("style", "padding:5px;");
         //layout.addStyleName("tablepicker-popup");
 
         HorizontalPanel tools = new HorizontalPanel();
         tools.setStyleName("fill-layout-width");
+        tools.setStyleName("server-picker-header");
         if(description!=null)
             tools.add(new HTML(description));
-        InlineLink refresh = new InlineLink(Console.CONSTANTS.common_label_refresh());
+        /*InlineLink refresh = new InlineLink(Console.CONSTANTS.common_label_refresh());
         refresh.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -122,14 +123,15 @@ public class HostServerTable {
             }
         });
         tools.add(refresh);
-        refresh.getElement().getParentElement().setAttribute("style", "vertical-align:right");
+        refresh.getElement().getParentElement().setAttribute("style", "vertical-align:right");*/
         layout.add(tools);
 
         ratio = new HTML("RATIO HERE");
-        layout.add(ratio);
+        //layout.add(ratio);
         // --------------
 
         hostList = new DefaultCellList<Host>(new HostCell());
+        hostList.addStyleName("host-list");
         hostList.setPageSize(6);
         hostSelectionModel = new SingleSelectionModel<Host>();
         hostList.setSelectionModel(hostSelectionModel);
@@ -137,6 +139,7 @@ public class HostServerTable {
         hostList.addStyleName("clip-text") ;
 
         serverList = new DefaultCellList<ServerInstance>(new ServerCell());
+        hostList.addStyleName("server-list");
         serverSelectionModel = new SingleSelectionModel<ServerInstance>(new ProvidesKey<ServerInstance>() {
             @Override
             public Object getKey(ServerInstance serverInstance) {
@@ -195,7 +198,6 @@ public class HostServerTable {
         Label server = new Label("Server");
 
         millerHeader.add(server);
-        millerHeader.getElement().setAttribute("style", "width:100%;border-bottom:1px solid #A7ABB4");
 
         host.getElement().getParentElement().setAttribute("width", "50%");
         server.getElement().getParentElement().setAttribute("width", "50%");
@@ -203,11 +205,12 @@ public class HostServerTable {
 
         layout.add(millerHeader);
 
-        millerHeader.getElement().addClassName("cellTableHeader");
+        millerHeader.getElement().addClassName("server-picker-table-header");
         millerHeader.getElement().getParentElement().setAttribute("style", "vertical-align:bottom");
 
         HorizontalPanel millerPanel = new HorizontalPanel();
         millerPanel.setStyleName("fill-layout");
+        millerPanel.addStyleName("server-picker-table");
 
 
         hostPager = new DefaultPager();
@@ -244,7 +247,7 @@ public class HostServerTable {
                 popup.hide();
             }
         });
-        doneBtn.getElement().setAttribute("style","float:right");
+        doneBtn.getElement().setAttribute("style","margin-right:10px;float:right");
         layout.add(doneBtn);
 
         // --------------

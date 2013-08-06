@@ -68,8 +68,8 @@ public class MainLayoutViewImpl extends ViewImpl
         panel = new DockLayoutPanel(Style.Unit.PX);
         panel.getElement().setAttribute("id", "container");
 
-        panel.addNorth(headerPanel, 58);
-        panel.addSouth(footerPanel, 25);
+        panel.addNorth(headerPanel, 80);
+        panel.addSouth(footerPanel, 42);
         panel.add(mainContentPanel);
 
         getHeaderPanel().add(header.asWidget());

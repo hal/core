@@ -18,7 +18,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
+import org.jboss.ballroom.client.widgets.icons.DefaultTreeResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -72,9 +74,12 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
     private void create() {
         window = new DefaultWindow("Management Model View");
+        window.addStyleName("model-browser-window");
+
         window.setGlassEnabled(true);
 
-        tree = new Tree();
+        tree = new Tree(DefaultTreeResources.INSTANCE);
+
         tree.getElement().addClassName("browser-tree");
         tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
@@ -90,7 +95,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             }
         });
 
-        layout = new SplitLayoutPanel(10);
+        layout = new DefaultSplitLayoutPanel(2);
+        layout.addStyleName("model-browser");
         treeContainer = new VerticalPanel();
         treeContainer.setStyleName("fill-layout");
         treeContainer.getElement().setAttribute("style", "padding:10px");

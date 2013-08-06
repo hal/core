@@ -6,9 +6,9 @@ import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.Sampler;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
-import org.jboss.as.console.client.shared.runtime.charts.LineChartView;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 
 /**
  * @author Heiko Braun
@@ -36,9 +36,9 @@ public class ThreadChartView implements Sampler {
                 new NumberColumn("daemon-thread-count","Daemon").setComparisonColumn(live)
         };
 
-        if(Console.visAPILoaded()) {
-            sampler = new LineChartView(320,200, title)
-                    .setColumns(threadCols);
+        if(Console.protovisAvailable()) {
+            sampler = new BulletGraphView(title, "number of Threads")
+                            .setColumns(threadCols);
         }
         else
         {

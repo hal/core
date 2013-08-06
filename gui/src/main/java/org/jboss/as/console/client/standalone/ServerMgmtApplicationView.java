@@ -27,6 +27,7 @@ import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class ServerMgmtApplicationView extends ViewImpl
     public ServerMgmtApplicationView() {
         super();
 
-        layout = new SplitLayoutPanel(10);
+        layout = new DefaultSplitLayoutPanel(2);
 
         contentCanvas = new LayoutPanel();
         contentCanvas.getElement().setAttribute("role", "main");
@@ -62,7 +63,7 @@ public class ServerMgmtApplicationView extends ViewImpl
         Widget nav = lhsNavigation.asWidget();
         nav.getElement().setAttribute("role", "navigation");
 
-        layout.addWest(nav, 197);
+        layout.addWest(nav, 217);
         layout.add(contentCanvas);
 
     }

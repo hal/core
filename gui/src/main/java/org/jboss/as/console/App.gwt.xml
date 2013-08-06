@@ -23,6 +23,7 @@
     <inherits name="com.google.gwt.i18n.I18N"/>
     <inherits name="com.google.gwt.json.JSON"/>
     <inherits name='com.google.gwt.visualization.Visualization'/>
+    <inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT"/>
     <inherits name="com.google.web.bindery.autobean.AutoBean"/>
 
     <inherits name="org.jboss.ballroom.Framework"/>
@@ -110,7 +111,6 @@
     <set-configuration-property name="user.agent.runtimeWarning" value="true"/>
 
     <stylesheet src="lab.css" />
-
 
     <source path="client" />
     <source path="mbui" />

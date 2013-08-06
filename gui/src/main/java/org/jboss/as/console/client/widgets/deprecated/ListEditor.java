@@ -31,7 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
-import org.jboss.as.console.client.widgets.tables.ButtonCell;
+import org.jboss.as.console.client.widgets.tables.TextLinkCell;
 import org.jboss.ballroom.client.I18n;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -119,7 +119,7 @@ public class ListEditor<T extends Comparable> {
         //      valueColumn.setSortable(true);
 
         Column<T, T> removeCol = new Column<T, T>(
-                new ButtonCell<T>(I18n.CONSTANTS.common_label_remove(), new ActionCell.Delegate<T>() {
+                new TextLinkCell<T>(I18n.CONSTANTS.common_label_delete(), new ActionCell.Delegate<T>() {
                     @Override
                     public void execute(final T o) {
                         Feedback.confirm(

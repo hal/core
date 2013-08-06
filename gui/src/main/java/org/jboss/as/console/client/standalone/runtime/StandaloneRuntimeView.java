@@ -8,6 +8,7 @@ import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class StandaloneRuntimeView extends ViewImpl implements StandaloneRuntime
     public StandaloneRuntimeView() {
         super();
 
-        layout = new SplitLayoutPanel(10);
+        layout = new DefaultSplitLayoutPanel(2);
 
         contentCanvas = new LayoutPanel();
         lhsNavigation = new StandaloneRuntimeNavigation();
@@ -36,7 +37,7 @@ public class StandaloneRuntimeView extends ViewImpl implements StandaloneRuntime
 
         contentCanvas.getElement().setAttribute("role", "main");
 
-        layout.addWest(nav, 197);
+        layout.addWest(nav, 217);
         layout.add(contentCanvas);
 
     }

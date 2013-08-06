@@ -99,42 +99,43 @@ public class Header implements ValueChangeHandler<String> {
         Widget logo = getProductSection();
         Widget links = getLinksSection();
 
-        LayoutPanel rhs = new LayoutPanel();
-        rhs.setStyleName("fill-layout");
+        LayoutPanel line = new LayoutPanel();
+        line.setStyleName("header-line");
+        LayoutPanel top = new LayoutPanel();
+        top.setStyleName("header-top");
+        LayoutPanel bottom = new LayoutPanel();
+        bottom.setStyleName("header-bottom");
+
+        outerLayout.add(line);
+        outerLayout.add(top);
+        outerLayout.add(bottom);
+
+        outerLayout.setWidgetTopHeight(line, 0, Style.Unit.PX, 4, Style.Unit.PX);
+        outerLayout.setWidgetTopHeight(top, 4, Style.Unit.PX, 32, Style.Unit.PX);
+        outerLayout.setWidgetTopHeight(bottom, 36, Style.Unit.PX, 44, Style.Unit.PX);
+
+        top.add(logo);
+        top.setWidgetLeftWidth(logo, 15, Style.Unit.PX, 500, Style.Unit.PX);
+        top.setWidgetTopHeight(logo, 0, Style.Unit.PX, 32, Style.Unit.PX);
+
+        bottom.add(links);
+        bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 500, Style.Unit.PX);
+        bottom.setWidgetTopHeight(links, 0, Style.Unit.PX, 44, Style.Unit.PX);
 
         MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
         Widget messageCenter = messageCenterView.asWidget();
-        rhs.add(messageCenter);
-        rhs.add(links);
-
-        rhs.setWidgetRightWidth(messageCenter, 10, Style.Unit.PX, 100, Style.Unit.PCT);
-        rhs.setWidgetRightWidth(links, 10, Style.Unit.PX, 100, Style.Unit.PCT);
-        rhs.setWidgetBottomHeight(messageCenter, 27, Style.Unit.PX, 28, Style.Unit.PX);
-        rhs.setWidgetBottomHeight(links, 0, Style.Unit.PX, 24, Style.Unit.PX);
-
-        LayoutPanel innerLayout = new LayoutPanel();
-        innerLayout.add(logo);
-        innerLayout.add(rhs);
-
-        innerLayout.setWidgetLeftWidth(logo, 0, Style.Unit.PX, 50, Style.Unit.PCT);
-        innerLayout.setWidgetRightWidth(rhs, 10, Style.Unit.PX, 50, Style.Unit.PCT);
-        innerLayout.setWidgetBottomHeight(rhs, 0, Style.Unit.PX, 58, Style.Unit.PX);
-
-        outerLayout.add(innerLayout);
-
-        outerLayout.setWidgetTopHeight(innerLayout, 0, Style.Unit.PX, 58, Style.Unit.PX);
-
+        top.add(messageCenter);
+        top.setWidgetRightWidth(messageCenter, 15, Style.Unit.PX, 450, Style.Unit.PX);
+        top.setWidgetTopHeight(messageCenter, 0, Style.Unit.PX, 32, Style.Unit.PX);
 
         outerLayout.getElement().setAttribute("role", "navigation");
         outerLayout.getElement().setAttribute("aria-label", "Toplevel Categories");
-
         return outerLayout;
     }
 
     private Widget getProductSection() {
 
         HorizontalPanel panel = new HorizontalPanel();
-        panel.setStyleName("product-section");
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
 
@@ -146,11 +147,6 @@ public class Header implements ValueChangeHandler<String> {
         productVersion.setStyleName("header-product-version");
         panel.add(productVersion);
 
-        productName.getElement().getParentElement().setAttribute("valign", "bottom");
-        productName.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
-
-        productVersion.getElement().getParentElement().setAttribute("valign", "bottom");
-        productVersion.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
         return panel;
     }
 

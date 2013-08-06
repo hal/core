@@ -15,6 +15,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
@@ -131,9 +132,18 @@ public class DataSourceMetrics {
                 new NumberColumn("MaxUsedCount","Max Used").setComparisonColumn(avail)
         };
 
-        poolSampler = new PlainColumnView(title, addressCallback)
-                .setColumns(cols)
-                .setWidth(100, Style.Unit.PCT);
+        if(Console.protovisAvailable())
+        {
+            poolSampler = new BulletGraphView(title, "count")
+                    .setColumns(cols);
+        }
+        else
+        {
+            poolSampler = new PlainColumnView(title, addressCallback)
+                    .setColumns(cols)
+                    .setWidth(100, Style.Unit.PCT);
+
+        }
 
 
         // ----
@@ -170,14 +180,21 @@ public class DataSourceMetrics {
         NumberColumn avail2 = new NumberColumn("PreparedStatementCacheCurrentSize", "Current Size");
         Column[] cols2 = new Column[] {
                 avail2.setBaseline(true),
-                new NumberColumn("PreparedStatementCacheHitCount","Hit Count").setComparisonColumn(avail),
-                new NumberColumn("PreparedStatementCacheMissCount","Miss Used").setComparisonColumn(avail)
+                new NumberColumn("PreparedStatementCacheHitCount","Hit Count").setComparisonColumn(avail2),
+                new NumberColumn("PreparedStatementCacheMissCount","Miss Used").setComparisonColumn(avail2)
         };
 
-        cacheSampler = new PlainColumnView(title2, addressCallback2)
-                .setColumns(cols2)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            cacheSampler = new BulletGraphView(title2, "count")
+                    .setColumns(cols2);
+        }
+        else
+        {
+            cacheSampler = new PlainColumnView(title2, addressCallback2)
+                    .setColumns(cols2)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle(isXA? "XA Data Sources":"Data Sources")

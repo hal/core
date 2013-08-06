@@ -112,9 +112,16 @@ public class FormHelpPanel {
                     }
                     else
                     {
-                        for(FieldDesc field : result)
+
+                        for(int i=0; i<result.size();i++)
                         {
-                            html.appendHtmlConstant("<tr class='help-field-row'>");
+                            FieldDesc field = result.get(i);
+
+                            if(i<result.size()-1)
+                                html.appendHtmlConstant("<tr class='help-field-row'>");
+                            else
+                                html.appendHtmlConstant("<tr class='help-field-row-last'>");
+
                             html.appendHtmlConstant("<td class='help-field-name'>");
 
                             String ref = field.getRef();

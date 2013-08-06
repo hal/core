@@ -94,12 +94,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ballroom.version>1.6.2-SNAPSHOT</ballroom.version>
+        <ballroom.version>2.0.0-SNAPSHOT</ballroom.version>
         <gwt.version>2.5.1</gwt.version>
         <gwtp.version>1.0-RC-3.1</gwtp.version>
         <gwt.maven>2.5.1</gwt.maven>
         <gwt-log.version>3.2.1</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
+        <protovis.version>0.4.1</protovis.version>
         <junit.version>4.11</junit.version>
         <gin.version>2.0.0</gin.version>
         <guice.version>3.0</guice.version>

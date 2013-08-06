@@ -140,8 +140,13 @@ public class DeploymentBrowser
         {
             Form<T> form = new Form<T>(clazz);
             form.setNumColumns(1);
-            form.setEnabled(false);
+            form.setEnabled(true);
+
             form.setFields(formItems);
+
+            for(FormItem item : formItems)
+            item.setEnabled(false);
+
             FormHelpPanel helpPanel = new FormHelpPanel(helpCallback, form);
             forms.put(classname, (Form<DeploymentData>) form);
 

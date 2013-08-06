@@ -117,6 +117,11 @@
                 <version>${gwt-vis.version}</version>
             </dependency>
             <dependency>
+                <groupId>code.google.com</groupId>
+                <artifactId>protovis-gwt</artifactId>
+                <version>${protovis.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.code.gwt-log</groupId>
                 <artifactId>gwt-log</artifactId>
                 <version>${gwt-log.version}</version>

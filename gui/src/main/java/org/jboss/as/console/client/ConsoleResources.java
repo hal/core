@@ -15,5 +15,9 @@ public interface ConsoleResources extends ClientBundle {
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/console.css")
     public CssResource css();
+
+    @CssResource.NotStrict
+    @Source("org/jboss/as/console/public/redhat-new.css")
+    public CssResource redhatNew();
 }
 

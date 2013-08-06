@@ -8,9 +8,9 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
-import org.jboss.as.console.client.shared.runtime.charts.ColumnChartView;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -43,11 +43,10 @@ public class TXExecutionView implements Sampler {
                 new NumberColumn("number-of-timed-out-transactions", "Timed Out").setComparisonColumn(total)
         };
 
-        String title = "Success/Failure Ratio";
-        if(Console.visAPILoaded()) {
-            sampler = new ColumnChartView(320,200, title)
-                    .setColumns(cols)
-                    .setTimelineSeries(false);
+        String title = "Success Ratio";
+        if(Console.protovisAvailable()) {
+            sampler = new BulletGraphView(title, "number of transactions")
+                    .setColumns(cols);
         }
         else
         {

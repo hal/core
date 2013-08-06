@@ -1,21 +1,19 @@
 package org.jboss.as.console.client.shared.runtime.charts;
 
-import com.google.gwt.visualization.client.AbstractDataTable;
-
 /**
  * @author Heiko Braun
  * @date 11/3/11
  */
 public abstract class Column<T> {
 
-    protected AbstractDataTable.ColumnType type;
+    protected ColumnType type;
     protected String label;
     protected Column comparisonColumn = null;
     protected String deytpedName;
     protected boolean isVisible = true;
     private boolean isBaseline;
 
-    public Column(AbstractDataTable.ColumnType type, String label) {
+    public Column(ColumnType type, String label) {
         this.type = type;
         this.label = label;
     }
@@ -28,7 +26,7 @@ public abstract class Column<T> {
         this.deytpedName = deytpedName;
     }
 
-    public AbstractDataTable.ColumnType getType() {
+    public ColumnType getType() {
         return type;
     }
 
@@ -65,5 +63,37 @@ public abstract class Column<T> {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "Column{" +
+                "label='" + label + '\'' +
+                ", comparisonColumn=" + comparisonColumn +
+                ", isBaseline=" + isBaseline +
+                '}';
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Column column = (Column) o;
+
+        if (isBaseline != column.isBaseline) return false;
+        if (comparisonColumn != null ? !comparisonColumn.equals(column.comparisonColumn) : column.comparisonColumn != null)
+            return false;
+        if (!label.equals(column.label)) return false;
+        if (type != column.type) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type.hashCode();
+        result = 31 * result + label.hashCode();
+        result = 31 * result + (comparisonColumn != null ? comparisonColumn.hashCode() : 0);
+        result = 31 * result + (isBaseline ? 1 : 0);
+        return result;
+    }
 }

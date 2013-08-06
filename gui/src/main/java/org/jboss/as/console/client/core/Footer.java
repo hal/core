@@ -75,7 +75,6 @@ public class Footer {
     public Widget asWidget() {
 
         final LayoutPanel layout = new LayoutPanel();
-        layout.setStyleName("footer-panel");
 
         final PopupPanel toolsPopup = new DefaultPopup(DefaultPopup.Arrow.BOTTOM);
 
@@ -190,7 +189,7 @@ public class Footer {
         HTML version = new HTML(versionToShow);
         version.setTitle("Version Information");
         version.addStyleName("footer-link");
-        version.getElement().setAttribute("style", "color:#ffffff;font-size:10px; text-align:left");
+        version.getElement().setAttribute("style", "font-size:10px; align:left");
         version.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
@@ -225,13 +224,14 @@ public class Footer {
         layout.add(principal);
 
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
-        layout.setWidgetTopHeight(version, 3, Style.Unit.PX, 16, Style.Unit.PX);
+        layout.setWidgetTopHeight(version, 15, Style.Unit.PX, 42, Style.Unit.PX);
 
         layout.setWidgetLeftWidth(principal, 210, Style.Unit.PX, 300, Style.Unit.PX);
         layout.setWidgetTopHeight(principal, 3, Style.Unit.PX, 16, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
-        layout.setWidgetTopHeight(tools, 2, Style.Unit.PX, 28, Style.Unit.PX);
+        layout.setWidgetTopHeight(tools, 10, Style.Unit.PX, 32, Style.Unit.PX);
+
         layout.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
         layout.getElement().setAttribute("role", "complementary");
 

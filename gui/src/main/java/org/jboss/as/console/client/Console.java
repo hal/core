@@ -98,6 +98,7 @@ public class Console implements EntryPoint {
 
         // load console css bundle
         ConsoleResources.INSTANCE.css().ensureInjected();
+        ConsoleResources.INSTANCE.redhatNew().ensureInjected();
 
         // display the loading panel
         final Widget loadingPanel = new LoadingPanel().asWidget();
@@ -264,5 +265,10 @@ public class Console implements EntryPoint {
 
     public static RuntimeExtensionRegistry getRuntimeLHSItemExtensionRegistry() {
         return MODULES.getRuntimeLHSItemExtensionRegistry();
+    }
+
+    public static boolean protovisAvailable() {
+        // TODO: IE exclusion
+        return true;
     }
 }

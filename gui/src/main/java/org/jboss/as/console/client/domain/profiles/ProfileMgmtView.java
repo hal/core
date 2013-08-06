@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;
 
@@ -47,12 +48,12 @@ public class ProfileMgmtView extends SuspendableViewImpl
     public ProfileMgmtView() {
         super();
 
-        layout = new SplitLayoutPanel(10);
+        layout = new DefaultSplitLayoutPanel(2);
 
         contentCanvas = new LayoutPanel();
         lhsNavigation = new LHSProfileNavigation();
 
-        layout.addWest(lhsNavigation.asWidget(), 197);
+        layout.addWest(lhsNavigation.asWidget(), 217);
         layout.add(contentCanvas);
     }
 
