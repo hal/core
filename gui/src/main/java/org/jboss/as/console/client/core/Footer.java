@@ -92,14 +92,17 @@ public class Footer {
         {
             toolReference.add(new String[] {"Modelling", "mbui-workbench"});
             toolReference.add(new String[] {"Resource Access", "access-log"});
-            StringBuilder runAsRole = new StringBuilder("Run as");
-            if (Preferences.has(RUN_AS_ROLE)) {
-                runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
-            } else {
-                runAsRole.append("...");
-            }
-            toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
         }
+
+        // TODO: Remove https://issues.jboss.org/browse/HAL-100
+        // This is also used within the DMRHandler ...
+        StringBuilder runAsRole = new StringBuilder("Run as");
+        if (Preferences.has(RUN_AS_ROLE)) {
+            runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
+        } else {
+            runAsRole.append("...");
+        }
+        toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
 
         final VerticalPanel toolsList = new VerticalPanel();
         toolsList.getElement().setAttribute("width", "160px");

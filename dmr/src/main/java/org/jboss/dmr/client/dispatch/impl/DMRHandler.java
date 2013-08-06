@@ -135,7 +135,9 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             });
         }
 
-        Request request = executeRequest(resultCallback, GWT.isScript() ? operation : runAsRole(operation));
+        //Request request = executeRequest(resultCallback, GWT.isScript() ? operation : runAsRole(operation));
+        // TODO: Remove https://issues.jboss.org/browse/HAL-100
+        Request request = executeRequest(resultCallback, runAsRole(operation));
         return new DispatchRequestHandle(request);
     }
 
