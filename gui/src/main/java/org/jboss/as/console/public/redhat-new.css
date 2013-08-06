@@ -176,7 +176,6 @@ body, p, td, th, option, input, textarea, select {
 .footer-link {
     text-decoration:none;
     color: #009ada!important;
-    text-align:right;
     margin-right:15px;
     cursor:pointer;
     vertical-align:right;

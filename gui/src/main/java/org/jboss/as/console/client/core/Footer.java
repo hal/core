@@ -217,17 +217,17 @@ public class Footer {
 
 
         String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
-        String roleHtml = "<i class='icon-tag'></i>&nbsp;"+Console.getBootstrapContext().getRole();
+        String roleHtml = "<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole();
 
         HTML principal = new HTML(userHtml+"&nbsp;|&nbsp;"+roleHtml);
-        principal.getElement().setAttribute("style", "color:#ffffff;font-size:11px; align:left");
+        principal.getElement().setAttribute("style", "font-size:11px; align:left");
         layout.add(principal);
 
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
-        layout.setWidgetTopHeight(version, 15, Style.Unit.PX, 42, Style.Unit.PX);
+        layout.setWidgetTopHeight(version, 10, Style.Unit.PX, 32, Style.Unit.PX);
 
-        layout.setWidgetLeftWidth(principal, 210, Style.Unit.PX, 300, Style.Unit.PX);
-        layout.setWidgetTopHeight(principal, 3, Style.Unit.PX, 16, Style.Unit.PX);
+        layout.setWidgetLeftWidth(principal, 220, Style.Unit.PX, 300, Style.Unit.PX);
+        layout.setWidgetTopHeight(principal, 10, Style.Unit.PX, 32, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 10, Style.Unit.PX, 32, Style.Unit.PX);
