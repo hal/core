@@ -49,6 +49,11 @@ public class ObservableFormItem extends FormItem {
     }
 
     @Override
+    public void setFiltered(boolean filtered) {
+        wrapped.setFiltered(filtered);
+    }
+
+    @Override
     public void setExpressionValue(String expr) {
         wrapped.setExpressionValue(expr);
     }

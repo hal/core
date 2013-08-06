@@ -15,6 +15,7 @@ import java.util.Set;
 public class RBACAdapter {
 
     private static final String FILTERED_TAG = "filtered-attributes";
+    private static final String READ_ONLY_TAG = "readonly-attributes";
 
     public static void setFilteredAttributes(Object bean, Set<String> atts)
     {
@@ -36,6 +37,20 @@ public class RBACAdapter {
         return atts;
     }
 
+    public static Set<String> getReadonlyAttributes(Object bean)
+    {
+        final AutoBean autoBean = asAutoBean(bean);
+
+        Set<String> atts = (Set<String>)autoBean.getTag(READ_ONLY_TAG);
+        if(null==atts)
+        {
+            atts = new HashSet<String>();
+            autoBean.setTag(READ_ONLY_TAG, atts);
+        }
+
+        return atts;
+    }
+
     private static AutoBean asAutoBean(Object bean) {
         final AutoBean autoBean = AutoBeanUtils.getAutoBean(bean);
         if(null==autoBean)
@@ -44,11 +59,8 @@ public class RBACAdapter {
     }
 
 
-    public static void setFilteredAttribute(Object entity, String dmrName) {
-        getFilteredAttributes(entity).add(dmrName);
-    }
-
-    public static boolean isFilteredAttribute(Object entity, String dmrName) {
-        return getFilteredAttributes(entity).contains(dmrName);
+    public static <T> void setReadOnlyAttributes(T entity, Set<String> readonlyJavaNames) {
+        final AutoBean autoBean = asAutoBean(entity);
+        autoBean.setTag(READ_ONLY_TAG, readonlyJavaNames);
     }
 }

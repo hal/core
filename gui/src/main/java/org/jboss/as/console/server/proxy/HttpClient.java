@@ -237,6 +237,15 @@ public class HttpClient {
         return setCookieHeader;
     }
 
+    public String getResponseMessage() {
+        try {
+            return this.urlConnection.getResponseMessage() !=null ?
+                    this.urlConnection.getResponseMessage() : "";
+        } catch (IOException e) {
+            throw new RuntimeException("No response message", e);
+        }
+    }
+
     public int getResponseCode() {
         try {
             return this.urlConnection.getResponseCode();

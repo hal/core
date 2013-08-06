@@ -2378,6 +2378,10 @@ input[type="checkbox"] {
     margin: 0px;
 }
 
-.suppressed {
+.rbac-suppressed {
     display: none;
+}
+
+.rbac-constraints-apply {
+
 }

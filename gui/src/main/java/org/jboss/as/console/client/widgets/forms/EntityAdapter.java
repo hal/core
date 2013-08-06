@@ -1,9 +1,12 @@
 package org.jboss.as.console.client.widgets.forms;
 
 import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.RBACAdapter;
 import org.jboss.as.console.client.shared.expr.ExpressionAdapter;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
@@ -158,6 +161,9 @@ public class EntityAdapter<T> {
                         actualPayload.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
 
         final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
+        final Set<String> readonlyJavaNames = new HashSet<String>();
+
+        SecurityContext securityContext = getSecurityContext();
 
         for(PropertyBinding propBinding : beanMetaData.getProperties())
         {
@@ -171,6 +177,12 @@ public class EntityAdapter<T> {
                     break;
                 }
             }
+
+            // RBAC: read-only attributes
+            if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
+                readonlyJavaNames.add(propBinding.getJavaName());
+
+
 
             String[] splitDetypedName = propBinding.getDetypedName().split("/");
             ModelNode propValue = actualPayload.get(splitDetypedName);
@@ -311,15 +323,16 @@ public class EntityAdapter<T> {
 
         // pass the RBAC meta data along for further Form processing
         // see Form#edit() ...
-       /* if(filteredDMRNames.size()>0)
-        {
-            System.out.println("filtered dmr: "+filteredDMRNames);
-            System.out.println("filtered java names: "+filteredJavaNames);
-        }
-        */
+
         RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
+        RBACAdapter.setReadOnlyAttributes(entity, readonlyJavaNames);
 
         return entity;
+    }
+
+    private SecurityContext getSecurityContext() {
+        SecurityService securityService = Console.MODULES.getSecurityService();
+        return securityService.getSecurityContext(Console.getPlaceManager().getCurrentPlaceRequest().getNameToken());
     }
 
     /**

@@ -25,6 +25,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -246,6 +247,7 @@ public class XmlHttpProxy {
         }
 
         int responseCode = httpclient.getResponseCode();
+
         if(responseCode != 200)
         {
             if(401== responseCode || 403==responseCode)
@@ -265,10 +267,23 @@ public class XmlHttpProxy {
             }
             else
             {
-                throw new IOException("Failed to open input stream, status: "+responseCode);
+                GenericException ex = new GenericException("Failed to open input stream, status: " + responseCode);
+                ex.setResponseText(httpclient.getResponseMessage());
+
+                ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                pipeResponsePayload(bout, xslInputStream, paramsMap, in, httpclient);
+
+                ex.setResponseBody(new String(bout.toByteArray()));
+                throw ex;
             }
         }
 
+        pipeResponsePayload(out, xslInputStream, paramsMap, in, httpclient);
+
+
+    }
+
+    private void pipeResponsePayload(OutputStream out, InputStream xslInputStream, Map paramsMap, InputStream in, HttpClient httpclient) {
         // read the encoding from the incoming document and default to UTF-8
         // if an encoding is not provided
         String ce = httpclient.getContentEncoding();

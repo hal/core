@@ -157,7 +157,17 @@ public class SecurityServiceImpl implements SecurityService {
 
                                 }
 
-                                // TODO: attribute constraints
+                                // attribute constraints
+                                if(model.hasDefined("attributes"))
+                                {
+                                    List<Property> attributes = model.get("attributes").asPropertyList();
+                                    for(Property att : attributes)
+                                    {
+                                        ModelNode attConstraintModel = att.getValue();
+                                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
+                                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
+                                    }
+                                }
 
                                 context.updateResourceConstraints(step2address.get(step), c);
                             }

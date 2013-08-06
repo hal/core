@@ -500,18 +500,13 @@ public class XmlHttpProxyServlet extends HttpServlet
                 res.setHeader("Retry-After", unavailble.getRetryAfter() !=null ? unavailble.getRetryAfter() : "2");
                 res.setStatus(503);
             }
-            /*else if(iox instanceof RedirectException)
+            else if(iox instanceof GenericException)
             {
-                RedirectException redirect = (RedirectException)iox;
-
-                String redir = redirect.getLocation();
-                if(redir.equals("/")) redir+="App.html";
-                redir+="?gwt.codesvr=127.0.0.1:9997";
-
-                System.out.println(">> "+ redir);
-                res.setHeader("Location", redir);
-                res.setStatus(307);
-            } */
+                GenericException generic = (GenericException)iox;
+                //writer.println(generic.getResponseBody()); TODO
+                //writer.flush();
+                res.setStatus(500);
+            }
             else
             {
                 //iox.printStackTrace();
@@ -519,13 +514,6 @@ public class XmlHttpProxyServlet extends HttpServlet
 
                 res.setStatus(500);
             }
-            /*try {
-               writer = res.getWriter();
-               writer.write("XmlHttpProxyServlet error loading service for " + serviceKey + " . Please notify the administrator.");
-               writer.flush();
-            } catch (java.io.IOException ix) {
-               ix.printStackTrace();
-            }*/
             return;
         }
         finally

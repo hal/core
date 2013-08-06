@@ -38,7 +38,7 @@ public abstract class DmrCallback implements AsyncCallback<DMRResponse> {
 
     @Override
     public void onFailure(Throwable caught) {
-        Log.error(Console.CONSTANTS.common_error_unknownError(), caught);
+        Console.error(Console.CONSTANTS.common_error_unknownError(), caught.getMessage());
     }
 
     @Override
