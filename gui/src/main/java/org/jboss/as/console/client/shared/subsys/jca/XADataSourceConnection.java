@@ -88,7 +88,7 @@ public class XADataSourceConnection {
         if(Console.getBootstrapContext().isStandalone())
             formTools.addToolButtonRight(verifyBtn);
 
-        form.setFields(connectionSql, tx, rmOverride, interleave, padXid, wrap, BlankItem.INSTANCE);
+        form.setFields(connectionSql, tx, rmOverride, interleave, padXid, wrap);
         form.setNumColumns(2);
         form.setEnabled(false);
 

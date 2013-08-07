@@ -28,7 +28,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.HeapBoxItem;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -147,7 +146,7 @@ public class JvmEditor {
 
         ListItem options = new ListItem("options", "JVM Options");
 
-        form.setFields(nameItem, BlankItem.INSTANCE, heapItem, maxHeapItem, permgen, maxPermgen, options);
+        form.setFields(nameItem, heapItem, maxHeapItem, permgen, maxPermgen, options);
         form.setEnabled(false);
 
         // ---

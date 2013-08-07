@@ -17,7 +17,6 @@ import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.validation.ValidationResult;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -169,7 +168,7 @@ public class InterfaceEditor {
 
 
         form.setFields(
-                nameItem, BlankItem.INSTANCE,
+                nameItem,
                 inetAddress, anyAddress,
                 nic, nicMatch,
                 loopback, loopbackAddress);

@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -136,7 +135,7 @@ public class DataSourceDetails {
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
         NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
 
-        form.setFields(nameItem, jndiItem, enabledFlagItem, BlankItem.INSTANCE, dsClassItem, driverItem, shareStatements, statementCacheSize);
+        form.setFields(nameItem, jndiItem, enabledFlagItem, dsClassItem, driverItem, shareStatements, statementCacheSize);
 
         form.setEnabled(false); // currently not editable
 

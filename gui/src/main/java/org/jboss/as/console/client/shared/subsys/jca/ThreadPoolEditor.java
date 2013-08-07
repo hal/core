@@ -8,14 +8,13 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.FormLayout;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaWorkmanager;
 import org.jboss.as.console.client.shared.subsys.jca.model.WorkmanagerPool;
-import org.jboss.as.console.client.layout.FormLayout;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -155,7 +154,7 @@ public class ThreadPoolEditor {
         unit.selectItem(4);
 
         attributesForm.setFields(
-                nameItemAttr, BlankItem.INSTANCE,
+                nameItemAttr,
                 keepAliveTimeout, unit,
                 allowCore, threadFactory
         );
@@ -172,7 +171,7 @@ public class ThreadPoolEditor {
         NumberBoxItem maxThreadsPerCPU = new NumberBoxItem("coreThreads", "Core threads");
         NumberBoxItem queueLength = new NumberBoxItem("queueLength", "Queue Length");
 
-        sizingForm.setFields(nameItemSizing, BlankItem.INSTANCE, maxThreads, maxThreadsPerCPU, queueLength);
+        sizingForm.setFields(nameItemSizing,maxThreads, maxThreadsPerCPU, queueLength);
 
         attributesForm.bind(table);
         sizingForm.bind(table);

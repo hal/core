@@ -45,7 +45,7 @@ public class JpaView extends DisposableViewImpl implements JpaPresenter.MyView {
 
         //CheckBoxItem vfs = new CheckBoxItem("defaultVfs", "Enable VFS?");
 
-        form.setFields(defaultDs, BlankItem.INSTANCE, inheritance);
+        form.setFields(defaultDs, inheritance);
         form.setEnabled(false);
 
         FormToolStrip<JpaSubsystem> formToolStrip = new FormToolStrip<JpaSubsystem>(

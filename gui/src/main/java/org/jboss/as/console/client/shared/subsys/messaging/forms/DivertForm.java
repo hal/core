@@ -69,9 +69,9 @@ public class DivertForm {
         }
         else {
             form.setFields(
-                    routingName, BlankItem.INSTANCE,
+                    routingName,
                     divertFrom, divertTo,
-                    exclusive, BlankItem.INSTANCE,
+                    exclusive,
                     filter, transformer);
 
             form.setNumColumns(2);
