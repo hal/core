@@ -58,12 +58,12 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
         window.setHeight(360);
         window.setGlassEnabled(true);
 
-        window.addCloseHandler(new CloseHandler<PopupPanel>() {
+        /*window.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
                 presenter.onConfirmation();
             }
-        }) ;
+        }) ;*/
 
         initWidget(window);
 
