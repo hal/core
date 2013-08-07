@@ -1634,6 +1634,7 @@ input[type="checkbox"] {
 .pages-bar {
     font-size: 13px;
     border-bottom:1px solid #e9e6e6;
+    margin-bottom:15px;
 }
 
 .pages-bar .gwt-TabBarFirst-wrapper{

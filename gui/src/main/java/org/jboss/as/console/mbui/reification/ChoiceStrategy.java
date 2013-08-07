@@ -217,7 +217,7 @@ public class ChoiceStrategy implements ReificationStrategy<ReificationWidget, St
                 @Override
                 public void add(InteractionUnit unit, Widget widget) {
 
-                    widget.addStyleName("rhs-content-panel");
+                    //widget.addStyleName("rhs-content-panel");
 
                     pagedView.add(widget, unit.getLabel());
 
