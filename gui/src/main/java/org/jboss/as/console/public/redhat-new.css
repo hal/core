@@ -349,11 +349,13 @@ table {
 }
 
 .gwt-TreeItem-selected {
-    border: 1px solid #4E5255;
+    font-weight: 600;
+    color: #4E5255;
+    border: 1px dotted #3F3F3F!important;
 }
 
 .lhs-tree-item-selected .gwt-TreeItem-selected {
-    border:none;
+    border:none!important;
 }
 
 .lhs-placeholder {
@@ -1867,7 +1869,8 @@ input[type="checkbox"] {
 .browser-tree {
     padding-top:15px;
 }
-.browser-tree .gwt-TreeItem {
+
+/*.browser-tree .gwt-TreeItem {
     color: #4E5255;
 }
 
@@ -1875,6 +1878,10 @@ input[type="checkbox"] {
     font-weight: BOLD;
     color: #4E5255;
     border: 1px dotted #3F3F3F!important;
+} */
+
+.lostFocus, .lostFocus .gwt-TreeItem-selected  {
+    border:none!important;
 }
 
 .browser-dump-line:hover {
