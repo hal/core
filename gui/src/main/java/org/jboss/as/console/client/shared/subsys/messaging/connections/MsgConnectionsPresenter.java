@@ -83,7 +83,8 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     @NameToken(NameTokens.MsgConnectionsPresenter)
     @SubsystemExtension(name="Connections", group = "Messaging", key="messaging")
     @AccessControl(resources = {
-            "{selected.profile}/subsystem=messaging"
+            "{selected.profile}/subsystem=messaging/hornetq-server=*",
+            "{selected.profile}/subsystem=messaging/jms-bridge=*"
     })
     public interface MyProxy extends Proxy<MsgConnectionsPresenter>, Place {
     }

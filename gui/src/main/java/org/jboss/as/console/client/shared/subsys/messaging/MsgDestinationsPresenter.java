@@ -98,7 +98,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.MessagingPresenter)
     @AccessControl(resources = {
-            "{selected.profile}/subsystem=messaging"
+            "{selected.profile}/subsystem=messaging/hornetq-server=*"
     })
     public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {
     }

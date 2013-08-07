@@ -70,7 +70,7 @@ public class MsgClusteringPresenter
     @NameToken(NameTokens.MsgClusteringPresenter)
     @SubsystemExtension(name="Clustering", group = "Messaging", key="messaging")
     @AccessControl(resources = {
-            "{selected.profile}/subsystem=messaging"
+            "{selected.profile}/subsystem=messaging/hornetq-server=*"
     })
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
     }
