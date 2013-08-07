@@ -124,7 +124,7 @@ public class Header implements ValueChangeHandler<String> {
 
         // Debug tools
         VerticalPanel debugTools = new VerticalPanel();
-        HTML rbac = new HTML("<i style='color:#CDCDCD;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
+        HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#CDCDCD;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
         debugTools.add(rbac);
 
         rbac.addClickHandler(new ClickHandler() {

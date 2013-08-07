@@ -525,7 +525,7 @@ table {
 }
 
 .default-window-content {
-    margin:5px;
+    margin:10px;
     z-index: 15;
 }
 
@@ -2383,5 +2383,9 @@ input[type="checkbox"] {
 }
 
 .rbac-constraints-apply {
+
+}
+
+.rbac-diagnostics {
 
 }
