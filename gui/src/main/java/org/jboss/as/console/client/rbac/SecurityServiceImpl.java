@@ -2,6 +2,7 @@ package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -74,18 +75,18 @@ public class SecurityServiceImpl implements SecurityService {
 
         final List<ModelNode> steps = new LinkedList<ModelNode>();
 
-        final Set<String> resources = accessControlReg.getResources(nameToken);
+        final Set<String> requiredResources = accessControlReg.getResources(nameToken);
         final Map<String, String> step2address = new HashMap<String,String>();
 
-        for(String resource : resources)
+        for(String resource : requiredResources)
         {
 
             ModelNode step = AddressMapping.fromString(resource).asResource(statementContext);
             step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
+            step.get(RECURSIVE).set(true); // TODO: Does this blow the payload size?
             step.get("access-control").set(true);
-            //step.get("access-control").set(true);
             steps.add(step);
 
         }
@@ -109,68 +110,29 @@ public class SecurityServiceImpl implements SecurityService {
                 ModelNode response = dmrResponse.get();
                 ModelNode overalResult = response.get(RESULT);
 
-                SecurityContext context = new SecurityContext(nameToken, resources);
+
+                SecurityContext context = new SecurityContext(nameToken, requiredResources);
                 context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
 
                 try {
 
-                    // retrieve access constraints per required resource and update the security context
+                    // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
                     {
                         String step = "step-"+i;
                         if(overalResult.hasDefined(step))
                         {
+                            String resourceAddress = step2address.get(step);
                             ModelNode modelNode = overalResult.get(step).get(RESULT);
 
-                            ModelNode stepResult = null;
+                            ModelNode payload = null;
                             if(modelNode.getType() == ModelType.LIST)
-                                stepResult = modelNode.asList().get(0);
+                                payload = modelNode.asList().get(0);
                             else
-                                stepResult = modelNode;
+                                payload = modelNode;
 
-                            ModelNode accessControl = stepResult.hasDefined(RESULT) ?
-                                    stepResult.get(RESULT).get("access-control") : stepResult.get("access-control");
-
-                            List<Property> properties = accessControl.isDefined() ?
-                                    accessControl.asPropertyList() : Collections.EMPTY_LIST;
-
-                            if(!properties.isEmpty())
-                            {
-                                Property acl = properties.get(0);
-                                assert acl.getName().equals("default");   //TODO: overrides ...
-                                ModelNode model = acl.getValue();
-
-                                Constraints c = new Constraints();
-
-                                if(model.hasDefined("address")
-                                        && model.get("address").asBoolean()==false)
-                                {
-                                    c.setAddress(false);
-                                }
-                                else
-                                {
-
-                                    c.setReadConfig(model.get("read-config").asBoolean());
-                                    c.setWriteConfig(model.get("write-config").asBoolean());
-                                    c.setReadRuntime(model.get("read-runtime").asBoolean());
-                                    c.setWriteRuntime(model.get("write-runtime").asBoolean());
-
-                                }
-
-                                // attribute constraints
-                                if(model.hasDefined("attributes"))
-                                {
-                                    List<Property> attributes = model.get("attributes").asPropertyList();
-                                    for(Property att : attributes)
-                                    {
-                                        ModelNode attConstraintModel = att.getValue();
-                                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
-                                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
-                                    }
-                                }
-
-                                context.updateResourceConstraints(step2address.get(step), c);
-                            }
+                            // break down into root resource and children
+                            parseAccessControlChildren(resourceAddress, requiredResources, context, payload);
                         }
                     }
                 } catch (Throwable e) {
@@ -188,6 +150,73 @@ public class SecurityServiceImpl implements SecurityService {
         });
 
 
+    }
+
+    private void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContext context, ModelNode payload) {
+        // parse the root resource itself
+        parseAccessControlMetaData(resourceAddress, context, payload);
+
+        // parse the child resources
+        if(payload.hasDefined(CHILDREN))
+        {
+            List<Property> children = payload.get(CHILDREN).asPropertyList();
+            for(Property child : children)
+            {
+                String childAddress = resourceAddress+"/"+child.getName()+"=*";
+                requiredResources.add(childAddress); /// dynamically update the list of required re4sources
+                ModelNode childModel = child.getValue();
+                ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
+                parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+            }
+        }
+    }
+
+    private void parseAccessControlMetaData(final String resourceAddress, SecurityContext context, ModelNode payload) {
+        ModelNode accessControl = payload.hasDefined(RESULT) ?
+                payload.get(RESULT).get("access-control") : payload.get("access-control");
+
+        List<Property> properties = accessControl.isDefined() ?
+                accessControl.asPropertyList() : Collections.EMPTY_LIST;
+
+        if(!properties.isEmpty())
+        {
+            Property acl = properties.get(0);
+            assert acl.getName().equals("default");   //TODO: overrides ...
+            ModelNode model = acl.getValue();
+
+            Constraints c = new Constraints();
+
+            if(model.hasDefined("address")
+                    && model.get("address").asBoolean()==false)
+            {
+                c.setAddress(false);
+            }
+            else
+            {
+
+                c.setReadConfig(model.get("read-config").asBoolean());
+                c.setWriteConfig(model.get("write-config").asBoolean());
+                c.setReadRuntime(model.get("read-runtime").asBoolean());
+                c.setWriteRuntime(model.get("write-runtime").asBoolean());
+
+            }
+
+            // attribute constraints
+
+            if(model.hasDefined("attributes"))
+            {
+                List<Property> attributes = model.get("attributes").asPropertyList();
+
+                for(Property att : attributes)
+                {
+                    ModelNode attConstraintModel = att.getValue();
+                    c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
+                    c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
+                }
+            }
+
+            context.updateResourceConstraints(resourceAddress, c);
+        }
     }
 
     @Override
