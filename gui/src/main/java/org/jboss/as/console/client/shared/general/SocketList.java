@@ -99,6 +99,7 @@ public class SocketList {
 
         form = new Form<SocketBinding>(SocketBinding.class);
         form.setNumColumns(2);
+        form.setEnabled(false);
 
         FormToolStrip<SocketBinding> detailToolStrip = new FormToolStrip<SocketBinding>(
                 form,
