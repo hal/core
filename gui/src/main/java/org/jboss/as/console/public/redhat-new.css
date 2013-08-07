@@ -1211,29 +1211,29 @@ table {
 }
 
 .default-cell-table .cellTableKeyboardSelectedRowCell {
-    border-top: 1px solid #4E5255;
-    border-bottom: 1px solid #4E5255;
+    border-top: 1px dotted #4E5255;
+    border-bottom: 1px dotted #4E5255;
 }
 
 .default-cell-table .cellTableKeyboardSelectedRow .cellTableFirstColumn{
-    border-left: 1px solid #4E5255;
+    border-left: 1px dotted #4E5255;
     background-color:none;
 }
 
 .default-cell-table .cellTableKeyboardSelectedRow .cellTableLastColumn{
-    border-right: 1px solid #4E5255;
+    border-right: 1px dotted #4E5255;
 }
 
 .default-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRowCell {
-
+    border:none!important;
 }
 
 .default-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRow .cellTableFirstColumn{
-
+    border:none!important;
 }
 
 .default-cell-table .cellTableSelectedRow.cellTableKeyboardSelectedRow .cellTableLastColumn{
-
+    border:none!important;
 }
 
 .default-pager {
