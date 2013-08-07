@@ -229,6 +229,7 @@ public class SPIProcessor extends AbstractProcessor {
                         );
 
                         declared.setFacet(accessControl.facet());
+                        declared.setRecursive(accessControl.recursive());
 
                         accessControlDeclararions.add(declared);
                     }

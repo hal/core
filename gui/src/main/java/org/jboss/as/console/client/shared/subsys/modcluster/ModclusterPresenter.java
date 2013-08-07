@@ -58,7 +58,7 @@ public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, M
     @NameToken(NameTokens.ModclusterPresenter)
     @AccessControl(resources = {
                "{selected.profile}/subsystem=modcluster"
-       })
+       }, recursive = false)
     public interface MyProxy extends Proxy<ModclusterPresenter>, Place {
     }
 

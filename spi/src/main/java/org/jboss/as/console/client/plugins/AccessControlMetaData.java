@@ -9,6 +9,7 @@ public class AccessControlMetaData {
     private String resource;
     private String token;
     private String facet;
+    private String recursive;
 
     public AccessControlMetaData(String token, String resource) {
         this.token = token;
@@ -29,5 +30,13 @@ public class AccessControlMetaData {
 
     public void setFacet(String facet) {
         this.facet = facet;
+    }
+
+    public void setRecursive(boolean recursive) {
+        this.recursive = String.valueOf(recursive);
+    }
+
+    public String isRecursive() {
+        return recursive;
     }
 }

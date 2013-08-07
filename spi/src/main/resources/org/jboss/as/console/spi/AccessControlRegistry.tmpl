@@ -5,7 +5,7 @@ import java.util.*;
 
 public class AccessControlRegistryImpl implements AccessControlRegistry{
 
-private Set<AccessControlMetaData> accessMetaData;
+    private Set<AccessControlMetaData> accessMetaData;
     private ResourceMapping resourceMapping;
 
     public AccessControlRegistryImpl() {
@@ -15,7 +15,7 @@ private Set<AccessControlMetaData> accessMetaData;
 
         <#list metaData as md>
 
-            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.getFacet()}");
+            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.getFacet()}", "${md.isRecursive()}");
 
         </#list>
 
@@ -28,5 +28,9 @@ private Set<AccessControlMetaData> accessMetaData;
 
     public String getFacet(String token) {
          return resourceMapping.getFacet(token);
+    }
+
+    public boolean isRecursive(String token) {
+        return resourceMapping.isRecursive(token);
     }
 }

@@ -85,7 +85,7 @@ public class SecurityServiceImpl implements SecurityService {
             step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-            step.get(RECURSIVE).set(true); // TODO: Does this blow the payload size?
+            step.get(RECURSIVE).set(accessControlReg.isRecursive(nameToken));
             step.get("access-control").set(true);
             steps.add(step);
 
@@ -173,10 +173,13 @@ public class SecurityServiceImpl implements SecurityService {
                 String childAddress = resourceAddress+"/"+child.getName()+"=*";
                 if(!requiredResources.contains(childAddress)) // might be parsed already
                 {
-                    requiredResources.add(childAddress); /// dynamically update the list of required resources
                     ModelNode childModel = child.getValue();
-                    ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
-                    parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+                    if(childModel.hasDefined("model-description")) // depends on 'recursive' true/false
+                    {
+                        ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
+                        requiredResources.add(childAddress); /// dynamically update the list of required resources
+                        parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+                    }
                 }
             }
         }

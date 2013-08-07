@@ -9,4 +9,5 @@ package org.jboss.as.console.spi;
 public @interface AccessControl {
     String[] resources();
     String facet() default "configuration";
+    boolean recursive() default true;
 }

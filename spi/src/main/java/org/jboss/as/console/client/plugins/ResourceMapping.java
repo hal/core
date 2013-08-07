@@ -11,14 +11,15 @@ import java.util.Set;
  */
 public class ResourceMapping {
     private Map<String, Set<String>> token2address = new HashMap<String, Set<String>>();
-    private Map<String, String> token2facet = new HashMap<String, String>();
+    private Map<String, MetaData> mappings = new HashMap<String, MetaData>();
 
-    public void put(String token, String address, String facet){
+    public void put(String token, String address, String facet, String recursive){
         if(null==token2address.get(token))
             token2address.put(token, new HashSet<String>());
 
         token2address.get(token).add(address);
-        token2facet.put(token, facet);
+
+        mappings.put(token, new MetaData(token, address, facet, Boolean.valueOf(recursive)));
     }
 
     public Set<String> getResources(String token)
@@ -30,6 +31,24 @@ public class ResourceMapping {
     }
 
     public String getFacet(String token) {
-        return token2facet.get(token) !=null ? token2facet.get(token) : "configuration";
+        return mappings.get(token)!=null ? mappings.get(token).facet : "configuration";
+    }
+
+    public boolean isRecursive(String token) {
+        return mappings.get(token) == null || mappings.get(token).recursive;
+    }
+
+    class MetaData {
+        String token;
+        String address;
+        String facet;
+        boolean recursive;
+
+        MetaData(String token, String address, String facet, boolean recursive) {
+            this.token = token;
+            this.address = address;
+            this.facet = facet;
+            this.recursive = recursive;
+        }
     }
 }
