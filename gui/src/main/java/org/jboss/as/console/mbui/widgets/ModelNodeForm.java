@@ -31,8 +31,8 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
         final Map<String, String> exprMap = getExpressions(editedEntity);
 
-        final List<ModelNode> filteredDMRNames = bean.hasDefined("_filtered-attributes") ?
-                bean.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
+        //final List<ModelNode> filteredDMRNames = bean.hasDefined("_filtered-attributes") ?
+        //        bean.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
 
         // visit form
         ModelNodeInspector inspector = new ModelNodeInspector(bean);
@@ -75,14 +75,14 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
                         // RBAC: attribute level constraints
 
-                        for(ModelNode att : filteredDMRNames)
+                        /*for(ModelNode att : filteredDMRNames)
                         {
                             if(att.asString().equals(propertyName))
                             {
                                 item.setFiltered(true);
                                 break;
                             }
-                        }
+                        } */
                     }
                 });
 

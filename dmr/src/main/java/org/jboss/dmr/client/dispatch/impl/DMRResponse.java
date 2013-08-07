@@ -67,7 +67,7 @@ public class DMRResponse implements Result<ModelNode> {
         try {
             response = ModelNode.fromBase64(responseText);
 
-            if(response.hasDefined("response-headers"))
+            /*if(response.hasDefined("response-headers"))
             {
                 ModelNode responseHeaders = response.get("response-headers");
                 if(responseHeaders.hasDefined("access-control"))
@@ -99,7 +99,7 @@ public class DMRResponse implements Result<ModelNode> {
                     }
 
                 }
-            }
+            } */
 
             if ("GET".equals(method)) {
                 // For GET request the response is purely the model nodes result. The outcome

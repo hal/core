@@ -153,14 +153,10 @@ public class EntityAdapter<T> {
         BeanMetaData beanMetaData = metaData.getBeanMetaData(getType());
         Mutator mutator = metaData.getMutator(getType());
 
-        // TODO: https://issues.jboss.org/browse/WFLY-1700
-        //final Set<String> filteredDMRNames = actualPayload.getTag("filtered-attributes") !=null ?
-        //        (Set<String>)actualPayload.getTag("filtered-attributes") : Collections.EMPTY_SET;
+        //final List<ModelNode> filteredDMRNames = actualPayload.hasDefined("_filtered-attributes") ?
+        //                actualPayload.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
 
-        final List<ModelNode> filteredDMRNames = actualPayload.hasDefined("_filtered-attributes") ?
-                        actualPayload.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
-
-        final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
+        //final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
         final Set<String> readonlyJavaNames = new HashSet<String>();
 
         SecurityContext securityContext = getSecurityContext();
@@ -169,14 +165,14 @@ public class EntityAdapter<T> {
         {
 
             // RBAC: We need turn the filtered dmr names into java property names to compatible with the ballroom Form API
-            for(ModelNode item : filteredDMRNames)
+            /*for(ModelNode item : filteredDMRNames)
             {
                 if(item.asString().equals(propBinding.getDetypedName()))
                 {
                     filteredJavaNames.add(propBinding.getJavaName());
                     break;
                 }
-            }
+            } */
 
             // RBAC: read-only attributes
             if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
@@ -324,7 +320,7 @@ public class EntityAdapter<T> {
         // pass the RBAC meta data along for further Form processing
         // see Form#edit() ...
 
-        RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
+        //RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
         RBACAdapter.setReadOnlyAttributes(entity, readonlyJavaNames);
 
         return entity;
