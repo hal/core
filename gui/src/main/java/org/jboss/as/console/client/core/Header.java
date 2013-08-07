@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -43,6 +44,7 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
+import org.jboss.as.console.client.rbac.RBACContextView;
 
 /**
  * Top level header, gives access to main applications.
@@ -119,8 +121,25 @@ public class Header implements ValueChangeHandler<String> {
         top.setWidgetTopHeight(logo, 0, Style.Unit.PX, 32, Style.Unit.PX);
 
         bottom.add(links);
+
+        // Debug tools
+        VerticalPanel debugTools = new VerticalPanel();
+        HTML rbac = new HTML("<i style='color:#CDCDCD;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
+        debugTools.add(rbac);
+
+        rbac.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                RBACContextView.launch();
+            }
+        });
+
+        bottom.add(debugTools);
         bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 500, Style.Unit.PX);
         bottom.setWidgetTopHeight(links, 0, Style.Unit.PX, 44, Style.Unit.PX);
+
+        bottom.setWidgetRightWidth(debugTools, 0, Style.Unit.PX, 50, Style.Unit.PX);
+        bottom.setWidgetTopHeight(debugTools, 0, Style.Unit.PX, 44, Style.Unit.PX);
 
         MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
         Widget messageCenter = messageCenterView.asWidget();
