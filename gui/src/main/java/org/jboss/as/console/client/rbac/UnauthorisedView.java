@@ -88,7 +88,7 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
     }
 
     private void handleConfirmation() {
-        window.hide();
+        presenter.onConfirmation();
 
     }
 
