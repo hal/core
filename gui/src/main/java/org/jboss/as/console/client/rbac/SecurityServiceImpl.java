@@ -95,6 +95,8 @@ public class SecurityServiceImpl implements SecurityService {
 
         //System.out.println(operation);
 
+        final long start = System.currentTimeMillis();
+
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
             @Override
@@ -135,16 +137,19 @@ public class SecurityServiceImpl implements SecurityService {
                             parseAccessControlChildren(resourceAddress, requiredResources, context, payload);
                         }
                     }
+
+                    context.seal(); // makes it immutable
+
+                    contextMapping.put(nameToken, context);
+
+                    System.out.println("Context creation time ("+nameToken+"): "+(System.currentTimeMillis()-start) +"ms");
+
+                    callback.onSuccess(context);
+
                 } catch (Throwable e) {
-                    Log.error("Failed to parse response", e);
-                    callback.onFailure(new RuntimeException("Failed to parse response", e));
+                    Log.error("Failed to parse access control meta data", e);
+                    callback.onFailure(new RuntimeException("Failed to parse access control meta data", e));
                 }
-
-                context.seal(); // makes it immutable
-
-                contextMapping.put(nameToken, context);
-
-                callback.onSuccess(context);
 
             }
         });
@@ -163,10 +168,13 @@ public class SecurityServiceImpl implements SecurityService {
             for(Property child : children)
             {
                 String childAddress = resourceAddress+"/"+child.getName()+"=*";
-                requiredResources.add(childAddress); /// dynamically update the list of required re4sources
-                ModelNode childModel = child.getValue();
-                ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
-                parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+                if(!requiredResources.contains(childAddress)) // might be parsed already
+                {
+                    requiredResources.add(childAddress); /// dynamically update the list of required resources
+                    ModelNode childModel = child.getValue();
+                    ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
+                    parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+                }
             }
         }
     }
@@ -210,8 +218,19 @@ public class SecurityServiceImpl implements SecurityService {
                 for(Property att : attributes)
                 {
                     ModelNode attConstraintModel = att.getValue();
-                    c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
-                    c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
+                    // config access
+                    if(attConstraintModel.hasDefined("read-config"))
+                    {
+                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
+                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
+                    }
+
+                    // runtime access
+                    else
+                    {
+                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-runtime").asBoolean());
+                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-runtime").asBoolean());
+                    }
                 }
             }
 
