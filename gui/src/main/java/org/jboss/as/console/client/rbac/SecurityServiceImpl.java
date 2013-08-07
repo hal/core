@@ -158,13 +158,16 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContext context, ModelNode payload) {
+
+        ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
+
         // parse the root resource itself
-        parseAccessControlMetaData(resourceAddress, context, payload);
+        parseAccessControlMetaData(resourceAddress, context, actualPayload);
 
         // parse the child resources
-        if(payload.hasDefined(CHILDREN))
+        if(actualPayload.hasDefined(CHILDREN))
         {
-            List<Property> children = payload.get(CHILDREN).asPropertyList();
+            List<Property> children = actualPayload.get(CHILDREN).asPropertyList();
             for(Property child : children)
             {
                 String childAddress = resourceAddress+"/"+child.getName()+"=*";
@@ -180,8 +183,10 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private void parseAccessControlMetaData(final String resourceAddress, SecurityContext context, ModelNode payload) {
-        ModelNode accessControl = payload.hasDefined(RESULT) ?
-                payload.get(RESULT).get("access-control") : payload.get("access-control");
+        //ModelNode accessControl = payload.hasDefined(RESULT) ?
+                //payload.get(RESULT).get("access-control") : payload.get("access-control");
+
+        ModelNode accessControl = payload.get("access-control");
 
         List<Property> properties = accessControl.isDefined() ?
                 accessControl.asPropertyList() : Collections.EMPTY_LIST;
