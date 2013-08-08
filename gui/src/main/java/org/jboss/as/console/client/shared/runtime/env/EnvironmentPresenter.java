@@ -56,7 +56,7 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
     @AccessControl(resources = {
-            "/core-service=platform-mbean/type=runtime"
+            "/{selected.host}/core-service=platform-mbean/type=runtime"
     })
     public interface MyProxy extends Proxy<EnvironmentPresenter>, Place
     {
