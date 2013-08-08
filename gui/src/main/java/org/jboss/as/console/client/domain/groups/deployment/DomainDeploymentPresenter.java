@@ -83,7 +83,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
             "/deployment=*",
             "/server-group=*",
             "/server-group=*/deployment=*",
-    }, facet = "runtime")
+    }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
     {
     }

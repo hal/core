@@ -107,8 +107,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             "/server-group=*",
             "/{selected.host}/server-config=*",
             "/{selected.host}/server-config=*/jvm=*",
-            "/{selected.host}/server-config=*/system-property",
-    }, facet = "runtime")
+            "/{selected.host}/server-config=*/system-property=*",
+    }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
 

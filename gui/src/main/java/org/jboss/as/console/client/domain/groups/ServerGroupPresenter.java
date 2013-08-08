@@ -101,7 +101,7 @@ public class ServerGroupPresenter
             "/server-group=*",
             "/server-group=*/jvm=*",
             "/server-group=*/system-property=*",
-    }, facet = "runtime")
+    }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }
 
