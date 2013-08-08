@@ -1902,6 +1902,10 @@ input[type="checkbox"] {
     font-size:9px!important;
 }
 
+.notification-panel * i {
+    color:#4E5255!important;
+}
+
 .InfoBlock,.ConfirmationBlock,.WarnBlock,.ErrorBlock,.FatalBlock {
     cursor: pointer;
 }

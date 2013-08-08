@@ -183,7 +183,7 @@ public class Header implements ValueChangeHandler<String> {
         tools.add(principal);
 
         top.add(tools);
-        top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 600, Style.Unit.PX);
+        top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 700, Style.Unit.PX);
         top.setWidgetTopHeight(tools, 0, Style.Unit.PX, 32, Style.Unit.PX);
         top.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
 
