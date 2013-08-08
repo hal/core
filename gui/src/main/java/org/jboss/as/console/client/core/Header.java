@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -45,6 +46,7 @@ import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
  * Top level header, gives access to main applications.
@@ -124,7 +126,7 @@ public class Header implements ValueChangeHandler<String> {
 
         // Debug tools
         VerticalPanel debugTools = new VerticalPanel();
-        HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#CDCDCD;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
+        HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#cecece;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
         debugTools.add(rbac);
 
         rbac.addClickHandler(new ClickHandler() {
@@ -141,11 +143,49 @@ public class Header implements ValueChangeHandler<String> {
         bottom.setWidgetRightWidth(debugTools, 0, Style.Unit.PX, 50, Style.Unit.PX);
         bottom.setWidgetTopHeight(debugTools, 0, Style.Unit.PX, 44, Style.Unit.PX);
 
+
+        HorizontalPanel tools = new HorizontalPanel();
+
+
+        //messages
         MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
         Widget messageCenter = messageCenterView.asWidget();
-        top.add(messageCenter);
-        top.setWidgetRightWidth(messageCenter, 15, Style.Unit.PX, 450, Style.Unit.PX);
-        top.setWidgetTopHeight(messageCenter, 0, Style.Unit.PX, 32, Style.Unit.PX);
+        tools.add(messageCenter);
+
+        // logout button
+        HTML logout = new HTML("<i class='icon-signout'></i>&nbsp;"+Console.CONSTANTS.common_label_logout());
+        logout.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Feedback.confirm(
+                        Console.CONSTANTS.common_label_logout(),
+                        Console.CONSTANTS.logout_confirm(),
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    new LogoutCmd().execute();
+                                }
+                            }
+                        }
+                );
+            }
+        });
+        tools.setStyleName("header-tools");
+        logout.setStyleName("header-textlink");
+        tools.add(logout);
+
+        // current user
+        String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
+        String roleHtml = "<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole();
+
+        HTML principal = new HTML("<div class='header-textlink'>&nbsp;|&nbsp;&nbsp;&nbsp;"+userHtml+"&nbsp;"+roleHtml+"</div>");
+        tools.add(principal);
+
+        top.add(tools);
+        top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 600, Style.Unit.PX);
+        top.setWidgetTopHeight(tools, 0, Style.Unit.PX, 32, Style.Unit.PX);
+        top.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
 
         outerLayout.getElement().setAttribute("role", "navigation");
         outerLayout.getElement().setAttribute("aria-label", "Toplevel Categories");

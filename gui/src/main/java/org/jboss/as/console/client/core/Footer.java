@@ -156,31 +156,9 @@ public class Footer {
             }
         });
 
-        HTML logout = new HTML("<i class='icon-signout'></i>&nbsp;"+Console.CONSTANTS.common_label_logout());
-        logout.addStyleName("footer-link");
-        logout.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Feedback.confirm(
-                        Console.CONSTANTS.common_label_logout(),
-                        Console.CONSTANTS.logout_confirm(),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if(isConfirmed)
-                                {
-                                    new LogoutCmd().execute();
-                                }
-                            }
-                        }
-                );
-            }
-        });
-
         HorizontalPanel tools = new HorizontalPanel();
         tools.add(toolsLink);
         tools.add(settings);
-        tools.add(logout);
 
         layout.add(tools);
 
@@ -218,19 +196,8 @@ public class Footer {
 
         layout.add(version);
 
-
-        String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
-        String roleHtml = "<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole();
-
-        HTML principal = new HTML(userHtml+"&nbsp;|&nbsp;"+roleHtml);
-        principal.getElement().setAttribute("style", "font-size:11px; align:left");
-        layout.add(principal);
-
         layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
         layout.setWidgetTopHeight(version, 10, Style.Unit.PX, 32, Style.Unit.PX);
-
-        layout.setWidgetLeftWidth(principal, 220, Style.Unit.PX, 300, Style.Unit.PX);
-        layout.setWidgetTopHeight(principal, 10, Style.Unit.PX, 32, Style.Unit.PX);
 
         layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
         layout.setWidgetTopHeight(tools, 10, Style.Unit.PX, 32, Style.Unit.PX);

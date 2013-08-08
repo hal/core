@@ -57,8 +57,8 @@ import java.util.List;
  */
 public class MessageCenterView implements MessageListener, ReloadEvent.ReloadListener {
 
-    private static final String MESSAGE_LABEL = Console.CONSTANTS.common_label_messages()
-            + "&nbsp;<i class='icon-caret-down'></i>";
+    private static final String MESSAGE_LABEL = Console.CONSTANTS.common_label_messages();
+            //+ "&nbsp;<i class='icon-caret-down'></i>";
     private MessageCenter messageCenter;
     private HorizontalPanel messageDisplay;
     final MessageListPopup messagePopup = new MessageListPopup();
@@ -252,9 +252,9 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
         HorizontalPanel layout = new HorizontalPanel();
         layout.getElement().setAttribute("title", "Notification Center");
-        layout.getElement().setAttribute("style", "width:100%;padding-top:5px;");
+        layout.setStyleName("notification-center");
 
-        messageButton = new HTML("(" + messageCenter.getNewMessageCount() + ") " + MESSAGE_LABEL);
+        messageButton = new HTML(MESSAGE_LABEL+": "+messageCenter.getNewMessageCount());
         messageButton.addStyleName("notification-button");
 
         ClickHandler clickHandler = new ClickHandler() {
@@ -350,7 +350,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
     private void reflectMessageCount() {
         int numMessages = messageCenter.getNewMessageCount();
-        messageButton.setHTML("(" + numMessages + ") " + MESSAGE_LABEL);
+        messageButton.setHTML(MESSAGE_LABEL+": "+ numMessages);
     }
 
     private void displayNotification(final Message message) {
