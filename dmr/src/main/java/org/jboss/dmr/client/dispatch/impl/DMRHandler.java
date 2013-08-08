@@ -143,10 +143,9 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
 
     private ModelNode runAsRole(final ModelNode operation) {
         // No Preferences class available here - do it yourself!
-        String role = Cookies.getCookie("as7_ui_run_as_role");
-        if (role != null) {
-            operation.get("operation-headers").get("roles").set(role.toUpperCase());
-        }
+        String rolePref = Cookies.getCookie("as7_ui_run_as_role");
+        if(rolePref == null) rolePref = "ADMINISTRATOR";
+        operation.get("operation-headers").get("roles").set(rolePref.toUpperCase());
         return operation;
     }
 

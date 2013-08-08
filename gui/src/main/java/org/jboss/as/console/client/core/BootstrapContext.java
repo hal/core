@@ -23,6 +23,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
 
 import javax.inject.Inject;
@@ -194,11 +195,11 @@ public class BootstrapContext implements ApplicationProperties {
     }
 
     public String getRole() {
-        return Preferences.get(Preferences.Key.RUN_AS_ROLE, "").toLowerCase();
+        return Preferences.get(Preferences.Key.RUN_AS_ROLE, StandardRole.ADMINISTRATOR.name()).toLowerCase();
     }
 
     public void setRole(String role)
     {
-
+      // TODO https://issues.jboss.org/browse/HAL-136
     }
 }
