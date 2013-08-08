@@ -4,9 +4,12 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.widgets.progress.ProgressBar;
 import org.jboss.as.console.client.widgets.progress.ProgressWindow;
+import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
+import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
 import org.jboss.as.console.mbui.bootstrap.ReificationBootstrap;
+import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
+import org.jboss.as.console.mbui.reification.pipeline.ImplicitBehaviourStep;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -15,18 +18,14 @@ import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.KernelContract;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.gui.behaviour.StatementContext;
-import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
-import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
-import org.jboss.as.console.mbui.reification.pipeline.ImplicitBehaviourStep;
 import org.useware.kernel.gui.reification.pipeline.IntegrityStep;
 import org.useware.kernel.gui.reification.pipeline.ReificationPipeline;
 import org.useware.kernel.gui.reification.pipeline.UniqueIdCheckStep;
-import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
-import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
 import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.Dialog;
+import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.HashMap;
@@ -97,7 +96,7 @@ public class Kernel implements NavigationDelegate {
                 public void execute(Control<Context> control) {
                     context.set(ContextKey.EVENTBUS, coordinator.getLocalBus());
                     context.set(ContextKey.COORDINATOR, coordinator);
-
+                    context.set(ContextKey.SECURITY_CONTEXT, framework.getSecurityContext());
                     control.proceed();
                 }
             };

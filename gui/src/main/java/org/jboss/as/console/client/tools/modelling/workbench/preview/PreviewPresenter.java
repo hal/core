@@ -37,6 +37,7 @@ import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -77,6 +78,13 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
             @Override
             public DispatchAsync getDispatcher() {
                 return dispatcher;
+            }
+
+            @Override
+            public SecurityContext getSecurityContext() {
+                return Console.MODULES.getSecurityService().getSecurityContext(
+                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
+                );
             }
         }, globalContext);
     }

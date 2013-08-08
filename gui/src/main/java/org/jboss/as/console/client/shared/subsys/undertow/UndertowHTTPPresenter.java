@@ -19,6 +19,7 @@ import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
@@ -67,6 +68,13 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
             @Override
             public DispatchAsync getDispatcher() {
                 return dispatcher;
+            }
+
+            @Override
+            public SecurityContext getSecurityContext() {
+                return Console.MODULES.getSecurityService().getSecurityContext(
+                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
+                );
             }
         }, globalContext);
     }

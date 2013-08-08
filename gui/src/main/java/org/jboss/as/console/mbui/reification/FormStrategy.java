@@ -26,6 +26,12 @@ import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.mbui.JBossQNames;
+import org.jboss.as.console.mbui.model.StereoTypes;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.ballroom.client.rbac.AuthorisationDecision;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -42,28 +48,22 @@ import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.gui.reification.strategy.ReificationStrategy;
 import org.useware.kernel.gui.reification.strategy.ReificationWidget;
-import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.mapping.Predicate;
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
-import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.useware.kernel.gui.behaviour.common.CommonQNames.RESET_ID;
 import static org.useware.kernel.model.behaviour.ResourceType.*;
 import static org.useware.kernel.model.behaviour.ResourceType.System;
-
-import static org.useware.kernel.gui.behaviour.common.CommonQNames.*;
 
 /**
  * @author Harald Pehl
@@ -78,6 +78,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
     private static final Resource<ResourceType> SAVE_EVENT = new Resource<ResourceType>(JBossQNames.SAVE_ID, Interaction);
     private static final Resource<ResourceType> LOAD_EVENT = new Resource<ResourceType>(JBossQNames.LOAD_ID, Interaction);
     private static final Resource<ResourceType> RESET = new Resource<ResourceType>(RESET_ID, System);
+    private SecurityContext securityContext;
 
     @Override
     public boolean prepare(InteractionUnit<StereoTypes> interactionUnit, Context context) {
@@ -95,8 +96,11 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
         modelDescription = descriptions.get(correlationId);
 
         eventBus = context.get(ContextKey.EVENTBUS);
+        securityContext = context.get(ContextKey.SECURITY_CONTEXT);
 
-        return eventBus!=null && modelDescription!=null;
+        return eventBus!=null
+                && modelDescription!=null
+                && securityContext!=null;
     }
 
     @Override
@@ -225,6 +229,14 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                             break;
                         default:
                             throw new RuntimeException("Unsupported ModelType "+type);
+                    }
+
+
+                    // RBAC: attribute constraints
+                    AuthorisationDecision writePriviledge = securityContext.getAttributeWritePriviledge(attr.getName());
+                    if(!writePriviledge.isGranted())
+                    {
+                        items.get(items.size()-1).setFiltered(true);
                     }
                 }
             }
