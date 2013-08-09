@@ -6,7 +6,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.ballroom.client.rbac.Constraints;
 import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
@@ -126,10 +125,10 @@ public class SecurityServiceImpl implements SecurityService {
                     ModelNode response = dmrResponse.get();
                     ModelNode overalResult = response.get(RESULT);
 
-                    SecurityContext context = new SecurityContext(nameToken, requiredResources);
-                    context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
-
-
+                    SecurityContextImpl context = new SecurityContextImpl(
+                            nameToken,
+                            requiredResources,
+                            Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
 
                     // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
@@ -170,7 +169,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     }
 
-    private static void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContext context, ModelNode payload) {
+    private static void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContextImpl context, ModelNode payload) {
 
         ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
 
@@ -200,7 +199,7 @@ public class SecurityServiceImpl implements SecurityService {
         }
     }
 
-    private static void parseAccessControlMetaData(final String resourceAddress, SecurityContext context, ModelNode payload) {
+    private static void parseAccessControlMetaData(final String resourceAddress, SecurityContextImpl context, ModelNode payload) {
 
         ModelNode accessControl = payload.get(ACCESS_CONTROL);
 
