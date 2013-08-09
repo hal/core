@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -243,11 +244,12 @@ public class HelpSystem {
 
             // visit child elements
             if (descriptionModel.hasDefined("children")) {
-                List<Property> children = descriptionModel.get("children").asPropertyList();
-
-                for(Property child : children )
+                //List<Property> children = descriptionModel.get("children").asPropertyList();
+                ModelNode childrenModel = descriptionModel.get(CHILDREN);
+                Set<String> children = childrenModel.keys();
+                for(String child : children )
                 {
-                    ModelNode childDesc = child.getValue();
+                    ModelNode childDesc = childrenModel.get(child);
                     ModelNode desc = childDesc.get(MODEL_DESCRIPTION);
 
                     if(desc.isDefined()) // TOOD: How can this happen?
