@@ -33,6 +33,10 @@ import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,50 +78,83 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
         revealPlaceHierarchy(places);
     }
 
+    final class ContextCreation {
+        final PlaceRequest request;
+        Throwable error;
+
+        ContextCreation(PlaceRequest request) {
+            this.request = request;
+        }
+
+        PlaceRequest getRequest() {
+            return request;
+        }
+
+        Throwable getError() {
+            return error;
+        }
+
+        void setError(Throwable error) {
+            this.error = error;
+        }
+    }
+
     @Override
     protected void doRevealPlace(final PlaceRequest request, final boolean updateBrowserUrl) {
 
-        final String nameToken = request.getNameToken();
+        Function<ContextCreation> createContext = new Function<ContextCreation>() {
+            @Override
+            public void execute(final Control<ContextCreation> control) {
+                final String nameToken = control.getContext().getRequest().getNameToken();
+                if(!securityService.hasContext(nameToken))
+                {
+                    securityService.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            control.getContext().setError(throwable);
+                            control.abort();
 
-        if(!securityService.hasContext(nameToken))
-        {
-            securityService.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
-                @Override
-                public void onFailure(Throwable throwable) {
-                    Console.error("SecurityServiceException", throwable.getMessage());
-                    unlock();
-                    revealUnauthorizedPlace(nameToken);
+                        }
+
+                        @Override
+                        public void onSuccess(SecurityContext securityContext) {
+                            control.proceed();
+                        }
+                    });
                 }
-
-                @Override
-                public void onSuccess(SecurityContext securityContext) {
-
-                    unlock();
-                    doRevealPlace(request, updateBrowserUrl);
-
+                else
+                {
+                    control.proceed();
                 }
-            });
-        }
-        else
-        {
-            // this is where the gatekeeper kicks in ...
-            super.doRevealPlace(request, true);
+            }
+        };
 
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    eventBus.fireEvent(
-                            new LHSHighlightEvent(nameToken)
-                    );
-                }
-            });
+        Outcome<ContextCreation> outcome = new Outcome<ContextCreation>() {
+            @Override
+            public void onFailure(ContextCreation context) {
+                unlock();
+                Log.error("Failed to create security context", context.getError());
+                Console.error("Failed to create security context", context.getError().getMessage());
+            }
 
+            @Override
+            public void onSuccess(final ContextCreation context) {
+                unlock();
 
-            // ability to invalidate the security context
-            //if(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true").equals("false"))
-            //    securityService.flushContext(nameToken);
-        }
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        final PlaceRequest placeRequest = context.getRequest();
+                        DefaultPlaceManager.super.doRevealPlace(placeRequest, true);
+                        eventBus.fireEvent(
+                                new LHSHighlightEvent(placeRequest.getNameToken())
+                        );
+                    }
+                });
+            }
+        };
 
+        new Async().waterfall(new ContextCreation(request), outcome, createContext);
 
     }
 

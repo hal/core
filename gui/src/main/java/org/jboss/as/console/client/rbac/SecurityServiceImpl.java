@@ -121,13 +121,15 @@ public class SecurityServiceImpl implements SecurityService {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
 
-                ModelNode response = dmrResponse.get();
-                ModelNode overalResult = response.get(RESULT);
-
-                SecurityContext context = new SecurityContext(nameToken, requiredResources);
-                context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
-
                 try {
+
+                    ModelNode response = dmrResponse.get();
+                    ModelNode overalResult = response.get(RESULT);
+
+                    SecurityContext context = new SecurityContext(nameToken, requiredResources);
+                    context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
+
+
 
                     // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
