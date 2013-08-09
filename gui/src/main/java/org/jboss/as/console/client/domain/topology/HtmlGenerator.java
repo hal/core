@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -25,6 +26,9 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.widgets.icons.ConsoleIcons;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
+import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.icons.Icons;
 
 import java.util.ArrayList;
@@ -39,17 +43,17 @@ import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIR
  * href="http://dev.w3.org/html5/spec/global-attributes.html#embedding-custom-non-visible-data-with-the-data-*-attributes">HTML5
  * data attributes</a> to mark special tags:
  * <ul>
- *     <li>data-group: Marks a &lt;tr&gt; element as start of a new server group</li>
- *     <li>data-group-name: The name of a server group. Used for lifecycle links.</li>
- *     <li>data-host-name: The name of the host. Used for lifecycle links.</li>
- *     <li>data-server-name: The name of a server instance. Used for lifecycle links.</li>
+ * <li>data-group: Marks a &lt;tr&gt; element as start of a new server group</li>
+ * <li>data-group-name: The name of a server group. Used for lifecycle links.</li>
+ * <li>data-host-name: The name of the host. Used for lifecycle links.</li>
+ * <li>data-server-name: The name of a server instance. Used for lifecycle links.</li>
  * </ul>
  *
  * @author Harald Pehl
  * @date 10/15/12
  */
-final class HtmlGenerator
-{
+final class HtmlGenerator {
+
     static final String DATA_GROUP_NAME = "data-group-name";
     static final String DATA_HOST_NAME = "data-host-name";
     static final String DATA_SERVER_NAME = "data-server-name";
@@ -60,48 +64,48 @@ final class HtmlGenerator
     static final String STOP_GROUP_ID = "stop_group_";
     static final String RESTART_GROUP_ID = "restart_group_";
 
+    static Framework FRAMEWORK = GWT.create(Framework.class);
+    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
+    final boolean writable;
     final SafeHtmlBuilder html;
     final List<String> lifecycleIds;
 
-
-    HtmlGenerator()
-    {
+    HtmlGenerator() {
         this.html = new SafeHtmlBuilder();
         this.lifecycleIds = new ArrayList<String>();
+
+        // access control
+        String nameToken = FRAMEWORK.getPlaceManager().getCurrentPlaceRequest().getNameToken();
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(nameToken);
+        this.writable = securityContext.getWritePriviledge().isGranted();
     }
 
 
     // ------------------------------------------------------ custom methods
 
-    HtmlGenerator appendHost(final HostInfo host)
-    {
+    HtmlGenerator appendHost(final HostInfo host) {
         appendHtmlConstant("<th class='cellTableHeader'>");
-        if (host.isController())
-        {
+        if (host.isController()) {
             appendIcon(ConsoleIcons.INSTANCE.star(), "Domain Controller");
         }
         startLine().appendEscaped(host.getName()).endLine();
-        startLine().appendHtmlConstant("Domain: ").appendHtmlConstant(host.isController() ? "Controller" : "Member").endLine();
+        startLine().appendHtmlConstant("Domain: ").appendHtmlConstant(host.isController() ? "Controller" : "Member")
+                .endLine();
         html.appendHtmlConstant("</th>");
         return this;
     }
 
-    HtmlGenerator appendServerGroup(final ServerGroup group)
-    {
-        if (group.maxServersPerHost > 1)
-        {
+    HtmlGenerator appendServerGroup(final ServerGroup group) {
+        if (group.maxServersPerHost > 1) {
             appendHtmlConstant("<td class='domainOverviewCell cellTableCell endOfServerGroup " +
                     group.cssClassname + "' rowspan='" + group.maxServersPerHost + "'>");
-        }
-        else
-        {
+        } else {
             appendHtmlConstant("<td class='domainOverviewCell cellTableCell endOfServerGroup " +
                     group.cssClassname + "'>");
         }
         startLine().appendEscaped(group.name).endLine();
-        if (group.profile != null)
-        {
+        if (group.profile != null) {
             startLine().appendEscaped("Profile: " + group.profile).endLine();
         }
 
@@ -114,37 +118,28 @@ final class HtmlGenerator
                 .appendLifecycleLink(stopId, group.name, null, null, "Stop Group")
                 .appendHtmlConstant("<br/>")
                 .appendLifecycleLink(restartId, group.name, null, null, "Restart Group");
-        endLine();
+        endLinks();
+
         appendHtmlConstant("</td>");
         return this;
     }
 
-    HtmlGenerator appendServer(final ServerGroup group, final String host, final ServerInstance server)
-    {
+    HtmlGenerator appendServer(final ServerGroup group, final String host, final ServerInstance server) {
         ImageResource icon;
         String tooltip = "";
-        if (server.isRunning())
-        {
-            if (server.getFlag() != null)
-            {
+        if (server.isRunning()) {
+            if (server.getFlag() != null) {
                 icon = Icons.INSTANCE.status_warn();
-                if (server.getFlag() == RELOAD_REQUIRED)
-                {
+                if (server.getFlag() == RELOAD_REQUIRED) {
                     tooltip = "Server has to be reloaded";
-                }
-                else if (server.getFlag() == RESTART_REQUIRED)
-                {
+                } else if (server.getFlag() == RESTART_REQUIRED) {
                     tooltip = "Server has to be restarted";
                 }
-            }
-            else
-            {
+            } else {
                 tooltip = "Server is up and running";
                 icon = Icons.INSTANCE.status_good();
             }
-        }
-        else
-        {
+        } else {
             tooltip = "Server is stopped";
             icon = Icons.INSTANCE.status_bad();
         }
@@ -152,8 +147,7 @@ final class HtmlGenerator
                 "' title='" + tooltip + "'>");
 
         startLine().appendIcon(icon, "Server running?").appendEscaped(server.getName()).endLine();
-        if (server.getSocketBindings().size() > 0)
-        {
+        if (server.getSocketBindings().size() > 0) {
             Set<String> sockets = server.getSocketBindings().keySet();
             String first = sockets.iterator().next();
             startLine().appendHtmlConstant("Socket Binding: ").appendEscaped(first).endLine();
@@ -162,37 +156,34 @@ final class HtmlGenerator
 
         startLinks();
         String uniqueServerName = host + "_" + server.getName();
-        if (server.isRunning())
-        {
+        if (server.isRunning()) {
             appendLifecycleLink(STOP_SERVER_ID + uniqueServerName, null, host, server.getName(), "Stop Server");
-            if (server.getFlag() == RELOAD_REQUIRED)
-            {
+            if (server.getFlag() == RELOAD_REQUIRED) {
                 appendHtmlConstant("<br/>");
-                appendLifecycleLink(RELOAD_SERVER_ID + uniqueServerName, null, host, server.getName(), "Reload Server");
+                appendLifecycleLink(RELOAD_SERVER_ID + uniqueServerName, null, host, server.getName(),
+                        "Reload Server");
             }
-        }
-        else
-        {
+        } else {
             appendLifecycleLink(START_SERVER_ID + uniqueServerName, null, host, server.getName(), "Start Server");
         }
+        endLinks();
+
         appendHtmlConstant("</td>");
         return this;
     }
 
-    HtmlGenerator appendIcon(final ImageResource img, String alt)
-    {
-        appendHtmlConstant("<img src='" + new Image(img).getUrl() + "' width='16' " + "height='16' class='statusIcon' alt='"+alt+"' title='"+alt+"'/>");
+    HtmlGenerator appendIcon(final ImageResource img, String alt) {
+        appendHtmlConstant("<img src='" + new Image(img)
+                .getUrl() + "' width='16' " + "height='16' class='statusIcon' alt='" + alt + "' title='" + alt + "'/>");
         return this;
     }
 
-    HtmlGenerator appendColumn(final int width)
-    {
+    HtmlGenerator appendColumn(final int width) {
         appendHtmlConstant("<col width='" + width + "%'/>");
         return this;
     }
 
-    HtmlGenerator appendLifecycleLink(String id, String group, String host, String server, String text)
-    {
+    HtmlGenerator appendLifecycleLink(String id, String group, String host, String server, String text) {
         lifecycleIds.add(id);
         appendHtmlConstant("<a id='" + id + "' class='lifecycleLink'" +
                 (group != null ? " " + DATA_GROUP_NAME + "='" + group + "'" : "") +
@@ -202,70 +193,70 @@ final class HtmlGenerator
         return this;
     }
 
-    HtmlGenerator startTable()
-    {
+    HtmlGenerator startTable() {
         appendHtmlConstant("<table cellspacing='0' class='default-cell-table'>");
         return this;
     }
 
-    HtmlGenerator endTable()
-    {
+    HtmlGenerator endTable() {
         appendHtmlConstant("</table>");
         return this;
     }
 
-    HtmlGenerator startLine()
-    {
+    HtmlGenerator startLine() {
         appendHtmlConstant("<div>");
         return this;
     }
 
-    HtmlGenerator endLine()
-    {
+    HtmlGenerator endLine() {
         appendHtmlConstant("</div>");
         return this;
     }
 
-    HtmlGenerator startLinks()
-    {
+    HtmlGenerator startLinks() {
+        if (writable) {
+            appendHtmlConstant("<div>");
+        } else {
+            appendHtmlConstant("<div class='rbac-suppressed'>");
+        }
         appendHtmlConstant("<span style='color:#404040'><i class='icon-caret-down'></i></span>");
         appendHtmlConstant("<div class='lifecycleLinks'>");
         return this;
     }
 
-    HtmlGenerator emptyCell()
-    {
+    HtmlGenerator endLinks() {
+        // one for the lifecycle links, one for outer div wrapping the icon-caret-down and the links
+        appendHtmlConstant("</div>").appendHtmlConstant("</div>");
+        return this;
+    }
+
+    HtmlGenerator emptyCell() {
         appendHtmlConstant("<td class='cellTableCell domainOverviewCell'>&nbsp;</td>");
         return this;
     }
 
-    List<String> getLifecycleIds()
-    {
+    List<String> getLifecycleIds() {
         return lifecycleIds;
     }
 
-    HTMLPanel createPanel()
-    {
+    HTMLPanel createPanel() {
         return new HTMLPanel(this.toSafeHtml().asString());
     }
 
 
     // ------------------------------------------------------ delegate methods
 
-    public HtmlGenerator appendHtmlConstant(final String text)
-    {
+    public HtmlGenerator appendHtmlConstant(final String text) {
         html.appendHtmlConstant(text);
         return this;
     }
 
-    public HtmlGenerator appendEscaped(final String text)
-    {
+    public HtmlGenerator appendEscaped(final String text) {
         html.appendEscaped(text);
         return this;
     }
 
-    public SafeHtml toSafeHtml()
-    {
+    public SafeHtml toSafeHtml() {
         return html.toSafeHtml();
     }
 }
