@@ -67,7 +67,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     @ProxyCodeSplit
     @NameToken(NameTokens.JGroupsPresenter)
     @AccessControl(resources = {
-            "{selected.profile}/subsystem=jgroups/stack=*"
+            "{selected.profile}/subsystem=jgroups"
     })
     public interface MyProxy extends Proxy<JGroupsPresenter>, Place {
     }
