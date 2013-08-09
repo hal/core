@@ -51,6 +51,7 @@ import org.jboss.as.console.client.core.bootstrap.LoadGoogleViz;
 import org.jboss.as.console.client.core.bootstrap.LoadMainApp;
 import org.jboss.as.console.client.core.bootstrap.RegisterSubsystems;
 import org.jboss.as.console.client.core.bootstrap.TrackExecutionMode;
+import org.jboss.as.console.client.core.bootstrap.server.BootstrapServerSetup;
 import org.jboss.as.console.client.core.gin.Composite;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.core.message.MessageCenter;
@@ -92,7 +93,6 @@ public class Console implements EntryPoint {
     }
 
     public void onModuleLoad2() {
-
         // register global code split call handler
         MODULES.getEventBus().addHandler(AsyncCallFailEvent.getType(), new AsyncCallHandler(MODULES.getPlaceManager()));
 
@@ -112,7 +112,6 @@ public class Console implements EntryPoint {
             public void onSuccess() {
                 DelayedBindRegistry.bind(MODULES);
 
-
                 // dump prefs
                 for(Preferences.Key key : Preferences.Key.values())
                 {
@@ -121,7 +120,6 @@ public class Console implements EntryPoint {
                 }
 
                 // Bootstrap outcome: Load main application or display error message
-
                 Outcome<BootstrapContext> bootstrapOutcome = new Outcome<BootstrapContext>() {
                     @Override
                     public void onFailure(BootstrapContext context) {
@@ -138,9 +136,7 @@ public class Console implements EntryPoint {
 
                     @Override
                     public void onSuccess(BootstrapContext context) {
-
                         RootLayoutPanel.get().remove(loadingPanel);
-
                         new LoadMainApp(
                                 MODULES.getBootstrapContext(),
                                 MODULES.getPlaceManager(),
@@ -149,12 +145,13 @@ public class Console implements EntryPoint {
                 };
 
                 // Ordered execution: if any of these fail, the interface wil not be loaded
-
                 new Async<BootstrapContext>().waterfall(
                         MODULES.getBootstrapContext(), // shared context
                         bootstrapOutcome, // outcome
 
                         // bootstrap functions
+                        // Activate once CORS is supported / Keymaker is in place
+                        // new BootstrapServerSetup(),
                         new LoadGoogleViz(),
                         new ExecutionMode(MODULES.getDispatchAsync()),
                         new TrackExecutionMode(MODULES.getAnalytics()),
@@ -164,9 +161,7 @@ public class Console implements EntryPoint {
                         new EagerLoadProfiles(MODULES.getProfileStore(), MODULES.getCurrentSelectedProfile()),
                         new EagerLoadHosts(MODULES.getDomainEntityManager())
                 );
-
             }
-
         });
     }
 
