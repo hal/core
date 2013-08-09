@@ -2,7 +2,6 @@ package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -19,7 +18,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +36,16 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class SecurityServiceImpl implements SecurityService {
 
+
+    private static final String MODEL_DESCRIPTION = "model-description";
+    private static final String DEFAULT = "default";
+    private static final String ACCESS_CONTROL = "access-control";
+    private static final String ATTRIBUTES = "attributes";
+    private static final String READ_CONFIG = "read-config";
+    private static final String WRITE_CONFIG = "write-config";
+    private static final String READ_RUNTIME = "read-runtime";
+    private static final String WRITE_RUNTIME = "write-runtime";
+    private static final String ADDRESS = "address";
 
     private final AccessControlRegistry accessControlReg;
     private final DispatchAsync dispatcher;
@@ -85,8 +93,13 @@ public class SecurityServiceImpl implements SecurityService {
             step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-            step.get(RECURSIVE).set(accessControlReg.isRecursive(nameToken));
+            //step.get(RECURSIVE).set();
+
+            if(accessControlReg.isRecursive(nameToken))
+                step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
+
             step.get("access-control").set(true);
+            step.get(ATTRIBUTES).set(false);    // reduces the overall payload size
             steps.add(step);
 
         }
@@ -108,10 +121,8 @@ public class SecurityServiceImpl implements SecurityService {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
 
-
                 ModelNode response = dmrResponse.get();
                 ModelNode overalResult = response.get(RESULT);
-
 
                 SecurityContext context = new SecurityContext(nameToken, requiredResources);
                 context.setFacet(Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
@@ -142,7 +153,7 @@ public class SecurityServiceImpl implements SecurityService {
 
                     contextMapping.put(nameToken, context);
 
-                    System.out.println("Context creation time ("+nameToken+"): "+(System.currentTimeMillis()-start) +"ms");
+                    Log.info("Context creation time (" + nameToken + "): " + (System.currentTimeMillis() - start) + "ms");
 
                     callback.onSuccess(context);
 
@@ -157,7 +168,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     }
 
-    private void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContext context, ModelNode payload) {
+    private static void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContext context, ModelNode payload) {
 
         ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
 
@@ -167,16 +178,18 @@ public class SecurityServiceImpl implements SecurityService {
         // parse the child resources
         if(actualPayload.hasDefined(CHILDREN))
         {
-            List<Property> children = actualPayload.get(CHILDREN).asPropertyList();
-            for(Property child : children)
+            //List<Property> children = actualPayload.get(CHILDREN).asPropertyList();
+            ModelNode childNodes = actualPayload.get(CHILDREN);
+            Set<String> children = childNodes.keys();
+            for(String child : children)
             {
-                String childAddress = resourceAddress+"/"+child.getName()+"=*";
+                String childAddress = resourceAddress+"/"+child+"=*";
                 if(!requiredResources.contains(childAddress)) // might be parsed already
                 {
-                    ModelNode childModel = child.getValue();
-                    if(childModel.hasDefined("model-description")) // depends on 'recursive' true/false
+                    ModelNode childModel = childNodes.get(child);
+                    if(childModel.hasDefined(MODEL_DESCRIPTION)) // depends on 'recursive' true/false
                     {
-                        ModelNode childPayload = childModel.get("model-description").asPropertyList().get(0).getValue();
+                        ModelNode childPayload = childModel.get(MODEL_DESCRIPTION).asPropertyList().get(0).getValue();
                         requiredResources.add(childAddress); /// dynamically update the list of required resources
                         parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
                     }
@@ -185,59 +198,52 @@ public class SecurityServiceImpl implements SecurityService {
         }
     }
 
-    private void parseAccessControlMetaData(final String resourceAddress, SecurityContext context, ModelNode payload) {
-        //ModelNode accessControl = payload.hasDefined(RESULT) ?
-                //payload.get(RESULT).get("access-control") : payload.get("access-control");
+    private static void parseAccessControlMetaData(final String resourceAddress, SecurityContext context, ModelNode payload) {
 
-        ModelNode accessControl = payload.get("access-control");
+        ModelNode accessControl = payload.get(ACCESS_CONTROL);
 
-        List<Property> properties = accessControl.isDefined() ?
-                accessControl.asPropertyList() : Collections.EMPTY_LIST;
-
-        if(!properties.isEmpty())
+        if(accessControl.isDefined() && accessControl.hasDefined(DEFAULT)) // TODO: overrides ...
         {
-            Property acl = properties.get(0);
-            assert acl.getName().equals("default");   //TODO: overrides ...
-            ModelNode model = acl.getValue();
+            ModelNode model = accessControl.get(DEFAULT);
 
             Constraints c = new Constraints();
 
-            if(model.hasDefined("address")
-                    && model.get("address").asBoolean()==false)
+            if(model.hasDefined(ADDRESS)
+                    && model.get(ADDRESS).asBoolean()==false)
             {
                 c.setAddress(false);
             }
             else
             {
 
-                c.setReadConfig(model.get("read-config").asBoolean());
-                c.setWriteConfig(model.get("write-config").asBoolean());
-                c.setReadRuntime(model.get("read-runtime").asBoolean());
-                c.setWriteRuntime(model.get("write-runtime").asBoolean());
+                c.setReadConfig(model.get(READ_CONFIG).asBoolean());
+                c.setWriteConfig(model.get(WRITE_CONFIG).asBoolean());
+                c.setReadRuntime(model.get(READ_RUNTIME).asBoolean());
+                c.setWriteRuntime(model.get(WRITE_RUNTIME).asBoolean());
 
             }
 
             // attribute constraints
 
-            if(model.hasDefined("attributes"))
+            if(model.hasDefined(ATTRIBUTES))
             {
-                List<Property> attributes = model.get("attributes").asPropertyList();
+                List<Property> attributes = model.get(ATTRIBUTES).asPropertyList();
 
                 for(Property att : attributes)
                 {
                     ModelNode attConstraintModel = att.getValue();
                     // config access
-                    if(attConstraintModel.hasDefined("read-config"))
+                    if(attConstraintModel.hasDefined(READ_CONFIG))
                     {
-                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-config").asBoolean());
-                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-config").asBoolean());
+                        c.setAttributeRead(att.getName(), attConstraintModel.get(READ_CONFIG).asBoolean());
+                        c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE_CONFIG).asBoolean());
                     }
 
                     // runtime access
                     else
                     {
-                        c.setAttributeRead(att.getName(), attConstraintModel.get("read-runtime").asBoolean());
-                        c.setAttributeWrite(att.getName(), attConstraintModel.get("write-runtime").asBoolean());
+                        c.setAttributeRead(att.getName(), attConstraintModel.get(READ_RUNTIME).asBoolean());
+                        c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE_RUNTIME).asBoolean());
                     }
                 }
             }
