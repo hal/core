@@ -2,6 +2,7 @@ package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -120,9 +121,20 @@ public class SecurityServiceImpl implements SecurityService {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
 
+                ModelNode response = dmrResponse.get();
+                if(response.isFailure())
+                {
+                    callback.onFailure(
+                            new RuntimeException(
+                                    "Failed to retrieve access control meta data:"+
+                                    response.getFailureDescription()
+                            )
+                    );
+                    return;
+                }
+
                 try {
 
-                    ModelNode response = dmrResponse.get();
                     ModelNode overalResult = response.get(RESULT);
 
                     SecurityContextImpl context = new SecurityContextImpl(
@@ -159,7 +171,6 @@ public class SecurityServiceImpl implements SecurityService {
                     callback.onSuccess(context);
 
                 } catch (Throwable e) {
-                    Log.error("Failed to parse access control meta data", e);
                     callback.onFailure(new RuntimeException("Failed to parse access control meta data", e));
                 }
 
@@ -249,7 +260,12 @@ public class SecurityServiceImpl implements SecurityService {
                 }
             }
 
+            Console.info("Adding constraints for "+resourceAddress);
             context.updateResourceConstraints(resourceAddress, c);
+        }
+        else
+        {
+            Console.warning("Access-control meta data missing for "+ resourceAddress);
         }
     }
 
