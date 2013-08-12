@@ -19,6 +19,7 @@
 
 package org.jboss.dmr.client;
 
+import com.google.gwt.core.client.GWT;
 import org.timepedia.exporter.client.Export;
 import org.timepedia.exporter.client.ExportPackage;
 import org.timepedia.exporter.client.ExportStaticMethod;
@@ -1264,7 +1265,13 @@ public class ModelNode implements Cloneable, Exportable {
         }
     }
 
-    public static native boolean hasNativeBase64Support() /*-{
+    public static boolean hasNativeBase64Support() {
+
+        //TODO: there is a problem with the hosted call to nativeBase64()
+        return !GWT.isScript() ?  false : nativeBase64();
+    }
+
+    public static native boolean nativeBase64() /*-{
 
         return (window.atob && window.btoa);
 
