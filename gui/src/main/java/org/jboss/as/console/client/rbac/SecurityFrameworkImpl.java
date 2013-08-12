@@ -77,7 +77,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
         SecurityContext securityContext = contextMapping.get(id);
         if(null==securityContext)
-            throw new IllegalStateException("Security context should have been created upfront");
+            throw new IllegalStateException("Security context should have been created upfront: "+id);
 
         return securityContext;
     }
