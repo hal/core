@@ -260,7 +260,6 @@ public class SecurityServiceImpl implements SecurityService {
                 }
             }
 
-            Console.info("Adding constraints for "+resourceAddress);
             context.updateResourceConstraints(resourceAddress, c);
         }
         else
