@@ -29,10 +29,10 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class DefaultPlaceManager extends PlaceManagerImpl {
 
-    private final SecurityService securityService;
+    private final SecurityFramework securityFramework;
     private final UnauthorisedPresenter unauthPlace;
     private BootstrapContext bootstrap;
     private EventBus eventBus;
@@ -55,11 +55,11 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     @Inject
     public DefaultPlaceManager(
             EventBus eventBus,
-            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityService securityService, UnauthorisedPresenter unauthPlace) {
+            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityFramework securityManager, UnauthorisedPresenter unauthPlace) {
         super(eventBus, tokenFormatter);
         this.bootstrap = bootstrap;
         this.eventBus = eventBus;
-        this.securityService = securityService;
+        this.securityFramework = securityManager;
         this.unauthPlace = unauthPlace;
     }
 
@@ -106,9 +106,9 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             @Override
             public void execute(final Control<ContextCreation> control) {
                 final String nameToken = control.getContext().getRequest().getNameToken();
-                if(!securityService.hasContext(nameToken))
+                if(!securityFramework.hasContext(nameToken))
                 {
-                    securityService.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
+                    securityFramework.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
                         @Override
                         public void onFailure(Throwable throwable) {
                             control.getContext().setError(throwable);

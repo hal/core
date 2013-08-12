@@ -1,11 +1,7 @@
 package org.jboss.as.console.client.widgets.tables;
 
 import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -29,8 +25,7 @@ public class TextLinkCell<T> extends ActionCell<T> {
         this.title = title;
 
          // access control
-        String nameToken = FRAMEWORK.getPlaceManager().getCurrentPlaceRequest().getNameToken();
-        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(nameToken);
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
 
         visible = securityContext.getWritePriviledge().isGranted();
     }

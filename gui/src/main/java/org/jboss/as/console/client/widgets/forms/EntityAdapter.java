@@ -2,7 +2,6 @@ package org.jboss.as.console.client.widgets.forms;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.rbac.RBACAdapter;
 import org.jboss.as.console.client.shared.expr.ExpressionAdapter;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -15,7 +14,6 @@ import org.jboss.dmr.client.Property;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -157,7 +155,7 @@ public class EntityAdapter<T> {
         //                actualPayload.get("_filtered-attributes").asList() : Collections.EMPTY_LIST;
 
         //final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
-        final Set<String> readonlyJavaNames = new HashSet<String>();
+        //final Set<String> readonlyJavaNames = new HashSet<String>();
 
         SecurityContext securityContext = getSecurityContext();
 
@@ -175,8 +173,8 @@ public class EntityAdapter<T> {
             } */
 
             // RBAC: read-only attributes
-            if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
-                readonlyJavaNames.add(propBinding.getJavaName());
+            //if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
+            //    readonlyJavaNames.add(propBinding.getJavaName());
 
 
 
@@ -321,14 +319,14 @@ public class EntityAdapter<T> {
         // see Form#edit() ...
 
         //RBACAdapter.setFilteredAttributes(entity, filteredJavaNames);
-        RBACAdapter.setReadOnlyAttributes(entity, readonlyJavaNames);
+        //RBACAdapter.setReadOnlyAttributes(entity, readonlyJavaNames);
 
         return entity;
     }
 
     private SecurityContext getSecurityContext() {
-        SecurityService securityService = Console.MODULES.getSecurityService();
-        return securityService.getSecurityContext(Console.getPlaceManager().getCurrentPlaceRequest().getNameToken());
+        SecurityService securityFacilities = Console.MODULES.getSecurityFramework();
+        return securityFacilities.getSecurityContext();
     }
 
     /**

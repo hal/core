@@ -82,9 +82,7 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
 
             @Override
             public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityService().getSecurityContext(
-                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
-                );
+                return Console.MODULES.getSecurityFramework().getSecurityContext();
             }
         }, globalContext);
     }

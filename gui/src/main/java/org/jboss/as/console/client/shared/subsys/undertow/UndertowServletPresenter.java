@@ -72,9 +72,7 @@ public class UndertowServletPresenter extends Presenter<ServletView, UndertowSer
 
             @Override
             public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityService().getSecurityContext(
-                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
-                );
+                return Console.MODULES.getSecurityFramework().getSecurityContext();
             }
         }, globalContext);
     }

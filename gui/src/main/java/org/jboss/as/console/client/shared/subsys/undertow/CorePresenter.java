@@ -72,9 +72,7 @@ public class CorePresenter extends Presenter<CoreView, CorePresenter.MyProxy>
 
             @Override
             public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityService().getSecurityContext(
-                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
-                );
+                return Console.MODULES.getSecurityFramework().getSecurityContext();
             }
         }, globalContext);
     }

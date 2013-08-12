@@ -7,7 +7,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,17 +19,17 @@ public class RBACGatekeeper implements Gatekeeper {
 
     private final AccessControlRegistry accessControlReg;
     private final PlaceManager placemanager;
-    private final SecurityService securityService;
+    private final SecurityFramework securityFramework;
 
     @Inject
     public RBACGatekeeper(
             final AccessControlRegistry accessControlReg,
             final PlaceManager placemanager,
-            final SecurityService securityService, EventBus eventBus) {
+            final SecurityFramework securityManager, EventBus eventBus) {
 
         this.accessControlReg = accessControlReg;
         this.placemanager = placemanager;
-        this.securityService = securityService;
+        this.securityFramework = securityManager;
 
     }
 
@@ -44,9 +43,9 @@ public class RBACGatekeeper implements Gatekeeper {
 
         boolean outcome = false;
 
-        if(securityService.hasContext(token))
+        if(securityFramework.hasContext(token))
         {
-            SecurityContext securityContext = securityService.getSecurityContext(token);
+            SecurityContext securityContext = securityFramework.getSecurityContext(token);
             final AuthorisationDecision readPriviledge = securityContext.getReadPriviledge();
             outcome = readPriviledge.isGranted();
 

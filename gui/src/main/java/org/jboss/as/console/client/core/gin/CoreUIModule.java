@@ -92,7 +92,8 @@ import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
-import org.jboss.as.console.client.rbac.SecurityServiceImpl;
+import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedView;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
@@ -231,7 +232,6 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtensionBinding;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
@@ -701,7 +701,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
 
-        bind(SecurityService.class).to(SecurityServiceImpl.class).in(Singleton.class);
+        bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
     }
 }

@@ -231,13 +231,6 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                             throw new RuntimeException("Unsupported ModelType "+type);
                     }
 
-
-                    // RBAC: attribute constraints
-                    AuthorisationDecision writePriviledge = securityContext.getAttributeWritePriviledge(attr.getName());
-                    if(!writePriviledge.isGranted())
-                    {
-                        items.get(items.size()-1).setFiltered(true);
-                    }
                 }
             }
 

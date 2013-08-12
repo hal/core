@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
@@ -60,8 +61,8 @@ import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -133,7 +134,6 @@ import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresente
 import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtension;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
@@ -336,7 +336,7 @@ public interface CoreUI {
     Provider<PreviewPresenter> getPreviewPresenter();
 
     AccessControlRegistry getAccessControlRegistry();
-    SecurityService getSecurityService();
+    SecurityFramework getSecurityFramework();
 
     UnauthorisedPresenter getUnauthorisedPresenter();
 }

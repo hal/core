@@ -9,7 +9,6 @@ import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -18,6 +17,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,14 +27,14 @@ import java.util.Set;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
- * The secuirty service creates and provides a {@link SecurityContext} per place
+ * The security manager creates and provides a {@link SecurityContext} per place
  *
  * @see com.gwtplatform.mvp.client.proxy.PlaceManager
  *
  * @author Heiko Braun
  * @date 7/3/13
  */
-public class SecurityServiceImpl implements SecurityService {
+public class SecurityFrameworkImpl implements SecurityFramework {
 
 
     private static final String MODEL_DESCRIPTION = "model-description";
@@ -50,32 +50,39 @@ public class SecurityServiceImpl implements SecurityService {
     private final AccessControlRegistry accessControlReg;
     private final DispatchAsync dispatcher;
     private final CoreGUIContext statementContext;
+    private final ContextKeyResolver keyResolver;
 
     private Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
     @Inject
-    public SecurityServiceImpl(AccessControlRegistry accessControlReg, DispatchAsync dispatcher, CoreGUIContext statementContext) {
+    public SecurityFrameworkImpl(AccessControlRegistry accessControlReg, DispatchAsync dispatcher, CoreGUIContext statementContext) {
         this.accessControlReg = accessControlReg;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
+        this.keyResolver = new PlaceSecurityResolver();
     }
 
     @Override
-    public boolean hasContext(String nameToken) {
-        return contextMapping.containsKey(nameToken);
+    public SecurityContext getSecurityContext() {
+        return getSecurityContext(keyResolver.resolveKey());
     }
 
     @Override
-    public SecurityContext getSecurityContext(String nameToken) {
+    public boolean hasContext(String id) {
+        return contextMapping.containsKey(id);
+    }
 
-        SecurityContext securityContext = contextMapping.get(nameToken);
+    @Override
+    public SecurityContext getSecurityContext(String id) {
+
+        SecurityContext securityContext = contextMapping.get(id);
         if(null==securityContext)
             throw new IllegalStateException("Security context should have been created upfront");
 
         return securityContext;
     }
 
-    public void createSecurityContext(final String nameToken, final AsyncCallback<SecurityContext> callback) {
+    public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -83,7 +90,7 @@ public class SecurityServiceImpl implements SecurityService {
 
         final List<ModelNode> steps = new LinkedList<ModelNode>();
 
-        final Set<String> requiredResources = accessControlReg.getResources(nameToken);
+        final Set<String> requiredResources = accessControlReg.getResources(id);
         final Map<String, String> step2address = new HashMap<String,String>();
 
         for(String resource : requiredResources)
@@ -95,7 +102,7 @@ public class SecurityServiceImpl implements SecurityService {
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
             //step.get(RECURSIVE).set();
 
-            if(accessControlReg.isRecursive(nameToken))
+            if(accessControlReg.isRecursive(id))
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
             step.get("access-control").set(true);
@@ -115,7 +122,7 @@ public class SecurityServiceImpl implements SecurityService {
             @Override
             public void onFailure(Throwable caught) {
 
-                callback.onFailure(new RuntimeException("Failed to create security context for "+nameToken, caught));
+                callback.onFailure(new RuntimeException("Failed to create security context for "+id, caught));
             }
 
             @Override
@@ -138,9 +145,9 @@ public class SecurityServiceImpl implements SecurityService {
                     ModelNode overalResult = response.get(RESULT);
 
                     SecurityContextImpl context = new SecurityContextImpl(
-                            nameToken,
+                            id,
                             requiredResources,
-                            Facet.valueOf(accessControlReg.getFacet(nameToken).toUpperCase()));
+                            Facet.valueOf(accessControlReg.getFacet(id).toUpperCase()));
 
                     // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
@@ -164,9 +171,9 @@ public class SecurityServiceImpl implements SecurityService {
 
                     context.seal(); // makes it immutable
 
-                    contextMapping.put(nameToken, context);
+                    contextMapping.put(id, context);
 
-                    Log.info("Context creation time (" + nameToken + "): " + (System.currentTimeMillis() - start) + "ms");
+                    Log.info("Context creation time (" + id + "): " + (System.currentTimeMillis() - start) + "ms");
 
                     callback.onSuccess(context);
 
@@ -272,4 +279,22 @@ public class SecurityServiceImpl implements SecurityService {
     public void flushContext(String nameToken) {
         contextMapping.remove(nameToken);
     }
+
+    @Override
+    public Set<String> getReadOnlyJavaNames(Class<?> type, SecurityContext securityContext) {
+
+        // Fallback for some forms
+        if(type == Object.class || type == null)
+            return Collections.EMPTY_SET;
+
+        return new MetaDataAdapter(Console.MODULES.getApplicationMetaData())
+                .getReadOnlyJavaNames(type, securityContext);
+    }
+
+    @Override
+    public Set<String> getReadOnlyDMRNames(List<String> formItems, SecurityContext securityContext) {
+        return Collections.EMPTY_SET;  // TODO
+    }
 }
+
+

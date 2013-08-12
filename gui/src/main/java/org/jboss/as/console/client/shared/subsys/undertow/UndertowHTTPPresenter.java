@@ -72,9 +72,7 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
 
             @Override
             public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityService().getSecurityContext(
-                        Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken()
-                );
+                return Console.MODULES.getSecurityFramework().getSecurityContext();
             }
         }, globalContext);
     }

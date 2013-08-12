@@ -1,5 +1,7 @@
 package org.jboss.as.console.mbui.widgets;
 
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -9,8 +11,8 @@ import org.jboss.dmr.client.ModelType;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -128,6 +130,11 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
         // plain views
         refreshPlainView();
+    }
+
+    @Override
+    public Set<String> getReadOnlyNames(SecurityService securityFacilities, SecurityContext securityContext) {
+        return securityFacilities.getReadOnlyDMRNames(getFormItemNames(), securityContext);
     }
 
     private Object downCast(ModelNode value)

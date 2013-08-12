@@ -33,6 +33,6 @@ public class ConsoleFramework implements Framework {
 
     @Override
     public SecurityService getSecurityService() {
-        return Console.MODULES.getSecurityService();
+        return Console.MODULES.getSecurityFramework();
     }
 }
