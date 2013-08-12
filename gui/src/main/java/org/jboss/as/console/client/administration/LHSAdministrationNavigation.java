@@ -28,7 +28,6 @@ import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
 
-
 /**
  * @author Heiko Braun
  * @date 3/2/11
@@ -41,25 +40,28 @@ class LHSAdministrationNavigation {
     private LHSNavTree navigation;
 
     public LHSAdministrationNavigation() {
-        layout = new VerticalPanel();
-        layout.setStyleName("fill-layout-width");
+
+        LHSTreeSection accessLeaf = new LHSTreeSection(Console.CONSTANTS.administration_access());
+        LHSNavTreeItem authItem = new LHSNavTreeItem(Console.CONSTANTS.administration_authorization(),
+                NameTokens.RoleAssignmentPresenter);
+        accessLeaf.addItem(authItem);
+        LHSNavTreeItem auditLogItem = new LHSNavTreeItem(Console.CONSTANTS.administration_audit_log(),
+                NameTokens.AuditLogPresenter);
+        accessLeaf.addItem(auditLogItem);
+
+        navigation = new LHSNavTree("administration");
+        navigation.getElement().setAttribute("aria-label", Console.CONSTANTS.administration_label());
+        navigation.addItem(accessLeaf);
+        navigation.expandTopLevel();
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
-
-        navigation = new LHSNavTree("administration");
-        navigation.getElement().setAttribute("aria-label", "Administration");
-
-        LHSTreeSection commonLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_generalConfig());
-        navigation.addItem(commonLeaf);
-
-        LHSNavTreeItem rolesItem = new LHSNavTreeItem(Console.CONSTANTS.common_label_roles(),
-                NameTokens.RoleAssignmentPresenter);
-        commonLeaf.addItem(rolesItem);
-
         stack.add(navigation);
-        navigation.expandTopLevel();
+
+        layout = new VerticalPanel();
+        layout.setStyleName("fill-layout-width");
         layout.add(stack);
+
         scroll = new ScrollPanel(layout);
     }
 

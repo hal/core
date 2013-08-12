@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 
 /**
@@ -19,12 +20,16 @@ public class AdministrationView extends SuspendableViewImpl implements Administr
     private AdministrationPresenter presenter;
 
     public AdministrationView() {
-        layout = new SplitLayoutPanel(10);
 
         contentCanvas = new LayoutPanel();
-        lhsNavigation = new LHSAdministrationNavigation();
+        contentCanvas.getElement().setAttribute("role", "main");
 
-        layout.addWest(lhsNavigation.asWidget(), 197);
+        lhsNavigation = new LHSAdministrationNavigation();
+        Widget navigationWidget = lhsNavigation.asWidget();
+        navigationWidget.getElement().setAttribute("role", "navigation");
+
+        layout = new DefaultSplitLayoutPanel(2);
+        layout.addWest(navigationWidget, 217);
         layout.add(contentCanvas);
     }
 

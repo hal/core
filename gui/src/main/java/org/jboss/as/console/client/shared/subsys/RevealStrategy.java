@@ -44,21 +44,21 @@ public class RevealStrategy {
         this.bootstrap = bootstrap;
     }
 
-    public void revealInParent(Presenter presenter) {
+    public void revealInParent(final Presenter presenter) {
          if(bootstrap.isStandalone())
             RevealContentEvent.fire(presenter, ServerMgmtApplicationPresenter.TYPE_MainContent, presenter);
         else
             RevealContentEvent.fire(presenter, ProfileMgmtPresenter.TYPE_MainContent, presenter);
     }
 
-    public void revealInRuntimeParent(Presenter presenter) {
+    public void revealInRuntimeParent(final Presenter presenter) {
          if(bootstrap.isStandalone())
             RevealContentEvent.fire(presenter, StandaloneRuntimePresenter.TYPE_MainContent, presenter);
         else
             RevealContentEvent.fire(presenter, DomainRuntimePresenter.TYPE_MainContent, presenter);
     }
 
-    public void revealInAdministration(final RoleAssignmentPresenter presenter) {
+    public void revealInAdministration(final Presenter presenter) {
         RevealContentEvent.fire(presenter, AdministrationPresenter.TYPE_MainContent, presenter);
     }
 }

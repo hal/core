@@ -32,6 +32,8 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.AdministrationView;
+import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
+import org.jboss.as.console.client.administration.audit.AuditLogView;
 import org.jboss.as.console.client.administration.role.RoleAssignementView;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.AnalyticsProvider;
@@ -680,11 +682,14 @@ public class CoreUIModule extends AbstractPresenterModule {
                 AdministrationPresenter.MyView.class,
                 AdministrationView.class,
                 AdministrationPresenter.MyProxy.class);
-
         bindPresenter(RoleAssignmentPresenter.class,
                 RoleAssignmentPresenter.MyView.class,
                 RoleAssignementView.class,
                 RoleAssignmentPresenter.MyProxy.class);
+        bindPresenter(AuditLogPresenter.class,
+                AuditLogPresenter.MyView.class,
+                AuditLogView.class,
+                AuditLogPresenter.MyProxy.class);
 
         // mbui workbench
         bindPresenter(ApplicationPresenter.class, ApplicationPresenter.MyView.class, ApplicationView.class,

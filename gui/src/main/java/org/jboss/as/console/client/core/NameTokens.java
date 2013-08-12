@@ -194,5 +194,10 @@ public class NameTokens {
     public static String getRoleAssignmentPresenter() {
         return RoleAssignmentPresenter;
     }
+
+    public static final String AuditLogPresenter = "audit-log";
+    public static String getAuditLogPresenter() {
+        return AuditLogPresenter;
+    }
 }
 

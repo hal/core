@@ -659,4 +659,9 @@ public interface UIConstants extends Constants {
     String common_label_recover();
 
     String administration_label();
+    String administration_access();
+    String administration_authorization();
+    String administration_audit();
+    String administration_audit_log();
+    String administration_audit_log_desc();
 }
