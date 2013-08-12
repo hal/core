@@ -463,7 +463,7 @@ public class ModelNode implements Cloneable, Exportable {
         checkProtect();
         byte[] clone = new byte[newValue.length];
         for (int i = 0; i < newValue.length; i++) {
-        	clone[i] = newValue[i];
+            clone[i] = newValue[i];
         }
 
         value = new BytesModelValue(newValue.length == 0 ? newValue : clone);
@@ -1227,25 +1227,86 @@ public class ModelNode implements Cloneable, Exportable {
 
     @ExportStaticMethod()
     public static ModelNode fromBase64(String encoded) {
-    	ModelNode node = new ModelNode();
-    	try {
-			node.readExternal(new DataInput(Base64.decode(encoded)));
-		} catch (IOException e) {
-			throw new IllegalArgumentException(e);
-		}
-    	return node;
+        ModelNode node = new ModelNode();
+        try {
+
+            if(hasNativeBase64Support())
+            {
+                String s = nativeDecode(encoded);
+                node.readExternal(new DataInput(toBytes(s)));
+            }
+            else
+            {
+                node.readExternal(new DataInput(Base64.decode(encoded)));
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return node;
     }
 
     @Export()
     public String toBase64String() {
-    	DataOutput out = new DataOutput();
-    	try {
-			writeExternal(out);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
-    	return Base64.encodeBytes(out.getBytes());
+        DataOutput out = new DataOutput();
+        try {
+            writeExternal(out);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+
+        if(hasNativeBase64Support())
+        {
+            return nativeEncode(new String(out.getBytes()));
+        }
+        else
+        {
+            return Base64.encodeBytes(out.getBytes());
+        }
     }
+
+    public static native boolean hasNativeBase64Support() /*-{
+
+        return (window.atob && window.btoa);
+
+    }-*/;
+
+    public static native String nativeDecode(String encoded) /*-{
+
+        return atob(encoded.replace(/\s/g, ''));
+
+    }-*/;
+
+    public static native String nativeEncode(String plain) /*-{
+
+        return btoa(plain);
+
+    }-*/;
+
+    public static native byte[] toBytes(String str) /*-{
+
+        var bytes = [];
+        for (var i = 0; i < str.length; ++i)
+        {
+            bytes.push(str.charCodeAt(i));
+        }
+        return bytes;
+
+    }-*/;
+
+    /*
+      function ab2str(buf) {
+        return String.fromCharCode.apply(null, new Uint16Array(buf));
+      }
+
+      function str2ab(str) {
+        var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+        var bufView = new Uint16Array(buf);
+        for (var i=0, strLen=str.length; i<strLen; i++) {
+          bufView[i] = str.charCodeAt(i);
+        }
+        return buf;
+      }
+    */
 
 //    /**
 //     * Get a model node from a string representation of the model node.
