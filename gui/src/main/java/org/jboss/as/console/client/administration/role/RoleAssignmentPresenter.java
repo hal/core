@@ -2,6 +2,8 @@ package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
+import java.util.Stack;
+
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -76,15 +78,15 @@ public class RoleAssignmentPresenter
                 .getName() + " to role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
 
         AddPrincipalOperation addPrincipalOperation = new AddPrincipalOperation(dispatcher);
-        addPrincipalOperation.extecute(role, roleAssignment, principal, new Outcome<StringBuilder>() {
+        addPrincipalOperation.extecute(role, roleAssignment, principal, new Outcome<Stack<Boolean>>() {
             @Override
-            public void onFailure(final StringBuilder context) {
+            public void onFailure(final Stack<Boolean> context) {
                 // TODO Error handling
                 Console.MODULES.getMessageCenter().notify(new Message("Cannot add principal", Message.Severity.Error));
             }
 
             @Override
-            public void onSuccess(final StringBuilder context) {
+            public void onSuccess(final Stack<Boolean> context) {
                 getView().refresh();
             }
         });

@@ -2,6 +2,8 @@ package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
+import java.util.Stack;
+
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.dmr.client.ModelDescriptionConstants;
@@ -26,24 +28,24 @@ public class AddPrincipalOperation {
     public AddPrincipalOperation(final DispatchAsync dispatcher) {this.dispatcher = dispatcher;}
 
     void extecute(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal,
-            final Outcome<StringBuilder> outcome) {
+            final Outcome<Stack<Boolean>> outcome) {
 
         ReadRoleFunction readRoleFunction = new ReadRoleFunction(role);
         AddRoleFunction addRoleFunction = new AddRoleFunction(role);
         AddPrincipalFunction addPrincipalFunction = new AddPrincipalFunction(role, roleAssignment, principal);
 
-        new Async<StringBuilder>().waterfall(new StringBuilder(), outcome, readRoleFunction, addRoleFunction,
+        new Async<Stack<Boolean>>().waterfall(new Stack<Boolean>(), outcome, readRoleFunction, addRoleFunction,
                 addPrincipalFunction);
     }
 
-    class ReadRoleFunction implements Function<StringBuilder> {
+    class ReadRoleFunction implements Function<Stack<Boolean>> {
 
         final StandardRole role;
 
         ReadRoleFunction(final StandardRole role) {this.role = role;}
 
         @Override
-        public void execute(final Control<StringBuilder> control) {
+        public void execute(final Control<Stack<Boolean>> control) {
             final ModelNode realRoleOp = new ModelNode();
             realRoleOp.get(ADDRESS).add("core-service", "management");
             realRoleOp.get(ADDRESS).add("access", "authorization");
@@ -54,29 +56,29 @@ public class AddPrincipalOperation {
                 @Override
                 public void onSuccess(DMRResponse response) {
                     // role exists - next step will skipp DMR operation
-                    control.getContext().append(true);
+                    control.getContext().push(true);
                     control.proceed();
                 }
 
                 @Override
                 public void onFailure(final Throwable caught) {
                     // no role - create it in the next function
-                    control.getContext().append(false);
+                    control.getContext().push(false);
                     control.proceed();
                 }
             });
         }
     }
 
-    class AddRoleFunction implements Function<StringBuilder> {
+    class AddRoleFunction implements Function<Stack<Boolean>> {
 
         final StandardRole role;
 
         AddRoleFunction(final StandardRole role) {this.role = role;}
 
         @Override
-        public void execute(final Control<StringBuilder> control) {
-            Boolean roleExists = Boolean.valueOf(control.getContext().toString());
+        public void execute(final Control<Stack<Boolean>> control) {
+            boolean roleExists = control.getContext().pop();
             if (roleExists) {
                 control.proceed();
             }
@@ -103,7 +105,7 @@ public class AddPrincipalOperation {
         }
     }
 
-    class AddPrincipalFunction implements Function<StringBuilder> {
+    class AddPrincipalFunction implements Function<Stack<Boolean>> {
 
         final StandardRole role;
         final RoleAssignment roleAssignment;
@@ -116,7 +118,7 @@ public class AddPrincipalOperation {
         }
 
         @Override
-        public void execute(final Control<StringBuilder> control) {
+        public void execute(final Control<Stack<Boolean>> control) {
             final ModelNode assignmentOp = new ModelNode();
             StringBuilder principalKey = new StringBuilder();
             boolean realmGiven = principal.getRealm() != null && principal.getRealm().length() != 0;
