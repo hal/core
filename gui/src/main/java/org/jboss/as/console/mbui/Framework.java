@@ -1,5 +1,6 @@
 package org.jboss.as.console.mbui;
 
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -10,5 +11,5 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 public interface Framework {
 
     DispatchAsync getDispatcher();
-    SecurityContext getSecurityContext();
+    SecurityFramework getSecurityFramework();
 }

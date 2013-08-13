@@ -127,7 +127,10 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
             this.interactionUnit = interactionUnit;
             this.coordinator = coordinator;
 
-            this.form = new ModelNodeForm();
+            DMRMapping dmrMapping = (DMRMapping)
+                    this.interactionUnit.findMapping(MappingType.DMR);
+
+            this.form = new ModelNodeForm(dmrMapping.getAddress(), securityContext);
             this.form.setNumColumns(2);
             this.form.setEnabled(false);
 
@@ -135,10 +138,8 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
 
             List<Property> attributeDescriptions = modelDescription.get("attributes").asPropertyList();
 
-            DMRMapping DMRMapping = (DMRMapping)
-                    this.interactionUnit.findMapping(MappingType.DMR);
 
-            List<ResourceAttribute> attributes = DMRMapping.getAttributes();
+            List<ResourceAttribute> attributes = dmrMapping.getAttributes();
 
             // catch-all directive, if no explicit attributes given
             // TODO: optimisation, see below

@@ -4,12 +4,16 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.widgets.progress.ProgressWindow;
 import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
 import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
 import org.jboss.as.console.mbui.bootstrap.ReificationBootstrap;
 import org.jboss.as.console.mbui.reification.pipeline.BuildUserInterfaceStep;
 import org.jboss.as.console.mbui.reification.pipeline.ImplicitBehaviourStep;
+import org.jboss.as.console.mbui.reification.rbac.RequiredResources;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -28,8 +32,10 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -96,7 +102,7 @@ public class Kernel implements NavigationDelegate {
                 public void execute(Control<Context> control) {
                     context.set(ContextKey.EVENTBUS, coordinator.getLocalBus());
                     context.set(ContextKey.COORDINATOR, coordinator);
-                    context.set(ContextKey.SECURITY_CONTEXT, framework.getSecurityContext());
+                    context.set(ContextKey.SECURITY_CONTEXT, framework.getSecurityFramework());
                     control.proceed();
                 }
             };
@@ -124,6 +130,33 @@ public class Kernel implements NavigationDelegate {
                     });
                 }
             };
+
+            Function<Context> createSecurityContext = new Function<Context>() {
+                @Override
+                public void execute(final Control<Context> control) {
+
+                    SecurityFramework securityFramework = framework.getSecurityFramework();
+
+                    RequiredResources resourceVisitor = new RequiredResources();
+                    dialog.getInterfaceModel().accept(resourceVisitor);
+
+                    securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(), new AsyncCallback<SecurityContext>() {
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Console.error("Failed to create security context", caught.getMessage());
+                            control.abort();
+                        }
+
+                        @Override
+                        public void onSuccess(SecurityContext result) {
+                            control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
+                            control.proceed();
+                        }
+                    });
+
+                }
+            };
+
 
             Function<Context> readResourceMetaData = new Function<Context>() {
                 @Override
@@ -193,7 +226,7 @@ public class Kernel implements NavigationDelegate {
 
             new Async<Context>().waterfall(
                     context, outcome,
-                    prepareContext, readOperationMetaData, readResourceMetaData
+                    prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData
             );
         }
         else
@@ -227,4 +260,5 @@ public class Kernel implements NavigationDelegate {
         cachedWidgets.clear();
         coordinators.clear();
     }
+
 }

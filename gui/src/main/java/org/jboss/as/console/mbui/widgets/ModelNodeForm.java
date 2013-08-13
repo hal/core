@@ -11,6 +11,7 @@ import org.jboss.dmr.client.ModelType;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,7 +21,14 @@ import java.util.Set;
  */
 public class ModelNodeForm extends AbstractForm<ModelNode> {
 
+    private final String address;
+    private final SecurityContext securityContext;
     private ModelNode editedEntity = null;
+
+    public ModelNodeForm(String address, SecurityContext securityContext) {
+        this.address = address;
+        this.securityContext = securityContext;
+    }
 
     @Override
     public void edit(ModelNode bean) {
@@ -133,8 +141,15 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     }
 
     @Override
-    public Set<String> getReadOnlyNames(SecurityService securityFacilities, SecurityContext securityContext) {
-        return securityFacilities.getReadOnlyDMRNames(getFormItemNames(), securityContext);
+    public Set<String> getReadOnlyNames() {
+
+        Set<String> readOnly = new HashSet<String>();
+        for(String item : getFormItemNames())
+        {
+            if(!securityContext.getAttributeWritePriviledge(item).isGranted())
+                readOnly.add(item);
+        }
+        return readOnly;
     }
 
     private Object downCast(ModelNode value)

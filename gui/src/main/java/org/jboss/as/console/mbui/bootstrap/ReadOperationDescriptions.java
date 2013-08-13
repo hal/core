@@ -101,23 +101,30 @@ public class ReadOperationDescriptions extends ReificationBootstrap
             {
                 ModelNode response = result.get();
 
-                // evaluate step responses
-                for (String step : visitor.stepReference.keySet())
+                if(!response.isFailure())
                 {
-                    ModelNode stepResponse = response.get(RESULT).get(step);
-
-                    if (!context.has(ContextKey.OPERATION_DESCRIPTIONS))
+                    // evaluate step responses
+                    for (String step : visitor.stepReference.keySet())
                     {
-                        context.set(ContextKey.OPERATION_DESCRIPTIONS, new HashMap<QName, ModelNode>());
+                        ModelNode stepResponse = response.get(RESULT).get(step);
+
+                        if (!context.has(ContextKey.OPERATION_DESCRIPTIONS))
+                        {
+                            context.set(ContextKey.OPERATION_DESCRIPTIONS, new HashMap<QName, ModelNode>());
+                        }
+
+                        Resource<ResourceType> output = visitor.stepReference.get(step);
+                        ModelNode operationMetaData = stepResponse.get(RESULT);
+                        context.<Map>get(ContextKey.OPERATION_DESCRIPTIONS).put(output.getId(), operationMetaData);
+
+                        //System.out.println(output.getId() + " > " + operationMetaData);
                     }
-
-                    Resource<ResourceType> output = visitor.stepReference.get(step);
-                    ModelNode operationMetaData = stepResponse.get(RESULT);
-                    context.<Map>get(ContextKey.OPERATION_DESCRIPTIONS).put(output.getId(), operationMetaData);
-
-                    //System.out.println(output.getId() + " > " + operationMetaData);
+                    callback.onSuccess();
                 }
-                callback.onSuccess();
+                else
+                {
+                    callback.onError(new RuntimeException("ReadOperationDescriptions failed: "+response.getFailureDescription()));
+                }
             }
         });
 

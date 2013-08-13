@@ -6,11 +6,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
@@ -39,9 +41,10 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
 
     @ProxyCodeSplit
     @NameToken(NameTokens.UndertowHTTP)
-    @AccessControl(resources = {
+    /*@AccessControl(resources = {
                    "{selected.profile}/subsystem=undertow/server=*"
-           })
+           })*/
+    @NoGatekeeper
     public interface MyProxy extends Proxy<UndertowHTTPPresenter>, Place {
     }
 
@@ -71,8 +74,8 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
             }
 
             @Override
-            public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityFramework().getSecurityContext();
+            public SecurityFramework getSecurityFramework() {
+                return Console.MODULES.getSecurityFramework();
             }
         }, globalContext);
     }

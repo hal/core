@@ -44,8 +44,7 @@ public class RBACContextView {
     private static Widget createContent() {
 
         SecurityContextImpl securityContext = (SecurityContextImpl)
-                Console.MODULES.getSecurityFramework().getSecurityContext(
-        );
+                Console.MODULES.getSecurityFramework().getSecurityContext();
 
         return new HTML(securityContext.asHtml());
     }

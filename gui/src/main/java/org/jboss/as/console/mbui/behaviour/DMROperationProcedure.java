@@ -1,6 +1,7 @@
 package org.jboss.as.console.mbui.behaviour;
 
 import com.google.gwt.user.client.Window;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -52,7 +53,7 @@ public class DMROperationProcedure extends Procedure implements OperationContext
             final Dialog dialog,
             final QName id,
             final QName justification,
-            DispatchAsync dispatcher, Map<QName, ModelNode> operationDescriptions) {
+            DispatchAsync dispatcher, Map<QName, ModelNode> operationDescriptions, SecurityContext securityContext) {
 
         super(id, justification);
         this.dialog = dialog;
@@ -61,7 +62,7 @@ public class DMROperationProcedure extends Procedure implements OperationContext
 
         init();
 
-        CommandFactory factory = new CommandFactory(dispatcher);
+        CommandFactory factory = new CommandFactory(dispatcher, securityContext);
         setCommand(factory.createCommand(operationName, this));
 
         // behaviour model meta data

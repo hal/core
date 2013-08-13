@@ -30,6 +30,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyStandard;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.InstrumentEvent;
@@ -37,12 +38,11 @@ import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.useware.kernel.gui.behaviour.NavigationDelegate;
-import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
 
 import static org.jboss.as.console.client.tools.modelling.workbench.NameTokens.preview;
@@ -81,8 +81,8 @@ public class PreviewPresenter extends Presenter<PreviewPresenter.MyView, Preview
             }
 
             @Override
-            public SecurityContext getSecurityContext() {
-                return Console.MODULES.getSecurityFramework().getSecurityContext();
+            public SecurityFramework getSecurityFramework() {
+                return Console.MODULES.getSecurityFramework();
             }
         }, globalContext);
     }

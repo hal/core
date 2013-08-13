@@ -19,6 +19,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,13 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         return securityContext;
     }
 
+
+
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
+        createSecurityContext(id, accessControlReg.getResources(id), callback);
+    }
+
+    public void createSecurityContext(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -90,7 +97,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
         final List<ModelNode> steps = new LinkedList<ModelNode>();
 
-        final Set<String> requiredResources = accessControlReg.getResources(id);
+
         final Map<String, String> step2address = new HashMap<String,String>();
 
         for(String resource : requiredResources)
@@ -303,8 +310,16 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     }
 
     @Override
-    public Set<String> getReadOnlyDMRNames(List<String> formItems, SecurityContext securityContext) {
-        return Collections.EMPTY_SET;  // TODO
+    public Set<String> getReadOnlyDMRNames(String resourceAddress, List<String> formItemNames, SecurityContext securityContext) {
+
+        // TODO: at some point this should refer to the actual resource address
+        Set<String> readOnly = new HashSet<String>();
+        for(String item : formItemNames)
+        {
+            if(!securityContext.getAttributeWritePriviledge(item).isGranted())
+                readOnly.add(item);
+        }
+        return readOnly;
     }
 }
 

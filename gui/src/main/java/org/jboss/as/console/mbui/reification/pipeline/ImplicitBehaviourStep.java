@@ -1,5 +1,6 @@
 package org.jboss.as.console.mbui.reification.pipeline;
 
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.ProcedureExecution;
@@ -42,6 +43,7 @@ public class ImplicitBehaviourStep extends ReificationStep
     public void execute(final Dialog dialog, final Context context) throws ReificationException
     {
         final ProcedureExecution procedureExecution = context.get(ContextKey.COORDINATOR);
+
         InteractionUnit<StereoTypes> root = dialog.getInterfaceModel();
 
         root.accept(new InteractionUnitVisitor()
@@ -76,6 +78,9 @@ public class ImplicitBehaviourStep extends ReificationStep
 
         Map<QName, ModelNode> operationDescriptions = null;
 
+        final SecurityContext securityContext = context.get(ContextKey.SECURITY_CONTEXT);
+        assert securityContext!=null : "Security context is missing";
+
         if(context.has(ContextKey.OPERATION_DESCRIPTIONS))
             operationDescriptions = context.get(ContextKey.OPERATION_DESCRIPTIONS);
         else
@@ -101,7 +106,7 @@ public class ImplicitBehaviourStep extends ReificationStep
                 else if(DMROperationProcedure.PREFIX.equalsIgnoreSuffix(output.getId()))
                 {
                     procedureExecution.addProcedure(
-                            new DMROperationProcedure(dialog, output.getId(), unit.getId(), dispatcher, operationDescriptions)
+                            new DMROperationProcedure(dialog, output.getId(), unit.getId(), dispatcher, operationDescriptions, securityContext)
                     );
                 }
             }

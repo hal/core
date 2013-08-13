@@ -12,6 +12,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -35,6 +37,7 @@ import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.jboss.as.console.mbui.model.StereoTypes;
 
@@ -55,9 +58,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class CommandFactory {
 
     private final DispatchAsync dispatcher;
+    private final SecurityContext securityContext;
 
-    public CommandFactory(DispatchAsync dispatcher) {
+    public CommandFactory(DispatchAsync dispatcher, SecurityContext securityContext) {
         this.dispatcher = dispatcher;
+        this.securityContext = securityContext;
     }
 
     ModelDrivenCommand createCommand(
@@ -153,7 +158,8 @@ public class CommandFactory {
         assert operationDescription!=null : "Operation meta data required for "+output.getId() + " on "+context.getUnit().getId();
 
         final List<Property> parameterMetaData = operationDescription.get("request-properties").asPropertyList();
-
+        DMRMapping mapping = (DMRMapping) unit.findMapping(MappingType.DMR);
+        String address = mapping.getAddress();
 
         Delegation delegation = null;
 
@@ -165,7 +171,7 @@ public class CommandFactory {
         else
         {
             // form with required parameter (acts as guard on its own)
-            delegation = new Delegation(new FormDelegate(context,operationDescription));
+            delegation = new Delegation(new FormDelegate(context,address, operationDescription));
         }
 
         return delegation;
@@ -231,6 +237,7 @@ public class CommandFactory {
      */
     private class FormDelegate implements Command {
 
+        private final String address;
         private OperationContext context;
         private ModelNode operationmetaData;
         private List<Property> parameterMetaData;
@@ -238,11 +245,11 @@ public class CommandFactory {
         private ModelNodeForm form;
         private DefaultWindow window;
 
-        private FormDelegate(OperationContext context, ModelNode operationMetaData) {
+        private FormDelegate(OperationContext context, String address, ModelNode operationMetaData) {
             this.context = context;
             this.operationmetaData = operationMetaData;
             this.parameterMetaData = operationMetaData.get("request-properties").asPropertyList();
-
+            this.address = address;
             init();
         }
 
@@ -262,7 +269,7 @@ public class CommandFactory {
 
             // The form
 
-            form = new ModelNodeForm();
+            form = new ModelNodeForm(address, securityContext);
             List<FormItem> items = new ArrayList<FormItem>();
 
             // each add operation requires an artificial parameter 'entity.key'
