@@ -41,6 +41,8 @@ public class RBACUtil {
 
             html.appendHtmlConstant("<p/>");
 
+            html.appendHtmlConstant("<h4>Attributes</h4>");
+
             html.appendHtmlConstant("<table border='0' cellpadding='5'>");
             html.appendHtmlConstant("<tr>");
             html.appendHtmlConstant("<th>");
@@ -72,6 +74,33 @@ public class RBACUtil {
             html.appendHtmlConstant("</table>");
 
             html.appendHtmlConstant("<p/>");
+
+            html.appendHtmlConstant("<h4>Operations</h4>");
+
+            html.appendHtmlConstant("<table border='0' cellpadding='5'>");
+            html.appendHtmlConstant("<tr>");
+            html.appendHtmlConstant("<th>");
+            html.appendEscaped("Operation Name");
+            html.appendHtmlConstant("</th>");
+            html.appendHtmlConstant("<th>");
+            html.appendEscaped("Exec");
+            html.appendHtmlConstant("</th>");
+            html.appendHtmlConstant("</tr>");
+
+
+            for(String op : constraints.execPermission.get(resource))
+            {
+                html.appendHtmlConstant("<tr>");
+                html.appendHtmlConstant("<td>");
+                html.appendEscaped(op);
+                html.appendHtmlConstant("</td>");
+                html.appendHtmlConstant("<td>");
+                html.appendEscaped(String.valueOf(constraints.isOperationExec(resource, op)));
+                html.appendHtmlConstant("</td>");
+                html.appendHtmlConstant("</tr>");
+            }
+
+            html.appendHtmlConstant("</table>");
         }
 
 

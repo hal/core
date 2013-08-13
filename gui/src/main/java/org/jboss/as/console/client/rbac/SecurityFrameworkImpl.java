@@ -40,13 +40,15 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
     private static final String MODEL_DESCRIPTION = "model-description";
     private static final String DEFAULT = "default";
-    private static final String ACCESS_CONTROL = "access-control";
     private static final String ATTRIBUTES = "attributes";
     private static final String READ_CONFIG = "read-config";
     private static final String WRITE_CONFIG = "write-config";
     private static final String READ_RUNTIME = "read-runtime";
     private static final String WRITE_RUNTIME = "write-runtime";
     private static final String ADDRESS = "address";
+    private static final String EXECUTE = "execute";
+    private static final String EXCEPTIONS = "exceptions";
+    private static final String ACCESS_CONTROL = "access-control";
 
     private final AccessControlRegistry accessControlReg;
     private final DispatchAsync dispatcher;
@@ -112,7 +114,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             if(accessControlReg.isRecursive(id))
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
-            step.get("access-control").set(true);
+            step.get(ACCESS_CONTROL).set(true);
+            step.get(OPERATIONS).set(true);
             step.get(ATTRIBUTES).set(false);    // reduces the overall payload size
             steps.add(step);
 
@@ -233,9 +236,10 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
             // identify the target node, in some cases exceptions override the dfefault behaviour
             ModelNode model = null;
-            if(accessControl.get("exceptions").keys().size()>0)  // TODO: fix the actual representation, should not be ModelTyoe.Object
+            ModelNode exceptionModel = accessControl.get(EXCEPTIONS);
+            if(exceptionModel.keys().size()>0)  // TODO: fix the actual representation, should not be ModelType.Object
             {
-                List<Property> exceptions = accessControl.get("exceptions").asPropertyList();
+                List<Property> exceptions = exceptionModel.asPropertyList();
                 model = exceptions.get(0).getValue();
             }
             else
@@ -257,6 +261,18 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 c.setWriteConfig(model.get(WRITE_CONFIG).asBoolean());
                 c.setReadRuntime(model.get(READ_RUNTIME).asBoolean());
                 c.setWriteRuntime(model.get(WRITE_RUNTIME).asBoolean());
+
+            }
+
+            // operation constraints
+            if(model.hasDefined(OPERATIONS))
+            {
+                List<Property> operations = model.get(OPERATIONS).asPropertyList();
+                for(Property op : operations)
+                {
+                    ModelNode opConstraintModel = op.getValue();
+                    c.setOperationExec(resourceAddress, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
+                }
 
             }
 

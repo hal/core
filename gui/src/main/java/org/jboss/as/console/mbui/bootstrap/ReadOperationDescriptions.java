@@ -19,6 +19,7 @@
 package org.jboss.as.console.mbui.bootstrap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -93,6 +94,7 @@ public class ReadOperationDescriptions extends ReificationBootstrap
             @Override
             public void onFailure(final Throwable caught)
             {
+                // In some case the retrieval fails due to lack of permissions to read the meta data (addressable=false)
                 callback.onError(caught);
             }
 

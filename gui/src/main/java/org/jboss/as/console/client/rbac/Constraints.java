@@ -1,7 +1,9 @@
 package org.jboss.as.console.client.rbac;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -13,6 +15,7 @@ public class Constraints {
     private boolean readConfig,writeConfig,readRuntime,writeRuntime;
 
     Map<String, AttributePerm> attributePermissions = new HashMap<String,AttributePerm>();
+    Map<String, Set<String>> execPermission = new HashMap<String, Set<String>>();
 
     private boolean address = true;
 
@@ -79,6 +82,23 @@ public class Constraints {
     public boolean isAttributeWrite(String name) {
         return attributePermissions.containsKey(name) ?
                 attributePermissions.get(name).isWrite() : true;
+    }
+
+    public void setOperationExec(String resourceAddress, String operationName, boolean exec) {
+
+        if(exec)
+        {
+            if(!execPermission.containsKey(resourceAddress))
+                execPermission.put(resourceAddress, new HashSet<String>());
+
+            execPermission.get(resourceAddress).add(operationName);
+        }
+
+    }
+
+    public boolean isOperationExec(String resourceAddress , String name) {
+
+        return execPermission.containsKey(resourceAddress) ? execPermission.get(resourceAddress).contains(name) : false;
     }
 
     class AttributePerm

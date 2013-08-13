@@ -149,6 +149,19 @@ public class SecurityContextImpl implements SecurityContext {
     }
 
 
+    // v2
 
+    @Override
+    public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
+
+        return checkPriviledge(new Priviledge() {
+            @Override
+            public boolean isGranted(Constraints c) {
+                return c.isOperationExec(resourceAddress, operationName);
+
+            }
+        });
+
+    }
 }
 
