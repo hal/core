@@ -60,7 +60,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=mail"})
+    @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
     public interface MyProxy extends Proxy<MailPresenter>, Place {
     }
 
