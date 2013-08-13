@@ -41,7 +41,7 @@ public class AddressMapping {
 
     private List<Token> address = new LinkedList<Token>();
     private int countedWildcards = -1;
-    private HashSet<String> requiredStatements;
+    private Map<String, Integer> requiredStatements;
 
     public AddressMapping(List<Token> tuple) {
         this.address = tuple;
@@ -62,15 +62,22 @@ public class AddressMapping {
      *
      * @return
      */
-    public Set<String> getRequiredStatements() {
+    public Map<String, Integer> getRequiredStatements() {
 
         if(null==requiredStatements)  // lazy initialisation
         {
-            requiredStatements = new HashSet<String>();
+            requiredStatements = new HashMap<String, Integer>();
             asResource(new DelegatingStatementContext() {
                 @Override
                 public String resolve(final String key) {
-                    requiredStatements.add(key);
+                    if(!requiredStatements.containsKey(key))
+                        requiredStatements.put(key, 1);
+                    else
+                    {
+                        Integer val = requiredStatements.get(key);
+                        ++val;
+                        requiredStatements.put(key, val);
+                    }
                     return "";
                 }
 
@@ -81,7 +88,14 @@ public class AddressMapping {
 
                 @Override
                 public LinkedList<String> collect(String key) {
-                    requiredStatements.add(key);
+                    if(!requiredStatements.containsKey(key))
+                        requiredStatements.put(key, 1);
+                    else
+                    {
+                        Integer val = requiredStatements.get(key);
+                        ++val;
+                        requiredStatements.put(key, val);
+                    }
                     return Constants.EMPTY_LIST;
                 }
             });
@@ -89,7 +103,6 @@ public class AddressMapping {
 
         return requiredStatements;
     }
-
 
     class Memory<T> {
         Map<String, LinkedList<T>> values = new HashMap<String, LinkedList<T>>();

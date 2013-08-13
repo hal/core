@@ -32,10 +32,8 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -117,14 +115,14 @@ public class Kernel implements NavigationDelegate {
                         @Override
                         public void onError(Throwable caught) {
                             Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
-                            progress.getBar().setProgress(50.0);
+                            progress.getBar().setProgress(25.0);
                             control.abort();
                         }
 
                         @Override
                         public void onSuccess() {
                             Log.info("Successfully retrieved operation meta data");
-                            progress.getBar().setProgress(50.0);
+                            progress.getBar().setProgress(25.0);
                             control.proceed();
                         }
                     });
@@ -144,12 +142,14 @@ public class Kernel implements NavigationDelegate {
                         @Override
                         public void onFailure(Throwable caught) {
                             Console.error("Failed to create security context", caught.getMessage());
+                            progress.getBar().setProgress(50.0);
                             control.abort();
                         }
 
                         @Override
                         public void onSuccess(SecurityContext result) {
                             control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
+                            progress.getBar().setProgress(50.0);
                             control.proceed();
                         }
                     });

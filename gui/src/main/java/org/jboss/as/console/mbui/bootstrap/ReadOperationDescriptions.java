@@ -95,7 +95,7 @@ public class ReadOperationDescriptions extends ReificationBootstrap
             public void onFailure(final Throwable caught)
             {
                 // In some case the retrieval fails due to lack of permissions to read the meta data (addressable=false)
-                callback.onError(caught);
+                callback.onError(new RuntimeException("Failed to read operation descriptions",caught));
             }
 
             @Override

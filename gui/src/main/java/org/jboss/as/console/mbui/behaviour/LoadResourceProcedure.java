@@ -26,6 +26,7 @@ import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -77,7 +78,7 @@ public class    LoadResourceProcedure extends Procedure {
         address = AddressMapping.fromString(mapping.getResolvedAddress());
 
         // check preconditions of the address token
-        final Set<String> requiredStatements = address.getRequiredStatements();
+        final Map<String, Integer> requiredStatements = address.getRequiredStatements();
 
         // any value expression key becomes a precondition matched against the statement context
 
@@ -89,9 +90,10 @@ public class    LoadResourceProcedure extends Procedure {
                 if(!getRuntimeAPI().isActive(unit.getId())) return false;
 
                 boolean missingStatement = false;
-                for(String key : requiredStatements)
+                for(String key : requiredStatements.keySet())
                 {
-                    missingStatement = statementContext.resolve(key)==null;
+                    Integer occurances = statementContext.collect(key).size();
+                    missingStatement = (occurances != requiredStatements.get(key));
                     if(missingStatement) break; // exit upon first value expression that cannot be resolved
                 }
                 return !missingStatement;
