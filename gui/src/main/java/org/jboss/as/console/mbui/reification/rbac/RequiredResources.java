@@ -42,8 +42,11 @@ public class RequiredResources implements InteractionUnitVisitor<StereoTypes>{
         if(unit.hasMapping(MappingType.DMR))
         {
             DMRMapping mapping = (DMRMapping)unit.getMapping(MappingType.DMR);
-            if(mapping.getAddress()!=null)
-                requiredresources.add(mapping.getAddress());
+            String address = mapping.getAddress();
+            if(address !=null && !requiredresources.contains(address))
+            {
+                requiredresources.add(address);
+            }
         }
     }
 }

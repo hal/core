@@ -154,14 +154,13 @@ public class SecurityContextImpl implements SecurityContext {
     @Override
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
 
-        return checkPriviledge(new Priviledge() {
-            @Override
-            public boolean isGranted(Constraints c) {
-                return c.isOperationExec(resourceAddress, operationName);
+        Constraints constraints = accessConstraints.get(resourceAddress);
+        assert constraints!=null : "Missing constraints for "+resourceAddress;
 
-            }
-        });
-
+        boolean execPerm = constraints.isOperationExec(resourceAddress, operationName);
+        AuthorisationDecision descision = new AuthorisationDecision(true);
+        descision.setGranted(execPerm);
+        return descision;
     }
 }
 
