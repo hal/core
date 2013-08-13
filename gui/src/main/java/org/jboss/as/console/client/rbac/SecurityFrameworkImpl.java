@@ -221,9 +221,20 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
         ModelNode accessControl = payload.get(ACCESS_CONTROL);
 
-        if(accessControl.isDefined() && accessControl.hasDefined(DEFAULT)) // TODO: overrides ...
+        if(accessControl.isDefined() && accessControl.hasDefined(DEFAULT))
         {
-            ModelNode model = accessControl.get(DEFAULT);
+
+            // identify the target node, in some cases exceptions override the dfefault behaviour
+            ModelNode model = null;
+            if(accessControl.get("exceptions").keys().size()>0)  // TODO: fix the actual representation, should not be ModelTyoe.Object
+            {
+                List<Property> exceptions = accessControl.get("exceptions").asPropertyList();
+                model = exceptions.get(0).getValue();
+            }
+            else
+            {
+                model = accessControl.get(DEFAULT);
+            }
 
             Constraints c = new Constraints();
 
