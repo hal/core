@@ -27,34 +27,44 @@ public class Constraints {
         this.address = access;
     }
 
+    @Deprecated
     public void setReadConfig(boolean readConfig) {
         this.readConfig = readConfig;
+        this.readRuntime = readConfig;     // TODO: Fix me
     }
 
+    @Deprecated
     public void setWriteConfig(boolean writeConfig) {
         this.writeConfig = writeConfig;
+        this.writeRuntime = writeConfig;       // TODO: Fix me
     }
 
+    @Deprecated
     public void setReadRuntime(boolean readRuntime) {
         this.readRuntime = readRuntime;
     }
 
+    @Deprecated
     public void setWriteRuntime(boolean writeRuntime) {
         this.writeRuntime = writeRuntime;
     }
 
+    @Deprecated
     public boolean isReadConfig() {
         return readConfig;
     }
 
+    @Deprecated
     public boolean isWriteConfig() {
         return writeConfig;
     }
 
+    @Deprecated
     public boolean isReadRuntime() {
         return readRuntime;
     }
 
+    @Deprecated
     public boolean isWriteRuntime() {
         return writeRuntime;
     }
