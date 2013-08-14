@@ -18,6 +18,10 @@
  */
 package org.jboss.as.console.client.shared.deployment;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -45,13 +49,8 @@ import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Harald Pehl
- * @date 12/04/2012
  */
 public class DeploymentBrowser
 {
@@ -139,13 +138,12 @@ public class DeploymentBrowser
         if (formItems != null && formItems.length > 0)
         {
             Form<T> form = new Form<T>(clazz);
-            form.setNumColumns(1);
-            form.setEnabled(true);
+            form.setEnabled(false);
 
             form.setFields(formItems);
 
             for(FormItem item : formItems)
-            item.setEnabled(false);
+                item.setEnabled(false);
 
             FormHelpPanel helpPanel = new FormHelpPanel(helpCallback, form);
             forms.put(classname, (Form<DeploymentData>) form);
