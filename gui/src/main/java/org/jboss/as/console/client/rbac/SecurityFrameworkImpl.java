@@ -41,14 +41,13 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     private static final String MODEL_DESCRIPTION = "model-description";
     private static final String DEFAULT = "default";
     private static final String ATTRIBUTES = "attributes";
-    private static final String READ_CONFIG = "read-config";
-    private static final String WRITE_CONFIG = "write-config";
-    private static final String READ_RUNTIME = "read-runtime";
-    private static final String WRITE_RUNTIME = "write-runtime";
+    private static final String READ = "read";
+    private static final String WRITE = "write";
     private static final String ADDRESS = "address";
     private static final String EXECUTE = "execute";
     private static final String EXCEPTIONS = "exceptions";
     private static final String ACCESS_CONTROL = "access-control";
+    private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
     private final AccessControlRegistry accessControlReg;
     private final DispatchAsync dispatcher;
@@ -109,21 +108,20 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-            //step.get(RECURSIVE).set();
+            //step.get(RECURSIVE).set(true);
 
             if(accessControlReg.isRecursive(id))
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
-            step.get(ACCESS_CONTROL).set(true);
+            step.get(ACCESS_CONTROL).set(TRIM_DESCRIPTIONS); // reduces the payload size
             step.get(OPERATIONS).set(true);
-            step.get(ATTRIBUTES).set(false);    // reduces the overall payload size
             steps.add(step);
 
         }
 
         operation.get(STEPS).set(steps);
 
-        //System.out.println(operation);
+        //System.out.println("Request:" + operation);
 
         final long start = System.currentTimeMillis();
 
@@ -150,6 +148,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     return;
                 }
 
+                //System.out.println("Response: "+ response);
+
                 try {
 
                     ModelNode overalResult = response.get(RESULT);
@@ -170,9 +170,29 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                             ModelNode payload = null;
                             if(modelNode.getType() == ModelType.LIST)
-                                payload = modelNode.asList().get(0);
+                            {
+                                List<ModelNode> nodes = modelNode.asList(); // TODO: Should be optimized
+                                boolean instanceReference = !nodes.isEmpty();
+                                for(ModelNode node : nodes)
+                                {
+                                    // matching the wildcard response
+                                    List<ModelNode> tokens = node.get(ADDRESS).asList();
+                                    if(tokens.get(tokens.size()-1).asString().contains("*"))
+                                    {
+                                        System.out.println("Using reference: "+node.get(ADDRESS).asString());
+                                        payload = node;
+                                    }
+                                }
+
+                                // TODO: Fallback needed?
+                                if(payload == null)
+                                    payload = nodes.get(0);
+
+                            }
                             else
+                            {
                                 payload = modelNode;
+                            }
 
                             // break down into root resource and children
                             parseAccessControlChildren(resourceAddress, requiredResources, context, payload);
@@ -257,11 +277,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             else
             {
 
-                c.setReadConfig(model.get(READ_CONFIG).asBoolean());
-                c.setWriteConfig(model.get(WRITE_CONFIG).asBoolean());
-                c.setReadRuntime(model.get(READ_RUNTIME).asBoolean());
-                c.setWriteRuntime(model.get(WRITE_RUNTIME).asBoolean());
-
+                c.setReadConfig(model.get(READ).asBoolean());
+                c.setWriteConfig(model.get(WRITE).asBoolean());
             }
 
             // operation constraints
@@ -285,19 +302,9 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 for(Property att : attributes)
                 {
                     ModelNode attConstraintModel = att.getValue();
-                    // config access
-                    if(attConstraintModel.hasDefined(READ_CONFIG))
-                    {
-                        c.setAttributeRead(att.getName(), attConstraintModel.get(READ_CONFIG).asBoolean());
-                        c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE_CONFIG).asBoolean());
-                    }
+                    c.setAttributeRead(att.getName(), attConstraintModel.get(READ).asBoolean());
+                    c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE).asBoolean());
 
-                    // runtime access
-                    else
-                    {
-                        c.setAttributeRead(att.getName(), attConstraintModel.get(READ_RUNTIME).asBoolean());
-                        c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE_RUNTIME).asBoolean());
-                    }
                 }
             }
 
