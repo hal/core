@@ -86,18 +86,18 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
 
         // basic attributes
         Form<AuditLogItem> basicsForm = new Form<AuditLogItem>(AuditLogItem.class);
-        basicsForm.setEnabled(false);
-        basicsForm.bind(table);
         TextItem dateField = new TextItem("date", Console.CONSTANTS.common_label_date());
         TextItem userField = new TextItem("user", Console.CONSTANTS.common_label_user());
         TextItem accessField = new TextItem("access", Console.CONSTANTS.administration_access());
         TextItem domainUUIDField = new TextItem("domainUUID", "Domain UUID");
-        TextItem remoteAddressField = new TextItem("remoteAddress", "Remote Address");
+        TextItem remoteAddressField = new TextItem("remote-address", "Remote Address");
         CheckBoxItem booting = new CheckBoxItem("booting", "Booting");
-        CheckBoxItem readOnly = new CheckBoxItem("readOnly", "Read-only");
+        CheckBoxItem readOnly = new CheckBoxItem("r/o", "Read-only");
         CheckBoxItem success = new CheckBoxItem("success", "Success");
-        basicsForm.setFields(dateField, userField, accessField, remoteAddressField, readOnly, booting,
-                domainUUIDField, success);
+        basicsForm.setFields(dateField, userField, accessField, domainUUIDField, remoteAddressField, booting, readOnly,
+                success);
+        basicsForm.setEnabled(false);
+        basicsForm.bind(table);
         VerticalPanel basicsPanel = new VerticalPanel();
         basicsPanel.setStyleName("fill-layout-width");
         basicsPanel.add(new AuditHelpPanel().asWidget());
