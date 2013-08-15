@@ -3,6 +3,7 @@ package org.jboss.as.console.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.resources.client.TextResource;
 
 /**
  * @author Heiko Braun
@@ -10,14 +11,21 @@ import com.google.gwt.resources.client.CssResource;
  */
 public interface ConsoleResources extends ClientBundle {
 
-    public static final ConsoleResources INSTANCE =  GWT.create(ConsoleResources.class);
+    ConsoleResources INSTANCE =  GWT.create(ConsoleResources.class);
 
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/console.css")
-    public CssResource css();
+    CssResource css();
 
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/redhat-new.css")
-    public CssResource redhatNew();
+    CssResource redhatNew();
+
+    @CssResource.NotStrict
+    @Source("org/jboss/as/console/public/prettyprint/prettify.css")
+    CssResource prettifyCss();
+
+    @Source("org/jboss/as/console/public/prettyprint/prettify.js")
+    TextResource prettifyJs();
 }
 

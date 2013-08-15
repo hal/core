@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Constants;
+import com.google.gwt.user.cellview.client.Column;
 
 
 /**
@@ -108,6 +109,8 @@ public interface UIConstants extends Constants {
     String common_label_users();
     String common_label_group();
     String common_label_groups();
+    String common_label_date();
+    String common_label_operations();
 
     // use the term "delete" instead
     @Deprecated
@@ -664,4 +667,5 @@ public interface UIConstants extends Constants {
     String administration_audit();
     String administration_audit_log();
     String administration_audit_log_desc();
+    String administration_audit_access();
 }

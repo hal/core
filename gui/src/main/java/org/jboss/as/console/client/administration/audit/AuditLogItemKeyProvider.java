@@ -6,7 +6,7 @@ import com.google.gwt.view.client.ProvidesKey;
 * @author Harald Pehl
 * @date 08/13/2013
 */
-class AuditLogItemKeyProvider implements ProvidesKey<AuditLogItem> {
+public class AuditLogItemKeyProvider implements ProvidesKey<AuditLogItem> {
 
     @Override
     public Object getKey(final AuditLogItem item) {

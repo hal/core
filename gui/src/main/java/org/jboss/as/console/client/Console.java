@@ -21,12 +21,14 @@
 package org.jboss.as.console.client;
 
 import java.util.EnumSet;
+import java.util.ResourceBundle;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -51,7 +53,6 @@ import org.jboss.as.console.client.core.bootstrap.LoadGoogleViz;
 import org.jboss.as.console.client.core.bootstrap.LoadMainApp;
 import org.jboss.as.console.client.core.bootstrap.RegisterSubsystems;
 import org.jboss.as.console.client.core.bootstrap.TrackExecutionMode;
-import org.jboss.as.console.client.core.bootstrap.server.BootstrapServerSetup;
 import org.jboss.as.console.client.core.gin.Composite;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.core.message.MessageCenter;
@@ -99,6 +100,11 @@ public class Console implements EntryPoint {
         // load console css bundle
         ConsoleResources.INSTANCE.css().ensureInjected();
         ConsoleResources.INSTANCE.redhatNew().ensureInjected();
+
+        // inject pretty print resources
+        ConsoleResources.INSTANCE.prettifyCss().ensureInjected();
+        ScriptInjector.fromString(ConsoleResources.INSTANCE.prettifyJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
+                .inject();
 
         // display the loading panel
         final Widget loadingPanel = new LoadingPanel().asWidget();

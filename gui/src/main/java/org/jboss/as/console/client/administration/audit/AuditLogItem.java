@@ -1,9 +1,8 @@
 package org.jboss.as.console.client.administration.audit;
 
-import java.net.InetAddress;
-import java.util.List;
+import static com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
 
-import org.jboss.dmr.client.ModelNode;
+import com.google.web.bindery.autobean.shared.Splittable;
 
 /**
  * @author Harald Pehl
@@ -11,39 +10,36 @@ import org.jboss.dmr.client.ModelNode;
  */
 public interface AuditLogItem {
 
-
     Object getId();
     void setId(Object id);
 
-    boolean isReadOnly();
+    String getDate();
+    void setDate(String date);
 
+    @PropertyName("r/o")
+    boolean isReadOnly();
     void setReadOnly(boolean readOnly);
 
     boolean isBooting();
-
     void setBooting(boolean booting);
 
-    String getUserId();
-
-    void setUserId(String userId);
+    String getUser();
+    void setUser(String userId);
 
     String getDomainUUID();
-
     void setDomainUUID(String domainUUID);
 
-    String getAccessMechanism();
+    String getAccess();
+    void setAccess(String access);
 
-    void setAccessMechanism(String accessMechanism);
-
+    @PropertyName("remote-address")
     String getRemoteAddress();
-
-    void setRemoteAdress(String remoteAdress);
+    void setRemoteAddress(String remoteAddress);
 
     boolean isSuccess();
-
     void setSuccess(boolean success);
 
-    List<ModelNode> getOperations();
-
-    void setOperations(List<ModelNode> operations);
+    @PropertyName("ops")
+    Splittable getOperations();
+    void setOperations(Splittable operations);
 }

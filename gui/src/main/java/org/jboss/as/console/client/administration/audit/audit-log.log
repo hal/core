@@ -1,0 +1,4303 @@
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-resources",
+        "address" : [],
+        "child-type" : "deployment",
+        "include-runtime" : null,
+        "recursive" : null,
+        "recursive-depth" : null,
+        "proxies" : null,
+        "include-defaults" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ManagementRealm"
+                }
+            ],
+            "operation" : "add",
+            "map-groups-to-roles" : false
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ManagementRealm"
+                },
+                {
+                    "authentication" : "local"
+                }
+            ],
+            "default-user" : "$local",
+            "allowed-users" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ManagementRealm"
+                },
+                {
+                    "authentication" : "properties"
+                }
+            ],
+            "path" : "mgmt-users.properties",
+            "relative-to" : "jboss.server.config.dir",
+            "plain-text" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ManagementRealm"
+                },
+                {
+                    "authorization" : "properties"
+                }
+            ],
+            "path" : "mgmt-groups.properties",
+            "relative-to" : "jboss.server.config.dir"
+        },
+        {
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ApplicationRealm"
+                }
+            ],
+            "operation" : "add",
+            "map-groups-to-roles" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ApplicationRealm"
+                },
+                {
+                    "authentication" : "local"
+                }
+            ],
+            "default-user" : "$local",
+            "allowed-users" : "*"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ApplicationRealm"
+                },
+                {
+                    "authentication" : "properties"
+                }
+            ],
+            "path" : "application-users.properties",
+            "relative-to" : "jboss.server.config.dir",
+            "plain-text" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "security-realm" : "ApplicationRealm"
+                },
+                {
+                    "authorization" : "properties"
+                }
+            ],
+            "path" : "application-roles.properties",
+            "relative-to" : "jboss.server.config.dir"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "json-formatter" : "json-formatter"
+                }
+            ],
+            "include-date" : null,
+            "date-format" : null,
+            "date-separator" : null,
+            "compact" : null,
+            "escape-new-line" : null,
+            "escape-control-characters" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "file-handler" : "file"
+                }
+            ],
+            "formatter" : "json-formatter",
+            "path" : "audit-log.log",
+            "relative-to" : "jboss.server.data.dir",
+            "max-failure-count" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "syslog-handler" : "syslog"
+                }
+            ],
+            "formatter" : "json-formatter",
+            "max-length" : null,
+            "syslog-format" : null,
+            "truncate" : null,
+            "max-failure-count" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "syslog-handler" : "syslog"
+                },
+                {
+                    "protocol" : "tcp"
+                }
+            ],
+            "host" : "localhost",
+            "port" : 32376,
+            "message-transfer" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "logger" : "audit-log"
+                }
+            ],
+            "log-boot" : true,
+            "log-read-only" : true,
+            "enabled" : true
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "audit"
+                },
+                {
+                    "logger" : "audit-log"
+                },
+                {
+                    "handler" : "file"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "management-interface" : "native-interface"
+                }
+            ],
+            "security-realm" : "ManagementRealm",
+            "socket-binding" : "management-native"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "management-interface" : "http-interface"
+                }
+            ],
+            "security-realm" : "ManagementRealm",
+            "http-upgrade-enabled" : true,
+            "socket-binding" : "management-http"
+        },
+        {
+            "operation" : "write-attribute",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "authorization"
+                }
+            ],
+            "name" : "provider",
+            "value" : "simple"
+        },
+        {
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "authorization"
+                },
+                {
+                    "role-mapping" : "SuperUser"
+                }
+            ],
+            "operation" : "add"
+        },
+        {
+            "operation" : "add",
+            "type" : "user",
+            "name" : "$local",
+            "address" : [
+                {
+                    "core-service" : "management"
+                },
+                {
+                    "access" : "authorization"
+                },
+                {
+                    "role-mapping" : "SuperUser"
+                },
+                "include",
+                "user-$local"
+            ],
+            "realm" : null
+        },
+        {
+            "address" : [{
+                "interface" : "management"
+            }],
+            "operation" : "add",
+            "inet-address" : {
+                "EXPRESSION_VALUE" : "${jboss.bind.address.management:127.0.0.1}"
+            }
+        },
+        {
+            "address" : [{
+                "interface" : "public"
+            }],
+            "operation" : "add",
+            "inet-address" : {
+                "EXPRESSION_VALUE" : "${jboss.bind.address:127.0.0.1}"
+            }
+        },
+        {
+            "address" : [{
+                "interface" : "unsecure"
+            }],
+            "operation" : "add",
+            "inet-address" : {
+                "EXPRESSION_VALUE" : "${jboss.bind.address.unsecure:127.0.0.1}"
+            }
+        },
+        {
+            "operation" : "add",
+            "address" : [{
+                "socket-binding-group" : "standard-sockets"
+            }],
+            "default-interface" : "public",
+            "port-offset" : {
+                "EXPRESSION_VALUE" : "${jboss.socket.binding.port-offset:0}"
+            }
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "management-native"
+                }
+            ],
+            "operation" : "add",
+            "interface" : "management",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.management.native.port:9999}"
+            },
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "management-http"
+                }
+            ],
+            "operation" : "add",
+            "interface" : "management",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.management.http.port:9990}"
+            },
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "management-https"
+                }
+            ],
+            "operation" : "add",
+            "interface" : "management",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.management.https.port:9993}"
+            },
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "ajp"
+                }
+            ],
+            "operation" : "add",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.ajp.port:8009}"
+            },
+            "interface" : null,
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "http"
+                }
+            ],
+            "operation" : "add",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.http.port:8080}"
+            },
+            "interface" : null,
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "https"
+                }
+            ],
+            "operation" : "add",
+            "port" : {
+                "EXPRESSION_VALUE" : "${jboss.https.port:8443}"
+            },
+            "interface" : null,
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "txn-recovery-environment"
+                }
+            ],
+            "operation" : "add",
+            "port" : 4712,
+            "interface" : null,
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "socket-binding" : "txn-status-manager"
+                }
+            ],
+            "operation" : "add",
+            "port" : 4713,
+            "interface" : null,
+            "fixed-port" : null,
+            "multicast-address" : null,
+            "multicast-port" : null,
+            "client-mappings" : null
+        },
+        {
+            "operation" : "add",
+            "host" : "localhost",
+            "port" : 25,
+            "address" : [
+                {
+                    "socket-binding-group" : "standard-sockets"
+                },
+                {
+                    "remote-destination-outbound-socket-binding" : "mail-smtp"
+                }
+            ],
+            "source-interface" : null,
+            "source-port" : null,
+            "fixed-source-port" : null
+        },
+        {
+            "operation" : "parallel-subsystem-boot",
+            "address" : []
+        },
+        {
+            "operation" : "add-deployer-chains",
+            "address" : []
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : []
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "path" : "deployments",
+        "relative-to" : "jboss.server.base.dir",
+        "scan-interval" : 5000,
+        "address" : [
+            {
+                "subsystem" : "deployment-scanner"
+            },
+            {
+                "scanner" : "default"
+            }
+        ],
+        "scan-enabled" : null,
+        "auto-deploy-exploded" : null,
+        "auto-deploy-xml" : null,
+        "auto-deploy-zipped" : null,
+        "deployment-timeout" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jdr"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "remoting"
+            }],
+            "worker-read-threads" : null,
+            "worker-task-core-threads" : null,
+            "worker-task-keepalive" : null,
+            "worker-task-limit" : null,
+            "worker-task-max-threads" : null,
+            "worker-write-threads" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "remoting"
+                },
+                {
+                    "http-connector" : "http-remoting-connector"
+                }
+            ],
+            "connector-ref" : "default",
+            "security-realm" : "ApplicationRealm",
+            "authentication-provider" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "io"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "io"
+                },
+                {
+                    "worker" : "default"
+                }
+            ],
+            "io-threads" : 3,
+            "task-keepalive" : null,
+            "task-max-threads" : null,
+            "stack-size" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "io"
+                },
+                {
+                    "buffer-pool" : "default"
+                }
+            ],
+            "buffer-size" : 16384,
+            "buffers-per-slice" : 128,
+            "direct-buffers" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "jmx"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jmx"
+                },
+                {
+                    "remoting-connector" : "jmx"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "pojo"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "sar"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "mail"
+            }]
+        },
+        {
+            "jndi-name" : "java:jboss/mail/Default",
+            "address" : [
+                {
+                    "subsystem" : "mail"
+                },
+                {
+                    "mail-session" : "java:jboss/mail/Default"
+                }
+            ],
+            "operation" : "add",
+            "debug" : null,
+            "from" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "mail"
+                },
+                {
+                    "mail-session" : "java:jboss/mail/Default"
+                },
+                {
+                    "server" : "smtp"
+                }
+            ],
+            "outbound-socket-binding-ref" : "mail-smtp",
+            "ssl" : null,
+            "tls" : null,
+            "username" : null,
+            "password" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jpa"
+        }],
+        "default-datasource" : "",
+        "default-extended-persistence-inheritance" : "DEEP"
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "weld"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jaxrs"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "naming"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "naming"
+                },
+                {
+                    "service" : "remote-naming"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "datasources"
+            }]
+        },
+        {
+            "operation" : "add",
+            "jndi-name" : "java:jboss/datasources/ExampleDS",
+            "use-java-context" : true,
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "data-source" : "ExampleDS"
+                }
+            ],
+            "connection-url" : "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+            "driver-name" : "h2",
+            "user-name" : "sa",
+            "password" : "sa",
+            "driver-class" : null,
+            "datasource-class" : null,
+            "new-connection-sql" : null,
+            "url-delimiter" : null,
+            "url-selector-strategy-class-name" : null,
+            "jta" : null,
+            "max-pool-size" : null,
+            "min-pool-size" : null,
+            "pool-prefill" : null,
+            "pool-use-strict-min" : null,
+            "security-domain" : null,
+            "reauth-plugin-class-name" : null,
+            "flush-strategy" : null,
+            "allow-multiple-users" : null,
+            "prepared-statements-cache-size" : null,
+            "share-prepared-statements" : null,
+            "track-statements" : null,
+            "allocation-retry" : null,
+            "allocation-retry-wait-millis" : null,
+            "blocking-timeout-wait-millis" : null,
+            "idle-timeout-minutes" : null,
+            "query-timeout" : null,
+            "use-try-lock" : null,
+            "set-tx-query-timeout" : null,
+            "transaction-isolation" : null,
+            "check-valid-connection-sql" : null,
+            "exception-sorter-class-name" : null,
+            "stale-connection-checker-class-name" : null,
+            "valid-connection-checker-class-name" : null,
+            "background-validation-millis" : null,
+            "background-validation" : null,
+            "use-fast-fail" : null,
+            "validate-on-match" : null,
+            "spy" : null,
+            "use-ccm" : null,
+            "reauth-plugin-properties" : null,
+            "exception-sorter-properties" : null,
+            "stale-connection-checker-properties" : null,
+            "valid-connection-checker-properties" : null
+        },
+        {
+            "operation" : "enable",
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "data-source" : "ExampleDS"
+                }
+            ],
+            "persistent" : true
+        },
+        {
+            "operation" : "add",
+            "driver-name" : "h2",
+            "driver-major-version" : null,
+            "driver-minor-version" : null,
+            "driver-module-name" : "com.h2database.h2",
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "jdbc-driver" : "h2"
+                }
+            ],
+            "driver-xa-datasource-class-name" : "org.h2.jdbcx.JdbcDataSource",
+            "deployment-name" : null,
+            "module-slot" : null,
+            "driver-class-name" : null,
+            "driver-datasource-class-name" : null,
+            "xa-datasource-class" : null,
+            "jdbc-compliant" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "ee"
+        }],
+        "spec-descriptor-property-replacement" : false,
+        "jboss-descriptor-property-replacement" : true,
+        "global-modules" : null,
+        "ear-subdeployments-isolated" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "security"
+            }],
+            "deep-copy-subject-mode" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                },
+                {
+                    "authentication" : "classic"
+                },
+                {
+                    "login-module" : "Remoting"
+                }
+            ],
+            "code" : "Remoting",
+            "flag" : "optional",
+            "module-options" : {"password-stacking" : "useFirstPass"},
+            "module" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                },
+                {
+                    "authentication" : "classic"
+                },
+                {
+                    "login-module" : "RealmDirect"
+                }
+            ],
+            "code" : "RealmDirect",
+            "flag" : "required",
+            "module-options" : {"password-stacking" : "useFirstPass"},
+            "module" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-web-policy"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-web-policy"
+                },
+                {
+                    "authorization" : "classic"
+                },
+                {
+                    "policy-module" : "Delegating"
+                }
+            ],
+            "code" : "Delegating",
+            "flag" : "required",
+            "module" : null,
+            "module-options" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-ejb-policy"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-ejb-policy"
+                },
+                {
+                    "authorization" : "classic"
+                },
+                {
+                    "policy-module" : "Delegating"
+                }
+            ],
+            "code" : "Delegating",
+            "flag" : "required",
+            "module" : null,
+            "module-options" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "jca"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "archive-validation" : "archive-validation"
+                }
+            ],
+            "enabled" : true,
+            "fail-on-error" : true,
+            "fail-on-warn" : false
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "bean-validation" : "bean-validation"
+                }
+            ],
+            "enabled" : true
+        },
+        {
+            "operation" : "add",
+            "name" : "default",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                },
+                {
+                    "short-running-threads" : "default"
+                }
+            ],
+            "core-threads" : 50,
+            "queue-length" : 50,
+            "max-threads" : 50,
+            "keepalive-time" : {
+                "time" : 10,
+                "unit" : "SECONDS"
+            },
+            "thread-factory" : null,
+            "allow-core-timeout" : null,
+            "handoff-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                },
+                {
+                    "long-running-threads" : "default"
+                }
+            ],
+            "core-threads" : 50,
+            "queue-length" : 50,
+            "max-threads" : 50,
+            "keepalive-time" : {
+                "time" : 10,
+                "unit" : "SECONDS"
+            },
+            "thread-factory" : null,
+            "allow-core-timeout" : null,
+            "handoff-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "bootstrap-context" : "default"
+                }
+            ],
+            "workmanager" : "default",
+            "name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "cached-connection-manager" : "cached-connection-manager"
+                }
+            ],
+            "install" : true,
+            "debug" : null,
+            "error" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "transactions"
+        }],
+        "process-id-uuid" : true,
+        "socket-binding" : "txn-recovery-environment",
+        "status-socket-binding" : "txn-status-manager",
+        "default-timeout" : 300,
+        "recovery-listener" : null,
+        "node-identifier" : null,
+        "path" : null,
+        "relative-to" : null,
+        "enable-statistics" : null,
+        "enable-tsm-status" : null,
+        "object-store-relative-to" : null,
+        "object-store-path" : null,
+        "jts" : null,
+        "use-hornetq-store" : null,
+        "use-jdbc-store" : null,
+        "jdbc-store-datasource" : null,
+        "jdbc-action-store-drop-table" : null,
+        "jdbc-action-store-table-prefix" : null,
+        "jdbc-communication-store-drop-table" : null,
+        "jdbc-communication-store-table-prefix" : null,
+        "jdbc-state-store-drop-table" : null,
+        "jdbc-state-store-table-prefix" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "webservices"
+            }],
+            "modify-wsdl-address" : true,
+            "wsdl-host" : {
+                "EXPRESSION_VALUE" : "${jboss.bind.address:127.0.0.1}"
+            },
+            "wsdl-port" : null,
+            "wsdl-secure-port" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Standard-Endpoint-Config"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                },
+                {
+                    "pre-handler-chain" : "recording-handlers"
+                }
+            ],
+            "protocol-bindings" : "##SOAP11_HTTP ##SOAP11_HTTP_MTOM ##SOAP12_HTTP ##SOAP12_HTTP_MTOM"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                },
+                {
+                    "pre-handler-chain" : "recording-handlers"
+                },
+                {
+                    "handler" : "RecordingHandler"
+                }
+            ],
+            "class" : "org.jboss.ws.common.invocation.RecordingServerHandler"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "client-config" : "Standard-Client-Config"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "ejb3"
+            }],
+            "default-slsb-instance-pool" : "slsb-strict-max-pool",
+            "default-stateful-bean-access-timeout" : 5000,
+            "default-sfsb-cache" : "simple",
+            "default-sfsb-passivation-disabled-cache" : "simple",
+            "default-singleton-bean-access-timeout" : 5000,
+            "default-security-domain" : "other",
+            "default-missing-method-permissions-deny-access" : true,
+            "default-clustered-sfsb-cache" : null,
+            "default-entity-bean-instance-pool" : null,
+            "default-entity-bean-optimistic-locking" : null,
+            "default-mdb-instance-pool" : null,
+            "default-resource-adapter-name" : null,
+            "enable-statistics" : null,
+            "in-vm-remote-interface-invocation-pass-by-value" : null,
+            "default-distinct-name" : null,
+            "disable-default-ejb-permissions" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "strict-max-bean-instance-pool" : "slsb-strict-max-pool"
+                }
+            ],
+            "max-pool-size" : 20,
+            "timeout" : 5,
+            "timeout-unit" : "MINUTES"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "strict-max-bean-instance-pool" : "mdb-strict-max-pool"
+                }
+            ],
+            "max-pool-size" : 20,
+            "timeout" : 5,
+            "timeout-unit" : "MINUTES"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "cache" : "simple"
+                }
+            ],
+            "aliases" : ["NoPassivationCache"],
+            "passivation-store" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "cache" : "passivating"
+                }
+            ],
+            "passivation-store" : "file",
+            "aliases" : ["SimpleStatefulCache"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "file-passivation-store" : "file"
+                }
+            ],
+            "idle-timeout" : null,
+            "idle-timeout-unit" : null,
+            "max-size" : null,
+            "relative-to" : null,
+            "groups-path" : null,
+            "sessions-path" : null,
+            "subdirectory-count" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "async"
+                }
+            ],
+            "thread-pool-name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "timer-service"
+                }
+            ],
+            "thread-pool-name" : "default",
+            "default-data-store" : "default-file-store"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "timer-service"
+                },
+                {
+                    "file-data-store" : "default-file-store"
+                }
+            ],
+            "path" : "timer-service-data",
+            "relative-to" : "jboss.server.data.dir"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "remote"
+                }
+            ],
+            "connector-ref" : "http-remoting-connector",
+            "thread-pool-name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "thread-pool" : "default"
+                }
+            ],
+            "max-threads" : 10,
+            "keepalive-time" : {
+                "time" : 100,
+                "unit" : "MILLISECONDS"
+            },
+            "thread-factory" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "infinispan"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                }
+            ],
+            "aliases" : ["standard-session-cache"],
+            "default-cache" : "local-web",
+            "module" : "org.wildfly.clustering.web.infinispan",
+            "jndi-name" : null,
+            "start" : null,
+            "listener-executor" : null,
+            "eviction-executor" : null,
+            "replication-queue-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                },
+                {
+                    "local-cache" : "local-web"
+                }
+            ],
+            "batching" : true,
+            "start" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                },
+                {
+                    "local-cache" : "local-web"
+                },
+                {
+                    "file-store" : "FILE_STORE"
+                }
+            ],
+            "passivation" : false,
+            "purge" : false,
+            "shared" : null,
+            "preload" : null,
+            "fetch-state" : null,
+            "singleton" : null,
+            "relative-to" : null,
+            "path" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                }
+            ],
+            "default-cache" : "local-query",
+            "module" : "org.hibernate",
+            "jndi-name" : null,
+            "start" : null,
+            "listener-executor" : null,
+            "eviction-executor" : null,
+            "replication-queue-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NON_XA",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "LRU",
+            "max-entries" : 10000
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "expiration" : "EXPIRATION"
+                }
+            ],
+            "max-idle" : 100000,
+            "lifespan" : null,
+            "interval" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NONE",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "LRU",
+            "max-entries" : 10000
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "expiration" : "EXPIRATION"
+                }
+            ],
+            "max-idle" : 100000,
+            "lifespan" : null,
+            "interval" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NONE",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "NONE",
+            "max-entries" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "undertow"
+            }],
+            "default-virtual-host" : null,
+            "default-servlet-container" : null,
+            "default-server" : null,
+            "instance-id" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "filter"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "handler"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "buffer-cache" : "default"
+                }
+            ],
+            "buffer-size" : 1024,
+            "buffers-per-region" : 1024,
+            "max-regions" : 10
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                }
+            ],
+            "default-host" : null,
+            "servlet-container" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "http-listener" : "default"
+                }
+            ],
+            "socket-binding" : "http",
+            "max-post-size" : 10485760,
+            "worker" : null,
+            "buffer-pool" : null,
+            "enabled" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "host" : "default-host"
+                }
+            ],
+            "alias" : ["localhost"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "host" : "default-host"
+                },
+                {
+                    "location" : "/"
+                }
+            ],
+            "handler" : "welcome-content"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "servlet-container" : "default"
+                }
+            ],
+            "default-buffer-cache" : "default",
+            "stack-trace-on-error" : "local-only",
+            "allow-non-standard-wrappers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "servlet-container" : "default"
+                },
+                {
+                    "setting" : "persistent-sessions"
+                }
+            ],
+            "path" : "persistent-web-sessions",
+            "relative-to" : "jboss.server.data.dir"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "handler"
+                },
+                {
+                    "file" : "welcome-content"
+                }
+            ],
+            "path" : {
+                "EXPRESSION_VALUE" : "${jboss.home.dir}/welcome-content"
+            },
+            "directory-listing" : true,
+            "cache-buffer-size" : null,
+            "cache-buffers" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jsf"
+        }],
+        "default-jsf-impl-slot" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "ee"
+        }],
+        "spec-descriptor-property-replacement" : false,
+        "jboss-descriptor-property-replacement" : true,
+        "global-modules" : null,
+        "ear-subdeployments-isolated" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jsf"
+        }],
+        "default-jsf-impl-slot" : null
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "naming"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "naming"
+                },
+                {
+                    "service" : "remote-naming"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jpa"
+        }],
+        "default-datasource" : "",
+        "default-extended-persistence-inheritance" : "DEEP"
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "transactions"
+            }],
+            "process-id-uuid" : true,
+            "socket-binding" : "txn-recovery-environment",
+            "status-socket-binding" : "txn-status-manager",
+            "default-timeout" : 300,
+            "recovery-listener" : null,
+            "node-identifier" : null,
+            "path" : null,
+            "relative-to" : null,
+            "enable-statistics" : null,
+            "enable-tsm-status" : null,
+            "object-store-relative-to" : null,
+            "object-store-path" : null,
+            "jts" : null,
+            "use-hornetq-store" : null,
+            "use-jdbc-store" : null,
+            "jdbc-store-datasource" : null,
+            "jdbc-action-store-drop-table" : null,
+            "jdbc-action-store-table-prefix" : null,
+            "jdbc-communication-store-drop-table" : null,
+            "jdbc-communication-store-table-prefix" : null,
+            "jdbc-state-store-drop-table" : null,
+            "jdbc-state-store-table-prefix" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "transactions"
+                },
+                {
+                    "log-store" : "log-store"
+                }
+            ],
+            "type" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "threads"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "sar"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "resource-adapters"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "jmx"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jmx"
+                },
+                {
+                    "expose-model" : "resolved"
+                }
+            ],
+            "domain-name" : null,
+            "proper-property-format" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jmx"
+                },
+                {
+                    "expose-model" : "expression"
+                }
+            ],
+            "domain-name" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jmx"
+                },
+                {
+                    "remoting-connector" : "jmx"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "remoting"
+            }],
+            "worker-read-threads" : null,
+            "worker-task-core-threads" : null,
+            "worker-task-keepalive" : null,
+            "worker-task-limit" : null,
+            "worker-task-max-threads" : null,
+            "worker-write-threads" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "remoting"
+                },
+                {
+                    "http-connector" : "http-remoting-connector"
+                }
+            ],
+            "connector-ref" : "default",
+            "security-realm" : "ApplicationRealm",
+            "authentication-provider" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jdr"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "undertow"
+            }],
+            "default-virtual-host" : null,
+            "default-servlet-container" : null,
+            "default-server" : null,
+            "instance-id" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "filter"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "handler"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "buffer-cache" : "default"
+                }
+            ],
+            "buffer-size" : 1024,
+            "buffers-per-region" : 1024,
+            "max-regions" : 10
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                }
+            ],
+            "default-host" : null,
+            "servlet-container" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "http-listener" : "default"
+                }
+            ],
+            "socket-binding" : "http",
+            "max-post-size" : 10485760,
+            "worker" : null,
+            "buffer-pool" : null,
+            "enabled" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "host" : "default-host"
+                }
+            ],
+            "alias" : ["localhost"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "server" : "default-server"
+                },
+                {
+                    "host" : "default-host"
+                },
+                {
+                    "location" : "/"
+                }
+            ],
+            "handler" : "welcome-content"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "servlet-container" : "default"
+                }
+            ],
+            "default-buffer-cache" : "default",
+            "stack-trace-on-error" : "local-only",
+            "allow-non-standard-wrappers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "servlet-container" : "default"
+                },
+                {
+                    "setting" : "jsp"
+                }
+            ],
+            "disabled" : null,
+            "keep-generated" : null,
+            "trim-spaces" : null,
+            "tag-pooling" : null,
+            "mapped-file" : null,
+            "check-interval" : null,
+            "modification-test-interval" : null,
+            "recompile-on-fail" : null,
+            "smap" : null,
+            "dump-smap" : null,
+            "generate-strings-as-char-arrays" : null,
+            "error-on-use-bean-invalid-class-attribute" : null,
+            "scratch-dir" : null,
+            "source-vm" : null,
+            "target-vm" : null,
+            "java-encoding" : null,
+            "x-powered-by" : null,
+            "display-source-fragment" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "servlet-container" : "default"
+                },
+                {
+                    "setting" : "persistent-sessions"
+                }
+            ],
+            "path" : "persistent-web-sessions",
+            "relative-to" : "jboss.server.data.dir"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "undertow"
+                },
+                {
+                    "configuration" : "handler"
+                },
+                {
+                    "file" : "welcome-content"
+                }
+            ],
+            "path" : {
+                "EXPRESSION_VALUE" : "${jboss.home.dir}/welcome-content"
+            },
+            "directory-listing" : true,
+            "cache-buffer-size" : null,
+            "cache-buffers" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "mail"
+            }]
+        },
+        {
+            "jndi-name" : "java:jboss/mail/Default",
+            "address" : [
+                {
+                    "subsystem" : "mail"
+                },
+                {
+                    "mail-session" : "java:jboss/mail/Default"
+                }
+            ],
+            "operation" : "add",
+            "debug" : null,
+            "from" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "mail"
+                },
+                {
+                    "mail-session" : "java:jboss/mail/Default"
+                },
+                {
+                    "server" : "smtp"
+                }
+            ],
+            "outbound-socket-binding-ref" : "mail-smtp",
+            "ssl" : null,
+            "tls" : null,
+            "username" : null,
+            "password" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "jaxrs"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "weld"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "add",
+        "address" : [{
+            "subsystem" : "pojo"
+        }]
+    }]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "security"
+            }],
+            "deep-copy-subject-mode" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                },
+                {
+                    "authentication" : "classic"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                },
+                {
+                    "authentication" : "classic"
+                },
+                {
+                    "login-module" : "Remoting"
+                }
+            ],
+            "code" : "Remoting",
+            "flag" : "optional",
+            "module-options" : {"password-stacking" : "useFirstPass"},
+            "module" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "other"
+                },
+                {
+                    "authentication" : "classic"
+                },
+                {
+                    "login-module" : "RealmDirect"
+                }
+            ],
+            "code" : "RealmDirect",
+            "flag" : "required",
+            "module-options" : {"password-stacking" : "useFirstPass"},
+            "module" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-web-policy"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-web-policy"
+                },
+                {
+                    "authorization" : "classic"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-web-policy"
+                },
+                {
+                    "authorization" : "classic"
+                },
+                {
+                    "policy-module" : "Delegating"
+                }
+            ],
+            "code" : "Delegating",
+            "flag" : "required",
+            "module" : null,
+            "module-options" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-ejb-policy"
+                }
+            ],
+            "cache-type" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-ejb-policy"
+                },
+                {
+                    "authorization" : "classic"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "security"
+                },
+                {
+                    "security-domain" : "jboss-ejb-policy"
+                },
+                {
+                    "authorization" : "classic"
+                },
+                {
+                    "policy-module" : "Delegating"
+                }
+            ],
+            "code" : "Delegating",
+            "flag" : "required",
+            "module" : null,
+            "module-options" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "io"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "io"
+                },
+                {
+                    "worker" : "default"
+                }
+            ],
+            "io-threads" : 3,
+            "task-keepalive" : null,
+            "task-max-threads" : null,
+            "stack-size" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "io"
+                },
+                {
+                    "buffer-pool" : "default"
+                }
+            ],
+            "buffer-size" : 16384,
+            "buffers-per-slice" : 128,
+            "direct-buffers" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "datasources"
+            }]
+        },
+        {
+            "operation" : "add",
+            "jndi-name" : "java:jboss/datasources/ExampleDS",
+            "use-java-context" : true,
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "data-source" : "ExampleDS"
+                }
+            ],
+            "connection-url" : "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
+            "driver-name" : "h2",
+            "user-name" : "sa",
+            "password" : "sa",
+            "driver-class" : null,
+            "datasource-class" : null,
+            "new-connection-sql" : null,
+            "url-delimiter" : null,
+            "url-selector-strategy-class-name" : null,
+            "jta" : null,
+            "max-pool-size" : null,
+            "min-pool-size" : null,
+            "pool-prefill" : null,
+            "pool-use-strict-min" : null,
+            "security-domain" : null,
+            "reauth-plugin-class-name" : null,
+            "flush-strategy" : null,
+            "allow-multiple-users" : null,
+            "prepared-statements-cache-size" : null,
+            "share-prepared-statements" : null,
+            "track-statements" : null,
+            "allocation-retry" : null,
+            "allocation-retry-wait-millis" : null,
+            "blocking-timeout-wait-millis" : null,
+            "idle-timeout-minutes" : null,
+            "query-timeout" : null,
+            "use-try-lock" : null,
+            "set-tx-query-timeout" : null,
+            "transaction-isolation" : null,
+            "check-valid-connection-sql" : null,
+            "exception-sorter-class-name" : null,
+            "stale-connection-checker-class-name" : null,
+            "valid-connection-checker-class-name" : null,
+            "background-validation-millis" : null,
+            "background-validation" : null,
+            "use-fast-fail" : null,
+            "validate-on-match" : null,
+            "spy" : null,
+            "use-ccm" : null,
+            "reauth-plugin-properties" : null,
+            "exception-sorter-properties" : null,
+            "stale-connection-checker-properties" : null,
+            "valid-connection-checker-properties" : null
+        },
+        {
+            "operation" : "enable",
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "data-source" : "ExampleDS"
+                }
+            ],
+            "persistent" : true
+        },
+        {
+            "operation" : "add",
+            "driver-name" : "h2",
+            "driver-major-version" : null,
+            "driver-minor-version" : null,
+            "driver-module-name" : "com.h2database.h2",
+            "address" : [
+                {
+                    "subsystem" : "datasources"
+                },
+                {
+                    "jdbc-driver" : "h2"
+                }
+            ],
+            "driver-xa-datasource-class-name" : "org.h2.jdbcx.JdbcDataSource",
+            "deployment-name" : null,
+            "module-slot" : null,
+            "driver-class-name" : null,
+            "driver-datasource-class-name" : null,
+            "xa-datasource-class" : null,
+            "jdbc-compliant" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "webservices"
+            }],
+            "modify-wsdl-address" : true,
+            "wsdl-host" : {
+                "EXPRESSION_VALUE" : "${jboss.bind.address:127.0.0.1}"
+            },
+            "wsdl-port" : null,
+            "wsdl-secure-port" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Standard-Endpoint-Config"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                },
+                {
+                    "pre-handler-chain" : "recording-handlers"
+                }
+            ],
+            "protocol-bindings" : "##SOAP11_HTTP ##SOAP11_HTTP_MTOM ##SOAP12_HTTP ##SOAP12_HTTP_MTOM"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "endpoint-config" : "Recording-Endpoint-Config"
+                },
+                {
+                    "pre-handler-chain" : "recording-handlers"
+                },
+                {
+                    "handler" : "RecordingHandler"
+                }
+            ],
+            "class" : "org.jboss.ws.common.invocation.RecordingServerHandler"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "webservices"
+                },
+                {
+                    "client-config" : "Standard-Client-Config"
+                }
+            ]
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "ejb3"
+            }],
+            "default-slsb-instance-pool" : "slsb-strict-max-pool",
+            "default-stateful-bean-access-timeout" : 5000,
+            "default-sfsb-cache" : "simple",
+            "default-sfsb-passivation-disabled-cache" : "simple",
+            "default-singleton-bean-access-timeout" : 5000,
+            "default-security-domain" : "other",
+            "default-missing-method-permissions-deny-access" : true,
+            "default-clustered-sfsb-cache" : null,
+            "default-entity-bean-instance-pool" : null,
+            "default-entity-bean-optimistic-locking" : null,
+            "default-mdb-instance-pool" : null,
+            "default-resource-adapter-name" : null,
+            "enable-statistics" : null,
+            "in-vm-remote-interface-invocation-pass-by-value" : null,
+            "default-distinct-name" : null,
+            "disable-default-ejb-permissions" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "strict-max-bean-instance-pool" : "slsb-strict-max-pool"
+                }
+            ],
+            "max-pool-size" : 20,
+            "timeout" : 5,
+            "timeout-unit" : "MINUTES"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "strict-max-bean-instance-pool" : "mdb-strict-max-pool"
+                }
+            ],
+            "max-pool-size" : 20,
+            "timeout" : 5,
+            "timeout-unit" : "MINUTES"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "cache" : "simple"
+                }
+            ],
+            "aliases" : ["NoPassivationCache"],
+            "passivation-store" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "cache" : "passivating"
+                }
+            ],
+            "passivation-store" : "file",
+            "aliases" : ["SimpleStatefulCache"]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "file-passivation-store" : "file"
+                }
+            ],
+            "idle-timeout" : null,
+            "idle-timeout-unit" : null,
+            "max-size" : null,
+            "relative-to" : null,
+            "groups-path" : null,
+            "sessions-path" : null,
+            "subdirectory-count" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "async"
+                }
+            ],
+            "thread-pool-name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "timer-service"
+                }
+            ],
+            "thread-pool-name" : "default",
+            "default-data-store" : "default-file-store"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "timer-service"
+                },
+                {
+                    "file-data-store" : "default-file-store"
+                }
+            ],
+            "path" : "timer-service-data",
+            "relative-to" : "jboss.server.data.dir"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "service" : "remote"
+                }
+            ],
+            "connector-ref" : "http-remoting-connector",
+            "thread-pool-name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "ejb3"
+                },
+                {
+                    "thread-pool" : "default"
+                }
+            ],
+            "max-threads" : 10,
+            "keepalive-time" : {
+                "time" : 100,
+                "unit" : "MILLISECONDS"
+            },
+            "thread-factory" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "jca"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "archive-validation" : "archive-validation"
+                }
+            ],
+            "enabled" : true,
+            "fail-on-error" : true,
+            "fail-on-warn" : false
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "bean-validation" : "bean-validation"
+                }
+            ],
+            "enabled" : true
+        },
+        {
+            "operation" : "add",
+            "name" : "default",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                }
+            ]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                },
+                {
+                    "short-running-threads" : "default"
+                }
+            ],
+            "core-threads" : 50,
+            "queue-length" : 50,
+            "max-threads" : 50,
+            "keepalive-time" : {
+                "time" : 10,
+                "unit" : "SECONDS"
+            },
+            "thread-factory" : null,
+            "allow-core-timeout" : null,
+            "handoff-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "workmanager" : "default"
+                },
+                {
+                    "long-running-threads" : "default"
+                }
+            ],
+            "core-threads" : 50,
+            "queue-length" : 50,
+            "max-threads" : 50,
+            "keepalive-time" : {
+                "time" : 10,
+                "unit" : "SECONDS"
+            },
+            "thread-factory" : null,
+            "allow-core-timeout" : null,
+            "handoff-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "bootstrap-context" : "default"
+                }
+            ],
+            "workmanager" : "default",
+            "name" : "default"
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "jca"
+                },
+                {
+                    "cached-connection-manager" : "cached-connection-manager"
+                }
+            ],
+            "install" : true,
+            "debug" : null,
+            "error" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "infinispan"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                }
+            ],
+            "aliases" : ["standard-session-cache"],
+            "default-cache" : "local-web",
+            "module" : "org.wildfly.clustering.web.infinispan",
+            "jndi-name" : null,
+            "start" : null,
+            "listener-executor" : null,
+            "eviction-executor" : null,
+            "replication-queue-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                },
+                {
+                    "local-cache" : "local-web"
+                }
+            ],
+            "batching" : true,
+            "start" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "web"
+                },
+                {
+                    "local-cache" : "local-web"
+                },
+                {
+                    "file-store" : "FILE_STORE"
+                }
+            ],
+            "passivation" : false,
+            "purge" : false,
+            "shared" : null,
+            "preload" : null,
+            "fetch-state" : null,
+            "singleton" : null,
+            "relative-to" : null,
+            "path" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                }
+            ],
+            "default-cache" : "local-query",
+            "module" : "org.hibernate",
+            "jndi-name" : null,
+            "start" : null,
+            "listener-executor" : null,
+            "eviction-executor" : null,
+            "replication-queue-executor" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NON_XA",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "LRU",
+            "max-entries" : 10000
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "entity"
+                },
+                {
+                    "expiration" : "EXPIRATION"
+                }
+            ],
+            "max-idle" : 100000,
+            "lifespan" : null,
+            "interval" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NONE",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "LRU",
+            "max-entries" : 10000
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "local-query"
+                },
+                {
+                    "expiration" : "EXPIRATION"
+                }
+            ],
+            "max-idle" : 100000,
+            "lifespan" : null,
+            "interval" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                }
+            ],
+            "start" : null,
+            "batching" : null,
+            "indexing" : null,
+            "jndi-name" : null,
+            "module" : null,
+            "indexing-properties" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                },
+                {
+                    "transaction" : "TRANSACTION"
+                }
+            ],
+            "mode" : "NONE",
+            "stop-timeout" : null,
+            "locking" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "infinispan"
+                },
+                {
+                    "cache-container" : "hibernate"
+                },
+                {
+                    "local-cache" : "timestamps"
+                },
+                {
+                    "eviction" : "EVICTION"
+                }
+            ],
+            "strategy" : "NONE",
+            "max-entries" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "logging"
+            }]
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "pattern-formatter" : "PATTERN"
+                }
+            ],
+            "pattern" : "%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n",
+            "color-map" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "pattern-formatter" : "COLOR-PATTERN"
+                }
+            ],
+            "pattern" : "%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n",
+            "color-map" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "console-handler" : "CONSOLE"
+                }
+            ],
+            "level" : "INFO",
+            "named-formatter" : "COLOR-PATTERN",
+            "enabled" : null,
+            "encoding" : null,
+            "formatter" : null,
+            "filter-spec" : null,
+            "autoflush" : null,
+            "target" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "periodic-rotating-file-handler" : "FILE"
+                }
+            ],
+            "autoflush" : true,
+            "named-formatter" : "PATTERN",
+            "file" : {
+                "relative-to" : "jboss.server.log.dir",
+                "path" : "server.log"
+            },
+            "suffix" : ".yyyy-MM-dd",
+            "append" : true,
+            "level" : null,
+            "enabled" : null,
+            "encoding" : null,
+            "formatter" : null,
+            "filter-spec" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "com.arjuna"
+                }
+            ],
+            "level" : "WARN",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "org.apache.tomcat.util.modeler"
+                }
+            ],
+            "level" : "WARN",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "org.jboss.as.config"
+                }
+            ],
+            "level" : "DEBUG",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "sun.rmi"
+                }
+            ],
+            "level" : "WARN",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "jacorb"
+                }
+            ],
+            "level" : "WARN",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "logger" : "jacorb.config"
+                }
+            ],
+            "level" : "ERROR",
+            "filter-spec" : null,
+            "handlers" : null,
+            "use-parent-handlers" : null
+        },
+        {
+            "operation" : "add",
+            "address" : [
+                {
+                    "subsystem" : "logging"
+                },
+                {
+                    "root-logger" : "ROOT"
+                }
+            ],
+            "level" : "INFO",
+            "handlers" : [
+                "CONSOLE",
+                "FILE"
+            ],
+            "filter-spec" : null
+        }
+    ]
+}
+2013-08-13 10:17:24 - {
+    "type" : "core",
+    "r/o" : false,
+    "booting" : true,
+    "version" : "8.0.0.Alpha4-SNAPSHOT",
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [
+        {
+            "operation" : "add",
+            "address" : [{
+                "subsystem" : "deployment-scanner"
+            }]
+        },
+        {
+            "operation" : "add",
+            "path" : "deployments",
+            "relative-to" : "jboss.server.base.dir",
+            "scan-interval" : 5000,
+            "address" : [
+                {
+                    "subsystem" : "deployment-scanner"
+                },
+                {
+                    "scanner" : "default"
+                }
+            ],
+            "scan-enabled" : null,
+            "auto-deploy-exploded" : null,
+            "auto-deploy-xml" : null,
+            "auto-deploy-zipped" : null,
+            "deployment-timeout" : null
+        }
+    ]
+}
+2013-08-13 10:17:29 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-resources",
+        "address" : [],
+        "child-type" : "deployment",
+        "include-runtime" : null,
+        "recursive" : null,
+        "recursive-depth" : null,
+        "proxies" : null,
+        "include-defaults" : null,
+        "operation-headers" : null
+    }]
+}
+2013-08-13 10:17:34 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-resources",
+        "address" : [],
+        "child-type" : "deployment",
+        "include-runtime" : null,
+        "recursive" : null,
+        "recursive-depth" : null,
+        "proxies" : null,
+        "include-defaults" : null,
+        "operation-headers" : null
+    }]
+}
+2013-08-13 10:17:36 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "composite",
+        "address" : [],
+        "steps" : [
+            {
+                "operation" : "read-attribute",
+                "name" : "process-type",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"},
+                "include-defaults" : null
+            },
+            {
+                "operation" : "read-attribute",
+                "name" : "product-name",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"},
+                "include-defaults" : null
+            },
+            {
+                "operation" : "read-attribute",
+                "name" : "release-codename",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"},
+                "include-defaults" : null
+            },
+            {
+                "operation" : "read-attribute",
+                "name" : "product-version",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"},
+                "include-defaults" : null
+            },
+            {
+                "operation" : "read-attribute",
+                "name" : "release-version",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"},
+                "include-defaults" : null
+            },
+            {
+                "operation" : "whoami",
+                "address" : [],
+                "operation-headers" : {"roles" : "ADMINISTRATOR"}
+            }
+        ],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:36 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "composite",
+        "address" : [],
+        "steps" : [],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:36 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-names",
+        "child-type" : "subsystem",
+        "address" : [],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:36 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "composite",
+        "address" : [],
+        "steps" : [],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:36 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-resource",
+        "include-runtime" : true,
+        "address" : [],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"},
+        "recursive-depth" : null,
+        "recursive" : null,
+        "proxies" : null,
+        "include-aliases" : null,
+        "include-defaults" : null,
+        "attributes-only" : null
+    }]
+}
+2013-08-13 10:17:37 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-resources",
+        "address" : [],
+        "child-type" : "extension",
+        "recursive" : true,
+        "operation-headers" : {"roles" : "ADMINISTRATOR"},
+        "include-runtime" : null,
+        "recursive-depth" : null,
+        "proxies" : null,
+        "include-defaults" : null
+    }]
+}
+2013-08-13 10:17:39 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : null,
+    "domainUUID" : null,
+    "access" : null,
+    "remote-address" : null,
+    "success" : true,
+    "ops" : [{
+        "operation" : "read-children-resources",
+        "address" : [],
+        "child-type" : "deployment",
+        "include-runtime" : null,
+        "recursive" : null,
+        "recursive-depth" : null,
+        "proxies" : null,
+        "include-defaults" : null,
+        "operation-headers" : null
+    }]
+}
+2013-08-13 10:17:40 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "operation" : "composite",
+        "address" : [],
+        "steps" : [],
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:40 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "address" : [],
+        "operation" : "read-children-types",
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:42 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "address" : [],
+        "operation" : "read-children-names",
+        "child-type" : "core-service",
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}
+2013-08-13 10:17:43 - {
+    "type" : "core",
+    "r/o" : true,
+    "booting" : false,
+    "user" : "admin",
+    "domainUUID" : null,
+    "access" : "HTTP",
+    "remote-address" : "127.0.0.1/127.0.0.1",
+    "success" : true,
+    "ops" : [{
+        "address" : [{
+            "core-service" : "management"
+        }],
+        "operation" : "read-children-types",
+        "operation-headers" : {"roles" : "ADMINISTRATOR"}
+    }]
+}

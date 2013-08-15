@@ -1,0 +1,80 @@
+<table style="vertical-align:top" cellpadding="3">
+    <tr>
+        <td>
+            Readonly
+        </td>
+        <td>
+            <code>true</code> if the operation does not change the management model, <code>false</code> otherwise.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Booting
+        </td>
+        <td>
+            <code>true</code> if the operation was executed during the bootup process, <code>false</code> if it was
+            executed once the server is up and running.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            User
+        </td>
+        <td>
+            The username of the authenticated user. In this case the operation has been logged via the CLI on the same
+            machine as the running server, so the special $local user is used.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Domain UUID
+        </td>
+        <td>
+            An ID to link together all operations as they are propagated from the Doman Controller to it servers, slave
+            Host Controllers, and slave Host Controller servers.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Access
+        </td>
+        <td>
+            This can have one of the following values:
+            <ul>
+                <li><code>NATIVE</code> - The operation came in through the native management interface, for example the
+                    CLI.
+                </li>
+                <li><code>HTTP</code> - The operation came in through the domain HTTP interface, for example the admin
+                    console.
+                </li>
+                <li><code>JMX</code> - The operation came in through the JMX subsystem. See JMX for how to configure
+                    audit logging for JMX.
+                </li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Remote Adress
+        </td>
+        <td>
+            The address of the client executing this operation.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Success
+        </td>
+        <td>
+            <code>true</code> if the operation succeeded, <code>false</code> if it was rolled back.
+        </td>
+    </tr>
+    <tr>
+        <td>
+            Operations
+        </td>
+        <td>
+            The operations being executed.
+        </td>
+    </tr>
+</table>
