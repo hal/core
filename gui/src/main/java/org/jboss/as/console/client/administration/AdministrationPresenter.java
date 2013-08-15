@@ -64,7 +64,12 @@ public class AdministrationPresenter
 
         // first request, select default contents
         if (!hasBeenRevealed) {
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.RoleAssignmentPresenter).build());
+            if (lastPlace != null) {
+                placeManager.revealPlace(new PlaceRequest.Builder().nameToken(lastPlace).build());
+            } else {
+                placeManager
+                        .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.RoleAssignmentPresenter).build());
+            }
             hasBeenRevealed = true;
         }
     }
