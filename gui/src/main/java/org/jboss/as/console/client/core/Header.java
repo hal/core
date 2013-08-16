@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -94,7 +95,7 @@ public class Header implements ValueChangeHandler<String> {
         LayoutPanel outerLayout = new LayoutPanel();
         outerLayout.addStyleName("page-header");
 
-        Widget logo = getProductSection();
+        Widget logo = getLogoSection();
         Widget links = getLinksSection();
 
         LayoutPanel rhs = new LayoutPanel();
@@ -119,36 +120,39 @@ public class Header implements ValueChangeHandler<String> {
         innerLayout.setWidgetBottomHeight(rhs, 0, Style.Unit.PX, 58, Style.Unit.PX);
 
         outerLayout.add(innerLayout);
-
         outerLayout.setWidgetTopHeight(innerLayout, 0, Style.Unit.PX, 58, Style.Unit.PX);
-
-
         outerLayout.getElement().setAttribute("role", "navigation");
         outerLayout.getElement().setAttribute("aria-label", "Toplevel Categories");
 
         return outerLayout;
     }
 
-    private Widget getProductSection() {
+    private Widget getLogoSection() {
+        Image logo;
+        if(ProductConfig.Profile.PRODUCT.equals(productConfig.getProfile())) {
+            logo = new Image("images/logo/product_title.png");
+            logo.setAltText("JBoss Enterprise Application Platform");
+        } else {
+            logo = new Image("images/logo/community_title.png");
+            logo.setAltText("JBoss Application Server");
+        }
+        logo.setStyleName("logo");
+        HTML prodVersion = new HTML(productConfig.getProductVersion());
+        prodVersion.setStyleName("header-prod-version");
 
         HorizontalPanel panel = new HorizontalPanel();
-        panel.setStyleName("product-section");
+        panel.setStyleName("logo-section");
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
+        panel.add(logo);
+        panel.add(prodVersion);
 
-        HTML productName = new HTML(productConfig.getProductName());
-        productName.setStyleName("header-product-name");
-        panel.add(productName);
+        logo.getElement().getParentElement().setAttribute("valign", "bottom");
+        logo.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
+        prodVersion.getElement().getParentElement().setAttribute("valign", "bottom");
+        prodVersion.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
+        prodVersion.getElement().getParentElement().setAttribute("width", "100%");
 
-        HTML productVersion = new HTML(productConfig.getProductVersion());
-        productVersion.setStyleName("header-product-version");
-        panel.add(productVersion);
-
-        productName.getElement().getParentElement().setAttribute("valign", "bottom");
-        productName.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
-
-        productVersion.getElement().getParentElement().setAttribute("valign", "bottom");
-        productVersion.getElement().getParentElement().setAttribute("style", "vertical-align:bottom;");
         return panel;
     }
 
