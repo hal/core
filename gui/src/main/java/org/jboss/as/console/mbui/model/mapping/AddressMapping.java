@@ -41,7 +41,8 @@ public class AddressMapping {
 
     private List<Token> address = new LinkedList<Token>();
     private int countedWildcards = -1;
-    private Map<String, Integer> requiredStatements;
+    private Set<String> requiredStatements;
+
 
     public AddressMapping(List<Token> tuple) {
         this.address = tuple;
@@ -64,44 +65,38 @@ public class AddressMapping {
      */
     public Map<String, Integer> getRequiredStatements() {
 
-        if(null==requiredStatements)  // lazy initialisation
+        Map<String, Integer> required = new HashMap<String,Integer>();
+        for(Token token : address)
         {
-            requiredStatements = new HashMap<String, Integer>();
-            asResource(new DelegatingStatementContext() {
-                @Override
-                public String resolve(final String key) {
-                    if(!requiredStatements.containsKey(key))
-                        requiredStatements.put(key, 1);
+            if(!token.hasKey())
+            {
+                // a single token or token expression
+                // These are currently skipped: See asResource() parsing logic
+                continue;
+            }
+            else
+            {
+                // a value expression. key and value of the expression might be resolved
+                // TODO: keys are not supported: Do we actually need that?
+                String value_ref = token.getValue();
+                if(value_ref.startsWith("{"))
+                {
+                    value_ref = value_ref.substring(1, value_ref.length()-1);
+                    if(!required.containsKey(value_ref))
+                    {
+                        required.put(value_ref, 1);
+                    }
                     else
                     {
-                        Integer val = requiredStatements.get(key);
-                        ++val;
-                        requiredStatements.put(key, val);
+                        Integer count = required.get(value_ref);
+                        ++count;
+                        required.put(value_ref, count);
                     }
-                    return "";
                 }
 
-                @Override
-                public String[] resolveTuple(String key) {
-                    return new String[]{"", ""};
-                }
-
-                @Override
-                public LinkedList<String> collect(String key) {
-                    if(!requiredStatements.containsKey(key))
-                        requiredStatements.put(key, 1);
-                    else
-                    {
-                        Integer val = requiredStatements.get(key);
-                        ++val;
-                        requiredStatements.put(key, val);
-                    }
-                    return Constants.EMPTY_LIST;
-                }
-            });
+            }
         }
-
-        return requiredStatements;
+        return required;
     }
 
     class Memory<T> {

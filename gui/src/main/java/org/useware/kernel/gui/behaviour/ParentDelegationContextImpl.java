@@ -148,4 +148,8 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         return resolvedTuple;
     }
 
+    @Override
+    public void clearStatements() {
+        delegate.clear();
+    }
 }

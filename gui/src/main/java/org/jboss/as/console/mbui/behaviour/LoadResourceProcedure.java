@@ -92,8 +92,9 @@ public class    LoadResourceProcedure extends Procedure {
                 boolean missingStatement = false;
                 for(String key : requiredStatements.keySet())
                 {
-                    Integer occurances = statementContext.collect(key).size();
-                    missingStatement = (occurances != requiredStatements.get(key));
+                    Integer numRequired = requiredStatements.get(key);
+                    Integer numOccurances = statementContext.collect(key).size();
+                    missingStatement = (numOccurances<numRequired);
                     if(missingStatement) break; // exit upon first value expression that cannot be resolved
                 }
                 return !missingStatement;
@@ -105,7 +106,7 @@ public class    LoadResourceProcedure extends Procedure {
 
     private void loadResource(final String name, AddressMapping address) {
 
-        System.out.println("Exec: "+ID+" on behalf of " + unit.getId());
+        //System.out.println("Exec: "+ID+" on behalf of " + unit.getId());
 
         // TODO: resolve once and re-use
         StatementContext statementContext = statementScope.getContext(unit.getId());

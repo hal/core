@@ -120,7 +120,7 @@ public class InteractionCoordinator implements KernelContract,
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                bus.fireEventFromSource(event, dialog.getId());
+                bus.fireEventFromSource(event, dialog.getInterfaceModel().getId());
             }
         });
 
@@ -294,11 +294,13 @@ public class InteractionCoordinator implements KernelContract,
     @Override
     public void setStatement(QName sourceId, String key, String value) {
 
+        dialogState.flushChildScopes(sourceId);
         dialogState.setStatement(sourceId, key, value);
     }
 
     @Override
     public void clearStatement(QName sourceId, String key, String value) {
+        dialogState.flushChildScopes(sourceId);
         dialogState.clearStatement(sourceId, key);
     }
 }

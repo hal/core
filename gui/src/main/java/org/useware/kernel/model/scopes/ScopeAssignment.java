@@ -8,11 +8,11 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 import java.util.Stack;
 
 /**
- * Assign scopes interaction units to scopes. Creates a shadow tree of the structure model.
+ * Assign interaction units to scopes. Creates a shadow tree of the structural model.
  * <p/>
  * Scopes are assigned by interpretation of {@link org.useware.kernel.model.structure.TemporalOperator}'s.
  * If an operator acts as a scope boundary then a new scope id wil be assigned.
- * Atomic units inherit the scoped of their parents.
+ * Atomic units inherit the scope of their parents.
  *
  * @param <S> the supported stereotypes
  *
@@ -87,7 +87,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         }
         else
         {
-            // children of regular units will the the parent scope
+            // children of regular units will use the the parent scope
             final Integer sharedContextId = stack.peek().getOrCreateId();
             stack.push(new ChildStrategy(containerNode) {
 
