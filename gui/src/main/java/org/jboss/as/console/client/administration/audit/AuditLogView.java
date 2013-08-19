@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.administration.audit;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -14,9 +16,11 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.Code;
+import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -131,14 +135,24 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
         });
 
         // setup layout
-        SimpleLayout layout = new SimpleLayout()
-                .setTitle(Console.CONSTANTS.administration_audit())
-                .setHeadline(Console.CONSTANTS.administration_audit_log())
-                .setDescription(Console.CONSTANTS.administration_audit_log_desc())
-                .addContent("table", table)
-                .addContent("pager", pager)
-                .addContent("forms", forms);
-        return layout.build();
+        VerticalPanel main = new VerticalPanel();
+        main.setStyleName("rhs-content-panel");
+        main.add(new ContentHeaderLabel(Console.CONSTANTS.administration_audit_log()));
+        main.add(new ContentDescription(Console.CONSTANTS.administration_audit_log_desc()));
+        main.add(table);
+        main.add(pager);
+        main.add(forms);
+
+        ScrollPanel scroll = new ScrollPanel(main);
+        LayoutPanel layout = new LayoutPanel();
+        layout.add(scroll);
+        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+
+        DefaultTabLayoutPanel root = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        root.addStyleName("default-tabpanel");
+        root.add(layout, Console.CONSTANTS.administration_audit_log());
+        root.selectTab(0);
+        return root;
     }
 
     private native String stringify(JavaScriptObject json) /*-{
