@@ -177,10 +177,26 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                                 {
                                     // matching the wildcard response
                                     List<ModelNode> tokens = node.get(ADDRESS).asList();
-                                    if(tokens.get(tokens.size()-1).asString().contains("*"))
+                                    if(instanceReference)
                                     {
-                                        System.out.println("Using reference: "+node.get(ADDRESS).asString());
-                                        payload = node;
+                                        // chose an instance declaration
+                                        if(!tokens.get(tokens.size()-1).asString().contains("*"))
+                                        {
+                                            System.out.println("Using reference: "+node.get(ADDRESS).asString());
+                                            payload = node;
+                                            break;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        // chose the wildcard declaration
+                                        if(tokens.get(tokens.size()-1).asString().contains("*"))
+                                        {
+                                            System.out.println("Using reference: "+node.get(ADDRESS).asString());
+                                            payload = node;
+                                            break;
+                                        }
                                     }
                                 }
 
