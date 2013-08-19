@@ -11,6 +11,10 @@ import org.jboss.dmr.client.ModelNode;
  */
 public interface AuditLogItem {
 
+
+    Object getId();
+    void setId(Object id);
+
     boolean isReadOnly();
 
     void setReadOnly(boolean readOnly);
