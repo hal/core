@@ -4,10 +4,11 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.as.console.client.widgets.Code;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
@@ -20,7 +21,7 @@ import org.jboss.dmr.client.Property;
 public class RawView {
 
 
-    private HTML dump;
+    private Code dump;
     private BrowserPresenter presenter;
     private ModelNode currentAddress;
 
@@ -29,7 +30,7 @@ public class RawView {
         layout.setStyleName("fill-layout-width");
         layout.getElement().setAttribute("style", "padding:10px");
 
-        dump = new HTML("");
+        dump = new Code();
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton("Refresh", new ClickHandler() {
@@ -37,7 +38,7 @@ public class RawView {
             public void onClick(ClickEvent clickEvent) {
                 if(currentAddress!=null)
                 {
-                    dump.setHTML("");
+                    dump.clear();
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
@@ -66,32 +67,16 @@ public class RawView {
     public void display(ModelNode address, Property model)
     {
         currentAddress = address;
-        SafeHtmlBuilder parsed = parse(model.getValue().toString());
-        dump.setHTML(parsed.toSafeHtml());
-    }
-
-    private static SafeHtmlBuilder parse(String s) {
-
-        SafeHtmlBuilder html = new SafeHtmlBuilder();
-
-        html.appendHtmlConstant("<pre class='model-dump'>");
-
-        String[] lines = s.split("\n");
-        for(String line : lines)
-        {
-            html.appendHtmlConstant("<span class='browser-dump-line'>");
-            html.appendEscaped(line).appendHtmlConstant("<br/>");
-            html.appendHtmlConstant("</span>");
-        }
-
-        html.appendHtmlConstant("</pre>");
-        return html;
+        dump.setVisible(true);
+        dump.setValue(SafeHtmlUtils.fromString(model.getValue().toString()));
     }
 
     public void clearDisplay()
     {
         currentAddress = null;
-        dump.setHTML("");
+        // to prevent an empty code widget which would render as an empty border box
+        dump.setVisible(false);
+        dump.clear();
     }
 
     public void setPresenter(BrowserPresenter presenter) {
