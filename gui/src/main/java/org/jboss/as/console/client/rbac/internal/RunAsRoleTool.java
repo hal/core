@@ -20,7 +20,9 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
@@ -33,6 +35,10 @@ public class RunAsRoleTool implements Tool {
 
     private DefaultWindow window;
     private ListBoxItem role;
+
+    public RunAsRoleTool() {
+        role = new ListBoxItem("role", "Role");
+    }
 
     @Override
     public void launch() {
@@ -48,9 +54,7 @@ public class RunAsRoleTool implements Tool {
 
     @Override
     public void dispose() {
-        if (window != null) {
-            window.hide();
-        }
+        window.hide();
     }
 
     private void setupWindow() {
@@ -61,11 +65,10 @@ public class RunAsRoleTool implements Tool {
         panel.add(new ContentDescription("Select the role you want to act on their behalf."));
 
         Form<Object> form = new Form<Object>(Object.class);
-        role = new ListBoxItem("role", "Role");
 
-        List<String> roleNames = StandardRole.getRoleNames();
-        roleNames.add("No preselection");
-        role.setChoices(roleNames, "No preselection");
+
+        initRoles(Collections.EMPTY_SET,Collections.EMPTY_SET);
+
         form.setFields(role);
         panel.add(form.asWidget());
 
@@ -93,6 +96,14 @@ public class RunAsRoleTool implements Tool {
         window.setGlassEnabled(true);
     }
 
+    private void initRoles(Set<String> serverGroupScoped, Set<String> hostScoped) {
+        List<String> roleNames = StandardRole.getRoleNames();
+        roleNames.add("No preselection");
+        roleNames.addAll(serverGroupScoped);
+        roleNames.addAll(hostScoped);
+        role.setChoices(roleNames, "No preselection");
+    }
+
     private void runAs(final String role) {
         window.hide();
 
@@ -118,5 +129,15 @@ public class RunAsRoleTool implements Tool {
                         });
                     }
                 });
+    }
+
+    public void setScopedRoles(final Set<String> serverGroupScoped, final Set<String> hostScoped) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                initRoles(serverGroupScoped, hostScoped);
+            }
+        });
+
     }
 }

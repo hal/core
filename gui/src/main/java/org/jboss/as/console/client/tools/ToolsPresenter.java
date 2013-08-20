@@ -18,11 +18,24 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
 import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -32,6 +45,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 {
 
     private final PlaceManager placeManager;
+    private final DispatchAsync dispatcher;
     private BrowserPresenter browser;
 
     private String requestedTool;
@@ -55,11 +69,12 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     @Inject
     public ToolsPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, BrowserPresenter browser) {
+            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         //this.debug = debug;
         this.browser = browser;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -134,7 +149,65 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
             if (runAsRoleTool == null) {
                 runAsRoleTool = new RunAsRoleTool();
             }
-            runAsRoleTool.launch();
+
+            if(!Console.MODULES.getBootstrapContext().isStandalone())
+            {
+
+                final ModelNode operation = new ModelNode();
+                operation.get(OP).set(COMPOSITE);
+                operation.get(ADDRESS).setEmptyList();
+
+                final List<ModelNode> steps = new LinkedList<ModelNode>();
+
+                ModelNode sg = new ModelNode();
+                sg.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+                sg.get(ADDRESS).add("core-service", "management");
+                sg.get(ADDRESS).add("access", "authorization");
+                sg.get(CHILD_TYPE).set("server-group-scoped-role");
+                steps.add(sg);
+
+                ModelNode h = new ModelNode();
+                h.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+                h.get(ADDRESS).add("core-service", "management");
+                h.get(ADDRESS).add("access", "authorization");
+                h.get(CHILD_TYPE).set("host-scoped-role");
+                steps.add(h);
+
+                operation.get(STEPS).set(steps);
+
+                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+                    @Override
+                    public void onSuccess(DMRResponse result) {
+                        Set<String> serverGroupScoped = new HashSet<String>();
+                        Set<String> hostScoped = new HashSet<String>();
+
+                        ModelNode compositeResponse = result.get();
+
+                        List<ModelNode> serverGroupRoles = compositeResponse.get(RESULT).get("step-1").get(RESULT).asList();
+                        for(ModelNode role : serverGroupRoles)
+                        {
+                            serverGroupScoped.add(role.asString());
+                        }
+
+                        List<ModelNode> hostRoles = compositeResponse.get(RESULT).get("step-2").get(RESULT).asList();
+                        for(ModelNode role : hostRoles)
+                        {
+                            hostScoped.add(role.asString());
+                        }
+
+                        runAsRoleTool.setScopedRoles(serverGroupScoped, hostScoped);
+                        runAsRoleTool.launch();
+                    }
+                });
+
+            }
+            else
+            {
+                // standalone mode
+                runAsRoleTool.launch();
+            }
+
+
         }
     }
 }
