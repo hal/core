@@ -50,6 +50,7 @@ public class ObservableFormItem extends FormItem {
 
     @Override
     public void setFiltered(boolean filtered) {
+        super.setFiltered(filtered);
         wrapped.setFiltered(filtered);
     }
 

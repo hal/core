@@ -1245,7 +1245,11 @@ table {
 }
 
 .cols_1 .form-item-col {
-    width:80%;
+    width:75%;
+}
+
+.cols_1 .form-icon-col {
+    width:5%;
 }
 
 .cols_2 .form-item-title-col {
@@ -1266,7 +1270,11 @@ table {
 }
 
 .cols_1_form-item-col {
-    width:80%;
+    width:75%;
+}
+
+.cols_1_form-icon-col {
+    width:5%;
 }
 
 /* forms */
