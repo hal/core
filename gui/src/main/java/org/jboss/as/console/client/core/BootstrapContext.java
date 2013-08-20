@@ -195,7 +195,7 @@ public class BootstrapContext implements ApplicationProperties {
     }
 
     public String getRole() {
-        return Preferences.get(Preferences.Key.RUN_AS_ROLE, StandardRole.ADMINISTRATOR.name()).toLowerCase();
+        return Preferences.get(Preferences.Key.RUN_AS_ROLE, "").toLowerCase();
     }
 
     public void setRole(String role)
