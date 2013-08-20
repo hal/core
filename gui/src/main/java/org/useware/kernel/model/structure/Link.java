@@ -1,6 +1,5 @@
 package org.useware.kernel.model.structure;
 
-import org.useware.kernel.gui.behaviour.NavigationEvent;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;

@@ -138,21 +138,23 @@ public class Kernel implements NavigationDelegate {
                     RequiredResources resourceVisitor = new RequiredResources();
                     dialog.getInterfaceModel().accept(resourceVisitor);
 
-                    securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(), new AsyncCallback<SecurityContext>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            Console.error("Failed to create security context", caught.getMessage());
-                            progress.getBar().setProgress(50.0);
-                            control.abort();
-                        }
+                    securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(),
+                            new AsyncCallback<SecurityContext>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    Console.error("Failed to create security context", caught.getMessage());
+                                    progress.getBar().setProgress(50.0);
+                                    control.abort();
+                                }
 
-                        @Override
-                        public void onSuccess(SecurityContext result) {
-                            control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
-                            progress.getBar().setProgress(50.0);
-                            control.proceed();
-                        }
-                    });
+                                @Override
+                                public void onSuccess(SecurityContext result) {
+                                    control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
+                                    progress.getBar().setProgress(50.0);
+                                    control.proceed();
+                                }
+                            }
+                    );
 
                 }
             };

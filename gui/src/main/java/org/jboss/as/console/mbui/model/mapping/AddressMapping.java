@@ -2,12 +2,9 @@ package org.jboss.as.console.mbui.model.mapping;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.dmr.client.ModelNode;
-import org.useware.kernel.gui.behaviour.Constants;
-import org.useware.kernel.gui.behaviour.DelegatingStatementContext;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

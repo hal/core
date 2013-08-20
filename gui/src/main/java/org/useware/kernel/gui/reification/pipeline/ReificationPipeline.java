@@ -18,12 +18,12 @@
  */
 package org.useware.kernel.gui.reification.pipeline;
 
+import org.useware.kernel.gui.reification.Context;
+import org.useware.kernel.model.Dialog;
+
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.useware.kernel.gui.reification.Context;
-import org.useware.kernel.model.Dialog;
 
 /**
  * Entry point for reification of an abstract model to a concrete interface. The reification is split up into several

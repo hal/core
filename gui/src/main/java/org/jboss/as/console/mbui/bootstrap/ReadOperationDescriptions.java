@@ -19,12 +19,14 @@
 package org.jboss.as.console.mbui.bootstrap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
+import org.jboss.as.console.mbui.model.StereoTypes;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.useware.kernel.gui.behaviour.DelegatingStatementContext;
+import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.gui.reification.Context;
@@ -32,19 +34,15 @@ import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
-import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.Trigger;
-import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -169,8 +167,8 @@ public class ReadOperationDescriptions extends ReificationBootstrap
         {
             InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
 
-            final StatementContext delegate = coordinator.getDialogState().getContext(interactionUnit.getId());
-            assert delegate != null : "StatementContext not provided";
+            final StatementContext statementContext = coordinator.getDialogState().getContext(interactionUnit.getId());
+            assert statementContext != null : "StatementContext not provided";
             assert interactionUnit.doesProduce();
 
             Resource<ResourceType> output = interactionUnit.getOutputs().iterator().next();
@@ -189,34 +187,24 @@ public class ReadOperationDescriptions extends ReificationBootstrap
             if (!resolvedOperations.contains(output.getId()))
             {
                 AddressMapping addressMapping = AddressMapping.fromString(address);
-                ModelNode op = addressMapping.asResource(new DelegatingStatementContext()
-                {
-                    @Override
-                    public String resolve(String key)
-                    {
-                        // fallback strategy for values that are created at runtime, i.e. datasource={selected.entity}
-                        String resolved = delegate.resolve(key);
-                        if (null == resolved) { resolved = "*"; }
-                        return resolved;
-                    }
+                ModelNode op = addressMapping.asResource(new FilteringStatementContext(
+                        statementContext,
+                        new FilteringStatementContext.Filter() {
+                            @Override
+                            public String filter(String key) {
+                                if("selected.entity".equals(key))
+                                    return "*";
+                                else
+                                    return null;
+                            }
 
-                    @Override
-                    public String[] resolveTuple(String key)
-                    {
-                        return delegate.resolveTuple(key);
-                    }
+                            @Override
+                            public String[] filterTuple(String key) {
+                                return null;
+                            }
+                        }
+                ) {
 
-                    @Override
-                    public LinkedList<String> collect(String key) {
-                        LinkedList<String> items = new LinkedList<String>();
-                        items.add("*");
-                        return items;
-                    }
-
-                    @Override
-                    public LinkedList<String[]> collectTuples(String key) {
-                        return delegate.collectTuples(key);
-                    }
                 });
                 op.get(OP).set(READ_OPERATION_DESCRIPTION_OPERATION);
                 op.get(NAME).set(operationName);

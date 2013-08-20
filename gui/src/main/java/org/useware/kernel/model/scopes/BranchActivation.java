@@ -3,7 +3,6 @@ package org.useware.kernel.model.scopes;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.HashMap;

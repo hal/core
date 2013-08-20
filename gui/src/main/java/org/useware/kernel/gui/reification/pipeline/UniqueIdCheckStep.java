@@ -1,8 +1,5 @@
 package org.useware.kernel.gui.reification.pipeline;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ReificationException;
 import org.useware.kernel.model.Dialog;
@@ -10,6 +7,9 @@ import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl

@@ -1,8 +1,8 @@
 package org.useware.kernel.model.structure.builder;
 
 import org.useware.kernel.model.behaviour.Consumer;
-import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.behaviour.Resource;
+import org.useware.kernel.model.behaviour.ResourceType;
 
 import java.util.HashSet;
 import java.util.Set;

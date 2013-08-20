@@ -3,7 +3,6 @@ package org.useware.kernel.gui.behaviour.common;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.ModelDrivenCommand;
 import org.useware.kernel.gui.behaviour.Procedure;
-import org.useware.kernel.gui.behaviour.SystemEvent;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;

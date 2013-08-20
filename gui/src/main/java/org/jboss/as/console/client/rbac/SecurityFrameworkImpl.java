@@ -15,6 +15,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -104,7 +105,28 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         for(String resource : requiredResources)
         {
 
-            ModelNode step = AddressMapping.fromString(resource).asResource(statementContext);
+            ModelNode step = AddressMapping.fromString(resource).asResource(
+                    new FilteringStatementContext(
+                            statementContext,
+                            new FilteringStatementContext.Filter() {
+                                @Override
+                                public String filter(String key) {
+                                    if("selected.entity".equals(key))
+                                        return "*";
+                                    else
+                                        return null;
+                                }
+
+                                @Override
+                                public String[] filterTuple(String key) {
+                                    return null;
+                                }
+                            }
+                    ) {
+
+                    }
+            );
+
             step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
@@ -142,7 +164,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     callback.onFailure(
                             new RuntimeException(
                                     "Failed to retrieve access control meta data:"+
-                                    response.getFailureDescription()
+                                            response.getFailureDescription()
                             )
                     );
                     return;
@@ -166,12 +188,12 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                         if(overalResult.hasDefined(step))
                         {
                             String resourceAddress = step2address.get(step);
-                            ModelNode modelNode = overalResult.get(step).get(RESULT);
+                            ModelNode stepResult = overalResult.get(step).get(RESULT);
 
                             ModelNode payload = null;
-                            if(modelNode.getType() == ModelType.LIST)
+                            if(stepResult.getType() == ModelType.LIST)
                             {
-                                List<ModelNode> nodes = modelNode.asList(); // TODO: Should be optimized
+                                List<ModelNode> nodes = stepResult.asList(); // TODO: Should be optimized
                                 boolean instanceReference = !nodes.isEmpty();
                                 for(ModelNode node : nodes)
                                 {
@@ -207,7 +229,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                             }
                             else
                             {
-                                payload = modelNode;
+                                payload = stepResult;
                             }
 
                             // break down into root resource and children

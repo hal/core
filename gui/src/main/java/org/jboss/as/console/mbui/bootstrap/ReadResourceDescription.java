@@ -24,7 +24,7 @@ import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.useware.kernel.gui.behaviour.DelegatingStatementContext;
+import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 import org.useware.kernel.gui.behaviour.InteractionCoordinator;
 import org.useware.kernel.gui.behaviour.StatementContext;
 import org.useware.kernel.gui.reification.Context;
@@ -157,8 +157,8 @@ public class ReadResourceDescription extends ReificationBootstrap
         {
             InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
 
-            final StatementContext delegate = coordinator.getDialogState().getContext(interactionUnit.getId());
-            assert delegate != null : "StatementContext not provided";
+            final StatementContext statementContext = coordinator.getDialogState().getContext(interactionUnit.getId());
+            assert statementContext != null : "StatementContext not provided";
 
             DMRMapping mapping = (DMRMapping) interactionUnit.findMapping(DMR, new Predicate<DMRMapping>()
             {
@@ -176,34 +176,23 @@ public class ReadResourceDescription extends ReificationBootstrap
                 if (!resolvedAdresses.contains(address))
                 {
                     AddressMapping addressMapping = AddressMapping.fromString(address);
-                    ModelNode op = addressMapping.asResource(new DelegatingStatementContext()
-                    {
-                        @Override
-                        public String resolve(String key)
-                        {
-                            // fallback strategy for values that are created at runtime, i.e. datasource={selected.entity}
-                            String resolved = delegate.resolve(key);
-                            if (null == resolved) { resolved = "*"; }
-                            return resolved;
-                        }
+                    ModelNode op = addressMapping.asResource(new FilteringStatementContext(
+                            statementContext,
+                            new FilteringStatementContext.Filter() {
+                                @Override
+                                public String filter(String key) {
+                                    if("selected.entity".equals(key))
+                                        return "*";
+                                    else
+                                        return null;
+                                }
 
-                        @Override
-                        public String[] resolveTuple(String key)
-                        {
-                            return delegate.resolveTuple(key);
-                        }
-
-                        @Override
-                        public LinkedList<String> collect(String key) {
-                            LinkedList<String> items = new LinkedList<String>();
-                            items.add("*");
-                            return items;
-                        }
-
-                        @Override
-                        public LinkedList<String[]> collectTuples(String key) {
-                            return delegate.collectTuples(key);
-                        }
+                                @Override
+                                public String[] filterTuple(String key) {
+                                    return null;
+                                }
+                            }
+                    ) {
 
                     });
 
