@@ -192,9 +192,6 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             idCounter = 0;
         }
 
-        // workaround https://issues.jboss.org/browse/WFLY-1732
-        final boolean collectionResponse = expectCollectionResponse(operation);
-
         Request request = null;
         try
         {
@@ -218,8 +215,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                                 new DMRResponse(
                                         requestBuilder.getHTTPMethod(),
                                         response.getText(),
-                                        response.getHeader(HEADER_CONTENT_TYPE),
-                                        collectionResponse
+                                        response.getHeader(HEADER_CONTENT_TYPE)
                                 )
                         );
                     }

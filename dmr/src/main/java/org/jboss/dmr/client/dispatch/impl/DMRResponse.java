@@ -20,19 +20,16 @@
 package org.jboss.dmr.client.dispatch.impl;
 
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
-import static org.jboss.dmr.client.ModelDescriptionConstants.SUCCESS;
-
 import com.allen_sauer.gwt.log.client.Log;
-import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.Result;
-import org.jboss.dmr.client.ModelNode;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -47,17 +44,11 @@ public class DMRResponse implements Result<ModelNode> {
     private String method;
     private String responseText;
     private String contentType;
-    private final boolean collectionResponse;
 
-    public DMRResponse(String method, String responseText, String contentType, boolean collectionResponse) {
+    public DMRResponse(String method, String responseText, String contentType) {
         this.method = method;
         this.responseText = responseText;
         this.contentType = contentType;
-        this.collectionResponse = collectionResponse;     // https://issues.jboss.org/browse/WFLY-1732
-    }
-
-    public boolean isCollectionResponse() {
-        return collectionResponse;
     }
 
     @Override

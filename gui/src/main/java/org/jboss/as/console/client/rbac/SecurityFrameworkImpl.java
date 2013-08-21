@@ -145,7 +145,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
         //System.out.println("Request:" + operation);
 
-        final long start = System.currentTimeMillis();
+        final long s0 = System.currentTimeMillis();
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
@@ -158,7 +158,15 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
 
+                Log.info("Context http (" + id + "): " + (System.currentTimeMillis() - s0) + "ms");
+
+                long s1 = System.currentTimeMillis();
                 ModelNode response = dmrResponse.get();
+                Log.info("Context decode (" + id + "): " + (System.currentTimeMillis() - s1) + "ms");
+
+
+                final long s2 = System.currentTimeMillis();
+
                 if(response.isFailure())
                 {
                     callback.onFailure(
@@ -241,7 +249,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                     contextMapping.put(id, context);
 
-                    Log.info("Context creation time (" + id + "): " + (System.currentTimeMillis() - start) + "ms");
+                    Log.info("Context parse (" + id + "): " + (System.currentTimeMillis() - s2) + "ms");
 
                     callback.onSuccess(context);
 
