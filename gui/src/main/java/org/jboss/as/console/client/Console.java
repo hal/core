@@ -269,7 +269,6 @@ public class Console implements EntryPoint {
     }
 
     public static boolean protovisAvailable() {
-        // TODO: https://issues.jboss.org/browse/HAL-150 (IE exclusion)
-        return true;
+        return !Window.Navigator.getUserAgent().contains("msie");
     }
 }
