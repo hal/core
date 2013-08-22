@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.rbac;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
@@ -24,11 +25,15 @@ public class MetaDataAdapter {
 
     public Set<String> getReadOnlyJavaNames(Class<?> type, SecurityContext securityContext) {
         final Set<String> readonlyJavaNames = new HashSet<String>();
-        BeanMetaData beanMetaData = metaData.getBeanMetaData(type);
-        for(PropertyBinding propBinding : beanMetaData.getProperties())
-        {
-            if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
-                readonlyJavaNames.add(propBinding.getJavaName());
+        try {
+            BeanMetaData beanMetaData = metaData.getBeanMetaData(type);
+            for(PropertyBinding propBinding : beanMetaData.getProperties())
+            {
+                if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
+                    readonlyJavaNames.add(propBinding.getJavaName());
+            }
+        } catch (Exception e) {
+            Log.warn("No meta data for "+type);
         }
         return readonlyJavaNames;
     }
