@@ -3,8 +3,8 @@ package org.jboss.as.console.client.shared.state;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -26,17 +26,15 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
     }
 
     @Override
-    public void process(ModelNode response, ReloadState reloadState) {
+    public void process(ModelNode response, Map<String, ServerState> serverStates) {
 
-        boolean staleModel = parseServerState(response, reloadState);
+        boolean staleModel = parseServerState(response, serverStates);
 
-        reloadState.propagateChanges();
-
-        if(!staleModel) reloadState.reset();
+        // if(!staleModel) reloadState.reset();
 
     }
 
-    private static boolean parseServerState(ModelNode response, ReloadState reloadState) {
+    private static boolean parseServerState(ModelNode response, Map<String, ServerState> serverStates) {
 
         boolean staleModel = false;
 
@@ -53,12 +51,22 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
                     if(RESTART_REQUIRED.equals(headerValue))
                     {
                         staleModel=true;
-                        reloadState.setRestartRequired(STANDLONE_SERVER, staleModel);
+
+                        //reloadState.setRestartRequired(STANDLONE_SERVER, staleModel);
+
+                        ServerState state = new ServerState(STANDLONE_SERVER);
+                        state.setRestartRequired(true);
+                        serverStates.put(STANDLONE_SERVER, state);
+
                     }
                     else if(RELOAD_REQUIRED.equals(headerValue))
                     {
                         staleModel=true;
-                        reloadState.setReloadRequired(STANDLONE_SERVER, staleModel);
+
+                        ServerState state = new ServerState(STANDLONE_SERVER);
+                        state.setRestartRequired(true);
+                        serverStates.put(STANDLONE_SERVER, state);
+
                     }
                 }
             }

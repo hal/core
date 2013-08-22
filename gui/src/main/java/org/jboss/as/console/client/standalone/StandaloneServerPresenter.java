@@ -34,6 +34,11 @@ import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
+import org.jboss.gwt.flow.client.Precondition;
 
 import java.util.List;
 
@@ -194,22 +199,29 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response = result.get();
-                //System.out.println(response);
+                System.out.println(response);
 
-                // TODO: only works when this response changes the reload state
-                boolean keepRunning = reloadState.isStaleModel();
-
-                callback.onSuccess(keepRunning);
-
-                if(!keepRunning)
+                if(response.isFailure()) {
+                    callback.onFailure(new RuntimeException("Failed to poll server state"));
+                }
+                else
                 {
+                    // TODO: only works when this response changes the reload state
+                    String outcome = response.get(RESULT).asString();
+                    boolean keepRunning = !outcome.equalsIgnoreCase("running");//reloadState.isStaleModel();
 
-                    // clear state
-                    reloadState.reset();
+                    if(!keepRunning)
+                    {
 
-                    Console.info(Console.MESSAGES.successful("Reload Server"));
-                    getView().setReloadRequired(reloadState.isStaleModel());
-                    getEventBus().fireEvent(new ReloadEvent());
+                        // clear state
+                        reloadState.reset();
+
+                        Console.info(Console.MESSAGES.successful("Reload Server"));
+                        getView().setReloadRequired(reloadState.isStaleModel());
+                        getEventBus().fireEvent(new ReloadEvent());
+                    }
+
+                    callback.onSuccess(keepRunning);
                 }
             }
         });

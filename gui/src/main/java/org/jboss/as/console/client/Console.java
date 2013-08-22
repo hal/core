@@ -57,11 +57,14 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
+import org.jboss.as.console.client.shared.state.ReloadState;
+import org.jboss.as.console.client.shared.state.ServerState;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Main application entry point.
@@ -275,8 +278,12 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         return !Window.Navigator.getUserAgent().contains("msie");
     }
 
+
     @Override
-    public void onReloadRequired(String message) {
-        Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), message, true);
+    public void onReloadRequired(Map<String, ServerState> states) {
+
+        ReloadState reloadState = Console.MODULES.getReloadState();
+        reloadState.updateFrom(states);
+        reloadState.propagateChanges();
     }
 }

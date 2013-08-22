@@ -1,9 +1,6 @@
 package org.jboss.as.console.client.shared.state;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.dmr.client.notify.Notifications;
+import org.jboss.as.console.client.Console;
 
 import javax.inject.Singleton;
 import java.util.HashMap;
@@ -29,26 +26,6 @@ public class ReloadState {
         lastFiredSize = 0;
     }
 
-    public void setReloadRequired(String name, boolean willBeRequired) {
-
-        if(willBeRequired)
-        {
-            ServerState state = new ServerState(name);
-            state.setReloadRequired(true);
-            serverStates.put(name, state);
-        }
-    }
-
-    public void setRestartRequired(String name, boolean willBeRequired) {
-
-        if(willBeRequired)
-        {
-            ServerState state = new ServerState(name);
-            state.setRestartRequired(true);
-            serverStates.put(name, state);
-        }
-    }
-
     public void propagateChanges() {
         if(isStaleModel() && lastFiredSize<serverStates.size())
         {
@@ -63,13 +40,17 @@ public class ReloadState {
             }
             sb.append("</ul>");
 
-            // state update, fire notification
-            Notifications.fireReloadNotification(new ReloadNotification(sb.toString()));
+            // state update, log warning
+            Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
         }
     }
 
-    public void resetServer(String name) {
+    /*public void resetServer(String name) {
         serverStates.remove(name);
         lastFiredSize--;
+    } */
+
+    public void updateFrom(Map<String, ServerState> states) {
+        this.serverStates = states;
     }
 }

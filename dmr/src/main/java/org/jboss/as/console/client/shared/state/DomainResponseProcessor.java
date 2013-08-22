@@ -3,8 +3,8 @@ package org.jboss.as.console.client.shared.state;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import javax.inject.Inject;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -26,15 +26,15 @@ public class DomainResponseProcessor implements ResponseProcessor {
     }
 
     @Override
-    public void process(ModelNode response, ReloadState reloadState) {
+    public void process(ModelNode response, Map<String, ServerState> serverStates) {
 
-        parseServerState(response, reloadState);
+        parseServerState(response, serverStates);
 
-        reloadState.propagateChanges();
+        //reloadState.propagateChanges();
 
     }
 
-    private static boolean parseServerState(ModelNode response, ReloadState reloadState) {
+    private static boolean parseServerState(ModelNode response, Map<String, ServerState> serverStates) {
         boolean staleModel = false;
 
         if(response.hasDefined(SERVER_GROUPS))
@@ -56,7 +56,7 @@ public class DomainResponseProcessor implements ResponseProcessor {
 
                         ModelNode hostValue = host.getValue();
                         //System.out.println("host: "+host.getName());
-                        parseHost(host.getName(), hostValue, reloadState);
+                        parseHost(host.getName(), hostValue, serverStates);
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class DomainResponseProcessor implements ResponseProcessor {
         return staleModel;
     }
 
-    private static void parseHost(final String hostName, ModelNode hostValue, ReloadState reloadState) {
+    private static void parseHost(final String hostName, ModelNode hostValue, Map<String, ServerState> serverStates) {
 
         //System.out.println(hostValue);
 
@@ -87,20 +87,31 @@ public class DomainResponseProcessor implements ResponseProcessor {
                     if(PROCESS_STATE.equals(header.getName()))
                     {
                         String headerValue = header.getValue().asString();
+                        String name = "Host: "+hostName+", server: "+server.getName();
 
                         if(RESTART_REQUIRED.equals(headerValue))
                         {
-                            reloadState.setRestartRequired(
+                            /*reloadState.setRestartRequired(
                                     "Host: "+hostName+", server: "+server.getName(),
                                     true
-                            );
+                            );*/
+
+
+                            ServerState state = new ServerState(name);
+                            state.setRestartRequired(true);
+                            serverStates.put(name, state);
+
                         }
                         else if(RELOAD_REQUIRED.equals(headerValue))
                         {
-                            reloadState.setReloadRequired(
+                            /*reloadState.setReloadRequired(
                                     "Host: "+hostName+", server: "+server.getName(),
                                     true
-                            );
+                            );*/
+
+                            ServerState state = new ServerState(name);
+                            state.setReloadRequired(true);
+                            serverStates.put(name, state);
                         }
                     }
                 }

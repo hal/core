@@ -1,6 +1,10 @@
 package org.jboss.as.console.client.shared.state;
 
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.notify.Notifications;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -13,21 +17,26 @@ public class ResponseProcessorDelegate {
             new StandaloneResponseProcessor()
     };
 
-    private ReloadState reloadState;
 
     public ResponseProcessorDelegate() {
-        this.reloadState = new ReloadState();
+
     }
 
     public void process(ModelNode response) {
+
+        Map<String, ServerState> serverStates = new HashMap<String, ServerState>();
 
         for(ResponseProcessor proc : processors)
         {
             if(proc.accepts(response))
             {
-                proc.process(response, reloadState);
+                proc.process(response, serverStates);
                 break;
             }
         }
+
+        if(serverStates.size()>0)
+            Notifications.fireReloadNotification(new ReloadNotification(serverStates));
+
     }
 }
