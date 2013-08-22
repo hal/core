@@ -707,10 +707,10 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
 
-        //bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
+        bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
 
         /* use this to test against 6.x until the RBAC facilities are available */
-        bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
+        //bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
 
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
     }
