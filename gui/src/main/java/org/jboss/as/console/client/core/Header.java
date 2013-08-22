@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
@@ -126,15 +127,19 @@ public class Header implements ValueChangeHandler<String> {
 
         // Debug tools
         VerticalPanel debugTools = new VerticalPanel();
-        HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#cecece;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
-        debugTools.add(rbac);
 
-        rbac.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                RBACContextView.launch();
-            }
-        });
+        if(!GWT.isScript())
+        {
+            HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#cecece;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
+            debugTools.add(rbac);
+
+            rbac.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    RBACContextView.launch();
+                }
+            });
+        }
 
         bottom.add(debugTools);
         bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 500, Style.Unit.PX);
