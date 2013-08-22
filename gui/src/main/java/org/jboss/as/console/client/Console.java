@@ -269,7 +269,7 @@ public class Console implements EntryPoint {
     }
 
     public static boolean protovisAvailable() {
-        // TODO: IE exclusion
+        // TODO: https://issues.jboss.org/browse/HAL-150 (IE exclusion)
         return true;
     }
 }

@@ -15,6 +15,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
@@ -107,7 +108,7 @@ public class TopicMetrics {
 
         // ----
 
-        NumberColumn inQueue = new NumberColumn("message-count", "Messages in Topic");
+        NumberColumn inQueue = new NumberColumn("message-count", "Queued");
         Column[] cols = new Column[] {
                 inQueue.setBaseline(true),
                 new NumberColumn("delivering-count","In Delivery").setComparisonColumn(inQueue),
@@ -127,43 +128,64 @@ public class TopicMetrics {
             }
         };
 
-        inflightSampler = new PlainColumnView(title, addressCallback)
-                .setColumns(cols)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            inflightSampler = new BulletGraphView(title, "count")
+                    .setColumns(cols);
+        }
+        else
+        {
+            inflightSampler = new PlainColumnView(title, addressCallback)
+                    .setColumns(cols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 
 
-        NumberColumn processedCol = new NumberColumn("messages-added", "Messages Added");
+        NumberColumn processedCol = new NumberColumn("messages-added", "Added");
         Column[] cols2 = new Column[] {
                 processedCol.setBaseline(true),
-                new NumberColumn("durable-message-count","Number Durable Messages").setComparisonColumn(processedCol),
-                new NumberColumn("non-durable-message-count","Number Non-Durable Messages").setComparisonColumn(processedCol)
+                new NumberColumn("durable-message-count","Durable").setComparisonColumn(processedCol),
+                new NumberColumn("non-durable-message-count","Non-Durable").setComparisonColumn(processedCol)
         };
 
         String title2 = "Messages Processed";
 
-        processedSampler = new PlainColumnView(title2, addressCallback)
-                .setColumns(cols2)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            processedSampler = new BulletGraphView(title2, "count")
+                    .setColumns(cols2);
+        }
+        else
+        {
+            processedSampler = new PlainColumnView(title2, addressCallback)
+                    .setColumns(cols2)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 
-        NumberColumn subscriptionsCols = new NumberColumn("subscription-count", "Number of Subscriptions");
+        NumberColumn subscriptionsCols = new NumberColumn("subscription-count", "Subscriptions");
         Column[] cols3 = new Column[] {
                 subscriptionsCols.setBaseline(true),
-                new NumberColumn("durable-subscription-count","Durable Subscribers").setComparisonColumn(subscriptionsCols),
-                new NumberColumn("non-durable-subscription-count","Nun-Durable Subscribers").setComparisonColumn(subscriptionsCols)
+                new NumberColumn("durable-subscription-count","Durable").setComparisonColumn(subscriptionsCols),
+                new NumberColumn("non-durable-subscription-count","Nun-Durable").setComparisonColumn(subscriptionsCols)
         };
 
         String title3 = "Subscriptions";
 
-        subscriptionSampler = new PlainColumnView(title3, addressCallback)
-                .setColumns(cols3)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            subscriptionSampler = new BulletGraphView(title3, "count")
+                    .setColumns(cols3);
+        }
+        else
+        {
+            subscriptionSampler = new PlainColumnView(title3, addressCallback)
+                    .setColumns(cols3)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 

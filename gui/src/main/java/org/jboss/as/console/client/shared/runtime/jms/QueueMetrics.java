@@ -15,6 +15,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
@@ -107,7 +108,7 @@ public class QueueMetrics {
 
         // ----
 
-        NumberColumn inQueue = new NumberColumn("message-count", "Messages in Queue");
+        NumberColumn inQueue = new NumberColumn("message-count", "Queued");
         Column[] cols = new Column[] {
                 inQueue.setBaseline(true),
                 new NumberColumn("delivering-count","In Delivery").setComparisonColumn(inQueue),
@@ -127,37 +128,63 @@ public class QueueMetrics {
             }
         };
 
-        sampler = new PlainColumnView(title, addressCallback)
-                .setColumns(cols)
-                .setWidth(100, Style.Unit.PCT);
+        if(Console.protovisAvailable())
+        {
+            sampler = new BulletGraphView(title, "count")
+                    .setColumns(cols);
+        }
+        else
+        {
 
+
+            sampler = new PlainColumnView(title, addressCallback)
+                    .setColumns(cols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 
         Column[] cols2 = new Column[] {
-                new NumberColumn("messages-added", "Messages Added"),
-                new NumberColumn("scheduled-count","Messages Scheduled")
+                new NumberColumn("messages-added", "Added"),
+                new NumberColumn("scheduled-count","Scheduled")
         };
 
         String title2 = "Messages Processed";
 
-        messageSampler = new PlainColumnView(title2, addressCallback)
-                .setColumns(cols2)
-                .setWidth(100, Style.Unit.PCT);
 
+        if(Console.protovisAvailable())
+        {
+            messageSampler = new BulletGraphView(title2, "count")
+                    .setColumns(cols2);
+        }
+        else
+        {
+            messageSampler = new PlainColumnView(title2, addressCallback)
+                    .setColumns(cols2)
+                    .setWidth(100, Style.Unit.PCT);
+        }
         // ----
 
 
-        NumberColumn consumerCol = new NumberColumn("consumer-count", "Number of Consumer");
+        NumberColumn consumerCol = new NumberColumn("consumer-count", "Consumers");
         Column[] cols3 = new Column[] {
                 consumerCol
         };
 
         String title3 = "Consumer";
 
-        consumerSampler = new PlainColumnView(title3, addressCallback)
-                .setColumns(cols3)
-                .setWidth(100, Style.Unit.PCT);
+
+        if(Console.protovisAvailable())
+        {
+            consumerSampler = new BulletGraphView(title3, "count")
+                    .setColumns(cols3);
+        }
+        else
+        {
+            consumerSampler = new PlainColumnView(title3, addressCallback)
+                    .setColumns(cols3)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 
