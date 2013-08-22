@@ -2,6 +2,7 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
@@ -60,12 +61,14 @@ public class MockSecurityFramework extends SecurityFrameworkImpl {
 
     @Override
     public void createSecurityContext(String id, AsyncCallback<SecurityContext> callback) {
+        Console.warning("Using MockSecurityFramework");
         contextMapping.put(id, NoopContext);
         callback.onSuccess(NoopContext);
     }
 
     @Override
     public void createSecurityContext(String id, Set<String> requiredResources, AsyncCallback<SecurityContext> callback) {
+        Console.warning("Using MockSecurityFramework");
         contextMapping.put(id, NoopContext);
         callback.onSuccess(NoopContext);
     }
