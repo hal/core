@@ -93,6 +93,7 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
+import org.jboss.as.console.client.rbac.MockSecurityFramework;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
@@ -706,7 +707,8 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
 
-        bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
+        //bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
+        bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
     }
 }

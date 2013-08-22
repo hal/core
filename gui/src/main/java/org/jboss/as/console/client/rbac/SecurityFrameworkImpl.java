@@ -50,12 +50,12 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     private static final String ACCESS_CONTROL = "access-control";
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
-    private final AccessControlRegistry accessControlReg;
-    private final DispatchAsync dispatcher;
-    private final CoreGUIContext statementContext;
-    private final ContextKeyResolver keyResolver;
+    protected final AccessControlRegistry accessControlReg;
+    protected final DispatchAsync dispatcher;
+    protected final CoreGUIContext statementContext;
+    protected final ContextKeyResolver keyResolver;
 
-    private Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
+    protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
     @Inject
     public SecurityFrameworkImpl(AccessControlRegistry accessControlReg, DispatchAsync dispatcher, CoreGUIContext statementContext) {
