@@ -56,6 +56,8 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.HelpSystem;
+import org.jboss.as.console.client.shared.state.ReloadNotification;
+import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
@@ -71,7 +73,7 @@ import java.util.EnumSet;
  *
  * @author Heiko Braun
  */
-public class Console implements EntryPoint {
+public class Console implements EntryPoint, ReloadNotification.Handler {
 
     public final static Composite MODULES = GWT.create(Composite.class);
     public final static UIConstants CONSTANTS = GWT.create(UIConstants.class);
@@ -141,6 +143,10 @@ public class Console implements EntryPoint {
                     @Override
                     public void onSuccess(BootstrapContext context) {
                         RootLayoutPanel.get().remove(loadingPanel);
+
+                        // DMR notifications
+                        Notifications.addReloadHandler(Console.this);
+
                         new LoadMainApp(
                                 MODULES.getBootstrapContext(),
                                 MODULES.getPlaceManager(),
@@ -267,5 +273,10 @@ public class Console implements EntryPoint {
 
     public static boolean protovisAvailable() {
         return !Window.Navigator.getUserAgent().contains("msie");
+    }
+
+    @Override
+    public void onReloadRequired(String message) {
+        Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), message, true);
     }
 }

@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.state;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.web.bindery.event.shared.EventBus;
+import org.jboss.dmr.client.notify.Notifications;
+
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,9 +64,7 @@ public class ReloadState {
             sb.append("</ul>");
 
             // state update, fire notification
-            //TODO: Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
-
-            System.out.println(">>"+sb.toString());
+            Notifications.fireReloadNotification(new ReloadNotification(sb.toString()));
         }
     }
 

@@ -7,21 +7,27 @@ import com.google.gwt.event.shared.GwtEvent;
  * @author Heiko Braun
  * @date 12/10/12
  */
-public class ReloadNotification extends GwtEvent<ReloadNotification.ReloadListener> {
+public class ReloadNotification extends GwtEvent<ReloadNotification.Handler> {
 
-    public static final Type TYPE = new Type<ReloadListener>();
+    public static final Type TYPE = new Type<Handler>();
+
+    private String message;
+
+    public ReloadNotification(String message) {
+        this.message = message;
+    }
 
     @Override
-    public Type<ReloadListener> getAssociatedType() {
+    public Type<Handler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(ReloadListener listener) {
-        listener.onReloadRequired();
+    protected void dispatch(Handler listener) {
+        listener.onReloadRequired(message);
     }
 
-    public interface ReloadListener extends EventHandler {
-        void onReloadRequired();
+    public interface Handler extends EventHandler {
+        void onReloadRequired(String message);
     }
 }
