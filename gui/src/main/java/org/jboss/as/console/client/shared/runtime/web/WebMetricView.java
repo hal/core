@@ -14,6 +14,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
@@ -89,11 +90,11 @@ public class WebMetricView extends DisposableViewImpl implements WebMetricPresen
         // ----
 
 
-        NumberColumn requestCount = new NumberColumn("requestCount","Request Count");
+        NumberColumn requestCount = new NumberColumn("requestCount","Requests");
 
         Column[] cols = new Column[] {
                 requestCount.setBaseline(true),
-                new NumberColumn("errorCount","Error Count").setComparisonColumn(requestCount),
+                new NumberColumn("errorCount","Errors").setComparisonColumn(requestCount),
                 new NumberColumn("processingTime","Processing Time"),
                 new NumberColumn("maxTime", "Max Time")
         };
@@ -111,10 +112,18 @@ public class WebMetricView extends DisposableViewImpl implements WebMetricPresen
             }
         };
 
-        sampler = new PlainColumnView(title, addressCallback)
-                .setColumns(cols)
-                .setWidth(100, Style.Unit.PCT);
 
+        if(Console.protovisAvailable())
+        {
+            sampler = new BulletGraphView(title, "count")
+                    .setColumns(cols);
+        }
+        else
+        {
+            sampler = new PlainColumnView(title, addressCallback)
+                    .setColumns(cols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         // ----
 
