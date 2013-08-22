@@ -8,5 +8,6 @@ import org.jboss.dmr.client.ModelNode;
  */
 public interface ResponseProcessor {
 
-    void process(ModelNode response);
+    boolean accepts(ModelNode response);
+    void process(ModelNode response, ReloadState reloadState);
 }

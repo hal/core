@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.shared.state;
 
-import com.google.gwt.core.client.GWT;
-import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.as.console.client.Console;
-
 import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +50,7 @@ public class ReloadState {
             lastFiredSize = serverStates.size();
 
             StringBuffer sb = new StringBuffer();
-            sb.append(Console.CONSTANTS.server_instance_servers_needRestart());
+            sb.append("Restart Required");
             sb.append("<ul>");
             for(ServerState server : serverStates.values())
             {
@@ -63,7 +59,9 @@ public class ReloadState {
             sb.append("</ul>");
 
             // state update, fire notification
-            Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
+            //TODO: Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
+
+            System.out.println(">>"+sb.toString());
         }
     }
 

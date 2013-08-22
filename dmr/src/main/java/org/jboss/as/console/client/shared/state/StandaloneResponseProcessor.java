@@ -19,15 +19,14 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
     private static final String RELOAD_REQUIRED = "reload-required";
     private static final String STANDLONE_SERVER = "Standlone Server";
 
-    private ReloadState reloadState;
 
-    @Inject
-    public StandaloneResponseProcessor(ReloadState reloadState) {
-        this.reloadState = reloadState;
+    @Override
+    public boolean accepts(ModelNode response) {
+        return response.hasDefined(RESPONSE_HEADERS);
     }
 
     @Override
-    public void process(ModelNode response) {
+    public void process(ModelNode response, ReloadState reloadState) {
 
         boolean staleModel = parseServerState(response, reloadState);
 

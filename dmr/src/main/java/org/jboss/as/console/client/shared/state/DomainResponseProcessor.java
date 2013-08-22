@@ -20,15 +20,13 @@ public class DomainResponseProcessor implements ResponseProcessor {
     private static final String SERVER_GROUPS = "server-groups";
     private static final String RESPONSE = "response";
 
-    private ReloadState reloadState;
-
-    @Inject
-    public DomainResponseProcessor(ReloadState reloadState) {
-        this.reloadState = reloadState;
+    @Override
+    public boolean accepts(ModelNode response) {
+        return response.hasDefined(SERVER_GROUPS);
     }
 
     @Override
-    public void process(ModelNode response) {
+    public void process(ModelNode response, ReloadState reloadState) {
 
         parseServerState(response, reloadState);
 

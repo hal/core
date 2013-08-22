@@ -20,9 +20,6 @@
 
 package org.jboss.as.console.client;
 
-import java.util.EnumSet;
-import java.util.ResourceBundle;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -44,7 +41,6 @@ import org.jboss.as.console.client.core.LoadingPanel;
 import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.core.UIDebugConstants;
 import org.jboss.as.console.client.core.UIMessages;
-import org.jboss.as.console.client.core.bootstrap.ChoseProcessor;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadHosts;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadProfiles;
 import org.jboss.as.console.client.core.bootstrap.ExecutionMode;
@@ -62,6 +58,8 @@ import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.EnumSet;
 
 /**
  * Main application entry point.
@@ -163,7 +161,6 @@ public class Console implements EntryPoint {
                         new TrackExecutionMode(MODULES.getAnalytics()),
                         new LoadCompatMatrix(MODULES.modelVersions()),
                         new RegisterSubsystems(MODULES.getSubsystemRegistry()),
-                        new ChoseProcessor(),
                         new EagerLoadProfiles(MODULES.getProfileStore(), MODULES.getCurrentSelectedProfile()),
                         new EagerLoadHosts(MODULES.getDomainEntityManager())
                 );

@@ -20,14 +20,9 @@
 package org.jboss.dmr.client.dispatch.impl;
 
 
-import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.as.console.client.shared.state.ResponseProcessorDelegate;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.Result;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -45,10 +40,14 @@ public class DMRResponse implements Result<ModelNode> {
     private String responseText;
     private String contentType;
 
+    private ResponseProcessorDelegate processor;
+
     public DMRResponse(String method, String responseText, String contentType) {
         this.method = method;
         this.responseText = responseText;
         this.contentType = contentType;
+
+        this.processor = new ResponseProcessorDelegate();
     }
 
     @Override
@@ -113,13 +112,12 @@ public class DMRResponse implements Result<ModelNode> {
             response = err;
         }
 
-        // TODO: re-enable after refactoring, might as well leverage notification API
-        //processor.process(response);
+        processor.process(response);
 
         return response;
     }
 
-    private void inlineAccessControlMetaData(List<ModelNode> accessHeader, ModelNode payload) {
+    /*private void inlineAccessControlMetaData(List<ModelNode> accessHeader, ModelNode payload) {
 
         if(accessHeader.isEmpty())
         {
@@ -183,5 +181,5 @@ public class DMRResponse implements Result<ModelNode> {
         for(ModelNode n : nodeList)
             s.add(n.asString());
         return s;
-    }
+    }  */
 }

@@ -134,7 +134,6 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ReloadState;
-import org.jboss.as.console.client.shared.state.ResponseProcessorFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
@@ -259,7 +258,6 @@ public class CoreUIModule extends AbstractPresenterModule {
         // static injections
         requestStaticInjection(RuntimeBaseAddress.class);
         requestStaticInjection(Baseadress.class);
-        requestStaticInjection(ResponseProcessorFactory.class);
 
 
         // main layout
