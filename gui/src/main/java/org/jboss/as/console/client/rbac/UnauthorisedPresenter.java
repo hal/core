@@ -1,11 +1,9 @@
 package org.jboss.as.console.client.rbac;
 
-import com.google.gwt.user.client.History;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 
 import javax.inject.Inject;
@@ -15,7 +13,7 @@ import javax.inject.Inject;
  * @date 7/24/13
  */
 public class UnauthorisedPresenter extends PresenterWidget<UnauthorisedPresenter.MyView>
-    implements AuthDecisionEvent.AuthDecisionHandler {
+        implements AuthDecisionEvent.AuthDecisionHandler {
 
 
     /**
@@ -35,7 +33,7 @@ public class UnauthorisedPresenter extends PresenterWidget<UnauthorisedPresenter
     }
 
     public void onConfirmation() {
-        History.back();
+        Console.MODULES.getPlaceManager().revealDefaultPlace();
     }
 
     @Override
