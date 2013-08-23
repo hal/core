@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
@@ -29,13 +30,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.layout.client.Layout;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -47,6 +53,7 @@ import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
+import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
@@ -86,7 +93,7 @@ public class Header implements ValueChangeHandler<String> {
 
     @Inject
     public Header(MessageCenter messageCenter, ProductConfig productConfig, BootstrapContext bootstrap,
-            PlaceManager placeManager) {
+                  PlaceManager placeManager) {
         this.messageBar = new MessageBar(messageCenter);
         this.productConfig = productConfig;
         this.bootstrap = bootstrap;
@@ -157,9 +164,38 @@ public class Header implements ValueChangeHandler<String> {
         Widget messageCenter = messageCenterView.asWidget();
         tools.add(messageCenter);
 
-        // logout button
-        HTML logout = new HTML("<i class='icon-signout'></i>&nbsp;"+Console.CONSTANTS.common_label_logout());
-        logout.addClickHandler(new ClickHandler() {
+        // user menu
+
+        // current user
+        String userHtml = "<i style='color:#cecece' class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
+        HTML roleHtml = new HTML("<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole());
+        SafeHtml principal = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'>"+userHtml+"</div>").toSafeHtml();
+        final HTML userButton = new HTML(principal);
+        tools.add(userButton);
+
+        final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.TOP);
+
+        ClickHandler clickHandler = new ClickHandler() {
+            public void onClick(ClickEvent event) {
+
+                int width = 120;
+                int height = 50;
+
+                menuPopup.setPopupPosition(
+                        userButton.getAbsoluteLeft() - (width+2- userButton.getOffsetWidth()) ,
+                        userButton.getAbsoluteTop() + 25
+                );
+
+                menuPopup.show();
+
+                menuPopup.setWidth(width+"px");
+                menuPopup.setHeight(height+"px");
+            }
+        };
+
+        userButton.addClickHandler(clickHandler);
+        HTML logoutHtml = new HTML("<i class='icon-signout'></i>&nbsp;" + Console.CONSTANTS.common_label_logout());
+        logoutHtml.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 Feedback.confirm(
@@ -176,16 +212,12 @@ public class Header implements ValueChangeHandler<String> {
                 );
             }
         });
-        tools.setStyleName("header-tools");
-        logout.setStyleName("header-textlink");
-        tools.add(logout);
 
-        // current user
-        String userHtml = "<i class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
-        String roleHtml = "<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole();
-
-        HTML principal = new HTML("<div class='header-textlink'>&nbsp;|&nbsp;&nbsp;&nbsp;"+userHtml+"&nbsp;"+roleHtml+"</div>");
-        tools.add(principal);
+        VerticalPanel usermenu = new VerticalPanel();
+        usermenu.setStyleName("fill-layout-width");
+        usermenu.add(roleHtml);
+        usermenu.add(logoutHtml);
+        menuPopup.setWidget(usermenu);
 
         top.add(tools);
         top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 700, Style.Unit.PX);

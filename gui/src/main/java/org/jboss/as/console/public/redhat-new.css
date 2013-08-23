@@ -2,12 +2,12 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700);
 
 body {
-    background-color: #ececec!important;
+    background-color: #ececec;
     margin: 0;
 }
 
 body, p, td, th, option, input, textarea, select {
-    color: #4e5255!important;
+    color: #4e5255;
     font: 12px/1.4 'Open Sans', "Lucida Sans Unicode","Lucida Grande",sans-serif;
 }
 
@@ -16,8 +16,8 @@ body, p, td, th, option, input, textarea, select {
 
     max-width: 1003px;
     background: #ffffff;
-    border-right: 1px solid #cecece !important;
-    border-left: 1px solid #cecece !important;
+    border-right: 1px solid #cecece;
+    border-left: 1px solid #cecece;
     margin: 0 auto;
 
     -moz-box-shadow: 6px 6px 6px #e3e3e3,
