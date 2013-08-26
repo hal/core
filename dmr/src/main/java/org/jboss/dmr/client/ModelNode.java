@@ -28,6 +28,7 @@ import org.timepedia.exporter.client.NoExport;
 
 import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -1257,7 +1258,11 @@ public class ModelNode implements Cloneable, Exportable {
 
         if(hasNativeBase64Support())
         {
-            return nativeEncode(new String(out.getBytes()));
+            try {
+                return nativeEncode(new String(out.getBytes(), "ISO-8859-1"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException("Failed to encode string:"+e.getMessage());
+            }
         }
         else
         {
