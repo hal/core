@@ -1109,7 +1109,7 @@ table {
 
 
     /* fallback */
-    background-color: #1a82f7;
+    background-color: #f9f9f9;
 
     /* Safari 4-5, Chrome 1-9 */
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f9f9f9), to(#eeeeee));
@@ -1645,7 +1645,7 @@ input[type="checkbox"] {
     border:1px solid #cdcdcd;
 
     /* fallback */
-    background-color: #1a82f7;
+    background-color: #f9f9f9;
 
     /* Safari 4-5, Chrome 1-9 */
     background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f9f9f9), to(#eeeeee));
