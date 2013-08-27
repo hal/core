@@ -1,3 +1,21 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
+ * as indicated by the @author tags. All rights reserved.
+ * See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU Lesser General Public License, v. 2.1.
+ * This program is distributed in the hope that it will be useful, but WITHOUT A
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License,
+ * v.2.1 along with this distribution; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA  02110-1301, USA.
+ */
 package org.jboss.as.console.client.administration.role;
 
 import static java.util.Arrays.asList;
@@ -7,14 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.AbstractDataProvider;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
@@ -23,19 +38,18 @@ import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-
 /**
  * @author Harald Pehl
- * @date 07/23/2013
  */
 public class RoleAssignmentTreeModel implements TreeViewModel {
 
@@ -66,7 +80,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
         this.roleAssignmentSelectionModel = new SingleSelectionModel<RoleAssignment>(new ProvidesKey<RoleAssignment>() {
             @Override
             public Object getKey(final RoleAssignment item) {
-                return item.isInclude();
+                return null; //item.getRole().getName();
             }
         });
         this.principalSelectionModel = new SingleSelectionModel<Principal>(new ProvidesKey<Principal>() {
@@ -97,7 +111,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
             return level1;
         } else if (value instanceof RoleAssignment) {
             // Level 2: Principals (group or users)
-            List<Principal> filtered = filterPrincipals(((RoleAssignment) value).getPrincipals());
+            List<Principal> filtered = filterPrincipals(((RoleAssignment) value).getExcludes());
             level2 = new PrincipalNodeInfo(new ListDataProvider<Principal>(filtered),
                     new PrincipalCell(), principalSelectionModel);
             return level2;
@@ -193,8 +207,8 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
 
         @Override
         public void render(final Context context, final RoleAssignment value, final SafeHtmlBuilder sb) {
-            String name = value.isInclude() ? "Includes" : "Excludes";
-            sb.append(ROLE_ASSIGNMENT_TEMPLATE.roleAssignment(name, filterPrincipals(value.getPrincipals()).size()));
+            String name = /*value.isInclude() ?*/ "Includes" /*: "Excludes"*/;
+            sb.append(ROLE_ASSIGNMENT_TEMPLATE.roleAssignment(name, filterPrincipals(value.getExcludes()).size()));
         }
     }
 
@@ -221,11 +235,11 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
             operation.get(RECURSIVE).set(true);
 
             final RoleAssignment excludes = beanFactory.roleAssignment().as();
-            excludes.setInclude(false);
-            excludes.setPrincipals(new ArrayList<Principal>());
+//            excludes.setInclude(false);
+            excludes.setExcludes(new ArrayList<Principal>());
             final RoleAssignment includes = beanFactory.roleAssignment().as();
-            includes.setInclude(true);
-            includes.setPrincipals(new ArrayList<Principal>());
+//            includes.setInclude(true);
+            includes.setExcludes(new ArrayList<Principal>());
 
             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                 @Override
@@ -237,10 +251,10 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
                     } else {
                         ModelNode payload = response.get(RESULT);
                         if (payload.hasDefined("exclude")) {
-                            excludes.setPrincipals(readPrincipals(payload.get("exclude").asList(), false));
+                            excludes.setExcludes(readPrincipals(payload.get("exclude").asList(), false));
                         }
                         if (payload.hasDefined("include")) {
-                            includes.setPrincipals(readPrincipals(payload.get("include").asList(), true));
+                            includes.setExcludes(readPrincipals(payload.get("include").asList(), true));
                         }
                         updateRowCount(2, true);
                         updateRowData(0, asList(excludes, includes));
@@ -272,7 +286,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
                     principal.setRealm(principalNode.get("realm").asString());
                 }
                 principal.setType(Principal.Type.valueOf(principalNode.get("type").asString()));
-                principal.setInclude(include);
+//                principal.setInclude(include);
                 principals.add(principal);
             }
             return principals;

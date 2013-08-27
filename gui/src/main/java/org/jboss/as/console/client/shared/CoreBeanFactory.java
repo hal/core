@@ -25,14 +25,15 @@ package org.jboss.as.console.client.shared;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import org.jboss.as.console.client.administration.audit.AuditLogItem;
+import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.settings.CommonSettings;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.administration.role.Principal;
-import org.jboss.as.console.client.administration.role.RoleAssignment;
+import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.shared.deployment.DeploymentReference;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEjb;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEndpoint;
@@ -301,7 +302,8 @@ public interface CoreBeanFactory {
     AutoBean<TXParticipant> txParticipant();
 
     // RBAC and related
-    AutoBean<RoleAssignment> roleAssignment();
     AutoBean<Principal> principal();
+    AutoBean<RoleAssignment> roleAssignment();
+    AutoBean<ScopedRole> scopedRole();
     AutoBean<AuditLogItem> auditLogItem();
 }

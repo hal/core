@@ -148,7 +148,7 @@ public class DatasourceStep2 {
                 JDBCDriver driver = null;
 
                 if(selectedTab==0){
-                    // reset state
+                    // clear state
                     form.clearValues();
 
                     SingleSelectionModel<JDBCDriver> selection =

@@ -1,3 +1,21 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
+ * as indicated by the @author tags. All rights reserved.
+ * See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This copyrighted material is made available to anyone wishing to use,
+ * modify, copy, or redistribute it subject to the terms and conditions
+ * of the GNU Lesser General Public License, v. 2.1.
+ * This program is distributed in the hope that it will be useful, but WITHOUT A
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public License,
+ * v.2.1 along with this distribution; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA  02110-1301, USA.
+ */
 package org.jboss.as.console.client.rbac.internal;
 
 import com.google.gwt.core.client.Scheduler;
@@ -20,16 +38,15 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
-
 /**
  * @author Harald Pehl
- * @date 07/02/2013
  */
 public class RunAsRoleTool implements Tool {
 
@@ -58,6 +75,8 @@ public class RunAsRoleTool implements Tool {
     }
 
     private void setupWindow() {
+        initRoles(Collections.EMPTY_SET, Collections.EMPTY_SET);
+
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
         panel.add(new RolesHelpPanel().asWidget());
@@ -65,10 +84,6 @@ public class RunAsRoleTool implements Tool {
         panel.add(new ContentDescription("Select the role you want to act on their behalf."));
 
         Form<Object> form = new Form<Object>(Object.class);
-
-
-        initRoles(Collections.EMPTY_SET,Collections.EMPTY_SET);
-
         form.setFields(role);
         panel.add(form.asWidget());
 
@@ -78,13 +93,12 @@ public class RunAsRoleTool implements Tool {
                 runAs(role.getValue());
             }
         };
-        ClickHandler cancelHandler = new
-                ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent clickEvent) {
-                        window.hide();
-                    }
-                };
+        ClickHandler cancelHandler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                window.hide();
+            }
+        };
         DialogueOptions options = new DialogueOptions(
                 "Run As", runAsHandler, "Cancel", cancelHandler);
 
@@ -97,8 +111,11 @@ public class RunAsRoleTool implements Tool {
     }
 
     private void initRoles(Set<String> serverGroupScoped, Set<String> hostScoped) {
-        List<String> roleNames = StandardRole.getRoleNames();
+        List<String> roleNames = new ArrayList<String>();
         roleNames.add("No preselection");
+        for (StandardRole standardRole : StandardRole.values()) {
+            roleNames.add(standardRole.name());
+        }
         roleNames.addAll(serverGroupScoped);
         roleNames.addAll(hostScoped);
         role.setChoices(roleNames, "No preselection");
@@ -108,7 +125,7 @@ public class RunAsRoleTool implements Tool {
         window.hide();
 
         String oldRole = Preferences.get(RUN_AS_ROLE);
-        if ((oldRole == null && role.equals("No preselection")) || role.equals(oldRole)) {
+        if ((oldRole == null && role.equals("No preselection")) || role.equalsIgnoreCase(oldRole)) {
             return;
         }
 
@@ -138,6 +155,5 @@ public class RunAsRoleTool implements Tool {
                 initRoles(serverGroupScoped, hostScoped);
             }
         });
-
     }
 }

@@ -16,47 +16,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.audit;
+package org.jboss.as.console.client.administration.role.model;
 
-import static com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
-
-import com.google.web.bindery.autobean.shared.Splittable;
+import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
+ * A user or a group of a {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}
+ *
  * @author Harald Pehl
  */
-public interface AuditLogItem {
+public interface Principal {
 
-    Object getId();
-    void setId(Object id);
+    String getName();
+    void setName(String name);
 
-    String getDate();
-    void setDate(String date);
+    String getRealm();
+    void setRealm(String realm);
 
-    @PropertyName("r/o")
-    boolean isReadOnly();
-    void setReadOnly(boolean readOnly);
+    @Binding(skip = true)
+    Type getType();
+    void setType(Type type);
 
-    boolean isBooting();
-    void setBooting(boolean booting);
-
-    String getUser();
-    void setUser(String userId);
-
-    String getDomainUUID();
-    void setDomainUUID(String domainUUID);
-
-    String getAccess();
-    void setAccess(String access);
-
-    @PropertyName("remote-address")
-    String getRemoteAddress();
-    void setRemoteAddress(String remoteAddress);
-
-    boolean isSuccess();
-    void setSuccess(boolean success);
-
-    @PropertyName("ops")
-    Splittable getOperations();
-    void setOperations(Splittable operations);
+    enum Type {USER, GROUP}
 }

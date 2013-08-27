@@ -19,28 +19,26 @@
 
 package org.jboss.as.console.client.administration.role;
 
-import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.layout.SimpleLayout;
-import org.jboss.as.console.client.rbac.RolesHelpPanel;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
- * @author Heiko Braun
- * @date 5/17/11
+ * @author Harald Pehl
  */
 public class RoleAssignementView extends SuspendableViewImpl implements RoleAssignmentPresenter.MyView {
 
     private final BeanFactory beanFactory;
     private final DispatchAsync dispatcher;
     private RoleAssignmentPresenter presenter;
-    private TabPanel editors;
-    private RoleAssignmentEditor groupEditor;
-    private RoleAssignmentEditor userEditor;
+    private GroupEditor groupEditor;
+    private UserEditor userEditor;
+    private ScopedRoleEditor scopedRoleEditor;
 
     @Inject
     public RoleAssignementView(final BeanFactory beanFactory, final DispatchAsync dispatcher) {
@@ -50,24 +48,18 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
 
     @Override
     public Widget createWidget() {
-        groupEditor = new RoleAssignmentEditor(Principal.Type.GROUP, beanFactory, dispatcher);
-        groupEditor.setPresenter(presenter);
-        userEditor = new RoleAssignmentEditor(Principal.Type.USER, beanFactory, dispatcher);
-        userEditor.setPresenter(presenter);
+        groupEditor = new GroupEditor(presenter, beanFactory, dispatcher);
+        userEditor = new UserEditor(presenter, beanFactory, dispatcher);
+        scopedRoleEditor = new ScopedRoleEditor(presenter, beanFactory, dispatcher);
 
-        editors = new TabPanel();
-        editors.setStyleName("default-tabpanel");
-        editors.add(groupEditor, Console.CONSTANTS.common_label_groups());
-        editors.add(userEditor, Console.CONSTANTS.common_label_users());
-        editors.selectTab(0);
+        DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabLayoutpanel.addStyleName("default-tabpanel");
+        tabLayoutpanel.add(groupEditor.asWidget(), Console.CONSTANTS.common_label_groups(), true);
+        tabLayoutpanel.add(userEditor.asWidget(), Console.CONSTANTS.common_label_users(), true);
+        tabLayoutpanel.add(scopedRoleEditor.asWidget(), Console.CONSTANTS.administration_scoped_roles(), true);
+        tabLayoutpanel.selectTab(0);
 
-        SimpleLayout layout = new SimpleLayout()
-                .setTitle(Console.CONSTANTS.common_label_roles())
-                .setHeadline(Console.CONSTANTS.role_assignment())
-                .setDescription(Console.CONSTANTS.role_assignment_desc())
-                .addContent("help", new RolesHelpPanel().asWidget())
-                .addContent("editors", editors);
-        return layout.build();
+        return tabLayoutpanel;
     }
 
     @Override
@@ -76,11 +68,9 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     }
 
     @Override
-    public void refresh() {
-        if (editors.getTabBar().getSelectedTab() == 0) {
-            groupEditor.refresh();
-        } else {
-            userEditor.refresh();
-        }
+    public void reset() {
+        groupEditor.reset();
+        userEditor.reset();
+        scopedRoleEditor.reset();
     }
 }

@@ -138,7 +138,7 @@ public class BulletGraphView implements Sampler {
     }
 
     private void render(){
-        graphWidget.initPVPanel();  // TODO: is this reset()?
+        graphWidget.initPVPanel();  // TODO: is this clear()?
         createVisualization(bullets);
         graphWidget.getPVPanel().render();
     }

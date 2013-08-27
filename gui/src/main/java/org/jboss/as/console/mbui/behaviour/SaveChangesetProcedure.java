@@ -98,8 +98,8 @@ public class SaveChangesetProcedure extends Procedure {
                 else
                     Console.info(Console.MESSAGES.modified(name));
 
-                // arguable: does each save lead to a reset?
-                // arguable: calling reset directly opposed to invoking a procedure...
+                // arguable: does each save lead to a clear?
+                // arguable: calling clear directly opposed to invoking a procedure...
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {

@@ -16,47 +16,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.audit;
+package org.jboss.as.console.client.administration.role.model;
 
-import static com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
+import java.util.List;
 
-import com.google.web.bindery.autobean.shared.Splittable;
+import org.jboss.as.console.client.rbac.Role;
+import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
  * @author Harald Pehl
  */
-public interface AuditLogItem {
+public interface ScopedRole extends Role {
 
-    Object getId();
-    void setId(Object id);
+    void setName(String name);
 
-    String getDate();
-    void setDate(String date);
+    /**
+     * A list of server group names <i>or</i> host names, not both.
+     */
+    List<String> getScope();
+    void setScope(List<String> scope);
 
-    @PropertyName("r/o")
-    boolean isReadOnly();
-    void setReadOnly(boolean readOnly);
-
-    boolean isBooting();
-    void setBooting(boolean booting);
-
-    String getUser();
-    void setUser(String userId);
-
-    String getDomainUUID();
-    void setDomainUUID(String domainUUID);
-
-    String getAccess();
-    void setAccess(String access);
-
-    @PropertyName("remote-address")
-    String getRemoteAddress();
-    void setRemoteAddress(String remoteAddress);
-
-    boolean isSuccess();
-    void setSuccess(boolean success);
-
-    @PropertyName("ops")
-    Splittable getOperations();
-    void setOperations(Splittable operations);
+    StandardRole getBaseRole();
+    void setBaseRole(StandardRole role);
 }

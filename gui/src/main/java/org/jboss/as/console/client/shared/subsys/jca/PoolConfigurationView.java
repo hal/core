@@ -92,7 +92,7 @@ public class PoolConfigurationView {
                 }, Console.CONSTANTS.common_label_reset()
         );
 
-        // disable "reset" functionality
+        // disable "clear" functionality
         toolStrip.providesDeleteOp(false);
 
         // TODO: https://issues.jboss.org/browse/AS7-3254

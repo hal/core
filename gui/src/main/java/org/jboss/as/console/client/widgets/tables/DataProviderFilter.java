@@ -78,7 +78,7 @@ public class DataProviderFilter<T> {
 
     /**
      * creates a backup of the orig data provider values
-     * that a re used to reset the provider when the filter is cleared.
+     * that a re used to clear the provider when the filter is cleared.
      */
     public void snapshot() {
         // backup original

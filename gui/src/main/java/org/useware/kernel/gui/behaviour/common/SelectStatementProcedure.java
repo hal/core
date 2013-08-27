@@ -38,7 +38,7 @@ public class SelectStatementProcedure extends Procedure {
                 else
                     coordinator.clearStatement(sourceId, key, value);
 
-                // when statement change, the system will be reset
+                // when statement change, the system will be clear
                 coordinator.reset();
             }
         });

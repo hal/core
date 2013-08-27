@@ -152,7 +152,6 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
             if(!Console.MODULES.getBootstrapContext().isStandalone())
             {
-
                 final ModelNode operation = new ModelNode();
                 operation.get(OP).set(COMPOSITE);
                 operation.get(ADDRESS).setEmptyList();
@@ -199,15 +198,12 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
                         runAsRoleTool.launch();
                     }
                 });
-
             }
             else
             {
                 // standalone mode
                 runAsRoleTool.launch();
             }
-
-
         }
     }
 }
