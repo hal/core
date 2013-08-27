@@ -34,8 +34,8 @@ import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.jboss.as.console.mbui.model.StereoTypes.*;
 
 /**
- * @author Harald Pehl
- * @date 10/25/2012
+ * @author Heiko Braun
+ * @date 08/27/2013
  */
 public class IOSubsystemExample implements Sample
 {
@@ -61,7 +61,7 @@ public class IOSubsystemExample implements Sample
     {
         String ns = "org.jboss.io";
 
-        // entities
+        // common mappings
         Mapping global = new DMRMapping()
                 .setAddress("/{selected.profile}/subsystem=io");
 
@@ -73,9 +73,8 @@ public class IOSubsystemExample implements Sample
                 .setAddress("/{selected.profile}/subsystem=io/buffer-pool=*")
                 .addAttributes("entity.key");
 
-
+        // top level containers
         Container overview = new Container(ns, "io-subsystem", "IO Subsystem", EditorPanel);
-
         Container editors = new Container(ns, "editors", "Editors", Choice);
 
         // worker master detail
@@ -86,10 +85,11 @@ public class IOSubsystemExample implements Sample
         Select bufferList = new Select(ns, "buffer", "Buffer Pool");
         Container bufferDetails = new Container(ns, "bufferDetails", "Details", Form);
 
-
-        // structure & mapping
         DMRMapping workerInstance = new DMRMapping().setAddress("/{selected.profile}/subsystem=io/worker={selected.entity}");
         DMRMapping bufferInstance = new DMRMapping().setAddress("/{selected.profile}/subsystem=io/buffer-pool={selected.entity}");
+
+        // structure & mapping
+
         InteractionUnit root = new Builder()
                 .start(overview).mappedBy(global)
                     .start(editors)
