@@ -60,11 +60,13 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
- * There are two constraints for assignments managed by the console:
+ * There are some constraints when managing role assignments in the console:
  * <ol>
- * <li>There has to be at least one inclusion</li>
+ * <li>There has to be at least one inclusion for the role assignment</li>
  * <li>An exclusion can only contain users excluded from a group</li>
  * </ol>
+ * <p>Role assignment which do not met these constraints, won't be visible in the conole and have to be
+ * managed using other tools (e.g. the CLI)</p>
  *
  * @author Harald Pehl
  */
@@ -75,8 +77,8 @@ public class RoleAssignmentPresenter
     private final RevealStrategy revealStrategy;
     private final BeanFactory beanFactory;
     private final PrincipalStore principals;
-    private final RoleStore roles;
     private final RoleAssignmentStore assignments;
+    private final RoleStore roles;
     private DefaultWindow window;
 
 
@@ -89,8 +91,8 @@ public class RoleAssignmentPresenter
         this.revealStrategy = revealStrategy;
         this.beanFactory = beanFactory;
         this.principals = new PrincipalStore();
-        this.roles = new RoleStore();
         this.assignments = new RoleAssignmentStore(beanFactory);
+        this.roles = new RoleStore();
     }
 
     @Override
@@ -109,8 +111,8 @@ public class RoleAssignmentPresenter
         super.onReset();
 
         principals.clear();
-        roles.clear();
         assignments.clear();
+        roles.clear();
 
         loadRolesAndMapping();
     }
@@ -154,30 +156,31 @@ public class RoleAssignmentPresenter
                     // the order of processing is important!
                     List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                     for (ModelNode node : hostScopedRoles) {
-                        addScopedRole(node.asProperty(), "hosts");
+                        addScopedRole(node.asProperty(), "hosts", ScopedRole.Type.HOST);
                     }
                     List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                     for (ModelNode node : serverGroupScopedRoles) {
-                        addScopedRole(node.asProperty(), "server-groups");
+                        addScopedRole(node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
                     }
                     List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
                     for (ModelNode node : roleMappings) {
                         addManagementModelRoleAssignment(node.asProperty());
                     }
                     // All entities are read - now transform the role assignements from the management model to
-                    // role assignments used in the UI
+                    // role assignments used in the UI and update the view
                     assignments.transform(principals);
-                    getView().reset();
+                    getView().update(assignments, roles);
                 }
             }
         });
     }
 
-    private void addScopedRole(final Property property, final String scopeName) {
+    private void addScopedRole(final Property property, final String scopeName, final ScopedRole.Type type) {
         ScopedRole scopedRole = beanFactory.scopedRole().as();
         scopedRole.setName(property.getName());
+        scopedRole.setType(type);
         ModelNode node = property.getValue();
-        String baseRoleName = node.get("base-role").asString().toUpperCase();
+        String baseRoleName = node.get("base-role").asString();
         scopedRole.setBaseRole(StandardRole.valueOf(baseRoleName));
 
         List<String> scope = new ArrayList<String>();
@@ -261,7 +264,7 @@ public class RoleAssignmentPresenter
 
             @Override
             public void onSuccess(final Stack<Boolean> context) {
-                getView().reset();
+                //                getView().reset();
             }
         });
     }
@@ -286,7 +289,7 @@ public class RoleAssignmentPresenter
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse response) {
-                getView().reset();
+                //                getView().reset();
             }
         });
     }
@@ -307,6 +310,6 @@ public class RoleAssignmentPresenter
 
         void setPresenter(RoleAssignmentPresenter presenter);
 
-        void reset();
+        void update(RoleAssignmentStore assignments, RoleStore roles);
     }
 }

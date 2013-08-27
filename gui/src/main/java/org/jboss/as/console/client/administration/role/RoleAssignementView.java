@@ -21,36 +21,27 @@ package org.jboss.as.console.client.administration.role;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
+import org.jboss.as.console.client.administration.role.model.RoleStore;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Harald Pehl
  */
 public class RoleAssignementView extends SuspendableViewImpl implements RoleAssignmentPresenter.MyView {
 
-    private final BeanFactory beanFactory;
-    private final DispatchAsync dispatcher;
     private RoleAssignmentPresenter presenter;
     private GroupEditor groupEditor;
     private UserEditor userEditor;
     private ScopedRoleEditor scopedRoleEditor;
 
-    @Inject
-    public RoleAssignementView(final BeanFactory beanFactory, final DispatchAsync dispatcher) {
-        this.beanFactory = beanFactory;
-        this.dispatcher = dispatcher;
-    }
-
     @Override
     public Widget createWidget() {
-        groupEditor = new GroupEditor(presenter, beanFactory, dispatcher);
-        userEditor = new UserEditor(presenter, beanFactory, dispatcher);
-        scopedRoleEditor = new ScopedRoleEditor(presenter, beanFactory, dispatcher);
+        groupEditor = new GroupEditor(presenter);
+        userEditor = new UserEditor(presenter);
+        scopedRoleEditor = new ScopedRoleEditor(presenter);
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
@@ -68,9 +59,9 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     }
 
     @Override
-    public void reset() {
-        groupEditor.reset();
-        userEditor.reset();
-        scopedRoleEditor.reset();
+    public void update(RoleAssignmentStore assignments, RoleStore roles) {
+        groupEditor.setAssignments(assignments.getGroupAssignments());
+        userEditor.setAssignments(assignments.getUserAssignments());
+        scopedRoleEditor.setRoles(roles.getScopedRoles());
     }
 }

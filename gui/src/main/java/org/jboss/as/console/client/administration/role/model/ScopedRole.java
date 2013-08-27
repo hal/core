@@ -20,6 +20,7 @@ package org.jboss.as.console.client.administration.role.model;
 
 import java.util.List;
 
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 
@@ -28,7 +29,11 @@ import org.jboss.as.console.client.rbac.StandardRole;
  */
 public interface ScopedRole extends Role {
 
+    String getName();
     void setName(String name);
+
+    Type getType();
+    void setType(Type type);
 
     /**
      * A list of server group names <i>or</i> host names, not both.
@@ -38,4 +43,14 @@ public interface ScopedRole extends Role {
 
     StandardRole getBaseRole();
     void setBaseRole(StandardRole role);
+
+    enum Type {HOST, SERVER_GROUP}
+
+    class Key implements ProvidesKey<ScopedRole> {
+
+        @Override
+        public Object getKey(final ScopedRole item) {
+            return item.getName();
+        }
+    }
 }

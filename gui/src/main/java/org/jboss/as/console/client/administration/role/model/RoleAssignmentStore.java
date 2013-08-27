@@ -63,6 +63,14 @@ public class RoleAssignmentStore {
         assignments.get(USER).clear();
     }
 
+    public List<RoleAssignment> getGroupAssignments() {
+        return assignments.get(GROUP);
+    }
+
+    public List<RoleAssignment> getUserAssignments() {
+        return assignments.get(USER);
+    }
+
     public void transform(PrincipalStore principals) {
         // The UI model is based on principals, so iterate over all known principals and find the relevant assignments
         for (Principal principal : principals) {

@@ -41,12 +41,12 @@ public class RoleStore implements Iterable<Role> {
 
     private final Map<String, Role> lookup;
     private final List<Role> standardRoles;
-    private final SortedSet<Role> scopedRoles;
+    private final SortedSet<ScopedRole> scopedRoles;
 
     public RoleStore() {
         lookup = new HashMap<String, Role>();
         standardRoles = new ArrayList<Role>(asList(StandardRole.values()));
-        scopedRoles = new TreeSet<Role>(new Comparator<Role>() {
+        scopedRoles = new TreeSet<ScopedRole>(new Comparator<Role>() {
             @Override
             public int compare(final Role left, final Role right) {
                 return left.getName().compareTo(right.getName());
@@ -58,7 +58,7 @@ public class RoleStore implements Iterable<Role> {
         if (role != null) {
             lookup.put(role.getName(), role);
             if (role instanceof ScopedRole) {
-                scopedRoles.add(role);
+                scopedRoles.add((ScopedRole) role);
             } else if (role instanceof StandardRole) {
                 standardRoles.add(role);
             }
@@ -81,8 +81,8 @@ public class RoleStore implements Iterable<Role> {
         return roles;
     }
 
-    public List<Role> getScopedRoles() {
-        return new ArrayList<Role>(scopedRoles);
+    public List<ScopedRole> getScopedRoles() {
+        return new ArrayList<ScopedRole>(scopedRoles);
     }
 
     public Role getRole(String name) {
