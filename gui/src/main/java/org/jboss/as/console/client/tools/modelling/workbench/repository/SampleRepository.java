@@ -42,6 +42,7 @@ public class SampleRepository implements DialogRepository
         samples.add(new UndertowExample());
         samples.add(new ServletContainerExample());
         samples.add(new UndertowServerExample());
+        samples.add(new IOSubsystemExample());
     }
 
     public List<Sample> getSamples()
