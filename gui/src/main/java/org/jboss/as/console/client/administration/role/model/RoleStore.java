@@ -87,7 +87,7 @@ public class RoleStore implements Iterable<Role> {
 
     public Role getRole(String name) {
         if (name != null) {
-            return lookup.get(name.toUpperCase());
+            return lookup.get(name);
         }
         return null;
     }

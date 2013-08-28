@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import org.jboss.as.console.client.widgets.forms.Binding;
+import java.util.Comparator;
 
 /**
  * A user or a group of a {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}
@@ -33,9 +33,7 @@ public interface Principal {
     String getRealm();
     void setRealm(String realm);
 
-    @Binding(skip = true)
-    Type getType();
-    void setType(Type type);
+    PrincipalType getType();
+    void setType(PrincipalType type);
 
-    enum Type {USER, GROUP}
 }

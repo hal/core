@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -42,10 +43,10 @@ public class AddPrincipalWizard implements IsWidget {
     private final RoleAssignmentPresenter presenter;
     private final StandardRole role;
     private final RoleAssignment roleAssignment;
-    private final Principal.Type principalType;
+    private final PrincipalType principalType;
 
     public AddPrincipalWizard(final RoleAssignmentPresenter presenter, final StandardRole role,
-            final RoleAssignment roleAssignment, final Principal.Type principalType) {
+            final RoleAssignment roleAssignment, final PrincipalType principalType) {
         this.presenter = presenter;
         this.role = role;
         this.roleAssignment = roleAssignment;

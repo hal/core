@@ -18,10 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -35,10 +34,10 @@ import java.util.TreeSet;
  */
 public class PrincipalStore implements Iterable<Principal> {
 
-    private final Map<Principal.Type, SortedSet<Principal>> principals;
+    private final Map<PrincipalType, SortedSet<Principal>> principals;
 
     public PrincipalStore() {
-        principals = new HashMap<Principal.Type, SortedSet<Principal>>();
+        principals = new HashMap<PrincipalType, SortedSet<Principal>>();
         principals.put(GROUP, new TreeSet<Principal>(new PrincipalComparator()));
         principals.put(USER, new TreeSet<Principal>(new PrincipalComparator()));
     }
@@ -74,13 +73,5 @@ public class PrincipalStore implements Iterable<Principal> {
         all.addAll(principals.get(GROUP));
         all.addAll(principals.get(USER));
         return all.iterator();
-    }
-
-    class PrincipalComparator implements Comparator<Principal> {
-
-        @Override
-        public int compare(final Principal left, final Principal right) {
-            return left.getName().compareTo(right.getName());
-        }
     }
 }

@@ -39,6 +39,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.view.client.TreeViewModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
@@ -55,7 +56,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
 
     static final RoleAssignmentTemplate ROLE_ASSIGNMENT_TEMPLATE = GWT.create(RoleAssignmentTemplate.class);
     static final PrincipalTemplate PRINCIPAL_TEMPLATES = GWT.create(PrincipalTemplate.class);
-    private final Principal.Type principalType;
+    private final PrincipalType principalType;
     private final BeanFactory beanFactory;
     private final DispatchAsync dispatcher;
     private final DefaultNodeInfo<StandardRole> level0;
@@ -65,7 +66,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
     private final SingleSelectionModel<RoleAssignment> roleAssignmentSelectionModel;
     private final SingleSelectionModel<Principal> principalSelectionModel;
 
-    public RoleAssignmentTreeModel(final Principal.Type principalType, final BeanFactory beanFactory,
+    public RoleAssignmentTreeModel(final PrincipalType principalType, final BeanFactory beanFactory,
             final DispatchAsync dispatcher) {
         this.principalType = principalType;
         this.beanFactory = beanFactory;
@@ -285,7 +286,7 @@ public class RoleAssignmentTreeModel implements TreeViewModel {
                 if (principalNode.get("realm").isDefined()) {
                     principal.setRealm(principalNode.get("realm").asString());
                 }
-                principal.setType(Principal.Type.valueOf(principalNode.get("type").asString()));
+                principal.setType(PrincipalType.valueOf(principalNode.get("type").asString()));
 //                principal.setInclude(include);
                 principals.add(principal);
             }

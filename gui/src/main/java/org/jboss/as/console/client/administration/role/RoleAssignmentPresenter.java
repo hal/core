@@ -18,8 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
@@ -38,9 +37,11 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
 import org.jboss.as.console.client.administration.role.model.RoleStore;
+import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.message.Message;
@@ -55,6 +56,7 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.DispatchRequest;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
@@ -80,6 +82,7 @@ public class RoleAssignmentPresenter
     private final RoleAssignmentStore assignments;
     private final RoleStore roles;
     private DefaultWindow window;
+    private DispatchRequest request;
 
 
     @Inject
@@ -110,11 +113,12 @@ public class RoleAssignmentPresenter
     protected void onReset() {
         super.onReset();
 
-        principals.clear();
-        assignments.clear();
-        roles.clear();
-
-        loadRolesAndMapping();
+        if (request == null || !request.isPending()) {
+            principals.clear();
+            assignments.clear();
+            roles.clear();
+            loadRolesAndMapping();
+        }
     }
 
     private void loadRolesAndMapping() {
@@ -146,7 +150,7 @@ public class RoleAssignmentPresenter
         steps.add(mappingOp);
 
         operation.get(STEPS).set(steps);
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        request = dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(final DMRResponse result) {
                 ModelNode response = result.get();
@@ -156,11 +160,11 @@ public class RoleAssignmentPresenter
                     // the order of processing is important!
                     List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                     for (ModelNode node : hostScopedRoles) {
-                        addScopedRole(node.asProperty(), "hosts", ScopedRole.Type.HOST);
+                        addScopedRole(node.asProperty(), "hosts", ScopeType.HOST);
                     }
                     List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                     for (ModelNode node : serverGroupScopedRoles) {
-                        addScopedRole(node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
+                        addScopedRole(node.asProperty(), "server-groups", ScopeType.SERVER_GROUP);
                     }
                     List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
                     for (ModelNode node : roleMappings) {
@@ -175,7 +179,7 @@ public class RoleAssignmentPresenter
         });
     }
 
-    private void addScopedRole(final Property property, final String scopeName, final ScopedRole.Type type) {
+    private void addScopedRole(final Property property, final String scopeName, final ScopeType type) {
         ScopedRole scopedRole = beanFactory.scopedRole().as();
         scopedRole.setName(property.getName());
         scopedRole.setType(type);
@@ -193,6 +197,7 @@ public class RoleAssignmentPresenter
     }
 
     private void addManagementModelRoleAssignment(final Property property) {
+        boolean add = true;
         String roleName = property.getName();
         Role role = roles.getRole(roleName);
         if (role != null) {
@@ -205,23 +210,23 @@ public class RoleAssignmentPresenter
                     managementModel.include(principal);
                 }
             } else {
-                return; // no empty inclusions (see constraints)!
+                // don't add this model, but goon so that principals in "exclude" will get extracted
+                add = false;
             }
             if (assignmentNode.hasDefined("exclude")) {
                 List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
                 for (Property exclusion : exclusions) {
                     Principal principal = mapPrincipal(exclusion.getValue());
-                    managementModel.exclude(principal);
+                    if (principal.getType() == USER) {
+                        // exclude only users (see constraints)
+                        managementModel.exclude(principal);
+                    }
                 }
             }
-
-            // check other constraints
-            for (Principal principal : managementModel.getExcludes()) {
-                if (principal.getType() == GROUP) {
-                    return;
-                }
+            if (add) {
+                // add only if all constraints are met
+                assignments.add(managementModel);
             }
-            assignments.add(managementModel);
         }
     }
 
@@ -231,14 +236,14 @@ public class RoleAssignmentPresenter
         if (node.hasDefined("realm")) {
             principal.setRealm(node.get("realm").asString());
         }
-        Principal.Type type = Principal.Type.valueOf(node.get("type").asString());
+        PrincipalType type = PrincipalType.valueOf(node.get("type").asString());
         principal.setType(type);
         principals.add(principal);
         return principal;
     }
 
     public void launchAddDialg(final StandardRole role, final RoleAssignment roleAssignment,
-            final Principal.Type principalType) {
+            final PrincipalType principalType) {
         String title = principalType == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);

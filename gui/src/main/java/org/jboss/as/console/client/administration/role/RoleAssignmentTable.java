@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,6 +38,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.Role;
@@ -51,12 +52,12 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 public class RoleAssignmentTable implements IsWidget {
 
     final static RoleAssignmentTemplates TEMPLATES = GWT.create(RoleAssignmentTemplates.class);
-    private final Principal.Type type;
+    private final PrincipalType type;
     private DefaultCellTable<RoleAssignment> table;
     private ListDataProvider<RoleAssignment> dataProvider;
     private SingleSelectionModel<RoleAssignment> selectionModel;
 
-    public RoleAssignmentTable(final Principal.Type type) {this.type = type;}
+    public RoleAssignmentTable(final PrincipalType type) {this.type = type;}
 
     public Widget asWidget() {
         VerticalPanel content = new VerticalPanel();
@@ -70,21 +71,21 @@ public class RoleAssignmentTable implements IsWidget {
         table.setSelectionModel(selectionModel);
 
         // columns
-        TextColumn<RoleAssignment> nameColumn = new TextColumn<RoleAssignment>() {
-            @Override
-            public String getValue(RoleAssignment assignment) {
-                return assignment.getPrincipal().getName();
-            }
-        };
-        Column<RoleAssignment, RoleAssignment> roleColumn = new
-
-                Column<RoleAssignment, RoleAssignment>(new RoleCell()) {
+        Column<RoleAssignment, RoleAssignment> principalColumn =
+                new Column<RoleAssignment, RoleAssignment>(new PrincipalCell()) {
                     @Override
                     public RoleAssignment getValue(final RoleAssignment assignment) {
                         return assignment;
                     }
                 };
-        table.addColumn(nameColumn,
+        Column<RoleAssignment, RoleAssignment> roleColumn =
+                new Column<RoleAssignment, RoleAssignment>(new RoleCell()) {
+                    @Override
+                    public RoleAssignment getValue(final RoleAssignment assignment) {
+                        return assignment;
+                    }
+                };
+        table.addColumn(principalColumn,
                 type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user());
         table.addColumn(roleColumn, Console.CONSTANTS.common_label_roles());
         if (type == GROUP) {
@@ -92,11 +93,13 @@ public class RoleAssignmentTable implements IsWidget {
                 @Override
                 public String getValue(final RoleAssignment assignment) {
                     StringBuilder excludes = new StringBuilder();
-                    for (Iterator<Principal> iterator = assignment.getExcludes().iterator(); iterator.hasNext(); ) {
-                        Principal principal = iterator.next();
-                        excludes.append(principal.getName());
-                        if (iterator.hasNext()) {
-                            excludes.append(", ");
+                    if (assignment.getExcludes() != null) {
+                        for (Iterator<Principal> iterator = assignment.getExcludes().iterator(); iterator.hasNext(); ) {
+                            Principal principal = iterator.next();
+                            excludes.append(principal.getName());
+                            if (iterator.hasNext()) {
+                                excludes.append(", ");
+                            }
                         }
                     }
                     return excludes.toString();
@@ -121,11 +124,30 @@ public class RoleAssignmentTable implements IsWidget {
 
     interface RoleAssignmentTemplates extends SafeHtmlTemplates {
 
-        @Template("<div>{0}</div>")
-        SafeHtml role(SafeHtml role);
+        @Template("<span>{0}</span>")
+        SafeHtml principal(String principal);
 
-        @Template("<div>{0}<span class=\"role_scope\">Scoped to {1}</span></div>")
-        SafeHtml scopedRole(SafeHtml role, SafeHtml scope);
+        @Template("<span title=\"realm '{1}'\">{0} <span class=\"admin-principal-realm\">@{1}</span></span>")
+        SafeHtml principalAtRealm(String principal, String realm);
+
+        @Template("<span>{0}</span>")
+        SafeHtml role(String role);
+
+        @Template("<span title=\"based on '{1}' scoped to '{2}'\">{0} <span class=\"admin-role-scope\">[{2}]</span></span>")
+        SafeHtml scopedRole(String role, String baseRole, String scope);
+    }
+
+    static class PrincipalCell extends AbstractCell<RoleAssignment> {
+
+        @Override
+        public void render(final Context context, final RoleAssignment assignment, final SafeHtmlBuilder builder) {
+            Principal principal = assignment.getPrincipal();
+            if (principal.getRealm() != null) {
+                builder.append(TEMPLATES.principalAtRealm(principal.getName(), principal.getRealm()));
+            } else {
+                builder.append(TEMPLATES.principal(principal.getName()));
+            }
+        }
     }
 
     static class RoleCell extends AbstractCell<RoleAssignment> {
@@ -133,21 +155,24 @@ public class RoleAssignmentTable implements IsWidget {
         @Override
         public void render(final Context context, final RoleAssignment assignment, final SafeHtmlBuilder builder) {
             List<Role> roles = assignment.getRoles();
-            for (Role role : roles) {
+            for (Iterator<Role> roleIter = roles.iterator(); roleIter.hasNext(); ) {
+                Role role = roleIter.next();
                 if (role instanceof StandardRole) {
-                    builder.append(TEMPLATES.role(SafeHtmlUtils.fromString(role.getName())));
+                    builder.append(TEMPLATES.role(role.getName()));
                 } else if (role instanceof ScopedRole) {
                     ScopedRole scopedRole = (ScopedRole) role;
                     StringBuilder scopes = new StringBuilder();
-                    for (Iterator<String> iterator = scopedRole.getScope().iterator(); iterator.hasNext(); ) {
-                        String scope = iterator.next();
+                    for (Iterator<String> scopeIter = scopedRole.getScope().iterator(); scopeIter.hasNext(); ) {
+                        String scope = scopeIter.next();
                         scopes.append(scope);
-                        if (iterator.hasNext()) {
+                        if (scopeIter.hasNext()) {
                             scopes.append(", ");
                         }
                     }
-                    builder.append(TEMPLATES.scopedRole(SafeHtmlUtils.fromString(role.getName()),
-                            SafeHtmlUtils.fromString(scopes.toString())));
+                    builder.append(TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().name(), scopes.toString()));
+                }
+                if (roleIter.hasNext()) {
+                    builder.append(SafeHtmlUtils.fromString(", "));
                 }
             }
         }

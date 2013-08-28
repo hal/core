@@ -18,37 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import java.util.List;
-
-import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
-
 /**
  * @author Harald Pehl
  */
-public interface ScopedRole extends Role {
-
-    String getName();
-    void setName(String name);
-
-    ScopeType getType();
-    void setType(ScopeType type);
-
-    /**
-     * A list of server group names <i>or</i> host names, not both.
-     */
-    List<String> getScope();
-    void setScope(List<String> scope);
-
-    StandardRole getBaseRole();
-    void setBaseRole(StandardRole role);
-
-    class Key implements ProvidesKey<ScopedRole> {
-
-        @Override
-        public Object getKey(final ScopedRole item) {
-            return item.getName();
-        }
-    }
+public enum PrincipalType {
+    USER, GROUP
 }

@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -41,7 +42,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
  */
 public class RoleAssignmentEditor implements IsWidget {
 
-    private final Principal.Type principalType;
+    private final PrincipalType principalType;
     private final BeanFactory beanFactory;
     private final DispatchAsync dispatcher;
     private RoleAssignmentPresenter presenter;
@@ -50,7 +51,7 @@ public class RoleAssignmentEditor implements IsWidget {
     private ToolButton deleteButton;
 
 
-    public RoleAssignmentEditor(final Principal.Type principalType, final BeanFactory beanFactory,
+    public RoleAssignmentEditor(final PrincipalType principalType, final BeanFactory beanFactory,
             final DispatchAsync dispatcher) {
         this.principalType = principalType;
         this.beanFactory = beanFactory;
@@ -83,9 +84,9 @@ public class RoleAssignmentEditor implements IsWidget {
         DefaultCellBrowser cellBrowser = new DefaultCellBrowser.Builder(treeModel, null).build();
         cellBrowser.setHeight("250px");
 
-        String add = principalType == Principal.Type.USER ? Console.CONSTANTS.role_assignment_add_user() : Console
+        String add = principalType == PrincipalType.USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
-        String delete = principalType == Principal.Type.USER ? Console.CONSTANTS.role_assignment_delete_user() : Console
+        String delete = principalType == PrincipalType.USER ? Console.CONSTANTS.role_assignment_delete_user() : Console
                 .CONSTANTS.role_assignment_delete_group();
 
         ToolStrip tools = new ToolStrip();
@@ -111,7 +112,7 @@ public class RoleAssignmentEditor implements IsWidget {
                 final RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
                 final Principal principal = treeModel.getPrincipalSelectionModel().getSelectedObject();
                 if (role != null && roleAssignment != null && principal != null) {
-                    String principalTypeName = principalType == Principal.Type.USER ? Console.CONSTANTS
+                    String principalTypeName = principalType == PrincipalType.USER ? Console.CONSTANTS
                             .common_label_user() : Console.CONSTANTS.common_label_group();
                     Feedback.confirm(
                             Console.MESSAGES.deleteTitle(principal.getName()),

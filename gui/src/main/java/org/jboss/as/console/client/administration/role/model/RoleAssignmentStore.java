@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,13 +35,15 @@ import org.jboss.as.console.client.shared.BeanFactory;
 public class RoleAssignmentStore {
 
     private final BeanFactory beanFactory;
+    private final Map<String, RoleAssignment> lookup;
     private final List<RoleAssignment.ManagementModel> models;
-    private final Map<Principal.Type, List<RoleAssignment>> assignments;
+    private final Map<PrincipalType, List<RoleAssignment>> assignments;
 
     public RoleAssignmentStore(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
+        this.lookup = new HashMap<String, RoleAssignment>();
         this.models = new ArrayList<RoleAssignment.ManagementModel>();
-        this.assignments = new HashMap<Principal.Type, List<RoleAssignment>>();
+        this.assignments = new HashMap<PrincipalType, List<RoleAssignment>>();
         this.assignments.put(GROUP, new ArrayList<RoleAssignment>());
         this.assignments.put(USER, new ArrayList<RoleAssignment>());
     }
@@ -52,12 +54,25 @@ public class RoleAssignmentStore {
 
     public void add(RoleAssignment roleAssignment) {
         if (roleAssignment != null && roleAssignment.getPrincipal() != null) {
-            List<RoleAssignment> list = assignments.get(roleAssignment.getPrincipal().getType());
-            list.add(roleAssignment);
+            RoleAssignment existingAssignment = lookup.get(roleAssignment.getId());
+            if (existingAssignment == null) {
+                lookup.put(roleAssignment.getId(), roleAssignment);
+                List<RoleAssignment> list = assignments.get(roleAssignment.getPrincipal().getType());
+                list.add(roleAssignment);
+            } else {
+                existingAssignment.getRoles().addAll(roleAssignment.getRoles());
+                if (roleAssignment.getExcludes() != null) {
+                    if (existingAssignment.getExcludes() == null) {
+                        existingAssignment.setExcludes(new ArrayList<Principal>());
+                    }
+                    existingAssignment.getExcludes().addAll(roleAssignment.getExcludes());
+                }
+            }
         }
     }
 
     public void clear() {
+        lookup.clear();
         models.clear();
         assignments.get(GROUP).clear();
         assignments.get(USER).clear();
@@ -75,37 +90,32 @@ public class RoleAssignmentStore {
         // The UI model is based on principals, so iterate over all known principals and find the relevant assignments
         for (Principal principal : principals) {
             for (RoleAssignment.ManagementModel managementModel : models) {
-                boolean match = false;
                 for (Principal include : managementModel.getIncludes()) {
                     if (include.getName().equals(principal.getName())) {
-                        match = true;
-                        break;
-                    }
-                }
-                if (match) {
-                    RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
-                    StringBuilder id = new StringBuilder();
-                    id.append(principal.getType().name().toLowerCase()).append("-").append(principal.getName());
-                    if (principal.getRealm() != null) {
-                        id.append("@").append(principal.getRealm());
-                    }
-                    roleAssignment.setId(id.toString());
-                    roleAssignment.setPrincipal(principal);
-                    if (roleAssignment.getRoles() == null) {
-                        roleAssignment.setRoles(new ArrayList<Role>());
-                    }
-                    roleAssignment.getRoles().add(managementModel.getRole());
-                    if (principal.getType() == GROUP) {
-                        for (Principal exclude : managementModel.getExcludes()) {
-                            if (exclude.getType() == USER) {
-                                if (roleAssignment.getExcludes() == null) {
-                                    roleAssignment.setExcludes(new ArrayList<Principal>());
+                        StringBuilder id = new StringBuilder();
+                        id.append(include.getType().name().toLowerCase()).append("-").append(include.getName());
+                        if (include.getRealm() != null) {
+                            id.append("@").append(include.getRealm());
+                        }
+                        RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
+                        roleAssignment.setId(id.toString());
+                        roleAssignment.setPrincipal(include);
+                        if (roleAssignment.getRoles() == null) {
+                            roleAssignment.setRoles(new ArrayList<Role>());
+                        }
+                        roleAssignment.getRoles().add(managementModel.getRole());
+                        if (principal.getType() == GROUP) {
+                            for (Principal exclude : managementModel.getExcludes()) {
+                                if (exclude.getType() == USER) {
+                                    if (roleAssignment.getExcludes() == null) {
+                                        roleAssignment.setExcludes(new ArrayList<Principal>());
+                                    }
+                                    roleAssignment.getExcludes().add(exclude);
                                 }
-                                roleAssignment.getExcludes().add(exclude);
                             }
                         }
+                        add(roleAssignment);
                     }
-                    add(roleAssignment);
                 }
             }
         }

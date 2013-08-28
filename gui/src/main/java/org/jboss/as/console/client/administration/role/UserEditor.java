@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
 import java.util.List;
 

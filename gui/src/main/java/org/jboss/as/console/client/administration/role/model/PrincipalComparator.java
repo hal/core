@@ -18,37 +18,17 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import java.util.List;
-
-import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
+import java.util.Comparator;
 
 /**
- * @author Harald Pehl
- */
-public interface ScopedRole extends Role {
+* @author Harald Pehl
+*/
+public class PrincipalComparator implements Comparator<Principal> {
 
-    String getName();
-    void setName(String name);
+    public PrincipalComparator() {}
 
-    ScopeType getType();
-    void setType(ScopeType type);
-
-    /**
-     * A list of server group names <i>or</i> host names, not both.
-     */
-    List<String> getScope();
-    void setScope(List<String> scope);
-
-    StandardRole getBaseRole();
-    void setBaseRole(StandardRole role);
-
-    class Key implements ProvidesKey<ScopedRole> {
-
-        @Override
-        public Object getKey(final ScopedRole item) {
-            return item.getName();
-        }
+    @Override
+    public int compare(final Principal left, final Principal right) {
+        return left.getName().compareTo(right.getName());
     }
 }

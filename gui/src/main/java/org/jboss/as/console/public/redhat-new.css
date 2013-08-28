@@ -2424,3 +2424,11 @@ input[type="checkbox"] {
 .rbac-diagnostics {
 
 }
+
+.admin-principal-realm {
+    color: #A4A4A4;
+}
+
+.admin-role-scope {
+    color: #A4A4A4;
+}
