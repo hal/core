@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import java.util.Comparator;
-
 /**
  * A user or a group of a {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}
  *
@@ -35,5 +33,4 @@ public interface Principal {
 
     PrincipalType getType();
     void setType(PrincipalType type);
-
 }

@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.administration.role;
 
-import java.util.List;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -11,7 +9,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
+import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
+import org.jboss.as.console.client.administration.role.model.RoleStore;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -65,7 +65,7 @@ public class ScopedRoleEditor implements IsWidget {
         return layout;
     }
 
-    public void setRoles(final List<ScopedRole> roles) {
-        table.setRoles(roles);
+    public void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles) {
+        table.setRoles(roles.getScopedRoles());
     }
 }

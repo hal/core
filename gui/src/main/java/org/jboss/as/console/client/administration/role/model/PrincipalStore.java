@@ -21,8 +21,10 @@ package org.jboss.as.console.client.administration.role.model;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -73,5 +75,9 @@ public class PrincipalStore implements Iterable<Principal> {
         all.addAll(principals.get(GROUP));
         all.addAll(principals.get(USER));
         return all.iterator();
+    }
+
+    public List<Principal> get(PrincipalType type) {
+        return new ArrayList<Principal>(principals.get(type));
     }
 }

@@ -84,6 +84,7 @@ public class RoleAssignmentPresenter
     private DefaultWindow window;
     private DispatchRequest request;
 
+    // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public RoleAssignmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
@@ -120,6 +121,8 @@ public class RoleAssignmentPresenter
             loadRolesAndMapping();
         }
     }
+
+    // ------------------------------------------------------ read management model
 
     private void loadRolesAndMapping() {
         // load scoped roles (hosts and server groups)
@@ -160,11 +163,11 @@ public class RoleAssignmentPresenter
                     // the order of processing is important!
                     List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                     for (ModelNode node : hostScopedRoles) {
-                        addScopedRole(node.asProperty(), "hosts", ScopeType.HOST);
+                        addScopedRole(node.asProperty(), "hosts", ScopeType.host);
                     }
                     List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                     for (ModelNode node : serverGroupScopedRoles) {
-                        addScopedRole(node.asProperty(), "server-groups", ScopeType.SERVER_GROUP);
+                        addScopedRole(node.asProperty(), "server-groups", ScopeType.serverGroup);
                     }
                     List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
                     for (ModelNode node : roleMappings) {
@@ -173,7 +176,7 @@ public class RoleAssignmentPresenter
                     // All entities are read - now transform the role assignements from the management model to
                     // role assignments used in the UI and update the view
                     assignments.transform(principals);
-                    getView().update(assignments, roles);
+                    getView().update(principals, assignments, roles);
                 }
             }
         });
@@ -242,6 +245,22 @@ public class RoleAssignmentPresenter
         return principal;
     }
 
+    // ------------------------------------------------------ callback methods triggered by the view
+
+    public void onAddRoleAssignment(final PrincipalType type) {
+
+    }
+
+    public void onRemoveRoleAssignment(final RoleAssignment selectedAssignment) {
+
+    }
+
+    public void onExcludeUsers(final RoleAssignment selectedAssignment) {
+
+    }
+
+    // ------------------------------------------------------ deprecated
+
     public void launchAddDialg(final StandardRole role, final RoleAssignment roleAssignment,
             final PrincipalType principalType) {
         String title = principalType == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
@@ -305,6 +324,8 @@ public class RoleAssignmentPresenter
         }
     }
 
+    // ------------------------------------------------------ proxy and view
+
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
     @AccessControl(resources = {"/core-service=management/access=authorization"})
@@ -313,8 +334,8 @@ public class RoleAssignmentPresenter
 
     public interface MyView extends View {
 
-        void setPresenter(RoleAssignmentPresenter presenter);
+        void setPresenter(final RoleAssignmentPresenter presenter);
 
-        void update(RoleAssignmentStore assignments, RoleStore roles);
+        void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles);
     }
 }

@@ -22,5 +22,5 @@ package org.jboss.as.console.client.administration.role.model;
  * @author Harald Pehl
  */
 public enum ScopeType {
-    HOST, SERVER_GROUP
+    host, serverGroup
 }

@@ -18,15 +18,15 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import java.util.Comparator;
+import com.google.gwt.view.client.ProvidesKey;
 
 /**
-* @author Harald Pehl
-*/
-public class PrincipalComparator implements Comparator<Principal> {
+ * @author Harald Pehl
+ */
+public class PrincipalKey implements ProvidesKey<Principal> {
 
     @Override
-    public int compare(final Principal left, final Principal right) {
-        return left.getName().compareTo(right.getName());
+    public Object getKey(final Principal item) {
+        return item.getType() + "-" + item.getName();
     }
 }

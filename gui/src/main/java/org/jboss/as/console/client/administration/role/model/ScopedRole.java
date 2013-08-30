@@ -20,7 +20,6 @@ package org.jboss.as.console.client.administration.role.model;
 
 import java.util.List;
 
-import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 
@@ -43,12 +42,4 @@ public interface ScopedRole extends Role {
 
     StandardRole getBaseRole();
     void setBaseRole(StandardRole role);
-
-    class Key implements ProvidesKey<ScopedRole> {
-
-        @Override
-        public Object getKey(final ScopedRole item) {
-            return item.getName();
-        }
-    }
 }

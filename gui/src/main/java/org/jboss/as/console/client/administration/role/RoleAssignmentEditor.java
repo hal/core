@@ -1,160 +1,109 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
- * as indicated by the @author tags. All rights reserved.
- * See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU Lesser General Public License, v. 2.1.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public License,
- * v.2.1 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA  02110-1301, USA.
- */
 package org.jboss.as.console.client.administration.role;
 
-import com.allen_sauer.gwt.log.client.Log;
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
+
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.PrincipalStore;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.rbac.StandardRole;
+import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
+import org.jboss.as.console.client.administration.role.model.RoleStore;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.widgets.browser.DefaultCellBrowser;
+import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.ballroom.client.widgets.ContentGroupLabel;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Harald Pehl
  */
 public class RoleAssignmentEditor implements IsWidget {
 
-    private final PrincipalType principalType;
+    private final PrincipalType type;
+    private final RoleAssignmentPresenter presenter;
     private final BeanFactory beanFactory;
-    private final DispatchAsync dispatcher;
-    private RoleAssignmentPresenter presenter;
-    private RoleAssignmentTreeModel treeModel;
-    private ToolButton addButton;
-    private ToolButton deleteButton;
+    private RoleAssignmentTable table;
+    private RoleAssignmentDetails details;
 
-
-    public RoleAssignmentEditor(final PrincipalType principalType, final BeanFactory beanFactory,
-            final DispatchAsync dispatcher) {
-        this.principalType = principalType;
+    public RoleAssignmentEditor(final PrincipalType type, final RoleAssignmentPresenter presenter,
+            final BeanFactory beanFactory) {
+        this.presenter = presenter;
+        this.type = type;
         this.beanFactory = beanFactory;
-        this.dispatcher = dispatcher;
     }
 
     @Override
     public Widget asWidget() {
+        // container and panels
+        LayoutPanel layout = new LayoutPanel();
+        VerticalPanel content = new VerticalPanel();
+        content.setStyleName("rhs-content-panel");
+        ScrollPanel scroll = new ScrollPanel(content);
+        layout.add(scroll);
+        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
-        treeModel = new RoleAssignmentTreeModel(principalType, beanFactory, dispatcher);
-        treeModel.getRoleSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(final SelectionChangeEvent event) {
-                treeModel.getPrincipalSelectionModel().clear();
-                updateToolButtons();
-            }
-        });
-        treeModel.getRoleAssignmentSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(final SelectionChangeEvent event) {
-                updateToolButtons();
-            }
-        });
-        treeModel.getPrincipalSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(final SelectionChangeEvent event) {
-                updateToolButtons();
-            }
-        });
-        DefaultCellBrowser cellBrowser = new DefaultCellBrowser.Builder(treeModel, null).build();
-        cellBrowser.setHeight("250px");
+        // header and desc
+        String header;
+        String description;
+        if (type == GROUP) {
+            header = Console.CONSTANTS.common_label_groups();
+            description = Console.CONSTANTS.administration_group_assignment();
+        } else {
+            header = Console.CONSTANTS.common_label_users();
+            description = Console.CONSTANTS.administration_user_assignment();
+        }
+        content.add(new ContentHeaderLabel(header));
+        content.add(new ContentDescription(description));
 
-        String add = principalType == PrincipalType.USER ? Console.CONSTANTS.role_assignment_add_user() : Console
-                .CONSTANTS.role_assignment_add_group();
-        String delete = principalType == PrincipalType.USER ? Console.CONSTANTS.role_assignment_delete_user() : Console
-                .CONSTANTS.role_assignment_delete_group();
-
+        // toolstrip
         ToolStrip tools = new ToolStrip();
-        addButton = new ToolButton(add, new ClickHandler() {
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                StandardRole role = treeModel.getRoleSelectionModel().getSelectedObject();
-                RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
-                if (role != null && roleAssignment != null) {
-                    presenter.launchAddDialg(role, roleAssignment, principalType);
-                } else {
-                    // TODO Change this to a console message?
-                    Log.warn("No role or no includes/excludes selected");
-                }
+                presenter.onAddRoleAssignment(type);
             }
-        });
-        addButton.setEnabled(false);
-        tools.addToolButtonRight(addButton);
-        deleteButton = new ToolButton(delete, new ClickHandler() {
+        }));
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final StandardRole role = treeModel.getRoleSelectionModel().getSelectedObject();
-                final RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
-                final Principal principal = treeModel.getPrincipalSelectionModel().getSelectedObject();
-                if (role != null && roleAssignment != null && principal != null) {
-                    String principalTypeName = principalType == PrincipalType.USER ? Console.CONSTANTS
-                            .common_label_user() : Console.CONSTANTS.common_label_group();
-                    Feedback.confirm(
-                            Console.MESSAGES.deleteTitle(principal.getName()),
-                            Console.MESSAGES.deleteConfirm(principalTypeName + " " + principal.getName()),
-                            new Feedback.ConfirmationHandler() {
-                                @Override
-                                public void onConfirmation(boolean isConfirmed) {
-                                    if (isConfirmed) {
-                                        presenter.onDelete(role, roleAssignment, principal);
-                                    }
-                                }
-                            });
-                } else {
-                    // TODO Change this to a console message?
-                    Log.warn("No role or no includes/excludes or no principal selected");
-                }
+                presenter.onRemoveRoleAssignment(table.getSelectedAssignment());
             }
-        });
-        deleteButton.setEnabled(false);
-        tools.addToolButtonRight(deleteButton);
+        }));
+        if (type == GROUP) {
+            tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_exclude(), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    presenter.onExcludeUsers(table.getSelectedAssignment());
+                }
+            }));
+        }
+        content.add(tools.asWidget());
 
-        VerticalPanel vpanel = new VerticalPanel();
-        vpanel.setStyleName("rhs-content-panel");
-        vpanel.add(tools);
-        vpanel.add(cellBrowser);
-        return vpanel;
+        // table
+        table = new RoleAssignmentTable(type);
+        content.add(table);
+
+        // details
+        details = new RoleAssignmentDetails(type, presenter, beanFactory);
+        details.bind(table.getCellTable());
+        content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
+        content.add(details);
+
+        return layout;
     }
 
-    private void updateToolButtons() {
-        StandardRole role = treeModel.getRoleSelectionModel().getSelectedObject();
-        RoleAssignment roleAssignment = treeModel.getRoleAssignmentSelectionModel().getSelectedObject();
-        Principal principal = treeModel.getPrincipalSelectionModel().getSelectedObject();
-
-        addButton.setEnabled(role != null && roleAssignment != null);
-        deleteButton.setEnabled(role != null && roleAssignment != null && principal != null);
-    }
-
-    public void setPresenter(final RoleAssignmentPresenter presenter) {
-        this.presenter = presenter;
-    }
-
-    public void refresh() {
-        treeModel.refreshRoleAssignments();
+    public void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles) {
+        if (table != null && details != null) {
+            table.setAssignments(assignments);
+            details.update(principals, assignments, roles);
+        }
     }
 }

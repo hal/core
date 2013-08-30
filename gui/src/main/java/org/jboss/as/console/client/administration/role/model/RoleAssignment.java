@@ -21,7 +21,6 @@ package org.jboss.as.console.client.administration.role.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.Role;
 
 /**
@@ -43,17 +42,9 @@ public interface RoleAssignment {
     List<Principal> getExcludes();
     void setExcludes(List<Principal> principals);
 
-    class Key implements ProvidesKey<RoleAssignment> {
-
-        @Override
-        public Object getKey(final RoleAssignment item) {
-            return item.getId();
-        }
-    }
-
     /**
-     * The role maping based on the management model. This is kind of a helper class used to read the role mapping from
-     * the management model and transform that into instances of
+     * The role maping as used in the management model. This is a kind of helper class used to read the role mapping
+     * from the management model. After that the data is transformed into instances of
      * {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}.
      *
      * @author Harald Pehl

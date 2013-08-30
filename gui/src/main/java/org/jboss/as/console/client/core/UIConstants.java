@@ -668,8 +668,10 @@ public interface UIConstants extends Constants {
     String administration_audit_log();
     String administration_audit_log_desc();
     String administration_audit_access();
+    String administration_scope();
     String administration_scoped_roles();
     String administration_scoped_roles_desc();
     String administration_group_assignment();
     String administration_user_assignment();
+    String administration_principals_form_item();
 }

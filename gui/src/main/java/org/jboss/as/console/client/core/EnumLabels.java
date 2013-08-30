@@ -40,4 +40,6 @@ public interface EnumLabels extends ConstantsWithLookup
     String DeploymentData_persistenceUnit();
     String DeploymentData_servlet();
     String DeploymentData_webserviceEndpoint();
+    String ScopeType_host();
+    String ScopeType_serverGroup();
 }
