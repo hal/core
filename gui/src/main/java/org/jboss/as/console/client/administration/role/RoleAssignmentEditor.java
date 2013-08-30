@@ -68,23 +68,15 @@ public class RoleAssignmentEditor implements IsWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onAddRoleAssignment(type);
+                presenter.launchAddRoleAssignmentDialg(type);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onRemoveRoleAssignment(table.getSelectedAssignment());
+                presenter.removeRoleAssignment(table.getSelectedAssignment());
             }
         }));
-        if (type == GROUP) {
-            tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_exclude(), new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    presenter.onExcludeUsers(table.getSelectedAssignment());
-                }
-            }));
-        }
         content.add(tools.asWidget());
 
         // table

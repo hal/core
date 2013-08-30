@@ -26,7 +26,6 @@ import java.util.Map;
 
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -35,6 +34,7 @@ import org.jboss.as.console.client.administration.role.model.PrincipalStore;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
 
 /**
  * Could be replaced by something like http://demo.raibledesigns.com/gwt-autocomplete/
@@ -48,10 +48,12 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
     private final Map<String, Principal> cache;
     private final BeanFactory beanFactory;
     private TextArea textArea;
+    private InputElementWrapper wrapper;
 
     public PrincipalsFormItem(final PrincipalType type, final String name, final String title,
             final BeanFactory beanFactory) {
         super(name, title);
+
         this.type = type;
         this.beanFactory = beanFactory;
         this.value = new ArrayList<Principal>();
@@ -76,6 +78,7 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
                 parseValue(newValue);
             }
         });
+        wrapper = new InputElementWrapper(textArea, this);
     }
 
     private void parseValue(final String newValue) {
@@ -101,10 +104,15 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
 
     @Override
     public Widget asWidget() {
-        HorizontalPanel wrapper = new HorizontalPanel();
-        wrapper.add(textArea);
-        textArea.getElement().getParentElement().setAttribute("class", "form-input");
         return wrapper;
+    }
+
+    @Override
+    public void setFiltered(boolean filtered) {
+        super.setFiltered(filtered);
+        super.toggleAccessConstraint(textArea, filtered);
+        textArea.setEnabled(!filtered);
+        wrapper.setConstraintsApply(filtered);
     }
 
     @Override
@@ -112,6 +120,16 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
         textArea.setEnabled(b);
     }
 
+    @Override
+    public void setErroneous(boolean b) {
+        super.setErroneous(b);
+        wrapper.setErroneous(b);
+    }
+
+    @Override
+    protected void toggleExpressionInput(Widget target, boolean flag) {
+        wrapper.setExpression(flag);
+    }
     @Override
     public boolean validate(final List<Principal> value) {
         return true;
@@ -169,8 +187,10 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
     public void update(final PrincipalStore principals) {
         cache.clear();
         List<Principal> byType = principals.get(type);
-        for (Principal principal : byType) {
-            cache.put(principal.getName(), principal);
+        if (byType != null) {
+            for (Principal principal : byType) {
+                cache.put(principal.getName(), principal);
+            }
         }
     }
 }

@@ -39,11 +39,11 @@ import org.jboss.gwt.flow.client.Outcome;
 /**
  * @author Harald Pehl
  */
-public class AddPrincipalOperation {
+public class AddRoleAssignmentOperation {
 
     private final DispatchAsync dispatcher;
 
-    public AddPrincipalOperation(final DispatchAsync dispatcher) {this.dispatcher = dispatcher;}
+    public AddRoleAssignmentOperation(final DispatchAsync dispatcher) {this.dispatcher = dispatcher;}
 
     public void extecute(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal,
             final Outcome<Stack<Boolean>> outcome) {

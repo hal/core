@@ -65,6 +65,11 @@ public class RoleAssignmentDetails implements IsWidget {
                 new FormToolStrip.FormCallback<RoleAssignment>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
+                        boolean noRoles = rolesItem.getValue().isEmpty();
+                        rolesItem.setErroneous(noRoles);
+                        if (!noRoles) {
+                            presenter.saveRoleAssignment(form.getEditedEntity(), form.getChangedValues());
+                        }
                     }
 
                     @Override
@@ -74,11 +79,11 @@ public class RoleAssignmentDetails implements IsWidget {
         toolStrip.providesDeleteOp(false);
         content.add(toolStrip.asWidget());
 
-        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
+        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 6);
+        rolesItem.setRequired(true);
         if (type == GROUP) {
             excludesItem = new PrincipalsFormItem(type, "excludes", Console.CONSTANTS.common_label_exclude(),
-                    beanFactory
-            );
+                    beanFactory);
             form.setFields(rolesItem, excludesItem);
         } else {
             form.setFields(rolesItem);

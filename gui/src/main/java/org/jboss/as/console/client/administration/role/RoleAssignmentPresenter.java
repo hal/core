@@ -18,12 +18,14 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import com.google.inject.Inject;
@@ -247,38 +249,38 @@ public class RoleAssignmentPresenter
 
     // ------------------------------------------------------ callback methods triggered by the view
 
-    public void onAddRoleAssignment(final PrincipalType type) {
+    public void launchAddRoleAssignmentDialg(final PrincipalType type) {
+        String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
+                .CONSTANTS.role_assignment_add_group();
+        window = new DefaultWindow(title);
+        window.setWidth(480);
+        window.setHeight(type == GROUP ? 620 : 530);
+        AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(type, principals, roles, this, beanFactory);
+        window.trapWidget(wizard.asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void addRoleAssignment(final RoleAssignment assignment) {
 
     }
 
-    public void onRemoveRoleAssignment(final RoleAssignment selectedAssignment) {
+    public void removeRoleAssignment(final RoleAssignment assignment) {
 
     }
 
-    public void onExcludeUsers(final RoleAssignment selectedAssignment) {
+    public void saveRoleAssignment(final RoleAssignment assignment, final Map<String, Object> changedValues) {
 
     }
 
     // ------------------------------------------------------ deprecated
-
-    public void launchAddDialg(final StandardRole role, final RoleAssignment roleAssignment,
-            final PrincipalType principalType) {
-        String title = principalType == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
-                .CONSTANTS.role_assignment_add_group();
-        window = new DefaultWindow(title);
-        window.setWidth(480);
-        window.setHeight(300);
-        window.trapWidget(new AddPrincipalWizard(this, role, roleAssignment, principalType).asWidget());
-        window.setGlassEnabled(true);
-        window.center();
-    }
 
     public void onAdd(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
         closeDialog();
         //        System.out.println("About to add " + principal.getType() + " " + principal
         //                .getName() + " to role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
 
-        AddPrincipalOperation addPrincipalOperation = new AddPrincipalOperation(dispatcher);
+        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher);
         addPrincipalOperation.extecute(role, roleAssignment, principal, new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
