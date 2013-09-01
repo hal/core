@@ -24,6 +24,7 @@ import java.util.List;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -103,6 +104,14 @@ public class ScopedRoleTable implements IsWidget {
     public void setRoles(final List<ScopedRole> roles) {
         dataProvider.setList(roles);
         table.selectDefaultEntity();
+    }
+
+    public ScopedRole getSelectedRole() {
+        return selectionModel.getSelectedObject();
+    }
+
+    CellTable<ScopedRole> getCellTable() {
+        return table;
     }
 
     static class ScopeCell extends AbstractCell<ScopedRole> {

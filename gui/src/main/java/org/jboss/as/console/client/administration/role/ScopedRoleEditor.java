@@ -13,6 +13,7 @@ import org.jboss.as.console.client.administration.role.model.PrincipalStore;
 import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
 import org.jboss.as.console.client.administration.role.model.RoleStore;
 import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -24,6 +25,7 @@ public class ScopedRoleEditor implements IsWidget {
 
     private final RoleAssignmentPresenter presenter;
     private ScopedRoleTable table;
+    private ScopedRoleDetails details;
 
     public ScopedRoleEditor(final RoleAssignmentPresenter presenter) {
         this.presenter = presenter;
@@ -48,19 +50,26 @@ public class ScopedRoleEditor implements IsWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                presenter.launchAddScopedRoleWizard();
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+                presenter.removeScopedRole(table.getSelectedRole());
             }
         }));
         content.add(tools.asWidget());
 
         // table
-
         table = new ScopedRoleTable();
         content.add(table);
+
+        // details
+        details = new ScopedRoleDetails(presenter);
+        details.bind(table.getCellTable());
+        content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
+        content.add(details);
 
         return layout;
     }

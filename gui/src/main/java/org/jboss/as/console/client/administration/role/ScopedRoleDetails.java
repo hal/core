@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-
 import java.util.Map;
 
 import com.google.gwt.user.cellview.client.CellTable;
@@ -28,32 +26,24 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.PrincipalStore;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
 import org.jboss.as.console.client.administration.role.model.RoleStore;
-import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
  * @author Harald Pehl
  */
-public class RoleAssignmentDetails implements IsWidget {
+public class ScopedRoleDetails implements IsWidget {
 
-    private final PrincipalType type;
     private final RoleAssignmentPresenter presenter;
-    private final BeanFactory beanFactory;
-    private final Form<RoleAssignment> form;
-    private RolesFormItem rolesItem;
-    private PrincipalsFormItem excludesItem;
+    private final Form<ScopedRole> form;
 
-    public RoleAssignmentDetails(final PrincipalType type, final RoleAssignmentPresenter presenter,
-            final BeanFactory beanFactory) {
+    public ScopedRoleDetails(final RoleAssignmentPresenter presenter) {
         this.presenter = presenter;
-        this.type = type;
-        this.beanFactory = beanFactory;
-        this.form = new Form<RoleAssignment>(RoleAssignment.class);
+        this.form = new Form<ScopedRole>(ScopedRole.class);
     }
 
     @Override
@@ -61,29 +51,22 @@ public class RoleAssignmentDetails implements IsWidget {
         VerticalPanel content = new VerticalPanel();
         content.setStyleName("fill-layout-width");
 
-        FormToolStrip<RoleAssignment> toolStrip = new FormToolStrip<RoleAssignment>(form,
-                new FormToolStrip.FormCallback<RoleAssignment>() {
+        FormToolStrip<ScopedRole> toolStrip = new FormToolStrip<ScopedRole>(form,
+                new FormToolStrip.FormCallback<ScopedRole>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
-                        presenter.saveRoleAssignment(form.getEditedEntity(), form.getChangedValues());
+                        presenter.saveScopedRole(form.getEditedEntity(), form.getChangedValues());
                     }
 
                     @Override
-                    public void onDelete(RoleAssignment assignment) {
+                    public void onDelete(ScopedRole scopedRole) {
                     }
                 });
         toolStrip.providesDeleteOp(false);
         content.add(toolStrip.asWidget());
 
-        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 6);
-        rolesItem.setRequired(true);
-        if (type == GROUP) {
-            excludesItem = new PrincipalsFormItem(type, "excludes", Console.CONSTANTS.common_label_exclude(),
-                    beanFactory);
-            form.setFields(rolesItem, excludesItem);
-        } else {
-            form.setFields(rolesItem);
-        }
+        TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        form.setFields(nameItem);
         form.setEnabled(false);
         content.add(form.asWidget());
 
@@ -91,15 +74,9 @@ public class RoleAssignmentDetails implements IsWidget {
     }
 
     public void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles) {
-        if (rolesItem != null) {
-            rolesItem.setRoles(roles.getRoles());
-        }
-        if (type == GROUP && excludesItem != null) {
-            excludesItem.update(principals);
-        }
     }
 
-    void bind(CellTable<RoleAssignment> table) {
+    void bind(CellTable<ScopedRole> table) {
         form.bind(table);
     }
 }

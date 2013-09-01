@@ -68,7 +68,7 @@ public class RoleAssignmentEditor implements IsWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchAddRoleAssignmentDialg(type);
+                presenter.launchAddRoleAssignmentWizard(type);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {

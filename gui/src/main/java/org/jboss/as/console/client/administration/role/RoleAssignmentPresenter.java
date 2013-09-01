@@ -249,7 +249,7 @@ public class RoleAssignmentPresenter
 
     // ------------------------------------------------------ callback methods triggered by the view
 
-    public void launchAddRoleAssignmentDialg(final PrincipalType type) {
+    public void launchAddRoleAssignmentWizard(final PrincipalType type) {
         String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
@@ -262,15 +262,27 @@ public class RoleAssignmentPresenter
     }
 
     public void addRoleAssignment(final RoleAssignment assignment) {
-
+        Console.info("Not yet implemented");
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
-
+        Console.info("Not yet implemented");
     }
 
     public void saveRoleAssignment(final RoleAssignment assignment, final Map<String, Object> changedValues) {
+        Console.info("Not yet implemented");
+    }
 
+    public void saveScopedRole(final ScopedRole scopedRole, final Map<String, Object> changedValues) {
+        Console.info("Not yet implemented");
+    }
+
+    public void launchAddScopedRoleWizard() {
+        Console.info("Not yet implemented");
+    }
+
+    public void removeScopedRole(final ScopedRole role) {
+        Console.info("Not yet implemented");
     }
 
     // ------------------------------------------------------ deprecated
