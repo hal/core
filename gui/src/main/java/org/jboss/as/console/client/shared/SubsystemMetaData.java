@@ -34,7 +34,7 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 3/29/11
  */
-@Deprecated
+
 public class SubsystemMetaData {
 
     static Map<String, SubsystemGroup> groups = new LinkedHashMap<String, SubsystemGroup>();
@@ -82,13 +82,14 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("JAXRS", "jaxrs",Boolean.TRUE));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("mod_cluster", "modcluster", NameTokens.ModclusterPresenter));
 
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.UndertowServlet));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.UndertowHTTP));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowCore));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.DialogPresenter+";dialog=servlet"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.DialogPresenter+";dialog=http"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.DialogPresenter+";dialog=undertow"));
 
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
 
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", "threads", Boolean.TRUE));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.DialogPresenter+";dialog=io"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Deployment Scanners", "deployment-scanner"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Remoting", "remoting",Boolean.TRUE));

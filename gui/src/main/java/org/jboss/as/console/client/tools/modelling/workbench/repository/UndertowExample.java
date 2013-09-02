@@ -121,7 +121,7 @@ public class UndertowExample implements Sample {
 
     @Override
     public String getName() {
-        return "Undertow";
+        return "undertow";
     }
 
     @Override

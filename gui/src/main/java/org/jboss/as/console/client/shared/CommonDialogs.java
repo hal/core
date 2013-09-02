@@ -1,5 +1,6 @@
-package org.jboss.as.console.client.shared.subsys.undertow;
+package org.jboss.as.console.client.shared;
 
+import org.jboss.as.console.client.tools.modelling.workbench.repository.IOSubsystemExample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.Sample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.ServletContainerExample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.UndertowExample;
@@ -11,18 +12,18 @@ import java.util.ArrayList;
 
 /**
  * @author Heiko Braun
- * @date 5/15/13
+ * @date 9/2/13
  */
-public class UndertowDialogs implements DialogRepository{
-
+public class CommonDialogs implements DialogRepository {
     private final ArrayList<Sample> dialogs;
 
-    public UndertowDialogs() {
+    public CommonDialogs() {
         dialogs = new ArrayList<Sample>();
 
         dialogs.add(new UndertowExample());
         dialogs.add(new ServletContainerExample());
         dialogs.add(new UndertowServerExample());
+        dialogs.add(new IOSubsystemExample());
     }
     @Override
     public Dialog getDialog(String name) {

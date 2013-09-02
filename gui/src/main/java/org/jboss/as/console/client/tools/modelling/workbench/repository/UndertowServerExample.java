@@ -207,7 +207,7 @@ public class UndertowServerExample implements Sample {
 
     @Override
     public String getName() {
-        return "HTTP Server";
+        return "http";
     }
 
     @Override

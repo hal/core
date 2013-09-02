@@ -64,6 +64,7 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.shared.DialogPresenter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -341,4 +342,6 @@ public interface CoreUI {
     SecurityFramework getSecurityFramework();
 
     UnauthorisedPresenter getUnauthorisedPresenter();
+
+    AsyncProvider<DialogPresenter> getDialogPresenter();
 }

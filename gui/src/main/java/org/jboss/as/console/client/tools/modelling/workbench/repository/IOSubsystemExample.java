@@ -49,7 +49,7 @@ public class IOSubsystemExample implements Sample
     @Override
     public String getName()
     {
-        return "IO Subsystem";
+        return "io";
     }
 
     @Override

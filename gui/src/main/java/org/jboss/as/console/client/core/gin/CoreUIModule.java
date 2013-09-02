@@ -99,6 +99,9 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedView;
+import org.jboss.as.console.client.shared.DialogPresenter;
+import org.jboss.as.console.client.shared.DialogView;
+import org.jboss.as.console.client.shared.DialogViewImpl;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.DefaultExpressionResolver;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
@@ -711,6 +714,11 @@ public class CoreUIModule extends AbstractPresenterModule {
         //bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
 
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
+
+        bindPresenter(DialogPresenter.class,
+                        DialogView.class,
+                        DialogViewImpl.class,
+                        DialogPresenter.MyProxy.class);
     }
 }
 

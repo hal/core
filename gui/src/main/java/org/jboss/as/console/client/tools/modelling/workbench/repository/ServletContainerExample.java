@@ -39,7 +39,7 @@ public class ServletContainerExample implements Sample {
         Container overview = new Container(ns, "servletContainer", "Servlet Container", TemporalOperator.Concurrency);
 
 
-        Container attributes = new Container(ns, "servletContainer#attributes", "Servlet Container", Form);
+        Container attributes = new Container(ns, "servletContainer#attributes", "Common", Form);
 
         Container jsp = new Container(ns, "servletContainer#jsp", "JSP Settings", Form);
         Container other = new Container(ns, "servletContainer#other", "Other", Form);
@@ -76,8 +76,8 @@ public class ServletContainerExample implements Sample {
         InteractionUnit root = new Builder()
                 .start(overview)
                     .mappedBy(global)
-                    .add(attributes).mappedBy(attributesMapping)
                         .start(new Container(ns, "details", "Details", Choice))
+                            .add(attributes).mappedBy(attributesMapping)
                             .add(jsp).mappedBy(jspAtts)
                             .add(other).mappedBy(otherAtts)
                         .end()
@@ -90,7 +90,7 @@ public class ServletContainerExample implements Sample {
 
     @Override
     public String getName() {
-        return "Servlet Container";
+        return "servlet";
     }
 
     @Override

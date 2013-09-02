@@ -1,6 +1,7 @@
-package org.jboss.as.console.client.shared.subsys.undertow;
+package org.jboss.as.console.client.shared;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -9,6 +10,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -20,38 +22,36 @@ import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.gui.behaviour.NavigationDelegate;
 import org.useware.kernel.model.structure.QName;
 
 
 /**
+ * General purpose dialog presenter.
+ *
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPresenter.MyProxy>
+public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy>
         implements ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
         PassivateEvent.PassivateHandler, NavigationDelegate {
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
-    private final UndertowDialogs dialogs;
+    private final CommonDialogs dialogs;
+    private String dialog;
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.UndertowHTTP)
-    /*@AccessControl(resources = {
-                   "{selected.profile}/subsystem=undertow/server=*"
-           })*/
+    @NameToken(NameTokens.DialogPresenter)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<UndertowHTTPPresenter>, Place {
+    public interface MyProxy extends Proxy<DialogPresenter>, Place {
     }
 
     @Inject
-    public UndertowHTTPPresenter(
+    public DialogPresenter(
             final EventBus eventBus,
-            final HttpView view,
+            final DialogView view,
             final MyProxy proxy,
             final DispatchAsync dispatcher,
             RevealStrategy revealStrategy)
@@ -66,7 +66,7 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
         );
 
         // mbui kernel instance
-        this.dialogs = new UndertowDialogs();
+        this.dialogs = new CommonDialogs();
         this.kernel = new Kernel(dialogs, new Framework() {
             @Override
             public DispatchAsync getDispatcher() {
@@ -92,7 +92,14 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
     }
 
     @Override
-    public void onReset(ResetEvent event) {
+    protected void onReset() {         // presenter API
+        getView().show(new HTML("")); // clear view
+        reify();
+    }
+
+    @Override
+    public void onReset(ResetEvent event) {   // mbui API
+
         kernel.reset();
     }
 
@@ -105,16 +112,26 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
     protected void onBind() {
         super.onBind();
 
-        reify();
-
         getEventBus().addHandler(ResetEvent.getType(), this);
     }
 
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
+        super.prepareFromRequest(request);
+        dialog = request.getParameter("dialog", null);
+        if(null==dialog)
+        {
+            System.out.println("Parameter dialog is missing");
+            throw new RuntimeException("Parameter dialog is missing");
+        }
+    }
+
+
     private void reify() {
-        kernel.reify("HTTP Server", new AsyncCallback<Widget>() {
+        kernel.reify(dialog, new AsyncCallback<Widget>() {
             @Override
             public void onFailure(Throwable throwable) {
-                Console.error("Reification failed", throwable.getMessage());
+                Console.error("Reification failed ("+dialog+")", throwable.getMessage());
             }
 
             @Override
@@ -125,12 +142,6 @@ public class UndertowHTTPPresenter extends Presenter<HttpView, UndertowHTTPPrese
                 kernel.reset();
             }
         });
-
-    }
-
-    @Override
-    protected void onReset() {
-        super.onReset();
 
     }
 
