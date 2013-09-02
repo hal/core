@@ -157,7 +157,6 @@ public class RolesFormItem extends FormItem<List<Role>> {
         }
     }
 
-    @Override
     public String asString() {
         StringBuilder builder = new StringBuilder("[");
         for (Iterator<Role> iterator = value.iterator(); iterator.hasNext(); ) {

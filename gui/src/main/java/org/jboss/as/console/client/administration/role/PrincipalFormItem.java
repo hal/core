@@ -180,7 +180,6 @@ public class PrincipalFormItem extends FormItem<Principal> {
         wrapper.setExpression(flag);
     }
 
-    @Override
     public String asString() {
         return value != null ? value.getName() : "";
     }

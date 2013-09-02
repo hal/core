@@ -170,7 +170,6 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
         textArea.setText(builder.toString());
     }
 
-    @Override
     public String asString() {
         StringBuilder builder = new StringBuilder("[");
         for (Iterator<Principal> iterator = value.iterator(); iterator.hasNext(); ) {
