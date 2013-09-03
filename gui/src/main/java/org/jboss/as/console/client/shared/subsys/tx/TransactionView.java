@@ -85,12 +85,13 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         processIDForm = new TXModelForm(presenter, processIdUUID, processIdSocket, processIdPortMax);
         recoveryForm = new TXModelForm(presenter, socketBinding, statusSocketBinding, recoveryListener);
 
-        panel.add(defaultForm.asWidget());
+        //panel.add(defaultForm.asWidget());
 
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
 
+        tabs.add(defaultForm.asWidget(), "Common");
         tabs.add(processIDForm.asWidget(), "Process ID");
         tabs.add(recoveryForm.asWidget(), "Recovery");
         tabs.add(pathForm.asWidget(), "Path");
