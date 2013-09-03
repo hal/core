@@ -1,10 +1,12 @@
 package org.jboss.as.console.client.shared;
 
-import org.jboss.as.console.client.shared.subsys.undertow.SimpleView;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.core.SuspendableView;
 
 /**
  * @author Heiko Braun
  * @date 9/2/13
  */
-public interface DialogView extends SimpleView {
+public interface DialogView extends SuspendableView {
+    void show(Widget widget);
 }

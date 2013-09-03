@@ -35,7 +35,7 @@ import org.useware.kernel.model.structure.QName;
  */
 public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy>
         implements ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
-        PassivateEvent.PassivateHandler, NavigationDelegate {
+        PassivateEvent.PassivateHandler {
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
@@ -78,12 +78,6 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
                 return Console.MODULES.getSecurityFramework();
             }
         }, globalContext);
-    }
-
-
-    @Override
-    public void onNavigation(QName source, QName dialog) {
-        System.out.println("Absolute navigation " + source + ">" + dialog);
     }
 
     @Override
