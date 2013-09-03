@@ -22,6 +22,7 @@ public class ServerPicker implements HostServerManagement {
 
     private HostServerTable hostServerTable;
     private LoadServerCmd loadServerCmd;
+    private Label label;
 
     public void resetHostSelection() {
         hostServerTable.clearSelection();
@@ -47,10 +48,6 @@ public class ServerPicker implements HostServerManagement {
         Widget widget = hostServerTable.asWidget();
         widget.getElement().setAttribute("style", "width:100%;");
 
-        Label label = new Label("Server:");
-        label.setStyleName("header-label");
-
-        layout.add(label);
         layout.add(widget);
 
         return layout;
@@ -82,6 +79,7 @@ public class ServerPicker implements HostServerManagement {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
+
                 Console.getEventBus().fireEvent(
                         new GlobalServerSelection(server)
                 );

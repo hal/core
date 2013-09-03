@@ -193,7 +193,7 @@ final class HtmlGenerator {
     }
 
     HtmlGenerator startTable() {
-        appendHtmlConstant("<table cellspacing='0' class='default-cell-table'>");
+        appendHtmlConstant("<table cellspacing='0' class='default-cell-table topology'>");
         return this;
     }
 

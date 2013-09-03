@@ -34,6 +34,7 @@ import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.InlineLink;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +61,7 @@ public class HostServerTable {
 
     private PopupPanel popup;
 
-    private HorizontalPanel header;
+    private VerticalPanel header;
     private HTML currentDisplayedValue;
     int popupWidth = -1;
     private String description = null;
@@ -165,21 +166,21 @@ public class HostServerTable {
 
                 Host selectedHost = getSelectedHost();
 
-                Console.MODULES.getEventBus().fireEvent(
-                        new GlobalHostSelection(selectedHost.getName())
-                );
-
                 if(selectedHost!=null)
                 {
+                    Console.MODULES.getEventBus().fireEvent(
+                            new GlobalHostSelection(selectedHost.getName())
+                    );
+
                     presenter.loadServer(selectedHost.getName());
                 }
-
             }
         });
 
         serverList.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+
                 ServerInstance server = getSelectedServer();
                 Host selectedHost = getSelectedHost();
 
@@ -188,6 +189,7 @@ public class HostServerTable {
                     presenter.onServerSelected(selectedHost, server);
                     updateDisplay();
                 }
+
             }
         });
 
@@ -241,14 +243,22 @@ public class HostServerTable {
         ScrollPanel scroll = new ScrollPanel(millerPanel);
         layout.add(scroll);
 
-        DefaultButton doneBtn = new DefaultButton(Console.CONSTANTS.common_label_done(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                popup.hide();
-            }
-        });
-        doneBtn.getElement().setAttribute("style","margin-right:10px;float:right");
-        layout.add(doneBtn);
+
+        DialogueOptions options = new DialogueOptions(
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        popup.hide();
+                    }
+                },
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        popup.hide();
+                    }
+                }
+        );
+        layout.add(options);
 
         // --------------
 
@@ -259,25 +269,15 @@ public class HostServerTable {
         // --------------
 
         currentDisplayedValue = new HTML("&nbsp;");
-        currentDisplayedValue.setStyleName("table-picker-value");
+        currentDisplayedValue.getElement().setAttribute("style", "padding-bottom:10px; padding-left:5px");
 
-        header = new HorizontalPanel();
-        header.setStyleName("table-picker");
-        header.add(currentDisplayedValue);
-
-        //Image img = new Image(ConsoleIcons.INSTANCE.tablePicker());
-        HTML icon = new HTML("<span style='font-size:18px;cursor:pointer'><i class='icon-caret-down'></i></span>");
-        header.add(icon);
-
-        currentDisplayedValue.getElement().getParentElement().setAttribute("width", "100%");
-
-        icon.getParent().getElement().setAttribute("width", "18");
+        header = new VerticalPanel();
+        //header.setStyleName("table-picker");
 
         header.getElement().setAttribute("width", "100%");
         header.getElement().setAttribute("cellspacing", "0");
         header.getElement().setAttribute("cellpadding", "0");
         header.getElement().setAttribute("border", "0");
-
 
         ClickHandler clickHandler = new ClickHandler() {
             @Override
@@ -286,9 +286,12 @@ public class HostServerTable {
             }
         };
 
-        currentDisplayedValue.addClickHandler(clickHandler);
-        icon.addClickHandler(clickHandler);
+        DefaultButton btn = new DefaultButton("Change Server");
+        btn.addClickHandler(clickHandler);
+        btn.addStyleName("server-picker-btn");
 
+        header.add(currentDisplayedValue);
+        header.add(btn);
         return header;
     }
 
@@ -297,7 +300,7 @@ public class HostServerTable {
         //String host = clip(getSelectedHost().getName(), clipAt);
         String server = clip(getSelectedServer().getName(), clipAt);
 
-        currentDisplayedValue.setText(server);
+        currentDisplayedValue.setHTML("Server:&nbsp;<b>"+server+"</b>");
     }
 
     public Host getSelectedHost() {
@@ -322,7 +325,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft() - (winWidth - header.getOffsetWidth());
             popup.setPopupPosition(
                     popupLeft-15,
-                    header.getAbsoluteTop()+32
+                    header.getAbsoluteTop()+62
             );
         }
         else
@@ -330,7 +333,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft();
             popup.setPopupPosition(
                     popupLeft,
-                    header.getAbsoluteTop()+38
+                    header.getAbsoluteTop()+62
             );
         }
 
@@ -371,28 +374,6 @@ public class HostServerTable {
 
         hostList.getSelectionModel().setSelected(hosts.getSelectedHost(), true);
 
-    }
-
-    public void defaultHostSelection() {
-
-        if(hostProvider.getList().size()>0)
-        {
-            Host defaultHost = hostList.getVisibleItem(0);
-            Log.debug("Select default host: "+defaultHost.getName());
-            selectHost(defaultHost);
-        }
-    }
-
-    private void selectHost(String hostName) {
-
-        for(Host host : hostProvider.getList())
-        {
-            if(hostName.equals(host.getName()))
-            {
-                selectHost(host);
-                break;
-            }
-        }
     }
 
     /**

@@ -101,7 +101,7 @@ public class EnvironmentProperties {
         value.setEnabled(false);
 
         form.setFields(name, value);
-        form.setNumColumns(2);
+        form.setEnabled(false);
 
         form.bind(propertyTable);
 

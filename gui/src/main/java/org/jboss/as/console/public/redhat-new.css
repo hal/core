@@ -1762,6 +1762,9 @@ input[type="checkbox"] {
     width:95%;
 }
 
+.server-picker-btn {
+    width:98%;
+}
 .server-selection-host {
     padding: 5px;
     height: 15px;
@@ -2394,6 +2397,20 @@ input[type="checkbox"] {
 }
 .serverGroup4_light:hover {
     background-color: rgb(179,202,87);
+}
+
+
+.topology .cellTableHeader {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.topology .cellTableCell:first-of-type {
+    border-left:none!important;
+}
+
+.topology .cellTableHeader:first-of-type {
+    border-left:none!important;
 }
 
 /**/

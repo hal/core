@@ -171,6 +171,7 @@ public class Header implements ValueChangeHandler<String> {
         HTML roleHtml = new HTML("<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole());
         SafeHtml principal = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'>"+userHtml+"</div>").toSafeHtml();
         final HTML userButton = new HTML(principal);
+        userButton.getElement().setAttribute("style", "cursor:pointer");
         tools.add(userButton);
 
         final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.TOP);
