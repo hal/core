@@ -44,7 +44,11 @@ public class LoadMainApp implements Command
     @Override
     public void execute() {
 
-        String initialToken = History.getToken();
+       /*
+
+       Currently disabled due to RBAC constraints (init, etc)
+
+       String initialToken = History.getToken();
 
         if(!initialToken.isEmpty() && !isBlackListed(initialToken))
         {
@@ -64,6 +68,9 @@ public class LoadMainApp implements Command
         else {
             placeManager.revealDefaultPlace();
         }
+        */
+
+        placeManager.revealDefaultPlace();
     }
 
     private static boolean isBlackListed (String token)
