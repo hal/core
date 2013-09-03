@@ -993,6 +993,8 @@ table {
 
 .gwt-TabPanelBottom {
     padding-top:10px;
+    margin-left:10px;
+    margin-right:10px;
 }
 
 .gwt-TabBar {
@@ -1289,6 +1291,19 @@ table {
     width:100%;
 }
 
+.form-edit-button {
+    padding-left:10px;
+    cursor: pointer;
+    color:#009ada;
+    font-size: 13px;
+}
+
+.form-edit-button-disabled {
+    padding-left:10px;
+    font-size: 13px;
+    color:#999999!important;
+}
+
 .window-content .form-edit-panel {
     background-color:#ffffff!important;
 }
@@ -1505,7 +1520,7 @@ input[type="checkbox"] {
 
 .toolstrip-button, .default-button, .gwt-Button {
 
-    border: 1px solid #b7b7b7;
+    border: 1px solid #b9b9b9;
     color: #4e5156;
     cursor: pointer;
     margin: 0 2px;
@@ -1537,6 +1552,29 @@ input[type="checkbox"] {
     border-color:#000000;
 }
 
+.primary {
+
+     /* fallback */
+    background-color: #C7E5F0;
+
+    /* Safari 4-5, Chrome 1-9 */
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#61a9eb), to(#5696cc));
+
+    /* Safari 5.1, Chrome 10+ */
+    background: -webkit-linear-gradient(top, #61a9eb, #5696cc);
+
+    /* Firefox 3.6+ */
+    background: -moz-linear-gradient(top, #61a9eb, #5696cc);
+
+    /* IE 10 */
+    background: -ms-linear-gradient(top, #61a9eb, #5696cc);
+
+    /* Opera 11.10+ */
+    background: -o-linear-gradient(top, #61a9eb, #5696cc);
+
+    color:#ffffff!important;
+    border-color: #4b7b9f!important;
+}
 
 /*paged views*/
 
@@ -2416,6 +2454,10 @@ input[type="checkbox"] {
 }
 
 .rbac-suppressed {
+    display: none;
+}
+
+.suppressed {
     display: none;
 }
 

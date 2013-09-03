@@ -25,6 +25,7 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.stack.NamedDeckPanel;
 
@@ -179,5 +180,10 @@ public class FormDeckPanel<T> extends NamedDeckPanel implements FormAdapter<T> {
     @Override
     public String getFormItemTitle(String ref) {
         return getVisibleForm().getFormItemTitle(ref);
+    }
+
+    @Override
+    public void setToolsCallback(FormCallback callback) {
+        // not supported
     }
 }

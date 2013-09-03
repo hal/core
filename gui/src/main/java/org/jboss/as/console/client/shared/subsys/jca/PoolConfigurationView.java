@@ -87,13 +87,10 @@ public class PoolConfigurationView {
 
                     @Override
                     public void onDelete(PoolConfig entity) {
-                        management.onResetPoolConfig(editedName, entity);
-                    }
-                }, Console.CONSTANTS.common_label_reset()
-        );
 
-        // disable "clear" functionality
-        toolStrip.providesDeleteOp(false);
+                    }
+                }
+        );
 
         // TODO: https://issues.jboss.org/browse/AS7-3254
         if(Console.getBootstrapContext().isStandalone()) {

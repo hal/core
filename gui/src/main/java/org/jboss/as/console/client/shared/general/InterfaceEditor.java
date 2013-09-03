@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -250,9 +251,9 @@ public class InterfaceEditor {
         panel.add(form.asWidget());
 
         // clear messages upon cancel
-        toolstrip.getCancelButton().addClickHandler(new ClickHandler() {
+        toolstrip.addCancelHandler(new Command() {
             @Override
-            public void onClick(ClickEvent clickEvent) {
+            public void execute() {
                 errorMessages.setHTML("");
                 toolstrip.doCancel();
             }

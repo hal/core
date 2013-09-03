@@ -32,6 +32,7 @@ import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 
@@ -111,7 +112,7 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
 
             // belongs to top level tools
             toolStrip.providesDeleteOp(false);
-            toolStrip.providesEditSaveOp(!hideButtons.contains(FrameworkButton.EDIT_SAVE));
+            //toolStrip.providesEditSaveOp(!hideButtons.contains(FrameworkButton.EDIT_SAVE));
 
             layout.add(toolStrip.asWidget());
 
@@ -338,5 +339,10 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
     @Override
     public String getFormItemTitle(String ref) {
         throw new RuntimeException("Not implemented!");
+    }
+
+    @Override
+    public void setToolsCallback(FormCallback callback) {
+        // not supported
     }
 }
