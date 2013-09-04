@@ -347,21 +347,31 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).add("host", domainManager.getSelectedHost());
         operation.get(ADDRESS).add("server", server.getName());
+        operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
+        System.out.println(operation);
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
 
             @Override
             public void onFailure(Throwable throwable) {
-                performDeleteOperation(server);
+                performDeleteOperation(server); // TODO: really? Upon failure?
             }
 
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
+                System.out.println(response);
                 String outcome = response.get(OUTCOME).asString();
 
-                Boolean serverIsRunning = outcome.equals(SUCCESS) ? Boolean.TRUE : Boolean.FALSE;
+                Boolean serverIsRunning = outcome.equals(SUCCESS) ? Boolean.TRUE : Boolean.FALSE; // 1.5.x
+
+                // 2.0.x
+                if(outcome.equals(SUCCESS))
+                {
+                    serverIsRunning = response.get(RESULT).get("server-state").asString().equalsIgnoreCase("running");
+                }
+
                 if(!serverIsRunning)
                     performDeleteOperation(server);
                 else
