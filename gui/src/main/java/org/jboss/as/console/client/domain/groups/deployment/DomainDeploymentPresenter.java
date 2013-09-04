@@ -75,6 +75,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentsPresenter)
     @AccessControl(resources = {
+            //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/{selected.host}/{selected.server}",
             "/deployment=*"
     }, facet = "runtime", recursive = false)

@@ -78,10 +78,9 @@ public class TopologyPresenter extends
     @NameToken(NameTokens.Topology)
     @AccessControl(resources = {
             "/server-group=*",
-            "/extension=*", // extensions tab
-            // TODO This one fails and I don't know why
-//            "/{selected.host}/server=*",
-    }, facet = "runtime")
+            //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
+            "/extension=*",
+    }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
     }
