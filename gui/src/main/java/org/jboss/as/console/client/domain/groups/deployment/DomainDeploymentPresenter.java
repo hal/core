@@ -75,14 +75,8 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentsPresenter)
     @AccessControl(resources = {
-            "/{selected.host}",
-            "/{selected.host}/server-config=*",
             "/{selected.host}/{selected.server}",
-            "/{selected.host}/{selected.server}/interface=*",
-            "/{selected.host}/{selected.server}/socket-binding-group=*",
-            "/deployment=*",
-            "/server-group=*",
-            "/server-group=*/deployment=*",
+            "/deployment=*"
     }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
     {
