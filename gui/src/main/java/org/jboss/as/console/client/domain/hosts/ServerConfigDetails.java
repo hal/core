@@ -40,7 +40,6 @@ public class ServerConfigDetails {
         layout.setStyleName("fill-layout-width");
 
         form = new Form<Server>(Server.class);
-        form.setNumColumns(2);
 
         FormToolStrip<Server> toolStrip = new FormToolStrip<Server>(
                 form, new FormToolStrip.FormCallback<Server>() {
@@ -96,7 +95,7 @@ public class ServerConfigDetails {
         };
 
 
-        form.setFields(nameItem, groupItem, socketItem, portOffset, startedItem);
+        form.setFields(nameItem, startedItem, groupItem, socketItem, portOffset);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

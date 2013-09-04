@@ -149,9 +149,16 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
             }
         };
 
+        Column<Server, String> startMode = new Column<Server, String>(new TextCell()) {
+            @Override
+            public String getValue(Server object) {
+                return String.valueOf(object.isAutoStart());
+            }
+        };
 
         serverConfigTable.addColumn(nameColumn, "Configuration Name");
         serverConfigTable.addColumn(groupColumn, Console.CONSTANTS.common_label_serverGroup());
+        serverConfigTable.addColumn(startMode, "Auto Start?");
 
 
         // ---------------------
