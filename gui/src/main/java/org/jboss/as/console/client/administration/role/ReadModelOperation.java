@@ -178,7 +178,7 @@ public class ReadModelOperation {
             scopedRole.setType(type);
             ModelNode node = property.getValue();
             String baseRoleName = node.get("base-role").asString();
-            scopedRole.setBaseRole(StandardRole.valueOf(baseRoleName));
+            scopedRole.setBaseRole(StandardRole.fromString(baseRoleName));
 
             List<String> scope = new ArrayList<String>();
             List<ModelNode> scopeNodes = node.get(scopeName).asList();

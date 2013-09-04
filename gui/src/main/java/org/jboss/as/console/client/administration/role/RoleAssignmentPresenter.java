@@ -155,7 +155,7 @@ public class RoleAssignmentPresenter
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
         window.setWidth(480);
-        window.setHeight(570);
+        window.setHeight(580);
         AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(type, principals, roles, this, beanFactory);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);
