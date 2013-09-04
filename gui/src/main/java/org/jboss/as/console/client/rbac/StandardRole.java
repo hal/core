@@ -18,25 +18,28 @@
  */
 package org.jboss.as.console.client.rbac;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Heiko Braun
  */
 public enum StandardRole implements Role {
 
-    Monitor,
-    Operator,
-    Maintainer,
-    Deployer,
-    Administrator,
-    Auditor,
-    SuperUser;
+    MONITOR,
+    OPERATOR,
+    MAINTAINER,
+    DEPLOYER,
+    ADMINISTRATOR,
+    AUDITOR,
+    SUPERUSER;
 
     @Override
     public String getName() {
         return name();
     }
+
+    public static StandardRole fromString(String s)
+    {
+        return StandardRole.valueOf(s.toUpperCase());
+    }
+
 }
 
