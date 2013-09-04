@@ -101,8 +101,7 @@ public class ContentRepositoryPanel implements IsWidget
         tableFooter.appendHtmlConstant("<span style='font-size:10px;color:#A7ABB4;'>[1] "+Console.MESSAGES.deployment_filesystem()+"</span>");
 
         Form<DeploymentRecord> form = new Form<DeploymentRecord>(DeploymentRecord.class);
-        form.setNumColumns(2);
-        form.setEnabled(true);
+        form.setEnabled(false);
         TextAreaItem name = new TextAreaItem("name", "Name");
         TextAreaItem runtimeName = new TextAreaItem("runtimeName", "Runtime Name");
         final ListItem groups = new ListItem("assignments", "Assigned Groups");
@@ -191,8 +190,7 @@ public class ContentRepositoryPanel implements IsWidget
                 }));
 
         Form<DeploymentRecord> form2 = new Form<DeploymentRecord>(DeploymentRecord.class);
-        form2.setNumColumns(2);
-        form2.setEnabled(true);
+        form2.setEnabled(false);
         TextAreaItem path = new TextAreaItem("path", "Path");
         TextBoxItem relative = new TextBoxItem("relativeTo", "Relative To");
         form2.setFields(path, relative);
