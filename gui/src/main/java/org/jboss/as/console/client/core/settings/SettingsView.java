@@ -136,8 +136,6 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
             html.appendEscaped("You can disable the analytics feature at anytime.");
         }
 
-        html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
-        html.appendEscaped("You can disable the analytics feature at anytime.");
         //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");
         html.appendHtmlConstant("</ul>");
         StaticHelpPanel help = new StaticHelpPanel(html.toSafeHtml());
