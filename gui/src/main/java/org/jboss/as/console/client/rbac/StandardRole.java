@@ -23,13 +23,13 @@ package org.jboss.as.console.client.rbac;
  */
 public enum StandardRole implements Role {
 
-    MONITOR,
-    OPERATOR,
-    MAINTAINER,
-    DEPLOYER,
-    ADMINISTRATOR,
-    AUDITOR,
-    SUPERUSER;
+    Monitor,
+    Operator,
+    Maintainer,
+    Deployer,
+    Administrator,
+    Auditor,
+    SuperUser;
 
     @Override
     public String getName() {
