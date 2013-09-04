@@ -30,10 +30,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleStore;
+import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -47,12 +47,12 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 public class AddRoleAssignmentWizard implements IsWidget {
 
     private final PrincipalType type;
-    private final PrincipalStore principals;
-    private final RoleStore roles;
+    private final Principals principals;
+    private final Roles roles;
     private final RoleAssignmentPresenter presenter;
     private final BeanFactory beanFactory;
 
-    public AddRoleAssignmentWizard(final PrincipalType type, final PrincipalStore principals, final RoleStore roles,
+    public AddRoleAssignmentWizard(final PrincipalType type, final Principals principals, final Roles roles,
             final RoleAssignmentPresenter presenter, BeanFactory beanFactory) {
         this.type = type;
         this.principals = principals;

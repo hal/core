@@ -42,25 +42,25 @@ import org.jboss.gwt.flow.client.Outcome;
 public class AddRoleAssignmentOperation {
 
     private final DispatchAsync dispatcher;
+    private StandardRole role;
+    private RoleAssignment roleAssignment;
+    private Principal principal;
 
-    public AddRoleAssignmentOperation(final DispatchAsync dispatcher) {this.dispatcher = dispatcher;}
+    public AddRoleAssignmentOperation(final DispatchAsync dispatcher, final StandardRole role,
+            final RoleAssignment roleAssignment, final Principal principal) {
+        this.dispatcher = dispatcher;
+        this.role = role;
+        this.roleAssignment = roleAssignment;
+        this.principal = principal;
+    }
 
-    public void extecute(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal,
-            final Outcome<Stack<Boolean>> outcome) {
-
-        ReadRoleFunction readRoleFunction = new ReadRoleFunction(role);
-        AddRoleFunction addRoleFunction = new AddRoleFunction(role);
-        AddPrincipalFunction addPrincipalFunction = new AddPrincipalFunction(role, roleAssignment, principal);
-
-        new Async<Stack<Boolean>>().waterfall(new Stack<Boolean>(), outcome, readRoleFunction, addRoleFunction,
-                addPrincipalFunction);
+    public void extecute(final Outcome<Stack<Boolean>> outcome) {
+        new Async<Stack<Boolean>>()
+                .waterfall(new Stack<Boolean>(), outcome, new ReadRoleFunction(), new AddRoleFunction(),
+                        new AddPrincipalFunction());
     }
 
     class ReadRoleFunction implements Function<Stack<Boolean>> {
-
-        final StandardRole role;
-
-        ReadRoleFunction(final StandardRole role) {this.role = role;}
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
@@ -90,17 +90,12 @@ public class AddRoleAssignmentOperation {
 
     class AddRoleFunction implements Function<Stack<Boolean>> {
 
-        final StandardRole role;
-
-        AddRoleFunction(final StandardRole role) {this.role = role;}
-
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
             boolean roleExists = control.getContext().pop();
             if (roleExists) {
                 control.proceed();
-            }
-            else {
+            } else {
                 final ModelNode addRoleOp = new ModelNode();
                 addRoleOp.get(ADDRESS).add("core-service", "management");
                 addRoleOp.get(ADDRESS).add("access", "authorization");
@@ -125,16 +120,6 @@ public class AddRoleAssignmentOperation {
 
     class AddPrincipalFunction implements Function<Stack<Boolean>> {
 
-        final StandardRole role;
-        final RoleAssignment roleAssignment;
-        final Principal principal;
-
-        AddPrincipalFunction(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
-            this.role = role;
-            this.roleAssignment = roleAssignment;
-            this.principal = principal;
-        }
-
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
             final ModelNode assignmentOp = new ModelNode();
@@ -147,7 +132,8 @@ public class AddRoleAssignmentOperation {
             assignmentOp.get(ADDRESS).add("core-service", "management");
             assignmentOp.get(ADDRESS).add("access", "authorization");
             assignmentOp.get(ADDRESS).add("role-mapping", role.name());
-            assignmentOp.get(ADDRESS).add(/*roleAssignment.isInclude() ? */"include" /*: "exclude"*/, principalKey.toString());
+            assignmentOp.get(ADDRESS)
+                    .add(/*roleAssignment.isInclude() ? */"include" /*: "exclude"*/, principalKey.toString());
             assignmentOp.get("name").set(ModelType.STRING, principal.getName());
             assignmentOp.get("type").set(ModelType.STRING, principal.getType().name());
             if (realmGiven) {

@@ -22,13 +22,15 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
-import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
-import org.jboss.as.console.client.administration.role.model.RoleStore;
+import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
+import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
@@ -71,9 +73,10 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     }
 
     @Override
-    public void update(final PrincipalStore principals, RoleAssignmentStore assignments, RoleStore roles) {
+    public void update(final Principals principals, RoleAssignments assignments, Roles roles, final List<String> hosts,
+            final List<String> serverGroups) {
         groupEditor.update(principals, assignments, roles);
         userEditor.update(principals, assignments, roles);
-        scopedRoleEditor.update(principals, assignments, roles);
+        scopedRoleEditor.update(roles, hosts, serverGroups);
     }
 }

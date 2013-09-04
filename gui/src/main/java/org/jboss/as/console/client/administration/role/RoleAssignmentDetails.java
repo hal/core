@@ -27,11 +27,11 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
-import org.jboss.as.console.client.administration.role.model.RoleStore;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
+import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -90,7 +90,7 @@ public class RoleAssignmentDetails implements IsWidget {
         return content;
     }
 
-    public void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles) {
+    public void update(final Principals principals, final RoleAssignments assignments, final Roles roles) {
         if (rolesItem != null) {
             rolesItem.setRoles(roles.getRoles());
         }

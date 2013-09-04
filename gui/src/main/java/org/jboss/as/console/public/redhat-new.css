@@ -1450,6 +1450,10 @@ input, textarea, select, .uneditable-input {
     border-radius: 3px;
 }
 
+select.multiselect {
+    height: auto;
+}
+
 input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly] {
     background-color: whiteSmoke;
     border-color: #DDD;

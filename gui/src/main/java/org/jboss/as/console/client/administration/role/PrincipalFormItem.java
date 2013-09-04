@@ -34,7 +34,7 @@ import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -184,7 +184,7 @@ public class PrincipalFormItem extends FormItem<Principal> {
         return value != null ? value.getName() : "";
     }
 
-    public void update(PrincipalStore principals) {
+    public void update(Principals principals) {
         oracle.update(principals);
     }
 
@@ -242,7 +242,7 @@ public class PrincipalFormItem extends FormItem<Principal> {
             return matchingResults;
         }
 
-        public void update(PrincipalStore principals) {
+        public void update(Principals principals) {
             List<Principal> byType = principals.get(type);
             if (byType != null) {
                 suggestions.clear();

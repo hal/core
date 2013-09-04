@@ -34,11 +34,11 @@ import java.util.TreeSet;
  *
  * @author Harald Pehl
  */
-public class PrincipalStore implements Iterable<Principal> {
+public class Principals implements Iterable<Principal> {
 
     private final Map<PrincipalType, SortedSet<Principal>> principals;
 
-    public PrincipalStore() {
+    public Principals() {
         principals = new HashMap<PrincipalType, SortedSet<Principal>>();
         principals.put(GROUP, new TreeSet<Principal>(new PrincipalComparator()));
         principals.put(USER, new TreeSet<Principal>(new PrincipalComparator()));
@@ -51,11 +51,6 @@ public class PrincipalStore implements Iterable<Principal> {
                 set.add(principal);
             }
         }
-    }
-
-    public void clear() {
-        principals.get(GROUP).clear();
-        principals.get(USER).clear();
     }
 
     //    public List<String> getNames(Principal.Type type) {

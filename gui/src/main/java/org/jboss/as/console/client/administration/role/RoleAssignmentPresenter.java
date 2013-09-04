@@ -23,11 +23,11 @@ import static org.jboss.as.console.client.administration.role.model.PrincipalTyp
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -38,27 +38,24 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
-import org.jboss.as.console.client.administration.role.model.RoleStore;
-import org.jboss.as.console.client.administration.role.model.ScopeType;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
+import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.DispatchRequest;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
@@ -77,28 +74,37 @@ import org.jboss.gwt.flow.client.Outcome;
 public class RoleAssignmentPresenter
         extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
-    private final DispatchAsync dispatcher;
     private final RevealStrategy revealStrategy;
+    private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
-    private final PrincipalStore principals;
-    private final RoleAssignmentStore assignments;
-    private final RoleStore roles;
+    private final ReadModelOperation modelOperation;
     private DefaultWindow window;
-    private DispatchRequest request;
+
+    private Principals principals;
+    private RoleAssignments assignments;
+    private Roles roles;
+    private List<String> hosts;
+
+    private List<String> serverGroups;
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public RoleAssignmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final DispatchAsync dispatcher, final RevealStrategy revealStrategy, final BeanFactory beanFactory) {
+            final RevealStrategy revealStrategy, final DispatchAsync dispatcher, final BeanFactory beanFactory,
+            final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
         super(eventBus, view, proxy);
 
-        this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
+        this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
-        this.principals = new PrincipalStore();
-        this.assignments = new RoleAssignmentStore(beanFactory);
-        this.roles = new RoleStore();
+        this.modelOperation = new ReadModelOperation(dispatcher, beanFactory, hostInformationStore, serverGroupStore);
+
+        this.principals = new Principals();
+        this.assignments = new RoleAssignments(beanFactory);
+        this.roles = new Roles();
+        this.hosts = new ArrayList<String>();
+        this.serverGroups = new ArrayList<String>();
     }
 
     @Override
@@ -116,135 +122,29 @@ public class RoleAssignmentPresenter
     protected void onReset() {
         super.onReset();
 
-        if (request == null || !request.isPending()) {
-            principals.clear();
-            assignments.clear();
-            roles.clear();
-            loadRolesAndMapping();
-        }
-    }
-
-    // ------------------------------------------------------ read management model
-
-    private void loadRolesAndMapping() {
-        // load scoped roles (hosts and server groups)
-        // load role mappings
-        // extract principals
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).setEmptyList();
-        operation.get(OP).set(COMPOSITE);
-        List<ModelNode> steps = new LinkedList<ModelNode>();
-
-        ModelNode hostScopeOp = new ModelNode();
-        hostScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-        hostScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        hostScopeOp.get(CHILD_TYPE).set("host-scoped-role");
-        steps.add(hostScopeOp);
-
-        ModelNode serverGroupScopeOp = new ModelNode();
-        serverGroupScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-        serverGroupScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        serverGroupScopeOp.get(CHILD_TYPE).set("server-group-scoped-role");
-        steps.add(serverGroupScopeOp);
-
-        ModelNode mappingOp = new ModelNode();
-        mappingOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-        mappingOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        mappingOp.get(CHILD_TYPE).set("role-mapping");
-        mappingOp.get("recursive-depth").set("2");
-        steps.add(mappingOp);
-
-        operation.get(STEPS).set(steps);
-        request = dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(final DMRResponse result) {
-                ModelNode response = result.get();
-                if (ModelAdapter.wasSuccess(response)) {
-                    ModelNode stepsResult = response.get(RESULT);
-
-                    // the order of processing is important!
-                    List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
-                    for (ModelNode node : hostScopedRoles) {
-                        addScopedRole(node.asProperty(), "hosts", ScopeType.host);
-                    }
-                    List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
-                    for (ModelNode node : serverGroupScopedRoles) {
-                        addScopedRole(node.asProperty(), "server-groups", ScopeType.serverGroup);
-                    }
-                    List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
-                    for (ModelNode node : roleMappings) {
-                        addManagementModelRoleAssignment(node.asProperty());
-                    }
-                    // All entities are read - now transform the role assignements from the management model to
-                    // role assignments used in the UI and update the view
-                    assignments.transform(principals);
-                    getView().update(principals, assignments, roles);
-                }
-            }
-        });
-    }
-
-    private void addScopedRole(final Property property, final String scopeName, final ScopeType type) {
-        ScopedRole scopedRole = beanFactory.scopedRole().as();
-        scopedRole.setName(property.getName());
-        scopedRole.setType(type);
-        ModelNode node = property.getValue();
-        String baseRoleName = node.get("base-role").asString();
-        scopedRole.setBaseRole(StandardRole.fromString(baseRoleName));
-
-        List<String> scope = new ArrayList<String>();
-        List<ModelNode> scopeNodes = node.get(scopeName).asList();
-        for (ModelNode scopeNode : scopeNodes) {
-            scope.add(scopeNode.asString());
-        }
-        scopedRole.setScope(scope);
-        roles.add(scopedRole);
-    }
-
-    private void addManagementModelRoleAssignment(final Property property) {
-        boolean add = true;
-        String roleName = property.getName();
-        Role role = roles.getRole(roleName);
-        if (role != null) {
-            RoleAssignment.ManagementModel managementModel = new RoleAssignment.ManagementModel(role);
-            ModelNode assignmentNode = property.getValue();
-            if (assignmentNode.hasDefined("include")) {
-                List<Property> inclusions = assignmentNode.get("include").asPropertyList();
-                for (Property inclusion : inclusions) {
-                    Principal principal = mapPrincipal(inclusion.getValue());
-                    managementModel.include(principal);
-                }
-            } else {
-                // don't add this model, but goon so that principals in "exclude" will get extracted
-                add = false;
-            }
-            if (assignmentNode.hasDefined("exclude")) {
-                List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
-                for (Property exclusion : exclusions) {
-                    Principal principal = mapPrincipal(exclusion.getValue());
-                    if (principal.getType() == USER) {
-                        // exclude only users (see constraints)
-                        managementModel.exclude(principal);
+        if (!modelOperation.isPending()) {
+            modelOperation.extecute(new Outcome<Map<ReadModelOperation.Results, Object>>() {
+                @Override
+                public void onFailure(final Map<ReadModelOperation.Results, Object> context) {
+                    Throwable caught = (Throwable) context.get(ReadModelOperation.Results.ERROR);
+                    if (caught != null) {
+                        Log.error("Unknown error", caught);
+                        Console.error("Unknown error", caught.getMessage());
                     }
                 }
-            }
-            if (add) {
-                // add only if all constraints are met
-                assignments.add(managementModel);
-            }
-        }
-    }
 
-    private Principal mapPrincipal(final ModelNode node) {
-        Principal principal = beanFactory.principal().as();
-        principal.setName(node.get("name").asString());
-        if (node.hasDefined("realm")) {
-            principal.setRealm(node.get("realm").asString());
+                @Override
+                @SuppressWarnings("unchecked")
+                public void onSuccess(final Map<ReadModelOperation.Results, Object> context) {
+                    principals = (Principals) context.get(ReadModelOperation.Results.PRINCIPALS);
+                    assignments = (RoleAssignments) context.get(ReadModelOperation.Results.ASSIGNMENTS);
+                    roles = (Roles) context.get(ReadModelOperation.Results.ROLES);
+                    hosts = (List<String>) context.get(ReadModelOperation.Results.HOSTS);
+                    serverGroups = (List<String>) context.get(ReadModelOperation.Results.SERVER_GROUPS);
+                    getView().update(principals, assignments, roles, hosts, serverGroups);
+                }
+            });
         }
-        PrincipalType type = PrincipalType.valueOf(node.get("type").asString());
-        principal.setType(type);
-        principals.add(principal);
-        return principal;
     }
 
     // ------------------------------------------------------ callback methods triggered by the view
@@ -292,8 +192,8 @@ public class RoleAssignmentPresenter
         //        System.out.println("About to add " + principal.getType() + " " + principal
         //                .getName() + " to role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
 
-        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher);
-        addPrincipalOperation.extecute(role, roleAssignment, principal, new Outcome<Stack<Boolean>>() {
+        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher, role, roleAssignment, principal);
+        addPrincipalOperation.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 // TODO Error handling
@@ -350,6 +250,7 @@ public class RoleAssignmentPresenter
 
         void setPresenter(final RoleAssignmentPresenter presenter);
 
-        void update(final PrincipalStore principals, final RoleAssignmentStore assignments, final RoleStore roles);
+        void update(final Principals principals, final RoleAssignments assignments, final Roles roles,
+                final List<String> hosts, final List<String> serverGroups);
     }
 }

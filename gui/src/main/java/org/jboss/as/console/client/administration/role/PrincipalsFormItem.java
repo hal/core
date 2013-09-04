@@ -30,7 +30,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalStore;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -183,7 +183,7 @@ public class PrincipalsFormItem extends FormItem<List<Principal>> {
         return builder.toString();
     }
 
-    public void update(final PrincipalStore principals) {
+    public void update(final Principals principals) {
         cache.clear();
         List<Principal> byType = principals.get(type);
         if (byType != null) {

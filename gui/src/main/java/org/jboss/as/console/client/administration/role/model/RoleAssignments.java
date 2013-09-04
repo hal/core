@@ -32,14 +32,14 @@ import org.jboss.as.console.client.shared.BeanFactory;
 /**
  * @author Harald Pehl
  */
-public class RoleAssignmentStore {
+public class RoleAssignments {
 
     private final BeanFactory beanFactory;
     private final Map<String, RoleAssignment> lookup;
     private final List<RoleAssignment.ManagementModel> models;
     private final Map<PrincipalType, List<RoleAssignment>> assignments;
 
-    public RoleAssignmentStore(BeanFactory beanFactory) {
+    public RoleAssignments(BeanFactory beanFactory) {
         this.beanFactory = beanFactory;
         this.lookup = new HashMap<String, RoleAssignment>();
         this.models = new ArrayList<RoleAssignment.ManagementModel>();
@@ -71,13 +71,6 @@ public class RoleAssignmentStore {
         }
     }
 
-    public void clear() {
-        lookup.clear();
-        models.clear();
-        assignments.get(GROUP).clear();
-        assignments.get(USER).clear();
-    }
-
     public List<RoleAssignment> getGroupAssignments() {
         return assignments.get(GROUP);
     }
@@ -86,7 +79,7 @@ public class RoleAssignmentStore {
         return assignments.get(USER);
     }
 
-    public void transform(PrincipalStore principals) {
+    public void transform(Principals principals) {
         // The UI model is based on principals, so iterate over all known principals and find the relevant assignments
         for (Principal principal : principals) {
             for (RoleAssignment.ManagementModel managementModel : models) {

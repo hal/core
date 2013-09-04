@@ -88,8 +88,8 @@ public class ScopedRoleTable implements IsWidget {
             }
         };
         table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
-        table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
         table.addColumn(baseRoleColumn, Console.CONSTANTS.common_label_basedOn());
+        table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
         table.addColumn(scopeColumn, Console.CONSTANTS.administration_scope());
         content.add(table);
 
@@ -101,7 +101,7 @@ public class ScopedRoleTable implements IsWidget {
         return content;
     }
 
-    public void setRoles(final List<ScopedRole> roles) {
+    public void update(final List<ScopedRole> roles) {
         dataProvider.setList(roles);
         table.selectDefaultEntity();
     }

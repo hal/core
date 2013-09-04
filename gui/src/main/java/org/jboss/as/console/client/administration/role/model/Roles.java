@@ -37,21 +37,25 @@ import org.jboss.as.console.client.rbac.StandardRole;
  *
  * @author Harald Pehl
  */
-public class RoleStore implements Iterable<Role> {
+public class Roles implements Iterable<Role> {
 
     private final Map<String, Role> lookup;
     private final List<Role> standardRoles;
     private final SortedSet<ScopedRole> scopedRoles;
 
-    public RoleStore() {
-        lookup = new HashMap<String, Role>();
-        standardRoles = new ArrayList<Role>(asList(StandardRole.values()));
-        scopedRoles = new TreeSet<ScopedRole>(new Comparator<Role>() {
+    public Roles() {
+        this.lookup = new HashMap<String, Role>();
+        this.standardRoles = new ArrayList<Role>();
+        this.scopedRoles = new TreeSet<ScopedRole>(new Comparator<Role>() {
             @Override
             public int compare(final Role left, final Role right) {
                 return left.getName().compareTo(right.getName());
             }
         });
+        List<StandardRole> preset = asList(StandardRole.values());
+        for (StandardRole standardRole : preset) {
+            add(standardRole);
+        }
     }
 
     public void add(Role role) {
@@ -69,10 +73,6 @@ public class RoleStore implements Iterable<Role> {
         lookup.clear();
         standardRoles.clear();
         scopedRoles.clear();
-        List<StandardRole> standardRoles = asList(StandardRole.values());
-        for (StandardRole standardRole : standardRoles) {
-            add(standardRole);
-        }
     }
 
     public List<Role> getRoles() {

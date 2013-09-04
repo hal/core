@@ -37,7 +37,7 @@ import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignmentKey;
-import org.jboss.as.console.client.administration.role.model.RoleAssignmentStore;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -113,7 +113,7 @@ public class RoleAssignmentTable implements IsWidget {
         return content;
     }
 
-    public void setAssignments(final RoleAssignmentStore assignments) {
+    public void setAssignments(final RoleAssignments assignments) {
         if (type == GROUP) {
             dataProvider.setList(assignments.getGroupAssignments());
         } else if (type == USER) {
