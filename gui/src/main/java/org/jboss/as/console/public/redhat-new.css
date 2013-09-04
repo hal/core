@@ -1964,11 +1964,11 @@ input[type="checkbox"] {
 }
 
 .InfoBlock,.ConfirmationBlock {
-    background-color: #BCD589; /* light green */
+    background-color: #AFBF27; /* light green */
 }
 
 .WarnBlock {
-    background-color: #FFD272; /* light yellow */
+    background-color: #DC9F2E; /* light yellow */
 }
 
 .ErrorBlock {
