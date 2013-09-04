@@ -926,11 +926,9 @@ table {
 
 .gwt-TabLayoutPanelTab .gwt-TabLayoutPanelTabInner div {
     text-transform:uppercase;
-    color:#b5b5b5;
 }
 
 .gwt-TabLayoutPanelTab-selected .gwt-TabLayoutPanelTabInner div {
-    color:#989898!important;
 }
 
 /* fake tab header*/
@@ -952,9 +950,9 @@ table {
     border-left: 1px solid #CFCFCF;
     border-right: 1px solid #CFCFCF;
     border-top: 1px solid #CFCFCF;
-    color: #989898;
-    font-size: 12px;
-    font-weight: BOLD;
+    color: #666666;
+    font-size: 11px;
+    font-weight: 600;
     height: 35px;
     margin-top: 2px;
     padding-top: 10px;
