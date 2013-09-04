@@ -18,23 +18,20 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-
 import java.util.List;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.administration.role.model.ModelHelper;
+import org.jboss.as.console.client.administration.role.model.ScopeType;
+import org.jboss.as.console.client.administration.role.model.ScopedRole;
+import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -44,49 +41,44 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 /**
  * @author Harald Pehl
  */
-public class AddRoleAssignmentWizard implements IsWidget {
+public class AddScopedRoleWizard implements IsWidget {
 
-    private final PrincipalType type;
-    private final Principals principals;
-    private final Roles roles;
+    private final List<String> hosts;
+    private final List<String> serverGroups;
     private final RoleAssignmentPresenter presenter;
-    private final BeanFactory beanFactory;
 
-    public AddRoleAssignmentWizard(final PrincipalType type, final Principals principals, final Roles roles,
-            final RoleAssignmentPresenter presenter, BeanFactory beanFactory) {
-        this.type = type;
-        this.principals = principals;
-        this.roles = roles;
+    public AddScopedRoleWizard(final List<String> hosts, final List<String> serverGroups,
+            final RoleAssignmentPresenter presenter) {
+        this.hosts = hosts;
+        this.serverGroups = serverGroups;
         this.presenter = presenter;
-        this.beanFactory = beanFactory;
     }
 
     @Override
     public Widget asWidget() {
-        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-        List<Principal> byType = principals.get(type);
-        if (byType != null) {
-            for (Principal principal : byType) {
-                oracle.add(principal.getName());
-            }
-        }
-
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<RoleAssignment> form = new Form<RoleAssignment>(RoleAssignment.class);
-        String title = type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user();
-        PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title, beanFactory);
-        principalItem.setRequired(true);
-        principalItem.update(principals);
-        TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
-        // TODO The rolesItem is not part of the focus chain because it's not
-        // TODO recognized by org.jboss.ballroom.client.widgets.window.Focus
-        RolesFormItem rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 7);
-        rolesItem.setRequired(true);
-        form.setFields(principalItem, realmItem, rolesItem);
+        final Form<ScopedRole> form = new Form<ScopedRole>(ScopedRole.class);
+        TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
+                Console.CONSTANTS.administration_base_role());
+        baseRoleItem.setValues(ModelHelper.roles());
+        final EnumFormItem<ScopeType> typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
+        typeItem.setDefaultToFirst(true);
+        typeItem.setValues(ModelHelper.scopes());
+        final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
+        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         layout.add(form.asWidget());
-        rolesItem.setRoles(roles.getRoles());
+
+        typeItem.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(final ChangeEvent event) {
+                ScopeType type = typeItem.getValue();
+                updateScope(type, scopeItem, form);
+            }
+        });
+        updateScope(typeItem.getValue(), scopeItem, form);
 
         DialogueOptions options = new DialogueOptions(
                 new ClickHandler() {
@@ -94,8 +86,8 @@ public class AddRoleAssignmentWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            RoleAssignment assignment = form.getUpdatedEntity();
-                            presenter.addRoleAssignment(assignment);
+                            ScopedRole scopedRole = form.getUpdatedEntity();
+                            presenter.addScopedRole(scopedRole);
                         }
                     }
                 },
@@ -108,5 +100,19 @@ public class AddRoleAssignmentWizard implements IsWidget {
         );
 
         return new WindowContentBuilder(layout, options).build();
+    }
+
+    private void updateScope(final ScopeType type, final MultiselectListBoxItem scopeItem,
+            final Form<ScopedRole> form) {
+        if (type == ScopeType.host) {
+            scopeItem.setChoices(hosts);
+        } else if (type == ScopeType.serverGroup) {
+            scopeItem.setChoices(serverGroups);
+        }
+        // restore selection
+        ScopedRole entity = form.getEditedEntity();
+        if (entity != null) {
+            scopeItem.setValue(entity.getScope());
+        }
     }
 }

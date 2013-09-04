@@ -21,6 +21,7 @@ package org.jboss.as.console.client.administration.role.model;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,6 +54,12 @@ public class Roles implements Iterable<Role> {
             }
         });
         List<StandardRole> preset = asList(StandardRole.values());
+        Collections.sort(preset, new Comparator<StandardRole>() {
+            @Override
+            public int compare(final StandardRole left, final StandardRole right) {
+                return left.getName().compareTo(right.getName());
+            }
+        });
         for (StandardRole standardRole : preset) {
             add(standardRole);
         }

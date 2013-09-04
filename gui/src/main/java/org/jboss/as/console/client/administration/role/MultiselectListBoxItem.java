@@ -23,10 +23,10 @@ import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
 
 /**
  * @author Harald Pehl
@@ -34,7 +34,7 @@ import org.jboss.ballroom.client.widgets.forms.FormItem;
 public class MultiselectListBoxItem extends FormItem<List<String>> {
 
     private final ListBox listBox;
-    private final HorizontalPanel wrapper;
+    private final InputElementWrapper wrapper;
     private final ChangeHandler valueChangeHandler;
 
     public MultiselectListBoxItem(final String name, final String title) {
@@ -59,8 +59,8 @@ public class MultiselectListBoxItem extends FormItem<List<String>> {
         };
         listBox.addChangeHandler(valueChangeHandler);
 
-        wrapper = new HorizontalPanel();
-        wrapper.add(listBox);
+        wrapper = new InputElementWrapper(listBox.asWidget(), this);
+        wrapper.getElement().setAttribute("style", "width:100%");
     }
 
     @Override
@@ -68,6 +68,7 @@ public class MultiselectListBoxItem extends FormItem<List<String>> {
         super.setFiltered(filtered);
         super.toggleAccessConstraint(listBox, filtered);
         listBox.setEnabled(!filtered);
+        wrapper.setConstraintsApply(filtered);
     }
 
     @Override
@@ -83,7 +84,18 @@ public class MultiselectListBoxItem extends FormItem<List<String>> {
 
     @Override
     public boolean validate(List<String> value) {
-        return true;
+        return !(isRequired && getValue().isEmpty());
+    }
+
+    @Override
+    public void setErroneous(boolean b) {
+        super.setErroneous(b);
+        wrapper.setErroneous(b);
+    }
+
+    @Override
+    public String getErrMessage() {
+        return super.getErrMessage() + ": Select an item";
     }
 
     @Override

@@ -27,8 +27,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
+import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
@@ -75,7 +75,7 @@ public class RoleAssignmentDetails implements IsWidget {
         toolStrip.providesDeleteOp(false);
         content.add(toolStrip.asWidget());
 
-        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 6);
+        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 7);
         rolesItem.setRequired(true);
         if (type == GROUP) {
             excludesItem = new PrincipalsFormItem(type, "excludes", Console.CONSTANTS.common_label_exclude(),

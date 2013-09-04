@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -79,12 +78,10 @@ public class RoleAssignmentPresenter
     private final BeanFactory beanFactory;
     private final ReadModelOperation modelOperation;
     private DefaultWindow window;
-
     private Principals principals;
     private RoleAssignments assignments;
     private Roles roles;
     private List<String> hosts;
-
     private List<String> serverGroups;
 
     // ------------------------------------------------------ presenter lifecycle
@@ -150,11 +147,12 @@ public class RoleAssignmentPresenter
     // ------------------------------------------------------ callback methods triggered by the view
 
     public void launchAddRoleAssignmentWizard(final PrincipalType type) {
+        closeWindow();
         String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
         window.setWidth(480);
-        window.setHeight(type == GROUP ? 620 : 530);
+        window.setHeight(570);
         AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(type, principals, roles, this, beanFactory);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);
@@ -165,34 +163,62 @@ public class RoleAssignmentPresenter
         Console.info("Not yet implemented");
     }
 
-    public void removeRoleAssignment(final RoleAssignment assignment) {
-        Console.info("Not yet implemented");
-    }
-
     public void saveRoleAssignment(final RoleAssignment assignment, final Map<String, Object> changedValues) {
         Console.info("Not yet implemented");
     }
 
-    public void saveScopedRole(final ScopedRole scopedRole, final Map<String, Object> changedValues) {
+    public void removeRoleAssignment(final RoleAssignment assignment) {
         Console.info("Not yet implemented");
     }
 
     public void launchAddScopedRoleWizard() {
+        closeWindow();
+        window = new DefaultWindow(Console.CONSTANTS.administration_add_scoped_role());
+        window.setWidth(480);
+        window.setHeight(400);
+        AddScopedRoleWizard wizard = new AddScopedRoleWizard(hosts, serverGroups, this);
+        window.trapWidget(wizard.asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void addScopedRole(final ScopedRole role) {
         Console.info("Not yet implemented");
+        System.out.println(
+                "Add scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
+                        .getType() + " " + role.getScope());
+    }
+
+    public void saveScopedRole(final ScopedRole role, final Map<String, Object> changedValues) {
+        Console.info("Not yet implemented");
+        System.out.println(
+                "Save scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
+                        .getType() + " " + role.getScope());
+        System.out.println("Changed values: " + changedValues);
     }
 
     public void removeScopedRole(final ScopedRole role) {
         Console.info("Not yet implemented");
+        System.out.println(
+                "Remove scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
+                        .getType() + " " + role.getScope());
+    }
+
+    public void closeWindow() {
+        if (window != null) {
+            window.hide();
+        }
     }
 
     // ------------------------------------------------------ deprecated
 
     public void onAdd(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
-        closeDialog();
+        closeWindow();
         //        System.out.println("About to add " + principal.getType() + " " + principal
         //                .getName() + " to role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
 
-        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher, role, roleAssignment, principal);
+        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher, role,
+                roleAssignment, principal);
         addPrincipalOperation.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
@@ -230,12 +256,6 @@ public class RoleAssignmentPresenter
                 //                getView().reset();
             }
         });
-    }
-
-    public void closeDialog() {
-        if (window != null) {
-            window.hide();
-        }
     }
 
     // ------------------------------------------------------ proxy and view

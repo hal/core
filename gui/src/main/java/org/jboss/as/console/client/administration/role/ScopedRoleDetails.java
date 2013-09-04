@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +31,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
-import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -79,10 +78,10 @@ public class ScopedRoleDetails implements IsWidget {
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
-        baseRoleItem.setValues(roles());
+        baseRoleItem.setValues(ModelHelper.roles());
         typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
-        typeItem.setValues(scopes());
+        typeItem.setValues(ModelHelper.scopes());
         typeItem.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(final ChangeEvent event) {
@@ -95,21 +94,6 @@ public class ScopedRoleDetails implements IsWidget {
         content.add(form.asWidget());
 
         return content;
-    }
-
-    private Map<StandardRole, String> roles() {
-        Map<StandardRole, String> roles = new LinkedHashMap<StandardRole, String>();
-        for (StandardRole role : StandardRole.values()) {
-            roles.put(role, role.getName());
-        }
-        return roles;
-    }
-
-    private Map<ScopeType, String> scopes() {
-        Map<ScopeType, String> scopes = new LinkedHashMap<ScopeType, String>();
-        scopes.put(ScopeType.host, EnumLabelLookup.labelFor("ScopeType", ScopeType.host));
-        scopes.put(ScopeType.serverGroup, EnumLabelLookup.labelFor("ScopeType", ScopeType.serverGroup));
-        return scopes;
     }
 
     public void update(final List<String> hosts, final List<String> serverGroups) {
