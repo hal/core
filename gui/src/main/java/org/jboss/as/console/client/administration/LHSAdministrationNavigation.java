@@ -43,9 +43,9 @@ class LHSAdministrationNavigation {
         LHSNavTreeItem authItem = new LHSNavTreeItem(Console.CONSTANTS.administration_authorization(),
                 NameTokens.RoleAssignmentPresenter);
         accessLeaf.addItem(authItem);
-        LHSNavTreeItem auditLogItem = new LHSNavTreeItem(Console.CONSTANTS.administration_audit_log(),
+        /*LHSNavTreeItem auditLogItem = new LHSNavTreeItem(Console.CONSTANTS.administration_audit_log(),
                 NameTokens.AuditLogPresenter);
-        accessLeaf.addItem(auditLogItem);
+        accessLeaf.addItem(auditLogItem);*/
 
         navigation = new LHSNavTree("administration");
         navigation.getElement().setAttribute("aria-label", Console.CONSTANTS.administration_label());
