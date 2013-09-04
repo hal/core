@@ -297,7 +297,7 @@ public class BulletGraphView implements Sampler {
                 });
 
         bullet.range().add(PV.Bar).fillStyle("#CFCFCF");
-        bullet.measure().add(PV.Bar).fillStyle("#4E5255");
+        bullet.measure().add(PV.Bar).fillStyle("#666666");
 
         bullet.marker().add(PV.Dot).shape(PVShape.TRIANGLE).fillStyle("white");
         bullet.tick().add(PV.Rule).anchor(BOTTOM).add(PV.Label)
