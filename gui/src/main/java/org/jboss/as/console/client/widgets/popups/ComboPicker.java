@@ -156,7 +156,7 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         header.setStyleName("combobox"+cssSuffix);
         header.add(displayed);
 
-        HTML icon = new HTML("<span style='font-size:18px;cursor:pointer'><i class='icon-caret-down'></i></span>");
+        HTML icon = new HTML("<span style='font-size:12px;cursor:pointer'><i class='icon-chevron-down'></i></span>");
         header.add(icon);
 
         displayed.getElement().getParentElement().setAttribute("width", "100%");
