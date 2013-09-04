@@ -120,9 +120,11 @@ public class RoleAssignmentPresenter
         super.onReset();
 
         if (!modelOperation.isPending()) {
+            System.out.print("Loading role assignments...");
             modelOperation.extecute(new Outcome<Map<ReadModelOperation.Results, Object>>() {
                 @Override
                 public void onFailure(final Map<ReadModelOperation.Results, Object> context) {
+                    System.out.println("FAILED");
                     Throwable caught = (Throwable) context.get(ReadModelOperation.Results.ERROR);
                     if (caught != null) {
                         Log.error("Unknown error", caught);
@@ -133,6 +135,7 @@ public class RoleAssignmentPresenter
                 @Override
                 @SuppressWarnings("unchecked")
                 public void onSuccess(final Map<ReadModelOperation.Results, Object> context) {
+                    System.out.println("DONE");
                     principals = (Principals) context.get(ReadModelOperation.Results.PRINCIPALS);
                     assignments = (RoleAssignments) context.get(ReadModelOperation.Results.ASSIGNMENTS);
                     roles = (Roles) context.get(ReadModelOperation.Results.ROLES);
