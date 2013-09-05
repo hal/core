@@ -3,6 +3,7 @@ package org.jboss.as.console.client.domain.groups;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
@@ -12,8 +13,10 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -24,6 +27,7 @@ public class ServerGroupDetails {
     private Form<ServerGroupRecord> form;
     private ComboBoxItem socketBindingItem;
     private ServerGroupPresenter presenter;
+    private ComboBoxItem profileItem;
 
     public ServerGroupDetails(ServerGroupPresenter presenter) {
         this.presenter = presenter;
@@ -54,7 +58,7 @@ public class ServerGroupDetails {
         toolstrip.providesDeleteOp(false);
 
         TextItem nameItem = new TextItem("name", "Name");
-        TextItem profileItem = new TextItem("profileName", Console.CONSTANTS.common_label_profile());
+        profileItem = new ComboBoxItem("profileName", Console.CONSTANTS.common_label_profile());
         socketBindingItem = new ComboBoxItem("socketBinding", Console.CONSTANTS.common_label_socketBinding());
         socketBindingItem.setDefaultToFirstOption(true);
 
@@ -88,5 +92,16 @@ public class ServerGroupDetails {
 
     public void bind(DefaultCellTable<ServerGroupRecord> serverGroupTable) {
         form.bind(serverGroupTable);
+    }
+
+    public void setProfiles(List<ProfileRecord> profiles) {
+        profileItem.clearValue();
+        profileItem.clearSelection();
+
+        Set<String> names = new HashSet<String>(profiles.size());
+        for(ProfileRecord p : profiles)
+            names.add(p.getName());
+
+        profileItem.setValueMap(names);
     }
 }

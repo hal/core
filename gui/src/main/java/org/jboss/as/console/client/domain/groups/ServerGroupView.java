@@ -31,6 +31,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -232,6 +233,11 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
     @Override
     public void updateSocketBindings(List<String> result) {
         details.setSocketBindings(result);
+    }
+
+    @Override
+    public void updateProfiles(List<ProfileRecord> result) {
+        details.setProfiles(result);
     }
 
     private SingleSelectionModel<ServerGroupRecord> getSelectionModel() {

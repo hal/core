@@ -113,6 +113,8 @@ public class ServerGroupPresenter
         void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
 
         void setPreselection(String preselection);
+
+        void updateProfiles(List<ProfileRecord> result);
     }
 
     @Inject
@@ -160,6 +162,7 @@ public class ServerGroupPresenter
             @Override
             public void onSuccess(List<ProfileRecord> result) {
                 existingProfiles = result;
+                getView().updateProfiles(result);
             }
         });
 
