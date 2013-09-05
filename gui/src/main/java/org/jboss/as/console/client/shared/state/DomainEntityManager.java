@@ -174,7 +174,8 @@ public class DomainEntityManager implements
     }
 
     private Host getSelectedHost(List<Host> hosts) {
-        assert !hosts.isEmpty();
+
+        if(hosts.isEmpty()) throw new IllegalStateException("No host available!");
 
         Host matched = null;
 
@@ -198,7 +199,8 @@ public class DomainEntityManager implements
     }
 
     private ServerInstance getSelectedServerInstance(List<ServerInstance> serverInstances) {
-        assert !serverInstances.isEmpty();
+
+        if(serverInstances.isEmpty()) throw new IllegalStateException("No server instances available!");
 
         ServerInstance matched = null;
 
@@ -234,7 +236,8 @@ public class DomainEntityManager implements
     }
 
     private Server getSelectedServerConfig(List<Server> serverConfigs) {
-        assert !serverConfigs.isEmpty();
+
+        if(serverConfigs.isEmpty()) throw new IllegalStateException("No sever configs available!");
 
         Server matched = null;
 
