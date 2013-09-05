@@ -278,7 +278,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                     {
                         ModelNode model = item.asProperty().getValue();
                         Server server = serverAdapter.fromDMR(model);
-                        server.setStarted(model.get("status").asString().equals("STARTED"));
+                        server.setStarted(model.get("status").asString().equalsIgnoreCase("STARTED"));
                         server.setProfile(group2profile.get(server.getGroup()));
                         records.add(server);
                     }
