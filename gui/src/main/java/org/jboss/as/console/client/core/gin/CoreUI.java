@@ -62,6 +62,7 @@ import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
+import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.DialogPresenter;
@@ -163,6 +164,8 @@ public interface CoreUI {
 
     @DefaultGatekeeper
     Gatekeeper getRBACGatekeeper();
+
+    HostManagementGatekeeper getHostManagementGatekeeper();
 
     CurrentUser getCurrentUser();
     BootstrapContext getBootstrapContext();

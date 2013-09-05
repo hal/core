@@ -69,7 +69,6 @@ public class EagerLoadProfiles implements Function<BootstrapContext> {
         if(!profileSelection.isSet())
         {
             String name = result.get(0).getName();
-            System.out.println("Eager profile selection: "+name);
             profileSelection.setName(name);
         }
     }

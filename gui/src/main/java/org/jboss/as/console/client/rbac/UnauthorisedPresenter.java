@@ -15,7 +15,6 @@ import javax.inject.Inject;
 public class UnauthorisedPresenter extends PresenterWidget<UnauthorisedPresenter.MyView>
         implements AuthDecisionEvent.AuthDecisionHandler {
 
-
     /**
      * {@link UnauthorisedPresenter}'s view.
      */

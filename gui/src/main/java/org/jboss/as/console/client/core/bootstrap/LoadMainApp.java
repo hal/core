@@ -8,6 +8,8 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.HashSet;
 import java.util.List;
@@ -70,10 +72,28 @@ public class LoadMainApp implements Command
         }
         */
 
-        placeManager.revealDefaultPlace();
+        // RBAC edgecase
+        if(!bootstrapContext.isStandalone()
+            && (bootstrapContext.isGroupManagementDisabled() || bootstrapContext.isHostManagementDisabled())
+                )
+        {
+            Feedback.confirm(
+                    "Access Denied",
+                    "You seem to lack host or server group permissions required to access this interface.",
+                    new Feedback.ConfirmationHandler() {
+                        @Override
+                        public void onConfirmation(boolean isConfirmed) {
+                            // nada
+                        }
+                    });
+        }
+        else
+        {
+            placeManager.revealDefaultPlace();
+        }
     }
 
-    private static boolean isBlackListed (String token)
+    /*private static boolean isBlackListed (String token)
     {
         boolean match = false;
         for(String listed : BLACK_LIST)
@@ -85,5 +105,5 @@ public class LoadMainApp implements Command
             }
         }
         return match;
-    }
+    } */
 }

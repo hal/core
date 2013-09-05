@@ -8,6 +8,10 @@ import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
+/**
+ * The main function of this bootstrap step is to provide a host preselection.
+ *
+ */
 public class EagerLoadHosts implements Function<BootstrapContext> {
 
     private final DomainEntityManager domainManager;
@@ -26,8 +30,17 @@ public class EagerLoadHosts implements Function<BootstrapContext> {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    context.setlastError(caught);
-                    control.abort();
+                    if(caught instanceof DomainEntityManager.NoHostsAvailable)
+                    {
+                        // this is expected (host scoped roles)
+                        context.setHostManagementDisabled(true);
+                        control.proceed();
+                    }
+                    else
+                    {
+                        context.setlastError(caught);
+                        control.abort();
+                    }
                 }
 
                 @Override

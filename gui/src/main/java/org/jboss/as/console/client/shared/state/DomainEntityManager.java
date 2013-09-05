@@ -50,12 +50,30 @@ public class DomainEntityManager implements
         eventBus.addHandler(StaleGlobalModel.TYPE, this);
     }
 
+    public class NoHostsAvailable extends IllegalStateException {
+        public NoHostsAvailable() {
+            super("No hosts available!");
+        }
+    }
+
+    public class NoServerAvailable extends IllegalStateException {
+        public NoServerAvailable() {
+            super("No server available!");
+        }
+    }
+
     public void getHosts(final AsyncCallback<HostList> callback) {
         hostInfo.getHosts(new SimpleCallback<List<Host>>() {
             @Override
             public void onSuccess(List<Host> hosts) {
-                Host host = getSelectedHost(hosts);
-                callback.onSuccess(new HostList(host, hosts));
+                Host host = null;
+                try {
+                    host = getSelectedHost(hosts);
+                    callback.onSuccess(new HostList(host, hosts));
+                } catch (RuntimeException e) {
+                    callback.onFailure(e);
+                }
+
             }
         });
     }
@@ -175,7 +193,7 @@ public class DomainEntityManager implements
 
     private Host getSelectedHost(List<Host> hosts) {
 
-        if(hosts.isEmpty()) throw new IllegalStateException("No host available!");
+        if(hosts.isEmpty()) throw new NoHostsAvailable();
 
         Host matched = null;
 
@@ -213,7 +231,7 @@ public class DomainEntityManager implements
                 active = server;
 
             if(selectedServer!=null &&
-                server.getName().equals(selectedServer.getName()))
+                    server.getName().equals(selectedServer.getName()))
             {
                 matched = server;
                 break;

@@ -42,6 +42,8 @@ public class BootstrapContext implements ApplicationProperties {
     private String productName;
     private String productVersion;
     private String principal;
+    private boolean hostManagementDisabled;
+    private boolean groupManagementDisabled;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -201,5 +203,21 @@ public class BootstrapContext implements ApplicationProperties {
     public void setRole(String role)
     {
       // TODO https://issues.jboss.org/browse/HAL-136
+    }
+
+    public void setHostManagementDisabled(boolean b) {
+        this.hostManagementDisabled = b;
+    }
+
+    public boolean isHostManagementDisabled() {
+        return hostManagementDisabled;
+    }
+
+    public void setGroupManagementDisabled(boolean b) {
+        this.groupManagementDisabled = b;
+    }
+
+    public boolean isGroupManagementDisabled() {
+        return groupManagementDisabled;
     }
 }

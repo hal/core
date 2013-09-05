@@ -41,6 +41,7 @@ import org.jboss.as.console.client.core.LoadingPanel;
 import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.core.UIDebugConstants;
 import org.jboss.as.console.client.core.UIMessages;
+import org.jboss.as.console.client.core.bootstrap.EagerLoadGroups;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadHosts;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadProfiles;
 import org.jboss.as.console.client.core.bootstrap.ExecutionMode;
@@ -59,6 +60,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
+import org.jboss.as.console.client.widgets.progress.ProgressWindow;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
@@ -67,12 +69,7 @@ import java.util.EnumSet;
 import java.util.Map;
 
 /**
- * Main application entry point.
- * Executes a two phased init process:
- * <ol>
- *     <li>Identify management model (standalone vs. domain)
- *     <li>Load main application
- * </ol>
+ * Main application entry point. Executes several initialisation phases.
  *
  * @author Heiko Braun
  */
@@ -84,10 +81,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     public final static UIMessages MESSAGES = GWT.create(UIMessages.class);
 
     public void onModuleLoad() {
-        // Defer all application initialisation code to onModuleLoad2() so that the
-        // UncaughtExceptionHandler can catch any unexpected exceptions.
         Log.setUncaughtExceptionHandler();
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -171,7 +165,8 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                         new LoadCompatMatrix(MODULES.modelVersions()),
                         new RegisterSubsystems(MODULES.getSubsystemRegistry()),
                         new EagerLoadProfiles(MODULES.getProfileStore(), MODULES.getCurrentSelectedProfile()),
-                        new EagerLoadHosts(MODULES.getDomainEntityManager())
+                        new EagerLoadHosts(MODULES.getDomainEntityManager()),
+                        new EagerLoadGroups(MODULES.getServerGroupStore())
                 );
             }
         });
@@ -286,4 +281,5 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         reloadState.updateFrom(states);
         reloadState.propagateChanges();
     }
+
 }

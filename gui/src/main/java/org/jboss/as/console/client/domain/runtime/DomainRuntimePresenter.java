@@ -10,6 +10,7 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
@@ -27,6 +28,7 @@ import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
@@ -59,9 +61,10 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     private final DomainEntityManager domainManager;
 
 
-    @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
+
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
+    @UseGatekeeper(HostManagementGatekeeper.class)
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
     }
 

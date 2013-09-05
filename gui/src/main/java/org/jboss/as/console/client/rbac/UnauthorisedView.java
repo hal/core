@@ -26,7 +26,7 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
     private final DefaultWindow window;
     private final HTML html;
     private UnauthorisedPresenter presenter;
-    private final static  String DESC = "You don't have the permissions to access these resources:<p/>";
+    private final static  String DESC = "You don't have the permissions to access this resource!";
 
     @Inject
     UnauthorisedView(EventBus eventBus) {
@@ -58,13 +58,6 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
         window.setHeight(360);
         window.setGlassEnabled(true);
 
-        /*window.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-                presenter.onConfirmation();
-            }
-        }) ;*/
-
         initWidget(window);
 
         setAutoHideOnNavigationEventEnabled(true);
@@ -75,10 +68,6 @@ public class UnauthorisedView extends PopupViewImpl implements UnauthorisedPrese
 
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant(DESC);
-        builder.appendHtmlConstant("<ul>");
-        for(String s : decision.getErrorMessages())
-            builder.appendHtmlConstant("<li>").appendEscaped(s).appendHtmlConstant("</li>");
-        builder.appendHtmlConstant("</ul>");
         html.setHTML(builder.toSafeHtml());
     }
 

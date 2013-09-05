@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
@@ -40,8 +41,8 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
@@ -55,8 +56,6 @@ public class HostMgmtPresenter
 
     private final PlaceManager placeManager;
 
-    private HostInformationStore hostInfoStore;
-
     private boolean hasBeenRevealed;
 
     @ContentSlot
@@ -66,9 +65,9 @@ public class HostMgmtPresenter
     private Header header;
     private final DomainEntityManager domainManager;
 
-    @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
+    @UseGatekeeper(HostManagementGatekeeper.class)
     public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
     }
 
@@ -81,12 +80,10 @@ public class HostMgmtPresenter
     public HostMgmtPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager,
-            HostInformationStore hostInfoStore,
             BootstrapContext bootstrap, Header header, DomainEntityManager domainManager) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
-        this.hostInfoStore = hostInfoStore;
         this.bootstrap = bootstrap;
         this.header = header;
         this.domainManager = domainManager;

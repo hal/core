@@ -93,6 +93,7 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
+import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.MockSecurityFramework;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -290,7 +291,6 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // ----------------------------------------------------------------------
 
-        //TODO: bind(EventBus.class).to(DebugEventBus.class).in(Singleton.class);
         bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
 
         bind(PlaceManager.class).to(DefaultPlaceManager.class).in(Singleton.class);
@@ -303,6 +303,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         //bind(ProxyFailureHandler.class).to(DefaultProxyFailureHandler.class).in(Singleton.class);
 
         bind(Gatekeeper.class).to(RBACGatekeeper.class).in(Singleton.class);
+        bind(HostManagementGatekeeper.class).in(Singleton.class);
 
         bind(CurrentUser.class).in(Singleton.class);
         bind(BootstrapContext.class).in(Singleton.class);
