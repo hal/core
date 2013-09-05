@@ -9,6 +9,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.charts.TextColumn;
@@ -31,11 +33,11 @@ public class BasicMetrics {
 
     private HTML title;
 
-    private PlainColumnView queryCacheSampler;
-    private PlainColumnView txSampler;
-    private PlainColumnView queryExecSampler;
-    private PlainColumnView secondLevelSampler;
-    private PlainColumnView connectionSampler;
+    private Sampler queryCacheSampler;
+    private Sampler txSampler;
+    private Sampler queryExecSampler;
+    private Sampler secondLevelSampler;
+    private Sampler connectionSampler;
 
     private String[] tokens;
     private HTML slowQuery;
@@ -77,40 +79,59 @@ public class BasicMetrics {
             }
         };
 
-        txSampler = new PlainColumnView("Transactions", addressCallback)
-                .setColumns(cols)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            txSampler = new BulletGraphView("Transactions", "count").setColumns(cols);
+        }
+        else
+        {
+            txSampler = new PlainColumnView("Transactions", addressCallback)
+                    .setColumns(cols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         //  ------
 
-        NumberColumn queryCount = new NumberColumn("query-cache-put-count","Query Put Count");
+        NumberColumn queryCount = new NumberColumn("query-cache-put-count","Put Count");
 
         Column[] queryCols = new Column[] {
                 queryCount.setBaseline(true),
-                new NumberColumn("query-cache-hit-count","Query Hit Count").setComparisonColumn(queryCount),
-                new NumberColumn("query-cache-miss-count","Query Miss Count").setComparisonColumn(queryCount)
+                new NumberColumn("query-cache-hit-count","Hit Count").setComparisonColumn(queryCount),
+                new NumberColumn("query-cache-miss-count","Miss Count").setComparisonColumn(queryCount)
 
         };
 
-        queryCacheSampler = new PlainColumnView("Query Cache", addressCallback)
-                .setColumns(queryCols)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            queryCacheSampler = new BulletGraphView("Query Cache", "count").setColumns(queryCols);
+        }
+        else
+        {
+            queryCacheSampler = new PlainColumnView("Query Cache", addressCallback)
+                    .setColumns(queryCols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         //  ------
 
-        NumberColumn queryExecCount = new NumberColumn("query-execution-count","Query Execution Count");
+        NumberColumn queryExecCount = new NumberColumn("query-execution-count","Execution Count");
 
         Column[] queryExecCols = new Column[] {
                 queryExecCount,
-                new NumberColumn("query-execution-max-time","Exec Max Time")
+                new NumberColumn("query-execution-max-time","Max Time")
         };
 
-        queryExecSampler  = new PlainColumnView("Query Execution", addressCallback)
-                .setColumns(queryExecCols)
-                .setWidth(100, Style.Unit.PCT);
 
+        if(Console.protovisAvailable())
+        {
+            queryExecSampler = new BulletGraphView("Execution", "count").setColumns(queryExecCols);
+        }
+        else
+        {
+            queryExecSampler  = new PlainColumnView("Execution", addressCallback)
+                    .setColumns(queryExecCols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
         //  ------
 
@@ -123,27 +144,39 @@ public class BasicMetrics {
 
         };
 
-        secondLevelSampler  = new PlainColumnView("Second Level Cache", addressCallback)
-                .setColumns(secondLevelCols)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            secondLevelSampler = new BulletGraphView("Second Level Cache", "count").setColumns(secondLevelCols);
+        }
+        else
+        {
+            secondLevelSampler  = new PlainColumnView("Second Level Cache", addressCallback)
+                    .setColumns(secondLevelCols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
 
 
         //  ------
 
 
-        NumberColumn sessionOpenCount = new NumberColumn("session-open-count", "Session Open Count");
+        NumberColumn sessionOpenCount = new NumberColumn("session-open-count", "open");
         Column[] connectionCols = new Column[] {
                 sessionOpenCount.setBaseline(true),
-                new TextColumn("session-close-count","Session Close Count").setComparisonColumn(sessionOpenCount),
+                new TextColumn("session-close-count","Closed").setComparisonColumn(sessionOpenCount),
                 new NumberColumn("connect-count","Connection Count")
 
         };
 
-        connectionSampler  = new PlainColumnView("Connections", addressCallback)
-                .setColumns(connectionCols)
-                .setWidth(100, Style.Unit.PCT);
-
+        if(Console.protovisAvailable())
+        {
+            connectionSampler = new BulletGraphView("Connections", "count").setColumns(connectionCols);
+        }
+        else
+        {
+            connectionSampler  = new PlainColumnView("Connections", addressCallback)
+                    .setColumns(connectionCols)
+                    .setWidth(100, Style.Unit.PCT);
+        }
         // ----
 
         title = new HTML();
