@@ -27,7 +27,7 @@ public class DomainEntityManager implements
 
 
     private String selectedHost;
-    private String selectedServer;
+    private ServerSelection selectedServer;
 
     private final HostInformationStore hostInfo;
     private final EventBus eventBus;
@@ -106,7 +106,15 @@ public class DomainEntityManager implements
         if(null==selectedServer)
             Log.warn("server selection is null");//throw new IllegalStateException("server should not be null");
 
-        return selectedServer!=null ? selectedServer : NOT_SET;
+        return selectedServer!=null ? selectedServer.getName() : NOT_SET;
+    }
+
+    public ServerSelection getSelectedServerStatus() {
+
+        if(null==selectedServer)
+            return new ServerSelection("n/a", false);
+        else
+            return selectedServer;
     }
 
     @Override
@@ -149,7 +157,7 @@ public class DomainEntityManager implements
     public void onServerSelection(ServerInstance server) {
         // replace host selection, server selection has precedence
         selectedHost = server.getHost();
-        selectedServer = server.getName();
+        selectedServer = new ServerSelection(server.getName(), server.isRunning());
 
         // check server state
         if(!server.isRunning())
@@ -196,7 +204,8 @@ public class DomainEntityManager implements
             if(server.isRunning())
                 active = server;
 
-            if(server.getName().equals(selectedServer))
+            if(selectedServer!=null &&
+                server.getName().equals(selectedServer.getName()))
             {
                 matched = server;
                 break;
@@ -213,7 +222,7 @@ public class DomainEntityManager implements
             matched = serverInstances.get(0);
 
         selectedHost = matched.getHost();
-        selectedServer = matched.getName();
+        selectedServer = new ServerSelection(matched.getName(), matched.isRunning());
 
         return matched;
     }
@@ -226,7 +235,8 @@ public class DomainEntityManager implements
         // match by preselection
         for(Server s : serverConfigs)
         {
-            if(s.getName().equals(selectedServer))
+            if(selectedServer!=null &&
+                    s.getName().equals(selectedServer.getName()))
             {
                 matched = s;
                 break;
@@ -237,8 +247,26 @@ public class DomainEntityManager implements
         if(null==matched)
             matched = serverConfigs.get(0);
 
-        selectedServer = matched.getName();
+        selectedServer = new ServerSelection(matched.getName(), matched.isStarted());
 
         return matched;
+    }
+
+    public class ServerSelection {
+        private String name;
+        private boolean running;
+
+        ServerSelection(String name, boolean running) {
+            this.name = name;
+            this.running = running;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isRunning() {
+            return running;
+        }
     }
 }
