@@ -236,22 +236,10 @@ public class BulletGraphView implements Sampler {
         return Math.round((actual/total)*100);
     }
 
-    private int getComparisonIndex(Column current) {
-        int index = 0;
-        for(Column c : columns)
-        {
-            if(c.equals(current))
-            {
-                break;
-            }
-            index++;
-        }
-        return index;
-    }
-
     @Override
     public void clearSamples() {
         this.bullets =  JsUtils.createJsArrayGeneric();
+        renderDefault();
     }
 
     @Override
