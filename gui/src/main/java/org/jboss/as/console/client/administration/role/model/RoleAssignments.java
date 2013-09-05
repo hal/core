@@ -65,7 +65,19 @@ public class RoleAssignments {
                     if (existingAssignment.getExcludes() == null) {
                         existingAssignment.setExcludes(new ArrayList<Principal>());
                     }
-                    existingAssignment.getExcludes().addAll(roleAssignment.getExcludes());
+                    // add missing excludes
+                    for (Principal newExclude : roleAssignment.getExcludes()) {
+                        boolean add = true;
+                        for (Principal existingExclude : existingAssignment.getExcludes()) {
+                            if (existingExclude.getName().equals(newExclude.getName())) {
+                                add = false;
+                                break;
+                            }
+                        }
+                        if (add) {
+                            existingAssignment.getExcludes().add(newExclude);
+                        }
+                    }
                 }
             }
         }
@@ -85,13 +97,8 @@ public class RoleAssignments {
             for (RoleAssignment.ManagementModel managementModel : models) {
                 for (Principal include : managementModel.getIncludes()) {
                     if (include.getName().equals(principal.getName())) {
-                        StringBuilder id = new StringBuilder();
-                        id.append(include.getType().name().toLowerCase()).append("-").append(include.getName());
-                        if (include.getRealm() != null) {
-                            id.append("@").append(include.getRealm());
-                        }
                         RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
-                        roleAssignment.setId(id.toString());
+                        roleAssignment.setId(ModelHelper.principalIdentifier(include));
                         roleAssignment.setPrincipal(include);
                         if (roleAssignment.getRoles() == null) {
                             roleAssignment.setRoles(new ArrayList<Role>());
@@ -112,5 +119,16 @@ public class RoleAssignments {
                 }
             }
         }
+    }
+
+    private boolean contains(final List<Principal> principals, final Principal principal) {
+        if (principals != null && principal != null) {
+            for (Principal current : principals) {
+                if (current.getName().equals(principal.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

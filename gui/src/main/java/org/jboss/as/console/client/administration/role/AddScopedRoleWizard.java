@@ -61,7 +61,7 @@ public class AddScopedRoleWizard implements IsWidget {
 
         final Form<ScopedRole> form = new Form<ScopedRole>(ScopedRole.class);
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
+        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(ModelHelper.roles());
         final EnumFormItem<ScopeType> typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
@@ -87,6 +87,9 @@ public class AddScopedRoleWizard implements IsWidget {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
                             ScopedRole scopedRole = form.getUpdatedEntity();
+                            // The form cannot handle enums...
+                            scopedRole.setBaseRole(baseRoleItem.getValue());
+                            scopedRole.setType(typeItem.getValue());
                             presenter.addScopedRole(scopedRole);
                         }
                     }

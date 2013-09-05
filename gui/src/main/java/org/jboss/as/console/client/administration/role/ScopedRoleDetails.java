@@ -35,8 +35,8 @@ import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
@@ -58,25 +58,8 @@ public class ScopedRoleDetails implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        VerticalPanel content = new VerticalPanel();
-        content.setStyleName("fill-layout-width");
-
-        FormToolStrip<ScopedRole> toolStrip = new FormToolStrip<ScopedRole>(form,
-                new FormToolStrip.FormCallback<ScopedRole>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.saveScopedRole(form.getEditedEntity(), form.getChangedValues());
-                    }
-
-                    @Override
-                    public void onDelete(ScopedRole scopedRole) {
-                    }
-                });
-        toolStrip.providesDeleteOp(false);
-        content.add(toolStrip.asWidget());
-
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
+        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(ModelHelper.roles());
         typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
@@ -91,6 +74,23 @@ public class ScopedRoleDetails implements IsWidget {
         scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         form.setEnabled(false);
+        form.setToolsCallback(new FormCallback() {
+            @Override
+            public void onSave(final Map changeset) {
+                ScopedRole scopedRole = form.getUpdatedEntity();
+                // The form cannot handle enums...
+                scopedRole.setBaseRole(baseRoleItem.getValue());
+                scopedRole.setType(typeItem.getValue());
+                presenter.saveScopedRole(scopedRole, form.getChangedValues());
+            }
+
+            @Override
+            public void onCancel(final Object entity) {
+            }
+        });
+
+        VerticalPanel content = new VerticalPanel();
+        content.setStyleName("fill-layout-width");
         content.add(form.asWidget());
 
         return content;

@@ -22,6 +22,8 @@ import static org.jboss.as.console.client.administration.role.model.PrincipalTyp
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -44,10 +46,10 @@ import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -76,7 +78,7 @@ public class RoleAssignmentPresenter
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
-    private final ReadModelOperation modelOperation;
+    private final LoadRoleAssignmentsOp loadRoleAssignmentsOp;
     private DefaultWindow window;
     private Principals principals;
     private RoleAssignments assignments;
@@ -95,7 +97,8 @@ public class RoleAssignmentPresenter
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
-        this.modelOperation = new ReadModelOperation(dispatcher, beanFactory, hostInformationStore, serverGroupStore);
+        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, beanFactory, hostInformationStore,
+                serverGroupStore);
 
         this.principals = new Principals();
         this.assignments = new RoleAssignments(beanFactory);
@@ -118,14 +121,17 @@ public class RoleAssignmentPresenter
     @Override
     protected void onReset() {
         super.onReset();
+        loadAssignments();
+    }
 
-        if (!modelOperation.isPending()) {
+    private void loadAssignments() {
+        if (!loadRoleAssignmentsOp.isPending()) {
             System.out.print("Loading role assignments...");
-            modelOperation.extecute(new Outcome<Map<ReadModelOperation.Results, Object>>() {
+            loadRoleAssignmentsOp.extecute(new Outcome<Map<LoadRoleAssignmentsOp.Results, Object>>() {
                 @Override
-                public void onFailure(final Map<ReadModelOperation.Results, Object> context) {
+                public void onFailure(final Map<LoadRoleAssignmentsOp.Results, Object> context) {
                     System.out.println("FAILED");
-                    Throwable caught = (Throwable) context.get(ReadModelOperation.Results.ERROR);
+                    Throwable caught = (Throwable) context.get(LoadRoleAssignmentsOp.Results.ERROR);
                     if (caught != null) {
                         Log.error("Unknown error", caught);
                         Console.error("Unknown error", caught.getMessage());
@@ -134,13 +140,13 @@ public class RoleAssignmentPresenter
 
                 @Override
                 @SuppressWarnings("unchecked")
-                public void onSuccess(final Map<ReadModelOperation.Results, Object> context) {
+                public void onSuccess(final Map<LoadRoleAssignmentsOp.Results, Object> context) {
                     System.out.println("DONE");
-                    principals = (Principals) context.get(ReadModelOperation.Results.PRINCIPALS);
-                    assignments = (RoleAssignments) context.get(ReadModelOperation.Results.ASSIGNMENTS);
-                    roles = (Roles) context.get(ReadModelOperation.Results.ROLES);
-                    hosts = (List<String>) context.get(ReadModelOperation.Results.HOSTS);
-                    serverGroups = (List<String>) context.get(ReadModelOperation.Results.SERVER_GROUPS);
+                    principals = (Principals) context.get(LoadRoleAssignmentsOp.Results.PRINCIPALS);
+                    assignments = (RoleAssignments) context.get(LoadRoleAssignmentsOp.Results.ASSIGNMENTS);
+                    roles = (Roles) context.get(LoadRoleAssignmentsOp.Results.ROLES);
+                    hosts = (List<String>) context.get(LoadRoleAssignmentsOp.Results.HOSTS);
+                    serverGroups = (List<String>) context.get(LoadRoleAssignmentsOp.Results.SERVER_GROUPS);
                     getView().update(principals, assignments, roles, hosts, serverGroups);
                 }
             });
@@ -163,11 +169,38 @@ public class RoleAssignmentPresenter
     }
 
     public void addRoleAssignment(final RoleAssignment assignment) {
-        Console.info("Not yet implemented");
+        closeWindow();
+        ModifyRoleAssignmentOp op = new ModifyRoleAssignmentOp(dispatcher, assignment, Collections.<Role>emptyList(),
+                Collections.<Principal>emptyList());
+        op.extecute(new Outcome<Stack<Boolean>>() {
+            @Override
+            public void onFailure(final Stack<Boolean> context) {
+                Console.info(Console.MESSAGES.addingFailed("role assignment"));
+            }
+
+            @Override
+            public void onSuccess(final Stack<Boolean> context) {
+                Console.info(Console.MESSAGES.added("role rssignment"));
+                loadAssignments();
+            }
+        });
     }
 
-    public void saveRoleAssignment(final RoleAssignment assignment, final Map<String, Object> changedValues) {
-        Console.info("Not yet implemented");
+    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles,
+            final Collection<Principal> removedExcludes) {
+        ModifyRoleAssignmentOp op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles, removedExcludes);
+        op.extecute(new Outcome<Stack<Boolean>>() {
+            @Override
+            public void onFailure(final Stack<Boolean> context) {
+                Console.info(Console.MESSAGES.saveFailed("role assignment"));
+            }
+
+            @Override
+            public void onSuccess(final Stack<Boolean> context) {
+                Console.info(Console.MESSAGES.saved("role rssignment"));
+                loadAssignments();
+            }
+        });
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
@@ -214,27 +247,6 @@ public class RoleAssignmentPresenter
     }
 
     // ------------------------------------------------------ deprecated
-
-    public void onAdd(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
-        closeWindow();
-        //        System.out.println("About to add " + principal.getType() + " " + principal
-        //                .getName() + " to role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
-
-        AddRoleAssignmentOperation addPrincipalOperation = new AddRoleAssignmentOperation(dispatcher, role,
-                roleAssignment, principal);
-        addPrincipalOperation.extecute(new Outcome<Stack<Boolean>>() {
-            @Override
-            public void onFailure(final Stack<Boolean> context) {
-                // TODO Error handling
-                Console.MODULES.getMessageCenter().notify(new Message("Cannot add principal", Message.Severity.Error));
-            }
-
-            @Override
-            public void onSuccess(final Stack<Boolean> context) {
-                //                getView().reset();
-            }
-        });
-    }
 
     public void onDelete(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
         //        System.out.println("About to delete " + principal.getType() + " " + principal

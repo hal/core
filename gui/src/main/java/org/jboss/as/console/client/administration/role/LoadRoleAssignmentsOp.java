@@ -61,7 +61,7 @@ import org.jboss.gwt.flow.client.Outcome;
  *
  * @author Harald Pehl
  */
-public class ReadModelOperation {
+public class LoadRoleAssignmentsOp {
 
     static final String LOCAL_USERNAME = "$local";
 
@@ -71,7 +71,7 @@ public class ReadModelOperation {
     private final ServerGroupStore serverGroupStore;
     private boolean pending;
 
-    public ReadModelOperation(final DispatchAsync dispatcher, final BeanFactory beanFactory,
+    public LoadRoleAssignmentsOp(final DispatchAsync dispatcher, final BeanFactory beanFactory,
             final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;

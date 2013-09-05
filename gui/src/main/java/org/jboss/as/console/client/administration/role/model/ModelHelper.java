@@ -46,4 +46,13 @@ public final class ModelHelper {
         scopes.put(ScopeType.serverGroup, EnumLabelLookup.labelFor("ScopeType", ScopeType.serverGroup));
         return scopes;
     }
+
+    public static String principalIdentifier(Principal principal) {
+        StringBuilder id = new StringBuilder();
+        id.append(principal.getType().name().toLowerCase()).append("-").append(principal.getName());
+        if (principal.getRealm() != null) {
+            id.append("@").append(principal.getRealm());
+        }
+        return id.toString();
+    }
 }
