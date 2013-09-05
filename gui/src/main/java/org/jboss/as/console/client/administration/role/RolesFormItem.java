@@ -22,13 +22,14 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -39,7 +40,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleKey;
+import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.InputElement;
@@ -53,14 +58,18 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
     private final int pageSize;
     private final List<Role> value;
+    private final boolean excludes;
     private DefaultCellTable<Role> table;
     private ListDataProvider<Role> dataProvider;
     private MultiSelectionModel<Role> selectionModel;
+    private Principals principals;
     private TableWrapper wrapper;
+    private RoleAssignment roleAssignment;
 
-    public RolesFormItem(final String name, final String title, int pageSize) {
+    public RolesFormItem(final String name, final String title, int pageSize, boolean excludes) {
         super(name, title);
         this.pageSize = pageSize;
+        this.excludes = excludes;
         this.value = new ArrayList<Role>();
     }
 
@@ -86,6 +95,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
         // columns
         Column<Role, Boolean> checkColumn = new
+
                 Column<Role, Boolean>(new CheckboxCell(true, false)) {
                     @Override
                     public Boolean getValue(Role role) {
@@ -93,8 +103,9 @@ public class RolesFormItem extends FormItem<List<Role>> {
                         return selectionModel.isSelected(role);
                     }
                 };
-        Column<Role, String> nameColumn = new
-                Column<Role, String>(new TextCell()) {
+        TextColumn<Role> nameColumn = new
+
+                TextColumn<Role>() {
                     @Override
                     public String getValue(Role role) {
                         return role.getName();
@@ -103,6 +114,20 @@ public class RolesFormItem extends FormItem<List<Role>> {
         table.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         table.setColumnWidth(checkColumn, 40, PX);
         table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
+        if (excludes) {
+            Column<Role, List<Principal>> excludesColumn =
+                    new Column<Role, List<Principal>>(CellFactory.newPrincipalsCell()) {
+                        @Override
+                        public List<Principal> getValue(final Role role) {
+                            if (roleAssignment != null && roleAssignment.getExcludes() != null && roleAssignment
+                                    .getExcludes().get(role.getName()) != null) {
+                                return roleAssignment.getExcludes().get(role.getName());
+                            }
+                            return Collections.<Principal>emptyList();
+                        }
+                    };
+            table.addColumn(excludesColumn, Console.CONSTANTS.common_label_exclude());
+        }
 
         // pager
         DefaultPager pager = new DefaultPager();
@@ -116,16 +141,6 @@ public class RolesFormItem extends FormItem<List<Role>> {
         content.add(pager);
         wrapper = new TableWrapper(content, this);
         return wrapper;
-    }
-
-    public void setRoles(List<Role> roles) {
-        if (dataProvider != null) {
-            dataProvider.setList(roles);
-            selectionModel.clear();
-            for (Role role : value) {
-                selectionModel.setSelected(role, true);
-            }
-        }
     }
 
     @Override
@@ -179,6 +194,21 @@ public class RolesFormItem extends FormItem<List<Role>> {
     @Override
     public String getErrMessage() {
         return super.getErrMessage() + ": Select a role";
+    }
+
+    public void update(final Principals principals, final Roles roles) {
+        this.principals = principals;
+        if (dataProvider != null) {
+            dataProvider.setList(roles.getRoles());
+            selectionModel.clear();
+            for (Role role : value) {
+                selectionModel.setSelected(role, true);
+            }
+        }
+    }
+
+    public void setRoleAssignment(final RoleAssignment roleAssignment) {
+        this.roleAssignment = roleAssignment;
     }
 
     static class TableWrapper extends VerticalPanel {

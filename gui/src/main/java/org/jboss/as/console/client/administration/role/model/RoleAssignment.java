@@ -20,6 +20,7 @@ package org.jboss.as.console.client.administration.role.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.as.console.client.rbac.Role;
 
@@ -39,8 +40,12 @@ public interface RoleAssignment {
     List<Role> getRoles();
     void setRoles(List<Role> roles);
 
-    List<Principal> getExcludes();
-    void setExcludes(List<Principal> principals);
+    /**
+     * Each role has its <strong>own</strong> excludes. The key is the role name.
+     * @return the excludes for the roles of this assignment
+     */
+    Map<String, List<Principal>> getExcludes();
+    void setExcludes(Map<String, List<Principal>> principals);
 
     /**
      * The role maping as used in the management model. This is a kind of helper class used to read the role mapping

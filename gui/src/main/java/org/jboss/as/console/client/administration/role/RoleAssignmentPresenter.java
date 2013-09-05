@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,17 +48,12 @@ import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
@@ -78,7 +73,8 @@ public class RoleAssignmentPresenter
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
-    private final LoadRoleAssignmentsOp loadRoleAssignmentsOp;
+    private final ManagementOperation<Map<Results, Object>> loadRoleAssignmentsOp;
+
     private DefaultWindow window;
     private Principals principals;
     private RoleAssignments assignments;
@@ -127,11 +123,12 @@ public class RoleAssignmentPresenter
     private void loadAssignments() {
         if (!loadRoleAssignmentsOp.isPending()) {
             System.out.print("Loading role assignments...");
-            loadRoleAssignmentsOp.extecute(new Outcome<Map<LoadRoleAssignmentsOp.Results, Object>>() {
+            final long start = System.currentTimeMillis();
+            loadRoleAssignmentsOp.extecute(new Outcome<Map<Results, Object>>() {
                 @Override
-                public void onFailure(final Map<LoadRoleAssignmentsOp.Results, Object> context) {
+                public void onFailure(final Map<Results, Object> context) {
                     System.out.println("FAILED");
-                    Throwable caught = (Throwable) context.get(LoadRoleAssignmentsOp.Results.ERROR);
+                    Throwable caught = (Throwable) context.get(Results.ERROR);
                     if (caught != null) {
                         Log.error("Unknown error", caught);
                         Console.error("Unknown error", caught.getMessage());
@@ -140,13 +137,14 @@ public class RoleAssignmentPresenter
 
                 @Override
                 @SuppressWarnings("unchecked")
-                public void onSuccess(final Map<LoadRoleAssignmentsOp.Results, Object> context) {
-                    System.out.println("DONE");
-                    principals = (Principals) context.get(LoadRoleAssignmentsOp.Results.PRINCIPALS);
-                    assignments = (RoleAssignments) context.get(LoadRoleAssignmentsOp.Results.ASSIGNMENTS);
-                    roles = (Roles) context.get(LoadRoleAssignmentsOp.Results.ROLES);
-                    hosts = (List<String>) context.get(LoadRoleAssignmentsOp.Results.HOSTS);
-                    serverGroups = (List<String>) context.get(LoadRoleAssignmentsOp.Results.SERVER_GROUPS);
+                public void onSuccess(final Map<Results, Object> context) {
+                    long end = System.currentTimeMillis();
+                    System.out.println("DONE in " + (end - start) + " ms");
+                    principals = (Principals) context.get(Results.PRINCIPALS);
+                    assignments = (RoleAssignments) context.get(Results.ASSIGNMENTS);
+                    roles = (Roles) context.get(Results.ROLES);
+                    hosts = (List<String>) context.get(Results.HOSTS);
+                    serverGroups = (List<String>) context.get(Results.SERVER_GROUPS);
                     getView().update(principals, assignments, roles, hosts, serverGroups);
                 }
             });
@@ -170,12 +168,12 @@ public class RoleAssignmentPresenter
 
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
-        ModifyRoleAssignmentOp op = new ModifyRoleAssignmentOp(dispatcher, assignment, Collections.<Role>emptyList(),
-                Collections.<Principal>emptyList());
+        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment,
+                Collections.<Role>emptyList());
         op.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.addingFailed("role assignment"));
+                Console.error(Console.MESSAGES.addingFailed("role assignment"));
             }
 
             @Override
@@ -186,13 +184,12 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles,
-            final Collection<Principal> removedExcludes) {
-        ModifyRoleAssignmentOp op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles, removedExcludes);
+    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles) {
+        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles);
         op.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.saveFailed("role assignment"));
+                Console.error(Console.MESSAGES.saveFailed("role assignment"));
             }
 
             @Override
@@ -204,7 +201,19 @@ public class RoleAssignmentPresenter
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
-        Console.info("Not yet implemented");
+        ManagementOperation<Object> op = new RemoveRoleAssignmentOp(dispatcher, assignment);
+        op.extecute(new Outcome<Object>() {
+            @Override
+            public void onFailure(final Object context) {
+                Console.error(Console.MESSAGES.deletionFailed("role assignment"));
+            }
+
+            @Override
+            public void onSuccess(final Object context) {
+                Console.info(Console.MESSAGES.deleted("role assignment"));
+                loadAssignments();
+            }
+        });
     }
 
     public void launchAddScopedRoleWizard() {
@@ -244,33 +253,6 @@ public class RoleAssignmentPresenter
         if (window != null) {
             window.hide();
         }
-    }
-
-    // ------------------------------------------------------ deprecated
-
-    public void onDelete(final StandardRole role, final RoleAssignment roleAssignment, final Principal principal) {
-        //        System.out.println("About to delete " + principal.getType() + " " + principal
-        //                .getName() + " from role " + role + " / " + (roleAssignment.isInclude() ? "includes" : "exludes"));
-
-        final ModelNode operation = new ModelNode();
-        StringBuilder principalKey = new StringBuilder();
-        boolean realmGiven = principal.getRealm() != null && principal.getRealm().length() != 0;
-        principalKey.append(principal.getType().name().toLowerCase()).append("-").append(principal.getName());
-        if (realmGiven) {
-            principalKey.append("@").append(principal.getRealm());
-        }
-        operation.get(ADDRESS).add("core-service", "management");
-        operation.get(ADDRESS).add("access", "authorization");
-        operation.get(ADDRESS).add("role-mapping", role.name());
-        //        operation.get(ADDRESS).add(roleAssignment.isInclude() ? "include" : "exclude", principalKey.toString());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse response) {
-                //                getView().reset();
-            }
-        });
     }
 
     // ------------------------------------------------------ proxy and view

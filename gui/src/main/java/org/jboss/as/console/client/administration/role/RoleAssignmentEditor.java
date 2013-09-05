@@ -21,6 +21,7 @@ import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
  * @author Harald Pehl
@@ -74,7 +75,16 @@ public class RoleAssignmentEditor implements IsWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.removeRoleAssignment(table.getSelectedAssignment());
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Role Assignment"),
+                        Console.MESSAGES.deleteConfirm("role assignment"),
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    presenter.removeRoleAssignment(table.getSelectedAssignment());
+                                }
+                            }
+                        });
             }
         }));
         content.add(tools.asWidget());

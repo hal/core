@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
@@ -53,9 +51,8 @@ public class RoleAssignmentDetails implements IsWidget {
     private final BeanFactory beanFactory;
     private final Form<RoleAssignment> form;
     private final Map<String, Role> rolesBefore;
-    private final Map<String, Principal> excludesBefore;
     private RolesFormItem rolesItem;
-    private PrincipalsFormItem excludesItem;
+//    private PrincipalsFormItem excludesItem;
 
 
     public RoleAssignmentDetails(final PrincipalType type, final RoleAssignmentPresenter presenter,
@@ -65,21 +62,13 @@ public class RoleAssignmentDetails implements IsWidget {
         this.beanFactory = beanFactory;
         this.form = new Form<RoleAssignment>(RoleAssignment.class);
         this.rolesBefore = new HashMap<String, Role>();
-        this.excludesBefore = new HashMap<String, Principal>();
     }
 
     @Override
     public Widget asWidget() {
-        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 7);
+        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles(), 7, type == GROUP);
         rolesItem.setRequired(true);
-        if (type == GROUP) {
-            // Only user excludes are supported
-            excludesItem = new PrincipalsFormItem(USER, "excludes", Console.CONSTANTS.common_label_exclude(),
-                    beanFactory);
-            form.setFields(rolesItem, excludesItem);
-        } else {
-            form.setFields(rolesItem);
-        }
+        form.setFields(rolesItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
@@ -89,7 +78,7 @@ public class RoleAssignmentDetails implements IsWidget {
                 assignment.setPrincipal(form.getEditedEntity().getPrincipal());
                 // The form cannot handle enums
                 assignment.setRoles(rolesItem.getValue());
-                presenter.saveRoleAssignment(assignment, removedRoles(assignment), removedExcludes(assignment));
+                presenter.saveRoleAssignment(assignment, removedRoles(assignment));
             }
 
             @Override
@@ -106,10 +95,7 @@ public class RoleAssignmentDetails implements IsWidget {
 
     public void update(final Principals principals, final Roles roles) {
         if (rolesItem != null) {
-            rolesItem.setRoles(roles.getRoles());
-        }
-        if (type == GROUP && excludesItem != null) {
-            excludesItem.update(principals);
+            rolesItem.update(principals, roles);
         }
     }
 
@@ -124,16 +110,11 @@ public class RoleAssignmentDetails implements IsWidget {
                     @Override
                     public void execute() {
                         rolesBefore.clear();
-                        excludesBefore.clear();
                         RoleAssignment assignment = selectionModel.getSelectedObject();
                         if (assignment != null) {
+                            rolesItem.setRoleAssignment(assignment);
                             for (Role role : assignment.getRoles()) {
                                 rolesBefore.put(role.getName(), role);
-                            }
-                            if (assignment.getExcludes() != null) {
-                                for (Principal exclude : assignment.getExcludes()) {
-                                    excludesBefore.put(exclude.getName(), exclude);
-                                }
                             }
                             form.edit(assignment);
                         } else {
@@ -149,16 +130,6 @@ public class RoleAssignmentDetails implements IsWidget {
         Map<String, Role> copy = new HashMap<String, Role>(rolesBefore);
         for (Role role : assignment.getRoles()) {
             copy.remove(role.getName());
-        }
-        return copy.values();
-    }
-
-    private Collection<Principal> removedExcludes(final RoleAssignment assignment) {
-        Map<String, Principal> copy = new HashMap<String, Principal>(excludesBefore);
-        if (assignment.getExcludes() != null) {
-            for (Principal exclude : assignment.getExcludes()) {
-                copy.remove(exclude.getName());
-            }
         }
         return copy.values();
     }

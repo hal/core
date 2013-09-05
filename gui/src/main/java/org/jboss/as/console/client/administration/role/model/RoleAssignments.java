@@ -52,31 +52,31 @@ public class RoleAssignments {
         models.add(managementModel);
     }
 
-    public void add(RoleAssignment roleAssignment) {
-        if (roleAssignment != null && roleAssignment.getPrincipal() != null) {
-            RoleAssignment existingAssignment = lookup.get(roleAssignment.getId());
+    public void add(RoleAssignment newRoleAssignment) {
+        if (newRoleAssignment != null && newRoleAssignment.getPrincipal() != null) {
+            RoleAssignment existingAssignment = lookup.get(newRoleAssignment.getId());
             if (existingAssignment == null) {
-                lookup.put(roleAssignment.getId(), roleAssignment);
-                List<RoleAssignment> list = assignments.get(roleAssignment.getPrincipal().getType());
-                list.add(roleAssignment);
+                lookup.put(newRoleAssignment.getId(), newRoleAssignment);
+                List<RoleAssignment> list = assignments.get(newRoleAssignment.getPrincipal().getType());
+                list.add(newRoleAssignment);
             } else {
-                existingAssignment.getRoles().addAll(roleAssignment.getRoles());
-                if (roleAssignment.getExcludes() != null) {
-                    if (existingAssignment.getExcludes() == null) {
-                        existingAssignment.setExcludes(new ArrayList<Principal>());
+                List<Role> existingRoles = existingAssignment.getRoles();
+                List<Role> newRoles = newRoleAssignment.getRoles();
+                for (Role newRole : newRoles) {
+                    boolean addRole = true;
+                    for (Role existingRole : existingRoles) {
+                        if (existingRole.getName().equals(newRole.getName())) {
+                            addRole = false;
+                            break;
+                        }
                     }
-                    // add missing excludes
-                    for (Principal newExclude : roleAssignment.getExcludes()) {
-                        boolean add = true;
-                        for (Principal existingExclude : existingAssignment.getExcludes()) {
-                            if (existingExclude.getName().equals(newExclude.getName())) {
-                                add = false;
-                                break;
-                            }
-                        }
-                        if (add) {
-                            existingAssignment.getExcludes().add(newExclude);
-                        }
+                    if (addRole) {
+                        existingRoles.add(newRole);
+                    }
+                    existingAssignment.getExcludes().put(newRole.getName(), new ArrayList<Principal>());
+                    List<Principal> newExcludes = newRoleAssignment.getExcludes().get(newRole.getName());
+                    if (newExcludes != null && !newExcludes.isEmpty()) {
+                        existingAssignment.getExcludes().get(newRole.getName()).addAll(newExcludes);
                     }
                 }
             }
@@ -104,13 +104,16 @@ public class RoleAssignments {
                             roleAssignment.setRoles(new ArrayList<Role>());
                         }
                         roleAssignment.getRoles().add(managementModel.getRole());
+                        roleAssignment.setExcludes(new HashMap<String, List<Principal>>());
                         if (principal.getType() == GROUP) {
                             for (Principal exclude : managementModel.getExcludes()) {
                                 if (exclude.getType() == USER) {
-                                    if (roleAssignment.getExcludes() == null) {
-                                        roleAssignment.setExcludes(new ArrayList<Principal>());
+                                    if (roleAssignment.getExcludes()
+                                            .get(managementModel.getRole().getName()) == null) {
+                                        roleAssignment.getExcludes()
+                                                .put(managementModel.getRole().getName(), new ArrayList<Principal>());
                                     }
-                                    roleAssignment.getExcludes().add(exclude);
+                                    roleAssignment.getExcludes().get(managementModel.getRole().getName()).add(exclude);
                                 }
                             }
                         }
@@ -119,16 +122,5 @@ public class RoleAssignments {
                 }
             }
         }
-    }
-
-    private boolean contains(final List<Principal> principals, final Principal principal) {
-        if (principals != null && principal != null) {
-            for (Principal current : principals) {
-                if (current.getName().equals(principal.getName())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

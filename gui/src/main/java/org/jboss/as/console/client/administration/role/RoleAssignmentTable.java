@@ -21,8 +21,11 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
@@ -90,7 +93,15 @@ public class RoleAssignmentTable implements IsWidget {
                 public String getValue(final RoleAssignment assignment) {
                     StringBuilder excludes = new StringBuilder();
                     if (assignment.getExcludes() != null) {
-                        for (Iterator<Principal> iterator = assignment.getExcludes().iterator(); iterator.hasNext(); ) {
+                        // Collect all excludes of all roles
+                        Map<String, Principal> meltingPot = new HashMap<String, Principal>();
+                        Collection<List<Principal>> allExcludes = assignment.getExcludes().values();
+                        for (List<Principal> perRole : allExcludes) {
+                            for (Principal principal : perRole) {
+                                meltingPot.put(principal.getName(), principal);
+                            }
+                        }
+                        for (Iterator<Principal> iterator = meltingPot.values().iterator(); iterator.hasNext(); ) {
                             Principal principal = iterator.next();
                             excludes.append(principal.getName());
                             if (iterator.hasNext()) {

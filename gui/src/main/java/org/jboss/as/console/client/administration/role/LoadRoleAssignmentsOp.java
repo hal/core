@@ -61,10 +61,9 @@ import org.jboss.gwt.flow.client.Outcome;
  *
  * @author Harald Pehl
  */
-public class LoadRoleAssignmentsOp {
+public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAssignmentsOp.Results, Object>> {
 
     static final String LOCAL_USERNAME = "$local";
-
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
     private final HostInformationStore hostInformationStore;
@@ -79,6 +78,7 @@ public class LoadRoleAssignmentsOp {
         this.serverGroupStore = serverGroupStore;
     }
 
+    @Override
     public void extecute(final Outcome<Map<Results, Object>> outcome) {
         pending = true;
         Map<Results, Object> context = new HashMap<Results, Object>();
@@ -90,7 +90,7 @@ public class LoadRoleAssignmentsOp {
         return pending;
     }
 
-    enum Results {
+    public static enum Results {
         PRINCIPALS,
         ASSIGNMENTS,
         ROLES,

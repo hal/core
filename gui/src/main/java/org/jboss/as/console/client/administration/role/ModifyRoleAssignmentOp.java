@@ -43,21 +43,20 @@ import org.jboss.gwt.flow.client.Outcome;
 /**
  * @author Harald Pehl
  */
-public class ModifyRoleAssignmentOp {
+public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean>> {
 
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
     private final Collection<Role> removedRoles;
-    private final Collection<Principal> removedExcludes;
 
     public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
-            final Collection<Role> removedRoles, final Collection<Principal> removedExcludes) {
+            final Collection<Role> removedRoles) {
         this.dispatcher = dispatcher;
         this.assignment = assignment;
         this.removedRoles = removedRoles;
-        this.removedExcludes = removedExcludes;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public void extecute(final Outcome<Stack<Boolean>> outcome) {
         List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
@@ -67,30 +66,34 @@ public class ModifyRoleAssignmentOp {
             functions.add(new ReadPrincipalFunction(role, assignment.getPrincipal(), true));
             functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), true));
             if (assignment.getExcludes() != null) {
-                for (Principal exclude : assignment.getExcludes()) {
-                    functions.add(new ReadPrincipalFunction(role, exclude, false));
-                    functions.add(new AddPrincipalFunction(role, exclude, false));
+                if (assignment.getExcludes().get(role.getName()) != null) {
+                    for (Principal exclude : assignment.getExcludes().get(role.getName())) {
+                        functions.add(new ReadPrincipalFunction(role, exclude, false));
+                        functions.add(new AddPrincipalFunction(role, exclude, false));
+                    }
                 }
             }
         }
-        Collection<Role> roles;
-        if (removedRoles.isEmpty() && !removedExcludes.isEmpty()) {
-            for (Role role : assignment.getRoles()) {
-                for (Principal exclude : removedExcludes) {
-                    functions.add(new RemovePrincipalFunction(role, exclude, false));
-                }
-            }
-        } else {
-            for (Role role : removedRoles) {
-                functions.add(new RemovePrincipalFunction(role, assignment.getPrincipal(), true));
-                for (Principal exclude : removedExcludes) {
-                    functions.add(new RemovePrincipalFunction(role, exclude, false));
+        if (!removedRoles.isEmpty()) {
+            for (Role removedRole : removedRoles) {
+                functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), true));
+                if (assignment.getExcludes() != null) {
+                    if (assignment.getExcludes().get(removedRole.getName()) != null) {
+                        for (Principal removedExclude : assignment.getExcludes().get(removedRole.getName())) {
+                            functions.add(new RemovePrincipalFunction(removedRole, removedExclude, false));
+                        }
+                    }
                 }
             }
         }
 
         new Async<Stack<Boolean>>()
                 .waterfall(new Stack<Boolean>(), outcome, functions.toArray(new Function[functions.size()]));
+    }
+
+    @Override
+    public boolean isPending() {
+        throw new UnsupportedOperationException("not implemented");
     }
 
     class ReadRoleFunction implements Function<Stack<Boolean>> {
@@ -151,7 +154,6 @@ public class ModifyRoleAssignmentOp {
 
                     @Override
                     public void onFailure(final Throwable caught) {
-                        // TODO Error handling
                         control.abort();
                     }
                 });
@@ -274,8 +276,7 @@ public class ModifyRoleAssignmentOp {
 
                 @Override
                 public void onFailure(final Throwable caught) {
-                    // Ignore removing none existing principals
-                    control.proceed();
+                    control.abort();
                 }
             });
         }

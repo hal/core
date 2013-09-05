@@ -671,6 +671,7 @@ public interface UIConstants extends Constants {
     String administration_base_role();
     String administration_scope();
     String administration_add_scoped_role();
+    String administration_excludes_of_role();
     String administration_scoped_roles();
     String administration_scoped_roles_desc();
     String administration_group_assignment();

@@ -44,6 +44,10 @@ public final class CellFactory {
         return new PrincipalCell();
     }
 
+    public static Cell<List<Principal>> newPrincipalsCell() {
+        return new PrincipalsCell();
+    }
+
     public static Cell<Role> newRoleCell() {
         return new RoleCell();
     }
@@ -100,6 +104,20 @@ public final class CellFactory {
         @Override
         public void render(final Context context, final Principal principal, final SafeHtmlBuilder builder) {
             asSafeHtml(principal, builder);
+        }
+    }
+
+    static public class PrincipalsCell extends AbstractCell<List<Principal>> {
+
+        @Override
+        public void render(final Context context, final List<Principal> principals, final SafeHtmlBuilder builder) {
+            for (Iterator<Principal> iterator = principals.iterator(); iterator.hasNext(); ) {
+                Principal principal = iterator.next();
+                asSafeHtml(principal, builder);
+                if (iterator.hasNext()) {
+                    builder.append(SafeHtmlUtils.fromString(", "));
+                }
+            }
         }
     }
 
