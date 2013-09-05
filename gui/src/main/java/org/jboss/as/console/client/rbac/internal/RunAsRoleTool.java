@@ -62,10 +62,7 @@ public class RunAsRoleTool implements Tool {
         if (window == null) {
             setupWindow();
         }
-        String savedRole = Preferences.get(RUN_AS_ROLE);
-        if (savedRole != null) {
-            role.setValue(savedRole);
-        }
+
         window.center();
     }
 
@@ -153,6 +150,11 @@ public class RunAsRoleTool implements Tool {
             @Override
             public void execute() {
                 initRoles(serverGroupScoped, hostScoped);
+
+                String savedRole = Preferences.get(RUN_AS_ROLE);
+                if (savedRole != null) {
+                    role.setValue(savedRole);
+                }
             }
         });
     }
