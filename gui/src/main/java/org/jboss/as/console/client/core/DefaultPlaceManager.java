@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.ReadOnlyContext;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
@@ -106,7 +107,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             @Override
             public void execute(final Control<ContextCreation> control) {
                 final String nameToken = control.getContext().getRequest().getNameToken();
-                if(!securityFramework.hasContext(nameToken))
+                final SecurityContext context = securityFramework.getSecurityContext(nameToken);
+                if(context==null || (context instanceof ReadOnlyContext)) // force re-creation if read-only fallback
                 {
                     securityFramework.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
                         @Override

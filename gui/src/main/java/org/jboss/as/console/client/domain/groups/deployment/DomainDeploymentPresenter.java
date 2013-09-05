@@ -76,7 +76,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     @NameToken(NameTokens.DeploymentsPresenter)
     @AccessControl(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
-            "/{selected.host}/{selected.server}",
+            "/server-group=*",
             "/deployment=*"
     }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place

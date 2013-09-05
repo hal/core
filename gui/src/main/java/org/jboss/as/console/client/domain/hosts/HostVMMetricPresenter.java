@@ -100,6 +100,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
     @Override
     public void refresh() {
+
         loadVMStatus();
     }
 

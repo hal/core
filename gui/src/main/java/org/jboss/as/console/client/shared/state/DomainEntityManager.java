@@ -1,14 +1,9 @@
 package org.jboss.as.console.client.shared.state;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
-
-import java.util.Collections;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
@@ -16,9 +11,11 @@ import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.web.bindery.event.shared.EventBus;
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
 
 /**
  * @author Heiko Braun

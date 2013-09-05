@@ -57,6 +57,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
+    private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
+
     @Inject
     public SecurityFrameworkImpl(AccessControlRegistry accessControlReg, DispatchAsync dispatcher, CoreGUIContext statementContext) {
         this.accessControlReg = accessControlReg;
@@ -79,9 +81,6 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     public SecurityContext getSecurityContext(String id) {
 
         SecurityContext securityContext = contextMapping.get(id);
-        if(null==securityContext)
-            throw new IllegalStateException("Security context should have been created upfront: "+id);
-
         return securityContext;
     }
 
@@ -152,7 +151,11 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             @Override
             public void onFailure(Throwable caught) {
 
-                callback.onFailure(new RuntimeException("Failed to create security context for "+id, caught));
+                //callback.onFailure(new RuntimeException("Failed to create security context for "+id, caught));
+
+                Console.warning("Failed to create security context for "+id+ ", fallback to temporary read-only context", caught.getMessage());
+                contextMapping.put(id, READ_ONLY);
+                callback.onSuccess(READ_ONLY);
             }
 
             @Override

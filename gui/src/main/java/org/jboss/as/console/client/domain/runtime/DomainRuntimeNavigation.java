@@ -62,7 +62,6 @@ class DomainRuntimeNavigation {
         domainNavigation.expandTopLevel();
 
         stack.add(domainNavigation);
-        domainNavigation.getElement().getParentElement().setAttribute("style", "border-bottom: 1px solid #BEBEBE;");
 
         // ----------------------------------------------------
 
@@ -152,9 +151,14 @@ class DomainRuntimeNavigation {
 
         metricLeaf.removeItems();
         runtimeLeaf.removeItems();
-        runtimeLeaf.setVisible(true);
+
+        metricLeaf.setVisible(false);
+        runtimeLeaf.setVisible(false);
 
         if(subsystems.isEmpty()) return;
+
+        metricLeaf.setVisible(true);
+        runtimeLeaf.setVisible(true);
 
         final GroupItem platformGroup = new GroupItem("Platform");
 
