@@ -78,7 +78,6 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
          Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                getView().clearSamples();
                 if(isVisible()) refresh();
             }
          });
