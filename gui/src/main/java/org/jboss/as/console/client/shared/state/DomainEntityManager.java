@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.state;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
@@ -18,9 +19,14 @@ import java.util.List;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
 
 /**
+ * Domain entity manager corresponds to the picker (host, server) that rely on the host data:
+ * The manager loads the data, each pricker provides the selection, which then is retained within this instance.
+ * This way there is a single instance that maintains the global host and server selections.
+ *
  * @author Heiko Braun
  * @date 12/10/12
  */
+@Singleton
 public class DomainEntityManager implements
         GlobalHostSelection.HostSelectionListener,
         GlobalServerSelection.ServerSelectionListener, StaleGlobalModel.StaleModelListener {
