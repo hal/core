@@ -26,13 +26,11 @@ import java.util.List;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
 /**
@@ -40,21 +38,15 @@ import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
  */
 public class RoleAssignementView extends SuspendableViewImpl implements RoleAssignmentPresenter.MyView {
 
-    private final BeanFactory beanFactory;
     private RoleAssignmentPresenter presenter;
     private RoleAssignmentEditor groupEditor;
     private RoleAssignmentEditor userEditor;
     private ScopedRoleEditor scopedRoleEditor;
 
-    @Inject
-    public RoleAssignementView(final BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
-    }
-
     @Override
     public Widget createWidget() {
-        groupEditor = new RoleAssignmentEditor(GROUP, presenter, beanFactory);
-        userEditor = new RoleAssignmentEditor(USER, presenter, beanFactory);
+        groupEditor = new RoleAssignmentEditor(presenter, GROUP);
+        userEditor = new RoleAssignmentEditor(presenter, USER);
         scopedRoleEditor = new ScopedRoleEditor(presenter);
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
@@ -75,8 +67,8 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     @Override
     public void update(final Principals principals, RoleAssignments assignments, Roles roles, final List<String> hosts,
             final List<String> serverGroups) {
-        groupEditor.update(principals, assignments, roles);
-        userEditor.update(principals, assignments, roles);
+        groupEditor.update(assignments, roles);
+        userEditor.update(assignments, roles);
         scopedRoleEditor.update(roles, hosts, serverGroups);
     }
 }

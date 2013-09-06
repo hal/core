@@ -52,37 +52,6 @@ public class RoleAssignments {
         models.add(managementModel);
     }
 
-    public void add(RoleAssignment newRoleAssignment) {
-        if (newRoleAssignment != null && newRoleAssignment.getPrincipal() != null) {
-            RoleAssignment existingAssignment = lookup.get(newRoleAssignment.getId());
-            if (existingAssignment == null) {
-                lookup.put(newRoleAssignment.getId(), newRoleAssignment);
-                List<RoleAssignment> list = assignments.get(newRoleAssignment.getPrincipal().getType());
-                list.add(newRoleAssignment);
-            } else {
-                List<Role> existingRoles = existingAssignment.getRoles();
-                List<Role> newRoles = newRoleAssignment.getRoles();
-                for (Role newRole : newRoles) {
-                    boolean addRole = true;
-                    for (Role existingRole : existingRoles) {
-                        if (existingRole.getName().equals(newRole.getName())) {
-                            addRole = false;
-                            break;
-                        }
-                    }
-                    if (addRole) {
-                        existingRoles.add(newRole);
-                    }
-                    existingAssignment.getExcludes().put(newRole.getName(), new ArrayList<Principal>());
-                    List<Principal> newExcludes = newRoleAssignment.getExcludes().get(newRole.getName());
-                    if (newExcludes != null && !newExcludes.isEmpty()) {
-                        existingAssignment.getExcludes().get(newRole.getName()).addAll(newExcludes);
-                    }
-                }
-            }
-        }
-    }
-
     public List<RoleAssignment> getGroupAssignments() {
         return assignments.get(GROUP);
     }
@@ -91,35 +60,65 @@ public class RoleAssignments {
         return assignments.get(USER);
     }
 
-    public void transform(Principals principals) {
+    public void toUI(Principals principals) {
         // The UI model is based on principals, so iterate over all known principals and find the relevant assignments
         for (Principal principal : principals) {
             for (RoleAssignment.ManagementModel managementModel : models) {
                 for (Principal include : managementModel.getIncludes()) {
                     if (include.getName().equals(principal.getName())) {
-                        RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
-                        roleAssignment.setId(ModelHelper.principalIdentifier(include));
-                        roleAssignment.setPrincipal(include);
-                        if (roleAssignment.getRoles() == null) {
-                            roleAssignment.setRoles(new ArrayList<Role>());
-                        }
+                        RoleAssignment roleAssignment = newRoleAssignment(include);
                         roleAssignment.getRoles().add(managementModel.getRole());
-                        roleAssignment.setExcludes(new HashMap<String, List<Principal>>());
-                        if (principal.getType() == GROUP) {
-                            for (Principal exclude : managementModel.getExcludes()) {
-                                if (exclude.getType() == USER) {
-                                    if (roleAssignment.getExcludes()
-                                            .get(managementModel.getRole().getName()) == null) {
-                                        roleAssignment.getExcludes()
-                                                .put(managementModel.getRole().getName(), new ArrayList<Principal>());
-                                    }
-                                    roleAssignment.getExcludes().get(managementModel.getRole().getName()).add(exclude);
-                                }
-                            }
-                        }
                         add(roleAssignment);
                     }
                 }
+                for (Principal exclude : managementModel.getExcludes()) {
+                    if (exclude.getName().equals(principal.getName())) {
+                        RoleAssignment roleAssignment = newRoleAssignment(exclude);
+                        roleAssignment.getExcludes().add(managementModel.getRole());
+                        add(roleAssignment);
+                    }
+                }
+            }
+        }
+    }
+
+    private RoleAssignment newRoleAssignment(final Principal principal) {
+        RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
+        roleAssignment.setId(ModelHelper.principalIdentifier(principal));
+        roleAssignment.setPrincipal(principal);
+        roleAssignment.setRoles(new ArrayList<Role>());
+        roleAssignment.setExcludes(new ArrayList<Role>());
+        return roleAssignment;
+    }
+
+    private void add(RoleAssignment newAssignment) {
+        RoleAssignment existingAssignment = lookup.get(newAssignment.getId());
+        if (existingAssignment == null) {
+            lookup.put(newAssignment.getId(), newAssignment);
+            List<RoleAssignment> list = assignments.get(newAssignment.getPrincipal().getType());
+            list.add(newAssignment);
+        } else {
+            List<Role> existingRoles = existingAssignment.getRoles();
+            List<Role> newRoles = newAssignment.getRoles();
+            mergeRoles(existingRoles, newRoles);
+
+            List<Role> existingExcludes = existingAssignment.getExcludes();
+            List<Role> newExcludes = newAssignment.getExcludes();
+            mergeRoles(existingExcludes, newExcludes);
+        }
+    }
+
+    private void mergeRoles(final List<Role> existingRoles, final List<Role> newRoles) {
+        for (Role newRole : newRoles) {
+            boolean addRole = true;
+            for (Role existingRole : existingRoles) {
+                if (existingRole.getName().equals(newRole.getName())) {
+                    addRole = false;
+                    break;
+                }
+            }
+            if (addRole) {
+                existingRoles.add(newRole);
             }
         }
     }

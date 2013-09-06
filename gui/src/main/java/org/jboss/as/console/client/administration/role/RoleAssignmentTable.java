@@ -21,15 +21,8 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
 import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -41,7 +34,6 @@ import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignmentKey;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
@@ -57,6 +49,7 @@ public class RoleAssignmentTable implements IsWidget {
 
     public RoleAssignmentTable(final PrincipalType type) {this.type = type;}
 
+    @SuppressWarnings("unchecked")
     public Widget asWidget() {
         VerticalPanel content = new VerticalPanel();
         content.setStyleName("fill-layout-width");
@@ -77,43 +70,16 @@ public class RoleAssignmentTable implements IsWidget {
                         return assignment.getPrincipal();
                     }
                 };
-        Column<RoleAssignment, List<Role>> roleColumn =
-                new Column<RoleAssignment, List<Role>>(CellFactory.newRolesCell()) {
+        Column<RoleAssignment, RoleAssignment> roleColumn =
+                new Column<RoleAssignment, RoleAssignment>(CellFactory.newRolesCell()) {
                     @Override
-                    public List<Role> getValue(final RoleAssignment assignment) {
-                        return assignment.getRoles();
+                    public RoleAssignment getValue(final RoleAssignment assignment) {
+                        return assignment;
                     }
                 };
         table.addColumn(principalColumn,
                 type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user());
         table.addColumn(roleColumn, Console.CONSTANTS.common_label_roles());
-        if (type == GROUP) {
-            TextColumn<RoleAssignment> excludeColumn = new TextColumn<RoleAssignment>() {
-                @Override
-                public String getValue(final RoleAssignment assignment) {
-                    StringBuilder excludes = new StringBuilder();
-                    if (assignment.getExcludes() != null) {
-                        // Collect all excludes of all roles
-                        Map<String, Principal> meltingPot = new HashMap<String, Principal>();
-                        Collection<List<Principal>> allExcludes = assignment.getExcludes().values();
-                        for (List<Principal> perRole : allExcludes) {
-                            for (Principal principal : perRole) {
-                                meltingPot.put(principal.getName(), principal);
-                            }
-                        }
-                        for (Iterator<Principal> iterator = meltingPot.values().iterator(); iterator.hasNext(); ) {
-                            Principal principal = iterator.next();
-                            excludes.append(principal.getName());
-                            if (iterator.hasNext()) {
-                                excludes.append(", ");
-                            }
-                        }
-                    }
-                    return excludes.toString();
-                }
-            };
-            table.addColumn(excludeColumn, Console.CONSTANTS.common_label_exclude());
-        }
         content.add(table);
 
         // pager
@@ -124,7 +90,7 @@ public class RoleAssignmentTable implements IsWidget {
         return content;
     }
 
-    public void setAssignments(final RoleAssignments assignments) {
+    public void update(final RoleAssignments assignments) {
         if (type == GROUP) {
             dataProvider.setList(assignments.getGroupAssignments());
         } else if (type == USER) {
@@ -140,6 +106,7 @@ public class RoleAssignmentTable implements IsWidget {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     CellTable<RoleAssignment> getCellTable() {
         return table;
     }

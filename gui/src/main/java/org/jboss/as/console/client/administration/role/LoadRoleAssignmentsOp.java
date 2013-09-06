@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
@@ -154,7 +153,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         }
                         // All entities are read - now transform the role assignements from the management model to
                         // role assignments used in the UI and update the view
-                        assignments.transform(principals);
+                        assignments.toUI(principals);
 
                         control.getContext().put(Results.PRINCIPALS, principals);
                         control.getContext().put(Results.ASSIGNMENTS, assignments);
@@ -205,28 +204,17 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                             managementModel.include(principal);
                         }
                     }
-                    if (managementModel.getIncludes().isEmpty()) {
-                        // if the only inclusion was the local user, the list is empty and mapping can be skipped
-                        add = false;
-                    }
-                } else {
-                    // don't add this model, but goon so that principals in "exclude" will get extracted
-                    add = false;
                 }
                 if (assignmentNode.hasDefined("exclude")) {
                     List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
                     for (Property exclusion : exclusions) {
                         Principal principal = mapPrincipal(principals, exclusion.getValue());
-                        if (principal != null && principal.getType() == USER) {
-                            // exclude only users (see constraints)
+                        if (principal != null) {
                             managementModel.exclude(principal);
                         }
                     }
                 }
-                if (add) {
-                    // add only if all constraints are met
-                    assignments.add(managementModel);
-                }
+                assignments.add(managementModel);
             }
         }
 

@@ -48,12 +48,14 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
     private final Collection<Role> removedRoles;
+    private final Collection<Role> removedExcludes;
 
     public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
-            final Collection<Role> removedRoles) {
+            final Collection<Role> removedRoles, final Collection<Role> removedExcludes) {
         this.dispatcher = dispatcher;
         this.assignment = assignment;
         this.removedRoles = removedRoles;
+        this.removedExcludes = removedExcludes;
     }
 
     @Override
@@ -61,34 +63,26 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
     public void extecute(final Outcome<Stack<Boolean>> outcome) {
         List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
         for (Role role : assignment.getRoles()) {
-            functions.add(new ReadRoleFunction(role));
-            functions.add(new AddRoleFunction(role));
-            functions.add(new ReadPrincipalFunction(role, assignment.getPrincipal(), true));
-            functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), true));
-            if (assignment.getExcludes() != null) {
-                if (assignment.getExcludes().get(role.getName()) != null) {
-                    for (Principal exclude : assignment.getExcludes().get(role.getName())) {
-                        functions.add(new ReadPrincipalFunction(role, exclude, false));
-                        functions.add(new AddPrincipalFunction(role, exclude, false));
-                    }
-                }
-            }
+            addFunctions(functions, role, "include");
         }
-        if (!removedRoles.isEmpty()) {
-            for (Role removedRole : removedRoles) {
-                functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), true));
-                if (assignment.getExcludes() != null) {
-                    if (assignment.getExcludes().get(removedRole.getName()) != null) {
-                        for (Principal removedExclude : assignment.getExcludes().get(removedRole.getName())) {
-                            functions.add(new RemovePrincipalFunction(removedRole, removedExclude, false));
-                        }
-                    }
-                }
-            }
+        for (Role exclude : assignment.getExcludes()) {
+            addFunctions(functions, exclude, "exclude");
         }
-
+        for (Role removedRole : removedRoles) {
+            functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), "include"));
+        }
+        for (Role removedExclude : removedExcludes) {
+            functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), "exclude"));
+        }
         new Async<Stack<Boolean>>()
                 .waterfall(new Stack<Boolean>(), outcome, functions.toArray(new Function[functions.size()]));
+    }
+
+    private void addFunctions(final List<Function<Stack<Boolean>>> functions, final Role role, final String includeExclude) {
+        functions.add(new ReadRoleFunction(role));
+        functions.add(new AddRoleFunction(role));
+        functions.add(new ReadPrincipalFunction(role, assignment.getPrincipal(), includeExclude));
+        functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), includeExclude));
     }
 
     @Override
@@ -165,12 +159,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
         private final Role role;
         private final Principal principal;
-        private final boolean include;
+        private final String includeExclude;
 
-        public ReadPrincipalFunction(final Role role, final Principal principal, final boolean include) {
+        public ReadPrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
             this.role = role;
             this.principal = principal;
-            this.include = include;
+            this.includeExclude = includeExclude;
         }
 
         @Override
@@ -179,7 +173,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             assignmentOp.get(ADDRESS).add("core-service", "management");
             assignmentOp.get(ADDRESS).add("access", "authorization");
             assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-            assignmentOp.get(ADDRESS).add(include ? "include" : "exclude", ModelHelper.principalIdentifier(principal));
+            assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
             assignmentOp.get(OP).set(READ_RESOURCE_OPERATION);
 
             dispatcher.execute(new DMRAction(assignmentOp), new SimpleCallback<DMRResponse>() {
@@ -204,12 +198,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
         private final Role role;
         private final Principal principal;
-        private final boolean include;
+        private final String includeExclude;
 
-        public AddPrincipalFunction(final Role role, final Principal principal, final boolean include) {
+        public AddPrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
             this.role = role;
             this.principal = principal;
-            this.include = include;
+            this.includeExclude = includeExclude;
         }
 
         @Override
@@ -222,8 +216,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
                 assignmentOp.get(ADDRESS).add("core-service", "management");
                 assignmentOp.get(ADDRESS).add("access", "authorization");
                 assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-                assignmentOp.get(ADDRESS)
-                        .add(include ? "include" : "exclude", ModelHelper.principalIdentifier(principal));
+                assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
                 assignmentOp.get("name").set(ModelType.STRING, principal.getName());
                 assignmentOp.get("type").set(ModelType.STRING, principal.getType().name());
                 if (principal.getRealm() != null && principal.getRealm().length() != 0) {
@@ -251,12 +244,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
         private final Role role;
         private final Principal principal;
-        private final boolean include;
+        private final String includeExclude;
 
-        public RemovePrincipalFunction(final Role role, final Principal principal, final boolean include) {
+        public RemovePrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
             this.role = role;
             this.principal = principal;
-            this.include = include;
+            this.includeExclude = includeExclude;
         }
 
         @Override
@@ -265,7 +258,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             assignmentOp.get(ADDRESS).add("core-service", "management");
             assignmentOp.get(ADDRESS).add("access", "authorization");
             assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-            assignmentOp.get(ADDRESS).add(include ? "include" : "exclude", ModelHelper.principalIdentifier(principal));
+            assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
             assignmentOp.get(OP).set(REMOVE);
 
             dispatcher.execute(new DMRAction(assignmentOp), new SimpleCallback<DMRResponse>() {

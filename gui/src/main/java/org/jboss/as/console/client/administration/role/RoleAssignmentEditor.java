@@ -11,11 +11,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -30,15 +28,12 @@ public class RoleAssignmentEditor implements IsWidget {
 
     private final PrincipalType type;
     private final RoleAssignmentPresenter presenter;
-    private final BeanFactory beanFactory;
     private RoleAssignmentTable table;
     private RoleAssignmentDetails details;
 
-    public RoleAssignmentEditor(final PrincipalType type, final RoleAssignmentPresenter presenter,
-            final BeanFactory beanFactory) {
+    public RoleAssignmentEditor(final RoleAssignmentPresenter presenter, final PrincipalType type) {
         this.presenter = presenter;
         this.type = type;
-        this.beanFactory = beanFactory;
     }
 
     @Override
@@ -94,7 +89,7 @@ public class RoleAssignmentEditor implements IsWidget {
         content.add(table);
 
         // details
-        details = new RoleAssignmentDetails(type, presenter, beanFactory);
+        details = new RoleAssignmentDetails(presenter, type);
         details.bind(table.getCellTable());
         content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
         content.add(details);
@@ -102,10 +97,10 @@ public class RoleAssignmentEditor implements IsWidget {
         return layout;
     }
 
-    public void update(final Principals principals, final RoleAssignments assignments, final Roles roles) {
+    public void update(final RoleAssignments assignments, final Roles roles) {
         if (table != null && details != null) {
-            table.setAssignments(assignments);
-            details.update(principals, roles);
+            table.update(assignments);
+            details.update(roles);
         }
     }
 }

@@ -78,7 +78,6 @@ public class ScopedRoleDetails implements IsWidget {
             @Override
             public void onSave(final Map changeset) {
                 ScopedRole scopedRole = form.getUpdatedEntity();
-                // The form cannot handle enums...
                 scopedRole.setBaseRole(baseRoleItem.getValue());
                 scopedRole.setType(typeItem.getValue());
                 presenter.saveScopedRole(scopedRole, form.getChangedValues());

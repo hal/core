@@ -38,7 +38,6 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
@@ -74,7 +73,6 @@ public class RoleAssignmentPresenter
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
     private final ManagementOperation<Map<Results, Object>> loadRoleAssignmentsOp;
-
     private DefaultWindow window;
     private Principals principals;
     private RoleAssignments assignments;
@@ -169,7 +167,7 @@ public class RoleAssignmentPresenter
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
         ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment,
-                Collections.<Role>emptyList());
+                Collections.<Role>emptyList(), Collections.<Role>emptyList());
         op.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
@@ -184,8 +182,10 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles) {
-        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles);
+    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles,
+            final Collection<Role> removedExcludes) {
+        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles,
+                removedExcludes);
         op.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {

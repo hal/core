@@ -22,7 +22,6 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -40,9 +39,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleKey;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.rbac.Role;
@@ -58,18 +54,17 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
     private final int pageSize;
     private final List<Role> value;
-    private final boolean excludes;
-    private DefaultCellTable<Role> table;
     private ListDataProvider<Role> dataProvider;
     private MultiSelectionModel<Role> selectionModel;
-    private Principals principals;
     private TableWrapper wrapper;
-    private RoleAssignment roleAssignment;
 
-    public RolesFormItem(final String name, final String title, int pageSize, boolean excludes) {
+    public RolesFormItem(final String name, final String title) {
+        this(name, title, 7);
+    }
+
+    public RolesFormItem(final String name, final String title, int pageSize) {
         super(name, title);
         this.pageSize = pageSize;
-        this.excludes = excludes;
         this.value = new ArrayList<Role>();
     }
 
@@ -78,7 +73,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
     public Widget asWidget() {
         // table
         RoleKey<Role> keyProvider = new RoleKey<Role>();
-        table = new DefaultCellTable<Role>(pageSize, keyProvider);
+        DefaultCellTable<Role> table = new DefaultCellTable<Role>(pageSize, keyProvider);
         table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
         dataProvider = new ListDataProvider<Role>(keyProvider);
         dataProvider.addDataDisplay(table);
@@ -114,20 +109,6 @@ public class RolesFormItem extends FormItem<List<Role>> {
         table.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         table.setColumnWidth(checkColumn, 40, PX);
         table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
-        if (excludes) {
-            Column<Role, List<Principal>> excludesColumn =
-                    new Column<Role, List<Principal>>(CellFactory.newPrincipalsCell()) {
-                        @Override
-                        public List<Principal> getValue(final Role role) {
-                            if (roleAssignment != null && roleAssignment.getExcludes() != null && roleAssignment
-                                    .getExcludes().get(role.getName()) != null) {
-                                return roleAssignment.getExcludes().get(role.getName());
-                            }
-                            return Collections.<Principal>emptyList();
-                        }
-                    };
-            table.addColumn(excludesColumn, Console.CONSTANTS.common_label_exclude());
-        }
 
         // pager
         DefaultPager pager = new DefaultPager();
@@ -196,8 +177,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
         return super.getErrMessage() + ": Select a role";
     }
 
-    public void update(final Principals principals, final Roles roles) {
-        this.principals = principals;
+    public void update(final Roles roles) {
         if (dataProvider != null) {
             dataProvider.setList(roles.getRoles());
             selectionModel.clear();
@@ -205,10 +185,6 @@ public class RolesFormItem extends FormItem<List<Role>> {
                 selectionModel.setSelected(role, true);
             }
         }
-    }
-
-    public void setRoleAssignment(final RoleAssignment roleAssignment) {
-        this.roleAssignment = roleAssignment;
     }
 
     static class TableWrapper extends VerticalPanel {

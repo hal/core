@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.administration.role;
 
 import java.util.Iterator;
-import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -29,6 +28,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
@@ -44,15 +44,7 @@ public final class CellFactory {
         return new PrincipalCell();
     }
 
-    public static Cell<List<Principal>> newPrincipalsCell() {
-        return new PrincipalsCell();
-    }
-
-    public static Cell<Role> newRoleCell() {
-        return new RoleCell();
-    }
-
-    public static Cell<List<Role>> newRolesCell() {
+    public static Cell<RoleAssignment> newRolesCell() {
         return new RolesCell();
     }
 
@@ -64,9 +56,9 @@ public final class CellFactory {
         }
     }
 
-    private static void asSafeHtml(final SafeHtmlBuilder builder, final Role role) {
+    private static void asSafeHtml(final SafeHtmlBuilder builder, final Role role, boolean include) {
         if (role instanceof StandardRole) {
-            builder.append(TEMPLATES.role(role.getName()));
+            builder.append(include ? TEMPLATES.role(role.getName()) : TEMPLATES.exclude(role.getName()));
         } else if (role instanceof ScopedRole) {
             ScopedRole scopedRole = (ScopedRole) role;
             StringBuilder scopes = new StringBuilder();
@@ -77,8 +69,9 @@ public final class CellFactory {
                     scopes.append(", ");
                 }
             }
-            builder.append(
-                    TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().name(), scopes.toString()));
+            builder.append(include ?
+                    TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().getName(), scopes.toString()) :
+                    TEMPLATES.scopedExclude(role.getName(), scopedRole.getBaseRole().getName(), scopes.toString()));
         }
     }
 
@@ -97,6 +90,13 @@ public final class CellFactory {
                 "<span title=\"based on '{1}' scoped to '{2}'\">{0} <span class=\"admin-role-scope\">[{2}]</span></span>")
         SafeHtml scopedRole(String role, String baseRole, String scope);
 
+        @Template("<span class=\"admin-role-exclude\">&dash;{0}</span>")
+        SafeHtml exclude(String role);
+
+        @Template(
+                "<span class=\"admin-role-exclude\" title=\"based on '{1}' scoped to '{2}'\">&dash;{0} <span class=\"admin-role-scope\">[{2}]</span></span>")
+        SafeHtml scopedExclude(String role, String baseRole, String scope);
+
     }
 
     static public class PrincipalCell extends AbstractCell<Principal> {
@@ -107,36 +107,22 @@ public final class CellFactory {
         }
     }
 
-    static public class PrincipalsCell extends AbstractCell<List<Principal>> {
+    static public class RolesCell extends AbstractCell<RoleAssignment> {
 
         @Override
-        public void render(final Context context, final List<Principal> principals, final SafeHtmlBuilder builder) {
-            for (Iterator<Principal> iterator = principals.iterator(); iterator.hasNext(); ) {
-                Principal principal = iterator.next();
-                asSafeHtml(principal, builder);
-                if (iterator.hasNext()) {
+        public void render(final Context context, final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
+            boolean excludes = !roleAssignment.getExcludes().isEmpty();
+            for (Iterator<Role> iterator = roleAssignment.getRoles().iterator(); iterator.hasNext(); ) {
+                Role role = iterator.next();
+                asSafeHtml(builder, role, true);
+                if (iterator.hasNext() || excludes) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }
             }
-        }
-    }
-
-    static public class RoleCell extends AbstractCell<Role> {
-
-        @Override
-        public void render(final Context context, final Role role, final SafeHtmlBuilder builder) {
-            asSafeHtml(builder, role);
-        }
-    }
-
-    static public class RolesCell extends AbstractCell<List<Role>> {
-
-        @Override
-        public void render(final Context context, final List<Role> roles, final SafeHtmlBuilder builder) {
-            for (Iterator<Role> roleIter = roles.iterator(); roleIter.hasNext(); ) {
-                Role role = roleIter.next();
-                asSafeHtml(builder, role);
-                if (roleIter.hasNext()) {
+            for (Iterator<Role> iterator = roleAssignment.getExcludes().iterator(); iterator.hasNext(); ) {
+                Role exclude = iterator.next();
+                asSafeHtml(builder, exclude, false);
+                if (iterator.hasNext()) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }
             }

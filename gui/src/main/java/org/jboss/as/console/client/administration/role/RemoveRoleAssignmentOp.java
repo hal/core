@@ -74,13 +74,10 @@ public class RemoveRoleAssignmentOp implements ManagementOperation<Object> {
             for (Role role : assignment.getRoles()) {
                 ModelNode deleteIncludeOp = principalNode(role, assignment.getPrincipal(), "include");
                 steps.add(deleteIncludeOp);
-
-                if (assignment.getExcludes().get(role.getName()) != null) {
-                    for (Principal exclude : assignment.getExcludes().get(role.getName())) {
-                        ModelNode deleteExcludeOp = principalNode(role, exclude, "exclude");
-                        steps.add(deleteExcludeOp);
-                    }
-                }
+            }
+            for (Role exclude : assignment.getExcludes()) {
+                ModelNode deleteIncludeOp = principalNode(exclude, assignment.getPrincipal(), "exclude");
+                steps.add(deleteIncludeOp);
             }
 
             operation.get(STEPS).set(steps);
