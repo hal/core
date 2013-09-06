@@ -23,7 +23,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -54,7 +53,7 @@ public class RemoveRoleAssignmentOp implements ManagementOperation<Object> {
     @Override
     public void extecute(final Outcome<Object> outcome) {
         pending = true;
-        new Async<StringBuilder>().parallel(outcome, new RemoveFunction());
+        new Async<Object>().parallel(outcome, new RemoveFunction());
     }
 
     @Override
@@ -62,21 +61,23 @@ public class RemoveRoleAssignmentOp implements ManagementOperation<Object> {
         return pending;
     }
 
-    class RemoveFunction implements Function<Void> {
+    class RemoveFunction implements Function<Object> {
 
         @Override
-        public void execute(final Control<Void> control) {
+        public void execute(final Control<Object> control) {
             ModelNode operation = new ModelNode();
             operation.get(ADDRESS).setEmptyList();
             operation.get(OP).set(COMPOSITE);
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             for (Role role : assignment.getRoles()) {
-                ModelNode deleteIncludeOp = principalNode(role, assignment.getPrincipal(), "include");
+                ModelNode deleteIncludeOp = principalNode(role, assignment.getPrincipal(), assignment.getRealm(),
+                        "include");
                 steps.add(deleteIncludeOp);
             }
             for (Role exclude : assignment.getExcludes()) {
-                ModelNode deleteIncludeOp = principalNode(exclude, assignment.getPrincipal(), "exclude");
+                ModelNode deleteIncludeOp = principalNode(exclude, assignment.getPrincipal(), assignment.getRealm(),
+                        "exclude");
                 steps.add(deleteIncludeOp);
             }
 
@@ -96,12 +97,17 @@ public class RemoveRoleAssignmentOp implements ManagementOperation<Object> {
             });
         }
 
-        private ModelNode principalNode(final Role role, final Principal exclude, String includeExclude) {
+        private ModelNode principalNode(final Role role, final Principal exclude, String realm, String includeExclude) {
+            StringBuilder principalId = new StringBuilder(exclude.getId());
+            if (realm != null) {
+                principalId.append("@").append(realm);
+            }
+
             ModelNode removeOp = new ModelNode();
             removeOp.get(ADDRESS).add("core-service", "management");
             removeOp.get(ADDRESS).add("access", "authorization");
             removeOp.get(ADDRESS).add("role-mapping", role.getName());
-            removeOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(exclude));
+            removeOp.get(ADDRESS).add(includeExclude, principalId.toString());
             removeOp.get(OP).set(REMOVE);
             return removeOp;
         }

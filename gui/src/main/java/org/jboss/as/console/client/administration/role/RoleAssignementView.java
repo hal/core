@@ -19,8 +19,8 @@
 
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.List;
 

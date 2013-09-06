@@ -19,13 +19,13 @@
 package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.as.console.client.administration.role.LoadRoleAssignmentsOp.Results;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -38,7 +38,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
+import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
@@ -91,11 +91,11 @@ public class RoleAssignmentPresenter
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
-        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, beanFactory, hostInformationStore,
-                serverGroupStore);
+        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, hostInformationStore, serverGroupStore);
 
+        // empty defaults to prevent NPE before the first call to loadAssignments()
         this.principals = new Principals();
-        this.assignments = new RoleAssignments(beanFactory);
+        this.assignments = new RoleAssignments();
         this.roles = new Roles();
         this.hosts = new ArrayList<String>();
         this.serverGroups = new ArrayList<String>();
@@ -151,14 +151,14 @@ public class RoleAssignmentPresenter
 
     // ------------------------------------------------------ callback methods triggered by the view
 
-    public void launchAddRoleAssignmentWizard(final PrincipalType type) {
+    public void launchAddRoleAssignmentWizard(final Principal.Type type) {
         closeWindow();
         String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
         window.setWidth(480);
         window.setHeight(580);
-        AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(type, principals, roles, this, beanFactory);
+        AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(this, type, principals, roles);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);
         window.center();
@@ -167,7 +167,7 @@ public class RoleAssignmentPresenter
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
         ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment,
-                Collections.<Role>emptyList(), Collections.<Role>emptyList());
+                Collections.<Role>emptySet(), Collections.<Role>emptySet());
         op.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
@@ -182,8 +182,8 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void saveRoleAssignment(final RoleAssignment assignment, final Collection<Role> removedRoles,
-            final Collection<Role> removedExcludes) {
+    public void saveRoleAssignment(final RoleAssignment assignment, final Set<Role> removedRoles,
+            final Set<Role> removedExcludes) {
         ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles,
                 removedExcludes);
         op.extecute(new Outcome<Stack<Boolean>>() {

@@ -35,8 +35,6 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
 
@@ -45,21 +43,18 @@ import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
  */
 public class PrincipalFormItem extends FormItem<Principal> {
 
-    private final PrincipalType type;
+    private final Principal.Type type;
     private final Map<String, Principal> cache;
-    private final BeanFactory beanFactory;
     private Principal value;
     private TextBox textBox;
     private SuggestBox suggestBox;
     private PrincipalSuggestOracle oracle;
     private InputElementWrapper wrapper;
 
-    public PrincipalFormItem(final PrincipalType type, final String name, final String title,
-            final BeanFactory beanFactory) {
+    public PrincipalFormItem(final Principal.Type type, final String name, final String title) {
         super(name, title);
 
         this.type = type;
-        this.beanFactory = beanFactory;
         this.cache = new HashMap<String, Principal>();
 
         setup();
@@ -101,9 +96,7 @@ public class PrincipalFormItem extends FormItem<Principal> {
             principal = cache.get(name);
             if (principal == null) {
                 // create a new principal
-                principal = beanFactory.principal().as();
-                principal.setName(name);
-                principal.setType(type);
+                principal = new Principal(type, name);
                 cache.put(principal.getName(), principal);
             }
         }
@@ -206,10 +199,10 @@ public class PrincipalFormItem extends FormItem<Principal> {
 
     static class PrincipalSuggestOracle extends SuggestOracle {
 
-        private final PrincipalType type;
+        private final Principal.Type type;
         private final List<PrincipalSuggestion> suggestions;
 
-        PrincipalSuggestOracle(PrincipalType type) {
+        PrincipalSuggestOracle(Principal.Type type) {
             this.type = type;
             this.suggestions = new ArrayList<PrincipalSuggestion>();
         }

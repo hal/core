@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.cell.client.AbstractCell;
@@ -110,6 +109,7 @@ public class ScopedRoleTable implements IsWidget {
         return selectionModel.getSelectedObject();
     }
 
+    @SuppressWarnings("unchecked")
     CellTable<ScopedRole> getCellTable() {
         return table;
     }
@@ -118,14 +118,8 @@ public class ScopedRoleTable implements IsWidget {
 
         @Override
         public void render(final Context context, final ScopedRole scopedRole, final SafeHtmlBuilder builder) {
-            List<String> scopes = scopedRole.getScope();
-            for (Iterator<String> iterator = scopes.iterator(); iterator.hasNext(); ) {
-                String scope = iterator.next();
-                builder.append(SafeHtmlUtils.fromString(scope));
-                if (iterator.hasNext()) {
-                    builder.append(SafeHtmlUtils.fromString(", "));
-                }
-            }
+            String scopes = UIHelper.csv(scopedRole.getScope());
+            builder.append(SafeHtmlUtils.fromString(scopes));
         }
     }
 }

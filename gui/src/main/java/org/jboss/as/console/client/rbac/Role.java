@@ -1,10 +1,9 @@
 package org.jboss.as.console.client.rbac;
 
+import com.google.gwt.user.client.ui.HasName;
+
 /**
  * @author Harald Pehl
- * @date 08/21/2013
  */
-public interface Role {
-
-    public String getName();
+public interface Role extends HasName {
 }

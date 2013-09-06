@@ -18,19 +18,81 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import com.google.gwt.user.client.ui.HasName;
+import com.google.gwt.view.client.ProvidesKey;
+
 /**
  * A user or a group of a {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}
  *
  * @author Harald Pehl
  */
-public interface Principal {
+public class Principal implements HasName {
 
-    String getName();
-    void setName(String name);
+    private String name;
+    private final Type type;
 
-    String getRealm();
-    void setRealm(String realm);
+    public Principal(final Type type, final String name) {
+        this.type = type;
+        this.name = name;
+    }
 
-    PrincipalType getType();
-    void setType(PrincipalType type);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Principal)) { return false; }
+
+        Principal principal = (Principal) o;
+
+        if (!name.equals(principal.name)) { return false; }
+        if (type != principal.type) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return getId();
+    }
+
+    public String getId() {
+        StringBuilder id = new StringBuilder();
+        id.append(type.name().toLowerCase()).append("-").append(name);
+        return id.toString();
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    static class Key implements ProvidesKey<Principal> {
+
+        @Override
+        public Object getKey(final Principal principal) {
+            return principal.getId();
+        }
+    }
+
+    /**
+     * @author Harald Pehl
+     */
+    public static enum Type {
+        USER, GROUP
+    }
 }

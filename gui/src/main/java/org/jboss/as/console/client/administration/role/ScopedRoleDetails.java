@@ -31,8 +31,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -46,7 +44,7 @@ public class ScopedRoleDetails implements IsWidget {
 
     private final RoleAssignmentPresenter presenter;
     private final Form<ScopedRole> form;
-    private EnumFormItem<ScopeType> typeItem;
+    private EnumFormItem<ScopedRole.Type> typeItem;
     private MultiselectListBoxItem scopeItem;
     private List<String> hosts;
     private List<String> serverGroups;
@@ -61,10 +59,10 @@ public class ScopedRoleDetails implements IsWidget {
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
-        baseRoleItem.setValues(ModelHelper.roles());
-        typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
+        baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
+        typeItem = new EnumFormItem<ScopedRole.Type>("type", Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
-        typeItem.setValues(ModelHelper.scopes());
+        typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
         typeItem.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(final ChangeEvent event) {
@@ -123,11 +121,11 @@ public class ScopedRoleDetails implements IsWidget {
         });
     }
 
-    private void updateScope(final ScopeType type) {
+    private void updateScope(final ScopedRole.Type type) {
         if (form != null && typeItem != null && scopeItem != null) {
-            if (type == ScopeType.host) {
+            if (type == ScopedRole.Type.HOST) {
                 scopeItem.setChoices(hosts);
-            } else if (type == ScopeType.serverGroup) {
+            } else if (type == ScopedRole.Type.SERVER_GROUP) {
                 scopeItem.setChoices(serverGroups);
             }
             // restore selection

@@ -28,8 +28,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -63,10 +61,10 @@ public class AddScopedRoleWizard implements IsWidget {
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
-        baseRoleItem.setValues(ModelHelper.roles());
-        final EnumFormItem<ScopeType> typeItem = new EnumFormItem<ScopeType>("type", Console.CONSTANTS.common_label_type());
+        baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
+        final EnumFormItem<ScopedRole.Type> typeItem = new EnumFormItem<ScopedRole.Type>("type", Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
-        typeItem.setValues(ModelHelper.scopes());
+        typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
         final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         layout.add(form.asWidget());
@@ -74,7 +72,7 @@ public class AddScopedRoleWizard implements IsWidget {
         typeItem.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(final ChangeEvent event) {
-                ScopeType type = typeItem.getValue();
+                ScopedRole.Type type = typeItem.getValue();
                 updateScope(type, scopeItem, form);
             }
         });
@@ -105,11 +103,11 @@ public class AddScopedRoleWizard implements IsWidget {
         return new WindowContentBuilder(layout, options).build();
     }
 
-    private void updateScope(final ScopeType type, final MultiselectListBoxItem scopeItem,
+    private void updateScope(final ScopedRole.Type type, final MultiselectListBoxItem scopeItem,
             final Form<ScopedRole> form) {
-        if (type == ScopeType.host) {
+        if (type == ScopedRole.Type.HOST) {
             scopeItem.setChoices(hosts);
-        } else if (type == ScopeType.serverGroup) {
+        } else if (type == ScopedRole.Type.SERVER_GROUP) {
             scopeItem.setChoices(serverGroups);
         }
         // restore selection

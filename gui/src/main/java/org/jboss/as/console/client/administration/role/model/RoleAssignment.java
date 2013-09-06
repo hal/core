@@ -19,31 +19,141 @@
 package org.jboss.as.console.client.administration.role.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.Role;
+import org.jboss.as.console.client.shared.model.HasNameComparator;
 
 /**
  * A role assignment as used in the UI. This model differs from the management model.
  *
  * @author Harald Pehl
  */
-public interface RoleAssignment {
+public class RoleAssignment {
 
-    String getId();
-    void setId(String id);
+    private final Principal principal;
+    private final SortedSet<Role> roles;
+    private final SortedSet<Role> excludes;
+    private String realm;
 
-    Principal getPrincipal();
-    void setPrincipal(Principal principal);
+    public RoleAssignment(final Principal principal) {
+        this.principal = principal;
+        this.roles = new TreeSet<Role>(new HasNameComparator<Role>());
+        this.excludes = new TreeSet<Role>(new HasNameComparator<Role>());
+    }
 
-    List<Role> getRoles();
-    void setRoles(List<Role> roles);
+    @Override
+    @SuppressWarnings("RedundantIfStatement")
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof RoleAssignment)) { return false; }
 
-    /**
-     * The list of roles this principal is excluded from
-     */
-    List<Role> getExcludes();
-    void setExcludes(List<Role> excludes);
+        RoleAssignment that = (RoleAssignment) o;
+
+        if (!excludes.equals(that.excludes)) { return false; }
+        if (!principal.equals(that.principal)) { return false; }
+        if (realm != null ? !realm.equals(that.realm) : that.realm != null) { return false; }
+        if (!roles.equals(that.roles)) { return false; }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = principal.hashCode();
+        result = 31 * result + (realm != null ? realm.hashCode() : 0);
+        result = 31 * result + roles.hashCode();
+        result = 31 * result + excludes.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return getId();
+    }
+
+    public String getId() {
+        StringBuilder id = new StringBuilder();
+        id.append(principal);
+        if (realm != null) {
+            id.append("@").append(realm);
+        }
+        id.append(" --> ").append(roles).append(" excludes ").append(excludes);
+        return id.toString();
+    }
+
+    public Principal getPrincipal() {
+        return principal;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
+    }
+
+    public List<Role> getRoles() {
+        return new ArrayList<Role>(roles);
+    }
+
+    public void addRole(Role role) {
+        roles.add(role);
+    }
+
+    public void addRoles(Collection<Role> roles) {
+        if (roles != null) {
+            this.roles.addAll(roles);
+        }
+    }
+
+    public Set<Role> changedRoles(RoleAssignment diff) {
+        if (diff != null) {
+            Set<Role> copy = new HashSet<Role>(diff.getRoles());
+            copy.removeAll(this.roles);
+            return copy;
+        }
+        return Collections.emptySet();
+    }
+
+    public List<Role> getExcludes() {
+        return new ArrayList<Role>(excludes);
+    }
+
+    public void addExclude(Role exclude) {
+        excludes.add(exclude);
+    }
+
+    public void addExcludes(Collection<Role> excludes) {
+        if (excludes != null) {
+            this.excludes.addAll(excludes);
+        }
+    }
+
+    public Set<Role> changedExcludes(RoleAssignment diff) {
+        if (diff != null) {
+            Set<Role> copy = new HashSet<Role>(diff.getExcludes());
+            copy.removeAll(this.excludes);
+            return copy;
+        }
+        return Collections.emptySet();
+    }
+
+    public static class Key implements ProvidesKey<RoleAssignment> {
+
+        @Override
+        public Object getKey(final RoleAssignment roleAssignment) {
+            return roleAssignment.getId();
+        }
+    }
 
     /**
      * The role maping as used in the management model. This is a kind of helper class used to read the role mapping
@@ -52,24 +162,39 @@ public interface RoleAssignment {
      *
      * @author Harald Pehl
      */
-    class ManagementModel {
+    public static class Internal {
 
         private final Role role;
-        private final List<Principal> includes;
-        private final List<Principal> excludes;
+        private final List<PrincipalRealmTupel> includes;
+        private final List<PrincipalRealmTupel> excludes;
 
 
-        public ManagementModel(final Role role) {
+        public Internal(final Role role) {
             this.role = role;
-            includes = new ArrayList<Principal>();
-            excludes = new ArrayList<Principal>();
+            includes = new ArrayList<PrincipalRealmTupel>();
+            excludes = new ArrayList<PrincipalRealmTupel>();
         }
 
-        public void include(Principal principal) {
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) { return true; }
+            if (!(o instanceof Internal)) { return false; }
+
+            Internal that = (Internal) o;
+            return role.getName().equals(that.role.getName());
+
+        }
+
+        @Override
+        public int hashCode() {
+            return role.getName().hashCode();
+        }
+
+        public void include(PrincipalRealmTupel principal) {
             includes.add(principal);
         }
 
-        public void exclude(Principal principal) {
+        public void exclude(PrincipalRealmTupel principal) {
             excludes.add(principal);
         }
 
@@ -77,28 +202,22 @@ public interface RoleAssignment {
             return role;
         }
 
-        public List<Principal> getIncludes() {
+        public List<PrincipalRealmTupel> getIncludes() {
             return includes;
         }
 
-        public List<Principal> getExcludes() {
+        public List<PrincipalRealmTupel> getExcludes() {
             return excludes;
         }
+    }
 
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) { return true; }
-            if (!(o instanceof ManagementModel)) { return false; }
+    public static class PrincipalRealmTupel {
+        public final Principal principal;
+        public final String realm;
 
-            ManagementModel that = (ManagementModel) o;
-            if (!role.getName().equals(that.role.getName())) { return false; }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return role.getName().hashCode();
+        public PrincipalRealmTupel(final Principal principal, final String realm) {
+            this.principal = principal;
+            this.realm = realm;
         }
     }
 }

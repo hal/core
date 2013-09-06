@@ -302,8 +302,5 @@ public interface CoreBeanFactory {
     AutoBean<TXParticipant> txParticipant();
 
     // RBAC and related
-    AutoBean<Principal> principal();
-    AutoBean<RoleAssignment> roleAssignment();
-    AutoBean<ScopedRole> scopedRole();
     AutoBean<AuditLogItem> auditLogItem();
 }

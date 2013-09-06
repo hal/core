@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
+import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -26,12 +26,12 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
  */
 public class RoleAssignmentEditor implements IsWidget {
 
-    private final PrincipalType type;
+    private final Principal.Type type;
     private final RoleAssignmentPresenter presenter;
     private RoleAssignmentTable table;
     private RoleAssignmentDetails details;
 
-    public RoleAssignmentEditor(final RoleAssignmentPresenter presenter, final PrincipalType type) {
+    public RoleAssignmentEditor(final RoleAssignmentPresenter presenter, final Principal.Type type) {
         this.presenter = presenter;
         this.type = type;
     }

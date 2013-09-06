@@ -243,7 +243,7 @@ public class EnumFormItem<E extends Enum<E>> extends FormItem<E> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({"unchecked", "RedundantIfStatement"})
         public boolean equals(final Object o) {
             if (this == o) { return true; }
             if (!(o instanceof EnumFormItem.EnumData)) { return false; }

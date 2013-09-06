@@ -18,108 +18,78 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.shared.BeanFactory;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author Harald Pehl
  */
 public class RoleAssignments {
 
-    private final BeanFactory beanFactory;
     private final Map<String, RoleAssignment> lookup;
-    private final List<RoleAssignment.ManagementModel> models;
-    private final Map<PrincipalType, List<RoleAssignment>> assignments;
+    private final List<RoleAssignment.Internal> models;
+    private final Map<Principal.Type, SortedSet<RoleAssignment>> assignments;
 
-    public RoleAssignments(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public RoleAssignments() {
         this.lookup = new HashMap<String, RoleAssignment>();
-        this.models = new ArrayList<RoleAssignment.ManagementModel>();
-        this.assignments = new HashMap<PrincipalType, List<RoleAssignment>>();
-        this.assignments.put(GROUP, new ArrayList<RoleAssignment>());
-        this.assignments.put(USER, new ArrayList<RoleAssignment>());
+        this.models = new ArrayList<RoleAssignment.Internal>();
+        this.assignments = new HashMap<Principal.Type, SortedSet<RoleAssignment>>();
+        this.assignments.put(GROUP, new TreeSet<RoleAssignment>());
+        this.assignments.put(USER, new TreeSet<RoleAssignment>());
     }
 
-    public void add(RoleAssignment.ManagementModel managementModel) {
-        models.add(managementModel);
+    public void add(RoleAssignment.Internal internal) {
+        models.add(internal);
     }
 
     public List<RoleAssignment> getGroupAssignments() {
-        return assignments.get(GROUP);
+        return new ArrayList<RoleAssignment>(assignments.get(GROUP));
     }
 
     public List<RoleAssignment> getUserAssignments() {
-        return assignments.get(USER);
+        return new ArrayList<RoleAssignment>(assignments.get(USER));
     }
 
     public void toUI(Principals principals) {
         // The UI model is based on principals, so iterate over all known principals and find the relevant assignments
         for (Principal principal : principals) {
-            for (RoleAssignment.ManagementModel managementModel : models) {
-                for (Principal include : managementModel.getIncludes()) {
-                    if (include.getName().equals(principal.getName())) {
-                        RoleAssignment roleAssignment = newRoleAssignment(include);
-                        roleAssignment.getRoles().add(managementModel.getRole());
+            for (RoleAssignment.Internal internal : models) {
+                for (RoleAssignment.PrincipalRealmTupel include : internal.getIncludes()) {
+                    if (include.principal.equals(principal)) {
+                        RoleAssignment roleAssignment = new RoleAssignment(include.principal);
+                        roleAssignment.setRealm(include.realm);
+                        roleAssignment.addRole(internal.getRole());
                         add(roleAssignment);
                     }
                 }
-                for (Principal exclude : managementModel.getExcludes()) {
-                    if (exclude.getName().equals(principal.getName())) {
-                        RoleAssignment roleAssignment = newRoleAssignment(exclude);
-                        roleAssignment.getExcludes().add(managementModel.getRole());
+                for (RoleAssignment.PrincipalRealmTupel exclude : internal.getExcludes()) {
+                    if (exclude.principal.equals(principal)) {
+                        RoleAssignment roleAssignment = new RoleAssignment(exclude.principal);
+                        roleAssignment.setRealm(exclude.realm);
+                        roleAssignment.addExclude(internal.getRole());
                         add(roleAssignment);
                     }
                 }
             }
         }
-    }
-
-    private RoleAssignment newRoleAssignment(final Principal principal) {
-        RoleAssignment roleAssignment = beanFactory.roleAssignment().as();
-        roleAssignment.setId(ModelHelper.principalIdentifier(principal));
-        roleAssignment.setPrincipal(principal);
-        roleAssignment.setRoles(new ArrayList<Role>());
-        roleAssignment.setExcludes(new ArrayList<Role>());
-        return roleAssignment;
     }
 
     private void add(RoleAssignment newAssignment) {
         RoleAssignment existingAssignment = lookup.get(newAssignment.getId());
         if (existingAssignment == null) {
             lookup.put(newAssignment.getId(), newAssignment);
-            List<RoleAssignment> list = assignments.get(newAssignment.getPrincipal().getType());
-            list.add(newAssignment);
+            SortedSet<RoleAssignment> byType = assignments.get(newAssignment.getPrincipal().getType());
+            byType.add(newAssignment);
         } else {
-            List<Role> existingRoles = existingAssignment.getRoles();
-            List<Role> newRoles = newAssignment.getRoles();
-            mergeRoles(existingRoles, newRoles);
-
-            List<Role> existingExcludes = existingAssignment.getExcludes();
-            List<Role> newExcludes = newAssignment.getExcludes();
-            mergeRoles(existingExcludes, newExcludes);
-        }
-    }
-
-    private void mergeRoles(final List<Role> existingRoles, final List<Role> newRoles) {
-        for (Role newRole : newRoles) {
-            boolean addRole = true;
-            for (Role existingRole : existingRoles) {
-                if (existingRole.getName().equals(newRole.getName())) {
-                    addRole = false;
-                    break;
-                }
-            }
-            if (addRole) {
-                existingRoles.add(newRole);
-            }
+            existingAssignment.addRoles(newAssignment.getRoles());
+            existingAssignment.addExcludes(newAssignment.getExcludes());
         }
     }
 }

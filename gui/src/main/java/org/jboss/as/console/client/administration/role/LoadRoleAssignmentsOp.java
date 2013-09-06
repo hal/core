@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
@@ -28,12 +29,10 @@ import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.model.ScopeType;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -42,7 +41,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -64,15 +62,13 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
     static final String LOCAL_USERNAME = "$local";
     private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
     private final HostInformationStore hostInformationStore;
     private final ServerGroupStore serverGroupStore;
     private boolean pending;
 
-    public LoadRoleAssignmentsOp(final DispatchAsync dispatcher, final BeanFactory beanFactory,
-            final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
+    public LoadRoleAssignmentsOp(final DispatchAsync dispatcher, final HostInformationStore hostInformationStore,
+            ServerGroupStore serverGroupStore) {
         this.dispatcher = dispatcher;
-        this.beanFactory = beanFactory;
         this.hostInformationStore = hostInformationStore;
         this.serverGroupStore = serverGroupStore;
     }
@@ -131,7 +127,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                 @Override
                 public void onSuccess(final DMRResponse result) {
                     Principals principals = new Principals();
-                    RoleAssignments assignments = new RoleAssignments(beanFactory);
+                    RoleAssignments assignments = new RoleAssignments();
                     Roles roles = new Roles();
 
                     ModelNode response = result.get();
@@ -141,18 +137,18 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         // the order of processing is important!
                         List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                         for (ModelNode node : hostScopedRoles) {
-                            addScopedRole(roles, node.asProperty(), "hosts", ScopeType.host);
+                            addScopedRole(roles, node.asProperty(), "hosts", ScopedRole.Type.HOST);
                         }
                         List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                         for (ModelNode node : serverGroupScopedRoles) {
-                            addScopedRole(roles, node.asProperty(), "server-groups", ScopeType.serverGroup);
+                            addScopedRole(roles, node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
                         }
                         List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
                         for (ModelNode node : roleMappings) {
-                            addManagementModelRoleAssignment(principals, assignments, roles, node.asProperty());
+                            addInternalRoleAssignment(principals, assignments, roles, node.asProperty());
                         }
                         // All entities are read - now transform the role assignements from the management model to
-                        // role assignments used in the UI and update the view
+                        // role assignments used in the UI
                         assignments.toUI(principals);
 
                         control.getContext().put(Results.PRINCIPALS, principals);
@@ -171,68 +167,65 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         }
 
         private void addScopedRole(final Roles roles, final Property property, final String scopeName,
-                final ScopeType type) {
-            ScopedRole scopedRole = beanFactory.scopedRole().as();
-            scopedRole.setName(property.getName());
-            scopedRole.setType(type);
+                final ScopedRole.Type type) {
             ModelNode node = property.getValue();
             String baseRoleName = node.get("base-role").asString();
-            scopedRole.setBaseRole(StandardRole.fromString(baseRoleName));
-
             List<String> scope = new ArrayList<String>();
             List<ModelNode> scopeNodes = node.get(scopeName).asList();
             for (ModelNode scopeNode : scopeNodes) {
                 scope.add(scopeNode.asString());
             }
-            scopedRole.setScope(scope);
+            ScopedRole scopedRole = new ScopedRole(property.getName(), StandardRole.fromString(baseRoleName), type,
+                    scope);
             roles.add(scopedRole);
         }
 
-        private void addManagementModelRoleAssignment(final Principals principals, final RoleAssignments assignments,
+        private void addInternalRoleAssignment(final Principals principals, final RoleAssignments assignments,
                 final Roles roles, final Property property) {
-            boolean add = true;
             String roleName = property.getName();
             Role role = roles.getRole(roleName);
             if (role != null) {
-                RoleAssignment.ManagementModel managementModel = new RoleAssignment.ManagementModel(role);
+                RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
                 ModelNode assignmentNode = property.getValue();
                 if (assignmentNode.hasDefined("include")) {
                     List<Property> inclusions = assignmentNode.get("include").asPropertyList();
                     for (Property inclusion : inclusions) {
-                        Principal principal = mapPrincipal(principals, inclusion.getValue());
+                        PrincipalRealmTupel principal = mapPrincipal(principals, inclusion.getValue());
                         if (principal != null) {
-                            managementModel.include(principal);
+                            internal.include(principal);
                         }
                     }
                 }
                 if (assignmentNode.hasDefined("exclude")) {
                     List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
                     for (Property exclusion : exclusions) {
-                        Principal principal = mapPrincipal(principals, exclusion.getValue());
+                        PrincipalRealmTupel principal = mapPrincipal(principals, exclusion.getValue());
                         if (principal != null) {
-                            managementModel.exclude(principal);
+                            internal.exclude(principal);
                         }
                     }
                 }
-                assignments.add(managementModel);
+                assignments.add(internal);
             }
         }
 
-        private Principal mapPrincipal(final Principals principals, final ModelNode node) {
+        private PrincipalRealmTupel mapPrincipal(final Principals principals, final ModelNode node) {
             String name = node.get("name").asString();
             if (LOCAL_USERNAME.equals(name)) {
                 // Skip the local user
                 return null;
             }
-            Principal principal = beanFactory.principal().as();
-            principal.setName(name);
-            if (node.hasDefined("realm")) {
-                principal.setRealm(node.get("realm").asString());
-            }
-            PrincipalType type = PrincipalType.valueOf(node.get("type").asString());
-            principal.setType(type);
+
+            Principal.Type type = Principal.Type.valueOf(node.get("type").asString());
+            Principal principal = new Principal(type, name);
             principals.add(principal);
-            return principal;
+
+            String realm = null;
+            if (node.hasDefined("realm")) {
+                realm = node.get("realm").asString();
+            }
+
+            return new PrincipalRealmTupel(principal, realm);
         }
     }
 

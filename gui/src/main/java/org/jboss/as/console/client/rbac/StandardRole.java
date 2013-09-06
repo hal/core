@@ -40,6 +40,11 @@ public enum StandardRole implements Role {
         return title;
     }
 
+    @Override
+    public void setName(final String name) {
+        throw new UnsupportedOperationException("Not supported for standard roles");
+    }
+
     public static StandardRole fromString(String s) {
         return StandardRole.valueOf(s.toUpperCase());
     }

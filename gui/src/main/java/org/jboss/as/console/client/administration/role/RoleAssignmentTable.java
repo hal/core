@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
@@ -30,9 +30,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleAssignmentKey;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -42,12 +40,12 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
  */
 public class RoleAssignmentTable implements IsWidget {
 
-    private final PrincipalType type;
+    private final Principal.Type type;
     private DefaultCellTable<RoleAssignment> table;
     private ListDataProvider<RoleAssignment> dataProvider;
     private SingleSelectionModel<RoleAssignment> selectionModel;
 
-    public RoleAssignmentTable(final PrincipalType type) {this.type = type;}
+    public RoleAssignmentTable(final Principal.Type type) {this.type = type;}
 
     @SuppressWarnings("unchecked")
     public Widget asWidget() {
@@ -55,7 +53,7 @@ public class RoleAssignmentTable implements IsWidget {
         content.setStyleName("fill-layout-width");
 
         // table
-        RoleAssignmentKey keyProvider = new RoleAssignmentKey();
+        RoleAssignment.Key keyProvider = new RoleAssignment.Key();
         table = new DefaultCellTable<RoleAssignment>(5, keyProvider);
         dataProvider = new ListDataProvider<RoleAssignment>(keyProvider);
         dataProvider.addDataDisplay(table);
@@ -63,15 +61,15 @@ public class RoleAssignmentTable implements IsWidget {
         table.setSelectionModel(selectionModel);
 
         // columns
-        Column<RoleAssignment, Principal> principalColumn =
-                new Column<RoleAssignment, Principal>(CellFactory.newPrincipalCell()) {
+        Column<RoleAssignment, RoleAssignment> principalColumn =
+                new Column<RoleAssignment, RoleAssignment>(UIHelper.newPrincipalCell()) {
                     @Override
-                    public Principal getValue(final RoleAssignment assignment) {
-                        return assignment.getPrincipal();
+                    public RoleAssignment getValue(final RoleAssignment assignment) {
+                        return assignment;
                     }
                 };
         Column<RoleAssignment, RoleAssignment> roleColumn =
-                new Column<RoleAssignment, RoleAssignment>(CellFactory.newRolesCell()) {
+                new Column<RoleAssignment, RoleAssignment>(UIHelper.newRolesCell()) {
                     @Override
                     public RoleAssignment getValue(final RoleAssignment assignment) {
                         return assignment;

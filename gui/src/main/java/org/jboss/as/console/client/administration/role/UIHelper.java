@@ -18,7 +18,10 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
@@ -27,20 +30,55 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import org.jboss.as.console.client.administration.role.model.Principal;
+import com.google.gwt.user.client.ui.HasName;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
+import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
  * @author Harald Pehl
  */
-public final class CellFactory {
+public final class UIHelper {
 
     final static Templates TEMPLATES = GWT.create(Templates.class);
 
-    public static Cell<Principal> newPrincipalCell() {
+    private UIHelper() {
+    }
+
+    public static <T> String csv(final Collection<T> values) {
+        StringBuilder builder = new StringBuilder();
+        for (Iterator<T> iterator = values.iterator(); iterator.hasNext(); ) {
+            T value = iterator.next();
+            if (value instanceof HasName) {
+                builder.append(((HasName) value).getName());
+            } else {
+                builder.append(String.valueOf(value));
+            }
+            if (iterator.hasNext()) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
+    public static Map<StandardRole, String> enumFormItemsForStandardRole() {
+        Map<StandardRole, String> roles = new LinkedHashMap<StandardRole, String>();
+        for (StandardRole role : StandardRole.values()) {
+            roles.put(role, role.getName());
+        }
+        return roles;
+    }
+
+    public static Map<ScopedRole.Type, String> enumFormItemsForScopedRoleTyp() {
+        Map<ScopedRole.Type, String> scopes = new LinkedHashMap<ScopedRole.Type, String>();
+        scopes.put(ScopedRole.Type.HOST, EnumLabelLookup.labelFor("ScopeType", ScopedRole.Type.HOST));
+        scopes.put(ScopedRole.Type.SERVER_GROUP, EnumLabelLookup.labelFor("ScopeType", ScopedRole.Type.SERVER_GROUP));
+        return scopes;
+    }
+
+    public static Cell<RoleAssignment> newPrincipalCell() {
         return new PrincipalCell();
     }
 
@@ -48,30 +86,24 @@ public final class CellFactory {
         return new RolesCell();
     }
 
-    private static void asSafeHtml(final Principal principal, final SafeHtmlBuilder builder) {
-        if (principal.getRealm() != null) {
-            builder.append(TEMPLATES.principalAtRealm(principal.getName(), principal.getRealm()));
+    private static void principalAsSafeHtml(final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
+        if (roleAssignment.getRealm() != null) {
+            builder.append(
+                    TEMPLATES.principalAtRealm(roleAssignment.getPrincipal().getName(), roleAssignment.getRealm()));
         } else {
-            builder.append(TEMPLATES.principal(principal.getName()));
+            builder.append(TEMPLATES.principal(roleAssignment.getPrincipal().getName()));
         }
     }
 
-    private static void asSafeHtml(final SafeHtmlBuilder builder, final Role role, boolean include) {
+    private static void roleAsSafeHtml(final Role role, boolean include, final SafeHtmlBuilder builder) {
         if (role instanceof StandardRole) {
             builder.append(include ? TEMPLATES.role(role.getName()) : TEMPLATES.exclude(role.getName()));
         } else if (role instanceof ScopedRole) {
             ScopedRole scopedRole = (ScopedRole) role;
-            StringBuilder scopes = new StringBuilder();
-            for (Iterator<String> scopeIter = scopedRole.getScope().iterator(); scopeIter.hasNext(); ) {
-                String scope = scopeIter.next();
-                scopes.append(scope);
-                if (scopeIter.hasNext()) {
-                    scopes.append(", ");
-                }
-            }
+            String scopes = csv(scopedRole.getScope());
             builder.append(include ?
-                    TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().getName(), scopes.toString()) :
-                    TEMPLATES.scopedExclude(role.getName(), scopedRole.getBaseRole().getName(), scopes.toString()));
+                    TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().getName(), scopes) :
+                    TEMPLATES.scopedExclude(role.getName(), scopedRole.getBaseRole().getName(), scopes));
         }
     }
 
@@ -99,11 +131,11 @@ public final class CellFactory {
 
     }
 
-    static public class PrincipalCell extends AbstractCell<Principal> {
+    static public class PrincipalCell extends AbstractCell<RoleAssignment> {
 
         @Override
-        public void render(final Context context, final Principal principal, final SafeHtmlBuilder builder) {
-            asSafeHtml(principal, builder);
+        public void render(final Context context, final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
+            principalAsSafeHtml(roleAssignment, builder);
         }
     }
 
@@ -114,14 +146,14 @@ public final class CellFactory {
             boolean excludes = !roleAssignment.getExcludes().isEmpty();
             for (Iterator<Role> iterator = roleAssignment.getRoles().iterator(); iterator.hasNext(); ) {
                 Role role = iterator.next();
-                asSafeHtml(builder, role, true);
+                roleAsSafeHtml(role, true, builder);
                 if (iterator.hasNext() || excludes) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }
             }
             for (Iterator<Role> iterator = roleAssignment.getExcludes().iterator(); iterator.hasNext(); ) {
                 Role exclude = iterator.next();
-                asSafeHtml(builder, exclude, false);
+                roleAsSafeHtml(exclude, false, builder);
                 if (iterator.hasNext()) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }

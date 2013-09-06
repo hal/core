@@ -23,9 +23,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
-import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -51,7 +51,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
     private final Collection<Role> removedExcludes;
 
     public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
-            final Collection<Role> removedRoles, final Collection<Role> removedExcludes) {
+            final Set<Role> removedRoles, final Set<Role> removedExcludes) {
         this.dispatcher = dispatcher;
         this.assignment = assignment;
         this.removedRoles = removedRoles;
@@ -69,20 +69,24 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             addFunctions(functions, exclude, "exclude");
         }
         for (Role removedRole : removedRoles) {
-            functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), "include"));
+            functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), assignment.getRealm(),
+                    "include"));
         }
         for (Role removedExclude : removedExcludes) {
-            functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), "exclude"));
+            functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), assignment.getRealm(),
+                    "exclude"));
         }
         new Async<Stack<Boolean>>()
                 .waterfall(new Stack<Boolean>(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
-    private void addFunctions(final List<Function<Stack<Boolean>>> functions, final Role role, final String includeExclude) {
+    private void addFunctions(final List<Function<Stack<Boolean>>> functions, final Role role,
+            final String includeExclude) {
         functions.add(new ReadRoleFunction(role));
         functions.add(new AddRoleFunction(role));
-        functions.add(new ReadPrincipalFunction(role, assignment.getPrincipal(), includeExclude));
-        functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), includeExclude));
+        functions
+                .add(new ReadPrincipalFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
+        functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
     }
 
     @Override
@@ -155,28 +159,54 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class ReadPrincipalFunction implements Function<Stack<Boolean>> {
+    abstract class PrincipalFunction<T> implements Function<T> {
 
-        private final Role role;
-        private final Principal principal;
-        private final String includeExclude;
+        protected final Role role;
+        protected final Principal principal;
+        protected final String principalId;
+        protected final String realm;
+        protected final String includeExclude;
 
-        public ReadPrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
+        public PrincipalFunction(final Role role, final Principal principal, final String realm,
+                final String includeExclude) {
             this.role = role;
             this.principal = principal;
+            this.realm = realm;
+            StringBuilder id = new StringBuilder(principal.getId());
+            if (realm != null) {
+                id.append("@").append(realm);
+            }
+            this.principalId = id.toString();
             this.includeExclude = includeExclude;
+        }
+
+        protected ModelNode principalNode() {
+            ModelNode node = new ModelNode();
+            node.get(ADDRESS).add("core-service", "management");
+            node.get(ADDRESS).add("access", "authorization");
+            node.get(ADDRESS).add("role-mapping", role.getName());
+            node.get(ADDRESS).add(includeExclude, principalId);
+            return node;
+        }
+    }
+
+    class ReadPrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
+
+        public ReadPrincipalFunction(final Role role,
+                final Principal principal, final String realm, final String includeExclude) {
+            super(role, principal, realm, includeExclude);
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode assignmentOp = new ModelNode();
-            assignmentOp.get(ADDRESS).add("core-service", "management");
-            assignmentOp.get(ADDRESS).add("access", "authorization");
-            assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-            assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
-            assignmentOp.get(OP).set(READ_RESOURCE_OPERATION);
+            ModelNode node = principalNode();
+            node.get(ADDRESS).add("core-service", "management");
+            node.get(ADDRESS).add("access", "authorization");
+            node.get(ADDRESS).add("role-mapping", role.getName());
+            node.get(ADDRESS).add(includeExclude, principal.getId());
+            node.get(OP).set(READ_RESOURCE_OPERATION);
 
-            dispatcher.execute(new DMRAction(assignmentOp), new SimpleCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
                     // assignment exists - next function will skip its DMR operation
@@ -194,16 +224,11 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddPrincipalFunction implements Function<Stack<Boolean>> {
+    class AddPrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
 
-        private final Role role;
-        private final Principal principal;
-        private final String includeExclude;
-
-        public AddPrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
-            this.role = role;
-            this.principal = principal;
-            this.includeExclude = includeExclude;
+        public AddPrincipalFunction(final Role role,
+                final Principal principal, final String realm, final String includeExclude) {
+            super(role, principal, realm, includeExclude);
         }
 
         @Override
@@ -212,19 +237,15 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             if (principalExists) {
                 control.proceed();
             } else {
-                ModelNode assignmentOp = new ModelNode();
-                assignmentOp.get(ADDRESS).add("core-service", "management");
-                assignmentOp.get(ADDRESS).add("access", "authorization");
-                assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-                assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
-                assignmentOp.get("name").set(ModelType.STRING, principal.getName());
-                assignmentOp.get("type").set(ModelType.STRING, principal.getType().name());
-                if (principal.getRealm() != null && principal.getRealm().length() != 0) {
-                    assignmentOp.get("realm").set(ModelType.STRING, principal.getRealm());
+                ModelNode node = principalNode();
+                node.get("name").set(ModelType.STRING, principal.getName());
+                node.get("type").set(ModelType.STRING, principal.getType().name());
+                if (realm != null && realm.length() != 0) {
+                    node.get("realm").set(ModelType.STRING, realm);
                 }
-                assignmentOp.get(OP).set(ADD);
+                node.get(OP).set(ADD);
 
-                dispatcher.execute(new DMRAction(assignmentOp), new SimpleCallback<DMRResponse>() {
+                dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                     @Override
                     public void onSuccess(DMRResponse response) {
                         control.proceed();
@@ -240,28 +261,19 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class RemovePrincipalFunction implements Function<Stack<Boolean>> {
+    class RemovePrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
 
-        private final Role role;
-        private final Principal principal;
-        private final String includeExclude;
-
-        public RemovePrincipalFunction(final Role role, final Principal principal, final String includeExclude) {
-            this.role = role;
-            this.principal = principal;
-            this.includeExclude = includeExclude;
+        public RemovePrincipalFunction(final Role role,
+                final Principal principal, final String realm, final String includeExclude) {
+            super(role, principal, realm, includeExclude);
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode assignmentOp = new ModelNode();
-            assignmentOp.get(ADDRESS).add("core-service", "management");
-            assignmentOp.get(ADDRESS).add("access", "authorization");
-            assignmentOp.get(ADDRESS).add("role-mapping", role.getName());
-            assignmentOp.get(ADDRESS).add(includeExclude, ModelHelper.principalIdentifier(principal));
-            assignmentOp.get(OP).set(REMOVE);
+            ModelNode node = principalNode();
+            node.get(OP).set(REMOVE);
 
-            dispatcher.execute(new DMRAction(assignmentOp), new SimpleCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
                     control.proceed();

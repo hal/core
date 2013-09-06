@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.USER;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.jboss.as.console.client.shared.model.HasNameComparator;
+
 /**
  * Contains a list of principals stored in the management model.
  *
@@ -36,12 +38,12 @@ import java.util.TreeSet;
  */
 public class Principals implements Iterable<Principal> {
 
-    private final Map<PrincipalType, SortedSet<Principal>> principals;
+    private final Map<Principal.Type, SortedSet<Principal>> principals;
 
     public Principals() {
-        principals = new HashMap<PrincipalType, SortedSet<Principal>>();
-        principals.put(GROUP, new TreeSet<Principal>(new PrincipalComparator()));
-        principals.put(USER, new TreeSet<Principal>(new PrincipalComparator()));
+        principals = new HashMap<Principal.Type, SortedSet<Principal>>();
+        principals.put(GROUP, new TreeSet<Principal>(new HasNameComparator<Principal>()));
+        principals.put(USER, new TreeSet<Principal>(new HasNameComparator<Principal>()));
     }
 
     public void add(Principal principal) {
@@ -53,26 +55,15 @@ public class Principals implements Iterable<Principal> {
         }
     }
 
-    //    public List<String> getNames(Principal.Type type) {
-    //        List<String> names = new ArrayList<String>();
-    //        SortedSet<Principal> set = principals.get(type);
-    //        if (set != null) {
-    //            for (Principal principal : set) {
-    //                names.add(principal.getName());
-    //            }
-    //        }
-    //        return names;
-    //    }
-
     @Override
     public Iterator<Principal> iterator() {
-        SortedSet<Principal> all = new TreeSet<Principal>(new PrincipalComparator());
+        SortedSet<Principal> all = new TreeSet<Principal>(new HasNameComparator<Principal>());
         all.addAll(principals.get(GROUP));
         all.addAll(principals.get(USER));
         return all.iterator();
     }
 
-    public List<Principal> get(PrincipalType type) {
+    public List<Principal> get(Principal.Type type) {
         return new ArrayList<Principal>(principals.get(type));
     }
 }

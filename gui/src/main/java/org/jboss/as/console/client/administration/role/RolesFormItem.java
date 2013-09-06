@@ -22,7 +22,6 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.cell.client.CheckboxCell;
@@ -154,15 +153,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
     }
 
     public String asString() {
-        StringBuilder builder = new StringBuilder("[");
-        for (Iterator<Role> iterator = value.iterator(); iterator.hasNext(); ) {
-            Role role = iterator.next();
-            builder.append(role.getName());
-            if (iterator.hasNext()) {
-                builder.append(", ");
-            }
-        }
-        builder.append("]");
+        StringBuilder builder = new StringBuilder("[").append(UIHelper.csv(value)).append("]");
         return builder.toString();
     }
 

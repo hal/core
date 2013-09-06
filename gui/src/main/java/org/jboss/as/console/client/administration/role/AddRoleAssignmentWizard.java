@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.PrincipalType.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
 import java.util.List;
 
@@ -31,10 +31,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.PrincipalType;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -46,19 +44,17 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  */
 public class AddRoleAssignmentWizard implements IsWidget {
 
-    private final PrincipalType type;
+    private final RoleAssignmentPresenter presenter;
+    private final Principal.Type type;
     private final Principals principals;
     private final Roles roles;
-    private final RoleAssignmentPresenter presenter;
-    private final BeanFactory beanFactory;
 
-    public AddRoleAssignmentWizard(final PrincipalType type, final Principals principals, final Roles roles,
-            final RoleAssignmentPresenter presenter, BeanFactory beanFactory) {
+    public AddRoleAssignmentWizard(final RoleAssignmentPresenter presenter, final Principal.Type type,
+            final Principals principals, final Roles roles) {
+        this.presenter = presenter;
         this.type = type;
         this.principals = principals;
         this.roles = roles;
-        this.presenter = presenter;
-        this.beanFactory = beanFactory;
     }
 
     @Override
@@ -76,7 +72,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
 
         final Form<RoleAssignment> form = new Form<RoleAssignment>(RoleAssignment.class);
         String title = type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user();
-        PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title, beanFactory);
+        final PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title);
         principalItem.setRequired(true);
         principalItem.update(principals);
         TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
@@ -94,10 +90,9 @@ public class AddRoleAssignmentWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            RoleAssignment assignment = form.getUpdatedEntity();
-                            // The form cannot handle enums...
-                            assignment.setRoles(rolesItem.getValue());
-                            presenter.addRoleAssignment(assignment);
+                            RoleAssignment roleAssignment = new RoleAssignment(principalItem.getValue());
+                            roleAssignment.addRoles(rolesItem.getValue());
+                            presenter.addRoleAssignment(roleAssignment);
                         }
                     }
                 },
