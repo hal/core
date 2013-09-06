@@ -97,10 +97,9 @@ public class ServerGroupPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
     @AccessControl(resources = {
-            "/socket-binding-group=*",
             "/server-group=*",
             "/server-group=*/jvm=*",
-            "/server-group=*/system-property=*",
+            "/server-group=*/system-property=*" // TODO: these prevent write access (RBAC)
     }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }

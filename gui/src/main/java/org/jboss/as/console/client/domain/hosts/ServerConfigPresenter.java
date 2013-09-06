@@ -103,11 +103,10 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @AccessControl(resources = {
-            "/socket-binding-group=*",
             "/server-group=*",
             "/{selected.host}/server-config=*",
             "/{selected.host}/server-config=*/jvm=*",
-            "/{selected.host}/server-config=*/system-property=*",
+            "/{selected.host}/server-config=*/system-property=*" // TODO: these prevent write access (RBAC)
     }, facet = "runtime", recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
