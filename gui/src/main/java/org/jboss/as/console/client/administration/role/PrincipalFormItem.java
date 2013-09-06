@@ -236,7 +236,7 @@ public class PrincipalFormItem extends FormItem<Principal> {
         }
 
         public void update(Principals principals) {
-            List<Principal> byType = principals.get(type);
+            Collection<Principal> byType = principals.get(type);
             if (byType != null) {
                 suggestions.clear();
                 for (Principal principal : byType) {

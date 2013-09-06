@@ -21,15 +21,11 @@ package org.jboss.as.console.client.administration.role.model;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import org.jboss.as.console.client.shared.model.HasNameComparator;
+import java.util.Set;
 
 /**
  * Contains a list of principals stored in the management model.
@@ -38,17 +34,17 @@ import org.jboss.as.console.client.shared.model.HasNameComparator;
  */
 public class Principals implements Iterable<Principal> {
 
-    private final Map<Principal.Type, SortedSet<Principal>> principals;
+    private final Map<Principal.Type, Set<Principal>> principals;
 
     public Principals() {
-        principals = new HashMap<Principal.Type, SortedSet<Principal>>();
-        principals.put(GROUP, new TreeSet<Principal>(new HasNameComparator<Principal>()));
-        principals.put(USER, new TreeSet<Principal>(new HasNameComparator<Principal>()));
+        principals = new HashMap<Principal.Type, Set<Principal>>();
+        principals.put(GROUP, new HashSet<Principal>());
+        principals.put(USER, new HashSet<Principal>());
     }
 
     public void add(Principal principal) {
         if (principal != null) {
-            SortedSet<Principal> set = principals.get(principal.getType());
+            Set<Principal> set = principals.get(principal.getType());
             if (set != null) {
                 set.add(principal);
             }
@@ -57,13 +53,13 @@ public class Principals implements Iterable<Principal> {
 
     @Override
     public Iterator<Principal> iterator() {
-        SortedSet<Principal> all = new TreeSet<Principal>(new HasNameComparator<Principal>());
+        Set<Principal> all = new HashSet<Principal>();
         all.addAll(principals.get(GROUP));
         all.addAll(principals.get(USER));
         return all.iterator();
     }
 
-    public List<Principal> get(Principal.Type type) {
-        return new ArrayList<Principal>(principals.get(type));
+    public Set<Principal> get(Principal.Type type) {
+        return principals.get(type);
     }
 }

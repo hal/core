@@ -24,12 +24,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.shared.model.HasNameComparator;
 
 /**
  * A role assignment as used in the UI. This model differs from the management model.
@@ -39,14 +36,14 @@ import org.jboss.as.console.client.shared.model.HasNameComparator;
 public class RoleAssignment {
 
     private final Principal principal;
-    private final SortedSet<Role> roles;
-    private final SortedSet<Role> excludes;
+    private final Set<Role> roles;
+    private final Set<Role> excludes;
     private String realm;
 
     public RoleAssignment(final Principal principal) {
         this.principal = principal;
-        this.roles = new TreeSet<Role>(new HasNameComparator<Role>());
-        this.excludes = new TreeSet<Role>(new HasNameComparator<Role>());
+        this.roles = new HashSet<Role>();
+        this.excludes = new HashSet<Role>();
     }
 
     @Override
@@ -168,7 +165,6 @@ public class RoleAssignment {
         private final List<PrincipalRealmTupel> includes;
         private final List<PrincipalRealmTupel> excludes;
 
-
         public Internal(final Role role) {
             this.role = role;
             includes = new ArrayList<PrincipalRealmTupel>();
@@ -182,7 +178,13 @@ public class RoleAssignment {
 
             Internal that = (Internal) o;
             return role.getName().equals(that.role.getName());
+        }
 
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append(role.getName()).append(" +").append(includes).append(" -").append(excludes);
+            return builder.toString();
         }
 
         @Override
@@ -218,6 +220,26 @@ public class RoleAssignment {
         public PrincipalRealmTupel(final Principal principal, final String realm) {
             this.principal = principal;
             this.realm = realm;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) { return true; }
+            if (!(o instanceof PrincipalRealmTupel)) { return false; }
+
+            PrincipalRealmTupel that = (PrincipalRealmTupel) o;
+
+            if (!principal.equals(that.principal)) { return false; }
+            if (realm != null ? !realm.equals(that.realm) : that.realm != null) { return false; }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = principal.hashCode();
+            result = 31 * result + (realm != null ? realm.hashCode() : 0);
+            return result;
         }
     }
 }

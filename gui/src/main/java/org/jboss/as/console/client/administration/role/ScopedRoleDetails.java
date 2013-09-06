@@ -33,7 +33,6 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
@@ -43,21 +42,23 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 public class ScopedRoleDetails implements IsWidget {
 
     private final RoleAssignmentPresenter presenter;
-    private final Form<ScopedRole> form;
-    private EnumFormItem<ScopedRole.Type> typeItem;
-    private MultiselectListBoxItem scopeItem;
+    private final PojoForm<ScopedRole> form;
     private List<String> hosts;
     private List<String> serverGroups;
+    private TextBoxItem nameItem;
+    private EnumFormItem<StandardRole> baseRoleItem;
+    private EnumFormItem<ScopedRole.Type> typeItem;
+    private MultiselectListBoxItem scopeItem;
 
     public ScopedRoleDetails(final RoleAssignmentPresenter presenter) {
         this.presenter = presenter;
-        this.form = new Form<ScopedRole>(ScopedRole.class);
+        this.form = new PojoForm<ScopedRole>();
     }
 
     @Override
     public Widget asWidget() {
-        TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
+        nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
         typeItem = new EnumFormItem<ScopedRole.Type>("type", Console.CONSTANTS.common_label_type());
@@ -75,10 +76,12 @@ public class ScopedRoleDetails implements IsWidget {
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
-                ScopedRole scopedRole = form.getUpdatedEntity();
-                scopedRole.setBaseRole(baseRoleItem.getValue());
-                scopedRole.setType(typeItem.getValue());
-                presenter.saveScopedRole(scopedRole, form.getChangedValues());
+                ScopedRole updatedEntity = form.getUpdatedEntity();
+                updatedEntity.setName(nameItem.getValue());
+                updatedEntity.setBaseRole(baseRoleItem.getValue());
+                updatedEntity.setType(typeItem.getValue());
+                updatedEntity.setScope(scopeItem.getValue());
+                presenter.saveScopedRole(updatedEntity);
             }
 
             @Override
@@ -111,6 +114,11 @@ public class ScopedRoleDetails implements IsWidget {
                         ScopedRole role = selectionModel.getSelectedObject();
                         if (role != null) {
                             updateScope(role.getType());
+                            nameItem.setValue(role.getName());
+                            baseRoleItem.setValue(role.getBaseRole());
+                            typeItem.setValue(role.getType());
+                            scopeItem.setValue(role.getScope());
+                            form.setUndefined(false);
                             form.edit(role);
                         } else {
                             form.clearValues();

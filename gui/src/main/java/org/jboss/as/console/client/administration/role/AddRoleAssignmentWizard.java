@@ -20,7 +20,7 @@ package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -60,7 +60,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
     @Override
     public Widget asWidget() {
         MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-        List<Principal> byType = principals.get(type);
+        Collection<Principal> byType = principals.get(type);
         if (byType != null) {
             for (Principal principal : byType) {
                 oracle.add(principal.getName());

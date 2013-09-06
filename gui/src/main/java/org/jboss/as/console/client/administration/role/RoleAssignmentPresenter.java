@@ -229,24 +229,17 @@ public class RoleAssignmentPresenter
 
     public void addScopedRole(final ScopedRole role) {
         Console.info("Not yet implemented");
-        System.out.println(
-                "Add scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
-                        .getType() + " " + role.getScope());
+        System.out.println("Add scoped role " + role);
     }
 
-    public void saveScopedRole(final ScopedRole role, final Map<String, Object> changedValues) {
+    public void saveScopedRole(final ScopedRole role) {
         Console.info("Not yet implemented");
-        System.out.println(
-                "Save scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
-                        .getType() + " " + role.getScope());
-        System.out.println("Changed values: " + changedValues);
+        System.out.println("Save scoped role " + role);
     }
 
     public void removeScopedRole(final ScopedRole role) {
         Console.info("Not yet implemented");
-        System.out.println(
-                "Remove scoped role " + role.getName() + " based on " + role.getBaseRole() + " scoped to " + role
-                        .getType() + " " + role.getScope());
+        System.out.println("Remove scoped role " + role);
     }
 
     public void closeWindow() {

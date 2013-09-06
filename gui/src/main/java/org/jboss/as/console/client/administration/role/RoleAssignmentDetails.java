@@ -32,7 +32,6 @@ import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
-import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 
 /**
@@ -42,35 +41,48 @@ public class RoleAssignmentDetails implements IsWidget {
 
     private final Principal.Type type;
     private final RoleAssignmentPresenter presenter;
-    private final Form<RoleAssignment> form;
+    private final PojoForm<RoleAssignment> form;
     private RoleAssignment currentEntity;
-    private PrincipalFormItem principalItem;
+    private ReadOnlyItem<RoleAssignment> principalItem;
     private RolesFormItem rolesItem;
     private RolesFormItem excludesItem;
 
     public RoleAssignmentDetails(final RoleAssignmentPresenter presenter, final Principal.Type type) {
         this.presenter = presenter;
         this.type = type;
-        this.form = new Form<RoleAssignment>(RoleAssignment.class);
+        this.form = new PojoForm<RoleAssignment>();
     }
 
     @Override
     public Widget asWidget() {
-        principalItem = new PrincipalFormItem(type, "principal",
+        principalItem = new ReadOnlyItem<RoleAssignment>("principal",
                 type == Principal.Type.GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS
-                        .common_label_user());
+                        .common_label_user()) {
+            @Override
+            public String asString() {
+                StringBuilder builder = new StringBuilder();
+                RoleAssignment assignment = getValue();
+                if (assignment != null) {
+                    builder.append(assignment.getPrincipal().getName());
+                    if (assignment.getRealm() != null) {
+                        builder.append("@").append(assignment.getRealm());
+                    }
+                }
+                return builder.toString();
+            }
+        };
         principalItem.setEnabled(false);
         rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
         excludesItem = new RolesFormItem("excludes", Console.CONSTANTS.common_label_exclude());
         excludesItem.setRequired(false);
 
-        form.setFields(rolesItem);
+        form.setFields(principalItem, rolesItem);
         form.setFieldsInGroup(Console.CONSTANTS.common_label_advanced(), new DisclosureGroupRenderer(), excludesItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
-                RoleAssignment updatedEntity = new RoleAssignment(principalItem.getValue());
+                RoleAssignment updatedEntity = form.getUpdatedEntity();
                 updatedEntity.addRoles(rolesItem.getValue());
                 updatedEntity.addExcludes(excludesItem.getValue());
                 presenter.saveRoleAssignment(updatedEntity, updatedEntity.changedRoles(currentEntity),
@@ -109,9 +121,10 @@ public class RoleAssignmentDetails implements IsWidget {
                     public void execute() {
                         currentEntity = selectionModel.getSelectedObject();
                         if (currentEntity != null) {
-                            principalItem.setValue(currentEntity.getPrincipal());
+                            principalItem.setValue(currentEntity);
                             rolesItem.setValue(currentEntity.getRoles());
                             excludesItem.setValue(currentEntity.getExcludes());
+                            form.setUndefined(false);
                             form.edit(currentEntity);
                         } else {
                             form.clearValues();
