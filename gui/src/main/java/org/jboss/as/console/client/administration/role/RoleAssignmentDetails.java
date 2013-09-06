@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.Scheduler;
@@ -31,6 +34,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.rbac.Role;
+import org.jboss.as.console.client.shared.model.HasNameComparator;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 
@@ -122,8 +127,12 @@ public class RoleAssignmentDetails implements IsWidget {
                         currentEntity = selectionModel.getSelectedObject();
                         if (currentEntity != null) {
                             principalItem.setValue(currentEntity);
-                            rolesItem.setValue(currentEntity.getRoles());
-                            excludesItem.setValue(currentEntity.getExcludes());
+                            List<Role> roles = new ArrayList<Role>(currentEntity.getRoles());
+                            Collections.sort(roles, new HasNameComparator<Role>());
+                            rolesItem.setValue(roles);
+                            List<Role> excludes = new ArrayList<Role>(currentEntity.getExcludes());
+                            Collections.sort(excludes, new HasNameComparator<Role>());
+                            excludesItem.setValue(excludes);
                             form.setUndefined(false);
                             form.edit(currentEntity);
                         } else {

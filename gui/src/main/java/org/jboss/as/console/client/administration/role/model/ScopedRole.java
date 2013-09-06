@@ -18,9 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -106,8 +104,8 @@ public class ScopedRole implements Role {
         this.type = type;
     }
 
-    public List<String> getScope() {
-        return new ArrayList<String>(scope);
+    public SortedSet<String> getScope() {
+        return scope;
     }
 
     public void setScope(final Collection<String> scope) {

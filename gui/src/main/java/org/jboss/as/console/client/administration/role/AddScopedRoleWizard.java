@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -113,7 +114,7 @@ public class AddScopedRoleWizard implements IsWidget {
         // restore selection
         ScopedRole entity = form.getEditedEntity();
         if (entity != null) {
-            scopeItem.setValue(entity.getScope());
+            scopeItem.setValue(new ArrayList<String>(entity.getScope()));
         }
     }
 }

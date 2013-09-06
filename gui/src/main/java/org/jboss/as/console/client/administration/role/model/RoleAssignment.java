@@ -98,8 +98,8 @@ public class RoleAssignment {
         this.realm = realm;
     }
 
-    public List<Role> getRoles() {
-        return new ArrayList<Role>(roles);
+    public Set<Role> getRoles() {
+        return roles;
     }
 
     public void addRole(Role role) {
@@ -121,8 +121,8 @@ public class RoleAssignment {
         return Collections.emptySet();
     }
 
-    public List<Role> getExcludes() {
-        return new ArrayList<Role>(excludes);
+    public Set<Role> getExcludes() {
+        return excludes;
     }
 
     public void addExclude(Role exclude) {

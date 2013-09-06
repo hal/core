@@ -94,18 +94,30 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         throw new UnsupportedOperationException("not implemented");
     }
 
-    class ReadRoleFunction implements Function<Stack<Boolean>> {
+    abstract class RoleFunction<T> implements Function<T> {
 
-        private final Role role;
+        protected final Role role;
 
-        ReadRoleFunction(final Role role) {this.role = role;}
+        RoleFunction(final Role role) {this.role = role;}
+
+        protected ModelNode roleNode() {
+            ModelNode node = new ModelNode();
+            node.get(ADDRESS).add("core-service", "management");
+            node.get(ADDRESS).add("access", "authorization");
+            node.get(ADDRESS).add("role-mapping", role.getName());
+            return node;
+        }
+    }
+
+    class ReadRoleFunction extends RoleFunction<Stack<Boolean>> {
+
+        ReadRoleFunction(final Role role) {
+            super(role);
+        }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode realRoleOp = new ModelNode();
-            realRoleOp.get(ADDRESS).add("core-service", "management");
-            realRoleOp.get(ADDRESS).add("access", "authorization");
-            realRoleOp.get(ADDRESS).add("role-mapping", role.getName());
+            ModelNode realRoleOp = roleNode();
             realRoleOp.get(OP).set(READ_RESOURCE_OPERATION);
 
             dispatcher.execute(new DMRAction(realRoleOp), new SimpleCallback<DMRResponse>() {
@@ -126,11 +138,11 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddRoleFunction implements Function<Stack<Boolean>> {
+    class AddRoleFunction extends RoleFunction<Stack<Boolean>> {
 
-        private final Role role;
-
-        AddRoleFunction(final Role role) {this.role = role;}
+        AddRoleFunction(final Role role) {
+            super(role);
+        }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
@@ -138,10 +150,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             if (roleExists) {
                 control.proceed();
             } else {
-                ModelNode addRoleOp = new ModelNode();
-                addRoleOp.get(ADDRESS).add("core-service", "management");
-                addRoleOp.get(ADDRESS).add("access", "authorization");
-                addRoleOp.get(ADDRESS).add("role-mapping", role.getName());
+                ModelNode addRoleOp = roleNode();
                 addRoleOp.get(OP).set(ADD);
 
                 dispatcher.execute(new DMRAction(addRoleOp), new SimpleCallback<DMRResponse>() {
@@ -200,10 +209,6 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
             ModelNode node = principalNode();
-            node.get(ADDRESS).add("core-service", "management");
-            node.get(ADDRESS).add("access", "authorization");
-            node.get(ADDRESS).add("role-mapping", role.getName());
-            node.get(ADDRESS).add(includeExclude, principal.getId());
             node.get(OP).set(READ_RESOURCE_OPERATION);
 
             dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {

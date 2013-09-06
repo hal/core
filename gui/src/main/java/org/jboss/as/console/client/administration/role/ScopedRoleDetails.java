@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +118,7 @@ public class ScopedRoleDetails implements IsWidget {
                             nameItem.setValue(role.getName());
                             baseRoleItem.setValue(role.getBaseRole());
                             typeItem.setValue(role.getType());
-                            scopeItem.setValue(role.getScope());
+                            scopeItem.setValue(new ArrayList<String>(role.getScope()));
                             form.setUndefined(false);
                             form.edit(role);
                         } else {
@@ -139,7 +140,7 @@ public class ScopedRoleDetails implements IsWidget {
             // restore selection
             ScopedRole entity = form.getEditedEntity();
             if (entity != null) {
-                scopeItem.setValue(entity.getScope());
+                scopeItem.setValue(new ArrayList<String>(entity.getScope()));
             }
         }
     }

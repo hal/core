@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
@@ -42,6 +43,10 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     private RoleAssignmentEditor groupEditor;
     private RoleAssignmentEditor userEditor;
     private ScopedRoleEditor scopedRoleEditor;
+
+    @Inject
+    public RoleAssignementView() {
+    }
 
     @Override
     public Widget createWidget() {

@@ -21,6 +21,10 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -74,7 +78,7 @@ public class RoleAssignmentTable implements IsWidget {
                     public RoleAssignment getValue(final RoleAssignment assignment) {
                         return assignment;
                     }
-                };
+            };
         table.addColumn(principalColumn,
                 type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user());
         table.addColumn(roleColumn, Console.CONSTANTS.common_label_roles());
@@ -90,9 +94,13 @@ public class RoleAssignmentTable implements IsWidget {
 
     public void update(final RoleAssignments assignments) {
         if (type == GROUP) {
-            dataProvider.setList(assignments.getGroupAssignments());
+            List<RoleAssignment> groupAssignments = new ArrayList<RoleAssignment>(assignments.getGroupAssignments());
+            Collections.sort(groupAssignments, new RoleAssignmentComparator());
+            dataProvider.setList(groupAssignments);
         } else if (type == USER) {
-            dataProvider.setList(assignments.getUserAssignments());
+            List<RoleAssignment> userAssignments = new ArrayList<RoleAssignment>(assignments.getUserAssignments());
+            Collections.sort(userAssignments, new RoleAssignmentComparator());
+            dataProvider.setList(userAssignments);
         }
         table.selectDefaultEntity();
     }
@@ -107,5 +115,13 @@ public class RoleAssignmentTable implements IsWidget {
     @SuppressWarnings("unchecked")
     CellTable<RoleAssignment> getCellTable() {
         return table;
+    }
+
+    private class RoleAssignmentComparator implements java.util.Comparator<RoleAssignment> {
+
+        @Override
+        public int compare(final RoleAssignment left, final RoleAssignment right) {
+            return left.getPrincipal().getName().compareTo(right.getPrincipal().getName());
+        }
     }
 }

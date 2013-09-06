@@ -50,12 +50,12 @@ public class RoleAssignments {
         models.add(internal);
     }
 
-    public List<RoleAssignment> getGroupAssignments() {
-        return new ArrayList<RoleAssignment>(assignments.get(GROUP));
+    public Set<RoleAssignment> getGroupAssignments() {
+        return assignments.get(GROUP);
     }
 
-    public List<RoleAssignment> getUserAssignments() {
-        return new ArrayList<RoleAssignment>(assignments.get(USER));
+    public Set<RoleAssignment> getUserAssignments() {
+        return assignments.get(USER);
     }
 
     public void toUI(Principals principals) {
