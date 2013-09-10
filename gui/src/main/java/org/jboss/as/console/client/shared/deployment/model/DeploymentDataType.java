@@ -29,6 +29,7 @@ public enum DeploymentDataType
     ejb3,
     jpa,
     undertow,
+    web,
     webservices,
     entityBean,
     messageDrivenBean,

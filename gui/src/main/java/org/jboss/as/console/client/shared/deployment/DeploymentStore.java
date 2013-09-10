@@ -19,6 +19,16 @@
 
 package org.jboss.as.console.client.shared.deployment;
 
+import static org.jboss.as.console.client.shared.deployment.model.DeploymentDataType.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
@@ -38,23 +48,14 @@ import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystem;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentWebSubsystem;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentWebserviceSubsystem;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.as.console.client.shared.deployment.model.DeploymentDataType.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * Responsible for loading deployment data
@@ -365,6 +366,7 @@ public class DeploymentStore
                                 subsystem = deploymentJpaSubsystemEntityAdapter.fromDMR(subsystemNode);
                                 break;
                             case undertow:
+                            case web:
                                 subsystem = deploymentWebSubsystemnEntityAdapter.fromDMR(subsystemNode);
                                 break;
                             case webservices:
@@ -566,16 +568,16 @@ public class DeploymentStore
         DeploymentRecord deployment = subsystem.getDeployment();
         if (deployment.isSubdeployment())
         {
-            // /<deployment.getBaseAddress()>/deployment=<deployment>/subdeployment=<subdeployment>/subsystem=undertow/servlet=*:read-resource
+            // /<deployment.getBaseAddress()>/deployment=<deployment>/subdeployment=<subdeployment>/subsystem=undertow|web/servlet=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getParent().getName())
                     .add("subdeployment", deployment.getName());
         }
         else
         {
-            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=undertow/servlet=*:read-resource
+            // /<deployment.getBaseAddress()>/deployment=<deployment>/subsystem=undertow|web/servlet=*:read-resource
             operation.get(ADDRESS).add("deployment", deployment.getName());
         }
-        operation.get(ADDRESS).add("subsystem", "undertow").add("servlet", "*");
+        operation.get(ADDRESS).add("subsystem", subsystem.getType().name()).add("servlet", "*");
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
