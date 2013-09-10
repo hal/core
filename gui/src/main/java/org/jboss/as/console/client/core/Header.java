@@ -48,10 +48,13 @@ import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
+import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.Set;
+
+import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 /**
  * Top level header, gives access to main applications.
@@ -230,6 +233,37 @@ public class Header implements ValueChangeHandler<String> {
 
         usermenu.add(new HTML("Roles:"));
         usermenu.add(new HTML(sb.toSafeHtml()));
+
+
+        if(bootstrap.isSuperUser())
+        {
+            usermenu.add(new HTML("<hr/>"));
+            HTML runAsBtn = new HTML();
+            runAsBtn.addStyleName("html-link");
+
+            SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
+            runAsRole.appendHtmlConstant("<i class='icon-flag'></i>&nbsp;").appendEscaped("Run as");
+            if (Preferences.has(RUN_AS_ROLE)) {
+                runAsRole.appendEscaped(Preferences.get(RUN_AS_ROLE));
+            } else {
+                runAsRole.appendEscaped("...");
+            }
+
+            runAsBtn.setHTML(runAsRole.toSafeHtml());
+            runAsBtn.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+
+                    placeManager.revealPlace(
+                            new PlaceRequest(NameTokens.ToolsPresenter).with("name", "run-as-role")
+                    );
+
+                    menuPopup.hide();
+                }
+            });
+            usermenu.add(runAsBtn);
+        }
+
         usermenu.add(new HTML("<hr/>"));
         usermenu.add(logoutHtml);
         menuPopup.setWidget(usermenu);
