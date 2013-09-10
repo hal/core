@@ -22,6 +22,7 @@ import static org.jboss.as.console.client.administration.role.model.RoleAssignme
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -139,6 +140,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         ModelNode stepsResult = response.get(RESULT);
 
                         // the order of processing is important!
+                        String mappingStep = "step-1";
                         if (!standalone) {
                             List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                             for (ModelNode node : hostScopedRoles) {
@@ -241,23 +243,28 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         @Override
         public void execute(final Control<Map<Results, Object>> control) {
-            hostInformationStore.getHosts(new AsyncCallback<List<Host>>() {
-                @Override
-                public void onSuccess(final List<Host> result) {
-                    List<String> hosts = new ArrayList<String>();
-                    for (Host host : result) {
-                        hosts.add(host.getName());
+            if (standalone) {
+                control.getContext().put(Results.HOSTS, Collections.emptyList());
+                control.proceed();
+            } else {
+                hostInformationStore.getHosts(new AsyncCallback<List<Host>>() {
+                    @Override
+                    public void onSuccess(final List<Host> result) {
+                        List<String> hosts = new ArrayList<String>();
+                        for (Host host : result) {
+                            hosts.add(host.getName());
+                        }
+                        control.getContext().put(Results.HOSTS, hosts);
+                        control.proceed();
                     }
-                    control.getContext().put(Results.HOSTS, hosts);
-                    control.proceed();
-                }
 
-                @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().put(Results.ERROR, caught);
-                    control.abort();
-                }
-            });
+                    @Override
+                    public void onFailure(final Throwable caught) {
+                        control.getContext().put(Results.ERROR, caught);
+                        control.abort();
+                    }
+                });
+            }
         }
     }
 
@@ -265,25 +272,35 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         @Override
         public void execute(final Control<Map<Results, Object>> control) {
-            serverGroupStore.loadServerGroups(new AsyncCallback<List<ServerGroupRecord>>() {
-                @Override
-                public void onSuccess(final List<ServerGroupRecord> result) {
-                    List<String> serverGroups = new ArrayList<String>();
-                    for (ServerGroupRecord serverGroup : result) {
-                        serverGroups.add(serverGroup.getName());
+            if (standalone) {
+                control.getContext().put(Results.SERVER_GROUPS, Collections.emptyList());
+                control.proceed();
+                finish();
+            } else {
+                serverGroupStore.loadServerGroups(new AsyncCallback<List<ServerGroupRecord>>() {
+                    @Override
+                    public void onSuccess(final List<ServerGroupRecord> result) {
+                        List<String> serverGroups = new ArrayList<String>();
+                        for (ServerGroupRecord serverGroup : result) {
+                            serverGroups.add(serverGroup.getName());
+                        }
+                        control.getContext().put(Results.SERVER_GROUPS, serverGroups);
+                        control.proceed();
+                        finish();
                     }
-                    control.getContext().put(Results.SERVER_GROUPS, serverGroups);
-                    control.proceed();
-                    pending = false;
-                }
 
-                @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().put(Results.ERROR, caught);
-                    control.abort();
-                    pending = false;
-                }
-            });
+                    @Override
+                    public void onFailure(final Throwable caught) {
+                        control.getContext().put(Results.ERROR, caught);
+                        control.abort();
+                        finish();
+                    }
+                });
+            }
+        }
+
+        private void finish() {
+            pending = false;
         }
     }
 }

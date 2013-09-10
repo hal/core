@@ -85,7 +85,9 @@ public class ScopedRoleEditor implements IsWidget {
     }
 
     public void update(final Roles roles, final List<String> hosts, final List<String> serverGroups) {
-        table.update(roles.getScopedRoles());
-        details.update(roles.getScopedRoles(), hosts, serverGroups);
+        if (!presenter.isStandalone()) {
+            table.update(roles.getScopedRoles());
+            details.update(roles.getScopedRoles(), hosts, serverGroups);
+        }
     }
 }
