@@ -100,7 +100,7 @@ public class RoleAssignmentEditor implements IsWidget {
     public void update(final RoleAssignments assignments, final Roles roles) {
         if (table != null && details != null) {
             table.update(assignments);
-            details.update(roles);
+            details.update(assignments, roles);
         }
     }
 }

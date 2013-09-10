@@ -117,6 +117,10 @@ public class RoleAssignmentTable implements IsWidget {
         return table;
     }
 
+    public void clearSelection() {
+        selectionModel.clear();
+    }
+
     private class RoleAssignmentComparator implements java.util.Comparator<RoleAssignment> {
 
         @Override

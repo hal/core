@@ -17,6 +17,7 @@ import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
  * @author Harald Pehl
@@ -56,7 +57,16 @@ public class ScopedRoleEditor implements IsWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.removeScopedRole(table.getSelectedRole());
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Scoped Role"),
+                        Console.MESSAGES.deleteConfirm("scoped role"),
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    presenter.removeScopedRole(table.getSelectedRole());
+                                }
+                            }
+                        });
             }
         }));
         content.add(tools.asWidget());
@@ -76,6 +86,6 @@ public class ScopedRoleEditor implements IsWidget {
 
     public void update(final Roles roles, final List<String> hosts, final List<String> serverGroups) {
         table.update(roles.getScopedRoles());
-        details.update(hosts, serverGroups);
+        details.update(roles.getScopedRoles(), hosts, serverGroups);
     }
 }

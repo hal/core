@@ -64,13 +64,15 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
     private final ServerGroupStore serverGroupStore;
+    private final boolean standalone;
     private boolean pending;
 
     public LoadRoleAssignmentsOp(final DispatchAsync dispatcher, final HostInformationStore hostInformationStore,
-            ServerGroupStore serverGroupStore) {
+            ServerGroupStore serverGroupStore, final boolean standalone) {
         this.dispatcher = dispatcher;
         this.hostInformationStore = hostInformationStore;
         this.serverGroupStore = serverGroupStore;
+        this.standalone = standalone;
     }
 
     @Override
@@ -103,17 +105,19 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             operation.get(OP).set(COMPOSITE);
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
-            ModelNode hostScopeOp = new ModelNode();
-            hostScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-            hostScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-            hostScopeOp.get(CHILD_TYPE).set("host-scoped-role");
-            steps.add(hostScopeOp);
+            if (!standalone) {
+                ModelNode hostScopeOp = new ModelNode();
+                hostScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+                hostScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+                hostScopeOp.get(CHILD_TYPE).set("host-scoped-role");
+                steps.add(hostScopeOp);
 
-            ModelNode serverGroupScopeOp = new ModelNode();
-            serverGroupScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-            serverGroupScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-            serverGroupScopeOp.get(CHILD_TYPE).set("server-group-scoped-role");
-            steps.add(serverGroupScopeOp);
+                ModelNode serverGroupScopeOp = new ModelNode();
+                serverGroupScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+                serverGroupScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+                serverGroupScopeOp.get(CHILD_TYPE).set("server-group-scoped-role");
+                steps.add(serverGroupScopeOp);
+            }
 
             ModelNode mappingOp = new ModelNode();
             mappingOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
@@ -135,15 +139,19 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         ModelNode stepsResult = response.get(RESULT);
 
                         // the order of processing is important!
-                        List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
-                        for (ModelNode node : hostScopedRoles) {
-                            addScopedRole(roles, node.asProperty(), "hosts", ScopedRole.Type.HOST);
+                        if (!standalone) {
+                            List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
+                            for (ModelNode node : hostScopedRoles) {
+                                addScopedRole(roles, node.asProperty(), "hosts", ScopedRole.Type.HOST);
+                            }
+
+                            List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
+                            for (ModelNode node : serverGroupScopedRoles) {
+                                addScopedRole(roles, node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
+                            }
                         }
-                        List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
-                        for (ModelNode node : serverGroupScopedRoles) {
-                            addScopedRole(roles, node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
-                        }
-                        List<ModelNode> roleMappings = stepsResult.get("step-3").get(RESULT).asList();
+                        List<ModelNode> roleMappings = stepsResult.get(standalone ? "step-1" : "step-3").get(RESULT)
+                                .asList();
                         for (ModelNode node : roleMappings) {
                             addInternalRoleAssignment(principals, assignments, roles, node.asProperty());
                         }

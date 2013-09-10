@@ -50,6 +50,10 @@ public class RoleAssignments {
         models.add(internal);
     }
 
+    public Set<RoleAssignment> get(final Principal.Type type) {
+        return assignments.get(type);
+    }
+
     public Set<RoleAssignment> getGroupAssignments() {
         return assignments.get(GROUP);
     }

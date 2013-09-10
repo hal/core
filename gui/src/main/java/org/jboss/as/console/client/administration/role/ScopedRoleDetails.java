@@ -78,11 +78,13 @@ public class ScopedRoleDetails implements IsWidget {
             @Override
             public void onSave(final Map changeset) {
                 ScopedRole updatedEntity = form.getUpdatedEntity();
-                updatedEntity.setName(nameItem.getValue());
-                updatedEntity.setBaseRole(baseRoleItem.getValue());
-                updatedEntity.setType(typeItem.getValue());
-                updatedEntity.setScope(scopeItem.getValue());
-                presenter.saveScopedRole(updatedEntity);
+                if (updatedEntity != null) {
+                    updatedEntity.setName(nameItem.getValue());
+                    updatedEntity.setBaseRole(baseRoleItem.getValue());
+                    updatedEntity.setType(typeItem.getValue());
+                    updatedEntity.setScope(scopeItem.getValue());
+                    presenter.saveScopedRole(updatedEntity);
+                }
             }
 
             @Override
@@ -97,7 +99,10 @@ public class ScopedRoleDetails implements IsWidget {
         return content;
     }
 
-    public void update(final List<String> hosts, final List<String> serverGroups) {
+    public void update(final List<ScopedRole> scopedRoles, final List<String> hosts, final List<String> serverGroups) {
+        if (scopedRoles.isEmpty()) {
+            form.clearValues();
+        }
         this.hosts = hosts;
         this.serverGroups = serverGroups;
     }

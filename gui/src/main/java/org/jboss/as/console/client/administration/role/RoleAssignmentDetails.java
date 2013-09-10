@@ -33,6 +33,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.shared.model.HasNameComparator;
@@ -88,10 +89,12 @@ public class RoleAssignmentDetails implements IsWidget {
             @Override
             public void onSave(final Map changeset) {
                 RoleAssignment updatedEntity = form.getUpdatedEntity();
-                updatedEntity.addRoles(rolesItem.getValue());
-                updatedEntity.addExcludes(excludesItem.getValue());
-                presenter.saveRoleAssignment(updatedEntity, updatedEntity.changedRoles(currentEntity),
-                        updatedEntity.changedExcludes(currentEntity));
+                if (updatedEntity != null) {
+                    updatedEntity.addRoles(rolesItem.getValue());
+                    updatedEntity.addExcludes(excludesItem.getValue());
+                    presenter.saveRoleAssignment(updatedEntity, updatedEntity.changedRoles(currentEntity),
+                            updatedEntity.changedExcludes(currentEntity));
+                }
             }
 
             @Override
@@ -105,7 +108,10 @@ public class RoleAssignmentDetails implements IsWidget {
         return content;
     }
 
-    public void update(final Roles roles) {
+    public void update(final RoleAssignments assignments, final Roles roles) {
+        if (assignments.get(type).isEmpty()) {
+            form.clearValues();
+        }
         if (rolesItem != null) {
             rolesItem.update(roles);
         }

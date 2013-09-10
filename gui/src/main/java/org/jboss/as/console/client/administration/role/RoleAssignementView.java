@@ -58,7 +58,9 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
         tabLayoutpanel.addStyleName("default-tabpanel");
         tabLayoutpanel.add(groupEditor, Console.CONSTANTS.common_label_groups());
         tabLayoutpanel.add(userEditor, Console.CONSTANTS.common_label_users());
-        tabLayoutpanel.add(scopedRoleEditor, Console.CONSTANTS.administration_scoped_roles());
+        if (!presenter.isStandalone()) {
+            tabLayoutpanel.add(scopedRoleEditor, Console.CONSTANTS.administration_scoped_roles());
+        }
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;

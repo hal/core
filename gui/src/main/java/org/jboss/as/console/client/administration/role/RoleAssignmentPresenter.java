@@ -18,8 +18,12 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static java.util.Arrays.asList;
 import static org.jboss.as.console.client.administration.role.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.SERVER_GROUP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,12 +51,15 @@ import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
@@ -69,9 +76,9 @@ import org.jboss.gwt.flow.client.Outcome;
 public class RoleAssignmentPresenter
         extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
+    private final boolean standalone;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
     private final ManagementOperation<Map<Results, Object>> loadRoleAssignmentsOp;
     private DefaultWindow window;
     private Principals principals;
@@ -84,14 +91,15 @@ public class RoleAssignmentPresenter
 
     @Inject
     public RoleAssignmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final RevealStrategy revealStrategy, final DispatchAsync dispatcher, final BeanFactory beanFactory,
+            final RevealStrategy revealStrategy, final DispatchAsync dispatcher,
             final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
         super(eventBus, view, proxy);
 
+        this.standalone = Console.getBootstrapContext().isStandalone();
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
-        this.beanFactory = beanFactory;
-        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, hostInformationStore, serverGroupStore);
+        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, hostInformationStore, serverGroupStore,
+                standalone);
 
         // empty defaults to prevent NPE before the first call to loadAssignments()
         this.principals = new Principals();
@@ -176,7 +184,7 @@ public class RoleAssignmentPresenter
 
             @Override
             public void onSuccess(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.added("role rssignment"));
+                Console.info(Console.MESSAGES.added("role assignment"));
                 loadAssignments();
             }
         });
@@ -194,7 +202,7 @@ public class RoleAssignmentPresenter
 
             @Override
             public void onSuccess(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.saved("role rssignment"));
+                Console.info(Console.MESSAGES.saved("role assignment"));
                 loadAssignments();
             }
         });
@@ -217,6 +225,8 @@ public class RoleAssignmentPresenter
     }
 
     public void launchAddScopedRoleWizard() {
+        if (!assertDomainMode()) { return; }
+
         closeWindow();
         window = new DefaultWindow(Console.CONSTANTS.administration_add_scoped_role());
         window.setWidth(480);
@@ -228,24 +238,116 @@ public class RoleAssignmentPresenter
     }
 
     public void addScopedRole(final ScopedRole role) {
-        Console.info("Not yet implemented");
-        System.out.println("Add scoped role " + role);
+        if (!assertDomainMode()) { return; }
+
+        closeWindow();
+        ModelNode roleNode = roleNode(role);
+        roleNode.get("base-role").set(role.getBaseRole().name());
+        String scope = role.getType() == HOST ? "hosts" : "server-groups";
+        for (String s : role.getScope()) {
+            roleNode.get(scope).add(s);
+        }
+        roleNode.get(OP).set(ADD);
+
+        dispatcher.execute(new DMRAction(roleNode), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.MESSAGES.addingFailed("scoped role"));
+            }
+
+            @Override
+            public void onSuccess(DMRResponse response) {
+                Console.info(Console.MESSAGES.added("scoped role"));
+                loadAssignments();
+            }
+        });
     }
 
     public void saveScopedRole(final ScopedRole role) {
-        Console.info("Not yet implemented");
-        System.out.println("Save scoped role " + role);
+        if (!assertDomainMode()) { return; }
+
+        ModelNode baseRoleNode = roleNode(role);
+        baseRoleNode.get("base-role").set(role.getBaseRole().name());
+        baseRoleNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+
+        ModelNode scopeNode = roleNode(role);
+        String scope = role.getType() == HOST ? "hosts" : "server-groups";
+        for (String s : role.getScope()) {
+            scopeNode.get(scope).add(s);
+        }
+        scopeNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+
+        ModelNode compositeNode = new ModelNode();
+        compositeNode.get(OP).set(COMPOSITE);
+        compositeNode.get(ADDRESS).setEmptyList();
+        List<ModelNode> steps = new ArrayList<ModelNode>();
+        steps.addAll(asList(baseRoleNode, scopeNode));
+        compositeNode.get(STEPS).set(steps);
+
+        dispatcher.execute(new DMRAction(compositeNode), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.MESSAGES.saveFailed("scoped role"));
+            }
+
+            @Override
+            public void onSuccess(DMRResponse response) {
+                Console.info(Console.MESSAGES.saved("scoped role"));
+                loadAssignments();
+            }
+        });
     }
 
     public void removeScopedRole(final ScopedRole role) {
-        Console.info("Not yet implemented");
-        System.out.println("Remove scoped role " + role);
+        if (!assertDomainMode()) { return; }
+
+        ModelNode roleNode = roleNode(role);
+        roleNode.get(OP).set(REMOVE);
+
+        dispatcher.execute(new DMRAction(roleNode), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error(Console.MESSAGES.deletionFailed("scoped role"));
+            }
+
+            @Override
+            public void onSuccess(DMRResponse response) {
+                Console.info(Console.MESSAGES.deleted("scoped role"));
+                loadAssignments();
+            }
+        });
+    }
+
+    private boolean assertDomainMode() {
+        if (standalone) {
+            Log.error("Scoped roles are not supported in standalone mode!");
+            return false;
+        }
+        return true;
     }
 
     public void closeWindow() {
         if (window != null) {
             window.hide();
         }
+    }
+
+    private ModelNode roleNode(final ScopedRole role) {
+        ModelNode node = new ModelNode();
+        node.get(ADDRESS).add("core-service", "management");
+        node.get(ADDRESS).add("access", "authorization");
+        if (role.getType() == HOST) {
+            node.get(ADDRESS).add("host-scoped-role", role.getName());
+        } else if (role.getType() == SERVER_GROUP) {
+            node.get(ADDRESS).add("server-group-scoped-role", role.getName());
+        }
+        return node;
+    }
+
+    // ------------------------------------------------------ properties
+
+    public boolean isStandalone() {
+        return standalone;
     }
 
     // ------------------------------------------------------ proxy and view

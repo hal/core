@@ -59,14 +59,16 @@ public class AddScopedRoleWizard implements IsWidget {
         layout.setStyleName("window-content");
 
         final Form<ScopedRole> form = new Form<ScopedRole>(ScopedRole.class);
-        TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        final TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
-        final EnumFormItem<ScopedRole.Type> typeItem = new EnumFormItem<ScopedRole.Type>("type", Console.CONSTANTS.common_label_type());
+        final EnumFormItem<ScopedRole.Type> typeItem = new EnumFormItem<ScopedRole.Type>("type",
+                Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
-        final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
+        final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope",
+                Console.CONSTANTS.administration_scope(), 3);
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         layout.add(form.asWidget());
 
@@ -85,10 +87,8 @@ public class AddScopedRoleWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            ScopedRole scopedRole = form.getUpdatedEntity();
-                            // The form cannot handle enums...
-                            scopedRole.setBaseRole(baseRoleItem.getValue());
-                            scopedRole.setType(typeItem.getValue());
+                            ScopedRole scopedRole = new ScopedRole(nameItem.getValue(), baseRoleItem.getValue(),
+                                    typeItem.getValue(), scopeItem.getValue());
                             presenter.addScopedRole(scopedRole);
                         }
                     }
