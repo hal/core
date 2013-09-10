@@ -22,6 +22,7 @@ package org.jboss.as.console.client.core.bootstrap;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -157,10 +158,12 @@ public class ExecutionMode implements Function<BootstrapContext> {
                         {
                             mappedRoles.add(role.asString());
                         }
-
                     }
 
                     context.setRoles(mappedRoles);
+                    // HAL-100: clear "RunAs" preferences when not super user
+                    if(!context.isSuperUser())
+                        Preferences.clear(Preferences.Key.RUN_AS_ROLE);
 
                     control.proceed();
                 }

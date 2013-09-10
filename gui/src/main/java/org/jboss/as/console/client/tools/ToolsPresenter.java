@@ -19,6 +19,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
@@ -46,6 +47,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
     private final PlaceManager placeManager;
     private final DispatchAsync dispatcher;
+    private final BootstrapContext context;
     private BrowserPresenter browser;
 
     private String requestedTool;
@@ -69,12 +71,13 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     @Inject
     public ToolsPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher) {
+            PlaceManager placeManager, BrowserPresenter browser, DispatchAsync dispatcher, BootstrapContext context) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         //this.debug = debug;
         this.browser = browser;
         this.dispatcher = dispatcher;
+        this.context = context;
     }
 
     @Override
@@ -145,7 +148,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
             }
             //RevealRootPopupContentEvent.fire(this, debug);
         }
-        else if ("run-as-role".equals(requestedTool)) {
+        else if ("run-as-role".equals(requestedTool) && context.isSuperUser()) {
             if (runAsRoleTool == null) {
                 runAsRoleTool = new RunAsRoleTool();
             }

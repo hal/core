@@ -59,17 +59,19 @@ import java.util.List;
  */
 public class Footer {
 
+    private final BootstrapContext context;
     private Label userName;
     private PlaceManager placeManager;
     private ProductConfig productConfig;
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
 
     @Inject
-    public Footer(EventBus bus, CurrentUser user, PlaceManager placeManager, ProductConfig prodConfig) {
+    public Footer(EventBus bus, CurrentUser user, PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context) {
         this.userName = new Label();
         this.userName.setText(user.getUserName());
         this.placeManager = placeManager;
         this.productConfig = prodConfig;
+        this.context = context;
     }
 
     public Widget asWidget() {
@@ -96,13 +98,17 @@ public class Footer {
 
         // TODO: Remove https://issues.jboss.org/browse/HAL-100
         // This is also used within the DMRHandler ...
-        StringBuilder runAsRole = new StringBuilder("Run as");
-        if (Preferences.has(RUN_AS_ROLE)) {
-            runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
-        } else {
-            runAsRole.append("...");
+
+        if(context.isSuperUser())
+        {
+            StringBuilder runAsRole = new StringBuilder("Run as");
+            if (Preferences.has(RUN_AS_ROLE)) {
+                runAsRole.append(" ").append(Preferences.get(RUN_AS_ROLE));
+            } else {
+                runAsRole.append("...");
+            }
+            toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
         }
-        toolReference.add(new String[] {runAsRole.toString(), "run-as-role"});
 
         final VerticalPanel toolsList = new VerticalPanel();
         toolsList.getElement().setAttribute("width", "160px");

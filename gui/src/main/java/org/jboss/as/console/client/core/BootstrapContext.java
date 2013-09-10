@@ -225,4 +225,17 @@ public class BootstrapContext implements ApplicationProperties {
     public Set<String> getRoles() {
         return roles;
     }
+
+    public boolean isSuperUser() {
+        boolean match = false;
+        for(String role : roles)
+        {
+            if(StandardRole.SUPERUSER.toString().equalsIgnoreCase(role))
+            {
+                match = true;
+                break;
+            }
+        }
+        return match;
+    }
 }
