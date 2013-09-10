@@ -60,7 +60,6 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
-import org.jboss.as.console.client.widgets.progress.ProgressWindow;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;

@@ -116,6 +116,7 @@ public class ExecutionMode implements Function<BootstrapContext> {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
+
                 if(response.isFailure()) {
                     context.setlastError(new RuntimeException(response.getFailureDescription()));
                     control.abort();
