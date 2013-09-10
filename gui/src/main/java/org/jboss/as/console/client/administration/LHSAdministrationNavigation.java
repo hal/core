@@ -40,7 +40,7 @@ class LHSAdministrationNavigation {
     public LHSAdministrationNavigation() {
 
         LHSTreeSection accessLeaf = new LHSTreeSection(Console.CONSTANTS.administration_access(), true);
-        LHSNavTreeItem authItem = new LHSNavTreeItem(Console.CONSTANTS.administration_authorization(),
+        LHSNavTreeItem authItem = new LHSNavTreeItem(Console.CONSTANTS.role_assignment(),
                 NameTokens.RoleAssignmentPresenter);
         accessLeaf.addItem(authItem);
         /*LHSNavTreeItem auditLogItem = new LHSNavTreeItem(Console.CONSTANTS.administration_audit_log(),
