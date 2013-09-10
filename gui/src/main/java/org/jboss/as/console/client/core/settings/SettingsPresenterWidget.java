@@ -70,8 +70,6 @@ public class SettingsPresenterWidget
                 AutoBeanUtils.getAutoBean(settings)
         );
 
-        System.out.println(properties);
-
         for(String token : properties.keySet())
         {
             Preferences.Key key = Preferences.Key.match(token);
