@@ -28,13 +28,18 @@ import org.jboss.dmr.client.dispatch.DispatchRequest;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.Result;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Heiko Braun
  * @date 3/17/11
  */
 public class DispatchAsyncImpl implements DispatchAsync {
 
-    HandlerMapping registry;
+    private static HandlerMapping registry;
+    private static Map<String, String> properties = new HashMap<String,String>();
 
     @Inject
     public DispatchAsyncImpl(HandlerMapping registry) {
@@ -45,14 +50,25 @@ public class DispatchAsyncImpl implements DispatchAsync {
     public <A extends Action<R>, R extends Result> DispatchRequest execute(A action, AsyncCallback<R> callback) {
 
         ActionHandler<A,R> handler = registry.resolve(action);
+
         if(null==handler)
             callback.onFailure(new IllegalStateException("No handler for type "+action.getType()));
 
-        return handler.execute(action, callback);
+        return handler.execute(action, callback, Collections.unmodifiableMap(properties));
     }
 
     @Override
     public <A extends Action<R>, R extends Result> DispatchRequest undo(A action, R result, AsyncCallback<Void> callback) {
         return null;
+    }
+
+    @Override
+    public void setProperty(String key, String value) {
+        properties.put(key, value);
+    }
+
+    @Override
+    public void clearProperty(String key) {
+        properties.remove(key);
     }
 }

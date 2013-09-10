@@ -32,4 +32,7 @@ public interface DispatchAsync {
     <A extends Action<R>,R extends Result> DispatchRequest undo(
             A action, R result, AsyncCallback<Void> callback);
 
+    public void setProperty(String key, String value);
+    public void clearProperty(String key);
+
 }

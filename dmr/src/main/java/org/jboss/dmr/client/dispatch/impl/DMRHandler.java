@@ -19,10 +19,6 @@
 
 package org.jboss.dmr.client.dispatch.impl;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -31,7 +27,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -41,6 +36,11 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -79,6 +79,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         postRequestBuilder.setHeader(HEADER_CONTENT_TYPE, DMR_ENCODED);
         postRequestBuilder.setIncludeCredentials(true);
     }
+
 
     private static native void redirect(String url)/*-{
         $wnd.location = url;
@@ -119,7 +120,10 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     }
 
     @Override
-    public DispatchRequest execute(DMRAction action, final AsyncCallback<DMRResponse> resultCallback)
+    public DispatchRequest execute(
+            DMRAction action,
+            final AsyncCallback<DMRResponse> resultCallback,
+            Map<String, String> properties)
     {
         assert action.getOperation() != null;
         final ModelNode operation = action.getOperation();
@@ -136,16 +140,16 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         }
 
         //Request request = executeRequest(resultCallback, GWT.isScript() ? operation : runAsRole(operation));
-        // TODO: Remove https://issues.jboss.org/browse/HAL-100
-        Request request = executeRequest(resultCallback, runAsRole(operation));
+        // TODO: https://issues.jboss.org/browse/HAL-100
+        Request request = executeRequest(resultCallback, runAsRole(operation, properties));
         return new DispatchRequestHandle(request);
     }
 
-    private ModelNode runAsRole(final ModelNode operation) {
-        // No Preferences class available here - do it yourself!
+    private ModelNode runAsRole(final ModelNode operation, final Map<String, String> properties) {
 
-        String role = Cookies.getCookie("as7_ui_run_as_role");
-        if (role != null) {
+        String role = properties.get("run_as");
+        if (role != null && !operation.get(OP).equals("whoami")) // otherwise we get the replacement role
+        {
             operation.get("operation-headers").get("roles").set(role.toUpperCase());
         }
         return operation;
