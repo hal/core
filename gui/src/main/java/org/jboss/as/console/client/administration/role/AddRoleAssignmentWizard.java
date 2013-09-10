@@ -70,7 +70,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
         final PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title);
         principalItem.setRequired(true);
         principalItem.update(principals);
-        TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
+        final TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
         // TODO The rolesItem is not part of the focus chain because it's not
         // TODO recognized by org.jboss.ballroom.client.widgets.window.Focus
         final RolesFormItem rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
@@ -86,6 +86,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
                             RoleAssignment roleAssignment = new RoleAssignment(principalItem.getValue());
+                            roleAssignment.setRealm(realmItem.getValue());
                             roleAssignment.addRoles(rolesItem.getValue());
                             presenter.addRoleAssignment(roleAssignment);
                         }
