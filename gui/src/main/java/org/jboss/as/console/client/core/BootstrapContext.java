@@ -29,6 +29,7 @@ import org.jboss.as.console.client.shared.Preferences;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -44,6 +45,7 @@ public class BootstrapContext implements ApplicationProperties {
     private String principal;
     private boolean hostManagementDisabled;
     private boolean groupManagementDisabled;
+    private Set<String> roles;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -196,13 +198,8 @@ public class BootstrapContext implements ApplicationProperties {
         return principal;
     }
 
-    public String getRole() {
+    public String getRunAs() {
         return Preferences.get(Preferences.Key.RUN_AS_ROLE, "").toLowerCase();
-    }
-
-    public void setRole(String role)
-    {
-      // TODO https://issues.jboss.org/browse/HAL-136
     }
 
     public void setHostManagementDisabled(boolean b) {
@@ -219,5 +216,13 @@ public class BootstrapContext implements ApplicationProperties {
 
     public boolean isGroupManagementDisabled() {
         return groupManagementDisabled;
+    }
+
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
+
+    public Set<String> getRoles() {
+        return roles;
     }
 }

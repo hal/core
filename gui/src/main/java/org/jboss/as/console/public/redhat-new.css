@@ -560,7 +560,7 @@ table {
 
 .html-link {
     text-decoration:none;
-    color:#4A5D75;
+    color: #009ada!important;
     cursor:pointer;
 }
 
@@ -2513,4 +2513,21 @@ input[type="checkbox"] {
 
 .admin-role-scope {
     color: #A4A4A4;
+}
+
+/* user menu */
+.user-menu {
+    padding-left:5px;
+}
+
+.roles-menu {
+    font-size:10px;
+}
+
+hr {
+    background-color: #CFCFCF;
+    border: 0 none;
+    color: #CFCFCF;
+    height: 1px;
+    width:80%;
 }

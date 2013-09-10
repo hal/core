@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.dom.client.NodeList;
@@ -32,16 +31,12 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -55,6 +50,8 @@ import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import java.util.Set;
 
 /**
  * Top level header, gives access to main applications.
@@ -166,9 +163,19 @@ public class Header implements ValueChangeHandler<String> {
 
         // user menu
 
+        // roles
+        Set<String> roles = bootstrap.getRoles();
+        SafeHtmlBuilder sb = new SafeHtmlBuilder();
+        sb.appendHtmlConstant("<div class='roles-menu'>");
+        for(String role : roles)
+        {
+            sb.appendEscaped(role).appendHtmlConstant("<br/>");
+        }
+        sb.appendHtmlConstant("<div>");
+
         // current user
-        String userHtml = "<i style='color:#cecece' class='icon-user'></i>&nbsp;"+Console.getBootstrapContext().getPrincipal();
-        HTML roleHtml = new HTML("<i class='icon-tags'></i>&nbsp;"+Console.getBootstrapContext().getRole());
+        String userHtml = "<i style='color:#cecece' class='icon-user'></i>&nbsp;"+bootstrap.getPrincipal();
+
         SafeHtml principal = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'>"+userHtml+"</div>").toSafeHtml();
         final HTML userButton = new HTML(principal);
         userButton.getElement().setAttribute("style", "cursor:pointer");
@@ -196,6 +203,7 @@ public class Header implements ValueChangeHandler<String> {
 
         userButton.addClickHandler(clickHandler);
         HTML logoutHtml = new HTML("<i class='icon-signout'></i>&nbsp;" + Console.CONSTANTS.common_label_logout());
+        logoutHtml.getElement().setAttribute("style", "cursor:pointer;padding-top:3px");
         logoutHtml.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -214,9 +222,15 @@ public class Header implements ValueChangeHandler<String> {
             }
         });
 
+        logoutHtml.addStyleName("html-link");
+
         VerticalPanel usermenu = new VerticalPanel();
         usermenu.setStyleName("fill-layout-width");
-        usermenu.add(roleHtml);
+        usermenu.addStyleName("user-menu");
+
+        usermenu.add(new HTML("Roles:"));
+        usermenu.add(new HTML(sb.toSafeHtml()));
+        usermenu.add(new HTML("<hr/>"));
         usermenu.add(logoutHtml);
         menuPopup.setWidget(usermenu);
 

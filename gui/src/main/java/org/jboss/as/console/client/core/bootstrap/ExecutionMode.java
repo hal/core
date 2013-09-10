@@ -30,7 +30,9 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -97,6 +99,7 @@ public class ExecutionMode implements Function<BootstrapContext> {
         step = new ModelNode();
         step.get(OP).set("whoami");
         step.get(ADDRESS).setEmptyList();
+        step.get("verbose").set(true);
         steps.add(step);
 
         operation.get(STEPS).set(steps);
@@ -141,11 +144,23 @@ public class ExecutionMode implements Function<BootstrapContext> {
                     }
 
                     ModelNode whoami = response.get(RESULT).get("step-6");
-                    String username = whoami.get(RESULT).get("identity").get("username").asString();
-
+                    ModelNode whoamiResult = whoami.get(RESULT);
+                    String username = whoamiResult.get("identity").get("username").asString();
                     context.setPrincipal(username);
 
-                    System.out.println(context.getProductName() + " " + context.getProductVersion());
+                    Set<String> mappedRoles = new HashSet<String>();
+                    if(whoamiResult.hasDefined("mapped-roles"))
+                    {
+                        List<ModelNode> roles = whoamiResult.get("mapped-roles").asList();
+                        for(ModelNode role : roles)
+                        {
+                            mappedRoles.add(role.asString());
+                        }
+
+                    }
+
+                    context.setRoles(mappedRoles);
+
                     control.proceed();
                 }
             }
