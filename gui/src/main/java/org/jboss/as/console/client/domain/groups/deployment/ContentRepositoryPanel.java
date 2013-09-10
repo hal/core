@@ -18,8 +18,12 @@
  */
 package org.jboss.as.console.client.domain.groups.deployment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -30,14 +34,14 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
 import org.jboss.as.console.client.shared.deployment.DeploymentDataKeyProvider;
 import org.jboss.as.console.client.shared.deployment.DeploymentFilter;
-import org.jboss.as.console.client.shared.deployment.DeploymentNameColumn;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.widgets.tables.ShortcutColumn;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -46,12 +50,8 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Harald Pehl
- * @date 12/12/2012
  */
 public class ContentRepositoryPanel implements IsWidget
 {
@@ -143,7 +143,7 @@ public class ContentRepositoryPanel implements IsWidget
         addContentBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_addContent_deploymentsOverview());
         toolStrip.addToolButtonRight(addContentBtn);
 
-        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_remove(),
+        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(),
                 new ClickHandler()
                 {
                     @Override
@@ -200,7 +200,6 @@ public class ContentRepositoryPanel implements IsWidget
 
         form2.bind(deploymentsTable);
 
-
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline(Console.CONSTANTS.common_label_contentRepository())
@@ -218,25 +217,12 @@ public class ContentRepositoryPanel implements IsWidget
     {
         List<Column> columns = new ArrayList<Column>(2);
         columns.add(new DeploymentNameColumn());
-
-        TextColumn<DeploymentRecord> dplRuntimeColumn = new TextColumn<DeploymentRecord>()
-        {
+        columns.add(new ShortcutColumn<DeploymentRecord>(27) {
             @Override
-            public String getValue(DeploymentRecord record)
-            {
-                String title;
-                if (record.getRuntimeName().length() > 27)
-                {
-                    title = record.getRuntimeName().substring(0, 26) + "...";
-                }
-                else
-                {
-                    title = record.getRuntimeName();
-                }
-                return title;
+            protected String getName(final DeploymentRecord record) {
+                return record.getRuntimeName();
             }
-        };
-        columns.add(dplRuntimeColumn);
+        });
         return columns;
     }
 
@@ -253,5 +239,25 @@ public class ContentRepositoryPanel implements IsWidget
         this.deploymentsTable.selectDefaultEntity();
         this.filter.reset(true);
     }
-}
 
+    class DeploymentNameColumn extends ShortcutColumn<DeploymentRecord> {
+
+        public DeploymentNameColumn() {
+            super(27);
+        }
+
+        @Override
+        public SafeHtml getValue(final DeploymentRecord record) {
+            SafeHtml value = super.getValue(record);
+            if (record.getPath() != null) {
+                value = new SafeHtmlBuilder().append(value).appendHtmlConstant("&nbsp;<span class=\"footnote\"><sup>[1]</sup></span>").toSafeHtml();
+            }
+            return value;
+        }
+
+        @Override
+        protected String getName(DeploymentRecord record) {
+            return record.getName();
+        }
+    }
+}
