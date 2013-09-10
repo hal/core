@@ -55,8 +55,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
     }

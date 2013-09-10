@@ -46,8 +46,7 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=transactions"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<TXMetricPresenter>, Place {
     }

@@ -80,7 +80,7 @@ public class TopologyPresenter extends
             "/server-group=*",
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
             "/extension=*",
-    }, facet = "runtime", recursive = false)
+    }, recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
     }

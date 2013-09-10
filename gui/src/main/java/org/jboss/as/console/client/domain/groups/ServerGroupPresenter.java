@@ -100,7 +100,7 @@ public class ServerGroupPresenter
             "/server-group=*",
             "/server-group=*/jvm=*",
             "/server-group=*/system-property=*" // TODO: these prevent write access (RBAC)
-    }, facet = "runtime", recursive = false)
+    }, recursive = false)
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }
 

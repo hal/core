@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.rbac;
 
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
-import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
 /**
@@ -14,11 +13,6 @@ public class ReadOnlyContext implements SecurityContext {
 
     private static final AuthorisationDecision GRANTED = new AuthorisationDecision(true);
     private static final AuthorisationDecision DENIED = new AuthorisationDecision(false);
-
-    @Override
-    public Facet getFacet() {
-        return Facet.RUNTIME;
-    }
 
     @Override
     public AuthorisationDecision getReadPriviledge() {

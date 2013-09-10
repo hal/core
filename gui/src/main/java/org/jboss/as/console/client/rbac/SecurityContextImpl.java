@@ -2,7 +2,6 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.safehtml.shared.SafeHtml;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
-import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
 import java.util.HashMap;
@@ -20,12 +19,6 @@ import java.util.Set;
  * @date 7/3/13
  */
 public class SecurityContextImpl implements SecurityContext {
-
-
-    /**
-     * Influences the decision tree when reasoning over access control meta data
-     */
-    Facet facet;
 
     /**
      * the place name token (url)
@@ -50,14 +43,9 @@ public class SecurityContextImpl implements SecurityContext {
     private boolean sealed;
 
 
-    public SecurityContextImpl(String nameToken, Set<String> requiredResources, Facet facet) {
+    public SecurityContextImpl(String nameToken, Set<String> requiredResources) {
         this.nameToken = nameToken;
         this.requiredResources = requiredResources;
-        this.facet = facet;
-    }
-
-    public Facet getFacet() {
-        return facet;
     }
 
     public SafeHtml asHtml() {
@@ -108,7 +96,7 @@ public class SecurityContextImpl implements SecurityContext {
         return checkPriviledge(new Priviledge() {
             @Override
             public boolean isGranted(Constraints c) {
-                boolean readable = facet.equals(Facet.CONFIGURATION) ? c.isReadConfig() : c.isReadRuntime();
+                boolean readable = c.isReadResource();
                 return readable;
             }
         });
@@ -119,7 +107,7 @@ public class SecurityContextImpl implements SecurityContext {
         return checkPriviledge(new Priviledge() {
             @Override
             public boolean isGranted(Constraints c) {
-                boolean writable = facet.equals(Facet.CONFIGURATION) ? c.isWriteConfig() : c.isWriteRuntime();
+                boolean writable = c.isWriteResource();
                 return writable;
             }
         });

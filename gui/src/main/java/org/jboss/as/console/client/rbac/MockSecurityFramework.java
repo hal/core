@@ -6,7 +6,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
-import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -28,10 +27,6 @@ public class MockSecurityFramework extends SecurityFrameworkImpl {
     }
 
     final static SecurityContext NoopContext = new SecurityContext() {
-        @Override
-        public Facet getFacet() {
-            return Facet.CONFIGURATION;
-        }
 
         @Override
         public AuthorisationDecision getReadPriviledge() {

@@ -7,7 +7,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.ballroom.client.rbac.Facet;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
@@ -187,10 +186,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                     ModelNode overalResult = response.get(RESULT);
 
-                    SecurityContextImpl context = new SecurityContextImpl(
-                            id,
-                            requiredResources,
-                            Facet.valueOf(accessControlReg.getFacet(id).toUpperCase()));
+                    SecurityContextImpl context = new SecurityContextImpl(id, requiredResources);
 
                     // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
@@ -326,8 +322,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             else
             {
 
-                c.setReadConfig(model.get(READ).asBoolean());
-                c.setWriteConfig(model.get(WRITE).asBoolean());
+                c.setReadResource(model.get(READ).asBoolean());
+                c.setWriteResource(model.get(WRITE).asBoolean());
             }
 
             // operation constraints

@@ -74,8 +74,7 @@ public class OSGiConfigurationPresenter extends Presenter<OSGiConfigurationPrese
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=osgi"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<OSGiConfigurationPresenter>, Place {
     }

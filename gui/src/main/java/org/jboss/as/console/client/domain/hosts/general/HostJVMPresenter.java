@@ -78,7 +78,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @NameToken(NameTokens.HostJVMPresenter)
     @AccessControl(resources = {
             "/{selected.host}/jvm=*",
-    }, facet = "runtime")
+    })
     public interface MyProxy extends Proxy<HostJVMPresenter>, Place {
     }
 

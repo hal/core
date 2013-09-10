@@ -8,6 +8,5 @@ package org.jboss.as.console.spi;
 @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})
 public @interface AccessControl {
     String[] resources();
-    String facet() default "configuration";
     boolean recursive() default true;
 }

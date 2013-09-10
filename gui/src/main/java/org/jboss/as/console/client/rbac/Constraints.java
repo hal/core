@@ -12,7 +12,7 @@ import java.util.Set;
 public class Constraints {
 
 
-    private boolean readConfig,writeConfig,readRuntime,writeRuntime;
+    private boolean readResource, writeResource;
 
     Map<String, AttributePerm> attributePermissions = new HashMap<String,AttributePerm>();
     Map<String, Set<String>> execPermission = new HashMap<String, Set<String>>();
@@ -27,46 +27,20 @@ public class Constraints {
         this.address = access;
     }
 
-    @Deprecated
-    public void setReadConfig(boolean readConfig) {
-        this.readConfig = readConfig;
-        this.readRuntime = readConfig;     // TODO: Fix me
+    public void setReadResource(boolean readResource) {
+        this.readResource = readResource;
     }
 
-    @Deprecated
-    public void setWriteConfig(boolean writeConfig) {
-        this.writeConfig = writeConfig;
-        this.writeRuntime = writeConfig;       // TODO: Fix me
+    public void setWriteResource(boolean writeResource) {
+        this.writeResource = writeResource;
     }
 
-    @Deprecated
-    public void setReadRuntime(boolean readRuntime) {
-        this.readRuntime = readRuntime;
+    public boolean isReadResource() {
+        return readResource;
     }
 
-    @Deprecated
-    public void setWriteRuntime(boolean writeRuntime) {
-        this.writeRuntime = writeRuntime;
-    }
-
-    @Deprecated
-    public boolean isReadConfig() {
-        return readConfig;
-    }
-
-    @Deprecated
-    public boolean isWriteConfig() {
-        return writeConfig;
-    }
-
-    @Deprecated
-    public boolean isReadRuntime() {
-        return readRuntime;
-    }
-
-    @Deprecated
-    public boolean isWriteRuntime() {
-        return writeRuntime;
+    public boolean isWriteResource() {
+        return writeResource;
     }
 
     public void setAttributeRead(String name, boolean canBeRead)

@@ -78,7 +78,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group=*",
             "/deployment=*"
-    }, facet = "runtime", recursive = false)
+    }, recursive = false)
     public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
     {
     }

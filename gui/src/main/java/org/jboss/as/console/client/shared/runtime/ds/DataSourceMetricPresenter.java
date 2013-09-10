@@ -58,8 +58,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
                     "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {
     }

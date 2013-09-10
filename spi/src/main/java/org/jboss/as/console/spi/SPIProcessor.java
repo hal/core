@@ -1,17 +1,10 @@
 package org.jboss.as.console.spi;
 
-import static javax.lang.model.SourceVersion.RELEASE_7;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import org.jboss.as.console.client.plugins.AccessControlMetaData;
+import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
+import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -27,12 +20,18 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import org.jboss.as.console.client.plugins.AccessControlMetaData;
-import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
-import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
+import static javax.lang.model.SourceVersion.RELEASE_7;
 
 /**
  * @author Heiko Braun
@@ -228,7 +227,6 @@ public class SPIProcessor extends AbstractProcessor {
                                 nameToken.value(), resourceAddress
                         );
 
-                        declared.setFacet(accessControl.facet());
                         declared.setRecursive(accessControl.recursive());
 
                         accessControlDeclararions.add(declared);

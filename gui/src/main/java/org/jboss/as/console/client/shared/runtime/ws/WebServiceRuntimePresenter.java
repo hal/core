@@ -35,7 +35,7 @@ public class WebServiceRuntimePresenter
     @NameToken(NameTokens.WebServiceRuntimePresenter)
     @AccessControl(resources = {
             "/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"
-    }, facet = "runtime")
+    })
     public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {
     }
 

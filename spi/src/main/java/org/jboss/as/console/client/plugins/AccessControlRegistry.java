@@ -9,6 +9,5 @@ import java.util.Set;
 public interface AccessControlRegistry {
 
     public Set<String> getResources(String token);
-    public String getFacet(String token);
     public boolean isRecursive(String token);
 }

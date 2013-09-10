@@ -66,7 +66,7 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
     @NameToken(NameTokens.HostInterfacesPresenter)
     @AccessControl(resources = {
             "/{selected.host}/interface=*",
-    }, facet = "runtime")
+    })
     public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {
     }
 

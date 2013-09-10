@@ -68,7 +68,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
     @NameToken(NameTokens.HostPropertiesPresenter)
     @AccessControl(resources = {
             "/{selected.host}/system-property=*",
-    }, facet = "runtime")
+    })
     public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {
     }
 

@@ -41,8 +41,7 @@ public class VMMetricsPresenter
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<VMMetricsPresenter>, Place {
     }

@@ -48,8 +48,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store"
-            } ,
-            facet = "runtime"
+            }
     )
     public interface MyProxy extends Proxy<TXLogPresenter>, Place {
     }

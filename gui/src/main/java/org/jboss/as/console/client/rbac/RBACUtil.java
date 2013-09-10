@@ -32,10 +32,8 @@ public class RBACUtil {
 
             Constraints constraints = context.accessConstraints.get(resource);
             html.appendHtmlConstant("<ul>");
-            html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadConfig()).appendHtmlConstant("</li>");
-            html.appendHtmlConstant("<li>").appendEscaped("write-config:"+constraints.isWriteConfig()).appendHtmlConstant("</li>");
-            html.appendHtmlConstant("<li>").appendEscaped("read-runtime:"+constraints.isReadRuntime()).appendHtmlConstant("</li>");
-            html.appendHtmlConstant("<li>").appendEscaped("write-runtime:"+constraints.isWriteRuntime()).appendHtmlConstant("</li>");
+            html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadResource()).appendHtmlConstant("</li>");
+            html.appendHtmlConstant("<li>").appendEscaped("write-config:"+constraints.isWriteResource()).appendHtmlConstant("</li>");
             html.appendHtmlConstant("</ul>");
 
 

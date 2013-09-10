@@ -107,7 +107,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             "/{selected.host}/server-config=*",
             "/{selected.host}/server-config=*/jvm=*",
             "/{selected.host}/server-config=*/system-property=*" // TODO: these prevent write access (RBAC)
-    }, facet = "runtime", recursive = false)
+    }, recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
 

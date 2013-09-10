@@ -66,7 +66,7 @@ public class StandaloneDeploymentPresenter
     @NameToken(NameTokens.DeploymentBrowserPresenter)
     @AccessControl(resources = {
             "/deployment=*"
-    }, facet = "runtime", recursive = false)
+    }, recursive = false)
     public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place
     {
     }

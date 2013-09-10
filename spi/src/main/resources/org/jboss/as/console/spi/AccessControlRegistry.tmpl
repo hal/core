@@ -15,19 +15,14 @@ public class AccessControlRegistryImpl implements AccessControlRegistry{
 
         <#list metaData as md>
 
-            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.getFacet()}", "${md.isRecursive()}");
+            resourceMapping.put("${md.getToken()}", "${md.getResource()}", "${md.isRecursive()}");
 
         </#list>
 
      }
 
-     public Set<String> getResources(String token) {
+    public Set<String> getResources(String token) {
          return resourceMapping.getResources(token);
-     }
-
-
-    public String getFacet(String token) {
-         return resourceMapping.getFacet(token);
     }
 
     public boolean isRecursive(String token) {

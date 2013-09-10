@@ -61,7 +61,7 @@ public class OSGiRuntimePresenter extends Presenter<OSGiRuntimePresenter.MyView,
     @NameToken(NameTokens.OSGiRuntimePresenter)
     @AccessControl(resources = {
             "/{selected.host}/{selected.server}/subsystem=osgi"
-    }, facet = "runtime")
+    })
     public interface MyProxy extends Proxy<OSGiRuntimePresenter>, Place {
     }
 
