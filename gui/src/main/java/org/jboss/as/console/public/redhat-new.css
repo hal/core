@@ -202,9 +202,7 @@ body, p, td, th, option, input, textarea, select {
 }
 
 .logo {
-    padding-top:20px;
-    padding-bottom: 4px;
-    padding-left:10px;
+    padding-top:10px;
 }
 
 .footer-link {

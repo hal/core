@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -127,7 +128,7 @@ public class Header implements ValueChangeHandler<String> {
         outerLayout.setWidgetTopHeight(bottom, 36, Style.Unit.PX, 44, Style.Unit.PX);
 
         top.add(logo);
-        top.setWidgetLeftWidth(logo, 15, Style.Unit.PX, 500, Style.Unit.PX);
+        top.setWidgetLeftWidth(logo, 15, Style.Unit.PX, 700, Style.Unit.PX);
         top.setWidgetTopHeight(logo, 0, Style.Unit.PX, 32, Style.Unit.PX);
 
         bottom.add(links);
@@ -284,9 +285,21 @@ public class Header implements ValueChangeHandler<String> {
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
 
-        HTML productName = new HTML(productConfig.getProductName());
-        productName.setStyleName("header-product-name");
-        panel.add(productName);
+        Image logo = null;
+
+        if(ProductConfig.Profile.PRODUCT.equals(productConfig.getProfile()))
+        {
+            logo = new Image("images/logo/product_title.png");
+            logo.setAltText("JBoss Enterprise Application Platform");
+        }
+        else {
+            logo = new Image("images/logo/product_title.png"); // TODO: community look & feel
+            logo.setAltText("Wildlfy Application Server");
+        }
+
+        logo.setStyleName("logo");
+
+        panel.add(logo);
 
         HTML productVersion = new HTML(productConfig.getProductVersion());
         productVersion.setStyleName("header-product-version");
