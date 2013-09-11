@@ -18,10 +18,13 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.EXCLUDE;
+import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.INCLUDE;
+
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -36,8 +39,6 @@ import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.shared.model.HasNameComparator;
-import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 
 /**
@@ -50,8 +51,7 @@ public class RoleAssignmentDetails implements IsWidget {
     private final PojoForm<RoleAssignment> form;
     private RoleAssignment currentEntity;
     private ReadOnlyItem<RoleAssignment> principalItem;
-    private RolesFormItem rolesItem;
-    private RolesFormItem excludesItem;
+    private IncludeExcludeFormItem includeExcludeFormItem;
 
     public RoleAssignmentDetails(final RoleAssignmentPresenter presenter, final Principal.Type type) {
         this.presenter = presenter;
@@ -78,20 +78,22 @@ public class RoleAssignmentDetails implements IsWidget {
             }
         };
         principalItem.setEnabled(false);
-        rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
-        excludesItem = new RolesFormItem("excludes", Console.CONSTANTS.common_label_exclude());
-        excludesItem.setRequired(false);
+        includeExcludeFormItem = new IncludeExcludeFormItem("n/a", Console.CONSTANTS.common_label_roles());
 
-        form.setFields(principalItem, rolesItem);
-        form.setFieldsInGroup(Console.CONSTANTS.common_label_advanced(), new DisclosureGroupRenderer(), excludesItem);
+        form.setFields(principalItem, includeExcludeFormItem);
+        //        form.setFieldsInGroup(Console.CONSTANTS.common_label_advanced(), new DisclosureGroupRenderer(), excludesItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
                 RoleAssignment updatedEntity = form.getUpdatedEntity();
                 if (updatedEntity != null) {
-                    updatedEntity.addRoles(rolesItem.getValue());
-                    updatedEntity.addExcludes(excludesItem.getValue());
+                    updatedEntity.clearRoles();
+                    updatedEntity.clearExcludes();
+
+                    Map<IncludeExcludeFormItem.Type, Set<Role>> includesExcludes = includeExcludeFormItem.getValue();
+                    updatedEntity.addRoles(includesExcludes.get(INCLUDE));
+                    updatedEntity.addExcludes(includesExcludes.get(EXCLUDE));
                     presenter.saveRoleAssignment(updatedEntity, updatedEntity.changedRoles(currentEntity),
                             updatedEntity.changedExcludes(currentEntity));
                 }
@@ -112,11 +114,8 @@ public class RoleAssignmentDetails implements IsWidget {
         if (assignments.get(type).isEmpty()) {
             form.clearValues();
         }
-        if (rolesItem != null) {
-            rolesItem.update(roles);
-        }
-        if (excludesItem != null) {
-            excludesItem.update(roles);
+        if (includeExcludeFormItem != null) {
+            includeExcludeFormItem.update(roles);
         }
     }
 
@@ -133,12 +132,10 @@ public class RoleAssignmentDetails implements IsWidget {
                         currentEntity = selectionModel.getSelectedObject();
                         if (currentEntity != null) {
                             principalItem.setValue(currentEntity);
-                            List<Role> roles = new ArrayList<Role>(currentEntity.getRoles());
-                            Collections.sort(roles, new HasNameComparator<Role>());
-                            rolesItem.setValue(roles);
-                            List<Role> excludes = new ArrayList<Role>(currentEntity.getExcludes());
-                            Collections.sort(excludes, new HasNameComparator<Role>());
-                            excludesItem.setValue(excludes);
+                            Map<IncludeExcludeFormItem.Type, Set<Role>> includeExclude = new HashMap<IncludeExcludeFormItem.Type, Set<Role>>();
+                            includeExclude.put(INCLUDE, new HashSet<Role>(currentEntity.getRoles()));
+                            includeExclude.put(EXCLUDE, new HashSet<Role>(currentEntity.getExcludes()));
+                            includeExcludeFormItem.setValue(includeExclude);
                             form.setUndefined(false);
                             form.edit(currentEntity);
                         } else {

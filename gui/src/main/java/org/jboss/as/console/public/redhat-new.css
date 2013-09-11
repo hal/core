@@ -1566,8 +1566,16 @@ input[type="checkbox"] {
     background: -o-linear-gradient(top, #f9f9f9, #eeeeee);
 }
 
+.toolstrip-button:disabled, .default-button:disabled, .gwt-Button:disabled {
+    color: #999;
+    cursor: inherit;
+}
 .toolstrip-button:hover, .default-button:hover, .gwt-Button:hover {
-    border-color:#000000;
+    border-color: #000000;
+}
+
+.toolstrip-button:disabled:hover, .default-button:disabled:hover, .gwt-Button:disabled:hover {
+    border-color: #b9b9b9;
 }
 
 .primary {

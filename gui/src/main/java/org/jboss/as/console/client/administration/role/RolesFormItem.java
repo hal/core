@@ -28,9 +28,6 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -42,7 +39,6 @@ import org.jboss.as.console.client.administration.role.model.RoleKey;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.InputElement;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
@@ -53,9 +49,10 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
     private final int pageSize;
     private final List<Role> value;
-    private ListDataProvider<Role> dataProvider;
-    private MultiSelectionModel<Role> selectionModel;
-    private TableWrapper wrapper;
+    private final RoleKey<Role> keyProvider;
+    private final ListDataProvider<Role> dataProvider;
+    private final MultiSelectionModel<Role> selectionModel;
+    private FormItemPanelWrapper wrapper;
 
     public RolesFormItem(final String name, final String title) {
         this(name, title, 7);
@@ -63,20 +60,22 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
     public RolesFormItem(final String name, final String title, int pageSize) {
         super(name, title);
+
         this.pageSize = pageSize;
         this.value = new ArrayList<Role>();
+        this.keyProvider = new RoleKey<Role>();
+        this.dataProvider = new ListDataProvider<Role>(keyProvider);
+        this.selectionModel = new MultiSelectionModel<Role>(keyProvider);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Widget asWidget() {
         // table
-        RoleKey<Role> keyProvider = new RoleKey<Role>();
         DefaultCellTable<Role> table = new DefaultCellTable<Role>(pageSize, keyProvider);
         table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-        dataProvider = new ListDataProvider<Role>(keyProvider);
+        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Role>createCheckboxManager());
         dataProvider.addDataDisplay(table);
-        selectionModel = new MultiSelectionModel<Role>(keyProvider);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
@@ -85,18 +84,15 @@ public class RolesFormItem extends FormItem<List<Role>> {
                 setModified(true);
             }
         });
-        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Role>createCheckboxManager());
 
         // columns
-        Column<Role, Boolean> checkColumn = new
-
-                Column<Role, Boolean>(new CheckboxCell(true, false)) {
-                    @Override
-                    public Boolean getValue(Role role) {
-                        // Get the value from the selection model.
-                        return selectionModel.isSelected(role);
-                    }
-                };
+        Column<Role, Boolean> checkColumn = new Column<Role, Boolean>(new CheckboxCell(true, false)) {
+            @Override
+            public Boolean getValue(Role role) {
+                // Get the value from the selection model.
+                return selectionModel.isSelected(role);
+            }
+        };
         TextColumn<Role> nameColumn = new
 
                 TextColumn<Role>() {
@@ -119,7 +115,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
         content.setWidth("95%");
         content.add(table);
         content.add(pager);
-        wrapper = new TableWrapper(content, this);
+        wrapper = new FormItemPanelWrapper(content, this);
         return wrapper;
     }
 
@@ -169,42 +165,10 @@ public class RolesFormItem extends FormItem<List<Role>> {
     }
 
     public void update(final Roles roles) {
-        if (dataProvider != null) {
-            dataProvider.setList(roles.getRoles());
-            selectionModel.clear();
-            for (Role role : value) {
-                selectionModel.setSelected(role, true);
-            }
-        }
-    }
-
-    static class TableWrapper extends VerticalPanel {
-
-        private final HTML errorText;
-        private final Widget widget;
-
-        public TableWrapper(Widget widget, final InputElement input) {
-            this.widget = widget;
-
-            setStyleName("fill-layout-width");
-            HorizontalPanel panel = new HorizontalPanel();
-            panel.add(widget);
-            widget.getElement().getParentElement().setAttribute("class", "form-input");
-
-            errorText = new HTML(input.getErrMessage());
-            errorText.addStyleName("form-item-error-desc");
-            DOM.setStyleAttribute(errorText.getElement(), "marginTop", "1em");
-
-            add(panel);
-            add(errorText);
-            errorText.setVisible(false);
-        }
-
-        public void setErroneous(boolean hasErrors) {
-            if (hasErrors) { widget.addStyleName("form-item-error"); } else {
-                widget.removeStyleName("form-item-error");
-            }
-            errorText.setVisible(hasErrors);
+        dataProvider.setList(roles.getRoles());
+        selectionModel.clear();
+        for (Role role : value) {
+            selectionModel.setSelected(role, true);
         }
     }
 }
