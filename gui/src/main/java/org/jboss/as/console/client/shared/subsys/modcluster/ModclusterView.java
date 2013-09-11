@@ -98,7 +98,7 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
                 .setTitle("mod_cluster")
                 .setHeadline("mod_cluster Subsystem")
                 .setDescription(Console.CONSTANTS.subsys_modcluster_desc())
-                .setMaster("Advertising", form.asWidget())
+                .addDetail("Advertising", form.asWidget())
                 .addDetail("Sessions", sessionForm.asWidget())
                 .addDetail("Web Contexts", contextForm.asWidget())
                 .addDetail("Proxies", proxyForm.asWidget())
