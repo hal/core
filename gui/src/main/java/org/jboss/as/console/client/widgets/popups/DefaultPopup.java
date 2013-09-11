@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
  */
 public class DefaultPopup extends PopupPanel {
 
-    public static enum Arrow {NONE, TOP, TOPLEFT, BOTTOM}
+    public static enum Arrow {NONE, TOP, TOPLEFT, BOTTOM, RIGHT, RIGHTTOP}
 
     private Arrow arrow = Arrow.NONE;
 
@@ -44,6 +44,16 @@ public class DefaultPopup extends PopupPanel {
         else if(Arrow.BOTTOM.equals(arrow))
         {
             addStyleName("triangle-border");
+        }
+        else if(Arrow.RIGHT.equals(arrow))
+        {
+            addStyleName("triangle-border");
+            addStyleName("right");
+        }
+        else if(Arrow.RIGHTTOP.equals(arrow))
+        {
+            addStyleName("triangle-border");
+            addStyleName("right-top");
         }
 
         Window.addResizeHandler(new ResizeHandler() {

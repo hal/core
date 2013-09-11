@@ -58,12 +58,13 @@ import java.util.List;
 public class MessageCenterView implements MessageListener, ReloadEvent.ReloadListener {
 
     private static final String MESSAGE_LABEL = Console.CONSTANTS.common_label_messages();
-            //+ "&nbsp;<i class='icon-caret-down'></i>";
+    //+ "&nbsp;<i class='icon-caret-down'></i>";
     private MessageCenter messageCenter;
     private HorizontalPanel messageDisplay;
     final MessageListPopup messagePopup = new MessageListPopup();
     private Message lastSticky = null;
     private HTML messageButton;
+    private DefaultPopup displayPopup;
 
     @Inject
     public MessageCenterView(MessageCenter messageCenter) {
@@ -339,6 +340,8 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
                     public void run() {
                         // hide message
                         messageDisplay.clear();
+                        if(displayPopup!=null)
+                            displayPopup.hide();
                     }
                 };
 
@@ -355,32 +358,45 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
     private void displayNotification(final Message message) {
 
-        final String css = getSeverityStyle(message.severity);
-        HorizontalPanel panel = new HorizontalPanel();
-        panel.addStyleName("notification-panel");
-        panel.addStyleName(css);
+
 
         String actualMessage = message.getConciseMessage().length()>40 ?
                 message.getConciseMessage().substring(0, 40)+" ..." :
                 message.getConciseMessage();
 
-        // TODO: beware of XSS
-        final HTML label = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
+        displayPopup = new DefaultPopup(DefaultPopup.Arrow.RIGHTTOP);
 
-        panel.add(label);
+        final HTML label = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
 
         label.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
-                if(message.isSticky()) {
-                    MessageCenterView.this.lastSticky=null;
+                if (message.isSticky()) {
+                    MessageCenterView.this.lastSticky = null;
                 }
                 messageDisplay.clear();
+                displayPopup.hide();
                 showDetail(message);
             }
         });
 
-        messageDisplay.clear();
-        messageDisplay.add(panel);
+        label.addStyleName("notification-display");
+        final String css = getSeverityStyle(message.severity);
+        label.addStyleName(css);
+
+        displayPopup.setWidget(label);
+
+        int width=250;
+        int height=16;
+
+        displayPopup.setPopupPosition(
+                messageButton.getAbsoluteLeft() - (width + 2 - messageButton.getOffsetWidth() + 85),
+                messageButton.getAbsoluteTop() - 2
+        );
+
+        displayPopup.show();
+
+        displayPopup.setWidth(width + "px");
+        displayPopup.setHeight(height + "px");
 
     }
 

@@ -271,7 +271,7 @@ public class Header implements ValueChangeHandler<String> {
 
         top.add(tools);
         top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 700, Style.Unit.PX);
-        top.setWidgetTopHeight(tools, 0, Style.Unit.PX, 32, Style.Unit.PX);
+        top.setWidgetTopHeight(tools, 2, Style.Unit.PX, 32, Style.Unit.PX);
         top.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
 
         outerLayout.getElement().setAttribute("role", "navigation");

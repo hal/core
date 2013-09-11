@@ -1975,24 +1975,29 @@ input[type="checkbox"] {
     color:#4E5255!important;
 }
 
+.notification-display {
+    font-size:10px;
+    cursor:pointer;
+}
+
 .InfoBlock,.ConfirmationBlock,.WarnBlock,.ErrorBlock,.FatalBlock {
     cursor: pointer;
 }
 
-.InfoBlock,.ConfirmationBlock {
-    background-color: #AFBF27; /* light green */
+.InfoBlock i,.ConfirmationBlock i {
+    color: #2C8596; /* light green */
 }
 
-.WarnBlock {
-    background-color: #DC9F2E; /* light yellow */
+.WarnBlock i {
+    color: #DC9F2E; /* light yellow */
 }
 
-.ErrorBlock {
-    background-color: #FF6161; /* light red */
+.ErrorBlock i {
+    color: #781F1C; /* light red */
 }
 
-.FatalBlock {
-    background-color: #FF6161; /* slightly darker light red */
+.FatalBlock i {
+    color: #781F1C; /* slightly darker light red */
 }
 
 .message-list {
@@ -2221,7 +2226,6 @@ input[type="checkbox"] {
     margin-right:5px;
 }
 
-/*speech bubbles*/
 /* speech bubbles */
 .triangle-border:before {
     content:"";
@@ -2230,7 +2234,7 @@ input[type="checkbox"] {
     left:40px; /* controls horizontal position */
     border-width:10px 10px 0;
     border-style:solid;
-    border-color:#A7ABB4 transparent;
+    border-color:#CFCFCF transparent;
     /* reduce the damage in FF3.0 */
     display:block;
     width:0;
@@ -2298,7 +2302,7 @@ input[type="checkbox"] {
     bottom:auto;
     left:-30px; /* value = - border-left-width - border-right-width */
     border-width:15px 30px 15px 0;
-    border-color:transparent #A7ABB4;
+    border-color:transparent #CFCFCF;
 }
 
 /* creates the smaller  triangle */
@@ -2318,20 +2322,39 @@ input[type="checkbox"] {
     top:10px; /* controls vertical position */
     bottom:auto;
     left:auto;
-    right:-30px; /* value = - border-left-width - border-right-width */
-    border-width:15px 0 15px 30px;
-    border-color:transparent #A7ABB4;
-    border-color:transparent #A7ABB4;
+    right:-11px; /* value = - border-left-width - border-right-width */
+    border-width:10px 0 10px 10px;
+    border-color:transparent #CFCFCF;
 }
 
 /* creates the smaller  triangle */
 .triangle-border.right:after {
-    top:16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+    top:12px; /* value = (:before top) + (:before border-top) - (:after border-top) */
     bottom:auto;
     left:auto;
-    right:-21px; /* value = - border-left-width - border-right-width */
-    border-width:9px 0 9px 21px;
+    right:-8px; /* value = - border-left-width - border-right-width */
+    border-width:8px 0 8px 8px;
     border-color:transparent #fff;
+}
+
+/* right top*/
+
+.triangle-border.right-top:before {
+    border-color: transparent #CFCFCF;
+    border-width: 6px 0 6px 6px;
+    bottom: auto;
+    left: auto;
+    right: -6px;
+    top: 6px;
+}
+
+.triangle-border.right-top:after {
+    border-color: transparent #FFFFFF;
+    border-width: 4px 0 4px 4px;
+    bottom: auto;
+    left: auto;
+    right: -4px;
+    top: 8px;
 }
 
 .footnote {
