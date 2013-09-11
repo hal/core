@@ -244,7 +244,7 @@ public class Header implements ValueChangeHandler<String> {
             SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
             runAsRole.appendHtmlConstant("<i class='icon-flag'></i>&nbsp;").appendEscaped("Run as");
             if (Preferences.has(RUN_AS_ROLE)) {
-                runAsRole.appendEscaped(Preferences.get(RUN_AS_ROLE));
+                runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(Preferences.get(RUN_AS_ROLE));
             } else {
                 runAsRole.appendEscaped("...");
             }
