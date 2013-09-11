@@ -136,11 +136,6 @@ public class MailSessionEditor {
             }
         }, form);
 
-        Widget detail = new FormLayout()
-                .setForm(form)
-                .setHelp(helpPanel).build();
-
-
         FormToolStrip<MailSession> formToolStrip = new FormToolStrip<MailSession>(
                 form, new FormToolStrip.FormCallback<MailSession>() {
             @Override
@@ -154,6 +149,10 @@ public class MailSessionEditor {
             }
         });
         formToolStrip.providesDeleteOp(false);
+
+        Widget detail = new FormLayout()
+                       .setForm(form)
+                       .setHelp(helpPanel).build();
 
         Widget panel = new MultipleToOneLayout()
                 .setPlain(true)
