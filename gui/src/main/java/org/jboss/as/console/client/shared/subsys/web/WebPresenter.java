@@ -90,7 +90,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
     @NameToken(NameTokens.WebPresenter)
     @AccessControl(resources = {
             "/{selected.profile}/subsystem=web"
-    })
+    }, recursive = false)
     public interface MyProxy extends Proxy<WebPresenter>, Place {
     }
 
