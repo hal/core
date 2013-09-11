@@ -137,6 +137,9 @@ public class ConnectorList {
                 return item.getName()+"_"+item.getProtocol();
             }
         });
+
+        connectorTable.getElement().setAttribute("style", "margin-bottom:15px");
+
         dataProvider = new ListDataProvider<HttpConnector>();
         dataProvider.addDataDisplay(connectorTable);
 
@@ -181,8 +184,6 @@ public class ConnectorList {
 
 
         // ---
-
-
 
         TextItem name = new TextItem("name", "Name");
         socketBinding = new SuggestBoxItem("socketBinding", "Socket Binding");

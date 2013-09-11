@@ -65,7 +65,7 @@ public class VirtualServerList {
     Widget asWidget() {
 
         VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("fill-layout");
+        //layout.setStyleName("fill-layout-width");
 
         form = new Form<VirtualServer>(VirtualServer.class);
         form.setNumColumns(2);
@@ -128,6 +128,7 @@ public class VirtualServerList {
                 return item.getName();
             }
         });
+        table.getElement().setAttribute("style", "margin-bottom:15px");
 
         dataProvider = new ListDataProvider<VirtualServer>();
         dataProvider.addDataDisplay(table);

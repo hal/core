@@ -19,26 +19,22 @@
 
 package org.jboss.as.console.client.shared.subsys.web;
 
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.layout.FormLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.shared.subsys.web.model.JSPContainerConfiguration;
 import org.jboss.as.console.client.shared.subsys.web.model.VirtualServer;
-import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.layout.RHSContentPanel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
@@ -55,16 +51,9 @@ public class WebSubsystemView extends DisposableViewImpl implements WebPresenter
 
     private ConnectorList connectorList;
     private VirtualServerList serverList;
-    private ToolButton edit;
 
     @Override
     public Widget createWidget() {
-
-        LayoutPanel layout = new RHSContentPanel("Servlet");
-
-        layout.add(new ContentHeaderLabel("Servlet/HTTP Configuration"));
-        layout.add(new ContentDescription(Console.CONSTANTS.subsys_web_desc()));
-        // ----
 
         form = new Form(JSPContainerConfiguration.class);
         form.setNumColumns(2);
@@ -85,8 +74,6 @@ public class WebSubsystemView extends DisposableViewImpl implements WebPresenter
         );
 
         toolStrip.providesDeleteOp(false);
-        layout.add(toolStrip.asWidget());
-
 
         // ----
 
@@ -113,29 +100,27 @@ public class WebSubsystemView extends DisposableViewImpl implements WebPresenter
             }
         },form);
 
-        layout.add(helpPanel.asWidget());
-
-        layout.add(form.asWidget());
         form.setEnabled(false); // TODO:
 
         // ----
 
-        TabPanel bottomLayout = new TabPanel();
-        bottomLayout.addStyleName("default-tabpanel");
-        bottomLayout.getElement().setAttribute("style", "padding-top:20px;");
-
-
         connectorList = new ConnectorList(presenter);
-        bottomLayout.add(connectorList.asWidget(),"Connectors");
-
         serverList = new VirtualServerList(presenter);
-        bottomLayout.add(serverList.asWidget(),"Virtual Servers");
 
-        bottomLayout.selectTab(0);
+        FormLayout formlayout = new FormLayout()
+                .setForm(form)
+                .setHelp(helpPanel)
+                .setTools(toolStrip);
 
-        layout.add(bottomLayout);
+        OneToOneLayout layout = new OneToOneLayout()
+                .setTitle("Servlet")
+                .setHeadline("Servlet/HTTP Configuration")
+                .setDescription(Console.CONSTANTS.subsys_web_desc())
+                .addDetail("Common", formlayout.build())
+                .addDetail("Connectors", connectorList.asWidget())
+                .addDetail("Virtual Servers", serverList.asWidget());
 
-        return layout;
+        return layout.build();
     }
 
     @Override
