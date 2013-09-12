@@ -48,7 +48,7 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
     @NameToken(NameTokens.WebMetricPresenter)
     @AccessControl(resources = {
             "/{selected.host}/{selected.server}/subsystem=web"
-    })
+    }, recursive = false)
     public interface MyProxy extends Proxy<WebMetricPresenter>, Place {
     }
 
