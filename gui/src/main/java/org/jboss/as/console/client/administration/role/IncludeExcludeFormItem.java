@@ -37,6 +37,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -53,6 +54,7 @@ import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
 /**
  * Form item for the include and exclude roles of an {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}.
@@ -100,9 +102,10 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
     @Override
     @SuppressWarnings("unchecked")
     public Widget asWidget() {
-        // available roles
+        // available roles and pager
         CellList<Role> availableList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
         availableList.setPageSize(7);
+        availableList.addStyleName("roles-list");
         availableList.setSelectionModel(availableSelectionModel);
         availableProvider.addDataDisplay(availableList);
         availableSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -111,9 +114,13 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
                 onSelect(AVAILABLE);
             }
         });
+        DefaultPager pager = new DefaultPager();
+        pager.setWidth("auto");
+        pager.setDisplay(availableList);
 
         // included (assigned) roles
         CellList<Role> includeList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
+        includeList.addStyleName("roles-list");
         includeList.setSelectionModel(includeSelectionModel);
         includeProvider.addDataDisplay(includeList);
         includeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -125,6 +132,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
         // excluded roles
         CellList<Role> excludeList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
+        excludeList.addStyleName("roles-list");
         excludeList.setSelectionModel(excludeSelectionModel);
         excludeProvider.addDataDisplay(excludeList);
         excludeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -168,37 +176,48 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             }
         });
 
-        // put everything into (layout) panels
-        VerticalPanel availableTitleAndTable = vert(new Label(Console.CONSTANTS.administration_available_roles()), availableList);
-        VerticalPanel includeTitleAndTable = vert(new Label(Console.CONSTANTS.administration_assigned_roles()), includeList);
-        VerticalPanel excludeTitleAndTable = vert(new Label(Console.CONSTANTS.administration_excluded_roles()), excludeList);
-        VerticalPanel includeButtons = vert(addInclude, removeInclude);
-        VerticalPanel excludeButtons = vert(addExclude, removeExclude);
-
-        includeButtons.getElement().setAttribute("style", "margin:5px");
-        excludeButtons.getElement().setAttribute("style", "margin:5px");
-        includeTitleAndTable.getElement().setAttribute("style", "margin-bottom:20px");
-        excludeTitleAndTable.getElement().setAttribute("style", "margin-bottom:20px");
-        availableTitleAndTable.getElement().setAttribute("style", "margin-bottom:20px");
-
+        // put everything into panels
         HorizontalPanel content = new HorizontalPanel();
         content.setWidth("95%");
+
+        // left: available
+        Label label = new Label(Console.CONSTANTS.administration_available_roles());
+        label.addStyleName("roles-list-label");
+        VerticalPanel availableTitleAndTable = vert(label, availableList, pager);
+        DOM.setStyleAttribute(availableTitleAndTable.getElement(), "marginBottom", "20px");
         content.add(availableTitleAndTable);
         availableTitleAndTable.getElement().getParentElement().setAttribute("width", "50%");
 
-        HorizontalPanel top = new HorizontalPanel();
-        top.add(includeButtons);
+        // right - top: buttons and includes
+        HorizontalPanel rightTop = new HorizontalPanel();
+        label = new Label(Console.CONSTANTS.administration_assigned_roles());
+        label.addStyleName("roles-list-label");
+        VerticalPanel includeTitleAndTable = vert(label, includeList);
+        DOM.setStyleAttribute(includeTitleAndTable.getElement(), "marginBottom", "20px");
+        VerticalPanel includeButtons = vert(addInclude, removeInclude);
+        DOM.setStyleAttribute(includeButtons.getElement(), "margin", "5px");
+        rightTop.add(includeButtons);
         includeButtons.getElement().getParentElement().setAttribute("width", "10%");
-        top.add(includeTitleAndTable);
+        includeButtons.getElement().getParentElement().setAttribute("style", "vertical-align: middle");
+        rightTop.add(includeTitleAndTable);
 
-        HorizontalPanel btm = new HorizontalPanel();
-        btm.add(excludeButtons);
+        // right - bottom: buttons and excludes
+        HorizontalPanel rightBottom = new HorizontalPanel();
+        label = new Label(Console.CONSTANTS.administration_excluded_roles());
+        label.addStyleName("roles-list-label");
+        VerticalPanel excludeTitleAndTable = vert(label, excludeList);
+        DOM.setStyleAttribute(excludeTitleAndTable.getElement(), "marginBottom", "20px");
+        VerticalPanel excludeButtons = vert(addExclude, removeExclude);
+        DOM.setStyleAttribute(excludeButtons.getElement(), "margin", "5px");
+        rightBottom.add(excludeButtons);
         excludeButtons.getElement().getParentElement().setAttribute("width", "10%");
-        btm.add(excludeTitleAndTable);
+        excludeButtons.getElement().getParentElement().setAttribute("style", "vertical-align: middle");
+        rightBottom.add(excludeTitleAndTable);
 
+        // right: include and exclude
         VerticalPanel right = new VerticalPanel();
-        right.add(top);
-        right.add(btm);
+        right.add(rightTop);
+        right.add(rightBottom);
         content.add(right);
         right.getElement().getParentElement().setAttribute("width", "50%");
 

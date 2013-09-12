@@ -86,16 +86,16 @@ public class RoleAssignmentDetails implements IsWidget {
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
-                RoleAssignment updatedEntity = form.getUpdatedEntity();
-                if (updatedEntity != null) {
-                    updatedEntity.clearRoles();
-                    updatedEntity.clearExcludes();
-
+                RoleAssignment edited = form.getEditedEntity();
+                if (edited != null) {
+                    // create a new role assignment to calculate the include / exclude diffs
                     Map<IncludeExcludeFormItem.Type, Set<Role>> includesExcludes = includeExcludeFormItem.getValue();
-                    updatedEntity.addRoles(includesExcludes.get(INCLUDE));
-                    updatedEntity.addExcludes(includesExcludes.get(EXCLUDE));
-                    presenter.saveRoleAssignment(updatedEntity, updatedEntity.changedRoles(currentEntity),
-                            updatedEntity.changedExcludes(currentEntity));
+                    RoleAssignment newRoleAssignment = new RoleAssignment(edited.getPrincipal());
+                    newRoleAssignment.setRealm(edited.getRealm());
+                    newRoleAssignment.addRoles(includesExcludes.get(INCLUDE));
+                    newRoleAssignment.addExcludes(includesExcludes.get(EXCLUDE));
+                    presenter.saveRoleAssignment(newRoleAssignment, newRoleAssignment.changedRoles(edited),
+                            edited.changedExcludes(currentEntity));
                 }
             }
 

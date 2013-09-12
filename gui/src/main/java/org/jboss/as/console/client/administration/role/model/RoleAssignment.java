@@ -112,10 +112,6 @@ public class RoleAssignment {
         }
     }
 
-    public void clearRoles() {
-        this.roles.clear();
-    }
-
     public Set<Role> changedRoles(RoleAssignment diff) {
         if (diff != null) {
             Set<Role> copy = new HashSet<Role>(diff.getRoles());
@@ -137,10 +133,6 @@ public class RoleAssignment {
         if (excludes != null) {
             this.excludes.addAll(excludes);
         }
-    }
-
-    public void clearExcludes() {
-        this.excludes.clear();
     }
 
     public Set<Role> changedExcludes(RoleAssignment diff) {
