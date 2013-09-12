@@ -95,7 +95,7 @@ public class RoleAssignmentDetails implements IsWidget {
                     newRoleAssignment.addRoles(includesExcludes.get(INCLUDE));
                     newRoleAssignment.addExcludes(includesExcludes.get(EXCLUDE));
                     presenter.saveRoleAssignment(newRoleAssignment, newRoleAssignment.changedRoles(edited),
-                            edited.changedExcludes(currentEntity));
+                            newRoleAssignment.changedExcludes(edited));
                 }
             }
 
