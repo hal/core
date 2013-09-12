@@ -21,8 +21,12 @@ public interface ConsoleResources extends ClientBundle {
      * These are generated (see src/main/webapp/less)
      */
     @CssResource.NotStrict
-    @Source("org/jboss/as/console/public/styles.css")
-    CssResource styles();
+    @Source("org/jboss/as/console/public/community.css")
+    CssResource communityStyles();
+
+    @CssResource.NotStrict
+    @Source("org/jboss/as/console/public/product.css")
+    CssResource productStyles();
 
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/prettyprint/prettify.css")

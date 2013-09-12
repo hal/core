@@ -78,6 +78,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     public final static UIConstants CONSTANTS = GWT.create(UIConstants.class);
     public final static UIDebugConstants DEBUG_CONSTANTS = GWT.create(UIDebugConstants.class);
     public final static UIMessages MESSAGES = GWT.create(UIMessages.class);
+    public final static ProductConfig prodConfig = GWT.create(ProductConfig.class);
 
     public void onModuleLoad() {
         Log.setUncaughtExceptionHandler();
@@ -95,7 +96,11 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
         // load console css bundle
         ConsoleResources.INSTANCE.css().ensureInjected();
-        ConsoleResources.INSTANCE.styles().ensureInjected();
+
+        if(prodConfig.getProfile().equals(ProductConfig.Profile.COMMUNITY))
+            ConsoleResources.INSTANCE.communityStyles().ensureInjected();
+        else
+            ConsoleResources.INSTANCE.productStyles().ensureInjected();
 
         // inject pretty print resources
         ConsoleResources.INSTANCE.prettifyCss().ensureInjected();

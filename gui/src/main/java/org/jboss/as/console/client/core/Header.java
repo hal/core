@@ -293,7 +293,7 @@ public class Header implements ValueChangeHandler<String> {
             logo.setAltText("JBoss Enterprise Application Platform");
         }
         else {
-            logo = new Image("images/logo/product_title.png"); // TODO: community look & feel
+            logo = new Image("images/logo/community_title.png");
             logo.setAltText("Wildlfy Application Server");
         }
 

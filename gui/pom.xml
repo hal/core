@@ -207,7 +207,8 @@
                     <outputDirectory>${project.basedir}/src/main/java/org/jboss/as/console/public</outputDirectory>
                     <compress>true</compress>
                     <includes>
-                        <include>styles.less</include>
+                        <include>product.less</include>
+                        <include>community.less</include>
                     </includes>
                 </configuration>
                 <executions>
