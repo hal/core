@@ -95,7 +95,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
         // load console css bundle
         ConsoleResources.INSTANCE.css().ensureInjected();
-        ConsoleResources.INSTANCE.redhatNew().ensureInjected();
+        ConsoleResources.INSTANCE.styles().ensureInjected();
 
         // inject pretty print resources
         ConsoleResources.INSTANCE.prettifyCss().ensureInjected();

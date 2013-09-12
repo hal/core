@@ -21,6 +21,7 @@ gui/generated
 gui/war/treelayout/clear.cache.gif
 gui/war/treelayout/hosted.html
 gui/war/treelayout/treelayout.nocache.js
+gui/src/main/java/org/jboss/as/console/public/styles.css
 
 openshift
 gui/.zanata-cache/etag-cache.xml
