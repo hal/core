@@ -33,7 +33,7 @@ public class BulletGraphView implements Sampler {
     private final String metricName;
     private Column[] columns;
     private int ROW_OFFSET = 1;
-    private JsArrayGeneric<Bullet> bullets;
+
     private ProtovisWidget graphWidget;
     private HorizontalPanel container;
     private PVPanel vis = null;
@@ -41,7 +41,6 @@ public class BulletGraphView implements Sampler {
     public BulletGraphView(String title, String metricName) {
         this.title = title;
         this.metricName = metricName;
-        this.bullets =  JsUtils.createJsArrayGeneric();
     }
 
 
@@ -109,7 +108,7 @@ public class BulletGraphView implements Sampler {
         desc.getElement().getParentElement().setAttribute("width", "20%");
         graphWidget = new ProtovisWidget();
         graphWidget.initPVPanel();
-        createVisualization();
+        vis = createVisualization();
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
@@ -129,26 +128,27 @@ public class BulletGraphView implements Sampler {
         vis.data(generateDefaultData()).render();
     }
 
-    private void render(){
+    private void render(JsArrayGeneric<Bullet> bullets){
         vis.data(bullets).render();
     }
 
     @Override
     public void addSample(Metric metric) {
 
-        distinctColumnStrategy(metric);
+        final JsArrayGeneric<Bullet> bullets = distinctColumnStrategy(metric);
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                render();
+                render(bullets);
             }
         });
 
     }
 
-    private void distinctColumnStrategy(Metric metric) {
+    private JsArrayGeneric<Bullet> distinctColumnStrategy(Metric metric) {
 
+        JsArrayGeneric<Bullet> bullets = JsUtils.createJsArrayGeneric();
         Double baseline = getBaselineValue(metric);
 
         int row=ROW_OFFSET;
@@ -203,6 +203,8 @@ public class BulletGraphView implements Sampler {
 
             row++;
         }
+
+        return bullets;
     }
 
     private Double getBaselineValue(Metric metric) {
@@ -226,7 +228,6 @@ public class BulletGraphView implements Sampler {
 
     @Override
     public void clearSamples() {
-        this.bullets =  JsUtils.createJsArrayGeneric();
         renderDefault();
     }
 
@@ -244,64 +245,62 @@ public class BulletGraphView implements Sampler {
 
     /* bullet graph specs */
 
-    private void createVisualization() {
+    private PVPanel createVisualization() {
+
+        PVPanel vis = graphWidget.getPVPanel().width(400).height(30)
+                .margin(20).left(120).top(new JsDoubleFunction() {
+                    public double f(JsArgs args) {
+                        PVMark _this = args.getThis();
+                        return 10 + _this.index() * 60;
+                    }
+                });
 
 
-        if(vis==null)
-        {
-            vis = graphWidget.getPVPanel().width(400).height(30)
-                    .margin(20).left(120).top(new JsDoubleFunction() {
-                        public double f(JsArgs args) {
-                            PVMark _this = args.getThis();
-                            return 10 + _this.index() * 60;
-                        }
-                    });
-
-
-            PVBulletLayout bullet = vis.add(PV.Layout.Bullet()).orient(LEFT)
-                    .ranges(new JsFunction<JsArrayNumber>() {
-                        public JsArrayNumber f(JsArgs args) {
-                            Bullet d = args.getObject();
-                            return JsUtils.toJsArrayNumber(d.ranges);
-                        }
-                    }).measures(new JsFunction<JsArrayNumber>() {
-                        public JsArrayNumber f(JsArgs args) {
-                            Bullet d = args.getObject();
-                            return JsUtils.toJsArrayNumber(d.measures);
-                        }
-                    }).markers(new JsFunction<JsArrayNumber>() {
-                        public JsArrayNumber f(JsArgs args) {
-                            Bullet d = args.getObject();
-                            return JsUtils.toJsArrayNumber(d.markers);
-                        }
-                    });
+        PVBulletLayout bullet = vis.add(PV.Layout.Bullet()).orient(LEFT)
+                .ranges(new JsFunction<JsArrayNumber>() {
+                    public JsArrayNumber f(JsArgs args) {
+                        Bullet d = args.getObject();
+                        return JsUtils.toJsArrayNumber(d.ranges);
+                    }
+                }).measures(new JsFunction<JsArrayNumber>() {
+                    public JsArrayNumber f(JsArgs args) {
+                        Bullet d = args.getObject();
+                        return JsUtils.toJsArrayNumber(d.measures);
+                    }
+                }).markers(new JsFunction<JsArrayNumber>() {
+                    public JsArrayNumber f(JsArgs args) {
+                        Bullet d = args.getObject();
+                        return JsUtils.toJsArrayNumber(d.markers);
+                    }
+                });
 
 
 
-            bullet.range().add(PV.Bar).fillStyle("#CFCFCF");
-            bullet.measure().add(PV.Bar).fillStyle("#666666");
+        bullet.range().add(PV.Bar).fillStyle("#CFCFCF");
+        bullet.measure().add(PV.Bar).fillStyle("#666666");
 
-            bullet.marker().add(PV.Dot).shape(PVShape.TRIANGLE).fillStyle("white");
-            bullet.tick().add(PV.Rule).anchor(BOTTOM).add(PV.Label)
-                    .text(bullet.x().tickFormat());
+        bullet.marker().add(PV.Dot).shape(PVShape.TRIANGLE).fillStyle("white");
+        bullet.tick().add(PV.Rule).anchor(BOTTOM).add(PV.Label)
+                .text(bullet.x().tickFormat());
 
-            bullet.anchor(LEFT).add(PV.Label).font("12px sans-serif")
-                    .textAlign(RIGHT).textBaseline(BOTTOM)
-                    .text(new JsStringFunction() {
-                        public String f(JsArgs args) {
-                            Bullet d = args.getObject(0);
-                            return d.title;
-                        }
-                    });
+        bullet.anchor(LEFT).add(PV.Label).font("12px sans-serif")
+                .textAlign(RIGHT).textBaseline(BOTTOM)
+                .text(new JsStringFunction() {
+                    public String f(JsArgs args) {
+                        Bullet d = args.getObject(0);
+                        return d.title;
+                    }
+                });
 
-            bullet.anchor(LEFT).add(PV.Label).textStyle("#616161").textAlign(RIGHT)
-                    .textBaseline(TOP).text(new JsStringFunction() {
-                public String f(JsArgs args) {
-                    Bullet d = args.getObject(0);
-                    return d.subtitle;
-                }
-            });
-        }
+        bullet.anchor(LEFT).add(PV.Label).textStyle("#616161").textAlign(RIGHT)
+                .textBaseline(TOP).text(new JsStringFunction() {
+            public String f(JsArgs args) {
+                Bullet d = args.getObject(0);
+                return d.subtitle;
+            }
+        });
+
+        return vis;
     }
 
     private JsArrayGeneric<Bullet> generateDefaultData() {
