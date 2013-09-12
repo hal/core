@@ -17,9 +17,6 @@ public interface ConsoleResources extends ClientBundle {
     @Source("org/jboss/as/console/public/console.css")
     CssResource css();
 
-    /**
-     * These are generated (see src/main/webapp/less)
-     */
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/community.css")
     CssResource communityStyles();
