@@ -77,13 +77,11 @@ public class ScopedRoleDetails implements IsWidget {
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
-                ScopedRole updatedEntity = form.getUpdatedEntity();
-                if (updatedEntity != null) {
-                    updatedEntity.setName(nameItem.getValue());
-                    updatedEntity.setBaseRole(baseRoleItem.getValue());
-                    updatedEntity.setType(typeItem.getValue());
-                    updatedEntity.setScope(scopeItem.getValue());
-                    presenter.saveScopedRole(updatedEntity);
+                ScopedRole edited = form.getEditedEntity();
+                if (edited != null) {
+                    ScopedRole newScopedRole = new ScopedRole(nameItem.getValue(), baseRoleItem.getValue(),
+                            typeItem.getValue(), scopeItem.getValue());
+                    presenter.saveScopedRole(newScopedRole, edited);
                 }
             }
 
@@ -99,12 +97,15 @@ public class ScopedRoleDetails implements IsWidget {
         return content;
     }
 
-    public void update(final List<ScopedRole> scopedRoles, final List<String> hosts, final List<String> serverGroups) {
-        if (scopedRoles.isEmpty()) {
-            form.clearValues();
-        }
+    public void update(final List<ScopedRole> scopedRoles, final List<String> hosts, final List<String> serverGroups,
+            final ScopedRole selectedRole) {
         this.hosts = hosts;
         this.serverGroups = serverGroups;
+        if (scopedRoles.isEmpty()) {
+            form.clearValues();
+        } else {
+            updateFormValues(selectedRole);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -117,22 +118,25 @@ public class ScopedRoleDetails implements IsWidget {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        ScopedRole role = selectionModel.getSelectedObject();
-                        if (role != null) {
-                            updateScope(role.getType());
-                            nameItem.setValue(role.getName());
-                            baseRoleItem.setValue(role.getBaseRole());
-                            typeItem.setValue(role.getType());
-                            scopeItem.setValue(new ArrayList<String>(role.getScope()));
-                            form.setUndefined(false);
-                            form.edit(role);
-                        } else {
-                            form.clearValues();
-                        }
+                        updateFormValues(selectionModel.getSelectedObject());
                     }
                 });
             }
         });
+    }
+
+    private void updateFormValues(final ScopedRole role) {
+        if (role != null) {
+            updateScope(role.getType());
+            nameItem.setValue(role.getName());
+            baseRoleItem.setValue(role.getBaseRole());
+            typeItem.setValue(role.getType());
+            scopeItem.setValue(new ArrayList<String>(role.getScope()));
+            form.setUndefined(false);
+            form.edit(role);
+        } else {
+            form.clearValues();
+        }
     }
 
     private void updateScope(final ScopedRole.Type type) {

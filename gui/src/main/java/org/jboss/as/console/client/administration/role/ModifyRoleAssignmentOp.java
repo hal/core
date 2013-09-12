@@ -22,6 +22,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -47,13 +49,20 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
+    private final Operation operation;
     private final Collection<Role> removedRoles;
     private final Collection<Role> removedExcludes;
 
     public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
+            final Operation operation) {
+        this(dispatcher, assignment, operation, Collections.<Role>emptySet(), Collections.<Role>emptySet());
+    }
+
+    public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment, Operation operation,
             final Set<Role> removedRoles, final Set<Role> removedExcludes) {
         this.dispatcher = dispatcher;
         this.assignment = assignment;
+        this.operation = operation;
         this.removedRoles = removedRoles;
         this.removedExcludes = removedExcludes;
     }
@@ -94,30 +103,17 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         throw new UnsupportedOperationException("not implemented");
     }
 
-    abstract class RoleFunction<T> implements Function<T> {
+    class ReadRoleFunction implements Function<Stack<Boolean>> {
 
-        protected final Role role;
-
-        RoleFunction(final Role role) {this.role = role;}
-
-        protected ModelNode roleNode() {
-            ModelNode node = new ModelNode();
-            node.get(ADDRESS).add("core-service", "management");
-            node.get(ADDRESS).add("access", "authorization");
-            node.get(ADDRESS).add("role-mapping", role.getName());
-            return node;
-        }
-    }
-
-    class ReadRoleFunction extends RoleFunction<Stack<Boolean>> {
+        private final Role role;
 
         ReadRoleFunction(final Role role) {
-            super(role);
+            this.role = role;
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode realRoleOp = roleNode();
+            ModelNode realRoleOp = ModelHelper.roleMapping(role);
             realRoleOp.get(OP).set(READ_RESOURCE_OPERATION);
 
             dispatcher.execute(new DMRAction(realRoleOp), new SimpleCallback<DMRResponse>() {
@@ -138,10 +134,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddRoleFunction extends RoleFunction<Stack<Boolean>> {
+    class AddRoleFunction implements Function<Stack<Boolean>> {
+
+        private final Role role;
 
         AddRoleFunction(final Role role) {
-            super(role);
+            this.role = role;
         }
 
         @Override
@@ -150,7 +148,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             if (roleExists) {
                 control.proceed();
             } else {
-                ModelNode addRoleOp = roleNode();
+                ModelNode addRoleOp = ModelHelper.roleMapping(role);
                 addRoleOp.get(OP).set(ADD);
 
                 dispatcher.execute(new DMRAction(addRoleOp), new SimpleCallback<DMRResponse>() {
@@ -168,47 +166,24 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    abstract class PrincipalFunction<T> implements Function<T> {
+    class ReadPrincipalFunction implements Function<Stack<Boolean>> {
 
-        protected final Role role;
-        protected final Principal principal;
-        protected final String principalId;
-        protected final String realm;
-        protected final String includeExclude;
-
-        public PrincipalFunction(final Role role, final Principal principal, final String realm,
-                final String includeExclude) {
-            this.role = role;
-            this.principal = principal;
-            this.realm = realm;
-            StringBuilder id = new StringBuilder(principal.getId());
-            if (realm != null) {
-                id.append("@").append(realm);
-            }
-            this.principalId = id.toString();
-            this.includeExclude = includeExclude;
-        }
-
-        protected ModelNode principalNode() {
-            ModelNode node = new ModelNode();
-            node.get(ADDRESS).add("core-service", "management");
-            node.get(ADDRESS).add("access", "authorization");
-            node.get(ADDRESS).add("role-mapping", role.getName());
-            node.get(ADDRESS).add(includeExclude, principalId);
-            return node;
-        }
-    }
-
-    class ReadPrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
+        private final Role role;
+        private final Principal principal;
+        private final String realm;
+        private final String includeExclude;
 
         public ReadPrincipalFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
-            super(role, principal, realm, includeExclude);
+            this.role = role;
+            this.principal = principal;
+            this.realm = realm;
+            this.includeExclude = includeExclude;
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode node = principalNode();
+            ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
             node.get(OP).set(READ_RESOURCE_OPERATION);
 
             dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
@@ -229,11 +204,19 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddPrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
+    class AddPrincipalFunction implements Function<Stack<Boolean>> {
+
+        private final Role role;
+        private final Principal principal;
+        private final String realm;
+        private final String includeExclude;
 
         public AddPrincipalFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
-            super(role, principal, realm, includeExclude);
+            this.role = role;
+            this.principal = principal;
+            this.realm = realm;
+            this.includeExclude = includeExclude;
         }
 
         @Override
@@ -242,7 +225,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             if (principalExists) {
                 control.proceed();
             } else {
-                ModelNode node = principalNode();
+                ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
                 node.get("name").set(ModelType.STRING, principal.getName());
                 node.get("type").set(ModelType.STRING, principal.getType().name());
                 if (realm != null && realm.length() != 0) {
@@ -266,21 +249,64 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class RemovePrincipalFunction extends PrincipalFunction<Stack<Boolean>> {
+    class RemovePrincipalFunction implements Function<Stack<Boolean>> {
+
+        private final Role role;
+        private final Principal principal;
+        private final String realm;
+        private final String includeExclude;
 
         public RemovePrincipalFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
-            super(role, principal, realm, includeExclude);
+            this.role = role;
+            this.principal = principal;
+            this.realm = realm;
+            this.includeExclude = includeExclude;
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode node = principalNode();
+            ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
             node.get(OP).set(REMOVE);
 
             dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
+                    control.proceed();
+                }
+
+                @Override
+                public void onFailure(final Throwable caught) {
+                    control.abort();
+                }
+            });
+        }
+    }
+
+    class RemoveRoleAssignmentFunction implements Function<Stack<Boolean>> {
+
+        @Override
+        public void execute(final Control<Stack<Boolean>> control) {
+            ModelNode operation = new ModelNode();
+            operation.get(ADDRESS).setEmptyList();
+            operation.get(OP).set(COMPOSITE);
+            List<ModelNode> steps = new LinkedList<ModelNode>();
+
+            for (Role role : assignment.getRoles()) {
+                ModelNode deleteIncludeOp = ModelHelper.includeExclude(role, assignment.getPrincipal(),
+                        assignment.getRealm(), "include");
+                steps.add(deleteIncludeOp);
+            }
+            for (Role exclude : assignment.getExcludes()) {
+                ModelNode deleteIncludeOp = ModelHelper.includeExclude(exclude, assignment.getPrincipal(),
+                        assignment.getRealm(), "exclude");
+                steps.add(deleteIncludeOp);
+            }
+
+            operation.get(STEPS).set(steps);
+            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+                @Override
+                public void onSuccess(final DMRResponse result) {
                     control.proceed();
                 }
 

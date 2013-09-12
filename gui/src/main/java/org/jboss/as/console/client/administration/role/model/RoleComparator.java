@@ -16,20 +16,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.model;
 
-import org.jboss.gwt.flow.client.Outcome;
+import java.util.Comparator;
+
+import org.jboss.as.console.client.rbac.Role;
+import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
- * @author Harald Pehl
- */
-public interface ManagementOperation<T> {
+* @author Harald Pehl
+*/
+public class RoleComparator implements Comparator<Role> {
 
-    void extecute(Outcome<T> outcome);
-
-    boolean isPending();
-
-    enum Operation {
-        ADD, RENAME, MODIFY, REMOVE
+    @Override
+    public int compare(final Role left, final Role right) {
+        if ((left instanceof StandardRole && right instanceof StandardRole) || (left instanceof ScopedRole && right instanceof ScopedRole)) {
+            return left.getName().compareTo(right.getName());
+        }
+        if (left instanceof StandardRole && right instanceof ScopedRole) {
+            return -100;
+        }
+        return 100;
     }
 }

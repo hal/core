@@ -18,9 +18,12 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.cell.client.AbstractCell;
@@ -32,6 +35,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HasName;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
+import org.jboss.as.console.client.administration.role.model.RoleComparator;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.as.console.client.rbac.Role;
@@ -143,19 +147,26 @@ public final class UIHelper {
 
         @Override
         public void render(final Context context, final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
-            boolean excludes = !roleAssignment.getExcludes().isEmpty();
-            for (Iterator<Role> iterator = roleAssignment.getRoles().iterator(); iterator.hasNext(); ) {
+            boolean hasExcludes = !roleAssignment.getExcludes().isEmpty();
+            List<Role> roles = new ArrayList<Role>(roleAssignment.getRoles());
+            RoleComparator comperator = new RoleComparator();
+            Collections.sort(roles, comperator);
+            for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext(); ) {
                 Role role = iterator.next();
                 roleAsSafeHtml(role, true, builder);
-                if (iterator.hasNext() || excludes) {
+                if (iterator.hasNext() || hasExcludes) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }
             }
-            for (Iterator<Role> iterator = roleAssignment.getExcludes().iterator(); iterator.hasNext(); ) {
-                Role exclude = iterator.next();
-                roleAsSafeHtml(exclude, false, builder);
-                if (iterator.hasNext()) {
-                    builder.append(SafeHtmlUtils.fromString(", "));
+            if (hasExcludes) {
+                List<Role> excludes = new ArrayList<Role>(roleAssignment.getExcludes());
+                Collections.sort(excludes, comperator);
+                for (Iterator<Role> iterator = excludes.iterator(); iterator.hasNext(); ) {
+                    Role exclude = iterator.next();
+                    roleAsSafeHtml(exclude, false, builder);
+                    if (iterator.hasNext()) {
+                        builder.append(SafeHtmlUtils.fromString(", "));
+                    }
                 }
             }
         }

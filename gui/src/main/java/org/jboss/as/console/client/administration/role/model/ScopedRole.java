@@ -109,6 +109,7 @@ public class ScopedRole implements Role {
     }
 
     public void setScope(final Collection<String> scope) {
+        this.scope.clear();
         this.scope.addAll(scope);
     }
 

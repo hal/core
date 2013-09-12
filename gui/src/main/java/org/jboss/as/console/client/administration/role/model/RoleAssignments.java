@@ -25,6 +25,7 @@ import static org.jboss.as.console.client.administration.role.model.RoleAssignme
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,7 @@ import java.util.Set;
 /**
  * @author Harald Pehl
  */
-public class RoleAssignments {
+public class RoleAssignments implements Iterable<RoleAssignment> {
 
     private final Map<PrincipalRealmTupel, RoleAssignment> lookup;
     private final List<RoleAssignment.Internal> models;
@@ -60,6 +61,14 @@ public class RoleAssignments {
 
     public Set<RoleAssignment> getUserAssignments() {
         return assignments.get(USER);
+    }
+
+    @Override
+    public Iterator<RoleAssignment> iterator() {
+        Set<RoleAssignment> all = new HashSet<RoleAssignment>();
+        all.addAll(assignments.get(GROUP));
+        all.addAll(assignments.get(USER));
+        return all.iterator();
     }
 
     public void toUI(Principals principals) {

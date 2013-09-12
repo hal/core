@@ -49,7 +49,6 @@ public class RoleAssignmentDetails implements IsWidget {
     private final Principal.Type type;
     private final RoleAssignmentPresenter presenter;
     private final PojoForm<RoleAssignment> form;
-    private RoleAssignment currentEntity;
     private ReadOnlyItem<RoleAssignment> principalItem;
     private IncludeExcludeFormItem includeExcludeFormItem;
 
@@ -110,12 +109,14 @@ public class RoleAssignmentDetails implements IsWidget {
         return content;
     }
 
-    public void update(final RoleAssignments assignments, final Roles roles) {
-        if (assignments.get(type).isEmpty()) {
-            form.clearValues();
-        }
+    public void update(final RoleAssignments assignments, final Roles roles, final RoleAssignment selectedAssignment) {
         if (includeExcludeFormItem != null) {
             includeExcludeFormItem.update(roles);
+        }
+        if (assignments.get(type).isEmpty()) {
+            form.clearValues();
+        } else {
+            updateFormFields(selectedAssignment);
         }
     }
 
@@ -129,21 +130,25 @@ public class RoleAssignmentDetails implements IsWidget {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        currentEntity = selectionModel.getSelectedObject();
-                        if (currentEntity != null) {
-                            principalItem.setValue(currentEntity);
-                            Map<IncludeExcludeFormItem.Type, Set<Role>> includeExclude = new HashMap<IncludeExcludeFormItem.Type, Set<Role>>();
-                            includeExclude.put(INCLUDE, new HashSet<Role>(currentEntity.getRoles()));
-                            includeExclude.put(EXCLUDE, new HashSet<Role>(currentEntity.getExcludes()));
-                            includeExcludeFormItem.setValue(includeExclude);
-                            form.setUndefined(false);
-                            form.edit(currentEntity);
-                        } else {
-                            form.clearValues();
-                        }
+                        RoleAssignment selected = selectionModel.getSelectedObject();
+                        updateFormFields(selected);
                     }
                 });
             }
         });
+    }
+
+    private void updateFormFields(final RoleAssignment assignment) {
+        if (assignment != null) {
+            principalItem.setValue(assignment);
+            Map<IncludeExcludeFormItem.Type, Set<Role>> includeExclude = new HashMap<IncludeExcludeFormItem.Type, Set<Role>>();
+            includeExclude.put(INCLUDE, new HashSet<Role>(assignment.getRoles()));
+            includeExclude.put(EXCLUDE, new HashSet<Role>(assignment.getExcludes()));
+            includeExcludeFormItem.setValue(includeExclude);
+            form.setUndefined(false);
+            form.edit(assignment);
+        } else {
+            form.clearValues();
+        }
     }
 }

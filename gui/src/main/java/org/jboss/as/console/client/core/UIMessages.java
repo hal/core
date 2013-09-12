@@ -178,4 +178,6 @@ public interface UIMessages extends Messages {
     String environment_description();
 
     String transaction_log_description();
+
+    String administration_scoped_role_in_use(int usage);
 }

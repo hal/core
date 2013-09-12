@@ -21,11 +21,12 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,11 +48,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.RoleComparator;
 import org.jboss.as.console.client.administration.role.model.RoleKey;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -76,6 +77,8 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
     private Button removeInclude;
     private Button addExclude;
     private Button removeExclude;
+    private FormItemPanelWrapper wrapper;
+    private Roles roles;
 
     public IncludeExcludeFormItem(final String name, final String title) {
         super(name, title);
@@ -221,7 +224,8 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         content.add(right);
         right.getElement().getParentElement().setAttribute("width", "50%");
 
-        return new FormItemPanelWrapper(content, this);
+        wrapper = new FormItemPanelWrapper(content, this);
+        return wrapper;
     }
 
     private VerticalPanel vert(Widget... widgets) {
@@ -308,7 +312,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
     public boolean validate(final Map<Type, Set<Role>> value) {
         //noinspection SimplifiableIfStatement
         if (isRequired) {
-            return value != null && !value.get(INCLUDE).isEmpty();
+            return value != null && (!value.get(INCLUDE).isEmpty() || !value.get(EXCLUDE).isEmpty());
         }
         return true;
     }
@@ -326,15 +330,23 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
     @Override
     public void setValue(final Map<Type, Set<Role>> value) {
-        if (value.get(INCLUDE) != null) {
+        Set<Role> includes = value.get(INCLUDE);
+        if (includes != null) {
             this.value.get(INCLUDE).clear();
-            this.value.get(INCLUDE).addAll(value.get(INCLUDE));
+            this.value.get(INCLUDE).addAll(includes);
             this.value.get(AVAILABLE).removeAll(this.value.get(INCLUDE));
         }
-        if (value.get(EXCLUDE) != null) {
+        Set<Role> excludes = value.get(EXCLUDE);
+        if (excludes != null) {
             this.value.get(EXCLUDE).clear();
-            this.value.get(EXCLUDE).addAll(value.get(EXCLUDE));
+            this.value.get(EXCLUDE).addAll(excludes);
             this.value.get(AVAILABLE).removeAll(this.value.get(EXCLUDE));
+        }
+        if (roles != null) {
+            Set<Role> available = new HashSet<Role>(roles.getRoles());
+            available.removeAll(includes);
+            available.removeAll(excludes);
+            this.value.put(AVAILABLE, available);
         }
         clearSelection();
         updateDataProvider();
@@ -342,23 +354,46 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
     @Override
     public String asString() {
+        RoleComparator comperator = new RoleComparator();
+        List<Role> includes = new ArrayList<Role>(value.get(INCLUDE));
+        Collections.sort(includes, comperator);
+        StringBuilder builder = new StringBuilder().append(rolesCsv(includes, ""));
+        if (builder.length() > 0 && !value.get(EXCLUDE).isEmpty()) {
+            List<Role> excludes = new ArrayList<Role>(value.get(EXCLUDE));
+            Collections.sort(excludes, comperator);
+            builder.append(", ").append(rolesCsv(excludes, "-"));
+        }
+        return builder.toString();
+    }
+
+    private String rolesCsv(Collection<Role> roles, String prefix) {
         StringBuilder builder = new StringBuilder();
-        builder.append(UIHelper.csv(value.get(INCLUDE)));
-        Set<Role> excludes = value.get(EXCLUDE);
-        if (!excludes.isEmpty()) {
-            builder.append(", ");
-            for (Iterator<Role> iterator = excludes.iterator(); iterator.hasNext(); ) {
-                Role role = iterator.next();
-                builder.append("-").append(role.getName());
-                if (iterator.hasNext()) {
-                    builder.append(", ");
-                }
+        for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext(); ) {
+            Role role = iterator.next();
+            builder.append(prefix).append(role.getName());
+            if (role instanceof ScopedRole) {
+                builder.append(" ").append(((ScopedRole)role).getScope());
+            }
+            if (iterator.hasNext()) {
+                builder.append(", ");
             }
         }
         return builder.toString();
     }
 
+    @Override
+    public void setErroneous(boolean b) {
+        super.setErroneous(b);
+        wrapper.setErroneous(b);
+    }
+
+    @Override
+    public String getErrMessage() {
+        return super.getErrMessage() + ": Assign or exclude at least one role.";
+    }
+
     public void update(final Roles roles) {
+        this.roles = roles;
         value.get(AVAILABLE).clear();
         value.get(AVAILABLE).addAll(roles.getRoles());
         updateDataProvider();
@@ -383,6 +418,8 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         availableProvider.setList(availableList);
         includeProvider.setList(includeList);
         excludeProvider.setList(excludeList);
+
+        setModified(true);
     }
 
     public static enum Type {
@@ -403,17 +440,4 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         }
     }
 
-    static class RoleComparator implements Comparator<Role> {
-
-        @Override
-        public int compare(final Role left, final Role right) {
-            if ((left instanceof StandardRole && right instanceof StandardRole) || (left instanceof ScopedRole && right instanceof ScopedRole)) {
-                return left.getName().compareTo(right.getName());
-            }
-            if (left instanceof StandardRole && right instanceof ScopedRole) {
-                return -100;
-            }
-            return 100;
-        }
-    }
 }

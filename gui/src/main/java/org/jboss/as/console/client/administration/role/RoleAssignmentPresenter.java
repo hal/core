@@ -18,15 +18,11 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static java.util.Arrays.asList;
 import static org.jboss.as.console.client.administration.role.LoadRoleAssignmentsOp.Results;
+import static org.jboss.as.console.client.administration.role.ManagementOperation.Operation.*;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.SERVER_GROUP;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,15 +47,11 @@ import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
@@ -174,12 +166,12 @@ public class RoleAssignmentPresenter
 
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
-        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment,
-                Collections.<Role>emptySet(), Collections.<Role>emptySet());
-        op.extecute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.addingFailed("role assignment"));
+                loadAssignments();
             }
 
             @Override
@@ -192,12 +184,13 @@ public class RoleAssignmentPresenter
 
     public void saveRoleAssignment(final RoleAssignment assignment, final Set<Role> removedRoles,
             final Set<Role> removedExcludes) {
-        ManagementOperation<Stack<Boolean>> op = new ModifyRoleAssignmentOp(dispatcher, assignment, removedRoles,
-                removedExcludes);
-        op.extecute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, MODIFY,
+                removedRoles, removedExcludes);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.saveFailed("role assignment"));
+                loadAssignments();
             }
 
             @Override
@@ -209,15 +202,16 @@ public class RoleAssignmentPresenter
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
-        ManagementOperation<Object> op = new RemoveRoleAssignmentOp(dispatcher, assignment);
-        op.extecute(new Outcome<Object>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
-            public void onFailure(final Object context) {
+            public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.deletionFailed("role assignment"));
+                loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Object context) {
+            public void onSuccess(final Stack<Boolean> context) {
                 Console.info(Console.MESSAGES.deleted("role assignment"));
                 loadAssignments();
             }
@@ -241,58 +235,48 @@ public class RoleAssignmentPresenter
         if (!assertDomainMode()) { return; }
 
         closeWindow();
-        ModelNode roleNode = roleNode(role);
-        roleNode.get("base-role").set(role.getBaseRole().name());
-        String scope = role.getType() == HOST ? "hosts" : "server-groups";
-        for (String s : role.getScope()) {
-            roleNode.get(scope).add(s);
-        }
-        roleNode.get(OP).set(ADD);
-
-        dispatcher.execute(new DMRAction(roleNode), new SimpleCallback<DMRResponse>() {
+        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, role, role, ADD);
+        mo.extecute(new Outcome<Object>() {
             @Override
-            public void onFailure(final Throwable caught) {
-                Console.error(Console.MESSAGES.addingFailed("scoped role"));
+            public void onFailure(final Object context) {
+                Console.error(Console.MESSAGES.addingFailed(role.getName()));
+                loadAssignments();
             }
 
             @Override
-            public void onSuccess(DMRResponse response) {
-                Console.info(Console.MESSAGES.added("scoped role"));
+            public void onSuccess(final Object context) {
+                Console.info(Console.MESSAGES.added(role.getName()));
                 loadAssignments();
             }
         });
     }
 
-    public void saveScopedRole(final ScopedRole role) {
+    public void saveScopedRole(final ScopedRole scopedRole, final ScopedRole oldValue) {
         if (!assertDomainMode()) { return; }
 
-        ModelNode baseRoleNode = roleNode(role);
-        baseRoleNode.get("base-role").set(role.getBaseRole().name());
-        baseRoleNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-
-        ModelNode scopeNode = roleNode(role);
-        String scope = role.getType() == HOST ? "hosts" : "server-groups";
-        for (String s : role.getScope()) {
-            scopeNode.get(scope).add(s);
+        ManagementOperation.Operation operation = (scopedRole.getName().equals(oldValue.getName())) ? MODIFY : RENAME;
+        if (operation == RENAME) {
+            int usage = usedInAssignments(oldValue);
+            if (usage > 0) {
+                Console.error(Console.MESSAGES
+                        .saveFailed(oldValue.getName() + " as " + scopedRole.getName() + ". " + Console.MESSAGES
+                                .administration_scoped_role_in_use(usage)));
+                loadAssignments();
+                return;
+            }
         }
-        scopeNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
-        ModelNode compositeNode = new ModelNode();
-        compositeNode.get(OP).set(COMPOSITE);
-        compositeNode.get(ADDRESS).setEmptyList();
-        List<ModelNode> steps = new ArrayList<ModelNode>();
-        steps.addAll(asList(baseRoleNode, scopeNode));
-        compositeNode.get(STEPS).set(steps);
-
-        dispatcher.execute(new DMRAction(compositeNode), new SimpleCallback<DMRResponse>() {
+        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, scopedRole, oldValue, operation);
+        mo.extecute(new Outcome<Object>() {
             @Override
-            public void onFailure(final Throwable caught) {
-                Console.error(Console.MESSAGES.saveFailed("scoped role"));
+            public void onFailure(final Object context) {
+                Console.error(Console.MESSAGES.saveFailed(scopedRole.getName()));
+                loadAssignments();
             }
 
             @Override
-            public void onSuccess(DMRResponse response) {
-                Console.info(Console.MESSAGES.saved("scoped role"));
+            public void onSuccess(final Object context) {
+                Console.info(Console.MESSAGES.saved(scopedRole.getName()));
                 loadAssignments();
             }
         });
@@ -301,18 +285,25 @@ public class RoleAssignmentPresenter
     public void removeScopedRole(final ScopedRole role) {
         if (!assertDomainMode()) { return; }
 
-        ModelNode roleNode = roleNode(role);
-        roleNode.get(OP).set(REMOVE);
+        int usage = usedInAssignments(role);
+        if (usage > 0) {
+            Console.error(Console.MESSAGES
+                    .deletionFailed(role.getName() + ". " + Console.MESSAGES.administration_scoped_role_in_use(usage)));
+            loadAssignments();
+            return;
+        }
 
-        dispatcher.execute(new DMRAction(roleNode), new SimpleCallback<DMRResponse>() {
+        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, role, role, REMOVE);
+        mo.extecute(new Outcome<Object>() {
             @Override
-            public void onFailure(final Throwable caught) {
-                Console.error(Console.MESSAGES.deletionFailed("scoped role"));
+            public void onFailure(final Object context) {
+                Console.error(Console.MESSAGES.deletionFailed(role.getName()));
+                loadAssignments();
             }
 
             @Override
-            public void onSuccess(DMRResponse response) {
-                Console.info(Console.MESSAGES.deleted("scoped role"));
+            public void onSuccess(final Object context) {
+                Console.info(Console.MESSAGES.deleted(role.getName()));
                 loadAssignments();
             }
         });
@@ -326,22 +317,35 @@ public class RoleAssignmentPresenter
         return true;
     }
 
+    private int usedInAssignments(final ScopedRole scopedRole) {
+        int counter = 0;
+        for (RoleAssignment assignment : assignments) {
+            boolean found = false;
+            for (Role role : assignment.getRoles()) {
+                if (role.getName().equals(scopedRole.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                for (Role role : assignment.getExcludes()) {
+                    if (role.getName().equals(scopedRole.getName())) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (found) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
     public void closeWindow() {
         if (window != null) {
             window.hide();
         }
-    }
-
-    private ModelNode roleNode(final ScopedRole role) {
-        ModelNode node = new ModelNode();
-        node.get(ADDRESS).add("core-service", "management");
-        node.get(ADDRESS).add("access", "authorization");
-        if (role.getType() == HOST) {
-            node.get(ADDRESS).add("host-scoped-role", role.getName());
-        } else if (role.getType() == SERVER_GROUP) {
-            node.get(ADDRESS).add("server-group-scoped-role", role.getName());
-        }
-        return node;
     }
 
     // ------------------------------------------------------ properties
