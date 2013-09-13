@@ -196,7 +196,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         VerticalPanel availableTitleAndTable = vert(label, availableList, pager);
         DOM.setStyleAttribute(availableTitleAndTable.getElement(), "marginBottom", "20px");
         content.add(availableTitleAndTable);
-        availableTitleAndTable.getElement().getParentElement().setAttribute("width", "50%");
+        availableTitleAndTable.getElement().getParentElement().setAttribute("width", "45%");
 
         // right - top: buttons and includes
         HorizontalPanel rightTop = new HorizontalPanel();
