@@ -42,6 +42,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -107,8 +108,9 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
     public Widget asWidget() {
         // available roles and pager
         CellList<Role> availableList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
-        availableList.setPageSize(7);
+        availableList.setPageSize(12);
         availableList.addStyleName("roles-list");
+        availableList.addStyleName("roles-list-available");
         availableList.setSelectionModel(availableSelectionModel);
         availableProvider.addDataDisplay(availableList);
         availableSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -123,7 +125,6 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
         // included (assigned) roles
         CellList<Role> includeList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
-        includeList.addStyleName("roles-list");
         includeList.setSelectionModel(includeSelectionModel);
         includeProvider.addDataDisplay(includeList);
         includeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -132,10 +133,13 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
                 onSelect(INCLUDE);
             }
         });
+        ScrollPanel includeScroller = new ScrollPanel(includeList);
+        includeScroller.addStyleName("roles-list");
+        includeScroller.addStyleName("roles-list-assigned");
+
 
         // excluded roles
         CellList<Role> excludeList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
-        excludeList.addStyleName("roles-list");
         excludeList.setSelectionModel(excludeSelectionModel);
         excludeProvider.addDataDisplay(excludeList);
         excludeSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -144,6 +148,9 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
                 onSelect(EXCLUDE);
             }
         });
+        ScrollPanel excludeScroller = new ScrollPanel(excludeList);
+        excludeScroller.addStyleName("roles-list");
+        excludeScroller.addStyleName("roles-list-excluded");
 
         // add / remove buttons
         addInclude = new Button(TEMPLATES.arrow("right"));
@@ -195,7 +202,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         HorizontalPanel rightTop = new HorizontalPanel();
         label = new Label(Console.CONSTANTS.administration_assigned_roles());
         label.addStyleName("roles-list-label");
-        VerticalPanel includeTitleAndTable = vert(label, includeList);
+        VerticalPanel includeTitleAndTable = vert(label, includeScroller);
         DOM.setStyleAttribute(includeTitleAndTable.getElement(), "marginBottom", "20px");
         VerticalPanel includeButtons = vert(addInclude, removeInclude);
         DOM.setStyleAttribute(includeButtons.getElement(), "margin", "5px");
@@ -208,7 +215,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         HorizontalPanel rightBottom = new HorizontalPanel();
         label = new Label(Console.CONSTANTS.administration_excluded_roles());
         label.addStyleName("roles-list-label");
-        VerticalPanel excludeTitleAndTable = vert(label, excludeList);
+        VerticalPanel excludeTitleAndTable = vert(label, excludeScroller);
         DOM.setStyleAttribute(excludeTitleAndTable.getElement(), "marginBottom", "20px");
         VerticalPanel excludeButtons = vert(addExclude, removeExclude);
         DOM.setStyleAttribute(excludeButtons.getElement(), "margin", "5px");
