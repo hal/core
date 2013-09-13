@@ -170,34 +170,20 @@ public class BulletGraphView implements Sampler {
                 Double value = Double.valueOf(actualValue);
                 String label = percentage(baseline, value) +"% "+c.getLabel();
 
-                if(c.getComparisonColumn()!=null && baseline>0)
-                {
-                    bullets.push(
-                            new Bullet(
-                                    label, metricName,
-                                    new double[] {baseline},
-                                    new double[] {value},
-                                    new double[] {}
-                                    //new double[] { Double.valueOf(metric.get(getComparisonIndex(c))) }
-                            )
-                    );
-                }
-                // without comparison column
-                else if(c.getComparisonColumn()==null && baseline>0)
-                {
-                    bullets.push(
-                            new Bullet(
-                                    label, metricName,
-                                    new double[] {baseline},
-                                    new double[] {value},
-                                    new double[] {  }
-                            )
-                    );
-                }
-                else if(c.getComparisonColumn()!=null && baseline<0)
+                if(c.getComparisonColumn()!=null && baseline<0)
                 {
                     throw new RuntimeException("Comparison column specified, but no baseline set!");
                 }
+
+                bullets.push(
+                        new Bullet(
+                                label, metricName,
+                                new double[] {baseline},
+                                new double[] {value},
+                                new double[] {}
+                        )
+                );
+
             }
 
 
