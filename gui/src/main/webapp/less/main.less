@@ -132,7 +132,7 @@ body, p, td, th, option, input, textarea, select {
 }
 
 .header-link-label {
-    color: #e5e5e5 !important;
+    color: #e5e5e5;
     vertical-align: middle;
     padding-left:18px;
     padding-right:18px;
@@ -141,7 +141,7 @@ body, p, td, th, option, input, textarea, select {
 
 .header-link-selected div .header-link-label {
     font-weight: 600;
-    color: #ffffff !important;
+    color: #ffffff;
 }
 
 .header-link-selected:hover {
@@ -153,9 +153,7 @@ body, p, td, th, option, input, textarea, select {
 }
 
 .header-link-selected {
-    background-color: @nav-header-selected-color;
-    border-top:1px solid #a2a3a7;
-    text-decoration: none!important;
+    .header-selected
 }
 
 .header-product-name, .header-product-version {
@@ -178,18 +176,15 @@ body, p, td, th, option, input, textarea, select {
 }
 
 .header-line {
-    background-color: @header-line-color;
-    border-bottom:1px solid #272a2f;
+    .headerline
 }
 
 .header-top{
-    background-color: @header-top-color;
-    border-bottom:1px solid #53565b;
+    .headertop
 }
 
 .header-bottom {
-    background-color: @header-bottom-color;
-    border-bottom:1px solid #272a2f;
+    .headerbottom
 }
 
 .gwt-SplitLayoutPanel-HDragger {

@@ -3,7 +3,7 @@
 @body-font-color:#4e5255;
 @body-font: 12px e("/") 1.4 "Lucida Sans Unicode","Lucida Grande",sans-serif;
 
-@header-line-color: #7997BC;
+@header-line-color: #3B4D64;
 @header-top-color: #3B4D64;
 @header-bottom-color: #243446;
 
@@ -25,4 +25,26 @@
 
 @link-color:#477EAF;
 
-@nav-header-selected-color: #3D618A;
+/* mixin */
+
+
+.headerline {
+  background-color: @header-top-color;
+  border-bottom:1px solid @header-top-color;
+}
+
+.headertop {
+  background-color: @header-top-color;
+  border-bottom:1px solid #53565b;
+}
+
+.headerbottom {
+  background-color: @header-bottom-color;
+  border-bottom:1px solid #272a2f;
+}
+
+.header-selected {
+  background-color:@header-bottom-color;
+  border-top:2px solid #a2a3a7;
+  text-decoration: none!important;
+}
