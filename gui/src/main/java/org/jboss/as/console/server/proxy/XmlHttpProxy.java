@@ -20,10 +20,6 @@
 package org.jboss.as.console.server.proxy;
 
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,6 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * @author Greg Murray
@@ -267,12 +268,13 @@ public class XmlHttpProxy {
             }
             else
             {
+                // pipe the response directly into the servlet output stream
+                pipeResponsePayload(out, xslInputStream, paramsMap, in, httpclient);
+
+                // and into the exception
                 GenericException ex = new GenericException("Failed to open input stream, status: " + responseCode);
                 ex.setResponseText(httpclient.getResponseMessage());
-
                 ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                pipeResponsePayload(bout, xslInputStream, paramsMap, in, httpclient);
-
                 ex.setResponseBody(new String(bout.toByteArray()));
                 throw ex;
             }
