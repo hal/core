@@ -19,6 +19,8 @@
 package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -71,19 +73,31 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
     @SuppressWarnings("unchecked")
     public void extecute(final Outcome<Stack<Boolean>> outcome) {
         List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
-        for (Role role : assignment.getRoles()) {
-            addFunctions(functions, role, "include");
-        }
-        for (Role exclude : assignment.getExcludes()) {
-            addFunctions(functions, exclude, "exclude");
-        }
-        for (Role removedRole : removedRoles) {
-            functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), assignment.getRealm(),
-                    "include"));
-        }
-        for (Role removedExclude : removedExcludes) {
-            functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), assignment.getRealm(),
-                    "exclude"));
+
+        switch (operation) {
+            case ADD:
+            case MODIFY: {
+                for (Role role : assignment.getRoles()) {
+                    addFunctions(functions, role, "include");
+                }
+                for (Role exclude : assignment.getExcludes()) {
+                    addFunctions(functions, exclude, "exclude");
+                }
+                for (Role removedRole : removedRoles) {
+                    functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), assignment.getRealm(),
+                            "include"));
+                }
+                for (Role removedExclude : removedExcludes) {
+                    functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), assignment.getRealm(),
+                            "exclude"));
+                }
+                break;
+            }
+            case REMOVE:
+                functions.add(new RemoveRoleAssignmentFunction(assignment));
+                break;
+            case RENAME:
+                throw new UnsupportedOperationException("Cannot rename a role assignment");
         }
         new Async<Stack<Boolean>>()
                 .waterfall(new Stack<Boolean>(), outcome, functions.toArray(new Function[functions.size()]));
@@ -285,6 +299,13 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
     class RemoveRoleAssignmentFunction implements Function<Stack<Boolean>> {
 
+        private final RoleAssignment assignment;
+
+        public RemoveRoleAssignmentFunction(final RoleAssignment assignment) {
+
+            this.assignment = assignment;
+        }
+
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
             ModelNode operation = new ModelNode();
@@ -293,14 +314,16 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             for (Role role : assignment.getRoles()) {
-                ModelNode deleteIncludeOp = ModelHelper.includeExclude(role, assignment.getPrincipal(),
+                ModelNode step = ModelHelper.includeExclude(role, assignment.getPrincipal(),
                         assignment.getRealm(), "include");
-                steps.add(deleteIncludeOp);
+                step.get(OP).set(REMOVE);
+                steps.add(step);
             }
             for (Role exclude : assignment.getExcludes()) {
-                ModelNode deleteIncludeOp = ModelHelper.includeExclude(exclude, assignment.getPrincipal(),
+                ModelNode step = ModelHelper.includeExclude(exclude, assignment.getPrincipal(),
                         assignment.getRealm(), "exclude");
-                steps.add(deleteIncludeOp);
+                step.get(OP).set(REMOVE);
+                steps.add(step);
             }
 
             operation.get(STEPS).set(steps);
