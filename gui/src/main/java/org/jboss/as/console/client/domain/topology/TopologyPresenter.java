@@ -79,7 +79,6 @@ public class TopologyPresenter extends
     @AccessControl(resources = {
             "/server-group=*",
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
-            "/extension=*",
     }, recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
     {
