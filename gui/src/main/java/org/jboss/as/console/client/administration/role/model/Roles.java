@@ -61,13 +61,13 @@ public class Roles implements Iterable<Role> {
             }
         });
         for (StandardRole standardRole : preset) {
-            add(standardRole.name().toUpperCase(), standardRole);
+            add(standardRole);
         }
     }
 
-    public void add(String key, Role role) {
+    public void add(Role role) {
         if (role != null) {
-            lookup.put(key, role);
+            lookup.put(role.getName().toUpperCase(), role);
             if (role instanceof ScopedRole) {
                 scopedRoles.add((ScopedRole) role);
             } else if (role instanceof StandardRole) {
@@ -94,7 +94,7 @@ public class Roles implements Iterable<Role> {
 
     public Role getRole(String name) {
         if (name != null) {
-            return lookup.get(name);
+            return lookup.get(name.toUpperCase());
         }
         return null;
     }

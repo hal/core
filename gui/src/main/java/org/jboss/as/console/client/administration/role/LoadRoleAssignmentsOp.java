@@ -186,7 +186,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             }
             ScopedRole scopedRole = new ScopedRole(property.getName(), StandardRole.fromString(baseRoleName), type,
                     scope);
-            roles.add(scopedRole.getName(), scopedRole);
+            roles.add(scopedRole);
         }
 
         private void addInternalRoleAssignment(final Principals principals, final RoleAssignments assignments,
