@@ -67,6 +67,12 @@ public class NewServerConfigWizard {
 
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name())
         {
+
+            @Override
+            public void setFiltered(boolean filtered) {
+                // prevent filtering in add dialog
+            }
+
             @Override
             public boolean validate(String value) {
                 boolean hasValue = super.validate(value);
