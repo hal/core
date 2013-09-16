@@ -75,7 +75,7 @@ public class ScopedRoleDetails implements IsWidget {
         });
         scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
         includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
-        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
+        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
