@@ -1,7 +1,10 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -17,6 +20,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +34,7 @@ public class ServerConfigDetails {
     private Form<Server> form;
     private ComboBoxItem socketItem;
     private ComboBoxItem groupItem;
+    private List<ServerGroupRecord> groups = Collections.EMPTY_LIST;
 
     public ServerConfigDetails(ServerConfigPresenter presenter) {
         this.presenter = presenter;
@@ -94,7 +99,6 @@ public class ServerConfigDetails {
             }
         };
 
-
         form.setFields(nameItem, startedItem, groupItem, socketItem, portOffset);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
@@ -123,11 +127,37 @@ public class ServerConfigDetails {
         socketItem.setValueMap(result);
     }
 
-    public void bind(DefaultCellTable table) {
+    public void bind(final DefaultCellTable table) {
         form.bind(table);
+
+        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                final Server server = ((SingleSelectionModel<Server>) table.getSelectionModel()).getSelectedObject();
+                if(server!=null && "".equals(server.getSocketBinding()))
+                {
+                    // preselect inherited socket binding value
+                    for(final ServerGroupRecord group : groups)
+                    {
+                        if(group.getName().equals(server.getGroup()))
+                        {
+                            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    socketItem.setValue(group.getSocketBinding());
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void setAvailableGroups(List<ServerGroupRecord> result) {
+
+        this.groups = result;
 
         List<String> names = new ArrayList<String>(result.size());
         for(ServerGroupRecord rec : result)
