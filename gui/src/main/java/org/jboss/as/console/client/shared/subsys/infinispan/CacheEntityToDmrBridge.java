@@ -129,23 +129,31 @@ public class CacheEntityToDmrBridge<T extends LocalCache> extends EntityToDmrBri
     protected void onLoadEntitiesSuccess(ModelNode response) {
         List<T> entities = new ArrayList<T>();
 
-        // TODO: https://issues.jboss.org/browse/AS7-3670
         for (ModelNode entity : response.get(RESULT).get("step-1").get(RESULT).asList()) {
             ModelNode result = entity.get(RESULT);
             for (Property addressProp : entity.get(ADDRESS).asPropertyList()) {
                 result.get(addressProp.getName()).set(addressProp.getValue());
             }
 
+            boolean eviction = result.get("eviction").isDefined();
+            boolean expiration = result.get("expiration").isDefined();
+            boolean locking = result.get("locking").isDefined();
+            boolean store = result.get("store").isDefined();
+            boolean file = result.get("file-store").isDefined();
+            boolean remote = result.get("remote-store").isDefined();
+            boolean jdbc = result.get("jdbc-store").isDefined();
+            boolean transaction = result.get("transaction").isDefined();
+
             T cache = entityAdapter.fromDMR(result);
 
-            cache.setHasEviction(result.get("eviction").isDefined());
-            cache.setHasExpiration(result.get("expiration").isDefined());
-            cache.setHasLocking(result.get("locking").isDefined());
-            cache.setHasStore(result.get("store").isDefined());
-            cache.setHasFileStore(result.get("file-store").isDefined());
-            cache.setHasRemoteStore(result.get("remote-store").isDefined());
-            cache.setHasJdbcStore(result.get("jdbc-store").isDefined());
-            cache.setHasTransaction(result.get("transaction").isDefined());
+            cache.setHasEviction(eviction);
+            cache.setHasExpiration(expiration);
+            cache.setHasLocking(locking);
+            cache.setHasStore(store);
+            cache.setHasFileStore(file);
+            cache.setHasRemoteStore(remote);
+            cache.setHasJdbcStore(jdbc);
+            cache.setHasTransaction(transaction);
 
             if (cache instanceof ReplicatedCache) {
                 ReplicatedCache repl = (ReplicatedCache)cache;
@@ -237,7 +245,8 @@ public class CacheEntityToDmrBridge<T extends LocalCache> extends EntityToDmrBri
             writeSingletonAttributeStep.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
             writeSingletonAttributeStep.get(NAME).set(attributeName(javaName));
 
-            if (this.formMetaData.findAttribute(javaName).getListType() != null) {
+            if (this.formMetaData.findAttribute(javaName).getListType() != null
+                    && (changedValues.get(javaName) instanceof List)) {
                 for (PropertyRecord prop : (List<PropertyRecord>)changedValues.get(javaName)) {
                     writeSingletonAttributeStep.get(VALUE).add(prop.getKey(), prop.getValue());
                 }
