@@ -140,7 +140,6 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         ModelNode stepsResult = response.get(RESULT);
 
                         // the order of processing is important!
-                        String mappingStep = "step-1";
                         if (!standalone) {
                             List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                             for (ModelNode node : hostScopedRoles) {
@@ -187,7 +186,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             }
             ScopedRole scopedRole = new ScopedRole(property.getName(), StandardRole.fromString(baseRoleName), type,
                     scope);
-            roles.add(scopedRole);
+            roles.add(scopedRole.getName(), scopedRole);
         }
 
         private void addInternalRoleAssignment(final Principals principals, final RoleAssignments assignments,
