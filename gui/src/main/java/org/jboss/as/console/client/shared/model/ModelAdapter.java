@@ -174,12 +174,10 @@ public class ModelAdapter {
         return jvm;
     }
 
+    @Deprecated
     public static boolean wasSuccess(ModelNode response)
     {
-        if(response.hasDefined(OUTCOME) && response.get(OUTCOME).asString().equals("success"))
-            return true;
-        else
-            return false;
+        return !response.isFailure();
 
     }
 }
