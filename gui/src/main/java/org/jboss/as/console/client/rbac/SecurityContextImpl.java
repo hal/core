@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.rbac;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -96,7 +97,10 @@ public class SecurityContextImpl implements SecurityContext {
         return checkPriviledge(new Priviledge() {
             @Override
             public boolean isGranted(Constraints c) {
+
                 boolean readable = c.isReadResource();
+                if(!readable)
+                    Log.info("read privilege denied for: " + c.getResourceAddress());
                 return readable;
             }
         });
@@ -108,6 +112,9 @@ public class SecurityContextImpl implements SecurityContext {
             @Override
             public boolean isGranted(Constraints c) {
                 boolean writable = c.isWriteResource();
+                if(!writable)
+                    Log.info("write privilege denied for: "+c.getResourceAddress());
+
                 return writable;
             }
         });

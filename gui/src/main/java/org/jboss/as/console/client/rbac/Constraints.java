@@ -12,12 +12,21 @@ import java.util.Set;
 public class Constraints {
 
 
+    private final String resourceAddress;
     private boolean readResource, writeResource;
 
     Map<String, AttributePerm> attributePermissions = new HashMap<String,AttributePerm>();
     Map<String, Set<String>> execPermission = new HashMap<String, Set<String>>();
 
     private boolean address = true;
+
+    public Constraints(String resourceAddress) {
+        this.resourceAddress = resourceAddress;
+    }
+
+    public String getResourceAddress() {
+        return resourceAddress;
+    }
 
     public boolean isAddress() {
         return address;

@@ -312,7 +312,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 model = accessControl.get(DEFAULT);
             }
 
-            Constraints c = new Constraints();
+            Constraints c = new Constraints(resourceAddress);
 
             if(model.hasDefined(ADDRESS)
                     && model.get(ADDRESS).asBoolean()==false)
