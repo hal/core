@@ -62,7 +62,12 @@ public class NewPropertyWizard {
 
         final Form<PropertyRecord> form = new Form<PropertyRecord>(PropertyRecord.class);
 
-        TextBoxItem nameItem = new TextBoxItem("key", "Name");
+        TextBoxItem nameItem = new TextBoxItem("key", "Name") {
+            @Override
+            public void setFiltered(boolean filtered) {
+                // cannot be filtered (workaround)
+            }
+        };
         TextAreaItem valueItem = new TextAreaItem("value", "Value");
         valueItem.setVisibleLines(2);
 

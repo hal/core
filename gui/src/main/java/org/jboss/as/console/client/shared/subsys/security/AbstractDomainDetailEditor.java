@@ -341,8 +341,8 @@ public abstract class AbstractDomainDetailEditor <T extends GenericSecurityDomai
     public void launchNewPropertyDialoge(String reference) {
 
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Module Option"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, "", false).asWidget()

@@ -136,8 +136,8 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
     public void launchNewPropertyDialoge(String group) {
 
         propertyWindow = new DefaultWindow("New Host Property");
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(270);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {

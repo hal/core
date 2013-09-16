@@ -98,8 +98,7 @@ public class ServerGroupPresenter
     @NameToken(NameTokens.ServerGroupPresenter)
     @AccessControl(resources = {
             "/server-group=*",
-            "/server-group=*/jvm=*",
-            "/server-group=*/system-property=*" // TODO: these prevent write access (RBAC)
+            "/server-group=*/jvm=*"   // TODO jvm and system properties have other constraints
     }, recursive = false)
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }
@@ -351,8 +350,8 @@ public class ServerGroupPresenter
     public void launchNewPropertyDialoge(String group) {
 
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("System Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(270);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, group, true).asWidget()

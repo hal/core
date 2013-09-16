@@ -503,8 +503,8 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     public void launchNewPropertyDialoge(String reference) {
 
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Protocol Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, reference).asWidget()

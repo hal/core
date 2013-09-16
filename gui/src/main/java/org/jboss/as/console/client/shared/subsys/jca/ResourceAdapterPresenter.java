@@ -438,8 +438,8 @@ public class ResourceAdapterPresenter
 
     public void launchNewPropertyDialoge(final ResourceAdapter ra) {
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Config Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {

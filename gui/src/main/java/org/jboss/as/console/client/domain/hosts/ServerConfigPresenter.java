@@ -104,9 +104,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @NameToken(NameTokens.ServerPresenter)
     @AccessControl(resources = {
             "/server-group=*",
-            "/{selected.host}/server-config=*",
-            "/{selected.host}/server-config=*/jvm=*",
-            "/{selected.host}/server-config=*/system-property=*" // TODO: these prevent write access (RBAC)
+            "/{selected.host}/server-config=*"        // TODO jvm and system properties have other constraints
     }, recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }
@@ -522,8 +520,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @Override
     public void launchNewPropertyDialoge(String reference) {
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("System Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(279);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, reference, true).asWidget()

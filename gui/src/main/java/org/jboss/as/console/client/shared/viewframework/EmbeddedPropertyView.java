@@ -91,8 +91,8 @@ public class EmbeddedPropertyView<T extends HasProperties, NamedEntity>
     @Override
     public void launchNewPropertyDialoge(String reference) {
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Thread Pool Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, reference).asWidget()

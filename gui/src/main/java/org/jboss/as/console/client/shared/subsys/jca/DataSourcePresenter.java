@@ -482,8 +482,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     public void launchNewXAPropertyDialoge(String reference) {
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("XA property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
@@ -595,8 +595,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     @Override
     public void launchNewPropertyDialoge(String reference) {
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Connection Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(240);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {

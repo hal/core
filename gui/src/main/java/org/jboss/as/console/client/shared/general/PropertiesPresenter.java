@@ -132,8 +132,8 @@ public class PropertiesPresenter extends Presenter<PropertiesPresenter.MyView, P
     public void launchNewPropertyDialoge(String group) {
 
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("System Property"));
-        propertyWindow.setWidth(320);
-        propertyWindow.setHeight(270);
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
         propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
