@@ -325,7 +325,8 @@ public class Header implements ValueChangeHandler<String> {
 
             if(NameTokens.AdministrationPresenter.equals(token))
             {
-                if(!bootstrap.isSuperUser() || !bootstrap.isAdmin())
+                boolean adminPriviledges = (bootstrap.isSuperUser() || bootstrap.isAdmin());
+                if(!adminPriviledges)
                     continue;
             }
 
