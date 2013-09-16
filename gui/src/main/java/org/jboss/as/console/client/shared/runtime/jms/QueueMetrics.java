@@ -204,7 +204,8 @@ public class QueueMetrics {
                         new Feedback.ConfirmationHandler(){
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
-                                presenter.onFlushQueue(queue);
+                                if(isConfirmed)
+                                    presenter.onFlushQueue(queue);
                             }
                         });
             }
