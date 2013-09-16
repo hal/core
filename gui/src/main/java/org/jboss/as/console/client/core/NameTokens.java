@@ -192,7 +192,7 @@ public class NameTokens {
         return AdministrationPresenter;
     }
 
-    public static final String RoleAssignmentPresenter = "role-assignement";
+    public static final String RoleAssignmentPresenter = "role-assignment";
     public static String getRoleAssignmentPresenter() {
         return RoleAssignmentPresenter;
     }
