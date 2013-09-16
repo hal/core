@@ -95,22 +95,30 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                List<Property> hostModels = response.get("result").asPropertyList();
 
-                List<Host> records = new LinkedList<Host>();
-                for(Property hostModel : hostModels)
+                if(response.isFailure())
                 {
-                    Host record = factory.host().as();
-                    record.setName(hostModel.getName());
-
-                    // controller
-                    ModelNode hostValues = hostModel.getValue();
-                    boolean isController = hostValues.get("domain-controller").hasDefined("local");
-                    record.setController(isController);
-                    records.add(record);
+                    callback.onFailure(new RuntimeException("Failed to read hosts:"+ response.getFailureDescription()));
                 }
+                else
+                {
+                    List<Property> hostModels = response.get("result").asPropertyList();
 
-                callback.onSuccess(records);
+                    List<Host> records = new LinkedList<Host>();
+                    for(Property hostModel : hostModels)
+                    {
+                        Host record = factory.host().as();
+                        record.setName(hostModel.getName());
+
+                        // controller
+                        ModelNode hostValues = hostModel.getValue();
+                        boolean isController = hostValues.get("domain-controller").hasDefined("local");
+                        record.setController(isController);
+                        records.add(record);
+                    }
+
+                    callback.onSuccess(records);
+                }
             }
 
         });
