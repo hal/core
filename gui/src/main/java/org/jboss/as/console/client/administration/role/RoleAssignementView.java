@@ -42,7 +42,7 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     private RoleAssignmentPresenter presenter;
     private RoleAssignmentEditor groupEditor;
     private RoleAssignmentEditor userEditor;
-    private ScopedRoleEditor scopedRoleEditor;
+    private RoleEditor roleEditor;
 
     @Inject
     public RoleAssignementView() {
@@ -52,15 +52,13 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
     public Widget createWidget() {
         groupEditor = new RoleAssignmentEditor(presenter, GROUP);
         userEditor = new RoleAssignmentEditor(presenter, USER);
-        scopedRoleEditor = new ScopedRoleEditor(presenter);
+        roleEditor = new RoleEditor(presenter);
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-        tabLayoutpanel.add(groupEditor, Console.CONSTANTS.common_label_groups());
-        tabLayoutpanel.add(userEditor, Console.CONSTANTS.common_label_users());
-        if (!presenter.isStandalone()) {
-            tabLayoutpanel.add(scopedRoleEditor, Console.CONSTANTS.administration_scoped_roles());
-        }
+        tabLayoutpanel.add(groupEditor, Console.CONSTANTS.common_label_groups(), true);
+        tabLayoutpanel.add(userEditor, Console.CONSTANTS.common_label_users(), true);
+        tabLayoutpanel.add(roleEditor, Console.CONSTANTS.common_label_roles(), true);
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;
@@ -76,6 +74,6 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
             final List<String> serverGroups) {
         groupEditor.update(assignments, roles);
         userEditor.update(assignments, roles);
-        scopedRoleEditor.update(roles, hosts, serverGroups);
+        roleEditor.update(roles, hosts, serverGroups);
     }
 }

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.rbac.Role;
 
 /**
  * A role assignment as used in the UI. This model differs from the management model.

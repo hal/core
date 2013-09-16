@@ -33,11 +33,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.RoleKey;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -49,7 +49,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
     private final int pageSize;
     private final List<Role> value;
-    private final RoleKey<Role> keyProvider;
+    private final ProvidesKey<Role> keyProvider;
     private final ListDataProvider<Role> dataProvider;
     private final MultiSelectionModel<Role> selectionModel;
     private FormItemPanelWrapper wrapper;
@@ -63,7 +63,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
 
         this.pageSize = pageSize;
         this.value = new ArrayList<Role>();
-        this.keyProvider = new RoleKey<Role>();
+        this.keyProvider = new Role.Key();
         this.dataProvider = new ListDataProvider<Role>(keyProvider);
         this.selectionModel = new MultiSelectionModel<Role>(keyProvider);
     }
@@ -149,8 +149,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
     }
 
     public String asString() {
-        StringBuilder builder = new StringBuilder("[").append(UIHelper.csv(value)).append("]");
-        return builder.toString();
+        return "[" + UIHelper.csv(value) + "]";
     }
 
     @Override

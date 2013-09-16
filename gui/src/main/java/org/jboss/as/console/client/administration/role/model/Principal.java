@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.administration.role.model;
 
 import com.google.gwt.user.client.ui.HasName;
-import com.google.gwt.view.client.ProvidesKey;
 
 /**
  * A user or a group of a {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}
@@ -81,17 +80,6 @@ public class Principal implements HasName {
         return type;
     }
 
-    static class Key implements ProvidesKey<Principal> {
-
-        @Override
-        public Object getKey(final Principal principal) {
-            return principal.getId();
-        }
-    }
-
-    /**
-     * @author Harald Pehl
-     */
     public static enum Type {
         USER, GROUP
     }

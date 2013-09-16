@@ -47,13 +47,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleComparator;
-import org.jboss.as.console.client.administration.role.model.RoleKey;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -67,7 +66,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
     private final static Templates TEMPLATES = GWT.create(Templates.class);
     private final Map<Type, Set<Role>> value;
-    private final RoleKey<Role> keyProvider;
+    private final ProvidesKey<Role> keyProvider;
     private final ListDataProvider<Role> availableProvider;
     private final ListDataProvider<Role> includeProvider;
     private final ListDataProvider<Role> excludeProvider;
@@ -88,7 +87,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         value.put(AVAILABLE, new HashSet<Role>());
         value.put(INCLUDE, new HashSet<Role>());
         value.put(EXCLUDE, new HashSet<Role>());
-        keyProvider = new RoleKey<Role>();
+        keyProvider = new Role.Key();
 
         // available roles
         availableProvider = new ListDataProvider<Role>(keyProvider);
@@ -351,8 +350,8 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         }
         if (roles != null) {
             Set<Role> available = new HashSet<Role>(roles.getRoles());
-            available.removeAll(includes);
-            available.removeAll(excludes);
+            if (includes != null) {available.removeAll(includes);}
+            if (excludes != null) {available.removeAll(excludes);}
             this.value.put(AVAILABLE, available);
         }
         clearSelection();
@@ -378,8 +377,8 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext(); ) {
             Role role = iterator.next();
             builder.append(prefix).append(role.getName());
-            if (role instanceof ScopedRole) {
-                builder.append(" ").append(((ScopedRole)role).getScope());
+            if (role.isScoped()) {
+                builder.append(" ").append(role.getScope());
             }
             if (iterator.hasNext()) {
                 builder.append(", ");

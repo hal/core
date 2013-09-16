@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -31,18 +33,16 @@ import java.util.Map;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -136,19 +136,23 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                     Roles roles = new Roles();
 
                     ModelNode response = result.get();
-                    if (ModelAdapter.wasSuccess(response)) {
+                    if (response.isFailure()) {
+                        control.getContext().put(Results.ERROR,
+                                new RuntimeException("Failed to load contents: " + response.getFailureDescription()));
+                        control.abort();
+                    } else {
                         ModelNode stepsResult = response.get(RESULT);
 
                         // the order of processing is important!
                         if (!standalone) {
                             List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                             for (ModelNode node : hostScopedRoles) {
-                                addScopedRole(roles, node.asProperty(), "hosts", ScopedRole.Type.HOST);
+                                addScopedRole(roles, node.asProperty(), "hosts", HOST);
                             }
 
                             List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                             for (ModelNode node : serverGroupScopedRoles) {
-                                addScopedRole(roles, node.asProperty(), "server-groups", ScopedRole.Type.SERVER_GROUP);
+                                addScopedRole(roles, node.asProperty(), "server-groups", SERVER_GROUP);
                             }
                         }
                         List<ModelNode> roleMappings = stepsResult.get(standalone ? "step-1" : "step-3").get(RESULT)
@@ -176,7 +180,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         }
 
         private void addScopedRole(final Roles roles, final Property property, final String scopeName,
-                final ScopedRole.Type type) {
+                final Role.Type type) {
             ModelNode node = property.getValue();
             String baseRoleName = node.get("base-role").asString();
             List<String> scope = new ArrayList<String>();
@@ -184,8 +188,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             for (ModelNode scopeNode : scopeNodes) {
                 scope.add(scopeNode.asString());
             }
-            ScopedRole scopedRole = new ScopedRole(property.getName(), StandardRole.fromString(baseRoleName), type,
-                    scope);
+            Role scopedRole = new Role(property.getName(), StandardRole.fromString(baseRoleName), type, scope);
             roles.add(scopedRole);
         }
 
@@ -196,6 +199,9 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             if (role != null) {
                 RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
                 ModelNode assignmentNode = property.getValue();
+                if (assignmentNode.hasDefined("include-all")) {
+                    role.setIncludeAll(assignmentNode.get("include-all").asBoolean());
+                }
                 if (assignmentNode.hasDefined("include")) {
                     List<Property> inclusions = assignmentNode.get("include").asPropertyList();
                     for (Property inclusion : inclusions) {

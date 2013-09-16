@@ -18,13 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,59 +29,37 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
 /**
  * @author Harald Pehl
  */
-public class ScopedRoleDetails implements IsWidget {
+public class StandardRoleDetails implements IsWidget {
 
     private final RoleAssignmentPresenter presenter;
     private final PojoForm<Role> form;
-    private List<String> hosts;
-    private List<String> serverGroups;
-    private TextBoxItem nameItem;
-    private EnumFormItem<StandardRole> baseRoleItem;
-    private EnumFormItem<Role.Type> typeItem;
-    private MultiselectListBoxItem scopeItem;
+    private ReadOnlyItem<String> nameItem;
     private CheckBoxItem includeAllItem;
 
-    public ScopedRoleDetails(final RoleAssignmentPresenter presenter) {
+    public StandardRoleDetails(final RoleAssignmentPresenter presenter) {
         this.presenter = presenter;
         this.form = new PojoForm<Role>();
     }
 
     @Override
     public Widget asWidget() {
-        nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
-                Console.CONSTANTS.administration_base_role());
-        baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
-        typeItem = new EnumFormItem<Role.Type>("type", Console.CONSTANTS.common_label_type());
-        typeItem.setDefaultToFirst(true);
-        typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
-        typeItem.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(final ChangeEvent event) {
-                updateScope(typeItem.getValue());
-            }
-        });
-        scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
+        nameItem = new ReadOnlyItem<String>("name", Console.CONSTANTS.common_label_name());
         includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
-        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
+        form.setFields(nameItem, includeAllItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
             public void onSave(final Map changeset) {
                 Role edited = form.getEditedEntity();
                 if (edited != null) {
-                    Role newScopedRole = new Role(nameItem.getValue(), baseRoleItem.getValue(),
-                            typeItem.getValue(), scopeItem.getValue());
-                    newScopedRole.setIncludeAll(includeAllItem.getValue());
-                    presenter.saveScopedRole(newScopedRole, edited);
+                    edited.setIncludeAll(includeAllItem.getValue());
+                    presenter.modifyIncludeAll(edited);
                 }
             }
 
@@ -99,17 +73,6 @@ public class ScopedRoleDetails implements IsWidget {
         content.add(form.asWidget());
 
         return content;
-    }
-
-    public void update(final List<Role> scopedRoles, final List<String> hosts, final List<String> serverGroups,
-            final Role selectedRole) {
-        this.hosts = hosts;
-        this.serverGroups = serverGroups;
-        if (scopedRoles.isEmpty()) {
-            form.clearValues();
-        } else {
-            updateFormValues(selectedRole);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -131,31 +94,12 @@ public class ScopedRoleDetails implements IsWidget {
 
     private void updateFormValues(final Role role) {
         if (role != null) {
-            updateScope(role.getType());
             nameItem.setValue(role.getName());
-            baseRoleItem.setValue(role.getBaseRole());
-            typeItem.setValue(role.getType());
-            scopeItem.setValue(new ArrayList<String>(role.getScope()));
             includeAllItem.setValue(role.isIncludeAll());
             form.setUndefined(false);
             form.edit(role);
         } else {
             form.clearValues();
-        }
-    }
-
-    private void updateScope(final Role.Type type) {
-        if (form != null && typeItem != null && scopeItem != null) {
-            if (type == Role.Type.HOST) {
-                scopeItem.setChoices(hosts);
-            } else if (type == Role.Type.SERVER_GROUP) {
-                scopeItem.setChoices(serverGroups);
-            }
-            // restore selection
-            Role entity = form.getEditedEntity();
-            if (entity != null) {
-                scopeItem.setValue(new ArrayList<String>(entity.getScope()));
-            }
         }
     }
 }

@@ -18,13 +18,12 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
 import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
-import org.jboss.as.console.client.rbac.Role;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.dmr.client.ModelNode;
 
 /**
@@ -58,7 +57,7 @@ public final class ModelHelper {
         return node;
     }
 
-    public static ModelNode scopedRole(ScopedRole scopedRole) {
+    public static ModelNode scopedRole(Role scopedRole) {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");

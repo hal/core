@@ -21,7 +21,7 @@ package org.jboss.as.console.client.rbac;
 /**
  * @author Heiko Braun
  */
-public enum StandardRole implements Role {
+public enum StandardRole {
 
     MONITOR("Monitor"),
     OPERATOR("Operator"),
@@ -35,18 +35,11 @@ public enum StandardRole implements Role {
 
     StandardRole(final String title) {this.title = title;}
 
-    @Override
-    public String getName() {
+    public String getTitle() {
         return title;
-    }
-
-    @Override
-    public void setName(final String name) {
-        throw new UnsupportedOperationException("Not supported for standard roles");
     }
 
     public static StandardRole fromString(String s) {
         return StandardRole.valueOf(s.toUpperCase());
     }
 }
-

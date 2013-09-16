@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +32,8 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -58,12 +60,12 @@ public class AddScopedRoleWizard implements IsWidget {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<ScopedRole> form = new Form<ScopedRole>(ScopedRole.class);
+        final PojoForm<Role> form = new PojoForm<Role>();
         final TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
-        final EnumFormItem<ScopedRole.Type> typeItem = new EnumFormItem<ScopedRole.Type>("type",
+        final EnumFormItem<Role.Type> typeItem = new EnumFormItem<Role.Type>("type",
                 Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
@@ -75,7 +77,7 @@ public class AddScopedRoleWizard implements IsWidget {
         typeItem.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(final ChangeEvent event) {
-                ScopedRole.Type type = typeItem.getValue();
+                Role.Type type = typeItem.getValue();
                 updateScope(type, scopeItem, form);
             }
         });
@@ -87,7 +89,7 @@ public class AddScopedRoleWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            ScopedRole scopedRole = new ScopedRole(nameItem.getValue(), baseRoleItem.getValue(),
+                            Role scopedRole = new Role(nameItem.getValue(), baseRoleItem.getValue(),
                                     typeItem.getValue(), scopeItem.getValue());
                             presenter.addScopedRole(scopedRole);
                         }
@@ -104,15 +106,15 @@ public class AddScopedRoleWizard implements IsWidget {
         return new WindowContentBuilder(layout, options).build();
     }
 
-    private void updateScope(final ScopedRole.Type type, final MultiselectListBoxItem scopeItem,
-            final Form<ScopedRole> form) {
-        if (type == ScopedRole.Type.HOST) {
+    private void updateScope(final Role.Type type, final MultiselectListBoxItem scopeItem,
+            final PojoForm<Role> form) {
+        if (type == HOST) {
             scopeItem.setChoices(hosts);
-        } else if (type == ScopedRole.Type.SERVER_GROUP) {
+        } else if (type == SERVER_GROUP) {
             scopeItem.setChoices(serverGroups);
         }
         // restore selection
-        ScopedRole entity = form.getEditedEntity();
+        Role entity = form.getEditedEntity();
         if (entity != null) {
             scopeItem.setValue(new ArrayList<String>(entity.getScope()));
         }

@@ -20,9 +20,6 @@ package org.jboss.as.console.client.administration.role.model;
 
 import java.util.Comparator;
 
-import org.jboss.as.console.client.rbac.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
-
 /**
 * @author Harald Pehl
 */
@@ -30,10 +27,10 @@ public class RoleComparator implements Comparator<Role> {
 
     @Override
     public int compare(final Role left, final Role right) {
-        if ((left instanceof StandardRole && right instanceof StandardRole) || (left instanceof ScopedRole && right instanceof ScopedRole)) {
+        if ((left.isStandard() && right.isStandard()) || (left.isScoped() && right.isScoped())) {
             return left.getName().compareTo(right.getName());
         }
-        if (left instanceof StandardRole && right instanceof ScopedRole) {
+        if (left.isStandard() && right.isScoped()) {
             return -100;
         }
         return 100;

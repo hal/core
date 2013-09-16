@@ -19,14 +19,14 @@
 package org.jboss.as.console.client.administration.role;
 
 import static java.util.Arrays.asList;
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.ScopedRole.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -44,12 +44,12 @@ import org.jboss.gwt.flow.client.Outcome;
 public class ModifyScopedRoleOp implements ManagementOperation<Object> {
 
     private final DispatchAsync dispatcher;
-    private final ScopedRole scopedRole;
-    private final ScopedRole oldValue;
+    private final Role scopedRole;
+    private final Role oldValue;
     private final Operation op;
 
-    public ModifyScopedRoleOp(final DispatchAsync dispatcher, final ScopedRole scopedRole,
-            final ScopedRole oldValue, final Operation op) {
+    public ModifyScopedRoleOp(final DispatchAsync dispatcher, final Role scopedRole, final Role oldValue,
+            final Operation op) {
         this.dispatcher = dispatcher;
         this.scopedRole = scopedRole;
         this.oldValue = oldValue;
@@ -84,9 +84,9 @@ public class ModifyScopedRoleOp implements ManagementOperation<Object> {
 
     abstract class ScopedRoleFunction<T> implements Function<T> {
 
-        protected final ScopedRole role;
+        protected final Role role;
 
-        protected ScopedRoleFunction(final ScopedRole role) {this.role = role;}
+        protected ScopedRoleFunction(final Role role) {this.role = role;}
 
         protected ModelNode roleNode() {
             ModelNode node = new ModelNode();
@@ -103,7 +103,7 @@ public class ModifyScopedRoleOp implements ManagementOperation<Object> {
 
     class AddRoleFunction extends ScopedRoleFunction<Object> {
 
-        protected AddRoleFunction(final ScopedRole role) {
+        protected AddRoleFunction(final Role role) {
             super(role);
         }
 
@@ -133,7 +133,7 @@ public class ModifyScopedRoleOp implements ManagementOperation<Object> {
 
     class ModifyRoleFunction extends ScopedRoleFunction<Object> {
 
-        protected ModifyRoleFunction(final ScopedRole role) {
+        protected ModifyRoleFunction(final Role role) {
             super(role);
         }
 
@@ -173,7 +173,7 @@ public class ModifyScopedRoleOp implements ManagementOperation<Object> {
 
     class RemoveRoleFunction extends ScopedRoleFunction<Object> {
 
-        protected RemoveRoleFunction(final ScopedRole role) {
+        protected RemoveRoleFunction(final Role role) {
             super(role);
         }
 

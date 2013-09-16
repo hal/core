@@ -34,11 +34,10 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HasName;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleComparator;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.EnumLabelLookup;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
@@ -70,15 +69,15 @@ public final class UIHelper {
     public static Map<StandardRole, String> enumFormItemsForStandardRole() {
         Map<StandardRole, String> roles = new LinkedHashMap<StandardRole, String>();
         for (StandardRole role : StandardRole.values()) {
-            roles.put(role, role.getName());
+            roles.put(role, role.getTitle());
         }
         return roles;
     }
 
-    public static Map<ScopedRole.Type, String> enumFormItemsForScopedRoleTyp() {
-        Map<ScopedRole.Type, String> scopes = new LinkedHashMap<ScopedRole.Type, String>();
-        scopes.put(ScopedRole.Type.HOST, EnumLabelLookup.labelFor("ScopeType", ScopedRole.Type.HOST));
-        scopes.put(ScopedRole.Type.SERVER_GROUP, EnumLabelLookup.labelFor("ScopeType", ScopedRole.Type.SERVER_GROUP));
+    public static Map<Role.Type, String> enumFormItemsForScopedRoleTyp() {
+        Map<Role.Type, String> scopes = new LinkedHashMap<Role.Type, String>();
+        scopes.put(Role.Type.HOST, EnumLabelLookup.labelFor("ScopeType", Role.Type.HOST));
+        scopes.put(Role.Type.SERVER_GROUP, EnumLabelLookup.labelFor("ScopeType", Role.Type.SERVER_GROUP));
         return scopes;
     }
 
@@ -100,14 +99,13 @@ public final class UIHelper {
     }
 
     private static void roleAsSafeHtml(final Role role, boolean include, final SafeHtmlBuilder builder) {
-        if (role instanceof StandardRole) {
+        if (role.isStandard()) {
             builder.append(include ? TEMPLATES.role(role.getName()) : TEMPLATES.exclude(role.getName()));
-        } else if (role instanceof ScopedRole) {
-            ScopedRole scopedRole = (ScopedRole) role;
-            String scopes = csv(scopedRole.getScope());
+        } else if (role.isScoped()) {
+            String scopes = csv(role.getScope());
             builder.append(include ?
-                    TEMPLATES.scopedRole(role.getName(), scopedRole.getBaseRole().getName(), scopes) :
-                    TEMPLATES.scopedExclude(role.getName(), scopedRole.getBaseRole().getName(), scopes));
+                    TEMPLATES.scopedRole(role.getName(), role.getBaseRole().getTitle(), scopes) :
+                    TEMPLATES.scopedExclude(role.getName(), role.getBaseRole().getTitle(), scopes));
         }
     }
 

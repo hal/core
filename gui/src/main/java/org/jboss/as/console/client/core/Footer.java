@@ -19,10 +19,10 @@
 
 package org.jboss.as.console.client.core;
 
-import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -41,19 +41,16 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.auth.CurrentUser;
+import org.jboss.as.console.client.widgets.popups.DefaultPopup;
+import org.jboss.ballroom.client.widgets.InlineLink;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.dispatch.Diagnostics;
-import org.jboss.as.console.client.widgets.popups.DefaultPopup;
-import org.jboss.ballroom.client.widgets.InlineLink;
-import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
+ * Improvements: Add a progress bar widget. For input see http://lea.verou.me/2011/07/a-polyfill-for-html5-progress-element-the-obsessive-perfectionist-way/
+ *
  * @author Heiko Braun
  * @date 1/28/11
  */

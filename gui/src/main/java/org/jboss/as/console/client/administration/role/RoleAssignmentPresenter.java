@@ -40,14 +40,13 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.model.ScopedRole;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -218,6 +217,10 @@ public class RoleAssignmentPresenter
         });
     }
 
+    public void modifyIncludeAll(final Role standardRole) {
+
+    }
+
     public void launchAddScopedRoleWizard() {
         if (!assertDomainMode()) { return; }
 
@@ -231,7 +234,7 @@ public class RoleAssignmentPresenter
         window.center();
     }
 
-    public void addScopedRole(final ScopedRole role) {
+    public void addScopedRole(final Role role) {
         if (!assertDomainMode()) { return; }
 
         closeWindow();
@@ -251,7 +254,7 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void saveScopedRole(final ScopedRole scopedRole, final ScopedRole oldValue) {
+    public void saveScopedRole(final Role scopedRole, final Role oldValue) {
         if (!assertDomainMode()) { return; }
 
         ManagementOperation.Operation operation = (scopedRole.getName().equals(oldValue.getName())) ? MODIFY : RENAME;
@@ -282,7 +285,7 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void removeScopedRole(final ScopedRole role) {
+    public void removeScopedRole(final Role role) {
         if (!assertDomainMode()) { return; }
 
         int usage = usedInAssignments(role);
@@ -317,7 +320,7 @@ public class RoleAssignmentPresenter
         return true;
     }
 
-    private int usedInAssignments(final ScopedRole scopedRole) {
+    private int usedInAssignments(final Role scopedRole) {
         int counter = 0;
         for (RoleAssignment assignment : assignments) {
             boolean found = false;

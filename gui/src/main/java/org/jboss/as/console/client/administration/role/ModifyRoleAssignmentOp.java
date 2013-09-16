@@ -19,8 +19,6 @@
 package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,9 +29,9 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;

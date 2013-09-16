@@ -19,21 +19,21 @@
 
 package org.jboss.as.console.client.shared.model;
 
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.jvm.Jvm;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.widgets.forms.PropertyBinding;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun

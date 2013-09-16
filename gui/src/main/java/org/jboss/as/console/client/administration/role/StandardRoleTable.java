@@ -16,18 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.model;
-
-import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.rbac.Role;
+package org.jboss.as.console.client.administration.role;
 
 /**
  * @author Harald Pehl
  */
-public class RoleKey<T extends Role> implements ProvidesKey<T> {
+public class StandardRoleTable extends RoleTable {
 
-    @Override
-    public Object getKey(final T item) {
-        return item.getName();
+    public StandardRoleTable() {
+        super(7);
     }
 }

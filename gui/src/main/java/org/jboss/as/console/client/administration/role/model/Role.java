@@ -19,23 +19,29 @@
 package org.jboss.as.console.client.administration.role.model;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jboss.as.console.client.rbac.Role;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
  * @author Harald Pehl
  */
-public class ScopedRole implements Role {
+public class Role {
 
     private String name;
     private StandardRole baseRole;
     private Type type;
     private SortedSet<String> scope;
+    private boolean includeAll;
 
-    public ScopedRole(final String name, final StandardRole baseRole,
+    public Role(final String name) {
+        this(name, null, Type.STANDARD, Collections.<String>emptySet());
+    }
+
+    public Role(final String name, final StandardRole baseRole,
             final Type type, final Collection<String> scope) {
         this.name = name;
         this.baseRole = baseRole;
@@ -44,46 +50,55 @@ public class ScopedRole implements Role {
         if (scope != null) {
             this.scope.addAll(scope);
         }
+        this.includeAll = false;
     }
 
     @Override
     public boolean equals(final Object o) {
         if (this == o) { return true; }
-        if (!(o instanceof ScopedRole)) { return false; }
+        if (!(o instanceof Role)) { return false; }
 
-        ScopedRole that = (ScopedRole) o;
+        Role role = (Role) o;
 
-        if (baseRole != that.baseRole) { return false; }
-        if (name != null ? !name.equals(that.name) : that.name != null) { return false; }
-        if (scope != null ? !scope.equals(that.scope) : that.scope != null) { return false; }
-        if (type != that.type) { return false; }
+        if (baseRole != role.baseRole) { return false; }
+        if (!name.equals(role.name)) { return false; }
+        if (!scope.equals(role.scope)) { return false; }
+        //noinspection RedundantIfStatement
+        if (type != role.type) { return false; }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
+        int result = name.hashCode();
         result = 31 * result + (baseRole != null ? baseRole.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (scope != null ? scope.hashCode() : 0);
+        result = 31 * result + type.hashCode();
+        result = 31 * result + scope.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(name).append(" extends ").append(baseRole.getName()).append(" scoped to ")
-                .append(type.name().toLowerCase()).append(scope);
-        return builder.toString();
+        if (isStandard()) {
+            return name;
+        }
+        return name + " extends " + baseRole.getTitle() + " scoped to " + type.name()
+                .toLowerCase() + scope + " includeAll: " + includeAll;
     }
 
-    @Override
+    public boolean isStandard() {
+        return type == Type.STANDARD;
+    }
+
+    public boolean isScoped() {
+        return type != Type.STANDARD;
+    }
+
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(final String name) {
         this.name = name;
     }
@@ -113,7 +128,23 @@ public class ScopedRole implements Role {
         this.scope.addAll(scope);
     }
 
+    public boolean isIncludeAll() {
+        return includeAll;
+    }
+
+    public void setIncludeAll(final boolean includeAll) {
+        this.includeAll = includeAll;
+    }
+
     public static enum Type {
-        HOST, SERVER_GROUP
+        STANDARD, HOST, SERVER_GROUP
+    }
+
+    public static class Key implements ProvidesKey<Role> {
+
+        @Override
+        public Object getKey(final Role item) {
+            return item.getName();
+        }
     }
 }

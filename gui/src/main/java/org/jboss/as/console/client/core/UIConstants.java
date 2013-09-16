@@ -673,6 +673,8 @@ public interface UIConstants extends Constants {
     String administration_add_scoped_role();
     String administration_excludes_of_role();
     String administration_scoped_roles();
+    String administration_standard_roles();
+    String administration_standard_roles_desc();
     String administration_scoped_roles_desc();
     String administration_group_assignment();
     String administration_user_assignment();
@@ -680,4 +682,6 @@ public interface UIConstants extends Constants {
     String administration_available_roles();
     String administration_assigned_roles();
     String administration_excluded_roles();
+    String administration_roles_desc();
+    String administration_include_all();
 }

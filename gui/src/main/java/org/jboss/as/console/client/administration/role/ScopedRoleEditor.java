@@ -25,11 +25,13 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 public class ScopedRoleEditor implements IsWidget {
 
     private final RoleAssignmentPresenter presenter;
-    private ScopedRoleTable table;
-    private ScopedRoleDetails details;
+    private final RoleTable table;
+    private final ScopedRoleDetails details;
 
     public ScopedRoleEditor(final RoleAssignmentPresenter presenter) {
         this.presenter = presenter;
+        this.table = new ScopedRoleTable();
+        this.details = new ScopedRoleDetails(presenter);
     }
 
     @Override
@@ -72,11 +74,9 @@ public class ScopedRoleEditor implements IsWidget {
         content.add(tools.asWidget());
 
         // table
-        table = new ScopedRoleTable();
         content.add(table);
 
         // details
-        details = new ScopedRoleDetails(presenter);
         details.bind(table.getCellTable());
         content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
         content.add(details);

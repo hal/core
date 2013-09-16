@@ -18,6 +18,13 @@
  */
 package org.jboss.as.console.client.rbac.internal;
 
+import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -27,7 +34,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.RolesHelpPanel;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
-import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.tools.Tool;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -37,13 +43,6 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 /**
  * @author Harald Pehl
@@ -111,7 +110,7 @@ public class RunAsRoleTool implements Tool {
         List<String> roleNames = new ArrayList<String>();
         roleNames.add("No preselection");
         for (StandardRole standardRole : StandardRole.values()) {
-            roleNames.add(standardRole.getName());
+            roleNames.add(standardRole.getTitle());
         }
         roleNames.addAll(serverGroupScoped);
         roleNames.addAll(hostScoped);

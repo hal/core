@@ -18,11 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static java.util.Arrays.asList;
-
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +26,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jboss.as.console.client.rbac.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
@@ -41,37 +36,25 @@ import org.jboss.as.console.client.rbac.StandardRole;
 public class Roles implements Iterable<Role> {
 
     private final Map<String, Role> lookup;
-    private final List<Role> standardRoles;
-    private final SortedSet<ScopedRole> scopedRoles;
+    private final SortedSet<Role> standardRoles;
+    private final SortedSet<Role> scopedRoles;
 
     public Roles() {
         this.lookup = new HashMap<String, Role>();
-        this.standardRoles = new ArrayList<Role>();
-        this.scopedRoles = new TreeSet<ScopedRole>(new Comparator<Role>() {
-            @Override
-            public int compare(final Role left, final Role right) {
-                return left.getName().compareTo(right.getName());
-            }
-        });
-        List<StandardRole> preset = asList(StandardRole.values());
-        Collections.sort(preset, new Comparator<StandardRole>() {
-            @Override
-            public int compare(final StandardRole left, final StandardRole right) {
-                return left.getName().compareTo(right.getName());
-            }
-        });
-        for (StandardRole standardRole : preset) {
-            add(standardRole);
+        this.standardRoles = new TreeSet<Role>(new RoleComparator());
+        this.scopedRoles = new TreeSet<Role>(new RoleComparator());
+        for (StandardRole standardRole : StandardRole.values()) {
+            add(new Role(standardRole.getTitle()));
         }
     }
 
     public void add(Role role) {
         if (role != null) {
             lookup.put(role.getName().toUpperCase(), role);
-            if (role instanceof ScopedRole) {
-                scopedRoles.add((ScopedRole) role);
-            } else if (role instanceof StandardRole) {
+            if (role.isStandard()) {
                 standardRoles.add(role);
+            } else if (role.isScoped()) {
+                scopedRoles.add(role);
             }
         }
     }
@@ -88,8 +71,12 @@ public class Roles implements Iterable<Role> {
         return roles;
     }
 
-    public List<ScopedRole> getScopedRoles() {
-        return new ArrayList<ScopedRole>(scopedRoles);
+    public List<Role> getStandardRoles() {
+        return new ArrayList<Role>(standardRoles);
+    }
+
+    public List<Role> getScopedRoles() {
+        return new ArrayList<Role>(scopedRoles);
     }
 
     public Role getRole(String name) {
