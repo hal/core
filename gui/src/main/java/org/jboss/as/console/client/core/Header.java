@@ -77,7 +77,7 @@ public class Header implements ValueChangeHandler<String> {
             new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
     };
 
-    public static final String[][] SECTIONS_STANADLONE = {
+    public static final String[][] SECTIONS_STANDALONE = {
             new String[]{NameTokens.serverConfig, "Profile"},
             new String[]{NameTokens.StandaloneRuntimePresenter, "Runtime"},
             new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
@@ -314,11 +314,20 @@ public class Header implements ValueChangeHandler<String> {
         linksPane.getElement().setAttribute("role", "menubar");
         linksPane.getElement().setAttribute("aria-controls", "main-content-area");
 
-        String[][] sections = bootstrap.isStandalone() ? SECTIONS_STANADLONE : SECTIONS;
+        String[][] sections = bootstrap.isStandalone() ? SECTIONS_STANDALONE : SECTIONS;
 
         for (String[] section : sections) {
-            final String name = section[0];
-            final String id = "header-" + name;
+            final String token = section[0];
+            final String id = "header-" + token;
+
+
+            // rbac (filter admin section)
+
+            if(NameTokens.AdministrationPresenter.equals(token))
+            {
+                if(!bootstrap.isSuperUser() || !bootstrap.isAdmin())
+                    continue;
+            }
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<div class='header-link-label'>");
@@ -333,7 +342,7 @@ public class Header implements ValueChangeHandler<String> {
                 @Override
                 public void onClick(ClickEvent event) {
                     placeManager.revealPlace(
-                            new PlaceRequest(name)
+                            new PlaceRequest(token)
                     );
                 }
             });
@@ -349,7 +358,7 @@ public class Header implements ValueChangeHandler<String> {
 
     private String createLinks() {
 
-        String[][] sections = bootstrap.getProperty(BootstrapContext.STANDALONE).equals("true") ? SECTIONS_STANADLONE : SECTIONS;
+        String[][] sections = bootstrap.getProperty(BootstrapContext.STANDALONE).equals("true") ? SECTIONS_STANDALONE : SECTIONS;
 
         SafeHtmlBuilder headerString = new SafeHtmlBuilder();
 

@@ -238,4 +238,17 @@ public class BootstrapContext implements ApplicationProperties {
         }
         return match;
     }
+
+    public boolean isAdmin() {
+        boolean match = false;
+        for(String role : roles)
+        {
+            if(StandardRole.ADMINISTRATOR.toString().equalsIgnoreCase(role))
+            {
+                match = true;
+                break;
+            }
+        }
+        return match;
+    }
 }
