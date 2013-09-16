@@ -149,6 +149,7 @@ public class DeploymentStore
         steps.add(assignmentOp);
 
         operation.get(STEPS).set(steps);
+
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>()
         {
             @Override
@@ -161,7 +162,11 @@ public class DeploymentStore
             public void onSuccess(final DMRResponse result)
             {
                 ModelNode response = result.get();
-                if (ModelAdapter.wasSuccess(response))
+                if (response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to load contents: "+response.getFailureDescription()));
+                }
+                else
                 {
                     ModelNode stepsResult = response.get(RESULT);
                     List<ModelNode> nodes = stepsResult.get("step-1").get(RESULT).asList();
@@ -191,8 +196,11 @@ public class DeploymentStore
                         dr.setAddress(addressFor("server-group", groupName, "deployment", deploymentName));
                         contentRepository.assignDeploymentToServerGroup(deploymentName, groupName);
                     }
+
+                    callback.onSuccess(contentRepository);
                 }
-                callback.onSuccess(contentRepository);
+
+
             }
         });
     }
