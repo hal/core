@@ -49,7 +49,7 @@ public class SubsystemMetaData {
 
     private static final String OSGI = "OSGi";
 
-    private static final String INFINISPAN = "Infinispan";
+    private static final String INFINISPAN = "Caching";
 
     private static final String SECURITY = "Security";
 
