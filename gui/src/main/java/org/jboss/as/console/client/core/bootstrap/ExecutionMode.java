@@ -157,7 +157,7 @@ public class ExecutionMode implements Function<BootstrapContext> {
                         List<ModelNode> roles = whoamiResult.get("mapped-roles").asList();
                         for(ModelNode role : roles)
                         {
-                            mappedRoles.add(StandardRole.fromString(role.asString()).getName());
+                            mappedRoles.add(role.asString());
                         }
                     }
 
