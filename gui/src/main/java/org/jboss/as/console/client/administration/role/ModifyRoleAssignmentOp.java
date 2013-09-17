@@ -82,11 +82,11 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
                     addFunctions(functions, exclude, "exclude");
                 }
                 for (Role removedRole : removedRoles) {
-                    functions.add(new RemovePrincipalFunction(removedRole, assignment.getPrincipal(), assignment.getRealm(),
+                    functions.add(new RemoveIncludeExcludeFunction(removedRole, assignment.getPrincipal(), assignment.getRealm(),
                             "include"));
                 }
                 for (Role removedExclude : removedExcludes) {
-                    functions.add(new RemovePrincipalFunction(removedExclude, assignment.getPrincipal(), assignment.getRealm(),
+                    functions.add(new RemoveIncludeExcludeFunction(removedExclude, assignment.getPrincipal(), assignment.getRealm(),
                             "exclude"));
                 }
                 break;
@@ -103,11 +103,11 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
     private void addFunctions(final List<Function<Stack<Boolean>>> functions, final Role role,
             final String includeExclude) {
-        functions.add(new ReadRoleFunction(role));
-        functions.add(new AddRoleFunction(role));
+        functions.add(new ReadRoleMappingFunction(role));
+        functions.add(new AddRoleMappingFunction(role));
         functions
-                .add(new ReadPrincipalFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
-        functions.add(new AddPrincipalFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
+                .add(new ReadIncludeExcludeFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
+        functions.add(new AddIncludeExcludeFunction(role, assignment.getPrincipal(), assignment.getRealm(), includeExclude));
     }
 
     @Override
@@ -115,29 +115,38 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         throw new UnsupportedOperationException("not implemented");
     }
 
-    class ReadRoleFunction implements Function<Stack<Boolean>> {
+    class ReadRoleMappingFunction implements Function<Stack<Boolean>> {
 
         private final Role role;
 
-        ReadRoleFunction(final Role role) {
+        ReadRoleMappingFunction(final Role role) {
             this.role = role;
         }
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode realRoleOp = ModelHelper.roleMapping(role);
-            realRoleOp.get(OP).set(READ_RESOURCE_OPERATION);
+            ModelNode readRoleMappingOp = ModelHelper.roleMapping(role);
+            readRoleMappingOp.get(OP).set(READ_RESOURCE_OPERATION);
 
-            dispatcher.execute(new DMRAction(realRoleOp), new SimpleCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(readRoleMappingOp), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
-                    // role exists - next function will skip its DMR operation
-                    control.getContext().push(true);
-                    control.proceed();
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        noRoleMapping();
+                    } else {
+                        // role exists - next function will skip its DMR operation
+                        control.getContext().push(true);
+                        control.proceed();
+                    }
                 }
 
                 @Override
                 public void onFailure(final Throwable caught) {
+                    noRoleMapping();
+                }
+
+                private void noRoleMapping() {
                     // no role - create it in the next function
                     control.getContext().push(false);
                     control.proceed();
@@ -146,11 +155,11 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddRoleFunction implements Function<Stack<Boolean>> {
+    class AddRoleMappingFunction implements Function<Stack<Boolean>> {
 
         private final Role role;
 
-        AddRoleFunction(final Role role) {
+        AddRoleMappingFunction(final Role role) {
             this.role = role;
         }
 
@@ -166,7 +175,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
                 dispatcher.execute(new DMRAction(addRoleOp), new SimpleCallback<DMRResponse>() {
                     @Override
                     public void onSuccess(DMRResponse response) {
-                        control.proceed();
+                        ModelNode result = response.get();
+                        if (result.isFailure()) {
+                            control.abort();
+                        } else {
+                            control.proceed();
+                        }
                     }
 
                     @Override
@@ -178,14 +192,14 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class ReadPrincipalFunction implements Function<Stack<Boolean>> {
+    class ReadIncludeExcludeFunction implements Function<Stack<Boolean>> {
 
         private final Role role;
         private final Principal principal;
         private final String realm;
         private final String includeExclude;
 
-        public ReadPrincipalFunction(final Role role,
+        public ReadIncludeExcludeFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
             this.role = role;
             this.principal = principal;
@@ -201,13 +215,22 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
-                    // assignment exists - next function will skip its DMR operation
-                    control.getContext().push(true);
-                    control.proceed();
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        noIncludeExclude();
+                    } else {
+                        // assignment exists - next function will skip its DMR operation
+                        control.getContext().push(true);
+                        control.proceed();
+                    }
                 }
 
                 @Override
                 public void onFailure(final Throwable caught) {
+                    noIncludeExclude();
+                }
+
+                private void noIncludeExclude() {
                     // no assignment - create it in the next function
                     control.getContext().push(false);
                     control.proceed();
@@ -216,14 +239,14 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class AddPrincipalFunction implements Function<Stack<Boolean>> {
+    class AddIncludeExcludeFunction implements Function<Stack<Boolean>> {
 
         private final Role role;
         private final Principal principal;
         private final String realm;
         private final String includeExclude;
 
-        public AddPrincipalFunction(final Role role,
+        public AddIncludeExcludeFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
             this.role = role;
             this.principal = principal;
@@ -248,12 +271,16 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
                 dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                     @Override
                     public void onSuccess(DMRResponse response) {
-                        control.proceed();
+                        ModelNode result = response.get();
+                        if (result.isFailure()) {
+                            control.abort();
+                        } else {
+                            control.proceed();
+                        }
                     }
 
                     @Override
                     public void onFailure(final Throwable caught) {
-                        // TODO Error handling
                         control.abort();
                     }
                 });
@@ -261,14 +288,14 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         }
     }
 
-    class RemovePrincipalFunction implements Function<Stack<Boolean>> {
+    class RemoveIncludeExcludeFunction implements Function<Stack<Boolean>> {
 
         private final Role role;
         private final Principal principal;
         private final String realm;
         private final String includeExclude;
 
-        public RemovePrincipalFunction(final Role role,
+        public RemoveIncludeExcludeFunction(final Role role,
                 final Principal principal, final String realm, final String includeExclude) {
             this.role = role;
             this.principal = principal;
@@ -284,7 +311,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse response) {
-                    control.proceed();
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        control.abort();
+                    } else {
+                        control.proceed();
+                    }
                 }
 
                 @Override
@@ -300,7 +332,6 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         private final RoleAssignment assignment;
 
         public RemoveRoleAssignmentFunction(final RoleAssignment assignment) {
-
             this.assignment = assignment;
         }
 
@@ -327,8 +358,13 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             operation.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                 @Override
-                public void onSuccess(final DMRResponse result) {
-                    control.proceed();
+                public void onSuccess(final DMRResponse response) {
+                    ModelNode result = response.get();
+                    if (result.isDefined()) {
+                        control.abort();
+                    } else {
+                        control.proceed();
+                    }
                 }
 
                 @Override

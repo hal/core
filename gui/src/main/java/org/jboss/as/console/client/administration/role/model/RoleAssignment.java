@@ -78,7 +78,7 @@ public class RoleAssignment {
     public String getId() {
         StringBuilder id = new StringBuilder();
         id.append(principal);
-        if (realm != null) {
+        if (realm != null && realm.length() != 0) {
             id.append("@").append(realm);
         }
         id.append(" --> ").append(roles).append(" excludes ").append(excludes);
