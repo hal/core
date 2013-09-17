@@ -20,12 +20,19 @@ package org.jboss.as.console.client.administration.role.ui;
 
 import java.util.List;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.layout.SimpleLayout;
+import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 
 /**
  * @author Harald Pehl
@@ -45,11 +52,26 @@ public class RoleEditor implements IsWidget {
     @Override
     public Widget asWidget() {
         if (!presenter.isStandalone()) {
-            PagedView pagedView = new PagedView(true);
-            pagedView.addPage(Console.CONSTANTS.administration_standard_roles(), standardRoleEditor.asWidget());
-            pagedView.addPage(Console.CONSTANTS.administration_scoped_roles(), scopedRoleEditor.asWidget());
-            pagedView.showPage(0);
-            return pagedView.asWidget();
+
+
+            VerticalPanel panel = new VerticalPanel();
+            panel.setStyleName("rhs-content-panel");
+
+            panel.add(new ContentHeaderLabel("Role Mangement"));
+            //panel.add(new ContentDescription(Console.CONSTANTS.subys_tx_desc()));
+
+            TabPanel tabs = new TabPanel();
+            tabs.setStyleName("default-tabpanel");
+            tabs.getElement().setAttribute("style", "margin-top:15px;");
+
+            tabs.add(standardRoleEditor.asWidget(),Console.CONSTANTS.administration_standard_roles());
+            tabs.add(scopedRoleEditor.asWidget(), Console.CONSTANTS.administration_scoped_roles());
+
+            tabs.selectTab(0);
+
+            panel.add(tabs);
+
+            return panel;
         } else {
             return standardRoleEditor.asWidget();
         }

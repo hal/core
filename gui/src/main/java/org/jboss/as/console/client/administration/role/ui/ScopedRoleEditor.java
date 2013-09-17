@@ -37,17 +37,11 @@ public class ScopedRoleEditor implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        // container and panels
-        LayoutPanel layout = new LayoutPanel();
-        VerticalPanel content = new VerticalPanel();
-        content.setStyleName("rhs-content-panel");
-        ScrollPanel scroll = new ScrollPanel(content);
-        layout.add(scroll);
-        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+        VerticalPanel layout = new VerticalPanel();
+        layout.setStyleName("fill-layout");
 
         // header and desc
-        content.add(new ContentHeaderLabel(Console.CONSTANTS.administration_scoped_roles()));
-        content.add(new ContentDescription(Console.CONSTANTS.administration_scoped_roles_desc()));
+        layout.add(new ContentDescription(Console.CONSTANTS.administration_scoped_roles_desc()));
 
         // toolstrip
         ToolStrip tools = new ToolStrip();
@@ -72,15 +66,15 @@ public class ScopedRoleEditor implements IsWidget {
                         });
             }
         }));
-        content.add(tools.asWidget());
+        layout.add(tools.asWidget());
 
         // table
-        content.add(table);
+        layout.add(table);
 
         // details
         details.bind(table.getCellTable());
-        content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
-        content.add(details);
+        layout.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
+        layout.add(details);
 
         return layout;
     }
