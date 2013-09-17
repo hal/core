@@ -29,7 +29,8 @@ public class MetaDataAdapter {
             BeanMetaData beanMetaData = metaData.getBeanMetaData(type);
             for(PropertyBinding propBinding : beanMetaData.getProperties())
             {
-                if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted())
+                if(!securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted()
+                        && !propBinding.isKey()) // HAL-202: exclude keys
                     readonlyJavaNames.add(propBinding.getJavaName());
             }
         } catch (Exception e) {
