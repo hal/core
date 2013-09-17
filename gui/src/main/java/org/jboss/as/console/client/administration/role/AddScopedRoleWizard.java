@@ -34,6 +34,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -71,6 +72,7 @@ public class AddScopedRoleWizard implements IsWidget {
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
         final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope",
                 Console.CONSTANTS.administration_scope(), 3);
+        final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         layout.add(form.asWidget());
 
