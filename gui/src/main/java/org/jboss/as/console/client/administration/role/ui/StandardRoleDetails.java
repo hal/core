@@ -105,4 +105,8 @@ public class StandardRoleDetails implements IsWidget {
             form.clearValues();
         }
     }
+
+    public void update(final Role selectedRole) {
+        updateFormValues(selectedRole);
+    }
 }

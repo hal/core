@@ -63,14 +63,14 @@ public final class RoleAssignmentFunctions {
                 protected void proceed() {
                     // role exists - next function will skip its DMR operation
                     control.getContext().push(true);
-                    super.proceed();
+                    control.proceed();
                 }
 
                 @Override
                 protected void abort() {
                     // no role - create it in the next function
                     control.getContext().push(false);
-                    super.abort();
+                    control.proceed();
                 }
             });
         }
@@ -112,7 +112,8 @@ public final class RoleAssignmentFunctions {
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
             ModelNode node = ModelHelper.roleMapping(role);
-            node.get("include-all").set(role.isIncludeAll());
+            node.get(NAME).set("include-all");
+            node.get(VALUE).set(role.isIncludeAll());
             node.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
             dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
         }

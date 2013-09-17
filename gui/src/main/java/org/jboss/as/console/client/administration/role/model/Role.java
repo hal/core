@@ -32,18 +32,20 @@ import org.jboss.as.console.client.rbac.StandardRole;
 public class Role {
 
     private String name;
+    private String title;
     private StandardRole baseRole;
     private Type type;
     private SortedSet<String> scope;
     private boolean includeAll;
 
-    public Role(final String name) {
-        this(name, null, Type.STANDARD, Collections.<String>emptySet());
+    public Role(StandardRole role) {
+        this(role.name(), role.getTitle(), null, Type.STANDARD, Collections.<String>emptySet());
     }
 
-    public Role(final String name, final StandardRole baseRole,
-            final Type type, final Collection<String> scope) {
+    public Role(final String name, final String title, final StandardRole baseRole, final Type type,
+            final Collection<String> scope) {
         this.name = name;
+        this.title = title;
         this.baseRole = baseRole;
         this.type = type;
         this.scope = new TreeSet<String>();
@@ -101,6 +103,14 @@ public class Role {
 
     public void setName(final String name) {
         this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
     }
 
     public StandardRole getBaseRole() {

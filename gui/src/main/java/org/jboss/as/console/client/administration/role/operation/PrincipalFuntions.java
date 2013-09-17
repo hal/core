@@ -69,14 +69,14 @@ public final class PrincipalFuntions {
                 protected void proceed() {
                     // assignment exists - next function will skip its DMR operation
                     control.getContext().push(true);
-                    super.proceed();
+                    control.proceed();
                 }
 
                 @Override
                 protected void abort() {
                     // no assignment - create it in the next function
                     control.getContext().push(false);
-                    super.abort();
+                    control.proceed();
                 }
             });
         }

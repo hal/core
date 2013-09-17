@@ -162,7 +162,7 @@ public class RoleAssignmentPresenter
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
         window.setWidth(480);
-        window.setHeight(620);
+        window.setHeight(630);
         AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(this, type, principals, roles);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);
@@ -298,7 +298,7 @@ public class RoleAssignmentPresenter
 
             @Override
             public void onSuccess(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.deleted(role.getName()));
+                Console.info(Console.MESSAGES.saved(role.getName()));
                 loadAssignments();
             }
         });

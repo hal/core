@@ -73,5 +73,6 @@ public class StandardRoleEditor implements IsWidget {
 
     public void update(final Roles roles) {
         table.update(roles.getStandardRoles());
+        details.update(table.getSelectedRole());
     }
 }

@@ -77,14 +77,16 @@ public final class ScopedRoleFunctions {
 
         @Override
         public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode node = ModelHelper.scopedRole(role);
-            node.get("base-role").set(role.getBaseRole().name());
-            node.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+            ModelNode baseRoleNode = ModelHelper.scopedRole(role);
+            baseRoleNode.get(NAME).set("base-role");
+            baseRoleNode.get(VALUE).set(role.getBaseRole().name());
+            baseRoleNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
             ModelNode scopeNode = ModelHelper.scopedRole(role);
             String scope = role.getType() == HOST ? "hosts" : "server-groups";
+            scopeNode.get(NAME).set(scope);
             for (String s : role.getScope()) {
-                scopeNode.get(scope).add(s);
+                scopeNode.get(VALUE).add(s);
             }
             scopeNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
@@ -92,7 +94,7 @@ public final class ScopedRoleFunctions {
             compositeNode.get(OP).set(COMPOSITE);
             compositeNode.get(ADDRESS).setEmptyList();
             List<ModelNode> steps = new ArrayList<ModelNode>();
-            steps.addAll(asList(node, scopeNode));
+            steps.addAll(asList(baseRoleNode, scopeNode));
             compositeNode.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(compositeNode), new FunctionCallback<Stack<Boolean>>(control));
         }

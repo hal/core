@@ -36,7 +36,7 @@ public final class ModelHelper {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
-        node.get(ADDRESS).add("role-mapping", role.isStandard() ? role.getName().toUpperCase() : role.getName());
+        node.get(ADDRESS).add("role-mapping", role.getName());
         return node;
     }
 

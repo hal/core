@@ -44,7 +44,7 @@ public class Roles implements Iterable<Role> {
         this.standardRoles = new TreeSet<Role>(new RoleComparator());
         this.scopedRoles = new TreeSet<Role>(new RoleComparator());
         for (StandardRole standardRole : StandardRole.values()) {
-            add(new Role(standardRole.getTitle()));
+            add(new Role(standardRole));
         }
     }
 

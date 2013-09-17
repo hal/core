@@ -86,7 +86,7 @@ public class ScopedRoleDetails implements IsWidget {
             public void onSave(final Map changeset) {
                 Role edited = form.getEditedEntity();
                 if (edited != null) {
-                    Role newScopedRole = new Role(nameItem.getValue(), baseRoleItem.getValue(),
+                    Role newScopedRole = new Role(nameItem.getValue(), nameItem.getValue(), baseRoleItem.getValue(),
                             typeItem.getValue(), scopeItem.getValue());
                     newScopedRole.setIncludeAll(includeAllItem.getValue());
                     presenter.saveScopedRole(newScopedRole, edited);

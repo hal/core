@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -35,7 +37,7 @@ public class FunctionCallback<T> implements AsyncCallback<DMRResponse> {
     @Override
     public final void onSuccess(final DMRResponse response) {
         ModelNode result = response.get();
-        if (result.isFailure()) {
+        if (!result.hasDefined(OUTCOME) || result.isFailure()) {
             abort();
         } else {
             proceed();

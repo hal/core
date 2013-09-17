@@ -188,7 +188,8 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             for (ModelNode scopeNode : scopeNodes) {
                 scope.add(scopeNode.asString());
             }
-            Role scopedRole = new Role(property.getName(), StandardRole.fromString(baseRoleName), type, scope);
+            Role scopedRole = new Role(property.getName(), property.getName(), StandardRole.fromString(baseRoleName),
+                    type, scope);
             roles.add(scopedRole);
         }
 

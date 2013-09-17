@@ -76,7 +76,8 @@ public class AddScopedRoleWizard implements IsWidget {
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
         final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope",
                 Console.CONSTANTS.administration_scope(), 3);
-        final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
+        final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll",
+                Console.CONSTANTS.administration_include_all());
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
         layout.add(form.asWidget());
 
@@ -95,8 +96,8 @@ public class AddScopedRoleWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            Role scopedRole = new Role(nameItem.getValue(), baseRoleItem.getValue(),
-                                    typeItem.getValue(), scopeItem.getValue());
+                            Role scopedRole = new Role(nameItem.getValue(), nameItem.getValue(),
+                                    baseRoleItem.getValue(), typeItem.getValue(), scopeItem.getValue());
                             presenter.addScopedRole(scopedRole);
                         }
                     }
