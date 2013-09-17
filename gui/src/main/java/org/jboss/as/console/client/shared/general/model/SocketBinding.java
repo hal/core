@@ -27,6 +27,7 @@ import org.jboss.as.console.client.widgets.forms.Binding;
  */
 public interface SocketBinding {
 
+    @Binding(key = true)
     String getName();
     void setName(String name);
 

@@ -33,6 +33,7 @@ public interface Interface {
     static String ANY_IP4 = "Any IP4";
     static String ANY_IP6 = "Any IP6";
 
+    @Binding(key = true)
     String getName();
     void setName(String name);
 
