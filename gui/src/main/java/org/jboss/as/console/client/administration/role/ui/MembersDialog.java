@@ -134,8 +134,5 @@ public class MembersDialog implements IsWidget {
 
         @Template("<li>Any authenticated user</li>")
         SafeHtml includeAll();
-
-        @Template("<li>{0} {1}</li>")
-        SafeHtml principal(String type, String name);
     }
 }
