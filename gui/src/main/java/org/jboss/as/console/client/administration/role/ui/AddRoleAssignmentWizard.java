@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.ui;
 
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
@@ -27,10 +27,14 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
+import org.jboss.as.console.client.administration.role.form.PrincipalFormItem;
+import org.jboss.as.console.client.administration.role.form.RolesFormItem;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -62,20 +66,25 @@ public class AddRoleAssignmentWizard implements IsWidget {
             oracle.add(principal.getName());
         }
 
-        VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("window-content");
-
         final Form<RoleAssignment> form = new Form<RoleAssignment>(RoleAssignment.class);
         String title = type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user();
         final PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title);
         principalItem.setRequired(true);
         principalItem.update(principals);
         final TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
+        final ComboBoxItem includeExcludeItem = new ComboBoxItem("includeExclude",
+                Console.CONSTANTS.administration_include_exclude());
+        includeExcludeItem.setValueMap(
+                new String[]{Console.CONSTANTS.common_label_include(), Console.CONSTANTS.common_label_exclude()});
+        includeExcludeItem.setValue(Console.CONSTANTS.common_label_include());
         // TODO The rolesItem is not part of the focus chain because it's not
         // TODO recognized by org.jboss.ballroom.client.widgets.window.Focus
         final RolesFormItem rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
         rolesItem.setRequired(true);
-        form.setFields(principalItem, realmItem, rolesItem);
+        form.setFields(principalItem, realmItem, includeExcludeItem, rolesItem);
+
+        VerticalPanel layout = new VerticalPanel();
+        layout.setStyleName("window-content");
         layout.add(form.asWidget());
         rolesItem.update(roles);
 
@@ -87,7 +96,11 @@ public class AddRoleAssignmentWizard implements IsWidget {
                         if (!validation.hasErrors()) {
                             RoleAssignment roleAssignment = new RoleAssignment(principalItem.getValue());
                             roleAssignment.setRealm(realmItem.getValue());
-                            roleAssignment.addRoles(rolesItem.getValue());
+                            if (Console.CONSTANTS.common_label_include().equals(includeExcludeItem.getValue())) {
+                                roleAssignment.addRoles(rolesItem.getValue());
+                            } else if (Console.CONSTANTS.common_label_exclude().equals(includeExcludeItem.getValue())) {
+                                roleAssignment.addExcludes(rolesItem.getValue());
+                            }
                             presenter.addRoleAssignment(roleAssignment);
                         }
                     }

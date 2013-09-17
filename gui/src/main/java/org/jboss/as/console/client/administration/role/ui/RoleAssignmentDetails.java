@@ -16,10 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.EXCLUDE;
-import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.INCLUDE;
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.EXCLUDE;
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.INCLUDE;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +34,10 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
+import org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem;
+import org.jboss.as.console.client.administration.role.form.PojoForm;
+import org.jboss.as.console.client.administration.role.form.ReadOnlyItem;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;

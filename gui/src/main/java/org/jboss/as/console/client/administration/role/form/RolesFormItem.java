@@ -16,10 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.form;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
-import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
@@ -38,6 +36,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.role.ui.UIHelper;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -73,8 +72,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
     public Widget asWidget() {
         // table
         DefaultCellTable<Role> table = new DefaultCellTable<Role>(pageSize, keyProvider);
-        table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
-        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Role>createCheckboxManager());
+        table.setSelectionModel(selectionModel);
         dataProvider.addDataDisplay(table);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override

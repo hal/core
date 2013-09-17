@@ -16,9 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.form;
 
-import static org.jboss.as.console.client.administration.role.IncludeExcludeFormItem.Type.*;
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -136,7 +136,6 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         includeScroller.addStyleName("roles-list");
         includeScroller.addStyleName("roles-list-assigned");
 
-
         // excluded roles
         CellList<Role> excludeList = new DefaultCellList<Role>(new RoleCell(), keyProvider);
         excludeList.setSelectionModel(excludeSelectionModel);
@@ -153,6 +152,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
         // add / remove buttons
         addInclude = new Button(TEMPLATES.arrow("right"));
+        addInclude.getElement().setId("role_assignment_add_include");
         addInclude.setEnabled(false);
         addInclude.addClickHandler(new ClickHandler() {
             @Override
@@ -161,6 +161,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             }
         });
         removeInclude = new Button(TEMPLATES.arrow("left"));
+        removeInclude.getElement().setId("role_assignment_remove_include");
         removeInclude.setEnabled(false);
         removeInclude.addClickHandler(new ClickHandler() {
             @Override
@@ -169,6 +170,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             }
         });
         addExclude = new Button(TEMPLATES.arrow("right"));
+        addExclude.getElement().setId("role_assignment_add_exclude");
         addExclude.setEnabled(false);
         addExclude.addClickHandler(new ClickHandler() {
             @Override
@@ -177,6 +179,7 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             }
         });
         removeExclude = new Button(TEMPLATES.arrow("left"));
+        removeExclude.getElement().setId("role_assignment_remove_exclude");
         removeExclude.setEnabled(false);
         removeExclude.addClickHandler(new ClickHandler() {
             @Override

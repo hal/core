@@ -1,6 +1,6 @@
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.List;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -11,6 +11,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
+import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
@@ -22,16 +25,16 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 /**
  * @author Harald Pehl
  */
-public class ScopedRoleEditor implements IsWidget {
+public class RoleAssignmentEditor implements IsWidget {
 
+    private final Principal.Type type;
     private final RoleAssignmentPresenter presenter;
-    private final RoleTable table;
-    private final ScopedRoleDetails details;
+    private RoleAssignmentTable table;
+    private RoleAssignmentDetails details;
 
-    public ScopedRoleEditor(final RoleAssignmentPresenter presenter) {
+    public RoleAssignmentEditor(final RoleAssignmentPresenter presenter, final Principal.Type type) {
         this.presenter = presenter;
-        this.table = new ScopedRoleTable();
-        this.details = new ScopedRoleDetails(presenter);
+        this.type = type;
     }
 
     @Override
@@ -45,27 +48,36 @@ public class ScopedRoleEditor implements IsWidget {
         layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
         // header and desc
-        content.add(new ContentHeaderLabel(Console.CONSTANTS.administration_scoped_roles()));
-        content.add(new ContentDescription(Console.CONSTANTS.administration_scoped_roles_desc()));
+        String header;
+        String description;
+        if (type == GROUP) {
+            header = Console.CONSTANTS.common_label_groups();
+            description = Console.CONSTANTS.administration_group_assignment();
+        } else {
+            header = Console.CONSTANTS.common_label_users();
+            description = Console.CONSTANTS.administration_user_assignment();
+        }
+        content.add(new ContentHeaderLabel(header));
+        content.add(new ContentDescription(description));
 
         // toolstrip
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchAddScopedRoleWizard();
+                presenter.launchAddRoleAssignmentWizard(type);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Scoped Role"),
-                        Console.MESSAGES.deleteConfirm("scoped role"),
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Role Assignment"),
+                        Console.MESSAGES.deleteConfirm("role assignment"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
-                                    presenter.removeScopedRole(table.getSelectedRole());
+                                    presenter.removeRoleAssignment(table.getSelectedAssignment());
                                 }
                             }
                         });
@@ -74,9 +86,11 @@ public class ScopedRoleEditor implements IsWidget {
         content.add(tools.asWidget());
 
         // table
+        table = new RoleAssignmentTable(type);
         content.add(table);
 
         // details
+        details = new RoleAssignmentDetails(presenter, type);
         details.bind(table.getCellTable());
         content.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
         content.add(details);
@@ -84,10 +98,10 @@ public class ScopedRoleEditor implements IsWidget {
         return layout;
     }
 
-    public void update(final Roles roles, final List<String> hosts, final List<String> serverGroups) {
-        if (!presenter.isStandalone()) {
-            table.update(roles.getScopedRoles());
-            details.update(roles.getScopedRoles(), hosts, serverGroups, table.getSelectedRole());
+    public void update(final RoleAssignments assignments, final Roles roles) {
+        if (table != null && details != null) {
+            table.update(assignments);
+            details.update(assignments, roles, table.getSelectedAssignment());
         }
     }
 }

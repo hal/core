@@ -16,14 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.operation;
+
+import org.jboss.gwt.flow.client.Outcome;
 
 /**
  * @author Harald Pehl
  */
-public class StandardRoleTable extends RoleTable {
+public interface ManagementOperation<T> {
 
-    public StandardRoleTable() {
-        super(7);
+    void extecute(Outcome<T> outcome);
+
+    boolean isPending();
+
+    enum Operation {
+        ADD, RENAME, MODIFY, REMOVE
     }
 }

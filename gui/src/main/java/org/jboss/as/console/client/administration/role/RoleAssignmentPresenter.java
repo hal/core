@@ -18,8 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.LoadRoleAssignmentsOp.Results;
-import static org.jboss.as.console.client.administration.role.ManagementOperation.Operation.*;
+import static org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp.Results;
+import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.ArrayList;
@@ -44,6 +44,12 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
+import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
+import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
+import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
+import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
+import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
@@ -156,7 +162,7 @@ public class RoleAssignmentPresenter
                 .CONSTANTS.role_assignment_add_group();
         window = new DefaultWindow(title);
         window.setWidth(480);
-        window.setHeight(580);
+        window.setHeight(620);
         AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(this, type, principals, roles);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);
@@ -217,10 +223,6 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void modifyIncludeAll(final Role standardRole) {
-
-    }
-
     public void launchAddScopedRoleWizard() {
         if (!assertDomainMode()) { return; }
 
@@ -238,16 +240,16 @@ public class RoleAssignmentPresenter
         if (!assertDomainMode()) { return; }
 
         closeWindow();
-        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, role, role, ADD);
-        mo.extecute(new Outcome<Object>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, ADD);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
-            public void onFailure(final Object context) {
+            public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.addingFailed(role.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Object context) {
+            public void onSuccess(final Stack<Boolean> context) {
                 Console.info(Console.MESSAGES.added(role.getName()));
                 loadAssignments();
             }
@@ -269,17 +271,34 @@ public class RoleAssignmentPresenter
             }
         }
 
-        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, scopedRole, oldValue, operation);
-        mo.extecute(new Outcome<Object>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, scopedRole, oldValue, operation);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
-            public void onFailure(final Object context) {
+            public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.saveFailed(scopedRole.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Object context) {
+            public void onSuccess(final Stack<Boolean> context) {
                 Console.info(Console.MESSAGES.saved(scopedRole.getName()));
+                loadAssignments();
+            }
+        });
+    }
+
+    public void modifyIncludeAll(final Role role) {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, MODIFY);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
+            @Override
+            public void onFailure(final Stack<Boolean> context) {
+                Console.error(Console.MESSAGES.saveFailed(role.getName()));
+                loadAssignments();
+            }
+
+            @Override
+            public void onSuccess(final Stack<Boolean> context) {
+                Console.info(Console.MESSAGES.deleted(role.getName()));
                 loadAssignments();
             }
         });
@@ -296,16 +315,16 @@ public class RoleAssignmentPresenter
             return;
         }
 
-        ManagementOperation<Object> mo = new ModifyScopedRoleOp(dispatcher, role, role, REMOVE);
-        mo.extecute(new Outcome<Object>() {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, REMOVE);
+        mo.extecute(new Outcome<Stack<Boolean>>() {
             @Override
-            public void onFailure(final Object context) {
+            public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.deletionFailed(role.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Object context) {
+            public void onSuccess(final Stack<Boolean> context) {
                 Console.info(Console.MESSAGES.deleted(role.getName()));
                 loadAssignments();
             }

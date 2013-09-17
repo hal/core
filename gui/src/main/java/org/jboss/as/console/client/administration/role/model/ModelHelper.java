@@ -16,14 +16,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.model;
 
 import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
 import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.dmr.client.ModelNode;
 
 /**
@@ -38,7 +36,7 @@ public final class ModelHelper {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
-        node.get(ADDRESS).add("role-mapping", role.getName());
+        node.get(ADDRESS).add("role-mapping", role.isStandard() ? role.getName().toUpperCase() : role.getName());
         return node;
     }
 

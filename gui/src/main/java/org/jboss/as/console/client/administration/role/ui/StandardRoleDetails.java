@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.ui;
 
 import java.util.Map;
 
@@ -28,6 +28,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
+import org.jboss.as.console.client.administration.role.form.PojoForm;
+import org.jboss.as.console.client.administration.role.form.ReadOnlyItem;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;

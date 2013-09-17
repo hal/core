@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.operation;
 
 import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
 import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;

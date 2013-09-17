@@ -49,8 +49,6 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 
 /**
- * Improvements: Add a progress bar widget. For input see http://lea.verou.me/2011/07/a-polyfill-for-html5-progress-element-the-obsessive-perfectionist-way/
- *
  * @author Heiko Braun
  * @date 1/28/11
  */

@@ -16,54 +16,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.operation;
 
-import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Control;
 
 /**
  * @author Harald Pehl
  */
-public class ReadOnlyItem<T> extends FormItem<T> {
+public class FunctionCallback<T> implements AsyncCallback<DMRResponse> {
 
-    private T value;
-    private final InlineLabel label;
+    private final Control<T> control;
 
-    public ReadOnlyItem(final String name, final String title) {
-        super(name, title);
-        this.label = new InlineLabel("");
+    public FunctionCallback(final Control<T> control) {this.control = control;}
+
+    @Override
+    public final void onSuccess(final DMRResponse response) {
+        ModelNode result = response.get();
+        if (result.isFailure()) {
+            abort();
+        } else {
+            proceed();
+        }
     }
 
     @Override
-    public Widget asWidget() {
-        return label;
+    public final void onFailure(final Throwable caught) {
+        control.abort();
     }
 
-    @Override
-    public void setEnabled(final boolean b) {
-
+    protected void abort() {
+        control.abort();
     }
 
-    @Override
-    public boolean validate(final T value) {
-        return true;
-    }
-
-    @Override
-    public void clearValue() {
-        value = null;
-        label.setText("");
-    }
-
-    @Override
-    public T getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(final T value) {
-        this.value = value;
-        label.setText(asString());
+    protected void proceed() {
+        control.proceed();
     }
 }

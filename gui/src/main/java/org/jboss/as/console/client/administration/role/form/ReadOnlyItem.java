@@ -16,20 +16,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role;
+package org.jboss.as.console.client.administration.role.form;
 
-import org.jboss.gwt.flow.client.Outcome;
+import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 
 /**
  * @author Harald Pehl
  */
-public interface ManagementOperation<T> {
+public class ReadOnlyItem<T> extends FormItem<T> {
 
-    void extecute(Outcome<T> outcome);
+    private T value;
+    private final InlineLabel label;
 
-    boolean isPending();
+    public ReadOnlyItem(final String name, final String title) {
+        super(name, title);
+        this.label = new InlineLabel("");
+    }
 
-    enum Operation {
-        ADD, RENAME, MODIFY, REMOVE
+    @Override
+    public Widget asWidget() {
+        return label;
+    }
+
+    @Override
+    public void setEnabled(final boolean b) {
+
+    }
+
+    @Override
+    public boolean validate(final T value) {
+        return true;
+    }
+
+    @Override
+    public void clearValue() {
+        value = null;
+        label.setText("");
+    }
+
+    @Override
+    public T getValue() {
+        return value;
+    }
+
+    @Override
+    public void setValue(final T value) {
+        this.value = value;
+        label.setText(asString());
     }
 }
