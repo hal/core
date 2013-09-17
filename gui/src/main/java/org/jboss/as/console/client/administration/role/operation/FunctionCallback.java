@@ -46,7 +46,7 @@ public class FunctionCallback<T> implements AsyncCallback<DMRResponse> {
 
     @Override
     public final void onFailure(final Throwable caught) {
-        control.abort();
+        abort();
     }
 
     protected void abort() {
