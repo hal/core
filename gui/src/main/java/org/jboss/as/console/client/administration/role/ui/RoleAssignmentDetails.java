@@ -97,8 +97,7 @@ public class RoleAssignmentDetails implements IsWidget {
                     newRoleAssignment.setRealm(edited.getRealm());
                     newRoleAssignment.addRoles(includesExcludes.get(INCLUDE));
                     newRoleAssignment.addExcludes(includesExcludes.get(EXCLUDE));
-                    presenter.saveRoleAssignment(newRoleAssignment, newRoleAssignment.changedRoles(edited),
-                            newRoleAssignment.changedExcludes(edited));
+                    presenter.saveRoleAssignment(newRoleAssignment, edited);
                 }
             }
 

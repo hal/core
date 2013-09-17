@@ -19,8 +19,7 @@
 package org.jboss.as.console.client.administration.role.operation;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -39,22 +38,20 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
+    private final RoleAssignment oldValue;
     private final Operation operation;
-    private final Collection<Role> removedRoles;
-    private final Collection<Role> removedExcludes;
 
     public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
             final Operation operation) {
-        this(dispatcher, assignment, operation, Collections.<Role>emptySet(), Collections.<Role>emptySet());
+        this(dispatcher, assignment, null, operation);
     }
 
-    public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment, Operation operation,
-            final Set<Role> removedRoles, final Set<Role> removedExcludes) {
+    public ModifyRoleAssignmentOp(final DispatchAsync dispatcher, final RoleAssignment assignment,
+            final RoleAssignment oldValue, Operation operation) {
         this.dispatcher = dispatcher;
         this.assignment = assignment;
         this.operation = operation;
-        this.removedRoles = removedRoles;
-        this.removedExcludes = removedExcludes;
+        this.oldValue = oldValue;
     }
 
     @Override
@@ -63,14 +60,30 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
         List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
 
         switch (operation) {
-            case ADD:
-            case MODIFY: {
+            case ADD: {
                 for (Role role : assignment.getRoles()) {
                     checkAndAdd(functions, role, "include");
                 }
                 for (Role exclude : assignment.getExcludes()) {
                     checkAndAdd(functions, exclude, "exclude");
                 }
+                break;
+            }
+            case MODIFY: {
+                if (oldValue == null) {
+                    throw new IllegalStateException("No old value provided");
+                }
+                // Calculate the changeset between assignment and oldValue
+                Set<Role> addedRoles = added(assignment.getRoles(), oldValue.getRoles());
+                Set<Role> addedExcludes = added(assignment.getExcludes(), oldValue.getExcludes());
+                for (Role role : addedRoles) {
+                    checkAndAdd(functions, role, "include");
+                }
+                for (Role exclude : addedExcludes) {
+                    checkAndAdd(functions, exclude, "exclude");
+                }
+                Set<Role> removedRoles = removed(assignment.getRoles(), oldValue.getRoles());
+                Set<Role> removedExcludes = removed(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role removedRole : removedRoles) {
                     functions.add(new PrincipalFuntions.Remove(dispatcher, removedRole, assignment.getPrincipal(),
                             assignment.getRealm(), "include"));
@@ -96,11 +109,20 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             final String includeExclude) {
         functions.add(new RoleAssignmentFunctions.Check(dispatcher, role));
         functions.add(new RoleAssignmentFunctions.Add(dispatcher, role));
-        functions
-                .add(new PrincipalFuntions.Check(dispatcher, role, assignment.getPrincipal(),
-                        assignment.getRealm(), includeExclude));
         functions.add(new PrincipalFuntions.Add(dispatcher, role, assignment.getPrincipal(),
                 assignment.getRealm(), includeExclude));
+    }
+
+    private Set<Role> added(final Set<Role> current, final Set<Role> old) {
+        Set<Role> added = new HashSet<Role>(current);
+        added.removeAll(old);
+        return added;
+    }
+
+    private Set<Role> removed(final Set<Role> current, final Set<Role> old) {
+        Set<Role> removed = new HashSet<Role>(old);
+        removed.removeAll(current);
+        return removed;
     }
 
     @Override

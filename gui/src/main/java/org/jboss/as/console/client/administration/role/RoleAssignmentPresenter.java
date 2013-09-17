@@ -18,14 +18,13 @@
  */
 package org.jboss.as.console.client.administration.role;
 
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 import static org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -187,10 +186,8 @@ public class RoleAssignmentPresenter
         });
     }
 
-    public void saveRoleAssignment(final RoleAssignment assignment, final Set<Role> removedRoles,
-            final Set<Role> removedExcludes) {
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, MODIFY,
-                removedRoles, removedExcludes);
+    public void saveRoleAssignment(final RoleAssignment assignment, final RoleAssignment oldValue) {
+        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, oldValue, MODIFY);
         mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
@@ -229,7 +226,7 @@ public class RoleAssignmentPresenter
         closeWindow();
         window = new DefaultWindow(Console.CONSTANTS.administration_add_scoped_role());
         window.setWidth(480);
-        window.setHeight(400);
+        window.setHeight(420);
         AddScopedRoleWizard wizard = new AddScopedRoleWizard(hosts, serverGroups, this);
         window.trapWidget(wizard.asWidget());
         window.setGlassEnabled(true);

@@ -36,6 +36,8 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
 /**
+ * Functions to add, modify and remove scoped roles.
+ *
  * @author Harald Pehl
  */
 public final class ScopedRoleFunctions {
