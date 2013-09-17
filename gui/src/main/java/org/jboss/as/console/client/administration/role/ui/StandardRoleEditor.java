@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,6 +28,8 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
+import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
 /**
  * @author Harald Pehl
@@ -50,6 +54,15 @@ public class StandardRoleEditor implements IsWidget {
 
         // header and desc
         layout.add(new ContentDescription(Console.CONSTANTS.administration_standard_roles_desc()));
+
+        ToolStrip tools = new ToolStrip();
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.administration_members(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.showMembers(table.getSelectedRole());
+            }
+        }));
+        layout.add(tools.asWidget());
 
         // table
         layout.add(table);

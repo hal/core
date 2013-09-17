@@ -35,11 +35,13 @@ import java.util.Set;
 public class Principals implements Iterable<Principal> {
 
     private final Map<Principal.Type, Set<Principal>> principals;
+    private final Map<String, Principal> lookup;
 
     public Principals() {
         principals = new HashMap<Principal.Type, Set<Principal>>();
         principals.put(GROUP, new HashSet<Principal>());
         principals.put(USER, new HashSet<Principal>());
+        lookup = new HashMap<String, Principal>();
     }
 
     public void add(Principal principal) {
@@ -48,6 +50,8 @@ public class Principals implements Iterable<Principal> {
             if (set != null) {
                 set.add(principal);
             }
+            // Principal.getId() already encodes the type
+            lookup.put(principal.getId(), principal);
         }
     }
 
@@ -61,5 +65,9 @@ public class Principals implements Iterable<Principal> {
 
     public Set<Principal> get(Principal.Type type) {
         return principals.get(type);
+    }
+
+    public Principal lookup(final Principal.Type type, final String name) {
+        return lookup.get(Principal.id(type, name));
     }
 }

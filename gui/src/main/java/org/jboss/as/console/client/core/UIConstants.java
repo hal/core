@@ -686,4 +686,5 @@ public interface UIConstants extends Constants {
     String common_label_include();
     String administration_include_all();
     String administration_include_exclude();
+    String administration_members();
 }

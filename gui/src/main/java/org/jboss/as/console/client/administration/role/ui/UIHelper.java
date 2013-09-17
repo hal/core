@@ -34,6 +34,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.HasName;
+import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleComparator;
@@ -89,23 +90,22 @@ public final class UIHelper {
         return new RolesCell();
     }
 
-    private static void principalAsSafeHtml(final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
-        if (roleAssignment.getRealm() != null) {
-            builder.append(
-                    TEMPLATES.principalAtRealm(roleAssignment.getPrincipal().getName(), roleAssignment.getRealm()));
+    public static SafeHtml principalAsSafeHtml(final Principal principal, final String realm) {
+        if (realm != null && realm.length() != 0) {
+            return TEMPLATES.principalAtRealm(principal.getName(), realm);
         } else {
-            builder.append(TEMPLATES.principal(roleAssignment.getPrincipal().getName()));
+            return TEMPLATES.principal(principal.getName());
         }
     }
 
-    private static void roleAsSafeHtml(final Role role, boolean include, final SafeHtmlBuilder builder) {
+    private static SafeHtml roleAsSafeHtml(final Role role, boolean include) {
         if (role.isStandard()) {
-            builder.append(include ? TEMPLATES.role(role.getName()) : TEMPLATES.exclude(role.getName()));
-        } else if (role.isScoped()) {
+            return include ? TEMPLATES.role(role.getName()) : TEMPLATES.exclude(role.getName());
+        } else {
             String scopes = csv(role.getScope());
-            builder.append(include ?
+            return include ?
                     TEMPLATES.scopedRole(role.getName(), role.getBaseRole().getTitle(), scopes) :
-                    TEMPLATES.scopedExclude(role.getName(), role.getBaseRole().getTitle(), scopes));
+                    TEMPLATES.scopedExclude(role.getName(), role.getBaseRole().getTitle(), scopes);
         }
     }
 
@@ -137,7 +137,7 @@ public final class UIHelper {
 
         @Override
         public void render(final Context context, final RoleAssignment roleAssignment, final SafeHtmlBuilder builder) {
-            principalAsSafeHtml(roleAssignment, builder);
+            builder.append(principalAsSafeHtml(roleAssignment.getPrincipal(), roleAssignment.getRealm()));
         }
     }
 
@@ -151,7 +151,7 @@ public final class UIHelper {
             Collections.sort(roles, comperator);
             for (Iterator<Role> iterator = roles.iterator(); iterator.hasNext(); ) {
                 Role role = iterator.next();
-                roleAsSafeHtml(role, true, builder);
+                builder.append(roleAsSafeHtml(role, true));
                 if (iterator.hasNext() || hasExcludes) {
                     builder.append(SafeHtmlUtils.fromString(", "));
                 }
@@ -161,7 +161,7 @@ public final class UIHelper {
                 Collections.sort(excludes, comperator);
                 for (Iterator<Role> iterator = excludes.iterator(); iterator.hasNext(); ) {
                     Role exclude = iterator.next();
-                    roleAsSafeHtml(exclude, false, builder);
+                    builder.append(roleAsSafeHtml(exclude, false));
                     if (iterator.hasNext()) {
                         builder.append(SafeHtmlUtils.fromString(", "));
                     }

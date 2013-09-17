@@ -29,6 +29,8 @@ import org.jboss.dmr.client.ModelNode;
  */
 public final class ModelHelper {
 
+    public static final String LOCAL_USERNAME = "$local";
+
     private ModelHelper() {
     }
 

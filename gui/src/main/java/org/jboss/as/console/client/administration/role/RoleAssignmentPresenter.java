@@ -21,6 +21,9 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 import static org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +40,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.Role;
@@ -49,13 +53,19 @@ import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssig
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
+import org.jboss.as.console.client.administration.role.ui.MembersDialog;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
@@ -326,6 +336,73 @@ public class RoleAssignmentPresenter
                 loadAssignments();
             }
         });
+    }
+
+    public void showMembers(final Role role) {
+        if (role == null) {
+            return;
+        }
+
+        closeWindow();
+        ModelNode node = ModelHelper.roleMapping(role);
+        node.get("recursive-depth").set("2");
+        node.get(OP).set(READ_RESOURCE_OPERATION);
+        dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error("Cannot read members");
+                } else {
+                    RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
+                    ModelNode assignmentNode = result.get(RESULT);
+                    if (assignmentNode.hasDefined("include")) {
+                        List<Property> inclusions = assignmentNode.get("include").asPropertyList();
+                        for (Property inclusion : inclusions) {
+                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(inclusion.getValue());
+                            if (prt != null) {
+                                internal.include(prt);
+                            }
+                        }
+                    }
+                    if (assignmentNode.hasDefined("exclude")) {
+                        List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
+                        for (Property exclusion : exclusions) {
+                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(exclusion.getValue());
+                            if (prt != null) {
+                                internal.exclude(prt);
+                            }
+                        }
+                    }
+
+                    window = new DefaultWindow(Console.MESSAGES.administration_members(role.getName()));
+                    window.setWidth(480);
+                    window.setHeight(420);
+                    MembersDialog dialog = new MembersDialog(RoleAssignmentPresenter.this, internal);
+                    window.trapWidget(dialog.asWidget());
+                    window.setGlassEnabled(true);
+                    window.center();
+                }
+            }
+        });
+    }
+
+    private RoleAssignment.PrincipalRealmTupel mapPrincipal(ModelNode principalNode) {
+        String principalName = principalNode.get("name").asString();
+        if (ModelHelper.LOCAL_USERNAME.equals(principalName)) {
+            // Skip the local user
+            return null;
+        }
+        Principal.Type type = Principal.Type.valueOf(principalNode.get("type").asString());
+        String realm = null;
+        if (principalNode.hasDefined("realm")) {
+            realm = principalNode.get("realm").asString();
+        }
+        Principal principal = principals.lookup(type, principalName);
+        if (principal != null) {
+            return new RoleAssignment.PrincipalRealmTupel(principal, realm);
+        }
+        return null;
     }
 
     private boolean assertDomainMode() {

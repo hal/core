@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.Role;
@@ -61,7 +62,6 @@ import org.jboss.gwt.flow.client.Outcome;
  */
 public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAssignmentsOp.Results, Object>> {
 
-    static final String LOCAL_USERNAME = "$local";
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
     private final ServerGroupStore serverGroupStore;
@@ -130,18 +130,18 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             operation.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                 @Override
-                public void onSuccess(final DMRResponse result) {
+                public void onSuccess(final DMRResponse response) {
                     Principals principals = new Principals();
                     RoleAssignments assignments = new RoleAssignments();
                     Roles roles = new Roles();
 
-                    ModelNode response = result.get();
-                    if (response.isFailure()) {
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
                         control.getContext().put(Results.ERROR,
-                                new RuntimeException("Failed to load contents: " + response.getFailureDescription()));
+                                new RuntimeException("Failed to load contents: " + result.getFailureDescription()));
                         control.abort();
                     } else {
-                        ModelNode stepsResult = response.get(RESULT);
+                        ModelNode stepsResult = result.get(RESULT);
 
                         // the order of processing is important!
                         if (!standalone) {
@@ -227,7 +227,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         private PrincipalRealmTupel mapPrincipal(final Principals principals, final ModelNode node) {
             String name = node.get("name").asString();
-            if (LOCAL_USERNAME.equals(name)) {
+            if (ModelHelper.LOCAL_USERNAME.equals(name)) {
                 // Skip the local user
                 return null;
             }

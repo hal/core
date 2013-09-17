@@ -61,9 +61,11 @@ public class Principal implements HasName {
     }
 
     public String getId() {
-        StringBuilder id = new StringBuilder();
-        id.append(type.name().toLowerCase()).append("-").append(name);
-        return id.toString();
+        return id(type, name);
+    }
+
+    static String id(Type type, String name) {
+        return type.name().toLowerCase() + "-" + name;
     }
 
     @Override
