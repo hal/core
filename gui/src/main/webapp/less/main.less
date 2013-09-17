@@ -1089,11 +1089,14 @@ table {
     height:50px;
     color:#cccccc;
     padding-top:22px;
+    border-left:1px solid @border2-color;
 }
 
 .default-cell-table{
     /*font-size:11px;*/
-    border: 1px solid @border2-color;
+    border-top:1px solid @border2-color;
+    border-right:1px solid @border2-color;
+    border-bottom:1px solid @border2-color;
     width:100%;
     background-color:#ffffff;
 }
@@ -1131,7 +1134,7 @@ table {
 }
 
 .cellTableFirstColumnHeader {
-    border-left:none;
+    border-left:1px solid @border2-color;
 }
 
 .cellTableFirstColumn {
@@ -1154,7 +1157,7 @@ table {
 .cellTableCell {
     padding:5px;
     padding-left: 10px;
-    border-left: 1px solid @border3-color;
+    border-left: 1px solid @border3-color!important;
 
     text-overflow:ellipsis;
     overflow:hidden;
@@ -1203,15 +1206,15 @@ table {
 }
 
 .default-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRowCell {
-    border:none!important;
+  border:none;
 }
 
 .default-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRow .cellTableFirstColumn{
-    border:none!important;
+  border:none;
 }
 
 .default-cell-table .cellTableSelectedRow.cellTableKeyboardSelectedRow .cellTableLastColumn{
-    border:none!important;
+    border:none;
 }
 
 .default-pager {
@@ -2353,6 +2356,10 @@ input[type="checkbox"] {
 }
 
 /* topology view */
+
+.topology {
+  border-left:1px solid @border2-color;
+}
 .domainOverviewCell {
     cursor: pointer;
     vertical-align: top;
