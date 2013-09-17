@@ -77,7 +77,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
     }
 
     @Override
-    public void extecute(final Outcome<Map<Results, Object>> outcome) {
+    public void execute(final Outcome<Map<Results, Object>> outcome) {
         pending = true;
         Map<Results, Object> context = new HashMap<Results, Object>();
         new Async<Map<Results, Object>>().waterfall(context, outcome, new RolesAndMappingFunction(),

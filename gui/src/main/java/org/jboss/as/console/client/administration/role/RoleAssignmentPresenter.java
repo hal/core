@@ -127,7 +127,7 @@ public class RoleAssignmentPresenter
         if (!loadRoleAssignmentsOp.isPending()) {
             System.out.print("Loading role assignments...");
             final long start = System.currentTimeMillis();
-            loadRoleAssignmentsOp.extecute(new Outcome<Map<Results, Object>>() {
+            loadRoleAssignmentsOp.execute(new Outcome<Map<Results, Object>>() {
                 @Override
                 public void onFailure(final Map<Results, Object> context) {
                     System.out.println("FAILED");
@@ -172,7 +172,7 @@ public class RoleAssignmentPresenter
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.addingFailed("role assignment"));
@@ -191,7 +191,7 @@ public class RoleAssignmentPresenter
             final Set<Role> removedExcludes) {
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, MODIFY,
                 removedRoles, removedExcludes);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.saveFailed("role assignment"));
@@ -208,7 +208,7 @@ public class RoleAssignmentPresenter
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.deletionFailed("role assignment"));
@@ -241,7 +241,7 @@ public class RoleAssignmentPresenter
 
         closeWindow();
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, ADD);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.addingFailed(role.getName()));
@@ -272,7 +272,7 @@ public class RoleAssignmentPresenter
         }
 
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, scopedRole, oldValue, operation);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.saveFailed(scopedRole.getName()));
@@ -289,7 +289,7 @@ public class RoleAssignmentPresenter
 
     public void modifyIncludeAll(final Role role) {
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, MODIFY);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.saveFailed(role.getName()));
@@ -316,7 +316,7 @@ public class RoleAssignmentPresenter
         }
 
         ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, REMOVE);
-        mo.extecute(new Outcome<Stack<Boolean>>() {
+        mo.execute(new Outcome<Stack<Boolean>>() {
             @Override
             public void onFailure(final Stack<Boolean> context) {
                 Console.error(Console.MESSAGES.deletionFailed(role.getName()));

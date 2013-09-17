@@ -94,6 +94,7 @@ public final class RoleAssignmentFunctions {
             } else {
                 ModelNode node = ModelHelper.roleMapping(role);
                 node.get(OP).set(ADD);
+                System.out.println(node);
                 dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
             }
         }

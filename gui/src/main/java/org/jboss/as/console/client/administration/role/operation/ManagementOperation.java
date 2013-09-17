@@ -25,7 +25,7 @@ import org.jboss.gwt.flow.client.Outcome;
  */
 public interface ManagementOperation<T> {
 
-    void extecute(Outcome<T> outcome);
+    void execute(Outcome<T> outcome);
 
     boolean isPending();
 

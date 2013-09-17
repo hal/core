@@ -48,7 +48,7 @@ public class ModifyRoleOp implements ManagementOperation<Stack<Boolean>> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void extecute(final Outcome<Stack<Boolean>> outcome) {
+    public void execute(final Outcome<Stack<Boolean>> outcome) {
         List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
         switch (op) {
             case ADD:

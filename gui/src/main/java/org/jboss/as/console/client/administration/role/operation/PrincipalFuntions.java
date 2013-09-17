@@ -112,6 +112,7 @@ public final class PrincipalFuntions {
                     node.get("realm").set(ModelType.STRING, realm);
                 }
                 node.get(OP).set(ADD);
+                System.out.println(node);
                 dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
             }
         }
