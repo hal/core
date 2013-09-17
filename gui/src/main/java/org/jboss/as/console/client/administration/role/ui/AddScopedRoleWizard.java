@@ -78,7 +78,7 @@ public class AddScopedRoleWizard implements IsWidget {
                 Console.CONSTANTS.administration_scope(), 3);
         final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll",
                 Console.CONSTANTS.administration_include_all());
-        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem);
+        form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
         layout.add(form.asWidget());
 
         typeItem.addChangeHandler(new ChangeHandler() {
@@ -98,6 +98,7 @@ public class AddScopedRoleWizard implements IsWidget {
                         if (!validation.hasErrors()) {
                             Role scopedRole = new Role(nameItem.getValue(), nameItem.getValue(),
                                     baseRoleItem.getValue(), typeItem.getValue(), scopeItem.getValue());
+                            scopedRole.setIncludeAll(includeAllItem.getValue());
                             presenter.addScopedRole(scopedRole);
                         }
                     }

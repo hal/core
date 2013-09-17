@@ -31,8 +31,8 @@ import org.jboss.as.console.client.rbac.StandardRole;
  */
 public class Role {
 
+    private String id;
     private String name;
-    private String title;
     private StandardRole baseRole;
     private Type type;
     private SortedSet<String> scope;
@@ -42,10 +42,10 @@ public class Role {
         this(role.name(), role.getTitle(), null, Type.STANDARD, Collections.<String>emptySet());
     }
 
-    public Role(final String name, final String title, final StandardRole baseRole, final Type type,
+    public Role(final String id, final String name, final StandardRole baseRole, final Type type,
             final Collection<String> scope) {
+        this.id = id;
         this.name = name;
-        this.title = title;
         this.baseRole = baseRole;
         this.type = type;
         this.scope = new TreeSet<String>();
@@ -63,7 +63,7 @@ public class Role {
         Role role = (Role) o;
 
         if (baseRole != role.baseRole) { return false; }
-        if (!name.equals(role.name)) { return false; }
+        if (!id.equals(role.id)) { return false; }
         if (!scope.equals(role.scope)) { return false; }
         //noinspection RedundantIfStatement
         if (type != role.type) { return false; }
@@ -73,7 +73,7 @@ public class Role {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
+        int result = id.hashCode();
         result = 31 * result + (baseRole != null ? baseRole.hashCode() : 0);
         result = 31 * result + type.hashCode();
         result = 31 * result + scope.hashCode();
@@ -85,7 +85,7 @@ public class Role {
         if (isStandard()) {
             return name;
         }
-        return name + " extends " + baseRole.getTitle() + " scoped to " + type.name()
+        return id + " extends " + baseRole.getTitle() + " scoped to " + type.name()
                 .toLowerCase() + scope + " includeAll: " + includeAll;
     }
 
@@ -97,6 +97,14 @@ public class Role {
         return type != Type.STANDARD;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -105,20 +113,8 @@ public class Role {
         this.name = name;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(final String title) {
-        this.title = title;
-    }
-
     public StandardRole getBaseRole() {
         return baseRole;
-    }
-
-    public void setBaseRole(final StandardRole baseRole) {
-        this.baseRole = baseRole;
     }
 
     public Type getType() {

@@ -36,7 +36,7 @@ public final class ModelHelper {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
-        node.get(ADDRESS).add("role-mapping", role.getName());
+        node.get(ADDRESS).add("role-mapping", role.getId());
         return node;
     }
 
@@ -50,7 +50,7 @@ public final class ModelHelper {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
-        node.get(ADDRESS).add("role-mapping", role.getName());
+        node.get(ADDRESS).add("role-mapping", role.getId());
         node.get(ADDRESS).add(includeExclude, principalId.toString());
         return node;
     }
