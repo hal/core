@@ -31,6 +31,12 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     }
 
     @Override
+    public void editTransient(ModelNode newBean) {
+        isTransient = true;
+        edit(newBean);
+    }
+
+    @Override
     public void edit(ModelNode bean) {
 
         // Needs to be declared (i.e. when creating new instances)

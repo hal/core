@@ -122,6 +122,21 @@ public class FormDeckPanel<T> extends NamedDeckPanel implements FormAdapter<T> {
     }
 
     @Override
+    public void editTransient(T newBean) {
+        for (FormAdapter<T> form : forms.values()) {
+            form.editTransient(newBean);
+        }
+
+        AutoBean autoBean = AutoBeanUtils.getAutoBean(newBean);
+        Map<String, Object> props = AutoBeanUtils.getAllProperties(autoBean);
+        String triggerString = (String)props.get(this.triggerProperty);
+        if (triggerString == null) triggerString = defaultForm;
+        showWidget(triggerString);
+
+        notifyListeners(newBean);
+    }
+
+    @Override
     public void edit(T bean) {
         for (FormAdapter<T> form : forms.values()) {
             form.edit(bean);

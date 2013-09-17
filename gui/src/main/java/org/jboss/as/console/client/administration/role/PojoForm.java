@@ -36,6 +36,12 @@ public class PojoForm<T> extends AbstractForm<T> {
     private T bean;
 
     @Override
+    public void editTransient(T newBean) {
+        isTransient = true;
+        edit(newBean);
+    }
+
+    @Override
     public void edit(final T bean) {
         this.bean = bean;
         refreshPlainView();

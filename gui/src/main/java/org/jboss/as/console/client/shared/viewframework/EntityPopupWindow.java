@@ -106,9 +106,10 @@ public abstract class EntityPopupWindow<T> extends DefaultWindow {
 
     }
 
+    // HAL-203: Erroneous
     public void setNewBean() {
         T newBean = bridge.newEntity();
-        form.edit(newBean);
+        form.editTransient(newBean);
     }
 
     public void setBean(T bean) {

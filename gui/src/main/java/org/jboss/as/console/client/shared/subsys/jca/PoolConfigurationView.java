@@ -71,6 +71,7 @@ public class PoolConfigurationView {
                 }
                 return superValidation;
             }
+
         };
         form.setNumColumns(2);
         form.setEnabled(false);

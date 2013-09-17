@@ -72,7 +72,7 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
     private final EnumSet<FrameworkButton> hideButtons;
 
     public TabbedFormLayoutPanel(Class<?> beanType, FormMetaData formMetaData, EnumSet<FrameworkButton> hideButtons,
-            FormItemObserver... observers) {
+                                 FormItemObserver... observers) {
         this.beanType = beanType;
         this.formMetaData = formMetaData;
         this.observers = observers;
@@ -208,6 +208,19 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
         }
 
         return form;
+    }
+
+    @Override
+    public void editTransient(T newBean) {
+        for (FormAdapter<T> form : forms.values()) {
+            form.edit(newBean);
+        }
+
+        for (SingleEntityView<T> subView : additionalViews) {
+            subView.updatedEntity(newBean);
+        }
+
+        notifyListeners(newBean);
     }
 
     @Override
