@@ -45,6 +45,7 @@ import org.jboss.as.console.client.core.bootstrap.EagerLoadGroups;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadHosts;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadProfiles;
 import org.jboss.as.console.client.core.bootstrap.ExecutionMode;
+import org.jboss.as.console.client.core.bootstrap.InsufficientPrivileges;
 import org.jboss.as.console.client.core.bootstrap.LoadCompatMatrix;
 import org.jboss.as.console.client.core.bootstrap.LoadGoogleViz;
 import org.jboss.as.console.client.core.bootstrap.LoadMainApp;
@@ -60,6 +61,7 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
+import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
@@ -123,22 +125,38 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                 for(Preferences.Key key : Preferences.Key.values())
                 {
                     String prefValue = Preferences.get(key) !=null ? Preferences.get(key) : "n/a";
-                    System.out.println(key.getTitle()+": "+ prefValue);
+                    Log.info(key.getTitle()+": "+ prefValue);
                 }
 
                 // Bootstrap outcome: Load main application or display error message
                 Outcome<BootstrapContext> bootstrapOutcome = new Outcome<BootstrapContext>() {
                     @Override
                     public void onFailure(BootstrapContext context) {
-                        // currently we only deal with authentication errors
+
                         RootLayoutPanel.get().remove(loadingPanel);
 
                         String cause = "";
+                        int status = 500;
                         if(context.getLastError()!=null)
+                        {
                             cause = context.getLastError().getMessage();
+                            if(context.getLastError() instanceof DispatchError)
+                            {
+                                status = ((DispatchError)context.getLastError()).getStatusCode();
+                            }
+                        }
 
-                        HTMLPanel explanation = new HTMLPanel("<div style='padding-top:150px;padding-left:120px;'><h2>The management interface could not be loaded.</h2><pre>"+cause+"</pre></div>");
-                        RootLayoutPanel.get().add(explanation);
+                        if(403==status)
+                        {
+                            // authorisation error (lack of priviledges)
+                            new InsufficientPrivileges().execute();
+                        }
+                        else
+                        {
+                            // unknown error
+                            HTMLPanel explanation = new HTMLPanel("<div style='padding-top:150px;padding-left:120px;'><h2>The management interface could not be loaded.</h2><pre>"+cause+"</pre></div>");
+                            RootLayoutPanel.get().add(explanation);
+                        }
                     }
 
                     @Override

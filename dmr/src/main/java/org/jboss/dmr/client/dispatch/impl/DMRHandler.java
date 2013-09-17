@@ -35,6 +35,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.Diagnostics;
+import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
 
 import java.util.List;
@@ -227,7 +228,11 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     }
                     else if (401 == statusCode || 0 == statusCode)
                     {
-                        resultCallback.onFailure(new Exception("Authentication required."));
+                        resultCallback.onFailure(new DispatchError("Authentication required.", statusCode));
+                    }
+                    else if (403 == statusCode)
+                    {
+                        resultCallback.onFailure(new DispatchError("Authentication required.", statusCode));
                     }
                     else if (307 == statusCode)
                     {
@@ -238,7 +243,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     else if (503 == statusCode)
                     {
                         resultCallback.onFailure(
-                                new Exception("Service temporarily unavailable. Is the server is still booting?"));
+                                new DispatchError("Service temporarily unavailable. Is the server is still booting?", statusCode));
                     }
                     else
                     {
@@ -252,7 +257,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                         String payload = response.getText().equals("") ? "No details" :
                                 ModelNode.fromBase64(response.getText()).toString();
                         sb.append(payload);
-                        resultCallback.onFailure(new Exception(sb.toString()));
+                        resultCallback.onFailure(new DispatchError(sb.toString(), statusCode));
                     }
                     trace(Type.END, id, operation);
                 }

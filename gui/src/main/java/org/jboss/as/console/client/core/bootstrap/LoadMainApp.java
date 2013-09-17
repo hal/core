@@ -1,17 +1,10 @@
 package org.jboss.as.console.client.core.bootstrap;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.HTML;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.LogoutCmd;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.ballroom.client.widgets.window.DialogueOptions;
-import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -78,33 +71,7 @@ public class LoadMainApp implements Command
             && (bootstrapContext.isGroupManagementDisabled() || bootstrapContext.isHostManagementDisabled())
                 )
         {
-
-            final DefaultWindow window = new DefaultWindow("Access Denied");
-            window.setWidth(320);
-            window.setHeight(240);
-            HTML message = new HTML("You seem to lack host or server group permissions required to access this interface.");
-
-            DialogueOptions options = new DialogueOptions(
-                    "Logout",
-                    new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            window.hide();
-                            new LogoutCmd().execute();
-                        }
-                    },
-                    "Cancel",
-                    new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-
-                        }
-                    }
-            );
-
-            window.trapWidget(new WindowContentBuilder(message, options).build());
-            window.setGlassEnabled(true);
-            window.center();
+            new InsufficientPrivileges().execute();
         }
         else
         {
