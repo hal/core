@@ -18,10 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -29,7 +26,6 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 
 /**
  * @author Harald Pehl
@@ -49,12 +45,10 @@ public class StandardRoleEditor implements IsWidget {
     @Override
     public Widget asWidget() {
         // container and panels
-
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout");
 
         // header and desc
-
         layout.add(new ContentDescription(Console.CONSTANTS.administration_standard_roles_desc()));
 
         // table
