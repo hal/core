@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.widgets.icons.ConsoleIcons;
+import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
@@ -67,17 +68,12 @@ final class HtmlGenerator {
     static Framework FRAMEWORK = GWT.create(Framework.class);
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
-    final boolean writable;
     final SafeHtmlBuilder html;
     final List<String> lifecycleIds;
 
     HtmlGenerator() {
         this.html = new SafeHtmlBuilder();
         this.lifecycleIds = new ArrayList<String>();
-
-        // access control
-        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
-        this.writable = securityContext.getWritePriviledge().isGranted();
     }
 
 
@@ -108,7 +104,7 @@ final class HtmlGenerator {
             startLine().appendEscaped("Profile: " + group.profile).endLine();
         }
 
-        startLinks();
+        startLinks(true);
         String startId = START_GROUP_ID + group.name;
         String stopId = STOP_GROUP_ID + group.name;
         String restartId = RESTART_GROUP_ID + group.name;
@@ -153,7 +149,7 @@ final class HtmlGenerator {
             startLine().appendHtmlConstant("Ports: +").appendEscaped(server.getSocketBindings().get(first)).endLine();
         }
 
-        startLinks();
+        startLinks(false);
         String uniqueServerName = host + "_" + server.getName();
         if (server.isRunning()) {
             appendLifecycleLink(STOP_SERVER_ID + uniqueServerName, null, host, server.getName(), "Stop Server");
@@ -212,12 +208,16 @@ final class HtmlGenerator {
         return this;
     }
 
-    HtmlGenerator startLinks() {
-        if (writable) {
+    HtmlGenerator startLinks(boolean groupLinks) {
+
+        AuthorisationDecision startGroupPriv = SECURITY_SERVICE.getSecurityContext().getOperationPriviledge("/server-group=*", "start-servers");
+
+        if (startGroupPriv.isGranted()) {
             appendHtmlConstant("<div>");
         } else {
             appendHtmlConstant("<div class='rbac-suppressed'>");
         }
+
         appendHtmlConstant("<div class='lifecycleLinks'>");
         appendHtmlConstant("<span style='color:#404040'><i class='icon-caret-down'></i></span><br/>");
         return this;
