@@ -28,6 +28,7 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
@@ -50,9 +51,17 @@ public class StandardRoleEditor implements IsWidget {
     public Widget asWidget() {
         // container and panels
         VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("fill-layout");
 
-        // header and desc
+        if(Console.MODULES.getBootstrapContext().isStandalone())
+        {
+            layout.setStyleName("rhs-content-panel");
+            layout.add(new ContentHeaderLabel("Role Management"));
+        }
+        else
+        {
+            layout.setStyleName("fill-layout-width");
+        }
+
         layout.add(new ContentDescription(Console.CONSTANTS.administration_standard_roles_desc()));
 
         ToolStrip tools = new ToolStrip();
