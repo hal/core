@@ -64,21 +64,20 @@ public class MembersDialog implements IsWidget {
         boolean includeAll = internal.getRole().isIncludeAll();
         List<RoleAssignment.PrincipalRealmTupel> includes = internal.getIncludes();
         if (includeAll || !includes.isEmpty()) {
-            builder.appendHtmlConstant("<li class=\"header\">Included principals</li><ul class=\"inner-list\">");
+            builder.appendHtmlConstant(
+                    "<li class=\"header\">Included principals</li><ul class=\"inner-list icons-ul\">");
             if (includeAll) {
-                builder.append(TEMPLATES.includeAll());
+                builder.append(TEMPLATES.includeAll(Console.CONSTANTS.common_label_user()));
             }
             if (!includes.isEmpty()) {
                 for (RoleAssignment.PrincipalRealmTupel include : includes) {
-                    builder.appendHtmlConstant("<li>");
                     if (include.principal.getType() == USER) {
-                        builder.appendEscaped(Console.CONSTANTS.common_label_user());
+                        builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                                UIHelper.principalAsSafeHtml(include.principal, include.realm)));
                     } else {
-                        builder.appendEscaped(Console.CONSTANTS.common_label_group());
+                        builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                                UIHelper.principalAsSafeHtml(include.principal, include.realm)));
                     }
-                    builder.appendHtmlConstant("&nbsp;")
-                            .append(UIHelper.principalAsSafeHtml(include.principal, include.realm))
-                            .appendHtmlConstant("</li>");
                 }
             }
             builder.appendHtmlConstant("</ul>");
@@ -87,17 +86,16 @@ public class MembersDialog implements IsWidget {
         }
         List<RoleAssignment.PrincipalRealmTupel> excludes = internal.getExcludes();
         if (!excludes.isEmpty()) {
-            builder.appendHtmlConstant("<li class=\"header\">Excluded principals</li><ul class=\"inner-list\">");
+            builder.appendHtmlConstant(
+                    "<li class=\"header\">Excluded principals</li><ul class=\"inner-list icons-ul\">");
             for (RoleAssignment.PrincipalRealmTupel exclude : excludes) {
-                builder.appendHtmlConstant("<li>");
                 if (exclude.principal.getType() == USER) {
-                    builder.appendEscaped(Console.CONSTANTS.common_label_user());
+                    builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                            UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
                 } else {
-                    builder.appendEscaped(Console.CONSTANTS.common_label_group());
+                    builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                            UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
                 }
-                builder.appendHtmlConstant("&nbsp;")
-                        .append(UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm))
-                        .appendHtmlConstant("</li>");
             }
             builder.appendHtmlConstant("</ul>");
         } else {
@@ -134,7 +132,10 @@ public class MembersDialog implements IsWidget {
                 "<p>The role {0} consists of these principals. Please note that any exclude definitions takes priority over any include definitions.</p>")
         SafeHtml title(String role);
 
-        @Template("<li>Any authenticated user</li>")
-        SafeHtml includeAll();
+        @Template("<li title=\"{0}\"><i class=\"icon-li icon-user\"></i>Any authenticated user</li>")
+        SafeHtml includeAll(String label);
+
+        @Template("<li title=\"{1}\"><i class=\"icon-li icon-{0}\"></i>{2}</li>")
+        SafeHtml principal(String type, String label, SafeHtml principal);
     }
 }
