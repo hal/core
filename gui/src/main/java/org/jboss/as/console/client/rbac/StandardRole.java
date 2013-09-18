@@ -29,7 +29,7 @@ public enum StandardRole {
     DEPLOYER("Deployer"),
     ADMINISTRATOR("Administrator"),
     AUDITOR("Auditor"),
-    SUPERUSER("SuperUser");
+    SuperUser("SuperUser");
 
     private final String title;
 

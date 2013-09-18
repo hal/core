@@ -19,17 +19,18 @@
 
 package org.jboss.as.console.client.core;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
-
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -230,7 +231,7 @@ public class BootstrapContext implements ApplicationProperties {
         boolean match = false;
         for(String role : roles)
         {
-            if(StandardRole.SUPERUSER.toString().equalsIgnoreCase(role))
+            if(StandardRole.SuperUser.toString().equalsIgnoreCase(role))
             {
                 match = true;
                 break;
