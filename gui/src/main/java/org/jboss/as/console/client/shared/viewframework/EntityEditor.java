@@ -234,8 +234,8 @@ public class EntityEditor<T> implements EntityListView<T> {
         dataProvider.flush();
 
 
+        if (entityList.isEmpty()) return;
 
-        if (table.isEmpty()) return;
 
         if (!doneInitialSelection) {
             setSelected(entityList.get(0));
