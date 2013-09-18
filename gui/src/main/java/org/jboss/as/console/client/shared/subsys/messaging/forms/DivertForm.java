@@ -91,14 +91,15 @@ public class DivertForm {
                     }
                 }, form);
 
-        FormToolStrip<Divert> formTools = new FormToolStrip<Divert>(form, callback);
-
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<Divert> formTools = new FormToolStrip<Divert>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

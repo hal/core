@@ -68,7 +68,12 @@ public class NewPropertyWizard {
                 // cannot be filtered (workaround)
             }
         };
-        TextAreaItem valueItem = new TextAreaItem("value", "Value");
+        TextAreaItem valueItem = new TextAreaItem("value", "Value") {
+            @Override
+            public void setFiltered(boolean filtered) {
+                // cannot be filtered (workaround)
+            }
+        };
         valueItem.setVisibleLines(2);
 
         CheckBoxItem bootItem = new CheckBoxItem("bootTime", "Boot-Time");

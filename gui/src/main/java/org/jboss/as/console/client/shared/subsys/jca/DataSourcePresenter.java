@@ -597,12 +597,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Connection Property"));
         propertyWindow.setWidth(480);
         propertyWindow.setHeight(360);
-        propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-            }
-        });
 
         propertyWindow.trapWidget(
                 new NewPropertyWizard(this, reference, false).asWidget()

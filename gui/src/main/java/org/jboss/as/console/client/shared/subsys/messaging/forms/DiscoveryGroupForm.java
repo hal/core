@@ -39,8 +39,8 @@ public class DiscoveryGroupForm {
     }
 
     public DiscoveryGroupForm(FormToolStrip.FormCallback<DiscoveryGroup> callback, boolean create) {
-        this.callback = callback;
         isCreate = create;
+        if(!isCreate)this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.EMPTY_LIST);
 
@@ -73,14 +73,17 @@ public class DiscoveryGroupForm {
                     }
                 }, form);
 
-        FormToolStrip<DiscoveryGroup> formTools = new FormToolStrip<DiscoveryGroup>(form, callback);
+
 
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<DiscoveryGroup> formTools = new FormToolStrip<DiscoveryGroup>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

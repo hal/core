@@ -43,9 +43,8 @@ public class NewBroadcastGroupWizard {
             public void onDelete(BroadcastGroup entity) {
 
             }
-        }, false);
+        }, true);
 
-        form.setIsCreate(true);
         form.setSocketBindings(names);
 
         layout.add(form.asWidget());

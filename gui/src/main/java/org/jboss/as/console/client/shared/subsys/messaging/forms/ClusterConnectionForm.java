@@ -40,8 +40,8 @@ public class ClusterConnectionForm {
     }
 
     public ClusterConnectionForm(FormToolStrip.FormCallback<ClusterConnection> callback, boolean create) {
-        this.callback = callback;
         isCreate = create;
+        if(!isCreate)this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.EMPTY_LIST);
 
@@ -74,14 +74,16 @@ public class ClusterConnectionForm {
                     }
                 }, form);
 
-        FormToolStrip<ClusterConnection> formTools = new FormToolStrip<ClusterConnection>(form, callback);
 
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<ClusterConnection> formTools = new FormToolStrip<ClusterConnection>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

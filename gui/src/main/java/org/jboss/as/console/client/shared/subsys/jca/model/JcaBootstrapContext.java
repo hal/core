@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
 import org.jboss.as.console.client.widgets.forms.Address;
+import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
  * @author Heiko Braun
@@ -9,6 +10,7 @@ import org.jboss.as.console.client.widgets.forms.Address;
 @Address("/subsystem=jca/bootstrap-context={0}")
 public interface JcaBootstrapContext {
 
+    @Binding(key=true)
     String getName();
     void setName(String name);
 

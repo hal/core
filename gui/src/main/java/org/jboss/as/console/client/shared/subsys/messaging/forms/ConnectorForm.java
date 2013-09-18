@@ -90,14 +90,16 @@ public class ConnectorForm {
                     }
                 }, form);
 
-        FormToolStrip<Connector> formTools = new FormToolStrip<Connector>(form, callback);
 
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<Connector> formTools = new FormToolStrip<Connector>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

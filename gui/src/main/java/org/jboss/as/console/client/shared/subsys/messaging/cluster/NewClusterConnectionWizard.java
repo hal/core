@@ -43,9 +43,8 @@ public class NewClusterConnectionWizard {
             public void onDelete(ClusterConnection entity) {
 
             }
-        }, false);
+        }, true);
 
-        form.setIsCreate(true);
         form.setSocketBindings(names);
 
         layout.add(form.asWidget());

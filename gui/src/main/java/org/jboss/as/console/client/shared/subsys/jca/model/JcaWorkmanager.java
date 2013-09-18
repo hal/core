@@ -12,6 +12,7 @@ import java.util.List;
 @Address("/subsystem=jca/workmanager={0}")
 public interface JcaWorkmanager {
 
+    @Binding(key=true)
     String getName();
     void setName(String name);
 

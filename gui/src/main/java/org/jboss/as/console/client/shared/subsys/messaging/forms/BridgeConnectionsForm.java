@@ -54,14 +54,15 @@ public class BridgeConnectionsForm {
                     }
                 }, form);
 
-        FormToolStrip<Bridge> formTools = new FormToolStrip<Bridge>(form, callback);
-
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(provideTools)
+        {
+            FormToolStrip<Bridge> formTools = new FormToolStrip<Bridge>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

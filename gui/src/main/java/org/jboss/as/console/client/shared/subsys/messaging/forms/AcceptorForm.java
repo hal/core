@@ -90,14 +90,16 @@ public class AcceptorForm {
                     }
                 }, form);
 
-        FormToolStrip<Acceptor> formTools = new FormToolStrip<Acceptor>(form, callback);
 
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<Acceptor> formTools = new FormToolStrip<Acceptor>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

@@ -40,8 +40,8 @@ public class BroadcastGroupForm {
     }
 
     public BroadcastGroupForm(FormToolStrip.FormCallback<BroadcastGroup> callback, boolean create) {
-        this.callback = callback;
         isCreate = create;
+        if(!isCreate)this.callback = callback;
         oracle = new MultiWordSuggestOracle();
         oracle.setDefaultSuggestionsFromText(Collections.EMPTY_LIST);
 
@@ -74,14 +74,17 @@ public class BroadcastGroupForm {
                     }
                 }, form);
 
-        FormToolStrip<BroadcastGroup> formTools = new FormToolStrip<BroadcastGroup>(form, callback);
+
 
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<BroadcastGroup> formTools = new FormToolStrip<BroadcastGroup>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }

@@ -43,9 +43,8 @@ public class NewDiscoveryGroupWizard {
             public void onDelete(DiscoveryGroup entity) {
 
             }
-        }, false);
+        }, true);
 
-        form.setIsCreate(true);
         form.setSocketBindings(names);
 
         layout.add(form.asWidget());

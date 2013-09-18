@@ -73,14 +73,15 @@ public class ConnectorServiceForm {
                     }
                 }, form);
 
-        FormToolStrip<ConnectorService> formTools = new FormToolStrip<ConnectorService>(form, callback);
-
         FormLayout formLayout = new FormLayout()
                 .setForm(form)
                 .setHelp(helpPanel);
 
         if(!isCreate)
+        {
+            FormToolStrip<ConnectorService> formTools = new FormToolStrip<ConnectorService>(form, callback);
             formLayout.setTools(formTools);
+        }
 
         return formLayout.build();
     }
