@@ -74,7 +74,11 @@ In some cases you may want to bind both the AS and the hosted mode to a specific
 
 ## Problems?
 
-Please post any questions to the jboss as 7 mailing list:
-jboss-as7-dev@lists.jboss.org
+Please post any questions to the wildfly mailing list:
+wildfly-dev@lists.jboss.org
+
+Or ping us on IRC
+
+freenode.net#wildfly-management
 
 Have fun.
