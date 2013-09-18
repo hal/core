@@ -33,7 +33,7 @@
         https://github.com/hal/core
     </url>
     <scm>
-        <connection>scm:git@github.com:har/core.git</connection>
+        <connection>scm:git@github.com:hal/core.git</connection>
         <developerConnection>scm:git:git@github.com:hal/core.git</developerConnection>
         <url>git@github.com:hal/core.git</url>
     </scm>
@@ -61,25 +61,13 @@
             <organization>Red Hat</organization>
             <timezone>+1</timezone>
         </developer>
-        <developer>
-            <name>Stan Silvert</name>
-            <id>ssilvert</id>
-        </developer>
-        <developer>
-            <name>David Bosschaert</name>
-            <id>dbosschaert</id>
-        </developer>
-        <developer>
-            <name>Jason Greene</name>
-            <id>jgreene</id>
-        </developer>
     </developers>
 
 
     <!-- IssueManagement -->
     <issueManagement>
         <system>jira</system>
-        <url>https://issues.jboss.org/browse/WFLY/component/12317452</url>
+        <url>https://issues.jboss.org/browse/HAL</url>
     </issueManagement>
 
 
@@ -94,9 +82,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ballroom.version>2.0.0-SNAPSHOT</ballroom.version>
+        <ballroom.version>2.0.0.Final</ballroom.version>
         <gwt.version>2.5.1</gwt.version>
-        <gwtp.version>1.0-RC-3.1</gwtp.version>
+        <gwtp.version>1.0.1</gwtp.version>
         <gwt.maven>2.5.1</gwt.maven>
         <gwt-log.version>3.2.1</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
