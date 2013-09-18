@@ -97,10 +97,10 @@ final class HtmlGenerator {
 
     HtmlGenerator appendServerGroup(final ServerGroup group) {
         if (group.maxServersPerHost > 1) {
-            appendHtmlConstant("<td class='domainOverviewCell cellTableCell endOfServerGroup " +
+            appendHtmlConstant("<td class='groupColumn domainOverviewCell cellTableCell endOfServerGroup " +
                     group.cssClassname + "' rowspan='" + group.maxServersPerHost + "'>");
         } else {
-            appendHtmlConstant("<td class='domainOverviewCell cellTableCell endOfServerGroup " +
+            appendHtmlConstant("<td class='groupColumn domainOverviewCell cellTableCell endOfServerGroup " +
                     group.cssClassname + "'>");
         }
         startLine().appendEscaped(group.name).endLine();
@@ -218,8 +218,8 @@ final class HtmlGenerator {
         } else {
             appendHtmlConstant("<div class='rbac-suppressed'>");
         }
-        appendHtmlConstant("<span style='color:#404040'><i class='icon-caret-down'></i></span>");
         appendHtmlConstant("<div class='lifecycleLinks'>");
+        appendHtmlConstant("<span style='color:#404040'><i class='icon-caret-down'></i></span><br/>");
         return this;
     }
 

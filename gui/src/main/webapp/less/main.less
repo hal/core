@@ -2265,13 +2265,19 @@ input[type="checkbox"] {
 }
 
 .domainOverviewCell {
-  cursor: pointer;
-  vertical-align: top;
-  white-space: normal !important; /* overwrites cellTableCell to render the status icons correctly */
-  border-bottom: 1px solid rgb(229, 229, 229) !important;
-  transition: color .66s ease-out, background-color .66s ease-out;
-  -moz-transition: color .66s ease-out, background-color .66s ease-out;
-  -webkit-transition: color .66s ease-out, background-color .66s ease-out;
+    cursor: pointer;
+    vertical-align: top;
+    white-space: normal !important; /* overwrites cellTableCell to render the status icons correctly */
+    border-bottom: 1px solid rgb(229,229,229) !important;
+    transition: color .66s ease-out, background-color .66s ease-out;
+    -moz-transition: color .66s ease-out, background-color .66s ease-out;
+    -webkit-transition: color .66s ease-out, background-color .66s ease-out;
+    font-size:10px;
+}
+
+.groupColumn {
+  font-size:12px;
+  font-weight:600;
 }
 
 .domainOverviewCell:hover .lifecycleLinks {
@@ -2293,72 +2299,83 @@ input[type="checkbox"] {
 }
 
 .serverGroup0 {
-  border-right: 5px solid rgb(136, 171, 194) !important;
+    border-right: 5px solid rgb(232,243,248) !important;
 }
 
 .serverGroup0_light {
-  background-color: rgba(136, 171, 194, .4);
+    background-color: rgba(232,243,248,.8);
 }
 
 .serverGroup0_light:hover {
-  background-color: rgb(136, 171, 194);
+    background-color: rgb(232,243,248);
 }
 
 .serverGroup1 {
-  border-right: 5px solid rgb(249, 212, 35) !important;
+    border-right: 5px solid rgb(194,203,206) !important;
 }
 
 .serverGroup1_light {
-  background-color: rgba(249, 212, 35, .4);
+    background-color: rgba(194,203,206,.8);
 }
 
 .serverGroup1_light:hover {
-  background-color: rgb(249, 212, 35);
+    background-color: rgb(194,203,206);
 }
 
 .serverGroup2 {
-  border-right: 5px solid rgb(166, 140, 181) !important;
+    border-right: 5px solid rgb(129,168,184) !important;
 }
 
 .serverGroup2_light {
-  background-color: rgba(166, 140, 181, .4);
+    background-color: rgba(129,168,184,.8);
 }
 
 .serverGroup2_light:hover {
-  background-color: rgb(166, 140, 181);
+    background-color: rgb(129,168,184);
 }
 
 .serverGroup3 {
-  border-right: 5px solid rgb(119, 184, 184) !important;
+    border-right: 5px solid rgb(164,188,194) !important;
 }
 
 .serverGroup3_light {
-  background-color: rgba(119, 184, 184, .4);
+    background-color: rgba(164,188,194,.8);
 }
 
 .serverGroup3_light:hover {
-  background-color: rgb(119, 184, 184);
+    background-color: rgb(164,188,194);
 }
 
 .serverGroup4 {
-  border-right: 5px solid rgb(179, 202, 87) !important;
+    border-right: 5px solid rgb(219,230,236) !important;
 }
 
 .serverGroup4_light {
-  background-color: rgba(179, 202, 87, .4);
+    background-color: rgba(219,230,236,.8);
 }
 
 .serverGroup4_light:hover {
-  background-color: rgb(179, 202, 87);
+    background-color: rgb(219,230,236);
+}
+
+.serverGroup5 {
+    border-right: 5px solid rgb(204,204,204) !important;
+}
+.serverGroup5_light {
+    background-color: rgba(204,204,204,.8);
+}
+.serverGroup5_light:hover {
+    background-color: rgb(204,204,204);
 }
 
 .topology .cellTableHeader {
-  padding-top: 15px;
-  padding-bottom: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-weight:600;
 }
 
-.topology .cellTableCell:first-of-type {
-  border-left: none !important;
+.topology .groupColumn {
+    border-left:none!important;
 }
 
 .topology .cellTableHeader:first-of-type {
