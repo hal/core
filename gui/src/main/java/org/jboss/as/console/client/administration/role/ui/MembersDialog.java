@@ -60,11 +60,11 @@ public class MembersDialog implements IsWidget {
 
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.append(TEMPLATES.title(internal.getRole().getName()));
-        builder.appendHtmlConstant("<ol>");
+        builder.appendHtmlConstant("<ol class=\"outer-list\">");
         boolean includeAll = internal.getRole().isIncludeAll();
         List<RoleAssignment.PrincipalRealmTupel> includes = internal.getIncludes();
         if (includeAll || !includes.isEmpty()) {
-            builder.appendHtmlConstant("<li>Included principals</li><ul>");
+            builder.appendHtmlConstant("<li class=\"header\">Included principals</li><ul class=\"inner-list\">");
             if (includeAll) {
                 builder.append(TEMPLATES.includeAll());
             }
@@ -83,11 +83,11 @@ public class MembersDialog implements IsWidget {
             }
             builder.appendHtmlConstant("</ul>");
         } else {
-            builder.appendHtmlConstant("<li>No principals are included</li>");
+            builder.appendHtmlConstant("<li class=\"header\">No principals are included</li>");
         }
         List<RoleAssignment.PrincipalRealmTupel> excludes = internal.getExcludes();
         if (!excludes.isEmpty()) {
-            builder.appendHtmlConstant("<li>Excluded principals</li><ul>");
+            builder.appendHtmlConstant("<li class=\"header\">Excluded principals</li><ul class=\"inner-list\">");
             for (RoleAssignment.PrincipalRealmTupel exclude : excludes) {
                 builder.appendHtmlConstant("<li>");
                 if (exclude.principal.getType() == USER) {
@@ -101,10 +101,12 @@ public class MembersDialog implements IsWidget {
             }
             builder.appendHtmlConstant("</ul>");
         } else {
-            builder.appendHtmlConstant("<li>No principals are excluded</li>");
+            builder.appendHtmlConstant("<li class=\"header\">No principals are excluded</li>");
         }
         builder.appendHtmlConstant("</ol>");
-        layout.add(new HTML(builder.toSafeHtml()));
+        HTML html = new HTML(builder.toSafeHtml());
+        html.addStyleName("members-dialog");
+        layout.add(html);
 
         DialogueOptions options = new DialogueOptions(
                 Console.CONSTANTS.common_label_done(),
