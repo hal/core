@@ -135,14 +135,19 @@ public class BulletGraphView implements Sampler {
     @Override
     public void addSample(Metric metric) {
 
-        final JsArrayGeneric<Bullet> bullets = distinctColumnStrategy(metric);
+        Double baseline = getBaselineValue(metric);
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                render(bullets);
-            }
-        });
+        if(baseline>0.0)
+        {
+            final JsArrayGeneric<Bullet> bullets = distinctColumnStrategy(metric);
+
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    render(bullets);
+                }
+            });
+        }
 
     }
 
