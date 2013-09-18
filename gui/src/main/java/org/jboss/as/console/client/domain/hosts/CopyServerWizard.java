@@ -87,6 +87,11 @@ public class CopyServerWizard {
             public String getErrMessage() {
                 return Console.MESSAGES.common_validation_notEmptyNoSpace();
             }
+
+            @Override
+            public void setFiltered(boolean filtered) {
+                // prevent filtering in add dialog
+            }
         };
 
         nameItem.setValue(original.getName()+"_copy");
