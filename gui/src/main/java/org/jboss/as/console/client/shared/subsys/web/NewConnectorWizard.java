@@ -56,7 +56,7 @@ public class NewConnectorWizard {
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("fill-layout-width");
+        layout.setStyleName("window-content");
         final Form<HttpConnector> form = new Form<HttpConnector>(HttpConnector.class);
 
         TextBoxItem name = new TextBoxItem("name", "Name");
