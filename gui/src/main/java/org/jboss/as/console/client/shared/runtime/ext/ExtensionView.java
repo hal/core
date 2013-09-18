@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.runtime.ext;
 
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -58,19 +59,23 @@ public class ExtensionView
         extensionTable.addColumn(nameCol, "Name");
         extensionTable.addColumn(versionCol,"Version");
 
-        extensionTable.addColumn(new Column<Extension, SafeHtml>(new SafeHtmlCell())
+        if(!GWT.isScript())
         {
-            @Override
-            public SafeHtml getValue(Extension ext)
+            extensionTable.addColumn(new Column<Extension, SafeHtml>(new SafeHtmlCell())
             {
-                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                @Override
+                public SafeHtml getValue(Extension ext)
+                {
+                    SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-                if(!ext.getCompatibleVersion().equals(ext.getVersion()))
-                    html.appendHtmlConstant("<i class='icon-bolt'></i>");
+                    if(!ext.getCompatibleVersion().equals(ext.getVersion()))
+                        html.appendHtmlConstant("<i class='icon-bolt'></i>");
 
-                return html.toSafeHtml();
-            }
-        },"");
+                    return html.toSafeHtml();
+                }
+            },"");
+
+        }
 
         extensionTable.setColumnWidth(nameCol, 50, Style.Unit.PCT);
         extensionTable.setColumnWidth(versionCol, 40, Style.Unit.PCT);
