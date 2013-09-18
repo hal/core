@@ -115,7 +115,7 @@ public class HostJVMView extends DisposableViewImpl implements HostJVMPresenter.
             @Override
             public ModelNode getAddress() {
                 ModelNode address = new ModelNode();
-                address.add("host", "*");
+                address.add("host", Console.MODULES.getDomainEntityManager().getSelectedHost());
                 address.add("jvm", "*");
                 return address;
             }
