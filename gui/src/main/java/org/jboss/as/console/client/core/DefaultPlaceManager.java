@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -41,6 +37,9 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -67,7 +66,6 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     @Override
     public void revealErrorPlace(String invalidHistoryToken) {
 
-        Log.debug("Discard \"" + invalidHistoryToken + "\". Fallback to default place");
         revealDefaultPlace();
     }
 
@@ -103,8 +101,6 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     @Override
     protected void doRevealPlace(final PlaceRequest request, final boolean updateBrowserUrl) {
 
-        Log.debug("About to reveal place " + request.getNameToken() + ". Placemanager.hasPendingNavigation(): " + hasPendingNavigation());
-
         Function<ContextCreation> createContext = new Function<ContextCreation>() {
             @Override
             public void execute(final Control<ContextCreation> control) {
@@ -137,7 +133,6 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             @Override
             public void onFailure(ContextCreation context) {
                 unlock();
-                Log.error("Failed to create security context", context.getError());
                 Console.error("Failed to create security context", context.getError().getMessage());
             }
 
