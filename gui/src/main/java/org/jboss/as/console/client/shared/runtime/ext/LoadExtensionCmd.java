@@ -142,7 +142,7 @@ public class LoadExtensionCmd implements AsyncCommand<List<Extension>>{
 
                 final String coreVersion = majorVersion+"."+minorVersion+"."+microVersion;
 
-                System.out.println("Core Management version:"+coreVersion);
+                //System.out.println("Core Management version:"+coreVersion);
 
                 LoadExtensionCmd.this.execute(new SimpleCallback<List<Extension>>() {
                     @Override

@@ -226,7 +226,6 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
 
                     JPADeployment jpaDeployment = factory.jpaDeployment().as();
                     ModelNode unitValue = unit.getValue();
-                    System.out.println(unitValue);
                     String tokenString = unit.getName();
                     String[] tokens = tokenString.split("#");
                     jpaDeployment.setDeploymentName(tokens[0]);

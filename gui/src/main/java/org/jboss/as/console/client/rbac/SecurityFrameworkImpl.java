@@ -211,7 +211,6 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                                         // chose an instance declaration
                                         if(!tokens.get(tokens.size()-1).asString().contains("*"))
                                         {
-                                            System.out.println("Using reference: "+node.get(ADDRESS).asString());
                                             payload = node;
                                             break;
                                         }
@@ -222,7 +221,6 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                                         // chose the wildcard declaration
                                         if(tokens.get(tokens.size()-1).asString().contains("*"))
                                         {
-                                            System.out.println("Using reference: "+node.get(ADDRESS).asString());
                                             payload = node;
                                             break;
                                         }
