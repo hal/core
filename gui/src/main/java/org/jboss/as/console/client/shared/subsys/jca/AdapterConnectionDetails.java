@@ -55,11 +55,12 @@ public class AdapterConnectionDetails {
 
         // ----
 
-        TextItem jndiItem = new TextItem("jndiName", "JNDI");
+        TextBoxItem name = new TextBoxItem("name", "Name");
+        TextBoxItem jndiItem = new TextBoxItem("jndiName", "JNDI");
         TextBoxItem classItem = new TextBoxItem("connectionClass", "Connection Class");
-        CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
+        //CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
 
-        form.setFields(jndiItem, enabled, classItem);
+        form.setFields(name, jndiItem, classItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

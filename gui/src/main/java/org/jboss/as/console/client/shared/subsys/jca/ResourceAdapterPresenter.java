@@ -17,10 +17,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
@@ -40,10 +36,14 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.client.widgets.forms.KeyAssignment;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelNodeUtil;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,10 +163,17 @@ public class ResourceAdapterPresenter
                     if(raModel.hasDefined("connection-definitions"))
                     {
                         List<Property> connections = raModel.get("connection-definitions").asPropertyList();
-                        for(Property con : connections )
+                        for(final Property con : connections )
                         {
                             ModelNode connectionModel = con.getValue();
-                            ConnectionDefinition connectionDefinition = connectionAdapter.fromDMR(connectionModel);
+                            ConnectionDefinition connectionDefinition = connectionAdapter
+                                    .with(new KeyAssignment() {
+                                        @Override
+                                        public Object valueForKey(String key) {
+                                            return con.getName();
+                                        }
+                                    })
+                                    .fromDMR(connectionModel);
 
                             // config properties
                             List<PropertyRecord> connectionProps = parseConfigProperties(connectionModel);
@@ -195,10 +202,17 @@ public class ResourceAdapterPresenter
                         List<Property> admins = raModel.get("admin-objects").asPropertyList();
                         List<AdminObject> adminEntities = new ArrayList<AdminObject>(admins.size());
 
-                        for(Property admin : admins)
+                        for(final Property admin : admins)
                         {
                             ModelNode adminModel = admin.getValue();
-                            AdminObject adminObject = adminAdapter.fromDMR(adminModel);
+                            AdminObject adminObject = adminAdapter
+                                    .with(new KeyAssignment() {
+                                        @Override
+                                        public Object valueForKey(String key) {
+                                            return admin.getName();
+                                        }
+                                    }).fromDMR(adminModel);
+
                             adminObject.setName(admin.getName()); // just to make sure
                             List<PropertyRecord> adminConfig = parseConfigProperties(adminModel);
                             adminObject.setProperties(adminConfig);
@@ -490,7 +504,7 @@ public class ResourceAdapterPresenter
         proto.get(ADDRESS).set(Baseadress.get());
         proto.get(ADDRESS).add("subsystem", "resource-adapters");
         proto.get(ADDRESS).add("resource-adapter", selectedAdapter);
-        proto.get(ADDRESS).add("connection-definitions", connection.getJndiName());
+        proto.get(ADDRESS).add("connection-definitions", connection.getName());
 
         ModelNode operation = poolAdapter.fromChangeset(changeset, proto);
 
@@ -503,7 +517,7 @@ public class ResourceAdapterPresenter
                 if(response.getUnderlying())
                     Console.info(Console.MESSAGES.saved("Pool Settings"));
                 else
-                    Console.error(Console.MESSAGES.saveFailed("Pool Settings "+ connection.getJndiName()), response.getResponse().toString());
+                    Console.error(Console.MESSAGES.saveFailed("Pool Settings "+ connection.getName()), response.getResponse().toString());
 
                 loadAdapter(true);
             }
@@ -549,7 +563,7 @@ public class ResourceAdapterPresenter
     public void onDeleteConnection(ConnectionDefinition selection) {
         ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(),
-                selectedAdapter, selection.getJndiName()
+                selectedAdapter, selection.getName()
         );
 
         operation.get(OP).set(REMOVE);
@@ -582,7 +596,7 @@ public class ResourceAdapterPresenter
         ModelNode addressModel = connectionMetaData.getAddress().asResource(
                 Baseadress.get(),
                 selectedAdapter,
-                connectionDefinition.getJndiName());
+                connectionDefinition.getName());
 
         createConnectionOp.get(ADDRESS).set(addressModel.get(ADDRESS));
 
@@ -627,7 +641,7 @@ public class ResourceAdapterPresenter
     public void onSaveConnection(ConnectionDefinition entity, Map<String, Object> changedValues) {
 
         ModelNode address = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, entity.getJndiName());
+                Baseadress.get(), selectedAdapter, entity.getName());
         ModelNode operation = connectionAdapter.fromChangeset(changedValues, address);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -645,7 +659,7 @@ public class ResourceAdapterPresenter
 
     public void onCreateConnectionProperty(ConnectionDefinition connection, PropertyRecord prop) {
         ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, connection.getJndiName());
+                Baseadress.get(), selectedAdapter, connection.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(ADD);
@@ -671,7 +685,7 @@ public class ResourceAdapterPresenter
             throw new RuntimeException("selected adapter is null!");
 
         ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, connection.getJndiName());
+                Baseadress.get(), selectedAdapter, connection.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(REMOVE);
@@ -812,9 +826,6 @@ public class ResourceAdapterPresenter
 
         closeDialoge();
 
-        if(null==entity.getName())
-            entity.setName(entity.getJndiName());
-
         ModelNode addressModel = raMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter);
         addressModel.get(ADDRESS).add("admin-objects", entity.getName());
@@ -858,7 +869,7 @@ public class ResourceAdapterPresenter
     public void onDoFlush(ConnectionDefinition entity) {
 
         ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, entity.getJndiName());
+                Baseadress.get(), selectedAdapter, entity.getName());
 
         operation.get(OP).set("flush-all-connection-in-pool");
 
@@ -879,7 +890,7 @@ public class ResourceAdapterPresenter
     // https://issues.jboss.org/browse/AS7-3259
     public void enOrDisbaleConnection(ResourceAdapter ra, ConnectionDefinition selection) {
         ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, selection.getJndiName());
+                Baseadress.get(), selectedAdapter, selection.getName());
 
 
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -902,7 +913,7 @@ public class ResourceAdapterPresenter
 
     public void enOrDisbaleAdminObject(ResourceAdapter ra, AdminObject selection) {
         ModelNode operation = adminMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, selection.getJndiName());
+                Baseadress.get(), selectedAdapter, selection.getName());
 
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
         operation.get(NAME).set("enabled");

@@ -13,6 +13,10 @@ import java.util.List;
 @Address("/subsystem=resource-adapters/resource-adapter={0}")
 public interface ResourceAdapter {
 
+    @Binding(key = true)
+    String getName();
+    void setName(String name);
+
     String getArchive();
     void setArchive(String archive);
 

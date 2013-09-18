@@ -36,11 +36,13 @@ public class NewAdminWizard {
 
         final Form<AdminObject> form = new Form(AdminObject.class);
 
+        TextBoxItem name = new TextBoxItem("name", "Name");
+
         TextBoxItem jndiName = new JndiNameItem("jndiName", "JNDI Name");
 
         TextBoxItem classItem = new TextBoxItem("adminClass", "Class Name");
 
-        form.setFields(jndiName, classItem);
+        form.setFields(name, jndiName, classItem);
 
 
         DialogueOptions options = new DialogueOptions(

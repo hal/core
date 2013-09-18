@@ -75,7 +75,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
                 {
                     Feedback.confirm(
                             Console.MESSAGES.deleteTitle("Connection Definition"),
-                            Console.MESSAGES.deleteConfirm("Connection Definition"+selection.getJndiName()),
+                            Console.MESSAGES.deleteConfirm("Connection Definition"+selection.getName()),
                             new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
@@ -104,7 +104,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
 
                     Feedback.confirm(
                             Console.MESSAGES.modify("Connection Definition"),
-                            Console.MESSAGES.modifyConfirm("Connection Definition " + selection.getJndiName()),
+                            Console.MESSAGES.modifyConfirm("Connection Definition " + selection.getName()),
                             new Feedback.ConfirmationHandler() {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
@@ -125,7 +125,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
                 new ProvidesKey<ConnectionDefinition>() {
                     @Override
                     public Object getKey(ConnectionDefinition item) {
-                        return item.getJndiName();
+                        return item.getName();
                     }
                 });
 
@@ -135,7 +135,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
         TextColumn<ConnectionDefinition> nameColumn = new TextColumn<ConnectionDefinition>() {
             @Override
             public String getValue(ConnectionDefinition record) {
-                return record.getJndiName();
+                return record.getName();
             }
         };
 
@@ -156,7 +156,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
                 };
 
 
-        table.addColumn(nameColumn, "JNDI Name");
+        table.addColumn(nameColumn, "Name");
         table.addColumn(statusColumn, "Enabled?");
 
 
@@ -192,7 +192,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
                 ConnectionDefinition selectedObject = getCurrentSelection();
 
                 connectionProperties.updateFrom(selectedObject.getProperties());
-                poolConfig.updateFrom(selectedObject.getJndiName(), selectedObject.getPoolConfig());
+                poolConfig.updateFrom(selectedObject.getName(), selectedObject.getPoolConfig());
 
                 String nextState = selectedObject.isEnabled() ?
                         Console.CONSTANTS.common_label_disable():Console.CONSTANTS.common_label_enable();

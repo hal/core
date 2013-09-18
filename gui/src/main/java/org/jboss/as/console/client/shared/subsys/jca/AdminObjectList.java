@@ -137,7 +137,7 @@ public class AdminObjectList implements PropertyManagement {
         TextColumn<AdminObject> nameColumn = new TextColumn<AdminObject>() {
             @Override
             public String getValue(AdminObject record) {
-                return record.getJndiName();
+                return record.getName();
             }
         };
 
@@ -158,7 +158,7 @@ public class AdminObjectList implements PropertyManagement {
                 };
 
 
-        table.addColumn(nameColumn, "JNDI Name");
+        table.addColumn(nameColumn, "Name");
         table.addColumn(statusColumn, "Enabled?");
 
 
@@ -174,11 +174,12 @@ public class AdminObjectList implements PropertyManagement {
         Form<AdminObject> form = new Form<AdminObject>(AdminObject.class);
         form.setNumColumns(2);
 
-        TextItem jndiItem = new TextItem("jndiName", "JNDI");
+        TextItem name = new TextItem("name", "Name");
+        TextBoxItem jndiItem = new TextBoxItem("jndiName", "JNDI");
         TextBoxItem classItem = new TextBoxItem("adminClass", "Class Name");
-        CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
+        //CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
 
-        form.setFields(jndiItem, classItem, enabled);
+        form.setFields(name, jndiItem, classItem);
 
         form.setEnabled(false);
         form.bind(table);

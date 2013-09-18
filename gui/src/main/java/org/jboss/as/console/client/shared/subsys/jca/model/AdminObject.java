@@ -13,6 +13,7 @@ import java.util.List;
 @Address("/subsystem=resource-adapters/resource-adapter={0}/admin-objects={1}")
 public interface AdminObject {
 
+
     @Binding(skip=true)
     String getName();
     void setName(String name);

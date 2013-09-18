@@ -37,10 +37,11 @@ public class ConnectionStep1 {
 
         final Form<ConnectionDefinition> form = new Form(ConnectionDefinition.class);
 
+        TextBoxItem name = new TextBoxItem("name", "Name");
         TextBoxItem jndiName = new JndiNameItem("jndiName", "JNDI Name");
         TextBoxItem classItem = new TextBoxItem("connectionClass", "Connection Class");
 
-        form.setFields(jndiName, classItem);
+        form.setFields(name, jndiName, classItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

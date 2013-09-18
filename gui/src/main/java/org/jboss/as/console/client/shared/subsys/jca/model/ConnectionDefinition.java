@@ -13,6 +13,10 @@ import java.util.List;
 @Address("/subsystem=resource-adapters/resource-adapter={0}/connection-definitions={1}")
 public interface ConnectionDefinition {
 
+    @Binding(key = true)
+    String getName();
+    void setName(String name);
+
     @Binding(detypedName = "jndi-name")
     String getJndiName();
     void setJndiName(String name);
