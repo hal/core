@@ -171,12 +171,14 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                 if(response.isFailure())
                 {
-                    callback.onFailure(
-                            new RuntimeException(
-                                    "Failed to retrieve access control meta data:"+
-                                            response.getFailureDescription()
-                            )
-                    );
+                    Console.warning(
+                            "Failed to retrieve access control meta data, " +
+                            "fallback to temporary read-only context: ",
+                            response.getFailureDescription());
+
+                    contextMapping.put(id, READ_ONLY);
+                    callback.onSuccess(READ_ONLY);
+
                     return;
                 }
 
