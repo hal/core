@@ -59,49 +59,53 @@ public class MembersDialog implements IsWidget {
         layout.setStyleName("window-content");
 
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        builder.append(TEMPLATES.title(internal.getRole().getName()));
-        builder.appendHtmlConstant("<ol class=\"outer-list\">");
-        boolean includeAll = internal.getRole().isIncludeAll();
-        List<RoleAssignment.PrincipalRealmTupel> includes = internal.getIncludes();
-        if (includeAll || !includes.isEmpty()) {
-            builder.appendHtmlConstant(
-                    "<li class=\"header\">Included principals</li><ul class=\"inner-list icons-ul\">");
-            if (includeAll) {
-                builder.append(TEMPLATES.includeAll(Console.CONSTANTS.common_label_user()));
-            }
-            if (!includes.isEmpty()) {
-                for (RoleAssignment.PrincipalRealmTupel include : includes) {
-                    if (include.principal.getType() == USER) {
-                        builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
-                                UIHelper.principalAsSafeHtml(include.principal, include.realm)));
-                    } else {
-                        builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
-                                UIHelper.principalAsSafeHtml(include.principal, include.realm)));
+        if (internal.isEmpty()) {
+            builder.append(TEMPLATES.noMembers(internal.getRole().getName()));
+        } else {
+            builder.append(TEMPLATES.title(internal.getRole().getName()));
+            builder.appendHtmlConstant("<ol class=\"outer-list\">");
+            boolean includeAll = internal.getRole().isIncludeAll();
+            List<RoleAssignment.PrincipalRealmTupel> includes = internal.getIncludes();
+            if (includeAll || !includes.isEmpty()) {
+                builder.appendHtmlConstant(
+                        "<li class=\"header\">Included principals</li><ul class=\"inner-list icons-ul\">");
+                if (includeAll) {
+                    builder.append(TEMPLATES.includeAll(Console.CONSTANTS.common_label_user()));
+                }
+                if (!includes.isEmpty()) {
+                    for (RoleAssignment.PrincipalRealmTupel include : includes) {
+                        if (include.principal.getType() == USER) {
+                            builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                                    UIHelper.principalAsSafeHtml(include.principal, include.realm)));
+                        } else {
+                            builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                                    UIHelper.principalAsSafeHtml(include.principal, include.realm)));
+                        }
                     }
                 }
+                builder.appendHtmlConstant("</ul>");
+            } else {
+                builder.appendHtmlConstant("<li class=\"header\">No principals are included</li>");
             }
-            builder.appendHtmlConstant("</ul>");
-        } else {
-            builder.appendHtmlConstant("<li class=\"header\">No principals are included</li>");
-        }
-        List<RoleAssignment.PrincipalRealmTupel> excludes = internal.getExcludes();
-        if (!excludes.isEmpty()) {
-            builder.appendHtmlConstant(
-                    "<li class=\"header\">Excluded principals</li><ul class=\"inner-list icons-ul\">");
-            for (RoleAssignment.PrincipalRealmTupel exclude : excludes) {
-                if (exclude.principal.getType() == USER) {
-                    builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
-                            UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
-                } else {
-                    builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
-                            UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
+            List<RoleAssignment.PrincipalRealmTupel> excludes = internal.getExcludes();
+            if (!excludes.isEmpty()) {
+                builder.appendHtmlConstant(
+                        "<li class=\"header\">Excluded principals</li><ul class=\"inner-list icons-ul\">");
+                for (RoleAssignment.PrincipalRealmTupel exclude : excludes) {
+                    if (exclude.principal.getType() == USER) {
+                        builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                                UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
+                    } else {
+                        builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                                UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
+                    }
                 }
+                builder.appendHtmlConstant("</ul>");
+            } else {
+                builder.appendHtmlConstant("<li class=\"header\">No principals are excluded</li>");
             }
-            builder.appendHtmlConstant("</ul>");
-        } else {
-            builder.appendHtmlConstant("<li class=\"header\">No principals are excluded</li>");
+            builder.appendHtmlConstant("</ol>");
         }
-        builder.appendHtmlConstant("</ol>");
         HTML html = new HTML(builder.toSafeHtml());
         html.addStyleName("members-dialog");
         layout.add(html);
@@ -127,6 +131,9 @@ public class MembersDialog implements IsWidget {
     }
 
     interface Templates extends SafeHtmlTemplates {
+
+        @Template("<p>No members found for role {0}</p>")
+        SafeHtml noMembers(String role);
 
         @Template(
                 "<p>The role {0} consists of these principals. Please note that any exclude definitions takes priority over any include definitions.</p>")

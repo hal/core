@@ -21,9 +21,6 @@ package org.jboss.as.console.client.administration.role;
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 import static org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
-import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +28,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -40,7 +38,6 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.Role;
@@ -51,21 +48,17 @@ import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignm
 import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
+import org.jboss.as.console.client.administration.role.operation.ShowMembersOperation;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
 
 /**
@@ -166,16 +159,9 @@ public class RoleAssignmentPresenter
     // ------------------------------------------------------ callback methods triggered by the view
 
     public void launchAddRoleAssignmentWizard(final Principal.Type type) {
-        closeWindow();
         String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
                 .CONSTANTS.role_assignment_add_group();
-        window = new DefaultWindow(title);
-        window.setWidth(480);
-        window.setHeight(630);
-        AddRoleAssignmentWizard wizard = new AddRoleAssignmentWizard(this, type, principals, roles);
-        window.trapWidget(wizard.asWidget());
-        window.setGlassEnabled(true);
-        window.center();
+        openWindow(title, 480, 630, new AddRoleAssignmentWizard(this, type, principals, roles).asWidget());
     }
 
     public void addRoleAssignment(final RoleAssignment assignment) {
@@ -232,15 +218,8 @@ public class RoleAssignmentPresenter
 
     public void launchAddScopedRoleWizard() {
         if (!assertDomainMode()) { return; }
-
-        closeWindow();
-        window = new DefaultWindow(Console.CONSTANTS.administration_add_scoped_role());
-        window.setWidth(480);
-        window.setHeight(420);
-        AddScopedRoleWizard wizard = new AddScopedRoleWizard(hosts, serverGroups, this);
-        window.trapWidget(wizard.asWidget());
-        window.setGlassEnabled(true);
-        window.center();
+        openWindow(Console.CONSTANTS.administration_add_scoped_role(), 480, 420,
+                new AddScopedRoleWizard(hosts, serverGroups, this).asWidget());
     }
 
     public void addScopedRole(final Role role) {
@@ -343,66 +322,23 @@ public class RoleAssignmentPresenter
             return;
         }
 
-        closeWindow();
-        ModelNode node = ModelHelper.roleMapping(role);
-        node.get("recursive-depth").set("2");
-        node.get(OP).set(READ_RESOURCE_OPERATION);
-        dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
+        ManagementOperation<RoleAssignment.Internal> mo = new ShowMembersOperation(dispatcher, role, principals);
+        mo.execute(new Outcome<RoleAssignment.Internal>() {
             @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    Console.error("Cannot read members");
-                } else {
-                    RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
-                    ModelNode assignmentNode = result.get(RESULT);
-                    if (assignmentNode.hasDefined("include")) {
-                        List<Property> inclusions = assignmentNode.get("include").asPropertyList();
-                        for (Property inclusion : inclusions) {
-                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(inclusion.getValue());
-                            if (prt != null) {
-                                internal.include(prt);
-                            }
-                        }
-                    }
-                    if (assignmentNode.hasDefined("exclude")) {
-                        List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
-                        for (Property exclusion : exclusions) {
-                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(exclusion.getValue());
-                            if (prt != null) {
-                                internal.exclude(prt);
-                            }
-                        }
-                    }
+            public void onFailure(final RoleAssignment.Internal internal) {
+                show(internal);
+            }
 
-                    window = new DefaultWindow(Console.MESSAGES.administration_members(role.getName()));
-                    window.setWidth(480);
-                    window.setHeight(420);
-                    MembersDialog dialog = new MembersDialog(RoleAssignmentPresenter.this, internal);
-                    window.trapWidget(dialog.asWidget());
-                    window.setGlassEnabled(true);
-                    window.center();
-                }
+            @Override
+            public void onSuccess(final RoleAssignment.Internal internal) {
+                show(internal);
+            }
+
+            private void show(final RoleAssignment.Internal internal) {
+                openWindow(Console.MESSAGES.administration_members(role.getName()), 480, 420,
+                        new MembersDialog(RoleAssignmentPresenter.this, internal).asWidget());
             }
         });
-    }
-
-    private RoleAssignment.PrincipalRealmTupel mapPrincipal(ModelNode principalNode) {
-        String principalName = principalNode.get("name").asString();
-        if (ModelHelper.LOCAL_USERNAME.equals(principalName)) {
-            // Skip the local user
-            return null;
-        }
-        Principal.Type type = Principal.Type.valueOf(principalNode.get("type").asString());
-        String realm = null;
-        if (principalNode.hasDefined("realm")) {
-            realm = principalNode.get("realm").asString();
-        }
-        Principal principal = principals.lookup(type, principalName);
-        if (principal != null) {
-            return new RoleAssignment.PrincipalRealmTupel(principal, realm);
-        }
-        return null;
     }
 
     private boolean assertDomainMode() {
@@ -436,6 +372,16 @@ public class RoleAssignmentPresenter
             }
         }
         return counter;
+    }
+
+    public void openWindow(final String title, final int width, final int height, final Widget content) {
+        closeWindow();
+        window = new DefaultWindow(title);
+        window.setWidth(width);
+        window.setHeight(height);
+        window.trapWidget(content);
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void closeWindow() {

@@ -210,6 +210,10 @@ public class RoleAssignment {
         public List<PrincipalRealmTupel> getExcludes() {
             return excludes;
         }
+
+        public boolean isEmpty() {
+            return includes.isEmpty() && excludes.isEmpty();
+        }
     }
 
     public static class PrincipalRealmTupel {
