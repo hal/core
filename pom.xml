@@ -82,7 +82,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ballroom.version>2.0.0.Final</ballroom.version>
+        <ballroom.version>2.0.1.Final</ballroom.version>
         <gwt.version>2.5.1</gwt.version>
         <gwtp.version>1.0.1</gwtp.version>
         <gwt.maven>2.5.1</gwt.maven>

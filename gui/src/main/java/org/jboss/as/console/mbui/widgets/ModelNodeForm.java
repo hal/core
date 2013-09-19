@@ -146,6 +146,15 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         refreshPlainView();
     }
 
+    /**
+     * The MBUI kernel provides the context
+     * @return
+     */
+    @Override
+    protected SecurityContext getSecurityContext() {
+        return this.securityContext;
+    }
+
     @Override
     public Set<String> getReadOnlyNames() {
 
