@@ -80,7 +80,7 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlet/HTTP", "web"));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Web Services", "webservices"));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("JAXRS", "jaxrs",Boolean.TRUE));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("mod_cluster", "modcluster", NameTokens.ModclusterPresenter));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Load Balancer", "modcluster", NameTokens.ModclusterPresenter));
 
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.DialogPresenter+";dialog=servlet"));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.DialogPresenter+";dialog=http"));
@@ -96,7 +96,7 @@ public class SubsystemMetaData {
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", NameTokens.BoundedQueueThreadPoolPresenter));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("JMX", "jmx"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Config Admin", "osgi", NameTokens.ConfigAdminPresenter));
-        groups.get(CORE).getItems().add(new SubsystemGroupItem("JGroups", NameTokens.JGroupsPresenter));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("Group Communication", NameTokens.JGroupsPresenter));
 
         //groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Naming", "naming", !Console.getBootstrapContext().isStandalone()));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("EJB 3", "ejb3"));
@@ -104,7 +104,7 @@ public class SubsystemMetaData {
         //groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Transactions", "transactions"));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Weld", "weld",Boolean.TRUE));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JPA", "jpa"));
-        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JacORB", "jacorb"));
+        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Corba", "jacorb"));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));

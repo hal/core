@@ -58,6 +58,6 @@ public class JacOrbView extends AbstractEntityView<JacOrbSubsystem> implements J
 
     @Override
     protected String getEntityDisplayName() {
-        return "JacORB";
+        return "Corba";
     }
 }
