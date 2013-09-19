@@ -49,6 +49,7 @@ import org.jboss.as.console.client.administration.role.operation.ManagementOpera
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
 import org.jboss.as.console.client.administration.role.operation.ShowMembersOperation;
+import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
@@ -75,10 +76,12 @@ import org.jboss.gwt.flow.client.Outcome;
 public class RoleAssignmentPresenter
         extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
+    static final String SIMPLE_ACCESS_CONTROL_PROVIDER = "simple";
     private final boolean standalone;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final ManagementOperation<Map<Results, Object>> loadRoleAssignmentsOp;
+    private boolean initialized;
     private DefaultWindow window;
     private Principals principals;
     private RoleAssignments assignments;
@@ -97,8 +100,8 @@ public class RoleAssignmentPresenter
         this.standalone = Console.getBootstrapContext().isStandalone();
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
-        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(dispatcher, hostInformationStore, serverGroupStore,
-                standalone);
+        this.loadRoleAssignmentsOp = new LoadRoleAssignmentsOp(this, dispatcher, hostInformationStore,
+                serverGroupStore);
 
         // empty defaults to prevent NPE before the first call to loadAssignments()
         this.principals = new Principals();
@@ -106,6 +109,8 @@ public class RoleAssignmentPresenter
         this.roles = new Roles();
         this.hosts = new ArrayList<String>();
         this.serverGroups = new ArrayList<String>();
+
+        this.initialized = false;
     }
 
     @Override
@@ -151,6 +156,16 @@ public class RoleAssignmentPresenter
                     hosts = (List<String>) context.get(Results.HOSTS);
                     serverGroups = (List<String>) context.get(Results.SERVER_GROUPS);
                     getView().update(principals, assignments, roles, hosts, serverGroups);
+
+                    // show warning about simple access control provider (if not already done)
+                    if (!initialized) {
+                        String acp = (String) context.get(Results.ACCESS_CONTROL_PROVIDER);
+                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
+                            openWindow(Console.CONSTANTS.administration_access_control_provider_header(), 480, 200,
+                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
+                        }
+                    }
+                    initialized = true;
                 }
             });
         }
@@ -388,6 +403,10 @@ public class RoleAssignmentPresenter
         if (window != null) {
             window.hide();
         }
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     // ------------------------------------------------------ properties

@@ -688,6 +688,4 @@ public interface UIConstants extends Constants {
     String administration_include_exclude();
     String administration_members();
     String administration_access_control_provider_header();
-    String administration_access_control_provider_desc();
-    String administration_access_control_provider_done();
 }

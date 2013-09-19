@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Principals;
@@ -62,18 +63,18 @@ import org.jboss.gwt.flow.client.Outcome;
  */
 public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAssignmentsOp.Results, Object>> {
 
+    private final RoleAssignmentPresenter presenter;
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
     private final ServerGroupStore serverGroupStore;
-    private final boolean standalone;
     private boolean pending;
 
-    public LoadRoleAssignmentsOp(final DispatchAsync dispatcher, final HostInformationStore hostInformationStore,
-            ServerGroupStore serverGroupStore, final boolean standalone) {
+    public LoadRoleAssignmentsOp(final RoleAssignmentPresenter presenter, final DispatchAsync dispatcher,
+            final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
+        this.presenter = presenter;
         this.dispatcher = dispatcher;
         this.hostInformationStore = hostInformationStore;
         this.serverGroupStore = serverGroupStore;
-        this.standalone = standalone;
     }
 
     @Override
@@ -94,6 +95,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         ROLES,
         HOSTS,
         SERVER_GROUPS,
+        ACCESS_CONTROL_PROVIDER,
         ERROR
     }
 
@@ -106,7 +108,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             operation.get(OP).set(COMPOSITE);
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
-            if (!standalone) {
+            if (!presenter.isStandalone()) {
                 ModelNode hostScopeOp = new ModelNode();
                 hostScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
                 hostScopeOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
@@ -127,6 +129,14 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             mappingOp.get("recursive-depth").set("2");
             steps.add(mappingOp);
 
+            if (!presenter.isInitialized()) {
+                ModelNode accessControlProviderOp = new ModelNode();
+                accessControlProviderOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+                accessControlProviderOp.get(OP).set(READ_ATTRIBUTE_OPERATION);
+                accessControlProviderOp.get(NAME).set("provider");
+                steps.add(accessControlProviderOp);
+            }
+
             operation.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                 @Override
@@ -144,7 +154,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         ModelNode stepsResult = result.get(RESULT);
 
                         // the order of processing is important!
-                        if (!standalone) {
+                        if (!presenter.isStandalone()) {
                             List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
                             for (ModelNode node : hostScopedRoles) {
                                 addScopedRole(roles, node.asProperty(), "hosts", HOST);
@@ -155,7 +165,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                                 addScopedRole(roles, node.asProperty(), "server-groups", SERVER_GROUP);
                             }
                         }
-                        List<ModelNode> roleMappings = stepsResult.get(standalone ? "step-1" : "step-3").get(RESULT)
+                        List<ModelNode> roleMappings = stepsResult.get(presenter.isStandalone() ? "step-1" : "step-3").get(RESULT)
                                 .asList();
                         for (ModelNode node : roleMappings) {
                             addInternalRoleAssignment(principals, assignments, roles, node.asProperty());
@@ -163,6 +173,16 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         // All entities are read - now transform the role assignements from the management model to
                         // role assignments used in the UI
                         assignments.toUI(principals);
+
+                        if (!presenter.isInitialized()) {
+                            String provider = "undefined";
+                            String step = presenter.isStandalone() ? "step-2" : "step-4";
+                            ModelNode providerNode = stepsResult.get(step);
+                            if (!providerNode.isFailure()) {
+                                provider = providerNode.get(RESULT).asString();
+                            }
+                            control.getContext().put(Results.ACCESS_CONTROL_PROVIDER, provider);
+                        }
 
                         control.getContext().put(Results.PRINCIPALS, principals);
                         control.getContext().put(Results.ASSIGNMENTS, assignments);
@@ -249,7 +269,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         @Override
         public void execute(final Control<Map<Results, Object>> control) {
-            if (standalone) {
+            if (presenter.isStandalone()) {
                 control.getContext().put(Results.HOSTS, Collections.emptyList());
                 control.proceed();
             } else {
@@ -278,7 +298,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         @Override
         public void execute(final Control<Map<Results, Object>> control) {
-            if (standalone) {
+            if (presenter.isStandalone()) {
                 control.getContext().put(Results.SERVER_GROUPS, Collections.emptyList());
                 control.proceed();
                 finish();
