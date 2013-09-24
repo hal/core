@@ -66,7 +66,7 @@ public class EnvironmentProperties {
         sortHandler.setComparator(keyColumn, new Comparator<PropertyRecord>() {
             @Override
             public int compare(PropertyRecord o1, PropertyRecord o2) {
-                return o1.getKey().compareTo(o2.getKey());
+                return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
             }
         });
 
@@ -173,7 +173,7 @@ public class EnvironmentProperties {
         final List<PropertyRecord> next  = new ArrayList<PropertyRecord>();
         for(PropertyRecord prop : origValues)
         {
-            if(prop.getKey().startsWith(prefix))
+            if(prop.getKey().toLowerCase().contains(prefix.toLowerCase()))
                 next.add(prop);
         }
 
