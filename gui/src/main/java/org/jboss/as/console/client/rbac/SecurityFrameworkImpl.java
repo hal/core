@@ -3,6 +3,7 @@ package org.jboss.as.console.client.rbac;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -53,17 +54,22 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final ContextKeyResolver keyResolver;
+    private final BootstrapContext bootstrap;
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
     private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
 
     @Inject
-    public SecurityFrameworkImpl(AccessControlRegistry accessControlReg, DispatchAsync dispatcher, CoreGUIContext statementContext) {
+    public SecurityFrameworkImpl(
+            AccessControlRegistry accessControlReg,
+            DispatchAsync dispatcher,
+            CoreGUIContext statementContext, BootstrapContext bootstrap) {
         this.accessControlReg = accessControlReg;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.keyResolver = new PlaceSecurityResolver();
+        this.bootstrap = bootstrap;
     }
 
     @Override
@@ -109,10 +115,23 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                             new FilteringStatementContext.Filter() {
                                 @Override
                                 public String filter(String key) {
+
                                     if("selected.entity".equals(key))
+                                    {
                                         return "*";
+                                    }
+                                    else if("addressable.group".equals(key))
+                                    {
+                                        return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups().iterator().next();
+                                    }
+                                    else if("addressable.host".equals(key))
+                                    {
+                                        return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts().iterator().next();
+                                    }
                                     else
+                                    {
                                         return null;
+                                    }
                                 }
 
                                 @Override

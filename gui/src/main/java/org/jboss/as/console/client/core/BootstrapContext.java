@@ -31,6 +31,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
+import org.jboss.as.console.client.shared.state.HostList;
 
 /**
  * @author Heiko Braun
@@ -47,6 +48,8 @@ public class BootstrapContext implements ApplicationProperties {
     private boolean hostManagementDisabled;
     private boolean groupManagementDisabled;
     private Set<String> roles;
+    private Set<String> addressableHosts;
+    private Set<String> addressableGroups;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -251,5 +254,21 @@ public class BootstrapContext implements ApplicationProperties {
             }
         }
         return match;
+    }
+
+    public void setAddressableHosts(Set<String> hosts) {
+        this.addressableHosts = hosts;
+    }
+
+    public Set<String> getAddressableHosts() {
+        return addressableHosts;
+    }
+
+    public void setAdressableGroups(Set<String> groups) {
+        this.addressableGroups = groups;
+    }
+
+    public Set<String> getAddressableGroups() {
+        return addressableGroups;
     }
 }

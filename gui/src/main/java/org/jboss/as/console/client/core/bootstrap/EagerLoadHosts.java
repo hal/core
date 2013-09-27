@@ -2,11 +2,16 @@ package org.jboss.as.console.client.core.bootstrap;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.domain.model.Host;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The main function of this bootstrap step is to provide a host preselection.
@@ -46,7 +51,15 @@ public class EagerLoadHosts implements Function<BootstrapContext> {
                 @Override
                 public void onSuccess(HostList hostList) {
                     Log.info("Identified " + hostList.getHosts().size() + " hosts in this domain");
+                    if(hostList.isEmpty()) {
+                        context.setHostManagementDisabled(true);
+                    }
+
+                    Set<String> hosts = new HashSet<String>(hostList.getHosts().size());
+                    for(Host host : hostList.getHosts()) hosts.add(host.getName());
+                    control.getContext().setAddressableHosts(hosts);
                     control.proceed();
+
                 }
             });
         }

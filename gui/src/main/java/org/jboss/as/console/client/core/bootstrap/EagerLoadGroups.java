@@ -7,7 +7,9 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EagerLoadGroups implements Function<BootstrapContext> {
 
@@ -37,6 +39,9 @@ public class EagerLoadGroups implements Function<BootstrapContext> {
                         context.setGroupManagementDisabled(true);
                     }
 
+                    Set<String> groups = new HashSet<String>(result.size());
+                    for(ServerGroupRecord group : result) groups.add(group.getName());
+                    control.getContext().setAdressableGroups(groups);
                     control.proceed();
                 }
             });
