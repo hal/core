@@ -70,7 +70,7 @@ public class TopologyPresenter extends
 
     /**
      * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
-     * the security service (race condition). So do not use them in the annotaions below!
+     * the security service (race condition). So do not use them in the annotations below!
      * @author Harald Pehl
      * @date 10/15/12
      */
