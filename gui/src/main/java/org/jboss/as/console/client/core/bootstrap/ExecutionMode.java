@@ -19,24 +19,23 @@
 
 package org.jboss.as.console.client.core.bootstrap;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.shared.Preferences;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.shared.Preferences;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
 
 /**
  * @author Heiko Braun
@@ -165,14 +164,11 @@ public class ExecutionMode implements Function<BootstrapContext> {
 
                     if(context.isSuperUser() && Preferences.has(Preferences.Key.RUN_AS_ROLE))
                     {
-                        dispatcher.setProperty("run_as", Preferences.get(Preferences.Key.RUN_AS_ROLE));
+                        String runAsRole = Preferences.get(Preferences.Key.RUN_AS_ROLE);
+                        dispatcher.setProperty("run_as", runAsRole);
+                        context.setRunAs(runAsRole);
                     }
-                    else
-                    {
-                        // clear run as if not super user
-                        dispatcher.clearProperty("run_as");
-                        Preferences.clear(Preferences.Key.RUN_AS_ROLE);
-                    }
+                    Preferences.clear(Preferences.Key.RUN_AS_ROLE);
 
                     control.proceed();
                 }

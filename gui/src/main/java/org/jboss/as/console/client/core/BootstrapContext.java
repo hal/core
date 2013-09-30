@@ -30,8 +30,6 @@ import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.shared.Preferences;
-import org.jboss.as.console.client.shared.state.HostList;
 
 /**
  * @author Heiko Braun
@@ -50,6 +48,7 @@ public class BootstrapContext implements ApplicationProperties {
     private Set<String> roles;
     private Set<String> addressableHosts;
     private Set<String> addressableGroups;
+    private String runAs;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -202,10 +201,6 @@ public class BootstrapContext implements ApplicationProperties {
         return principal;
     }
 
-    public String getRunAs() {
-        return Preferences.get(Preferences.Key.RUN_AS_ROLE, "").toLowerCase();
-    }
-
     public void setHostManagementDisabled(boolean b) {
         this.hostManagementDisabled = b;
     }
@@ -270,5 +265,13 @@ public class BootstrapContext implements ApplicationProperties {
 
     public Set<String> getAddressableGroups() {
         return addressableGroups;
+    }
+
+    public void setRunAs(final String runAs) {
+        this.runAs = runAs;
+    }
+
+    public String getRunAs() {
+        return runAs;
     }
 }

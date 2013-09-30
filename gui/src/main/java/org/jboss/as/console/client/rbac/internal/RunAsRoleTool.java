@@ -125,11 +125,10 @@ public class RunAsRoleTool implements Tool {
             return;
         }
 
-        if (role.equals("No preselection")) {
-            Preferences.clear(RUN_AS_ROLE);
-        } else {
-            Preferences.set(RUN_AS_ROLE, role);
+        if (!role.equals("No preselection")) {
+            Preferences.set(RUN_AS_ROLE, role); // temporary, see console bootstrap : clears the pref again
         }
+
         Feedback.confirm(Console.MESSAGES.restartRequired(), Console.MESSAGES.restartRequiredConfirm(),
                 new Feedback.ConfirmationHandler() {
                     @Override

@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.core;
 
+import java.util.Set;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
@@ -49,13 +51,8 @@ import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
-import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.Set;
-
-import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 /**
  * Top level header, gives access to main applications.
@@ -244,8 +241,8 @@ public class Header implements ValueChangeHandler<String> {
 
             SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
             runAsRole.appendHtmlConstant("<i class='icon-flag'></i>&nbsp;").appendEscaped("Run as");
-            if (Preferences.has(RUN_AS_ROLE)) {
-                runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(Preferences.get(RUN_AS_ROLE));
+            if (bootstrap.getRunAs()!=null) {
+                runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(bootstrap.getRunAs());
             } else {
                 runAsRole.appendEscaped("...");
             }
