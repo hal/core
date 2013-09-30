@@ -19,10 +19,18 @@ public class AccessControlRegistryImpl implements AccessControlRegistry{
 
         </#list>
 
+        <#list operations as op>
+            resourceMapping.addOperation("${op.getToken()}", "${op.getOperation()}");
+        </#list>
+
      }
 
     public Set<String> getResources(String token) {
          return resourceMapping.getResources(token);
+    }
+
+    public Set<String> getOperations(String token) {
+        return resourceMapping.getOperations(token);
     }
 
     public boolean isRecursive(String token) {

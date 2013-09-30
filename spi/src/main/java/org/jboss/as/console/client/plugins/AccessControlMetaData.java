@@ -9,6 +9,7 @@ public class AccessControlMetaData {
     private String resource;
     private String token;
     private String recursive;
+    private String[] operations;
 
     public AccessControlMetaData(String token, String resource) {
         this.token = token;
@@ -29,5 +30,13 @@ public class AccessControlMetaData {
 
     public String isRecursive() {
         return recursive;
+    }
+
+    public void setOperations(String[] operations) {
+        this.operations = operations;
+    }
+
+    public String[] getOperations() {
+        return operations;
     }
 }

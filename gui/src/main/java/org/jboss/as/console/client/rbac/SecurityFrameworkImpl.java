@@ -50,7 +50,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     private static final String ACCESS_CONTROL = "access-control";
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
-    protected final AccessControlRegistry accessControlReg;
+    protected final AccessControlRegistry accessControlMetaData;
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final ContextKeyResolver keyResolver;
@@ -62,10 +62,10 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
     @Inject
     public SecurityFrameworkImpl(
-            AccessControlRegistry accessControlReg,
+            AccessControlRegistry accessControlMetaData,
             DispatchAsync dispatcher,
             CoreGUIContext statementContext, BootstrapContext bootstrap) {
-        this.accessControlReg = accessControlReg;
+        this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.keyResolver = new PlaceSecurityResolver();
@@ -92,7 +92,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-        createSecurityContext(id, accessControlReg.getResources(id), callback);
+        createSecurityContext(id, accessControlMetaData.getResources(id), callback);
     }
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
@@ -149,7 +149,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
             //step.get(RECURSIVE).set(true);
 
-            if(accessControlReg.isRecursive(id))
+            if(accessControlMetaData.isRecursive(id))
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
             step.get(ACCESS_CONTROL).set(TRIM_DESCRIPTIONS); // reduces the payload size

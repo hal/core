@@ -17,17 +17,17 @@ import javax.inject.Singleton;
 @Singleton
 public class RBACGatekeeper implements Gatekeeper {
 
-    private final AccessControlRegistry accessControlReg;
+    private final AccessControlRegistry accessControlMetaData;
     private final PlaceManager placemanager;
     private final SecurityFramework securityFramework;
 
     @Inject
     public RBACGatekeeper(
-            final AccessControlRegistry accessControlReg,
+            final AccessControlRegistry accessControlMetaData,
             final PlaceManager placemanager,
             final SecurityFramework securityManager, EventBus eventBus) {
 
-        this.accessControlReg = accessControlReg;
+        this.accessControlMetaData = accessControlMetaData;
         this.placemanager = placemanager;
         this.securityFramework = securityManager;
 
@@ -47,7 +47,27 @@ public class RBACGatekeeper implements Gatekeeper {
         {
             SecurityContext securityContext = securityFramework.getSecurityContext(token);
             final AuthorisationDecision readPriviledge = securityContext.getReadPriviledge();
-            outcome = readPriviledge.isGranted();
+
+
+            // bootstrap operations
+            boolean bootstrapRequirementsSatisfied = true;
+            for(String op : accessControlMetaData.getOperations(token))
+            {
+                int idx = op.indexOf("#");
+                AuthorisationDecision opPriv = securityContext.getOperationPriviledge(
+                        op.substring(0, idx),
+                        op.substring(idx + 1, op.length())
+                );
+
+                if(!opPriv.isGranted())
+                {
+                    bootstrapRequirementsSatisfied = false;
+                    break;
+                }
+            }
+
+
+            outcome = readPriviledge.isGranted() && bootstrapRequirementsSatisfied;
 
             //notify listeners (error messages, etc)
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

@@ -60,9 +60,15 @@ public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JndiPresenter)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/subsystem=naming"
-    })
+    @AccessControl(
+            resources = {
+                    "/{selected.host}/{selected.server}/subsystem=naming"
+            },
+            operations = {
+                    "/{selected.host}/{selected.server}/subsystem=naming#jndi-view"
+            },
+            recursive = false
+    )
     public interface MyProxy extends Proxy<JndiPresenter>, Place {
     }
 

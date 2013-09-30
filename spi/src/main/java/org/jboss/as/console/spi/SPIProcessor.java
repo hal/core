@@ -3,6 +3,7 @@ package org.jboss.as.console.spi;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.AccessControlMetaData;
+import org.jboss.as.console.client.plugins.BootstrapOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
@@ -82,6 +83,7 @@ public class SPIProcessor extends AbstractProcessor {
     private List<String> categoryClasses;
     private List<SubsystemExtensionMetaData> subsystemDeclararions;
     private List<AccessControlMetaData> accessControlDeclararions;
+    private List<BootstrapOperation> bootstrapOperations;
     private List<RuntimeExtensionMetaData> runtimeExtensions;
     private Set<String> modules = new LinkedHashSet<>();
     private Set<String> nameTokens;
@@ -97,6 +99,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.categoryClasses = new ArrayList<>();
         this.subsystemDeclararions = new ArrayList<>();
         this.accessControlDeclararions = new ArrayList<>();
+        this.bootstrapOperations= new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
 
@@ -231,6 +234,20 @@ public class SPIProcessor extends AbstractProcessor {
 
                         accessControlDeclararions.add(declared);
                     }
+
+                    for(String opString : accessControl.operations())
+                    {
+
+                        if(!opString.contains("#"))
+                            throw new IllegalArgumentException("Invalid operation string:"+ opString);
+
+                        BootstrapOperation op = new BootstrapOperation(
+                                nameToken.value(), opString
+                        );
+                        bootstrapOperations.add(op);
+                    }
+
+
                 }
                 else if(element.getAnnotation(NoGatekeeper.class)==null)
                 {
@@ -350,6 +367,7 @@ public class SPIProcessor extends AbstractProcessor {
     private void writeAccessControlFile() throws Exception {
         Map<String, Object> model = new HashMap<>();
         model.put("metaData", accessControlDeclararions);
+        model.put("operations", bootstrapOperations);
 
         JavaFileObject sourceFile = filer.createSourceFile(ACCESS_FILENAME);
         OutputStream output = sourceFile.openOutputStream();

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.plugins;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Set;
 public class ResourceMapping {
     private Map<String, Set<String>> token2address = new HashMap<String, Set<String>>();
     private Map<String, MetaData> mappings = new HashMap<String, MetaData>();
+    private Map<String, Set<String>> operations = new HashMap<String, Set<String>>();
 
     public void put(String token, String address, String recursive){
         if(null==token2address.get(token))
@@ -20,6 +22,19 @@ public class ResourceMapping {
         token2address.get(token).add(address);
 
         mappings.put(token, new MetaData(token, address, Boolean.valueOf(recursive)));
+    }
+
+    public void addOperation(String token, String opString){
+        if(null==this.operations.get(token))
+            this.operations.put(token, new HashSet<String>());
+
+        this.operations.get(token).add(opString);
+    }
+
+    public Set<String> getOperations(String token)
+    {
+        return operations.get(token) != null ? operations.get(token) : Collections.EMPTY_SET;
+
     }
 
     public Set<String> getResources(String token)

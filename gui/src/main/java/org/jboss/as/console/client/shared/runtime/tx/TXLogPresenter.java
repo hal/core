@@ -49,6 +49,8 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store"
             }
+            ,
+            operations = "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store#probe"
     )
     public interface MyProxy extends Proxy<TXLogPresenter>, Place {
     }

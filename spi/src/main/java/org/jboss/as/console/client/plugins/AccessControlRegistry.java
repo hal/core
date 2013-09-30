@@ -9,5 +9,6 @@ import java.util.Set;
 public interface AccessControlRegistry {
 
     public Set<String> getResources(String token);
+    public Set<String> getOperations(String token);
     public boolean isRecursive(String token);
 }
