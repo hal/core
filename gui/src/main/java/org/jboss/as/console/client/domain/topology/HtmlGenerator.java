@@ -210,7 +210,7 @@ final class HtmlGenerator {
 
     HtmlGenerator startLinks(boolean groupLinks) {
 
-        AuthorisationDecision startGroupPriv = SECURITY_SERVICE.getSecurityContext().getOperationPriviledge("/server-group=*", "start-servers");
+        AuthorisationDecision startGroupPriv = SECURITY_SERVICE.getSecurityContext().getOperationPriviledge("/server-group={addressable.group}", "start-servers");
 
         if (startGroupPriv.isGranted()) {
             appendHtmlConstant("<div>");
