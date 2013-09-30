@@ -1,13 +1,15 @@
 package org.jboss.as.console.client.shared.subsys.messaging.forms;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
-import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
@@ -15,9 +17,6 @@ import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -62,8 +61,6 @@ public class DefaultBridgeForm {
         queueName.setOracle(oracle);
         forward.setOracle(oracle);
 
-        CheckBoxItem started = new CheckBoxItem("started", "Started?");
-
         TextBoxItem discoveryGroup = new TextBoxItem("discoveryGroup", "Discovery Group", false);
         ListItem connectors = new ListItem("staticConnectors", "Static Connectors", false);
 
@@ -83,7 +80,7 @@ public class DefaultBridgeForm {
             TextItem name = new TextItem("name", "Name");
 
             form.setFields(
-                    name, started,
+                    name,
                     queueName, forward,
                     discoveryGroup, connectors,
                     filter,transformer
