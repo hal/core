@@ -19,12 +19,16 @@
 
 package org.jboss.as.console.client.shared.deployment;
 
+import org.jboss.as.console.client.widgets.forms.Binding;
+
 /**
  * @author Heiko Braun
  * @author Stan Silvert
  * @date 4/8/11
  */
 public interface DeploymentReference {
+
+    @Binding(key = true)
     String getName();
     void setName(String name);
     
