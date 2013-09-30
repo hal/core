@@ -19,6 +19,9 @@
 
 package org.jboss.as.console.client.shared.subsys.messaging;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -35,9 +38,6 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -59,6 +59,7 @@ public class TopicList {
         VerticalPanel layout = new VerticalPanel();
 
         form = new Form(Topic.class);
+        form.setEnabled(false);
         form.setNumColumns(2);
 
         FormToolStrip<Topic> formTools = new FormToolStrip<Topic>(
