@@ -83,6 +83,9 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
                 presenter.launchNewGroupDialoge();
             }
         });
+
+        newServerGroupBtn.setOperationAddress("/server-group={addressable.group}", "add");
+
         newServerGroupBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverGroupsView());
         toolStrip.addToolButtonRight(newServerGroupBtn);
         
@@ -105,6 +108,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         });
 
         deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverGroupsView());
+        deleteBtn.setOperationAddress("/server-group={addressable.group}", "remove");
         toolStrip.addToolButtonRight(deleteBtn);
 
 
@@ -117,6 +121,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
             }
         });
 
+        copyBtn.setOperationAddress("/server-group={addressable.group}", "add");
         toolStrip.addToolButtonRight(copyBtn);
 
         // ---------------------------------------------
