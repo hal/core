@@ -225,7 +225,7 @@ public class EntityToDmrBridgeImpl<T extends NamedEntity> implements EntityToDmr
         ModelNode operation = address.asSubresource(baseAddress);
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(RECURSIVE).set(true);
-        operation.get(INCLUDE_RUNTIME).set(true);
+        //operation.get(INCLUDE_RUNTIME).set(true);
 
         //System.out.println(operation);
 
