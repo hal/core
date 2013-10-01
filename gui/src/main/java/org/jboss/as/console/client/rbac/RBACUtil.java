@@ -4,6 +4,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
+import java.util.Map;
+
 /**
  * @author Heiko Braun
  * @date 8/7/13
@@ -39,11 +41,18 @@ public class RBACUtil {
 
         html.appendHtmlConstant("<h2>Constraints</h2>");
 
-        for(String resource : context.accessConstraints.keySet())
+        dumpPermissions(html, context.accessConstraints);
+        dumpPermissions(html, context.optionalConstraints);
+
+        return html.toSafeHtml();
+    }
+
+    private static void dumpPermissions(SafeHtmlBuilder html, Map<String, Constraints> resourcePrivileges) {
+        for(String resource : resourcePrivileges.keySet())
         {
             html.appendHtmlConstant("<h3>").appendEscaped(resource).appendHtmlConstant("</h3>");
 
-            Constraints constraints = context.accessConstraints.get(resource);
+            Constraints constraints = resourcePrivileges.get(resource);
             html.appendHtmlConstant("<ul>");
             html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadResource()).appendHtmlConstant("</li>");
             html.appendHtmlConstant("<li>").appendEscaped("write-config:"+constraints.isWriteResource()).appendHtmlConstant("</li>");
@@ -115,9 +124,6 @@ public class RBACUtil {
 
             html.appendHtmlConstant("</table>");
         }
-
-
-        return html.toSafeHtml();
     }
 }
 

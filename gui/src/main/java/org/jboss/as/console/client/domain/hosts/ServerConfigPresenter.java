@@ -103,7 +103,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @AccessControl(resources = {
-            "/{selected.host}/server-config=*"        // TODO jvm and system properties have other constraints
+            "/{selected.host}/server-config=*",
+            "opt://{selected.host}/server-config=*/system-property=*"
     }, recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
     }

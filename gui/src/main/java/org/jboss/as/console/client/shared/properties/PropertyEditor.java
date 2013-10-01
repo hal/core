@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.shared.properties;
 
-import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -29,9 +28,9 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
-import org.jboss.as.console.client.widgets.tables.TextLinkCell;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultEditTextCell;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -52,7 +51,8 @@ public class PropertyEditor {
 
     private ListDataProvider<PropertyRecord> propertyProvider;
     private DefaultCellTable<PropertyRecord> propertyTable;
-    private ToolButton addProp;
+    private ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add());
+    private ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete());
 
     private PropertyManagement presenter;
     private String reference;
@@ -107,22 +107,53 @@ public class PropertyEditor {
         propertyProvider = new ListDataProvider<PropertyRecord>();
         propertyProvider.addDataDisplay(propertyTable);
 
+        final SingleSelectionModel<PropertyRecord> selectionModel = new SingleSelectionModel<PropertyRecord>();
+        propertyTable.setSelectionModel(selectionModel);
+
         if (!hideButtons) {
             ToolStrip propTools = new ToolStrip();
 
-            addProp = new ToolButton(Console.CONSTANTS.common_label_add());
-
-            addProp.addClickHandler(new ClickHandler() {
+            //add
+            addButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    if(PropertyEditor.this.enabled)
+                    if (PropertyEditor.this.enabled)
                         presenter.launchNewPropertyDialoge(reference);
                     else
                         System.out.println("PropertyEditor is disabled!");
                 }
             });
-            addProp.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_propertyEditor());
-            propTools.addToolButtonRight(addProp);
+            addButton.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_propertyEditor());
+            propTools.addToolButtonRight(addButton);
+
+
+            // remove
+            removeButton.addClickHandler(
+                    new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+
+                            final PropertyRecord property = selectionModel.getSelectedObject();
+                            if(null==property)
+                            {
+                                Console.error("Please select a property");
+                                return;
+                            }
+
+                            Feedback.confirm(
+                                    Console.MESSAGES.removeProperty(),
+                                    Console.MESSAGES.removePropertyConfirm(property.getKey())
+                                    , new Feedback.ConfirmationHandler() {
+                                @Override
+                                public void onConfirmation(boolean isConfirmed) {
+                                    if(isConfirmed)
+                                        presenter.onDeleteProperty(reference, property);
+                                }
+                            });
+                        }
+                    });
+
+            propTools.addToolButtonRight(removeButton);
             panel.add(propTools);
         }
 
@@ -175,16 +206,6 @@ public class PropertyEditor {
         };
 
 
-        /*Column<PropertyRecord, SafeHtml> valueColumn = new Column<PropertyRecord, SafeHtml>(new SafeHtmlCell()) {
-            @Override
-            public SafeHtml getValue(PropertyRecord object) {
-                String val = object.getValue();
-                return new SafeHtmlBuilder().appendHtmlConstant("<span title='" +
-                        new SafeHtmlBuilder().appendEscaped(val).toSafeHtml().asString() + "'>" + val + "</span>").toSafeHtml();
-            }
-        };*/
-
-
         Column<PropertyRecord, String> bootColumn = new Column<PropertyRecord, String>(new DefaultEditTextCell()) {
             {
                 setFieldUpdater(new FieldUpdater<PropertyRecord, String>() {
@@ -202,32 +223,6 @@ public class PropertyEditor {
             }
         };
 
-
-        Column<PropertyRecord, PropertyRecord> removeCol = new Column<PropertyRecord, PropertyRecord>(
-                new TextLinkCell<PropertyRecord>(Console.CONSTANTS.common_label_delete(), new ActionCell.Delegate<PropertyRecord>() {
-                    @Override
-                    public void execute(final PropertyRecord o) {
-
-                        Feedback.confirm(
-                                Console.MESSAGES.removeProperty(),
-                                Console.MESSAGES.removePropertyConfirm(o.getKey())
-                                , new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if(isConfirmed)
-                                    presenter.onDeleteProperty(reference, o);
-                            }
-                        });
-
-                    }
-                })
-        ) {
-            @Override
-            public PropertyRecord getValue(PropertyRecord propertyRecord) {
-                return propertyRecord;
-            }
-        };
-
         // Add the columns.
         propertyTable.addColumn(keyColumn, Console.CONSTANTS.common_label_key());
         propertyTable.addColumn(valueColumn, Console.CONSTANTS.common_label_value());
@@ -235,18 +230,12 @@ public class PropertyEditor {
         if(!simpleView)
             propertyTable.addColumn(bootColumn, "Boot-Time?");
 
-        if(!hideButtons)
-            propertyTable.addColumn(removeCol, Console.CONSTANTS.common_label_option());
-
 
         propertyTable.setColumnWidth(keyColumn, 30, Style.Unit.PCT);
         propertyTable.setColumnWidth(valueColumn, 30, Style.Unit.PCT);
 
         if(!simpleView)
             propertyTable.setColumnWidth(bootColumn, 20, Style.Unit.PCT);
-
-        if(!hideButtons)
-            propertyTable.setColumnWidth(removeCol, 20, Style.Unit.PCT);
 
         propertyTable.addColumnSortHandler(sortHandler);
         propertyTable.getColumnSortList().push(keyColumn);
@@ -267,6 +256,15 @@ public class PropertyEditor {
         panel.add(pager);
 
         return panel;
+    }
+
+    // RBAC
+    public void setOperationAddress(String resource, String op)
+    {
+        addButton.setOperationAddress(resource, op);
+
+        // i think it's safe to assume that add/remove have the same permissions
+        removeButton.setOperationAddress(resource, op);
     }
 
     public void setHelpText(String helpText) {
