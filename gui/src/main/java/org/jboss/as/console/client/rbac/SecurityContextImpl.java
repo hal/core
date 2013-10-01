@@ -155,7 +155,7 @@ public class SecurityContextImpl implements SecurityContext {
 
     private Constraints getConstraints(String resourceAddress) {
         Constraints constraints = accessConstraints.get(resourceAddress);
-        if(constraints!=null) throw new RuntimeException("Missing constraints for "+resourceAddress+". Make sure the resource address matches the @AccessControl annotation");
+        if(null==constraints) throw new RuntimeException("Missing constraints for "+resourceAddress+". Make sure the resource address matches the @AccessControl annotation");
         return constraints;
     }
 
