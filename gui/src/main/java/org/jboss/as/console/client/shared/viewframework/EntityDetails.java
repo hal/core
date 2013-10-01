@@ -153,7 +153,8 @@ public class EntityDetails<T> implements EditListener, SingleEntityView<T> {
 
     @Override
     public void updatedEntity(T entity) {
-        form.edit(entity);
+        if(entity!=null)
+            form.edit(entity);
     }
 
     @Override

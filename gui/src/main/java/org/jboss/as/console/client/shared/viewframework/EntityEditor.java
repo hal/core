@@ -142,7 +142,8 @@ public class EntityEditor<T> implements EntityListView<T> {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 T selectedEntity = selectionModel.getSelectedObject();
-                details.updatedEntity(selectedEntity);
+                if(selectedEntity!=null)
+                    details.updatedEntity(selectedEntity);
             }
         });
 
@@ -232,6 +233,7 @@ public class EntityEditor<T> implements EntityListView<T> {
         list.clear();
         list.addAll(entityList);
         dataProvider.flush();
+        dataProvider.refresh();
 
 
         if (entityList.isEmpty()) return;
@@ -247,16 +249,18 @@ public class EntityEditor<T> implements EntityListView<T> {
             return;
         }
 
-        setSelected(lastEdited);
     }
 
     private void setSelected(T entity) {
-        table.getSelectionModel().setSelected(entity, true);
+
+        table.selectDefaultEntity();
+
+        /*table.getSelectionModel().setSelected(entity, true);
         doneInitialSelection = true;
         List<T> entities = dataProvider.getList();
         int position = entities.indexOf(entity);
         int page = position/table.getPageSize();
-        pager.setPage(page);
+        pager.setPage(page);*/
     }
 
     public void setEditingEnabled(boolean isEnabled) {
