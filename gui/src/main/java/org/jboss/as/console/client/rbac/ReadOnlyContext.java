@@ -30,12 +30,27 @@ public class ReadOnlyContext implements SecurityContext {
     }
 
     @Override
+    public AuthorisationDecision getAttributeWritePriviledge(String resourceAddress, String attributeName) {
+        return DENIED;
+    }
+
+    @Override
     public void seal() {
 
     }
 
     @Override
     public AuthorisationDecision getOperationPriviledge(String resourceAddress, String operationName) {
+        return DENIED;
+    }
+
+    @Override
+    public AuthorisationDecision getReadPrivilege(String resourceAddress) {
+        return GRANTED;
+    }
+
+    @Override
+    public AuthorisationDecision getWritePrivilege(String resourceAddress) {
         return DENIED;
     }
 }

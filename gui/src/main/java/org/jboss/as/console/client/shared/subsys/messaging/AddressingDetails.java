@@ -87,7 +87,10 @@ public class AddressingDetails {
 
         // ---
 
-        form = new Form<AddressingPattern>(AddressingPattern.class);
+        form = new Form<AddressingPattern>(
+                AddressingPattern.class,
+                "{selected.profile}/subsystem=messaging/hornetq-server=*/address-setting=*"
+                );
         form.setNumColumns(2);
         form.bind(addrTable);
 

@@ -52,6 +52,10 @@ public class Constraints {
         return writeResource;
     }
 
+    public Set<String> getAttributeNames() {
+        return attributePermissions.keySet();
+    }
+
     public void setAttributeRead(String name, boolean canBeRead)
     {
         this.attributePermissions.put(name, new AttributePerm(canBeRead));

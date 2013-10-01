@@ -107,6 +107,12 @@ public class SecurityContextImpl implements SecurityContext {
 
     }
 
+    @Override
+    public AuthorisationDecision getReadPrivilege(String resourceAddress) {
+        Constraints constraints = getConstraints(resourceAddress);
+        return new AuthorisationDecision(constraints.isReadResource());
+    }
+
     public AuthorisationDecision getWritePriviledge() {
         return checkPriviledge(new Priviledge() {
             @Override
@@ -120,6 +126,12 @@ public class SecurityContextImpl implements SecurityContext {
         });
     }
 
+    @Override
+    public AuthorisationDecision getWritePrivilege(String resourceAddress) {
+        Constraints constraints = getConstraints(resourceAddress);
+        return new AuthorisationDecision(constraints.isWriteResource());
+    }
+
     public AuthorisationDecision getAttributeWritePriviledge(final String name) {
         return checkPriviledge(new Priviledge() {
             @Override
@@ -127,6 +139,24 @@ public class SecurityContextImpl implements SecurityContext {
                 return c.isAttributeWrite(name);
             }
         });
+    }
+
+    @Override
+    public AuthorisationDecision getAttributeWritePriviledge(String resourceAddress, String attributeName) {
+
+        Constraints constraints = getConstraints(resourceAddress);
+        Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
+
+        if(null==attributePerm)
+            throw new RuntimeException("No such attribute: "+ attributeName);
+
+        return new AuthorisationDecision(attributePerm.isWrite());
+    }
+
+    private Constraints getConstraints(String resourceAddress) {
+        Constraints constraints = accessConstraints.get(resourceAddress);
+        if(constraints!=null) throw new RuntimeException("Missing constraints for "+resourceAddress+". Make sure the resource address matches the @AccessControl annotation");
+        return constraints;
     }
 
     void updateResourceConstraints(String resourceAddress, Constraints model) {
@@ -143,19 +173,18 @@ public class SecurityContextImpl implements SecurityContext {
         // TODO: move all policies that can be evaluated once into this method
     }
 
-
-    // v2
-
     @Override
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
 
-        Constraints constraints = accessConstraints.get(resourceAddress);
-        assert constraints!=null : "Missing constraints for "+resourceAddress;
-
+        Constraints constraints = getConstraints(resourceAddress);
         boolean execPerm = constraints.isOperationExec(resourceAddress, operationName);
         AuthorisationDecision descision = new AuthorisationDecision(true);
         descision.setGranted(execPerm);
         return descision;
+    }
+
+    Map<String, Constraints> getAccessConstraints() {
+        return accessConstraints;
     }
 }
 

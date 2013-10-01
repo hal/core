@@ -388,12 +388,23 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     @Override
     public Set<String> getReadOnlyJavaNames(Class<?> type, SecurityContext securityContext) {
 
-        // Fallback for some forms
+        // Fallback
         if(type == Object.class || type == null)
             return Collections.EMPTY_SET;
 
         return new MetaDataAdapter(Console.MODULES.getApplicationMetaData())
                 .getReadOnlyJavaNames(type, securityContext);
+    }
+
+    @Override
+    public Set<String> getReadOnlyJavaNames(Class<?> type, String resourceAddress, SecurityContext securityContext) {
+
+        // Fallback
+        if(type == Object.class || type == null)
+            return Collections.EMPTY_SET;
+
+        return new MetaDataAdapter(Console.MODULES.getApplicationMetaData())
+                .getReadOnlyJavaNames(type, resourceAddress, securityContext);
     }
 
     @Override
@@ -408,6 +419,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         }
         return readOnly;
     }
+
 }
 
 

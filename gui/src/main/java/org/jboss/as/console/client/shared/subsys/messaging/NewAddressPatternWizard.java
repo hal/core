@@ -52,7 +52,10 @@ public class NewAddressPatternWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<AddressingPattern> form = new Form<AddressingPattern>(AddressingPattern.class);
+        final Form<AddressingPattern> form = new Form<AddressingPattern>(
+                AddressingPattern.class,
+                "{selected.profile}/subsystem=messaging/hornetq-server=*/address-setting=*"
+        );
 
 
         TextBoxItem pattern = new TextBoxItem("pattern", "Pattern");
