@@ -30,13 +30,14 @@ public class SecurityContextImpl implements SecurityContext {
      * Set of required resources.
      * Taken from access control meta data
      */
-    Set<String> requiredResources;
+    Set<ResourceRef> requiredResources;
 
     /**
      * A list of access constraint definitions
      * (result of :read-resource-description(access-control=true))
      */
     Map<String, Constraints> accessConstraints = new HashMap<String, Constraints>();
+    Map<String, Constraints> optionalConstraints = new HashMap<String, Constraints>();
 
     /**
      * A sealed context cannot be modified
@@ -44,7 +45,7 @@ public class SecurityContextImpl implements SecurityContext {
     private boolean sealed;
 
 
-    public SecurityContextImpl(String nameToken, Set<String> requiredResources) {
+    public SecurityContextImpl(String nameToken, Set<ResourceRef> requiredResources) {
         this.nameToken = nameToken;
         this.requiredResources = requiredResources;
     }
@@ -57,25 +58,27 @@ public class SecurityContextImpl implements SecurityContext {
         boolean isGranted(Constraints c);
     }
 
-    private AuthorisationDecision checkPriviledge(Priviledge p) {
+    private AuthorisationDecision checkPriviledge(Priviledge p, boolean includeOptional) {
 
         if(!sealed)
             throw new RuntimeException("Should be sealed before policy decisions are evaluated");
 
         AuthorisationDecision decision = new AuthorisationDecision(true);
-        for(String address : requiredResources)
+        for(ResourceRef ref : requiredResources)
         {
-            final Constraints model = accessConstraints.get(address);
+            if(ref.optional) continue; // skip optional ones
+
+            final Constraints model = getConstraints(ref.address, false);
             if(model!=null)
             {
                 if(!p.isGranted(model))
                 {
-                    decision.getErrorMessages().add(address);
+                    decision.getErrorMessages().add(ref.address);
                 }
             }
             else
             {
-                decision.getErrorMessages().add("Missing constraints for "+ address);
+                decision.getErrorMessages().add("Missing constraints for "+ ref.address);
             }
 
             if(decision.hasErrorMessages())
@@ -103,13 +106,13 @@ public class SecurityContextImpl implements SecurityContext {
                     Log.info("read privilege denied for: " + c.getResourceAddress());
                 return readable;
             }
-        });
+        }, false);
 
     }
 
     @Override
     public AuthorisationDecision getReadPrivilege(String resourceAddress) {
-        Constraints constraints = getConstraints(resourceAddress);
+        Constraints constraints = getConstraints(resourceAddress, false);
         return new AuthorisationDecision(constraints.isReadResource());
     }
 
@@ -123,12 +126,12 @@ public class SecurityContextImpl implements SecurityContext {
 
                 return writable;
             }
-        });
+        }, false);
     }
 
     @Override
     public AuthorisationDecision getWritePrivilege(String resourceAddress) {
-        Constraints constraints = getConstraints(resourceAddress);
+        Constraints constraints = getConstraints(resourceAddress, false);
         return new AuthorisationDecision(constraints.isWriteResource());
     }
 
@@ -138,13 +141,13 @@ public class SecurityContextImpl implements SecurityContext {
             public boolean isGranted(Constraints c) {
                 return c.isAttributeWrite(name);
             }
-        });
+        }, true);
     }
 
     @Override
     public AuthorisationDecision getAttributeWritePriviledge(String resourceAddress, String attributeName) {
 
-        Constraints constraints = getConstraints(resourceAddress);
+        Constraints constraints = getConstraints(resourceAddress, true);
         Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
 
         if(null==attributePerm)
@@ -153,18 +156,36 @@ public class SecurityContextImpl implements SecurityContext {
         return new AuthorisationDecision(attributePerm.isWrite());
     }
 
-    private Constraints getConstraints(String resourceAddress) {
-        Constraints constraints = accessConstraints.get(resourceAddress);
+    private Constraints getConstraints(String resourceAddress, boolean includeOptional) {
+
+        Constraints constraints = null;
+        if(includeOptional)
+        {
+            constraints = accessConstraints.containsKey(resourceAddress) ?
+                    accessConstraints.get(resourceAddress) : optionalConstraints.get(resourceAddress);
+        }
+        else
+        {
+            constraints = accessConstraints.get(resourceAddress);
+        }
+
         if(null==constraints) throw new RuntimeException("Missing constraints for "+resourceAddress+". Make sure the resource address matches the @AccessControl annotation");
         return constraints;
     }
 
-    void updateResourceConstraints(String resourceAddress, Constraints model) {
+    void setConstraints(String resourceAddress, Constraints model) {
 
         if(sealed)
             throw new RuntimeException("Sealed security context cannot be modified");
 
         accessConstraints.put(resourceAddress, model);
+    }
+
+    public void setOptionalConstraints(String address, Constraints model) {
+        if(sealed)
+            throw new RuntimeException("Sealed security context cannot be modified");
+
+        optionalConstraints.put(address, model);
     }
 
     public void seal() {
@@ -176,15 +197,12 @@ public class SecurityContextImpl implements SecurityContext {
     @Override
     public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
 
-        Constraints constraints = getConstraints(resourceAddress);
+        Constraints constraints = getConstraints(resourceAddress, true);
         boolean execPerm = constraints.isOperationExec(resourceAddress, operationName);
         AuthorisationDecision descision = new AuthorisationDecision(true);
         descision.setGranted(execPerm);
         return descision;
     }
 
-    Map<String, Constraints> getAccessConstraints() {
-        return accessConstraints;
-    }
 }
 

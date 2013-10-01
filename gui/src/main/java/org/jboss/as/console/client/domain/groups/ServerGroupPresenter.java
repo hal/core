@@ -97,8 +97,9 @@ public class ServerGroupPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
     @AccessControl(resources = {
-            "/server-group=*",
-            "/server-group=*/jvm=*"   // TODO jvm and system properties have other constraints
+            "/server-group={addressable.group}",
+            "/server-group={addressable.group}/jvm=*",
+            "opt://server-group={addressable.group}/system-property=*"
     }, recursive = false)
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }

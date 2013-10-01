@@ -104,12 +104,19 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         final List<ModelNode> steps = new LinkedList<ModelNode>();
 
 
-        final Map<String, String> step2address = new HashMap<String,String>();
+        final Map<String, ResourceRef> step2address = new HashMap<String,ResourceRef>();
 
-        for(String resource : requiredResources)
+        // normalisation
+
+        final Set<ResourceRef> references = new HashSet<ResourceRef>(requiredResources.size());
+        for(String address : requiredResources)
+            references.add(new ResourceRef(address));
+
+
+        for(ResourceRef ref : references)
         {
 
-            ModelNode step = AddressMapping.fromString(resource).asResource(
+            ModelNode step = AddressMapping.fromString(ref.address).asResource(
                     new FilteringStatementContext(
                             statementContext,
                             new FilteringStatementContext.Filter() {
@@ -144,7 +151,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     }
             );
 
-            step2address.put("step-" + (steps.size() + 1), resource);   // we need this for later retrieval
+            step2address.put("step-" + (steps.size() + 1), ref);   // we need this for later retrieval
 
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
             //step.get(RECURSIVE).set(true);
@@ -192,7 +199,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 {
                     Console.warning(
                             "Failed to retrieve access control meta data, " +
-                            "fallback to temporary read-only context: ",
+                                    "fallback to temporary read-only context: ",
                             response.getFailureDescription());
 
                     contextMapping.put(id, READ_ONLY);
@@ -207,7 +214,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                     ModelNode overalResult = response.get(RESULT);
 
-                    SecurityContextImpl context = new SecurityContextImpl(id, requiredResources);
+                    SecurityContextImpl context = new SecurityContextImpl(id, references);
 
                     // retrieve access constraints for each required resource and update the security context
                     for(int i=1; i<=steps.size();i++)
@@ -215,7 +222,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                         String step = "step-"+i;
                         if(overalResult.hasDefined(step))
                         {
-                            String resourceAddress = step2address.get(step);
+                            ResourceRef ref = step2address.get(step);
                             ModelNode stepResult = overalResult.get(step).get(RESULT);
 
                             ModelNode payload = null;
@@ -259,7 +266,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                             }
 
                             // break down into root resource and children
-                            parseAccessControlChildren(resourceAddress, requiredResources, context, payload);
+                            parseAccessControlChildren(ref, requiredResources, context, payload);
                         }
                     }
 
@@ -281,12 +288,12 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
     }
 
-    private static void parseAccessControlChildren(final String resourceAddress, Set<String> requiredResources, SecurityContextImpl context, ModelNode payload) {
+    private void parseAccessControlChildren(final ResourceRef ref, Set<String> requiredResources, SecurityContextImpl context, ModelNode payload) {
 
         ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
 
         // parse the root resource itself
-        parseAccessControlMetaData(resourceAddress, context, actualPayload);
+        parseAccessControlMetaData(ref, context, actualPayload);
 
         // parse the child resources
         if(actualPayload.hasDefined(CHILDREN))
@@ -296,7 +303,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             Set<String> children = childNodes.keys();
             for(String child : children)
             {
-                String childAddress = resourceAddress+"/"+child+"=*";
+                String childAddress = ref.address+"/"+child+"=*";
                 if(!requiredResources.contains(childAddress)) // might be parsed already
                 {
                     ModelNode childModel = childNodes.get(child);
@@ -304,14 +311,14 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     {
                         ModelNode childPayload = childModel.get(MODEL_DESCRIPTION).asPropertyList().get(0).getValue();
                         requiredResources.add(childAddress); /// dynamically update the list of required resources
-                        parseAccessControlChildren(childAddress, requiredResources, context, childPayload);
+                        parseAccessControlChildren(new ResourceRef(ref.address), requiredResources, context, childPayload);
                     }
                 }
             }
         }
     }
 
-    private static void parseAccessControlMetaData(final String resourceAddress, SecurityContextImpl context, ModelNode payload) {
+    private static void parseAccessControlMetaData(final ResourceRef ref, SecurityContextImpl context, ModelNode payload) {
 
         ModelNode accessControl = payload.get(ACCESS_CONTROL);
 
@@ -331,7 +338,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 model = accessControl.get(DEFAULT);
             }
 
-            Constraints c = new Constraints(resourceAddress);
+            Constraints c = new Constraints(ref.address);
 
             if(model.hasDefined(ADDRESS)
                     && model.get(ADDRESS).asBoolean()==false)
@@ -352,7 +359,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 for(Property op : operations)
                 {
                     ModelNode opConstraintModel = op.getValue();
-                    c.setOperationExec(resourceAddress, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
+                    c.setOperationExec(ref.address, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
                 }
 
             }
@@ -372,11 +379,18 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 }
             }
 
-            context.updateResourceConstraints(resourceAddress, c);
+            if(ref.optional)
+            {
+                context.setOptionalConstraints(ref.address, c);
+            }
+            else
+            {
+                context.setConstraints(ref.address, c);
+            }
         }
         else
         {
-            Console.warning("Access-control meta data missing for "+ resourceAddress);
+            Console.warning("Access-control meta data missing for "+ ref.address);
         }
     }
 
@@ -419,6 +433,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         }
         return readOnly;
     }
+
+
 
 }
 
