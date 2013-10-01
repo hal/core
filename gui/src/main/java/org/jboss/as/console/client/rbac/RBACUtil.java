@@ -16,11 +16,24 @@ public class RBACUtil {
 
         SecurityContextImpl context = (SecurityContextImpl)sc;
 
-        html.appendHtmlConstant("<h2>Required Resources for: "+context.nameToken+"</h2>");
+        // required resource
+        html.appendHtmlConstant("<h2>Resources References for: "+context.nameToken+"</h2>");
+        html.appendHtmlConstant("<h3>Required</h3>");
         html.appendHtmlConstant("<ul>");
-        for(String requiredResource : context.requiredResources)
+        for(ResourceRef ref : context.requiredResources)
         {
-            html.appendHtmlConstant("<li>").appendEscaped(requiredResource).appendHtmlConstant("</li>");
+            if(ref.optional) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
+        }
+        html.appendHtmlConstant("</ul><p/>");
+
+        // optional resource
+        html.appendHtmlConstant("<h3>Optional</h3>");
+        html.appendHtmlConstant("<ul>");
+        for(ResourceRef ref : context.requiredResources)
+        {
+            if(!ref.optional) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
         }
         html.appendHtmlConstant("</ul><p/>");
 
