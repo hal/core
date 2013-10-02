@@ -68,7 +68,7 @@ public class SecurityContextImpl implements SecurityContext {
         {
             if(ref.optional) continue; // skip optional ones
 
-            final Constraints model = getConstraints(ref.address, false);
+            final Constraints model = getConstraints(ref.address, includeOptional);
             if(model!=null)
             {
                 if(!p.isGranted(model))

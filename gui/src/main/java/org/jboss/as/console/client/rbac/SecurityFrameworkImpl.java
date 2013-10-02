@@ -97,6 +97,23 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
 
+        // @NoGatekeeper (and thus no mapped resources ...)
+        if(requiredResources.isEmpty())
+        {
+            NoGatekeeperContext noop = new NoGatekeeperContext();
+            contextMapping.put(id, noop);
+            callback.onSuccess(noop);
+        }
+
+        // @RBACGatekeeper & @AccessControl
+        else
+        {
+            loadSecurityMetadata(id, requiredResources, callback);
+        }
+
+    }
+
+    private void loadSecurityMetadata(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
         operation.get(ADDRESS).setEmptyList();
@@ -284,8 +301,6 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
             }
         });
-
-
     }
 
     private void parseAccessControlChildren(final ResourceRef ref, Set<String> requiredResources, SecurityContextImpl context, ModelNode payload) {
