@@ -19,27 +19,27 @@
 
 package org.jboss.as.console.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManagerImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.ReadOnlyContext;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -53,9 +53,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
     private EventBus eventBus;
 
     @Inject
-    public DefaultPlaceManager(
-            EventBus eventBus,
-            TokenFormatter tokenFormatter, BootstrapContext bootstrap, SecurityFramework securityManager, UnauthorisedPresenter unauthPlace) {
+    public DefaultPlaceManager(EventBus eventBus, TokenFormatter tokenFormatter, BootstrapContext bootstrap,
+            SecurityFramework securityManager, UnauthorisedPresenter unauthPlace) {
         super(eventBus, tokenFormatter);
         this.bootstrap = bootstrap;
         this.eventBus = eventBus;
@@ -135,19 +134,15 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                 unlock();
                 Console.error("Failed to create security context", context.getError().getMessage());
             }
-
             @Override
             public void onSuccess(final ContextCreation context) {
 //                unlock(); // remove?
-
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
                         final PlaceRequest placeRequest = context.getRequest();
                         DefaultPlaceManager.super.doRevealPlace(placeRequest, true);
-                        eventBus.fireEvent(
-                                new LHSHighlightEvent(placeRequest.getNameToken())
-                        );
+                        eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
                     }
                 });
             }
@@ -159,8 +154,10 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
     @Override
     public void revealUnauthorizedPlace(String unauthorizedHistoryToken) {
-
-        RevealRootPopupContentEvent.fire(this, unauthPlace, true);
-
+        // Update the history token for the user to see the unauthorized token, but don't navigate!
+        updateHistory(new PlaceRequest.Builder().nameToken(unauthorizedHistoryToken).build(), true);
+        // Send an unauthorized event notifying the top level presenters to show
+        // the unauthorized presenter widget in the main content slot
+        UnauthorizedEvent.fire(this, unauthorizedHistoryToken);
     }
 }

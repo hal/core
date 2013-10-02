@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -27,8 +29,6 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
-
-import java.util.List;
 
 /**
  * Domain management default view implementation.
@@ -68,7 +68,6 @@ public class ProfileMgmtView extends SuspendableViewImpl
         if (slot == ProfileMgmtPresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
-
         }
     }
 

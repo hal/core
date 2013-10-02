@@ -27,7 +27,6 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
@@ -43,6 +42,8 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
@@ -52,7 +53,8 @@ import org.jboss.ballroom.client.layout.LHSHighlightEvent;
  * @date 3/2/11
  */
 public class HostMgmtPresenter
-        extends Presenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy> {
+        extends Presenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy> implements
+        UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;
 
@@ -64,6 +66,7 @@ public class HostMgmtPresenter
     private String lastSubPlace;
     private Header header;
     private final DomainEntityManager domainManager;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -80,19 +83,22 @@ public class HostMgmtPresenter
     public HostMgmtPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager,
-            BootstrapContext bootstrap, Header header, DomainEntityManager domainManager) {
+            BootstrapContext bootstrap, Header header, DomainEntityManager domainManager,
+            UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.bootstrap = bootstrap;
         this.header = header;
         this.domainManager = domainManager;
+        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -152,5 +158,10 @@ public class HostMgmtPresenter
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }

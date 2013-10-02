@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import java.util.List;
+
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -20,16 +22,17 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
  * @date 11/2/11
  */
-public class StandaloneRuntimePresenter extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy> {
+public class StandaloneRuntimePresenter extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy> implements
+        UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;
     private boolean hasBeenRevealed = false;
@@ -42,37 +45,39 @@ public class StandaloneRuntimePresenter extends Presenter<StandaloneRuntimePrese
 
     private PlaceRequest lastSubPlace;
     private Header header;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.StandaloneRuntimePresenter)
     @NoGatekeeper
     public interface MyProxy extends Proxy<StandaloneRuntimePresenter>, Place {
-    }
 
+    }
     public interface MyView extends View {
+
         void setPresenter(StandaloneRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
     }
-
     @Inject
     public StandaloneRuntimePresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, SubsystemStore subsysStore,
-            BootstrapContext bootstrap, Header header) {
+            BootstrapContext bootstrap, Header header, UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.bootstrap = bootstrap;
         this.subsysStore = subsysStore;
         this.header = header;
+        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
-
 
     @Override
     protected void onReset() {
@@ -118,8 +123,14 @@ public class StandaloneRuntimePresenter extends Presenter<StandaloneRuntimePrese
 
     }
 
+
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }

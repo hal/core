@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.domain.runtime;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
@@ -8,7 +11,6 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
@@ -29,6 +31,8 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
@@ -37,9 +41,6 @@ import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 11/2/11
@@ -47,7 +48,7 @@ import java.util.List;
 public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
         implements StaleModelEvent.StaleModelListener,
         ServerSelectionChanged.ChangeListener,
-        HostSelectionChanged.ChangeListener  {
+        HostSelectionChanged.ChangeListener, UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;
     private boolean hasBeenRevealed = false;
@@ -57,6 +58,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     private ServerGroupStore serverGroupStore;
     private String previousServerSelection = null;
     private Header header;
+    private final UnauthorisedPresenter unauthorisedPresenter;
     private PlaceRequest lastSubRequest = null;
     private final DomainEntityManager domainManager;
 
@@ -85,7 +87,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
             PlaceManager placeManager,  HostInformationStore hostInfoStore,
             DomainEntityManager domainManager,
             SubsystemStore subsysStore, BootstrapContext bootstrap,
-            ServerGroupStore serverGroupStore, Header header) {
+            ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -95,6 +97,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
         this.bootstrap = bootstrap;
         this.serverGroupStore = serverGroupStore;
         this.header = header;
+        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
@@ -105,7 +108,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
         getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
         getEventBus().addHandler(StaleModelEvent.TYPE, this);
-
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -247,5 +250,10 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
             });
 
         }
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }

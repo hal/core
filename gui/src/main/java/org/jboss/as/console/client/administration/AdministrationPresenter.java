@@ -36,12 +36,15 @@ import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 
 /**
  * @author Harald Pehl
  */
 public class AdministrationPresenter
-        extends Presenter<AdministrationPresenter.MyView, AdministrationPresenter.MyProxy> {
+        extends Presenter<AdministrationPresenter.MyView, AdministrationPresenter.MyProxy> implements
+        UnauthorizedEvent.UnauthorizedHandler {
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
@@ -49,20 +52,23 @@ public class AdministrationPresenter
     private boolean hasBeenRevealed;
     private String lastPlace;
     private Header header;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @Inject
     public AdministrationPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final Header header) {
+            final PlaceManager placeManager, final Header header, UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.header = header;
+        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -94,6 +100,11 @@ public class AdministrationPresenter
     protected void revealInParent() {
         // reveal in main layout
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place

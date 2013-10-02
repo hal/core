@@ -22,41 +22,34 @@ package org.jboss.as.console.client.rbac;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HasHandlers;
-import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 
-/**
- * @author Heiko Braun
- */
-public class AuthDecisionEvent extends GwtEvent<AuthDecisionEvent.AuthDecisionHandler> {
+public class UnauthorizedEvent extends GwtEvent<UnauthorizedEvent.UnauthorizedHandler> {
 
-    public static final Type TYPE = new Type<AuthDecisionHandler>();
-    private AuthorisationDecision decision;
+    public static final Type TYPE = new Type<UnauthorizedHandler>();
+    private final String token;
 
-    public AuthDecisionEvent(AuthorisationDecision decision) {
-        this.decision = decision;
+    public UnauthorizedEvent(final String token) {this.token = token;}
+
+    public static void fire(final HasHandlers source, String token) {
+        source.fireEvent(new UnauthorizedEvent(token));
     }
 
-    public static void fire(final HasHandlers source, AuthorisationDecision decision) {
-        source.fireEvent(new AuthDecisionEvent(decision));
-    }
-
-    public AuthorisationDecision getDecision() {
-        return decision;
+    public String getToken() {
+        return token;
     }
 
     @Override
-    public Type<AuthDecisionHandler> getAssociatedType() {
+    public Type<UnauthorizedHandler> getAssociatedType() {
         return TYPE;
     }
 
     @Override
-    protected void dispatch(AuthDecisionHandler listener) {
-        listener.onAuthDescision(this);
+    protected void dispatch(UnauthorizedHandler listener) {
+        listener.onUnauthorized(this);
     }
 
-    public interface AuthDecisionHandler extends EventHandler {
-
-        void onAuthDescision(AuthDecisionEvent event);
+    public interface UnauthorizedHandler extends EventHandler {
+        void onUnauthorized(UnauthorizedEvent event);
     }
 }
 

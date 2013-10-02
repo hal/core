@@ -19,9 +19,9 @@
 
 package org.jboss.as.console.client.standalone;
 
-import com.google.gwt.core.client.Scheduler;
+import java.util.List;
+
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.Timer;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -35,18 +35,16 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
-
-import java.util.List;
 
 /**
  * A collection of tools to manage a standalone server instance.
@@ -55,7 +53,7 @@ import java.util.List;
  * @date 1/28/11
  */
 public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicationPresenter.ServerManagementView,
-        ServerMgmtApplicationPresenter.ServerManagementProxy> {
+        ServerMgmtApplicationPresenter.ServerManagementProxy> implements UnauthorizedEvent.UnauthorizedHandler {
 
     private PlaceManager placeManager;
     private SubsystemStore subsysStore;
@@ -64,12 +62,13 @@ public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicat
     private BootstrapContext bootstrap;
     private String lastSubPlace;
     private Header header;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     public interface ServerManagementView extends View {
 
         void updateFrom(List<SubsystemRecord> subsystemRecords);
-    }
 
+    }
     @ProxyCodeSplit
     @NameToken(NameTokens.serverConfig)
     @NoGatekeeper
@@ -82,12 +81,20 @@ public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicat
     public ServerMgmtApplicationPresenter(
             EventBus eventBus, ServerManagementView view,
             ServerManagementProxy proxy, PlaceManager placeManager,
-            SubsystemStore subsysStore, BootstrapContext bootstrap, Header header) {
+            SubsystemStore subsysStore, BootstrapContext bootstrap, Header header,
+            UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
         this.bootstrap = bootstrap;
         this.header = header;
+        this.unauthorisedPresenter = unauthorisedPresenter;
+    }
+
+    @Override
+    protected void onBind() {
+        super.onBind();
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -140,5 +147,10 @@ public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicat
     protected void revealInParent() {
         // reveal in main layout
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }

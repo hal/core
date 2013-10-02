@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
@@ -45,11 +47,11 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -57,7 +59,7 @@ import java.util.List;
  */
 public class ProfileMgmtPresenter
         extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
-        implements ProfileSelectionEvent.ProfileSelectionListener {
+        implements ProfileSelectionEvent.ProfileSelectionListener, UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;
     private ProfileStore profileStore;
@@ -68,20 +70,20 @@ public class ProfileMgmtPresenter
     private String lastPlace;
     private BootstrapContext bootstrap;
     private Header header;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
     public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {
-    }
 
+    }
     public interface MyView extends SuspendableView {
+
         void setProfiles(List<ProfileRecord> profileRecords);
         void setSubsystems(List<SubsystemRecord> subsystemRecords);
-
         void setPreselection(String preselection);
     }
-
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
@@ -94,7 +96,7 @@ public class ProfileMgmtPresenter
             SubsystemStore subsysStore,
             ServerGroupStore serverGroupStore,
             CurrentProfileSelection currentProfileSelection, BootstrapContext bootstrap,
-            Header header) {
+            Header header, UnauthorisedPresenter unauthorisedPresenter) {
 
         super(eventBus, view, proxy);
 
@@ -104,9 +106,8 @@ public class ProfileMgmtPresenter
         this.profileSelection = currentProfileSelection;
         this.bootstrap = bootstrap;
         this.header = header;
+        this.unauthorisedPresenter = unauthorisedPresenter;
     }
-
-
 
     @Override
     protected void onReset() {
@@ -163,6 +164,8 @@ public class ProfileMgmtPresenter
 
     }
 
+
+
     @Override
     public void prepareFromRequest(PlaceRequest request) {
 
@@ -217,6 +220,7 @@ public class ProfileMgmtPresenter
     protected void onBind() {
         super.onBind();
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
 
     }
 
@@ -242,5 +246,10 @@ public class ProfileMgmtPresenter
             }
         });
 
+    }
+
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }
