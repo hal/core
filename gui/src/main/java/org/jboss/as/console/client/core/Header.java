@@ -339,8 +339,9 @@ public class Header implements ValueChangeHandler<String> {
             widget.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    System.out.println(">>");
                     placeManager.revealPlace(
-                            new PlaceRequest(token)
+                            new PlaceRequest.Builder().nameToken(token).build(), false
                     );
                 }
             });

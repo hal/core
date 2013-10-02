@@ -1,12 +1,16 @@
 package org.jboss.as.console.client.core.bootstrap;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.History;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,13 +44,17 @@ public class LoadMainApp implements Command
     @Override
     public void execute() {
 
-       /*
 
-       Currently disabled due to RBAC constraints (init, etc)
+        String initialToken = History.getToken();
 
-       String initialToken = History.getToken();
+        if(!bootstrapContext.isStandalone()
+                && (bootstrapContext.isGroupManagementDisabled() || bootstrapContext.isHostManagementDisabled())
+                )
+        {
+            new InsufficientPrivileges().execute();
+        }
 
-        if(!initialToken.isEmpty() && !isBlackListed(initialToken))
+        else if(!initialToken.isEmpty() && !isBlackListed(initialToken))
         {
             List<PlaceRequest> hierarchy = formatter.toPlaceRequestHierarchy(initialToken);
             final PlaceRequest placeRequest = hierarchy.get(hierarchy.size() - 1);
@@ -61,25 +69,14 @@ public class LoadMainApp implements Command
             bootstrapContext.setInitialPlace(placeRequest.getNameToken());
 
         }
-        else {
-            placeManager.revealDefaultPlace();
-        }
-        */
 
-        // RBAC edgecase
-        if(!bootstrapContext.isStandalone()
-            && (bootstrapContext.isGroupManagementDisabled() || bootstrapContext.isHostManagementDisabled())
-                )
-        {
-            new InsufficientPrivileges().execute();
-        }
         else
         {
             placeManager.revealDefaultPlace();
         }
     }
 
-    /*private static boolean isBlackListed (String token)
+    private static boolean isBlackListed (String token)
     {
         boolean match = false;
         for(String listed : BLACK_LIST)
@@ -91,5 +88,5 @@ public class LoadMainApp implements Command
             }
         }
         return match;
-    } */
+    }
 }

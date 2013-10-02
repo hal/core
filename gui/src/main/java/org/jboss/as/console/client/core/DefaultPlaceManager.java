@@ -141,7 +141,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                     @Override
                     public void execute() {
                         final PlaceRequest placeRequest = context.getRequest();
-                        DefaultPlaceManager.super.doRevealPlace(placeRequest, true);
+                        DefaultPlaceManager.super.doRevealPlace(placeRequest, updateBrowserUrl);
                         eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
                     }
                 });
