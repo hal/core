@@ -95,8 +95,8 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         // --
 
         OneToOneLayout layout = new OneToOneLayout()
-                .setTitle("Load Balancing")
-                .setHeadline("HTTP Load Balancer")
+                .setTitle("mod_cluster")
+                .setHeadline("mod_cluster Subsystem")
                 .setDescription(Console.CONSTANTS.subsys_modcluster_desc())
                 .addDetail("Advertising", form.asWidget())
                 .addDetail("Sessions", sessionForm.asWidget())

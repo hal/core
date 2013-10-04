@@ -33,7 +33,7 @@ public class JGroupsSubsystemView extends SuspendableViewImpl implements JGroups
     public Widget createWidget() {
         LayoutPanel layout = new LayoutPanel();
 
-        FakeTabPanel titleBar = new FakeTabPanel("Group Communication");
+        FakeTabPanel titleBar = new FakeTabPanel("JGroups");
         layout.add(titleBar);
 
         panel = new PagedView();
