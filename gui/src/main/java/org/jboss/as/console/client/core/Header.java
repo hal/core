@@ -208,6 +208,9 @@ public class Header implements ValueChangeHandler<String> {
         logoutHtml.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
+
+                menuPopup.hide();
+
                 Feedback.confirm(
                         Console.CONSTANTS.common_label_logout(),
                         Console.CONSTANTS.logout_confirm(),
@@ -252,11 +255,13 @@ public class Header implements ValueChangeHandler<String> {
                 @Override
                 public void onClick(ClickEvent event) {
 
+                    menuPopup.hide();
+
                     placeManager.revealPlace(
                             new PlaceRequest(NameTokens.ToolsPresenter).with("name", "run-as-role")
                     );
 
-                    menuPopup.hide();
+
                 }
             });
             usermenu.add(runAsBtn);
