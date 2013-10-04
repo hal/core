@@ -40,6 +40,7 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.jboss.as.console.mbui.model.StereoTypes;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -149,11 +150,18 @@ public class CommandFactory {
 
     private ModelDrivenCommand createGenericCommand(final String operationName, final OperationContext context) {
 
-        assert context.getUnit().doesProduce() : "The unit associated with a command need to be a producer";
+        assert context.getUnit().doesProduce() : "The unit associated with a command needs to be a producer";
 
         InteractionUnit<StereoTypes> unit = context.getUnit();
         Resource<ResourceType> output = unit.getOutputs().iterator().next();
-        final ModelNode operationDescription = context.getOperationDescriptions().get(output.getId());
+
+        final QName operationRef = new QName(
+                output.getSource().getNamespaceURI(),
+                output.getSource().getLocalPart(),
+                output.getId().getSuffix()
+        );
+
+        final ModelNode operationDescription = context.getOperationDescriptions().get(operationRef);
 
         assert operationDescription!=null : "Operation meta data required for "+output.getId() + " on "+context.getUnit().getId();
 

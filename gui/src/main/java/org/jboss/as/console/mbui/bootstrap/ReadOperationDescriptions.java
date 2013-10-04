@@ -54,6 +54,8 @@ import static org.useware.kernel.model.mapping.MappingType.DMR;
  *
  * Reads the operation meta data associated to {@link Trigger} units.
  *
+ * @see org.jboss.as.console.mbui.behaviour.CommandFactory#createGenericCommand(String, org.jboss.as.console.mbui.behaviour.OperationContext)
+ *
  * @author Heiko Braun
  * @date 11/12/2012
  */
@@ -115,9 +117,15 @@ public class ReadOperationDescriptions extends ReificationBootstrap
 
                         Resource<ResourceType> output = visitor.stepReference.get(step);
                         ModelNode operationMetaData = stepResponse.get(RESULT);
-                        context.<Map>get(ContextKey.OPERATION_DESCRIPTIONS).put(output.getId(), operationMetaData);
 
-                        //System.out.println(output.getId() + " > " + operationMetaData);
+                        final QName operationRef = new QName(
+                                        output.getSource().getNamespaceURI(),
+                                        output.getSource().getLocalPart(),
+                                        output.getId().getSuffix()
+                        );
+
+                        context.<Map>get(ContextKey.OPERATION_DESCRIPTIONS).put(operationRef, operationMetaData);
+
                     }
                     callback.onSuccess();
                 }
@@ -184,7 +192,12 @@ public class ReadOperationDescriptions extends ReificationBootstrap
             DMRMapping mapping = interactionUnit.findMapping(DMR);
             String address = mapping.getResolvedAddress();
 
-            if (!resolvedOperations.contains(output.getId()))
+            final QName operationRef = new QName(                // internal reference. See CommandFactory#createGenericCommand()
+                    output.getSource().getNamespaceURI(),
+                    output.getSource().getLocalPart(),
+                    operationName);
+
+            if (!resolvedOperations.contains(operationRef))
             {
                 AddressMapping addressMapping = AddressMapping.fromString(address);
                 ModelNode op = addressMapping.asResource(new FilteringStatementContext(
@@ -211,7 +224,7 @@ public class ReadOperationDescriptions extends ReificationBootstrap
 
                 steps.add(op);
 
-                resolvedOperations.add(output.getId());
+                resolvedOperations.add(operationRef);
                 stepReference.put("step-" + steps.size(), output);
             }
 
