@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -43,7 +44,7 @@ import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 public class MainLayoutPresenter
         extends Presenter<MainLayoutPresenter.MainLayoutView,
         MainLayoutPresenter.MainLayoutProxy>
-        implements ResolveExpressionEvent.ExpressionResolveListener {
+        implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler {
 
     boolean revealDefault = true;
     private BootstrapContext bootstrap;
@@ -80,6 +81,7 @@ public class MainLayoutPresenter
     protected void onBind() {
         super.onBind();
         getEventBus().addHandler(ResolveExpressionEvent.TYPE, this);
+        getEventBus().addHandler(LogoutEvent.TYPE, this);
     }
 
     @Override
@@ -94,9 +96,8 @@ public class MainLayoutPresenter
 
     }
 
-
     @Override
-    protected void onHide() {
-        super.onHide();
+    public void onLogout(LogoutEvent event) {
+        RootLayoutPanel.get().clear();
     }
 }
