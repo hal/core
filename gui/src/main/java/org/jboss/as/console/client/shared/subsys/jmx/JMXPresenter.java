@@ -57,7 +57,7 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
     @NameToken(NameTokens.JMXPresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=jmx"
-    })
+    }, recursive = false)
     public interface MyProxy extends Proxy<JMXPresenter>, Place {
     }
 

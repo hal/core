@@ -41,7 +41,7 @@ public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPrese
     @NameToken(NameTokens.SecuritySubsystemPresenter)
     @AccessControl(resources = {
             "/{selected.profile}/subsystem=security"
-    })
+    }, recursive = false)
     public interface MyProxy extends Proxy<SecuritySubsystemPresenter>, Place {
     }
 
