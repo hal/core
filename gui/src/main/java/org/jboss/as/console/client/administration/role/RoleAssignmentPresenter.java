@@ -419,7 +419,7 @@ public class RoleAssignmentPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
-    @AccessControl(resources = {"/core-service=management/access=authorization"})
+    @AccessControl(resources = {"/core-service=management/access=authorization"}, recursive = false)
     public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {
     }
 

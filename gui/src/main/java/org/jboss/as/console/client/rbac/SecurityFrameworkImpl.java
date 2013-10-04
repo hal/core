@@ -283,7 +283,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                             }
 
                             // break down into root resource and children
-                            parseAccessControlChildren(ref, requiredResources, context, payload);
+                            parseAccessControlChildren(ref, references, context, payload);
                         }
                     }
 
@@ -303,7 +303,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         });
     }
 
-    private void parseAccessControlChildren(final ResourceRef ref, Set<String> requiredResources, SecurityContextImpl context, ModelNode payload) {
+    private void parseAccessControlChildren(final ResourceRef ref, Set<ResourceRef> references, SecurityContextImpl context, ModelNode payload) {
 
         ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
 
@@ -318,15 +318,15 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             Set<String> children = childNodes.keys();
             for(String child : children)
             {
-                String childAddress = ref.address+"/"+child+"=*";
-                if(!requiredResources.contains(childAddress)) // might be parsed already
+                ResourceRef childAddress = new ResourceRef(ref.address+"/"+child+"=*");
+                if(!references.contains(childAddress)) // might be parsed already
                 {
                     ModelNode childModel = childNodes.get(child);
                     if(childModel.hasDefined(MODEL_DESCRIPTION)) // depends on 'recursive' true/false
                     {
                         ModelNode childPayload = childModel.get(MODEL_DESCRIPTION).asPropertyList().get(0).getValue();
-                        requiredResources.add(childAddress); /// dynamically update the list of required resources
-                        parseAccessControlChildren(new ResourceRef(ref.address), requiredResources, context, childPayload);
+                        references.add(childAddress); /// dynamically update the list of required resources
+                        parseAccessControlChildren(childAddress, references, context, childPayload);
                     }
                 }
             }
