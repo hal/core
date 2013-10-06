@@ -222,16 +222,6 @@ import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.BrowserView;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.ToolsView;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationView;
-import org.jboss.as.console.client.tools.modelling.workbench.FooterPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.FooterView;
-import org.jboss.as.console.client.tools.modelling.workbench.HeaderPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.HeaderView;
-import org.jboss.as.console.client.tools.modelling.workbench.context.ContextPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.context.ContextView;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
@@ -694,14 +684,13 @@ public class CoreUIModule extends AbstractPresenterModule {
                 AuditLogPresenter.MyProxy.class);
 
         // mbui workbench
-        bindPresenter(ApplicationPresenter.class, ApplicationPresenter.MyView.class, ApplicationView.class,
-                ApplicationPresenter.MyProxy.class);
-        bindPresenterWidget(ContextPresenter.class, ContextPresenter.MyView.class, ContextView.class);
-        bindPresenterWidget(FooterPresenter.class, FooterPresenter.MyView.class, FooterView.class);
-        bindPresenterWidget(HeaderPresenter.class, HeaderPresenter.MyView.class, HeaderView.class);
-        bindPresenter(PreviewPresenter.class, PreviewPresenter.MyView.class, PreviewView.class,
-                PreviewPresenter.MyProxy.class);
-        bindPresenterWidget(RepositoryPresenter.class, RepositoryPresenter.MyView.class, RepositoryView.class);
+
+        bindPresenter(
+                RepositoryPresenter.class,
+                RepositoryPresenter.MyView.class,
+                RepositoryView.class,
+                RepositoryPresenter.MyProxy.class
+        );
 
         // Application
         bind(SampleRepository.class).in(Singleton.class);

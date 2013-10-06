@@ -18,20 +18,42 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.PresenterWidget;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.ContentSlot;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import com.gwtplatform.mvp.client.annotations.ProxyStandard;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.InstrumentEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
 import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
+import org.jboss.as.console.mbui.Framework;
+import org.jboss.as.console.mbui.Kernel;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.marshall.Marshaller;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.useware.kernel.model.Dialog;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Lists the available interaction units and let the user create new interaction units.
@@ -44,26 +66,62 @@ import org.jboss.dmr.client.ModelNode;
  * @author Harald Pehl
  * @date 10/30/2012
  */
-public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyView>
+public class RepositoryPresenter
+        extends Presenter<RepositoryPresenter.MyView, RepositoryPresenter.MyProxy>
 {
 
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private final Kernel kernel;
+    private final DispatchAsync dispatcher;
+    private SampleRepository sampleRepository;
+    private DialogRef activeDialog;
 
-    public void setDisableCache(boolean disableCache) {
-
-        InstrumentEvent.SIGNALS signal = disableCache ? InstrumentEvent.SIGNALS.DISABLE_CACHE : InstrumentEvent.SIGNALS.ENABLE_CACHE;
-        InstrumentEvent.fire(this, new InstrumentEvent(signal));
+    public void setActiveDialog(DialogRef activeDialog) {
+        this.activeDialog = activeDialog;
     }
 
     public interface MyView extends View
     {
         void setPresenter(RepositoryPresenter presenter);
+
+        void setDialogNames(Set<DialogRef> names);
+
+        void show(Widget widget);
     }
 
+    @ProxyStandard
+    @NameToken("mbui-workbench")
+    @NoGatekeeper
+    public interface MyProxy extends ProxyPlace<RepositoryPresenter> {}
 
     @Inject
-    public RepositoryPresenter(final EventBus eventBus, final MyView view)
-    {
-        super(eventBus, view);
+    public RepositoryPresenter(
+            EventBus eventBus, MyView view, MyProxy proxy,
+            final SampleRepository sampleRepository, final DispatchAsync dispatcher) {
+        super(eventBus, view, proxy);
+
+        this.sampleRepository = sampleRepository;
+        this.dispatcher = dispatcher;
+
+        CoreGUIContext globalContext = new CoreGUIContext(
+                Console.MODULES.getCurrentSelectedProfile(),
+                Console.MODULES.getCurrentUser(), Console.MODULES.getDomainEntityManager()
+        );
+
+        // mbui kernel instance
+        this.kernel = new Kernel(sampleRepository, new Framework() {
+            @Override
+            public DispatchAsync getDispatcher() {
+                return dispatcher;
+            }
+
+            @Override
+            public SecurityFramework getSecurityFramework() {
+                return Console.MODULES.getSecurityFramework();
+            }
+        }, globalContext);
+
     }
 
     @Override
@@ -73,10 +131,36 @@ public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyV
         getView().setPresenter(this);
     }
 
-    public void visualize(final Sample sample)
+    @Override
+    protected void onReset() {
+        loadRepo();
+    }
+
+    private void loadRepo() {
+
+        Set<DialogRef> dialogs = new HashSet<DialogRef>();
+        for(Sample sample : sampleRepository.getSamples())
+            dialogs.add(new DialogRef(sample.getName()));
+
+        getView().setDialogNames(dialogs);
+    }
+
+    public void setDisableCache(boolean disableCache) {
+        kernel.setCaching(disableCache);
+    }
+
+
+    public void onVisualize()
     {
-        DialogVisualization visualization = new DialogVisualization(sample.getDialog());
-        DefaultWindow window = new DefaultWindow("Dialog: "+sample.getDialog().getId());
+        if(null==activeDialog)
+        {
+            Console.error("No dialog selected");
+            return;
+        }
+
+        Dialog dialog = sampleRepository.getDialog(activeDialog.getName());
+        DialogVisualization visualization = new DialogVisualization(dialog);
+        DefaultWindow window = new DefaultWindow("Dialog: "+dialog.getId());
         window.setWidth(800);
         window.setHeight(600);
         window.setModal(true);
@@ -84,7 +168,7 @@ public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyV
         window.center();
     }
 
-    public void marshall(final Sample sample)
+    public void onMarshall(final Sample sample)
     {
         Marshaller m = new Marshaller();
         ModelNode node = m.marshall(sample.getDialog());
@@ -101,21 +185,45 @@ public class RepositoryPresenter extends PresenterWidget<RepositoryPresenter.MyV
         window.center();
     }
 
-    public void reify(final Sample sample)
+    public void onReify()
     {
-        ReifyEvent.fire(this, new ReifyEvent(sample));
+        if(null==activeDialog)
+        {
+            Console.error("No dialog selected");
+            return;
+        }
+
+        kernel.reify(activeDialog.getName(), new AsyncCallback<Widget>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+                Console.error("Reification failed", throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Widget widget) {
+
+                getView().show(widget);
+                //kernel.onActivate();
+                kernel.reset();
+            }
+        });
     }
 
-    public void activate(final Sample sample)
+    public void onActivate()
     {
-        ActivateEvent.fire(this, new ActivateEvent(sample));
+        kernel.activate();
     }
 
-    public void reset(Sample sample) {
-        ResetEvent.fire(this, new ResetEvent(sample));
+    public void onResetDialog() {
+        kernel.reset();
     }
 
-    public void passivate(Sample sample) {
-        PassivateEvent.fire(this, new PassivateEvent(sample));
+    public void onPassivate() {
+        kernel.passivate();
+    }
+
+    @Override
+    protected void revealInParent() {
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 }

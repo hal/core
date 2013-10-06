@@ -18,144 +18,94 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
-import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.BOUND_TO_SELECTION;
-
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.CellList;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.gwtplatform.mvp.client.ViewImpl;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
+import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+
+import java.util.Set;
 
 /**
  * @author Harald Pehl
  * @date 10/30/2012
  */
-public class RepositoryView extends ViewImpl implements RepositoryPresenter.MyView
+public class RepositoryView extends SuspendableViewImpl implements RepositoryPresenter.MyView
 {
-    public interface Binder extends UiBinder<Widget, RepositoryView>
-    {
-    }
 
-    class SampleCell extends AbstractCell<Sample>
-    {
-        @Override
-        public void render(final Context context, final Sample sample, final SafeHtmlBuilder sb)
-        {
-            sb.appendEscaped(sample.getName());
-        }
-    }
-
-    class KeyProvider implements ProvidesKey<Sample>
-    {
-        @Override
-        public Object getKey(final Sample ample)
-        {
-            return ample == null ? null : ample.getName();
-        }
-    }
-
-    private final Widget widget;
-    private final SingleSelectionModel<Sample> selectionModel;
+    private final SampleRepository sampleRepository;
     private RepositoryPresenter presenter;
 
-    @UiField Button visualize;
-    @UiField Button reify;
-    @UiField Button activate;
-    @UiField Button reset;
-    @UiField Button passivate;
-    @UiField
-    CheckBox cacheDisabled;
+    private SimplePanel contentCanvas;
+    private RepositoryNavigation lhsNavigation;
 
-    @UiField(provided = true) CellList<Sample> list;
 
     @Inject
-    public RepositoryView(final Binder binder, final SampleRepository sampleRepository)
-    {
-        KeyProvider keyProvider = new KeyProvider();
-        this.list = new CellList<Sample>(new SampleCell(), keyProvider);
-        this.list.setRowCount(sampleRepository.getSamples().size());
-        this.list.setRowData(sampleRepository.getSamples());
+    public RepositoryView(final SampleRepository sampleRepository) {
+        super();
+        this.sampleRepository = sampleRepository;
+        this.lhsNavigation = new RepositoryNavigation();
 
-        this.selectionModel = new SingleSelectionModel<Sample>(keyProvider);
-        this.selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler()
-        {
-            @Override
-            public void onSelectionChange(final SelectionChangeEvent event)
-            {
-                reify.setEnabled(true);
-            }
-        });
-        this.list.setSelectionModel(selectionModel);
-        this.list.setKeyboardSelectionPolicy(BOUND_TO_SELECTION);
-
-        this.widget = binder.createAndBindUi(this);
-        this.reify.setEnabled(false);
-
-        this.cacheDisabled.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> disableCache) {
-                presenter.setDisableCache(disableCache.getValue());
-            }
-        });
     }
 
     @Override
-    public Widget asWidget()
-    {
-        return widget;
-    }
-
-    @UiHandler("visualize")
-    public void onVisualize(ClickEvent event)
-    {
-        presenter.visualize(selectionModel.getSelectedObject());
-    }
-
-    @UiHandler("marshall")
-    public void onMarshall(ClickEvent event)
-    {
-        presenter.marshall(selectionModel.getSelectedObject());
-    }
-
-    @UiHandler("reify")
-    public void onReify(ClickEvent event)
-    {
-        presenter.reify(selectionModel.getSelectedObject());
-    }
-
-    @UiHandler("activate")
-    public void onActivate(ClickEvent event)
-    {
-        presenter.activate(selectionModel.getSelectedObject());
-    }
-
-    @UiHandler("reset")
-    public void onReset(ClickEvent event)
-    {
-        presenter.reset(selectionModel.getSelectedObject());
-    }
-
-    @UiHandler("passivate")
-    public void onPassivate(ClickEvent event)
-    {
-        presenter.passivate(selectionModel.getSelectedObject());
-    }
-
-    @Override
-    public void setPresenter(final RepositoryPresenter presenter)
-    {
+    public void setPresenter(RepositoryPresenter presenter) {
         this.presenter = presenter;
+        lhsNavigation.setPresenter(presenter);
     }
+
+    @Override
+    public void setDialogNames(Set<DialogRef> names) {
+        lhsNavigation.setDialogNames(names);
+    }
+
+    @Override
+    public Widget createWidget()
+    {
+        SplitLayoutPanel layout = new DefaultSplitLayoutPanel(2);
+
+        contentCanvas = new SimplePanel();
+
+        Widget nav = lhsNavigation.asWidget();
+        nav.getElement().setAttribute("role", "navigation");
+
+        contentCanvas.getElement().setAttribute("role", "main");
+
+        layout.addWest(nav, 250);
+        layout.add(contentCanvas);
+
+        return layout;
+    }
+
+    @Override
+    public void show(Widget widget) {
+        contentCanvas.setWidget(widget);
+    }
+
+    @Override
+    public void setInSlot(Object slot, IsWidget content) {
+
+        if (slot == DomainRuntimePresenter.TYPE_MainContent) {
+            if(content!=null)
+                setContent(content);
+
+        } else {
+            Console.getMessageCenter().notify(
+                    new Message("Unknown slot requested:" + slot)
+            );
+        }
+    }
+
+    private void setContent(IsWidget  newContent) {
+        contentCanvas.clear();
+        contentCanvas.add(newContent);
+    }
+
+
+
 }

@@ -133,8 +133,7 @@ import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.ApplicationPresenter;
-import org.jboss.as.console.client.tools.modelling.workbench.preview.PreviewPresenter;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -337,9 +336,7 @@ public interface CoreUI {
     AsyncProvider<AuditLogPresenter> getAuditLogPresenter();
 
     // mbui workbench
-
-    Provider<ApplicationPresenter> getWorkbenchPresenter();
-    Provider<PreviewPresenter> getPreviewPresenter();
+    Provider<RepositoryPresenter> getRepositoryPresenter();
 
     AccessControlRegistry getAccessControlRegistry();
     SecurityFramework getSecurityFramework();
