@@ -18,15 +18,10 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.Set;
@@ -41,9 +36,9 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     private final SampleRepository sampleRepository;
     private RepositoryPresenter presenter;
 
-    private SimplePanel contentCanvas;
+    //private SimplePanel contentCanvas;
     private RepositoryNavigation lhsNavigation;
-
+    private ModelEditor editor;
 
     @Inject
     public RepositoryView(final SampleRepository sampleRepository) {
@@ -69,43 +64,16 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     {
         SplitLayoutPanel layout = new DefaultSplitLayoutPanel(2);
 
-        contentCanvas = new SimplePanel();
 
         Widget nav = lhsNavigation.asWidget();
         nav.getElement().setAttribute("role", "navigation");
 
-        contentCanvas.getElement().setAttribute("role", "main");
 
         layout.addWest(nav, 250);
-        layout.add(contentCanvas);
 
+        editor = new ModelEditor();
+        layout.add(editor.asWidget());
         return layout;
     }
-
-    @Override
-    public void show(Widget widget) {
-        contentCanvas.setWidget(widget);
-    }
-
-    @Override
-    public void setInSlot(Object slot, IsWidget content) {
-
-        if (slot == DomainRuntimePresenter.TYPE_MainContent) {
-            if(content!=null)
-                setContent(content);
-
-        } else {
-            Console.getMessageCenter().notify(
-                    new Message("Unknown slot requested:" + slot)
-            );
-        }
-    }
-
-    private void setContent(IsWidget  newContent) {
-        contentCanvas.clear();
-        contentCanvas.add(newContent);
-    }
-
-
 
 }

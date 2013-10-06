@@ -7,7 +7,9 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -31,7 +33,6 @@ public class RepositoryNavigation {
     private ListBox listBox;
     private DefaultCellTable<DialogRef> table;
     private ListDataProvider<DialogRef> dataProvider;
-
     public void setPresenter(RepositoryPresenter presenter) {
         this.presenter = presenter;
     }
@@ -68,7 +69,10 @@ public class RepositoryNavigation {
         pager.setDisplay(table);
         panel.add(pager);
 
-        Button visualize = new DefaultButton("Visualize", new ClickHandler() {
+        pager.getElement().setAttribute("style", "margin-bottom:10px;");
+
+        // --
+        Button visualize = new NavButton("Visualize", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.onVisualize();
@@ -76,7 +80,7 @@ public class RepositoryNavigation {
         });
         panel.add(visualize);
 
-        Button reify = new DefaultButton("Reify", new ClickHandler() {
+        Button reify = new NavButton("Reify", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.onReify();
@@ -84,7 +88,7 @@ public class RepositoryNavigation {
         });
         panel.add(reify);
 
-        Button activate = new DefaultButton("Activate", new ClickHandler() {
+        Button activate = new NavButton("Activate", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.onActivate();
@@ -92,7 +96,7 @@ public class RepositoryNavigation {
         });
         panel.add(activate);
 
-        Button reset = new DefaultButton("Reset", new ClickHandler() {
+        Button reset = new NavButton("Reset", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.onResetDialog();
@@ -100,7 +104,7 @@ public class RepositoryNavigation {
         });
         panel.add(reset);
 
-        Button passivate = new DefaultButton("Passivate", new ClickHandler() {
+        Button passivate = new NavButton("Passivate", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.onPassivate();
@@ -127,6 +131,17 @@ public class RepositoryNavigation {
             }
         });
 
+
+        // ---
+
+        /*TabPanel tabs = new TabPanel();
+        tabs.setStyleName("fill-layout-width");
+
+        tabs.add(panel, "Preview");
+        tabs.add(new HTML("Hello"), "Edit");
+
+        tabs.selectTab(0);*/
+
         return panel;
     }
 
@@ -135,5 +150,13 @@ public class RepositoryNavigation {
         dataProvider.getList().addAll(dialogs);
 
         table.selectDefaultEntity();
+    }
+
+    class NavButton extends DefaultButton
+    {
+        NavButton(String title, ClickHandler handler) {
+            super(title, handler);
+            getElement().setAttribute("style", "margin-bottom:5px; min-width:200px; text-align:left");
+        }
     }
 }

@@ -37,11 +37,6 @@ import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.InstrumentEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.ReifyEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -52,7 +47,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.model.Dialog;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -76,7 +70,7 @@ public class RepositoryPresenter
     private final DispatchAsync dispatcher;
     private SampleRepository sampleRepository;
     private DialogRef activeDialog;
-
+    private DefaultWindow preview;
     public void setActiveDialog(DialogRef activeDialog) {
         this.activeDialog = activeDialog;
     }
@@ -84,10 +78,7 @@ public class RepositoryPresenter
     public interface MyView extends View
     {
         void setPresenter(RepositoryPresenter presenter);
-
         void setDialogNames(Set<DialogRef> names);
-
-        void show(Widget widget);
     }
 
     @ProxyStandard
@@ -149,7 +140,6 @@ public class RepositoryPresenter
         kernel.setCaching(disableCache);
     }
 
-
     public void onVisualize()
     {
         if(null==activeDialog)
@@ -193,6 +183,9 @@ public class RepositoryPresenter
             return;
         }
 
+        if(preview!=null)
+            preview.hide();
+
         kernel.reify(activeDialog.getName(), new AsyncCallback<Widget>() {
             @Override
             public void onFailure(Throwable throwable) {
@@ -202,11 +195,29 @@ public class RepositoryPresenter
             @Override
             public void onSuccess(Widget widget) {
 
-                getView().show(widget);
+                //getView().show(widget);
                 //kernel.onActivate();
+
+                doPreview(widget);
+
                 kernel.reset();
             }
         });
+    }
+
+    private void doPreview(Widget widget) {
+
+        if(null==preview)
+        {
+            preview = new DefaultWindow("Preview: "+ activeDialog.getName());
+            preview.setWidth(640);
+            preview.setHeight(480);
+
+        }
+
+        preview.setWidget(widget);
+        preview.center();
+
     }
 
     public void onActivate()
