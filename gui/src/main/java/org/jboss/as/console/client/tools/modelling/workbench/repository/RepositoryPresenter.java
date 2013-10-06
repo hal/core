@@ -23,6 +23,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.XMLParser;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -79,6 +81,7 @@ public class RepositoryPresenter
     {
         void setPresenter(RepositoryPresenter presenter);
         void setDialogNames(Set<DialogRef> names);
+        void setDocument(String s);
     }
 
     @ProxyStandard
@@ -158,21 +161,13 @@ public class RepositoryPresenter
         window.center();
     }
 
-    public void onMarshall(final Sample sample)
+    public void onMarshall()
     {
         Marshaller m = new Marshaller();
-        ModelNode node = m.marshall(sample.getDialog());
+        Document doc = m.marshall(sampleRepository.getDialog(activeDialog.getName()));
 
-
-        HTMLPanel htmlPanel = new HTMLPanel("<pre>"+node.toString()+"</pre>");
-        htmlPanel.setStyleName("fill-layout-width");
-
-        DefaultWindow window = new DefaultWindow("Wireformat: "+sample.getDialog().getId());
-        window.setWidth(800);
-        window.setHeight(600);
-        window.setModal(true);
-        window.setWidget(new ScrollPanel(htmlPanel));
-        window.center();
+        System.out.println(doc.toString());
+        getView().setDocument(doc.toString());
     }
 
     public void onReify()

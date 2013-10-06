@@ -128,6 +128,7 @@ public class RepositoryNavigation {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 presenter.setActiveDialog(selectionModel.getSelectedObject());
+                presenter.onMarshall();
             }
         });
 

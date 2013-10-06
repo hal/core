@@ -16,6 +16,7 @@ import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
 public class ModelEditor {
 
     private AceEditor editor = new AceEditor();
+    private String text;
 
     Widget asWidget() {
 
@@ -23,7 +24,6 @@ public class ModelEditor {
         panel.setStyleName("fill-layout");
 
         panel.add(editor);
-
 
         editor.addAttachHandler(new AttachEvent.Handler() {
             @Override
@@ -48,5 +48,9 @@ public class ModelEditor {
 
         return panel;
 
+    }
+
+    public void setText(String text) {
+        editor.setText(text);
     }
 }

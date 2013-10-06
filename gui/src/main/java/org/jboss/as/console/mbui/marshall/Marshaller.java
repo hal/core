@@ -1,5 +1,9 @@
 package org.jboss.as.console.mbui.marshall;
 
+import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.XMLParser;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.model.Dialog;
@@ -8,7 +12,6 @@ import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
-import java.util.Date;
 import java.util.Stack;
 
 /**
@@ -17,7 +20,7 @@ import java.util.Stack;
  */
 public class Marshaller {
 
-    public ModelNode marshall(Dialog dialog) {
+    public Document marshall(Dialog dialog) {
 
         DMRMarshallRoutine marshaller = new DMRMarshallRoutine(dialog);
         dialog.getInterfaceModel().accept(marshaller);
@@ -27,65 +30,72 @@ public class Marshaller {
     class DMRMarshallRoutine implements InteractionUnitVisitor
     {
 
-        private ModelNode result;
-        private ModelNode currentNode = null;
-
-        Stack<ModelNode> stack = new Stack<ModelNode>();
+        private Document document;
+        private Stack<Node> stack = new Stack<Node>();
 
         DMRMarshallRoutine(Dialog dialog) {
-            result = new ModelNode();
-            result.get("dialog").set(dialog.getId().toString());
-            result.get("rev").set(new Date().toString());
+            document = XMLParser.createDocument();
+
+            /*Element root = document.createElement(dialog.getId().getLocalPart());
+            root.setAttribute("xmlns", dialog.getId().getNamespaceURI());
+            stack.push(root);*/
         }
 
-        ModelNode getResult() {
-            return result;
+        Document getResult() {
+            return document;
         }
 
         @Override
         public void startVisit(Container container) {
-            ModelNode containerNode = new ModelNode();
-            containerNode.get("type").set("container");
+            Element el = document.createElement("container");
+
+            el.setAttribute("id", container.getId().getLocalPart());
+            el.setAttribute("xmlns", container.getId().getNamespaceURI());
 
             if(container.getStereotype()!=null)
-                containerNode.get("stereo-type").set(container.getStereotype().toString());
+                el.setAttribute("stereo-type", container.getStereotype().toString());
 
 
             if(container.getTemporalOperator()!=null) {
-                containerNode.get("operator").set(container.getTemporalOperator().toString());
+                el.setAttribute("operator", container.getTemporalOperator().toString());
             }
 
-            marshallMapping(container, containerNode);
+            //marshallMapping(container, containerNode);   // TODO
 
-            stack.push(containerNode);
+            stack.push(el);
         }
 
         @Override
         public void visit(InteractionUnit unit) {
-            ModelNode item = new ModelNode();
-            item.get("type").set(resolveType(unit));
+
+            Element item = document.createElement("unit");
+
+            item.setAttribute("type", resolveType(unit));
 
             if(unit.getStereotype()!=null)
-                item.get("stereo-type").set(unit.getStereotype().toString());
+                item.setAttribute("stereo-type", unit.getStereotype().toString());
 
-            marshallMapping(unit, item);
+            //marshallMapping(unit, item); // TODO
 
-            if(!stack.isEmpty())
-            {
-                stack.peek().get("child:"+unit.getId().getLocalPart()).set(item);
-            }
+            if(stack.isEmpty())
+                throw new RuntimeException("Parse error");
+
+            stack.peek().appendChild(item);
         }
 
         @Override
         public void endVisit(Container container) {
             if(stack.size()>1){
-                ModelNode containerNode = stack.pop();
-               stack.peek().get("unit:"+container.getId().getLocalPart()).set(containerNode);
+                Node el = stack.pop();
+                stack.peek().appendChild(el);
             }
             else if(stack.size()==1)
             {
-                ModelNode containerNode = stack.pop();
-                result.get("structure").set(containerNode);
+                document.appendChild(stack.pop());
+            }
+            else
+            {
+                throw new RuntimeException("Parse error");
             }
         }
     }

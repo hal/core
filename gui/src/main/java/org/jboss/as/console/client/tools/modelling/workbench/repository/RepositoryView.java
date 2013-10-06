@@ -76,4 +76,8 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
         return layout;
     }
 
+    @Override
+    public void setDocument(String s) {
+        editor.setText(s);
+    }
 }
