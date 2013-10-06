@@ -157,6 +157,12 @@
                 <version>${gin.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.edu.ycp</groupId>
+                <artifactId>ace-gwt</artifactId>
+                <version>${ace.version}</version>
+            </dependency>
+
             <!-- Test -->
             <dependency>
                 <groupId>junit</groupId>

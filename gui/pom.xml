@@ -134,6 +134,11 @@
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>mrm-servlet</artifactId>
             <version>1.0-jboss-1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.edu.ycp</groupId>
+            <artifactId>ace-gwt</artifactId>
 
         </dependency>
 
