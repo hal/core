@@ -215,7 +215,12 @@ public class DeploymentStep1 {
             TextBoxItem relativeTo= new TextBoxItem("relativeTo", "Relative To", false);
 
             TextBoxItem name = new TextBoxItem("name", "Name");
-            TextBoxItem runtimeName = new TextBoxItem("runtimeName", "Runtime Name");
+            TextBoxItem runtimeName = new TextBoxItem("runtimeName", "Runtime Name") {
+                @Override
+                public void setFiltered(boolean filtered) {
+                    // ignore
+                }
+            };
             CheckBoxItem archive = new CheckBoxItem("archive", "Is Archive?");
             archive.setValue(true);
             unmanagedForm.setFields(path, relativeTo, archive, name, runtimeName);
