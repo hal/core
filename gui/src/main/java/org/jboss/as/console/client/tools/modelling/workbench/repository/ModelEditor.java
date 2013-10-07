@@ -78,7 +78,8 @@ public class ModelEditor {
                 Document document = null;
                 try {
                     document = XMLParser.parse(text);
-                    editor.setText(formatXml(document.toString()));
+                    String clean = cleanXml(document.toString());
+                    editor.setText(formatXml(clean));
                 } catch (Exception e) {
                     Console.error("Failed to parse document", e.getMessage());
                 }
@@ -215,6 +216,14 @@ public class ModelEditor {
 
 
     }-*/;
+
+    public static native String cleanXml(String xml) /*-{
+
+        var noBreaks = xml.replace(/[\n\r]/g, '');
+        return noBreaks.replace(/[\t]/g, '');
+
+    }-*/;
+
 
     public void setDialogName(String dialogName) {
         header.setText("Dialog: "+dialogName);
