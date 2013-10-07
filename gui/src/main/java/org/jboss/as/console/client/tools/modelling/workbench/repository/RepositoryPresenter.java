@@ -64,6 +64,7 @@ import java.util.Set;
  */
 public class RepositoryPresenter
         extends Presenter<RepositoryPresenter.MyView, RepositoryPresenter.MyProxy>
+        implements EditorResizeEvent.ResizeListener
 {
 
     @ContentSlot
@@ -82,6 +83,8 @@ public class RepositoryPresenter
         void setPresenter(RepositoryPresenter presenter);
         void setDialogNames(Set<DialogRef> names);
         void setDocument(String name, String content);
+
+        void setFullScreen(boolean fullscreen);
     }
 
     @ProxyStandard
@@ -123,6 +126,12 @@ public class RepositoryPresenter
     {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(EditorResizeEvent.TYPE, this);
+    }
+
+    @Override
+    public void onResizeRequested(boolean fullscreen) {
+        getView().setFullScreen(fullscreen);
     }
 
     @Override

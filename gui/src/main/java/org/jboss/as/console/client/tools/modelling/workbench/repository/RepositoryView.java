@@ -18,7 +18,9 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -39,6 +41,8 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     //private SimplePanel contentCanvas;
     private RepositoryNavigation lhsNavigation;
     private ModelEditor editor;
+    private Widget nav;
+    private DefaultSplitLayoutPanel layout;
 
     @Inject
     public RepositoryView(final SampleRepository sampleRepository) {
@@ -62,9 +66,9 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     @Override
     public Widget createWidget()
     {
-        SplitLayoutPanel layout = new DefaultSplitLayoutPanel(2);
+        layout = new DefaultSplitLayoutPanel(2);
 
-        Widget nav = lhsNavigation.asWidget();
+        nav = lhsNavigation.asWidget();
         nav.getElement().setAttribute("role", "navigation");
         layout.addWest(nav, 250);
 
@@ -78,5 +82,18 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     public void setDocument(String name, String content) {
         editor.setDialogName(name);
         editor.setText(content);
+    }
+
+    @Override
+    public void setFullScreen(final boolean fullscreen) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                layout.setWidgetHidden(nav, fullscreen);
+
+                editor.updateEditorConstraints();
+            }
+        });
+
     }
 }

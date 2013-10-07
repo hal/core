@@ -8,6 +8,7 @@ import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
@@ -32,17 +33,19 @@ public class ModelEditor {
     private ContentHeaderLabel header;
     private String dialogName;
     private MenuBar menu;
+    private MenuItem fullScreenItem;
+    private VerticalPanel editorPanel;
 
     Widget asWidget() {
 
 
-        final VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("fill-layout");
+        editorPanel = new VerticalPanel();
+        editorPanel.setStyleName("fill-layout-width");
 
         // ---
 
         MenuBar file = new MenuBar(true);
-        file.addItem("save", new Command() {
+        file.addItem("Save", new Command() {
             @Override
             public void execute() {
 
@@ -50,12 +53,22 @@ public class ModelEditor {
         });
 
         MenuBar view = new MenuBar(true);
-        view.addItem("Full Screen", new Command() {
+
+        Command fsCmd = new Command() {
             @Override
             public void execute() {
+                boolean fullScreen = fullScreenItem.getText().equals("Full Screen");
+                Console.MODULES.getEventBus().fireEvent(
+                        new EditorResizeEvent(fullScreen)
+                );
 
+                if(fullScreen)
+                    fullScreenItem.setText("Exit Full Screen");
+                else
+                    fullScreenItem.setText("Full Screen");
             }
-        });
+        };
+        fullScreenItem = view.addItem("Full Screen", fsCmd);
 
         MenuBar code = new MenuBar(true);
         code.addItem("Reformat", new Command() {
@@ -78,10 +91,10 @@ public class ModelEditor {
         menu.addItem("View", view);
         menu.addItem("Code", code);
 
-        panel.add(menu);
+        editorPanel.add(menu);
 
         // ---
-        panel.add(editor);
+        editorPanel.add(editor);
 
         editor.getElement().setAttribute("style", "border:1px solid #cccccc");
         editor.addAttachHandler(new AttachEvent.Handler() {
@@ -92,7 +105,7 @@ public class ModelEditor {
                             @Override
                             public void execute() {
 
-                                updateEditorConstraints(panel);
+                                updateEditorConstraints();
 
                                 editor.startEditor();
                                 editor.setMode(AceEditorMode.XML);
@@ -105,12 +118,10 @@ public class ModelEditor {
         });
 
 
-
-
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                updateEditorConstraints(panel);
+                updateEditorConstraints();
             }
         });
 
@@ -122,7 +133,7 @@ public class ModelEditor {
                 .setPlain(true)
                 .setHeadlineWidget(header)
                 .setDescription("")
-                .addContent("XML", panel);
+                .addContent("XML", editorPanel);
 
 
         // --
@@ -133,16 +144,17 @@ public class ModelEditor {
 
         tabLayoutpanel.selectTab(0);
 
+
         return tabLayoutpanel;
 
     }
 
-    private void updateEditorConstraints(final VerticalPanel panel) {
+    public void updateEditorConstraints() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                int parentWidth = panel.getElement().getOffsetWidth();
-                int editorWidth = parentWidth - 35;
+                int parentWidth = editorPanel.getElement().getOffsetWidth();
+                int editorWidth = parentWidth - 15;
                 editor.setWidth(editorWidth +"px");
                 editor.setHeight("480px");
                 menu.setWidth((editorWidth)-7+"px");
