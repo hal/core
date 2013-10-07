@@ -68,19 +68,18 @@ public class Marshaller {
         @Override
         public void visit(InteractionUnit unit) {
 
-            Element item = document.createElement("unit");
-
-            item.setAttribute("type", resolveType(unit));
+            Element el = document.createElement(resolveType(unit));
+            el.setAttribute("id", unit.getId().getLocalPart());
 
             if(unit.getStereotype()!=null)
-                item.setAttribute("stereo-type", unit.getStereotype().toString());
+                el.setAttribute("stereo-type", unit.getStereotype().toString());
 
             //marshallMapping(unit, item); // TODO
 
             if(stack.isEmpty())
                 throw new RuntimeException("Parse error");
 
-            stack.peek().appendChild(item);
+            stack.peek().appendChild(el);
         }
 
         @Override
@@ -101,7 +100,8 @@ public class Marshaller {
     }
 
     private String resolveType(InteractionUnit interactionUnit) {
-        return interactionUnit.getClass().getName().toLowerCase();
+        String className = interactionUnit.getClass().getName().toLowerCase();
+        return className.substring(className.lastIndexOf(".")+1, className.length());
     }
 
     private void marshallMapping(InteractionUnit unit, ModelNode target)

@@ -190,7 +190,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         String detail = msg.getDetailedMessage() != null ? msg.getDetailedMessage() : "";
 
         html.appendHtmlConstant("<pre style='font-family:tahoma, verdana, sans-serif;' id='detail-message'>");
-        html.appendHtmlConstant(detail);
+        html.appendEscaped(detail);
         html.appendHtmlConstant("</pre>");
 
         final HTML widget = new HTML(html.toSafeHtml());

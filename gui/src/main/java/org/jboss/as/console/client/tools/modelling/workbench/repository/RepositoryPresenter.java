@@ -81,7 +81,7 @@ public class RepositoryPresenter
     {
         void setPresenter(RepositoryPresenter presenter);
         void setDialogNames(Set<DialogRef> names);
-        void setDocument(String s);
+        void setDocument(String name, String content);
     }
 
     @ProxyStandard
@@ -165,9 +165,7 @@ public class RepositoryPresenter
     {
         Marshaller m = new Marshaller();
         Document doc = m.marshall(sampleRepository.getDialog(activeDialog.getName()));
-
-        System.out.println(doc.toString());
-        getView().setDocument(doc.toString());
+        getView().setDocument(activeDialog.getName(), doc.toString());
     }
 
     public void onReify()

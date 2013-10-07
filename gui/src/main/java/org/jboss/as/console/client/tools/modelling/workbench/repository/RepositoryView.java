@@ -64,20 +64,19 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     {
         SplitLayoutPanel layout = new DefaultSplitLayoutPanel(2);
 
-
         Widget nav = lhsNavigation.asWidget();
         nav.getElement().setAttribute("role", "navigation");
-
-
         layout.addWest(nav, 250);
 
         editor = new ModelEditor();
         layout.add(editor.asWidget());
+
         return layout;
     }
 
     @Override
-    public void setDocument(String s) {
-        editor.setText(s);
+    public void setDocument(String name, String content) {
+        editor.setDialogName(name);
+        editor.setText(content);
     }
 }
