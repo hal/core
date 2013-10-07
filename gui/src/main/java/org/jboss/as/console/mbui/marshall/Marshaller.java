@@ -46,14 +46,14 @@ public class Marshaller {
 
         @Override
         public void startVisit(Container container) {
-            Element el = document.createElement("container");
+
+            String name = container.getStereotype()!=null ?
+                    container.getStereotype().toString().toLowerCase() : "container";
+
+            Element el = document.createElement(name);
 
             el.setAttribute("id", container.getId().getLocalPart());
             el.setAttribute("xmlns", container.getId().getNamespaceURI());
-
-            if(container.getStereotype()!=null)
-                el.setAttribute("stereo-type", container.getStereotype().toString());
-
 
             if(container.getTemporalOperator()!=null) {
                 el.setAttribute("operator", container.getTemporalOperator().toString());
@@ -67,11 +67,11 @@ public class Marshaller {
         @Override
         public void visit(InteractionUnit unit) {
 
-            Element el = document.createElement(resolveType(unit));
-            el.setAttribute("id", unit.getId().getLocalPart());
+            String name = unit.getStereotype()!=null ?
+                    unit.getStereotype().toString().toLowerCase() : resolveType(unit);
 
-            if(unit.getStereotype()!=null)
-                el.setAttribute("stereo-type", unit.getStereotype().toString());
+            Element el = document.createElement(name);
+            el.setAttribute("id", unit.getId().getLocalPart());
 
             marshallMapping(unit, el);
 
@@ -92,9 +92,11 @@ public class Marshaller {
                 Node root = stack.pop();
 
                 Element dialogEl = document.createElement("dialog");
+
                 dialogEl.setAttribute("id", dialog.getId().getLocalPart());
 
                 Element structure = document.createElement("structure");
+
                 //Element behaviour = document.createElement("behaviour");
                 structure.appendChild(root);
                 dialogEl.appendChild(structure);
