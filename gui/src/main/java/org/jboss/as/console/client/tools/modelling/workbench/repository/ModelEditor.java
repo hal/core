@@ -155,9 +155,13 @@ public class ModelEditor {
             public void execute() {
                 int parentWidth = editorPanel.getElement().getOffsetWidth();
                 int editorWidth = parentWidth - 15;
-                editor.setWidth(editorWidth +"px");
-                editor.setHeight("480px");
-                menu.setWidth((editorWidth)-7+"px");
+
+                if(parentWidth>0) // sloppy resize impl workaround
+                {
+                    editor.setWidth(editorWidth +"px");
+                    editor.setHeight("480px");
+                    menu.setWidth((editorWidth)-7+"px");
+                }
             }
         });
     }
