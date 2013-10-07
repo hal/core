@@ -16,15 +16,10 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.tools.modelling.workbench.ActivateEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.PassivateEvent;
-import org.jboss.as.console.client.tools.modelling.workbench.ResetEvent;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.useware.kernel.gui.behaviour.NavigationDelegate;
-import org.useware.kernel.model.structure.QName;
 
 
 /**
@@ -33,9 +28,7 @@ import org.useware.kernel.model.structure.QName;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy>
-        implements ActivateEvent.ActivateHandler, ResetEvent.ResetHandler,
-        PassivateEvent.PassivateHandler {
+public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy> {
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
@@ -81,32 +74,9 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
     }
 
     @Override
-    public void onActivate(ActivateEvent event) {
-        kernel.activate();
-    }
-
-    @Override
     protected void onReset() {         // presenter API
         getView().show(new HTML("")); // clear view
         reify();
-    }
-
-    @Override
-    public void onReset(ResetEvent event) {   // mbui API
-
-        kernel.reset();
-    }
-
-    @Override
-    public void onPassivate(PassivateEvent event) {
-        kernel.passivate();
-    }
-
-    @Override
-    protected void onBind() {
-        super.onBind();
-
-        getEventBus().addHandler(ResetEvent.getType(), this);
     }
 
     @Override
