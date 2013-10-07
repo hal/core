@@ -1,17 +1,18 @@
 package org.jboss.as.console.mbui.marshall;
 
-import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
+import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.XMLParser;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -30,15 +31,13 @@ public class Marshaller {
     class DMRMarshallRoutine implements InteractionUnitVisitor
     {
 
+        private final Dialog dialog;
         private Document document;
         private Stack<Node> stack = new Stack<Node>();
 
         DMRMarshallRoutine(Dialog dialog) {
-            document = XMLParser.createDocument();
-
-            /*Element root = document.createElement(dialog.getId().getLocalPart());
-            root.setAttribute("xmlns", dialog.getId().getNamespaceURI());
-            stack.push(root);*/
+            this.dialog = dialog;
+            this.document = XMLParser.createDocument();
         }
 
         Document getResult() {
@@ -60,7 +59,7 @@ public class Marshaller {
                 el.setAttribute("operator", container.getTemporalOperator().toString());
             }
 
-            //marshallMapping(container, containerNode);   // TODO
+            marshallMapping(container, el);
 
             stack.push(el);
         }
@@ -74,7 +73,7 @@ public class Marshaller {
             if(unit.getStereotype()!=null)
                 el.setAttribute("stereo-type", unit.getStereotype().toString());
 
-            //marshallMapping(unit, item); // TODO
+            marshallMapping(unit, el);
 
             if(stack.isEmpty())
                 throw new RuntimeException("Parse error");
@@ -90,32 +89,53 @@ public class Marshaller {
             }
             else if(stack.size()==1)
             {
-                document.appendChild(stack.pop());
+                Node root = stack.pop();
+
+                Element dialogEl = document.createElement("dialog");
+                dialogEl.setAttribute("id", dialog.getId().getLocalPart());
+
+                Element structure = document.createElement("structure");
+                //Element behaviour = document.createElement("behaviour");
+                structure.appendChild(root);
+                dialogEl.appendChild(structure);
+                document.appendChild(dialogEl);
+
+
             }
             else
             {
                 throw new RuntimeException("Parse error");
             }
         }
+
+        private void marshallMapping(InteractionUnit unit, Element target)
+        {
+            if(unit.hasMapping(MappingType.DMR))
+            {
+                DMRMapping mapping = (DMRMapping) unit.getMapping(MappingType.DMR);
+                Element el = document.createElement("dmr");
+
+                if(mapping.getAddress()!=null)
+                    el.setAttribute("address", mapping.getAddress());
+
+                List<ResourceAttribute> attributes = mapping.getAttributes();
+                for(ResourceAttribute att : attributes)
+                {
+                    Element attEl = document.createElement("attribute");
+                    attEl.setAttribute("name", att.getName());
+                    if(att.getLabel()!=null) attEl.setAttribute("label", att.getLabel());
+                    el.appendChild(attEl);
+                }
+
+                target.appendChild(el);
+            }
+        }
     }
 
-    private String resolveType(InteractionUnit interactionUnit) {
+    private static String resolveType(InteractionUnit interactionUnit) {
         String className = interactionUnit.getClass().getName().toLowerCase();
         return className.substring(className.lastIndexOf(".")+1, className.length());
     }
 
-    private void marshallMapping(InteractionUnit unit, ModelNode target)
-    {
-        if(unit.hasMapping(MappingType.DMR))
-        {
-            ModelNode mappingNode = new ModelNode();
-            DMRMapping mapping = (DMRMapping) unit.getMapping(MappingType.DMR);
-            mappingNode.get("type").set("dmr");
 
-            if(mapping.getAddress()!=null)
-                mappingNode.get("address").set(mapping.getAddress());
-
-            target.get("mapping").set(mappingNode);
-        }
-    }
 }
