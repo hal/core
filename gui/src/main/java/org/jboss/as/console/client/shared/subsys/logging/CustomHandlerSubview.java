@@ -19,6 +19,8 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.CustomHandler;
@@ -60,10 +62,23 @@ public class CustomHandlerSubview extends AbstractHandlerSubview<CustomHandler>
     protected FormAdapter<CustomHandler> makeAddEntityForm() {
         Form<CustomHandler> form = new Form(type);
         form.setNumColumns(1);
+
+        TextBoxItem className = new TextBoxItem("className", "Class Name") {
+            @Override
+            public void setFiltered(boolean filtered) {
+                // ignore
+            }
+        };
+        TextBoxItem module = new TextBoxItem("module", "Module") {
+            @Override
+            public void setFiltered(boolean filtered) {
+                // ignore
+            }
+        };
+
         form.setFields(formMetaData.findAttribute("name").getFormItemForAdd(),
-                levelItemForAdd,
-                formMetaData.findAttribute("module").getFormItemForAdd(),
-                formMetaData.findAttribute("className").getFormItemForAdd());
+                levelItemForAdd, new FormItem[]{className, module}
+                );
         return form;
     }
 
