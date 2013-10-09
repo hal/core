@@ -37,11 +37,11 @@ import org.jboss.gwt.flow.client.Function;
  *
  * @author Harald Pehl
  */
-public final class PrincipalFuntions {
+public final class PrincipalFunctions {
 
-    private PrincipalFuntions() {}
+    private PrincipalFunctions() {}
 
-    public static class Add implements Function<Stack<Boolean>> {
+    public static class Add implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -59,7 +59,7 @@ public final class PrincipalFuntions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
             node.get("name").set(ModelType.STRING, principal.getName());
             node.get("type").set(ModelType.STRING, principal.getType().name());
@@ -68,11 +68,11 @@ public final class PrincipalFuntions {
             }
             node.get(OP).set(ADD);
             System.out.println(node);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 
-    public static class Remove implements Function<Stack<Boolean>> {
+    public static class Remove implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -90,10 +90,10 @@ public final class PrincipalFuntions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
             node.get(OP).set(REMOVE);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 }

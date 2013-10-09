@@ -181,16 +181,16 @@ public class RoleAssignmentPresenter
 
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.addingFailed("role assignment"));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.added("role assignment"));
                 loadAssignments();
             }
@@ -198,16 +198,16 @@ public class RoleAssignmentPresenter
     }
 
     public void saveRoleAssignment(final RoleAssignment assignment, final RoleAssignment oldValue) {
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, oldValue, MODIFY);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, oldValue, MODIFY);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.saveFailed("role assignment"));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.saved("role assignment"));
                 loadAssignments();
             }
@@ -215,16 +215,16 @@ public class RoleAssignmentPresenter
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.deletionFailed("role assignment"));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.deleted("role assignment"));
                 loadAssignments();
             }
@@ -241,65 +241,53 @@ public class RoleAssignmentPresenter
         if (!assertDomainMode()) { return; }
 
         closeWindow();
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, ADD);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, role, ADD);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.addingFailed(role.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.added(role.getName()));
                 loadAssignments();
             }
         });
     }
 
-    public void saveScopedRole(final Role scopedRole, final Role oldValue) {
+    public void saveScopedRole(final Role scopedRole) {
         if (!assertDomainMode()) { return; }
 
-        ManagementOperation.Operation operation = (scopedRole.getName().equals(oldValue.getName())) ? MODIFY : RENAME;
-        if (operation == RENAME) {
-            int usage = usedInAssignments(oldValue);
-            if (usage > 0) {
-                Console.error(Console.MESSAGES
-                        .saveFailed(oldValue.getName() + " as " + scopedRole.getName() + ". " + Console.MESSAGES
-                                .administration_scoped_role_in_use(usage)));
-                loadAssignments();
-                return;
-            }
-        }
-
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, scopedRole, oldValue, operation);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, scopedRole, MODIFY);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.saveFailed(scopedRole.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.saved(scopedRole.getName()));
                 loadAssignments();
             }
         });
     }
 
-    public void modifyIncludeAll(final Role role) {
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, MODIFY);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+    public void modifyIncludeAll(final Role standardRole) {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, standardRole, MODIFY);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
-                Console.error(Console.MESSAGES.saveFailed(role.getName()));
+            public void onFailure(final Stack<Object> context) {
+                Console.error(Console.MESSAGES.saveFailed(standardRole.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
-                Console.info(Console.MESSAGES.saved(role.getName()));
+            public void onSuccess(final Stack<Object> context) {
+                Console.info(Console.MESSAGES.saved(standardRole.getName()));
                 loadAssignments();
             }
         });
@@ -316,16 +304,16 @@ public class RoleAssignmentPresenter
             return;
         }
 
-        ManagementOperation<Stack<Boolean>> mo = new ModifyRoleOp(dispatcher, role, role, REMOVE);
-        mo.execute(new Outcome<Stack<Boolean>>() {
+        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, role, REMOVE);
+        mo.execute(new Outcome<Stack<Object>>() {
             @Override
-            public void onFailure(final Stack<Boolean> context) {
+            public void onFailure(final Stack<Object> context) {
                 Console.error(Console.MESSAGES.deletionFailed(role.getName()));
                 loadAssignments();
             }
 
             @Override
-            public void onSuccess(final Stack<Boolean> context) {
+            public void onSuccess(final Stack<Object> context) {
                 Console.info(Console.MESSAGES.deleted(role.getName()));
                 loadAssignments();
             }

@@ -41,6 +41,7 @@ import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextItem;
 
 /**
  * @author Harald Pehl
@@ -64,7 +65,7 @@ public class ScopedRoleDetails implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
         baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
                 Console.CONSTANTS.administration_base_role());
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
@@ -83,13 +84,14 @@ public class ScopedRoleDetails implements IsWidget {
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {
             @Override
-            public void onSave(final Map changeset) {
+            public void onSave(final Map changeSet) {
                 Role edited = form.getEditedEntity();
                 if (edited != null) {
-                    Role newScopedRole = new Role(nameItem.getValue(), nameItem.getValue(), baseRoleItem.getValue(),
-                            typeItem.getValue(), scopeItem.getValue());
-                    newScopedRole.setIncludeAll(includeAllItem.getValue());
-                    presenter.saveScopedRole(newScopedRole, edited);
+                    edited.setBaseRole(baseRoleItem.getValue());
+                    edited.setType(typeItem.getValue());
+                    edited.setScope(scopeItem.getValue());
+                    edited.setIncludeAll(includeAllItem.getValue());
+                    presenter.saveScopedRole(edited);
                 }
             }
 

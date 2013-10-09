@@ -30,6 +30,6 @@ public interface ManagementOperation<T> {
     boolean isPending();
 
     enum Operation {
-        ADD, RENAME, MODIFY, REMOVE
+        ADD, MODIFY, REMOVE
     }
 }

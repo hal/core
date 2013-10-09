@@ -44,7 +44,7 @@ public final class ScopedRoleFunctions {
 
     private ScopedRoleFunctions() {}
 
-    static class Add implements Function<Stack<Boolean>> {
+    static class Add implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -55,7 +55,7 @@ public final class ScopedRoleFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.scopedRole(role);
             node.get("base-role").set(role.getBaseRole().name());
             String scope = role.getType() == HOST ? "hosts" : "server-groups";
@@ -63,11 +63,11 @@ public final class ScopedRoleFunctions {
                 node.get(scope).add(s);
             }
             node.get(OP).set(ADD);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 
-    public static class Modify implements Function<Stack<Boolean>> {
+    public static class Modify implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -78,7 +78,7 @@ public final class ScopedRoleFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode baseRoleNode = ModelHelper.scopedRole(role);
             baseRoleNode.get(NAME).set("base-role");
             baseRoleNode.get(VALUE).set(role.getBaseRole().name());
@@ -98,11 +98,11 @@ public final class ScopedRoleFunctions {
             List<ModelNode> steps = new ArrayList<ModelNode>();
             steps.addAll(asList(baseRoleNode, scopeNode));
             compositeNode.get(STEPS).set(steps);
-            dispatcher.execute(new DMRAction(compositeNode), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(compositeNode), new FunctionCallback<Stack<Object>>(control));
         }
     }
 
-    public static class Remove implements Function<Stack<Boolean>> {
+    public static class Remove implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -113,10 +113,10 @@ public final class ScopedRoleFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.scopedRole(role);
             node.get(OP).set(ModelDescriptionConstants.REMOVE);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 }

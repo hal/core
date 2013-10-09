@@ -27,14 +27,18 @@ import java.util.Stack;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
 /**
- * Functions to check, add (if not present) and remove a role assignements; supposed two work inside a call to {@link
+ * Functions to check, add (if not present) and remove a role assignments; supposed two work inside a call to {@link
  * org.jboss.gwt.flow.client.Async#waterfall(Object, org.jboss.gwt.flow.client.Outcome,
  * org.jboss.gwt.flow.client.Function[])}
  *
@@ -44,7 +48,7 @@ public final class RoleAssignmentFunctions {
 
     private RoleAssignmentFunctions() {}
 
-    public static class Check implements Function<Stack<Boolean>> {
+    public static class Check implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -55,10 +59,10 @@ public final class RoleAssignmentFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.roleMapping(role);
             node.get(OP).set(READ_RESOURCE_OPERATION);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control) {
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control) {
                 @Override
                 protected void proceed() {
                     // role exists - next function will skip its DMR operation
@@ -76,7 +80,7 @@ public final class RoleAssignmentFunctions {
         }
     }
 
-    public static class Add implements Function<Stack<Boolean>> {
+    public static class Add implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -87,20 +91,20 @@ public final class RoleAssignmentFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
-            boolean roleExists = control.getContext().pop();
+        public void execute(final Control<Stack<Object>> control) {
+            boolean roleExists = Boolean.valueOf(control.getContext().pop().toString());
             if (roleExists) {
                 control.proceed();
             } else {
                 ModelNode node = ModelHelper.roleMapping(role);
                 node.get(OP).set(ADD);
                 System.out.println(node);
-                dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+                dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
             }
         }
     }
 
-    public static class IncludeAll implements Function<Stack<Boolean>> {
+    public static class IncludeAll implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -111,16 +115,16 @@ public final class RoleAssignmentFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
+        public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.roleMapping(role);
             node.get(NAME).set("include-all");
             node.get(VALUE).set(role.isIncludeAll());
             node.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Boolean>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 
-    public static class Remove implements Function<Stack<Boolean>> {
+    public static class Remove implements Function<Stack<Object>> {
 
         private final DispatchAsync dispatcher;
         private final RoleAssignment assignment;
@@ -131,10 +135,10 @@ public final class RoleAssignmentFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Boolean>> control) {
-            ModelNode operation = new ModelNode();
-            operation.get(ADDRESS).setEmptyList();
-            operation.get(OP).set(COMPOSITE);
+        public void execute(final Control<Stack<Object>> control) {
+            ModelNode node = new ModelNode();
+            node.get(ADDRESS).setEmptyList();
+            node.get(OP).set(COMPOSITE);
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             for (Role role : assignment.getRoles()) {
@@ -150,8 +154,132 @@ public final class RoleAssignmentFunctions {
                 steps.add(step);
             }
 
-            operation.get(STEPS).set(steps);
-            dispatcher.execute(new DMRAction(operation), new FunctionCallback<Stack<Boolean>>(control));
+            node.get(STEPS).set(steps);
+            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
+        }
+    }
+
+    public static class Find implements Function<Stack<Object>> {
+
+        private final DispatchAsync dispatcher;
+        private final String name;
+
+        public Find(final DispatchAsync dispatcher) {
+            this(dispatcher, null);
+        }
+
+        public Find(final DispatchAsync dispatcher, final String name) {
+            this.dispatcher = dispatcher;
+            this.name = name;
+        }
+
+        @Override
+        public void execute(final Control<Stack<Object>> control) {
+            final List<String> matchingRoles = new LinkedList<String>();
+            control.getContext().push(matchingRoles);
+
+            ModelNode node = new ModelNode();
+            node.get(ADDRESS).add("core-service", "management");
+            node.get(ADDRESS).add("access", "authorization");
+            node.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+            node.get(CHILD_TYPE).set("role-mapping");
+            node.get("recursive-depth").set("2");
+            dispatcher.execute(new DMRAction(node), new SimpleCallback<DMRResponse>() {
+                @Override
+                public void onSuccess(final DMRResponse response) {
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        control.abort();
+                    } else {
+                        List<ModelNode> roleMappings = result.get(RESULT).asList();
+                        for (ModelNode node : roleMappings) {
+                            Property property = node.asProperty();
+                            String roleName = property.getName();
+
+                            if (name != null) {
+                                if (name.equals(roleName)) {
+                                    matchingRoles.add(roleName);
+                                    break;
+                                }
+                            } else {
+                                // check if the role is empty and does not have include-all=true
+                                boolean match = true;
+                                ModelNode assignmentNode = property.getValue();
+                                if (assignmentNode.hasDefined("include-all")) {
+                                    match = !assignmentNode.get("include-all").asBoolean();
+                                }
+                                if (match) {
+                                    if (assignmentNode.hasDefined("include")) {
+                                        List<Property> inclusions = assignmentNode.get("include").asPropertyList();
+                                        match = inclusions.isEmpty();
+                                    }
+                                    if (match) {
+                                        if (assignmentNode.hasDefined("exclude")) {
+                                            List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
+                                            match = exclusions.isEmpty();
+                                        }
+                                    }
+                                }
+                                if (match) {
+                                    matchingRoles.add(roleName);
+                                }
+                            }
+                        }
+                        control.proceed();
+                    }
+                }
+
+                @Override
+                public void onFailure(final Throwable caught) {
+                    control.abort();
+                }
+            });
+        }
+    }
+
+    public static class RemoveMatching implements Function<Stack<Object>> {
+
+        private final DispatchAsync dispatcher;
+
+        public RemoveMatching(final DispatchAsync dispatcher) {this.dispatcher = dispatcher;}
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void execute(final Control<Stack<Object>> control) {
+            List<String> roles = (List<String>) control.getContext().pop();
+            if (roles.isEmpty()) {
+                control.proceed();
+            } else {
+                ModelNode comp = new ModelNode();
+                comp.get(ADDRESS).setEmptyList();
+                comp.get(OP).set(COMPOSITE);
+                List<ModelNode> steps = new LinkedList<ModelNode>();
+                for (String role : roles) {
+                    ModelNode node = new ModelNode();
+                    node.get(ADDRESS).add("core-service", "management");
+                    node.get(ADDRESS).add("access", "authorization");
+                    node.get(ADDRESS).add("role-mapping", role);
+                    node.get(OP).set(ModelDescriptionConstants.REMOVE);
+                    steps.add(node);
+                }
+                comp.get(STEPS).set(steps);
+                dispatcher.execute(new DMRAction(comp), new SimpleCallback<DMRResponse>() {
+                    @Override
+                    public void onSuccess(final DMRResponse response) {
+                        ModelNode result = response.get();
+                        if (result.isFailure()) {
+                            control.abort();
+                        } else {
+                            control.proceed();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable caught) {
+                        control.abort();
+                    }
+                });
+            }
         }
     }
 }

@@ -62,9 +62,9 @@ public final class ModelHelper {
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
         if (scopedRole.getType() == HOST) {
-            node.get(ADDRESS).add("host-scoped-role", scopedRole.getName());
+            node.get(ADDRESS).add("host-scoped-role", scopedRole.getId());
         } else if (scopedRole.getType() == SERVER_GROUP) {
-            node.get(ADDRESS).add("server-group-scoped-role", scopedRole.getName());
+            node.get(ADDRESS).add("server-group-scoped-role", scopedRole.getId());
         }
         return node;
     }

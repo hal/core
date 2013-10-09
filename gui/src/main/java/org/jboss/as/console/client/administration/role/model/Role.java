@@ -117,6 +117,10 @@ public class Role {
         return baseRole;
     }
 
+    public void setBaseRole(final StandardRole baseRole) {
+        this.baseRole = baseRole;
+    }
+
     public Type getType() {
         return type;
     }

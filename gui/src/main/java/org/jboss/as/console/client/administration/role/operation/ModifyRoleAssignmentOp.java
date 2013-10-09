@@ -34,7 +34,7 @@ import org.jboss.gwt.flow.client.Outcome;
 /**
  * @author Harald Pehl
  */
-public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean>> {
+public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>> {
 
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
@@ -56,8 +56,8 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
 
     @Override
     @SuppressWarnings("unchecked")
-    public void execute(final Outcome<Stack<Boolean>> outcome) {
-        List<Function<Stack<Boolean>>> functions = new ArrayList<Function<Stack<Boolean>>>();
+    public void execute(final Outcome<Stack<Object>> outcome) {
+        List<Function<Stack<Object>>> functions = new ArrayList<Function<Stack<Object>>>();
 
         switch (operation) {
             case ADD: {
@@ -85,12 +85,12 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
                 Set<Role> removedRoles = removed(assignment.getRoles(), oldValue.getRoles());
                 Set<Role> removedExcludes = removed(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role removedRole : removedRoles) {
-                    functions.add(new PrincipalFuntions.Remove(dispatcher, removedRole, assignment.getPrincipal(),
+                    functions.add(new PrincipalFunctions.Remove(dispatcher, removedRole, assignment.getPrincipal(),
                             assignment.getRealm(), "include"));
                 }
                 for (Role removedExclude : removedExcludes) {
                     functions.add(
-                            new PrincipalFuntions.Remove(dispatcher, removedExclude, assignment.getPrincipal(),
+                            new PrincipalFunctions.Remove(dispatcher, removedExclude, assignment.getPrincipal(),
                                     assignment.getRealm(), "exclude"));
                 }
                 break;
@@ -98,18 +98,16 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Boolean
             case REMOVE:
                 functions.add(new RoleAssignmentFunctions.Remove(dispatcher, assignment));
                 break;
-            case RENAME:
-                throw new UnsupportedOperationException("Cannot rename a role assignment");
         }
-        new Async<Stack<Boolean>>()
-                .waterfall(new Stack<Boolean>(), outcome, functions.toArray(new Function[functions.size()]));
+        new Async<Stack<Object>>()
+                .waterfall(new Stack<Object>(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
-    private void checkAndAdd(final List<Function<Stack<Boolean>>> functions, final Role role,
+    private void checkAndAdd(final List<Function<Stack<Object>>> functions, final Role role,
             final String includeExclude) {
         functions.add(new RoleAssignmentFunctions.Check(dispatcher, role));
         functions.add(new RoleAssignmentFunctions.Add(dispatcher, role));
-        functions.add(new PrincipalFuntions.Add(dispatcher, role, assignment.getPrincipal(),
+        functions.add(new PrincipalFunctions.Add(dispatcher, role, assignment.getPrincipal(),
                 assignment.getRealm(), includeExclude));
     }
 
