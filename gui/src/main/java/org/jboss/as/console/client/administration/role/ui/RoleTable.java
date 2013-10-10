@@ -75,7 +75,7 @@ public abstract class RoleTable implements IsWidget {
                 return role.isIncludeAll();
             }
         };
-        table.addColumn(includeAllColumn, Console.CONSTANTS.administration_include_all());
+        table.addColumn(includeAllColumn, "Include All");
 
         VerticalPanel content = new VerticalPanel();
         content.setStyleName("fill-layout-width");

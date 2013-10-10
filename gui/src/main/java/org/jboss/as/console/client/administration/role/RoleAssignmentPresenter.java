@@ -160,9 +160,8 @@ public class RoleAssignmentPresenter
                     // show warning about simple access control provider (if not already done)
                     if (!initialized) {
                         String acp = (String) context.get(Results.ACCESS_CONTROL_PROVIDER);
-                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
-                            openWindow(Console.CONSTANTS.administration_access_control_provider_header(), 480, 200,
-                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
+                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {openWindow("Access Control Provider", 480, 200,
+                                new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
                         }
                     }
                     initialized = true;
@@ -174,8 +173,8 @@ public class RoleAssignmentPresenter
     // ------------------------------------------------------ callback methods triggered by the view
 
     public void launchAddRoleAssignmentWizard(final Principal.Type type) {
-        String title = type == USER ? Console.CONSTANTS.role_assignment_add_user() : Console
-                .CONSTANTS.role_assignment_add_group();
+        String title = type == USER ? Console.CONSTANTS.administration_add_user_assignment() : Console
+                .CONSTANTS.administration_add_group_assignment();
         openWindow(title, 480, 630, new AddRoleAssignmentWizard(this, type, principals, roles).asWidget());
     }
 
@@ -185,13 +184,13 @@ public class RoleAssignmentPresenter
         mo.execute(new Outcome<Stack<Object>>() {
             @Override
             public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.addingFailed("role assignment"));
+                Console.error(Console.MESSAGES.addingFailed("Role Assignment"));
                 loadAssignments();
             }
 
             @Override
             public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.added("role assignment"));
+                Console.info(Console.MESSAGES.added("Role Assignment"));
                 loadAssignments();
             }
         });
@@ -202,13 +201,13 @@ public class RoleAssignmentPresenter
         mo.execute(new Outcome<Stack<Object>>() {
             @Override
             public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.saveFailed("role assignment"));
+                Console.error(Console.MESSAGES.saveFailed("Role Assignment"));
                 loadAssignments();
             }
 
             @Override
             public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.saved("role assignment"));
+                Console.info(Console.MESSAGES.saved("Role Assignment"));
                 loadAssignments();
             }
         });
@@ -219,13 +218,13 @@ public class RoleAssignmentPresenter
         mo.execute(new Outcome<Stack<Object>>() {
             @Override
             public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.deletionFailed("role assignment"));
+                Console.error(Console.MESSAGES.deletionFailed("Role Assignment"));
                 loadAssignments();
             }
 
             @Override
             public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.deleted("role assignment"));
+                Console.info(Console.MESSAGES.deleted("Role Assignment"));
                 loadAssignments();
             }
         });
@@ -393,11 +392,11 @@ public class RoleAssignmentPresenter
         }
     }
 
+    // ------------------------------------------------------ properties
+
     public boolean isInitialized() {
         return initialized;
     }
-
-    // ------------------------------------------------------ properties
 
     public boolean isStandalone() {
         return standalone;

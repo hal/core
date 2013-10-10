@@ -103,14 +103,14 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
         };
         table.addColumn(dateColumn, Console.CONSTANTS.common_label_date());
         table.addColumn(userColumn, Console.CONSTANTS.common_label_user());
-        table.addColumn(accessColumn, Console.CONSTANTS.administration_access());
+        table.addColumn(accessColumn, "Access");
         table.addColumn(remoteAddressColumn, "Remote Address");
 
         // basic attributes
         Form<AuditLogItem> basicsForm = new Form<AuditLogItem>(AuditLogItem.class);
         TextItem dateField = new TextItem("date", Console.CONSTANTS.common_label_date());
         TextItem userField = new TextItem("user", Console.CONSTANTS.common_label_user());
-        TextItem accessField = new TextItem("access", Console.CONSTANTS.administration_access());
+        TextItem accessField = new TextItem("access", "Access");
         TextItem domainUUIDField = new TextItem("domainUUID", "Domain UUID");
         TextItem remoteAddressField = new TextItem("remote-address", "Remote Address");
         CheckBoxItem booting = new CheckBoxItem("booting", "Booting");
@@ -157,7 +157,7 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
         // setup layout
         VerticalPanel main = new VerticalPanel();
         main.setStyleName("rhs-content-panel");
-        main.add(new ContentHeaderLabel(Console.CONSTANTS.administration_audit_log()));
+        main.add(new ContentHeaderLabel("Audit Log"));
         main.add(new ContentDescription(Console.CONSTANTS.administration_audit_log_desc()));
         main.add(table);
         main.add(pager);
@@ -170,7 +170,7 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
 
         DefaultTabLayoutPanel root = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         root.addStyleName("default-tabpanel");
-        root.add(layout, Console.CONSTANTS.administration_audit_log());
+        root.add(layout, "Audit Log");
         root.selectTab(0);
         return root;
     }

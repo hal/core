@@ -32,7 +32,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
@@ -79,9 +78,8 @@ public class RoleAssignmentTable implements IsWidget {
                         return assignment;
                     }
             };
-        table.addColumn(principalColumn,
-                type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user());
-        table.addColumn(roleColumn, Console.CONSTANTS.common_label_roles());
+        table.addColumn(principalColumn,type == GROUP ? "Group" : "User");
+        table.addColumn(roleColumn, "Roles");
         content.add(table);
 
         // pager

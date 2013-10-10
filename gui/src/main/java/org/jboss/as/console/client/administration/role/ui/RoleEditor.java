@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -58,8 +57,8 @@ public class RoleEditor implements IsWidget {
             tabs.setStyleName("default-tabpanel");
             tabs.getElement().setAttribute("style", "margin-top:15px;");
 
-            tabs.add(standardRoleEditor.asWidget(),Console.CONSTANTS.administration_standard_roles());
-            tabs.add(scopedRoleEditor.asWidget(), Console.CONSTANTS.administration_scoped_roles());
+            tabs.add(standardRoleEditor.asWidget(), "Standard Roles");
+            tabs.add(scopedRoleEditor.asWidget(), "Scoped Roles");
             tabs.selectTab(0);
 
             panel.add(tabs);

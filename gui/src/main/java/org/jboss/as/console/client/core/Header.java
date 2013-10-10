@@ -71,13 +71,13 @@ public class Header implements ValueChangeHandler<String> {
             new String[]{NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_profiles()},
             new String[]{NameTokens.HostMgmtPresenter, "Hosts"},
             new String[]{NameTokens.DomainRuntimePresenter, "Runtime"},
-            new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
+            new String[]{NameTokens.AdministrationPresenter, "Administration"},
     };
 
     public static final String[][] SECTIONS_STANDALONE = {
             new String[]{NameTokens.serverConfig, "Profile"},
             new String[]{NameTokens.StandaloneRuntimePresenter, "Runtime"},
-            new String[]{NameTokens.AdministrationPresenter, Console.CONSTANTS.administration_label()},
+            new String[]{NameTokens.AdministrationPresenter, "Administration"},
     };
 
     private MessageBar messageBar;

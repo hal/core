@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.PrincipalFormItem;
 import org.jboss.as.console.client.administration.role.form.RolesFormItem;
@@ -67,19 +66,17 @@ public class AddRoleAssignmentWizard implements IsWidget {
         }
 
         final Form<RoleAssignment> form = new Form<RoleAssignment>(RoleAssignment.class);
-        String title = type == GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS.common_label_user();
+        String title = type == GROUP ? "Group" : "User";
         final PrincipalFormItem principalItem = new PrincipalFormItem(type, "principal", title);
         principalItem.setRequired(true);
         principalItem.update(principals);
         final TextBoxItem realmItem = new TextBoxItem("realm", "Realm", false);
-        final ComboBoxItem includeExcludeItem = new ComboBoxItem("includeExclude",
-                Console.CONSTANTS.administration_include_exclude());
-        includeExcludeItem.setValueMap(
-                new String[]{Console.CONSTANTS.common_label_include(), Console.CONSTANTS.common_label_exclude()});
-        includeExcludeItem.setValue(Console.CONSTANTS.common_label_include());
+        final ComboBoxItem includeExcludeItem = new ComboBoxItem("includeExclude", "Type");
+        includeExcludeItem.setValueMap(new String[]{"Include", "Exclude"});
+        includeExcludeItem.setValue("Include");
         // TODO The rolesItem is not part of the focus chain because it's not
         // TODO recognized by org.jboss.ballroom.client.widgets.window.Focus
-        final RolesFormItem rolesItem = new RolesFormItem("roles", Console.CONSTANTS.common_label_roles());
+        final RolesFormItem rolesItem = new RolesFormItem("roles", "Roles");
         rolesItem.setRequired(true);
         form.setFields(principalItem, realmItem, includeExcludeItem, rolesItem);
 
@@ -96,9 +93,9 @@ public class AddRoleAssignmentWizard implements IsWidget {
                         if (!validation.hasErrors()) {
                             RoleAssignment roleAssignment = new RoleAssignment(principalItem.getValue());
                             roleAssignment.setRealm(realmItem.getValue());
-                            if (Console.CONSTANTS.common_label_include().equals(includeExcludeItem.getValue())) {
+                            if ("Include".equals(includeExcludeItem.getValue())) {
                                 roleAssignment.addRoles(rolesItem.getValue());
-                            } else if (Console.CONSTANTS.common_label_exclude().equals(includeExcludeItem.getValue())) {
+                            } else if ("Exclude".equals(includeExcludeItem.getValue())) {
                                 roleAssignment.addExcludes(rolesItem.getValue());
                             }
                             presenter.addRoleAssignment(roleAssignment);

@@ -31,7 +31,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.administration.role.form.MultiselectListBoxItem;
@@ -66,18 +65,14 @@ public class AddScopedRoleWizard implements IsWidget {
         layout.setStyleName("window-content");
 
         final PojoForm<Role> form = new PojoForm<Role>();
-        final TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
-                Console.CONSTANTS.administration_base_role());
+        final TextBoxItem nameItem = new TextBoxItem("name", "Name");
+        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole", "Base Role");
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
-        final EnumFormItem<Role.Type> typeItem = new EnumFormItem<Role.Type>("type",
-                Console.CONSTANTS.common_label_type());
+        final EnumFormItem<Role.Type> typeItem = new EnumFormItem<Role.Type>("type", "Type");
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
-        final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope",
-                Console.CONSTANTS.administration_scope(), 3);
-        final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll",
-                Console.CONSTANTS.administration_include_all());
+        final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope", "Scope", 3);
+        final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
         layout.add(form.asWidget());
 

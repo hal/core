@@ -27,6 +27,7 @@ import com.google.gwt.i18n.client.Messages;
  * @date 5/2/11
  */
 public interface UIMessages extends Messages {
+
     String changeServerStatus(String state, String name);
 
     String deleteServerConfig();
@@ -57,13 +58,13 @@ public interface UIMessages extends Messages {
 
     String mustBeDeployableArchive(String fieldName);
 
+    String restartRequired();
+
     String alreadyExists(String fieldName);
 
     String commmon_description_newServerGroup();
 
     String savedSettings();
-
-    String restartRequired();
 
     String restartRequiredConfirm();
 
@@ -96,18 +97,29 @@ public interface UIMessages extends Messages {
     String subsys_naming_failedToLoadJNDIView();
 
     String subsys_configadmin_addNoPIDselected();
+
     String subsys_configadmin_remove();
+
     String subsys_configadmin_removeConfirm(String pid);
+
     String subsys_configadmin_oneValueRequired();
+
     String subsys_configadmin_removeOnLastValueConfirm(String pid);
 
     String subsys_osgi_frameworkPropertiesHelp();
+
     String subsys_osgi_capabilitiesHelp();
+
     String subsys_osgi_removeCapability();
+
     String subsys_osgi_removeCapabilityConfirm(String id);
+
     String subsys_osgi_cant_start_fragment(String bsn);
+
     String subsys_osgi_cant_stop_fragment(String bsn);
+
     String subsys_osgi_activate();
+
     String subsys_osgi_activating();
 
     String subsys_messaging(String providerName);
@@ -115,29 +127,39 @@ public interface UIMessages extends Messages {
     String temporarilyUnavailable();
 
     String deleteTitle(String name);
+
     String deleteConfirm(String name);
 
     String createTitle(String itemName);
 
     String added(String name);
+
     String addingFailed(String name);
+
     String deleted(String name);
+
     String deletionFailed(String name);
 
     String saved(String name);
+
     String saveFailed(String name);
 
     String modify(String name);
+
     String modifyConfirm(String name);
 
     String modified(String name);
+
     String modificationFailed(String name);
 
     String serversRunningOnHost(String hostName);
 
     String selectServerGroups();
+
     String selectServerGroupsFor(String deploymentRuntimeName);
+
     String alreadyAssignedToAllGroups(String deploymentRuntimeName);
+
     String noServerGroupsSelected();
 
     String unknown_error();
@@ -153,7 +175,6 @@ public interface UIMessages extends Messages {
     String subsys_jca_err_ds_notEnabled(String name);
 
     String subsys_jpa_err_mericDisabled(String s);
-
 
     String server_reload_confirm(String p0);
 

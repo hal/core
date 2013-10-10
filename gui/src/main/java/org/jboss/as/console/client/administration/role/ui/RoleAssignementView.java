@@ -27,7 +27,6 @@ import java.util.List;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
@@ -57,9 +56,9 @@ public class RoleAssignementView extends SuspendableViewImpl implements RoleAssi
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-        tabLayoutpanel.add(userEditor, Console.CONSTANTS.common_label_users(), true);
-        tabLayoutpanel.add(groupEditor, Console.CONSTANTS.common_label_groups(), true);
-        tabLayoutpanel.add(roleEditor, Console.CONSTANTS.common_label_roles(), true);
+        tabLayoutpanel.add(userEditor, "Users", true);
+        tabLayoutpanel.add(groupEditor, "Groups", true);
+        tabLayoutpanel.add(roleEditor, "Roles", true);
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;

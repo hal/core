@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.ReadOnlyItem;
@@ -52,8 +51,8 @@ public class StandardRoleDetails implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        nameItem = new ReadOnlyItem<String>("name", Console.CONSTANTS.common_label_name());
-        includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
+        nameItem = new ReadOnlyItem<String>("name", "Name");
+        includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, includeAllItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {

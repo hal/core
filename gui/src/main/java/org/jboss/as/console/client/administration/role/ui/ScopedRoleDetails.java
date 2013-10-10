@@ -66,8 +66,7 @@ public class ScopedRoleDetails implements IsWidget {
     @Override
     public Widget asWidget() {
         nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
-        baseRoleItem = new EnumFormItem<StandardRole>("baseRole",
-                Console.CONSTANTS.administration_base_role());
+        baseRoleItem = new EnumFormItem<StandardRole>("baseRole", "Base Role");
         baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
         typeItem = new EnumFormItem<Role.Type>("type", Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
@@ -78,8 +77,8 @@ public class ScopedRoleDetails implements IsWidget {
                 updateScope(typeItem.getValue());
             }
         });
-        scopeItem = new MultiselectListBoxItem("scope", Console.CONSTANTS.administration_scope(), 3);
-        includeAllItem = new CheckBoxItem("includeAll", Console.CONSTANTS.administration_include_all());
+        scopeItem = new MultiselectListBoxItem("scope", "Scope", 3);
+        includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
         form.setEnabled(false);
         form.setToolsCallback(new FormCallback() {

@@ -51,10 +51,10 @@ public class RoleAssignmentEditor implements IsWidget {
         String header;
         String description;
         if (type == GROUP) {
-            header = Console.CONSTANTS.common_label_groups();
+            header = "Groups";
             description = Console.CONSTANTS.administration_group_assignment();
         } else {
-            header = Console.CONSTANTS.common_label_users();
+            header = "Users";
             description = Console.CONSTANTS.administration_user_assignment();
         }
         content.add(new ContentHeaderLabel(header));

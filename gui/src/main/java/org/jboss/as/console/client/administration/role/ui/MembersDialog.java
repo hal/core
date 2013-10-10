@@ -70,15 +70,15 @@ public class MembersDialog implements IsWidget {
                 builder.appendHtmlConstant(
                         "<li class=\"header\">Included principals</li><ul class=\"inner-list icons-ul\">");
                 if (includeAll) {
-                    builder.append(TEMPLATES.includeAll(Console.CONSTANTS.common_label_user()));
+                    builder.append(TEMPLATES.includeAll("User"));
                 }
                 if (!includes.isEmpty()) {
                     for (RoleAssignment.PrincipalRealmTupel include : includes) {
                         if (include.principal.getType() == USER) {
-                            builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                            builder.append(TEMPLATES.principal("user", "User",
                                     UIHelper.principalAsSafeHtml(include.principal, include.realm)));
                         } else {
-                            builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                            builder.append(TEMPLATES.principal("group", "Group",
                                     UIHelper.principalAsSafeHtml(include.principal, include.realm)));
                         }
                     }
@@ -93,10 +93,10 @@ public class MembersDialog implements IsWidget {
                         "<li class=\"header\">Excluded principals</li><ul class=\"inner-list icons-ul\">");
                 for (RoleAssignment.PrincipalRealmTupel exclude : excludes) {
                     if (exclude.principal.getType() == USER) {
-                        builder.append(TEMPLATES.principal("user", Console.CONSTANTS.common_label_user(),
+                        builder.append(TEMPLATES.principal("user", "User",
                                 UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
                     } else {
-                        builder.append(TEMPLATES.principal("group", Console.CONSTANTS.common_label_group(),
+                        builder.append(TEMPLATES.principal("group", "Group",
                                 UIHelper.principalAsSafeHtml(exclude.principal, exclude.realm)));
                     }
                 }

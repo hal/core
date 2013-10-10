@@ -33,7 +33,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
@@ -64,9 +63,7 @@ public class RoleAssignmentDetails implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        principalItem = new ReadOnlyItem<RoleAssignment>("principal",
-                type == Principal.Type.GROUP ? Console.CONSTANTS.common_label_group() : Console.CONSTANTS
-                        .common_label_user()) {
+        principalItem = new ReadOnlyItem<RoleAssignment>("principal", type == Principal.Type.GROUP ? "Group" : "User") {
             @Override
             public String asString() {
                 StringBuilder builder = new StringBuilder();
@@ -81,7 +78,7 @@ public class RoleAssignmentDetails implements IsWidget {
             }
         };
         principalItem.setEnabled(false);
-        includeExcludeFormItem = new IncludeExcludeFormItem("n/a", Console.CONSTANTS.common_label_roles());
+        includeExcludeFormItem = new IncludeExcludeFormItem("n/a", "Roles");
 
         form.setFields(principalItem, includeExcludeFormItem);
         //        form.setFieldsInGroup(Console.CONSTANTS.common_label_advanced(), new DisclosureGroupRenderer(), excludesItem);

@@ -39,16 +39,14 @@ class LHSAdministrationNavigation {
 
     public LHSAdministrationNavigation() {
 
-        LHSTreeSection accessLeaf = new LHSTreeSection(Console.CONSTANTS.administration_access(), true);
-        LHSNavTreeItem authItem = new LHSNavTreeItem(Console.CONSTANTS.role_assignment(),
-                NameTokens.RoleAssignmentPresenter);
+        LHSTreeSection accessLeaf = new LHSTreeSection("Access Control", true);
+        LHSNavTreeItem authItem = new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter);
         accessLeaf.addItem(authItem);
-        /*LHSNavTreeItem auditLogItem = new LHSNavTreeItem(Console.CONSTANTS.administration_audit_log(),
-                NameTokens.AuditLogPresenter);
-        accessLeaf.addItem(auditLogItem);*/
+//        LHSNavTreeItem auditLogItem = new LHSNavTreeItem("Audit Log", NameTokens.AuditLogPresenter);
+//        accessLeaf.addItem(auditLogItem);
 
         navigation = new LHSNavTree("administration");
-        navigation.getElement().setAttribute("aria-label", Console.CONSTANTS.administration_label());
+        navigation.getElement().setAttribute("aria-label", "Administration");
         navigation.addItem(accessLeaf);
         navigation.expandTopLevel();
 

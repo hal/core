@@ -25,7 +25,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -69,8 +68,8 @@ public class ScopedRoleTable extends RoleTable {
                 return scopedRole.getScope();
             }
         };
-        table.addColumn(baseRoleColumn, Console.CONSTANTS.common_label_basedOn());
-        table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
-        table.addColumn(scopeColumn, Console.CONSTANTS.administration_scope());
+        table.addColumn(baseRoleColumn, "Based On");
+        table.addColumn(typeColumn, "Type");
+        table.addColumn(scopeColumn, "Scope");
     }
 }
