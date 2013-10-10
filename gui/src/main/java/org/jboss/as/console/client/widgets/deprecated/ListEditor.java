@@ -194,7 +194,7 @@ public class ListEditor<T extends Comparable> {
             throw new IllegalStateException("You need to call asWidget() before enabling the ListEditor");
 
         this.enabled = enabled;
-        listTable.setEnabled(enabled && allowEditItems);
+
         addItem.setEnabled(enabled);
     }
 
@@ -214,7 +214,7 @@ public class ListEditor<T extends Comparable> {
             throw new IllegalStateException("You need to call asWidget() before enabling the ListEditor");
 
         this.allowEditItems = allowEditItems;
-        listTable.setEnabled(enabled && allowEditItems);
+
     }
 
     public void clearValues() {

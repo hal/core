@@ -78,10 +78,12 @@ public class XADatasourceStep3 implements PropertyManagement {
     public void launchNewPropertyDialoge(String reference) {
         PropertyRecord proto = factory.property().as();
         proto.setKey("name");
-        proto.setValue("value");
+        proto.setValue("<click to edit>");
 
         properties.add(proto);
         propEditor.setProperties("", properties);
+
+        propEditor.getPropertyTable().getSelectionModel().setSelected(proto, true);
 
         errorMessages.setVisible(false);
     }
@@ -97,7 +99,7 @@ public class XADatasourceStep3 implements PropertyManagement {
 
         layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_xadataSource_step3()+"</h3>"));
 
-        propEditor = new PropertyEditor(this, true);
+        propEditor = new PropertyEditor(this, true, true);
 
         errorMessages = new HTML(Console.CONSTANTS.subsys_jca_err_prop_required());
         errorMessages.setStyleName("error-panel");

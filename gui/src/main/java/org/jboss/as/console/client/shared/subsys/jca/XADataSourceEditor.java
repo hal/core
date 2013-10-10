@@ -278,7 +278,6 @@ public class XADataSourceEditor implements PropertyManagement {
         bottomPanel.add(securityEditor.asWidget(), "Security");
 
         bottomPanel.add(propertyEditor.asWidget(), "Properties");
-        propertyEditor.setAllowEditProps(false);
 
         poolConfig = new PoolConfigurationView(new PoolManagement() {
             @Override

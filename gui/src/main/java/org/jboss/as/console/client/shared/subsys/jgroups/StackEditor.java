@@ -157,8 +157,6 @@ public class StackEditor {
                 .build();
 
         form.bind(table);
-        propertyEditor.setAllowEditProps(false);
-
 
         table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override

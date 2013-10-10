@@ -55,7 +55,7 @@ public class PropertyEditorFormItem extends FormItem<List<PropertyRecord>> imple
      */
     public PropertyEditorFormItem(String name, String title, String addDialogTitle, int rows) {
         super(name, title);
-        this.propertyEditor = new PropertyEditor(this, true, rows);
+        this.propertyEditor = new PropertyEditor(this, true, true);
         this.addDialogTitle = addDialogTitle;
     }
 
@@ -71,7 +71,7 @@ public class PropertyEditorFormItem extends FormItem<List<PropertyRecord>> imple
 
     @Override
     public void setEnabled(boolean isEnabled) {
-        this.propertyEditor.setEnabled(isEnabled);
+
     }
 
     @Override

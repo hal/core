@@ -180,7 +180,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
             }
         });
 
-        propertyEditor = new PropertyEditor(presenter);
+        propertyEditor = new PropertyEditor(presenter, true);
         propertyEditor.setOperationAddress("/{selected.host}/server-config=*/system-property=*", "add");
 
         portsView = new PortsView();
@@ -213,7 +213,6 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                     }
                 });
 
-        propertyEditor.setAllowEditProps(false);
 
         return layout.build();
     }

@@ -48,9 +48,8 @@ public class HostPropertiesView extends DisposableViewImpl implements HostProper
 
         layout.add(new ContentDescription(Console.CONSTANTS.host_properties_desc()));
 
-        propertyEditor = new PropertyEditor(presenter, 20);
+        propertyEditor = new PropertyEditor(presenter, true);
         layout.add(propertyEditor.asWidget());
-        propertyEditor.setAllowEditProps(false);
 
         return layout;
     }

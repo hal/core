@@ -69,7 +69,7 @@ public class ConnectionStep2 implements PropertyManagement {
 
         layout.add(new HTML("<h3>Connection Definiton Step2/2</h3>"));
 
-        propEditor = new PropertyEditor(this, true);
+        propEditor = new PropertyEditor(this, true, true);
 
         Widget widget = propEditor.asWidget();
         layout.add(widget);

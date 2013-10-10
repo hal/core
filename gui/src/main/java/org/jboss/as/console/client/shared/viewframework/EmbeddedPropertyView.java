@@ -48,8 +48,7 @@ public class EmbeddedPropertyView<T extends HasProperties, NamedEntity>
 
     @Override
     public Widget asWidget() {
-        Widget widget = editor.asWidget();
-        editor.setAllowEditProps(false);
+    Widget widget = editor.asWidget();
         return widget;
 
     }

@@ -43,11 +43,10 @@ public class FrameworkPropertiesTable implements PropertyManagement {
     }
 
     Widget asWidget() {
-      propEditor = new PropertyEditor(this, true, 10);
+      propEditor = new PropertyEditor(this, true);
       propEditor.setHelpText(Console.MESSAGES.subsys_osgi_frameworkPropertiesHelp());
 
       Widget widget = propEditor.asWidget();
-      propEditor.setAllowEditProps(false);
       return widget;
     }
 

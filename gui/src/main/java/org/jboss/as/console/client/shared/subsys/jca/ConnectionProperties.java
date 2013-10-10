@@ -21,7 +21,6 @@ public class ConnectionProperties {
         propEditor = new PropertyEditor(presenter, true);
         propEditor.setHelpText("JDBC connection properties");
         widget = propEditor.asWidget();
-        propEditor.setAllowEditProps(false);
     }
 
     Widget asWidget() {

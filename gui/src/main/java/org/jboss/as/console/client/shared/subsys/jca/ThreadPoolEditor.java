@@ -42,7 +42,7 @@ public class ThreadPoolEditor {
     private ListDataProvider<WorkmanagerPool> dataProvider;
     private Form<WorkmanagerPool> sizingForm;
     private Form<WorkmanagerPool> attributesForm;
-    private PropertyEditor propertyEditor;
+    //private PropertyEditor propertyEditor;
 
     private JcaPresenter presenter;
     private String contextName;
@@ -258,7 +258,7 @@ public class ThreadPoolEditor {
 
         // ---
 
-        propertyEditor = new PropertyEditor(presenter, true);
+        //propertyEditor = new PropertyEditor(presenter, true);
 
         headline = new Label("HEADLINE");
         headline.setStyleName("content-header-label");

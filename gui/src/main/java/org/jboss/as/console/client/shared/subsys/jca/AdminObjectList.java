@@ -246,9 +246,6 @@ public class AdminObjectList implements PropertyManagement {
                 .addDetail("Attributes", formpanel)
                 .addDetail("Properties", configProperties.asWidget());
 
-        configProperties.setAllowEditProps(false);
-
-
         return layout.build();
     }
 

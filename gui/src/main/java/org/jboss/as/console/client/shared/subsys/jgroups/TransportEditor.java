@@ -109,9 +109,6 @@ public class TransportEditor implements PropertyManagement {
                 .addDetail("Properties", properyEditor.asWidget())
                 .build();
 
-
-        properyEditor.setAllowEditProps(false);
-
         return panel;
     }
 

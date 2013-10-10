@@ -112,7 +112,7 @@ public class ConfigAdminEditor implements PropertyManagement {
         vpanel.add(new ContentGroupLabel(Console.CONSTANTS.subsys_configadmin_PIDLabel()));
         vpanel.add(pidTable.asWidget());
 
-        propertyEditor = new PropertyEditor(this, true, 10);
+        propertyEditor = new PropertyEditor(this, true);
         final SingleSelectionModel<ConfigAdminData> selectionModel = new SingleSelectionModel<ConfigAdminData>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -125,7 +125,6 @@ public class ConfigAdminEditor implements PropertyManagement {
 
         vpanel.add(new ContentGroupLabel(Console.CONSTANTS.subsys_configadmin_valuesLabel()));
         vpanel.add(propertyEditor.asWidget());
-        propertyEditor.setAllowEditProps(false);
 
         return layout;
     }

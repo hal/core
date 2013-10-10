@@ -175,7 +175,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
             }
         });
 
-        propertyEditor = new PropertyEditor(presenter);
+        propertyEditor = new PropertyEditor(presenter, true);
         propertyEditor.setOperationAddress("/server-group={addressable.group}/system-property=*", "add");
 
         // --------------------
@@ -203,7 +203,6 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
                     }
                 });
 
-        propertyEditor.setAllowEditProps(false);
 
 
         return layout.build();

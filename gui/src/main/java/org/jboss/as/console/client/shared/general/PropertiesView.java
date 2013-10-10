@@ -48,9 +48,14 @@ public class PropertiesView extends DisposableViewImpl implements PropertiesPres
 
         layout.add(new ContentDescription(Console.CONSTANTS.properties_global_desc()));
 
-        propertyEditor = new PropertyEditor(presenter, Console.getBootstrapContext().isStandalone(), 20);
+        propertyEditor = new PropertyEditor(presenter, Console.getBootstrapContext().isStandalone())
+        {
+            {
+              numRows = 20;
+            }
+        };
+
         layout.add(propertyEditor.asWidget());
-        propertyEditor.setAllowEditProps(false);
 
         return layout;
     }

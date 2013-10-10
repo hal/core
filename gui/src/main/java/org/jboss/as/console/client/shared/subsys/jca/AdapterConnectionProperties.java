@@ -29,12 +29,11 @@ public class AdapterConnectionProperties  {
 
         propertyEditor = new PropertyEditor(delegate, true);
         layout.add(propertyEditor.asWidget());
-        propertyEditor.setAllowEditProps(false);
         return layout;
     }
 
     public void setEnabled(boolean b) {
-        propertyEditor.setEnabled(b);
+
     }
 
     public void updateFrom(List<PropertyRecord> properties) {
