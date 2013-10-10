@@ -54,7 +54,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final ContextKeyResolver keyResolver;
-    private final BootstrapContext bootstrap;
+    private final FilteringStatementContext filteringStatementContext;
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
@@ -64,12 +64,35 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     public SecurityFrameworkImpl(
             AccessControlRegistry accessControlMetaData,
             DispatchAsync dispatcher,
-            CoreGUIContext statementContext, BootstrapContext bootstrap) {
+            CoreGUIContext statementContext, final BootstrapContext bootstrap) {
         this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.keyResolver = new PlaceSecurityResolver();
-        this.bootstrap = bootstrap;
+
+        this.filteringStatementContext = new FilteringStatementContext(
+                statementContext,
+                new FilteringStatementContext.Filter() {
+                    @Override
+                    public String filter(String key) {
+
+                        if ("selected.entity".equals(key)) {
+                            return "*";
+                        } else if ("addressable.group".equals(key)) {
+                            return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups().iterator().next();
+                        } else if ("addressable.host".equals(key)) {
+                            return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts().iterator().next();
+                        } else {
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    public String[] filterTuple(String key) {
+                        return null;
+                    }
+                }
+        );
     }
 
     @Override
@@ -133,40 +156,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         for(ResourceRef ref : references)
         {
 
-            ModelNode step = AddressMapping.fromString(ref.address).asResource(
-                    new FilteringStatementContext(
-                            statementContext,
-                            new FilteringStatementContext.Filter() {
-                                @Override
-                                public String filter(String key) {
-
-                                    if("selected.entity".equals(key))
-                                    {
-                                        return "*";
-                                    }
-                                    else if("addressable.group".equals(key))
-                                    {
-                                        return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups().iterator().next();
-                                    }
-                                    else if("addressable.host".equals(key))
-                                    {
-                                        return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts().iterator().next();
-                                    }
-                                    else
-                                    {
-                                        return null;
-                                    }
-                                }
-
-                                @Override
-                                public String[] filterTuple(String key) {
-                                    return null;
-                                }
-                            }
-                    ) {
-
-                    }
-            );
+            ModelNode step = AddressMapping.fromString(ref.address).asResource(filteringStatementContext);
 
             step2address.put("step-" + (steps.size() + 1), ref);   // we need this for later retrieval
 
@@ -225,56 +215,55 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     return;
                 }
 
-                //System.out.println("Response: "+ response);
-
                 try {
 
                     ModelNode overalResult = response.get(RESULT);
 
                     SecurityContextImpl context = new SecurityContextImpl(id, references);
 
-                    // retrieve access constraints for each required resource and update the security context
+                    // The first part is identify the resource that has been requested.
+                    // Depending on whether you've requested a wildcard address or a specific one
+                    // we either get a ModelType.List or ModelType.Object response.
+                    // The former requires parsing the response to access control meta data matching the inquiry.
+
                     for(int i=1; i<=steps.size();i++)
                     {
                         String step = "step-"+i;
                         if(overalResult.hasDefined(step))
                         {
-                            ResourceRef ref = step2address.get(step);
+
+                            // break down the address into something we can match against the response
+                            final ResourceRef ref = step2address.get(step);
+                            final ModelNode addressNode = AddressMapping.fromString(ref.address).asResource(filteringStatementContext);
+                            final List<ModelNode> inquiryAdress = addressNode.get(ADDRESS).asList();
+
                             ModelNode stepResult = overalResult.get(step).get(RESULT);
 
                             ModelNode payload = null;
+
+                            // it's a List response when asking for '<resourceType>=*"
                             if(stepResult.getType() == ModelType.LIST)
                             {
-                                List<ModelNode> nodes = stepResult.asList(); // TODO: Should be optimized
-                                boolean instanceReference = !nodes.isEmpty();
+                                List<ModelNode> nodes = stepResult.asList();
+
                                 for(ModelNode node : nodes)
                                 {
                                     // matching the wildcard response
-                                    List<ModelNode> tokens = node.get(ADDRESS).asList();
-                                    if(instanceReference)
-                                    {
-                                        // chose an instance declaration
-                                        if(!tokens.get(tokens.size()-1).asString().contains("*"))
-                                        {
-                                            payload = node;
-                                            break;
-                                        }
+                                    List<ModelNode> responseAddress = node.get(ADDRESS).asList();
 
-                                    }
-                                    else
+                                    // match the inquiry
+                                    if(matchingAdress(responseAddress, inquiryAdress))
                                     {
-                                        // chose the wildcard declaration
-                                        if(tokens.get(tokens.size()-1).asString().contains("*"))
-                                        {
-                                            payload = node;
-                                            break;
-                                        }
+                                        payload = node;
+                                        break;
                                     }
                                 }
 
-                                // TODO: Fallback needed?
                                 if(payload == null)
-                                    payload = nodes.get(0);
+                                {
+                                    //System.out.println(ref.address+" -> "+stepResult);
+                                    throw new RuntimeException("Unexpected response format");
+                                }
 
                             }
                             else
@@ -296,11 +285,26 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     callback.onSuccess(context);
 
                 } catch (Throwable e) {
-                    callback.onFailure(new RuntimeException("Failed to parse access control meta data", e));
+                    callback.onFailure(new RuntimeException("Failed to parse access control meta data: "+ e.getMessage(), e));
                 }
 
             }
         });
+    }
+
+    private static boolean matchingAdress(List<ModelNode> responseAddress, List<ModelNode> inquiryAdress) {
+
+        int numMatchingTokens = 0;
+        int offset = inquiryAdress.size()-responseAddress.size();
+
+        for(int i=responseAddress.size()-1; i>=0; i--)
+        {
+            ModelNode token = responseAddress.get(i);
+            if(inquiryAdress.get(i+offset).toString().equals(token.toString()))
+                numMatchingTokens++;
+        }
+
+        return numMatchingTokens==responseAddress.size();
     }
 
     private void parseAccessControlChildren(final ResourceRef ref, Set<ResourceRef> references, SecurityContextImpl context, ModelNode payload) {
@@ -313,7 +317,6 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         // parse the child resources
         if(actualPayload.hasDefined(CHILDREN))
         {
-            //List<Property> children = actualPayload.get(CHILDREN).asPropertyList();
             ModelNode childNodes = actualPayload.get(CHILDREN);
             Set<String> children = childNodes.keys();
             for(String child : children)
@@ -339,74 +342,79 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
         if(accessControl.isDefined() && accessControl.hasDefined(DEFAULT))
         {
-
-            // identify the target node, in some cases exceptions override the dfefault behaviour
-            ModelNode model = null;
-            ModelNode exceptionModel = accessControl.get(EXCEPTIONS);
-            if(exceptionModel.keys().size()>0)  // TODO: fix the actual representation, should not be ModelType.Object
-            {
-                List<Property> exceptions = exceptionModel.asPropertyList();
-                model = exceptions.get(0).getValue();
-            }
-            else
-            {
-                model = accessControl.get(DEFAULT);
-            }
-
-            Constraints c = new Constraints(ref.address);
-
-            if(model.hasDefined(ADDRESS)
-                    && model.get(ADDRESS).asBoolean()==false)
-            {
-                c.setAddress(false);
-            }
-            else
-            {
-
-                c.setReadResource(model.get(READ).asBoolean());
-                c.setWriteResource(model.get(WRITE).asBoolean());
-            }
-
-            // operation constraints
-            if(model.hasDefined(OPERATIONS))
-            {
-                List<Property> operations = model.get(OPERATIONS).asPropertyList();
-                for(Property op : operations)
-                {
-                    ModelNode opConstraintModel = op.getValue();
-                    c.setOperationExec(ref.address, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
-                }
-
-            }
-
-            // attribute constraints
-
-            if(model.hasDefined(ATTRIBUTES))
-            {
-                List<Property> attributes = model.get(ATTRIBUTES).asPropertyList();
-
-                for(Property att : attributes)
-                {
-                    ModelNode attConstraintModel = att.getValue();
-                    c.setAttributeRead(att.getName(), attConstraintModel.get(READ).asBoolean());
-                    c.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE).asBoolean());
-
-                }
-            }
-
+            // default policy for requested resource type
+            Constraints defaultConstraints = parseConstraints(ref, accessControl.get(DEFAULT));
             if(ref.optional)
-            {
-                context.setOptionalConstraints(ref.address, c);
-            }
+                context.setOptionalConstraints(ref.address, defaultConstraints);
             else
+                context.setConstraints(ref.address, defaultConstraints);
+
+            // exceptions (instances) of requested resource type
+            if(accessControl.hasDefined(EXCEPTIONS))
             {
-                context.setConstraints(ref.address, c);
+
+                // TODO: API V3
+
+                /*for(Property exception : accessControl.get(EXCEPTIONS).asPropertyList())
+                {
+                    // TODO: AddressMapping compatible expression
+                    // See https://issues.jboss.org/browse/WFLY-2263
+                    ResourceRef exceptionRef = new ResourceRef(exception.getName());
+                    Constraints instanceConstraints = parseConstraints(exceptionRef, exception.getValue());
+
+                    // TODO: child context wiring
+                    System.out.println("child context: "+instanceConstraints.getResourceAddress());
+                } */
             }
+
+        }
+    }
+
+    private static Constraints parseConstraints(final ResourceRef ref, ModelNode policyModel) {
+
+        Constraints constraints = new Constraints(ref.address);
+
+        // resource constraints
+        if(policyModel.hasDefined(ADDRESS)
+                && policyModel.get(ADDRESS).asBoolean()==false)
+        {
+            constraints.setAddress(false);
         }
         else
         {
-            Console.warning("Access-control meta data missing for "+ ref.address);
+
+            constraints.setReadResource(policyModel.get(READ).asBoolean());
+            constraints.setWriteResource(policyModel.get(WRITE).asBoolean());
         }
+
+        // operation constraints
+        if(policyModel.hasDefined(OPERATIONS))
+        {
+            List<Property> operations = policyModel.get(OPERATIONS).asPropertyList();
+            for(Property op : operations)
+            {
+                ModelNode opConstraintModel = op.getValue();
+                constraints.setOperationExec(ref.address, op.getName(), opConstraintModel.get(EXECUTE).asBoolean());
+            }
+
+        }
+
+        // attribute constraints
+        if(policyModel.hasDefined(ATTRIBUTES))
+        {
+            List<Property> attributes = policyModel.get(ATTRIBUTES).asPropertyList();
+
+            for(Property att : attributes)
+            {
+                ModelNode attConstraintModel = att.getValue();
+                constraints.setAttributeRead(att.getName(), attConstraintModel.get(READ).asBoolean());
+                constraints.setAttributeWrite(att.getName(), attConstraintModel.get(WRITE).asBoolean());
+
+            }
+        }
+
+        return constraints;
+
     }
 
     @Override
