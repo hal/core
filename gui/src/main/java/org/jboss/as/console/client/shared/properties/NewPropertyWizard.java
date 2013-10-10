@@ -31,6 +31,7 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
+import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 /**
  * @author Heiko Braun
@@ -54,8 +55,6 @@ public class NewPropertyWizard {
     }
 
     public Widget asWidget() {
-
-        DockLayoutPanel wrapper = new DockLayoutPanel(Style.Unit.PX);
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
@@ -104,8 +103,6 @@ public class NewPropertyWizard {
 
         panel.add(form.asWidget());
 
-        wrapper.addSouth(options, 35);
-        wrapper.add(panel);
-        return wrapper;
+        return new WindowContentBuilder(panel, options).build();
     }
 }
