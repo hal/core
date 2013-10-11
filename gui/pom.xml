@@ -130,6 +130,13 @@
             <artifactId>gin</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>mrm-servlet</artifactId>
+            <version>1.0-jboss-1</version>
+
+        </dependency>
+
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
