@@ -244,7 +244,7 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
 
     /**
      * Listener for lifecycle links (start, stop, reload (server) groups. The clicked element contains
-     * "data"- attributes which carry the relevant (server) group and host informations.
+     * "data"- attributes which carry the relevant (server) group and host information.
      */
     private class LifecycleLinkListener implements EventListener
     {
@@ -313,6 +313,10 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
             else if (id.startsWith("stop_"))
             {
                 op = STOP;
+            }
+            else if (id.startsWith("kill_"))
+            {
+                op = KILL;
             }
             else if (id.startsWith("reload_"))
             {

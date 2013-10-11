@@ -718,6 +718,41 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
+       public void killServer(final String host, final String configName, boolean destroyIt, final AsyncCallback<Boolean> callback) {
+           final String actualOp = destroyIt ? "destroy" : "kill";
+
+           final ModelNode operation = new ModelNode();
+           operation.get(OP).set(actualOp);
+           operation.get(ADDRESS).add("host", host);
+           operation.get(ADDRESS).add("server-config", configName);
+
+           dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+               @Override
+               public void onSuccess(DMRResponse result) {
+                   ModelNode response = result.get();
+
+                   if(response.isFailure())
+                   {
+                       callback.onSuccess(Boolean.FALSE);
+                       Console.error(Console.MESSAGES.modificationFailed("Server " + configName));
+                   }
+                   else
+                   {
+                       callback.onSuccess(Boolean.TRUE);
+                       Console.info(Console.MESSAGES.modified("Server " + configName));
+                   }
+               }
+
+               @Override
+               public void onFailure(Throwable caught) {
+                   callback.onFailure(caught);
+               }
+           });
+
+       }
+
+
+    @Override
     public void reloadServer(String host, final String configName, final AsyncCallback<Boolean> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set("reload");

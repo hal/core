@@ -208,6 +208,9 @@ public class TopologyPresenter extends
             case STOP:
                 hostInfoStore.startServer(host, server, false, lifecycleCallback);
                 break;
+            case KILL:
+                hostInfoStore.killServer(host, server, true, lifecycleCallback);
+                break;
             case RELOAD:
                 hostInfoStore.reloadServer(host, server, lifecycleCallback);
                 break;
