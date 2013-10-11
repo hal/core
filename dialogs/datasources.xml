@@ -1,0 +1,57 @@
+<dialog id="datasource-subsystem">
+	<structure>
+			<editorpanel id="datasources" operator="Choice">
+						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
+									<container id="regularDS" operator="Concurrency">
+													<toolstrip id="tools" operator="Concurrency">
+																		<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
+																							<trigger id="add">
+																													<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
+																																		</trigger>
+																																							<trigger id="remove"/>
+																																												<trigger id="enable"/>
+																																																	<trigger id="disable"/>
+																																																					</toolstrip>
+																																																									<select id="list">
+																																																														<dmr>
+																																																																				<attribute name="entity.key"/>
+																																																																										<attribute name="jndi-name"/>
+																																																																																<attribute name="enabled"/>
+																																																																																					</dmr>
+																																																																																									</select>
+																																																																																													<container id="details" operator="Choice">
+																																																																																																		<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
+																																																																																																							<form id="datasource#basicAttributes" operator="Concurrency">
+																																																																																																													<dmr>
+																																																																																																																				<attribute name="entity.key"/>
+																																																																																																																											<attribute name="jndi-name"/>
+																																																																																																																																		<attribute name="enabled"/>
+																																																																																																																																									<attribute name="datasource-class"/>
+																																																																																																																																																<attribute name="driver-name"/>
+																																																																																																																																																							<attribute name="share-prepared-statements"/>
+																																																																																																																																																														<attribute name="prepared-statements-cache-size"/>
+																																																																																																																																																																				</dmr>
+																																																																																																																																																																									</form>
+																																																																																																																																																																														<form id="datasource#connectionAttributes" operator="Concurrency">
+																																																																																																																																																																																				<dmr>
+																																																																																																																																																																																											<attribute name="connection-url"/>
+																																																																																																																																																																																																		<attribute name="new-connection-sql"/>
+																																																																																																																																																																																																									<attribute name="transaction-isolation"/>
+																																																																																																																																																																																																																<attribute name="jta"/>
+																																																																																																																																																																																																																							<attribute name="use-ccm"/>
+																																																																																																																																																																																																																													</dmr>
+																																																																																																																																																																																																																																		</form>
+																																																																																																																																																																																																																																							<form id="datasource#securityAttributes" operator="Concurrency">
+																																																																																																																																																																																																																																													<dmr>
+																																																																																																																																																																																																																																																				<attribute name="user-name"/>
+																																																																																																																																																																																																																																																											<attribute name="password"/>
+																																																																																																																																																																																																																																																																		<attribute name="security-domain"/>
+																																																																																																																																																																																																																																																																								</dmr>
+																																																																																																																																																																																																																																																																													</form>
+																																																																																																																																																																																																																																																																																	</container>
+																																																																																																																																																																																																																																																																																				</container>
+																																																																																																																																																																																																																																																																																							<container id="xsDS" operator="Concurrency"/>
+																																																																																																																																																																																																																																																																																									</editorpanel>
+																																																																																																																																																																																																																																																																																										</structure>
+																																																																																																																																																																																																																																																																																										</dialog>
+																																																																																																																																																																																																																																																																																										
