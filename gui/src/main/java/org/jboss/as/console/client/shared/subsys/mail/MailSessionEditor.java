@@ -120,7 +120,7 @@ public class MailSessionEditor {
 
         TextItem jndi = new TextItem("jndiName", "JNDI Name");
         CheckBoxItem debug = new CheckBoxItem("debug", "Debug Enabled?");
-        TextBoxItem from = new TextBoxItem("from", "Default From");
+        TextBoxItem from = new TextBoxItem("from", "Default From", false);
 
         form.setFields(jndi, debug, from);
         form.setEnabled(false);
