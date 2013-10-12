@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -8,19 +9,23 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Vfs;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * @author Heiko Braun
@@ -29,15 +34,23 @@ import java.util.Set;
 public class RepositoryNavigation {
 
     private RepositoryPresenter presenter;
-    private Set<String> dialogs;
-    private ListBox listBox;
     private DefaultCellTable<DialogRef> table;
     private ListDataProvider<DialogRef> dataProvider;
+
+    private Vfs vfs;
+    private Stack<Entry> history = new Stack<Entry>();
+    private HorizontalPanel breadcrumb ;
+    private DefaultCellTable<Entry> fileSystem;
+    private ListDataProvider<Entry> fileSystemProvider;
+
     public void setPresenter(RepositoryPresenter presenter) {
         this.presenter = presenter;
+        this.vfs = new Vfs();
     }
 
     Widget asWidget() {
+
+        breadcrumb = new HorizontalPanel();
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("fill-layout-width");
@@ -135,15 +148,129 @@ public class RepositoryNavigation {
 
         // ---
 
-        /*TabPanel tabs = new TabPanel();
-        tabs.setStyleName("fill-layout-width");
+        fileSystem = new DefaultCellTable<Entry>(
+                5,
+                new ProvidesKey<Entry>() {
+                    @Override
+                    public Object getKey(Entry item) {
+                        return item.getName();
+                    }
+                });
 
-        tabs.add(panel, "Preview");
-        tabs.add(new HTML("Hello"), "Edit");
+        fileSystemProvider = new ListDataProvider<Entry>();
+        fileSystemProvider.addDataDisplay(fileSystem);
 
-        tabs.selectTab(0);*/
+        TextColumn<Entry> entryCol = new TextColumn<Entry>() {
+            @Override
+            public String getValue(Entry entry) {
+                return entry.getName();
+            }
+        };
+
+        fileSystem.addColumn(entryCol);
+
+
+        final SingleSelectionModel<Entry> entrySelection  = new SingleSelectionModel<Entry>();
+        fileSystem.setSelectionModel(entrySelection);
+
+        entrySelection.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Entry selection = entrySelection.getSelectedObject();
+                if(selection!=null)
+                {
+                    if(Entry.Type.DIR == selection.getType())
+                    {
+                        // directories
+                        Entry dir = history.peek();
+                        loadDir(new Entry(dir.getName() + selection.getName(), Entry.Type.DIR));
+                    }
+                    else
+                    {
+                        // files
+
+                    }
+                }
+            }
+        });
+
+        Button loadDir = new Button("Init", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+
+                history.clear();
+                loadDir(Entry.ROOT);
+            }
+        });
+
+        panel.add(loadDir);
+        panel.add(breadcrumb);
+        panel.add(fileSystem);
 
         return panel;
+    }
+
+    private void loadDir(final Entry dir) {
+
+        vfs.listEntries(
+                dir,
+                new SimpleCallback<List<Entry>>() {
+                    @Override
+                    public void onSuccess(List<Entry> result) {
+
+                        // keep a history
+                        history.push(dir);
+                        fileSystemProvider.getList().clear();
+                        fileSystemProvider.getList().addAll(result);
+
+                        updateBreadcrump();
+
+                    }
+                });
+    }
+
+    private void updateBreadcrump() {
+        breadcrumb.clear();
+
+        int i=1;
+        for(final Entry item : history)
+        {
+            String name = item.getName().equals("/") ? "/Root" : item.getName();
+            HTML link = new HTML(name);
+            link.addClickHandler(new BreadcrumbClick(i, item));
+            breadcrumb.add(link);
+            i++;
+        }
+
+    }
+
+    class BreadcrumbClick implements ClickHandler
+    {
+        final int index;
+        private final Entry item;
+
+        BreadcrumbClick(int index, Entry item) {
+            this.index = index;
+            this.item = item;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+
+            // clear history
+            for(int i=history.size()-index; i>=0; i--)
+            {
+                history.pop();
+            }
+
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    loadDir(item);
+                }
+            });
+
+        }
     }
 
     public void setDialogNames(Set<DialogRef> dialogs) {
