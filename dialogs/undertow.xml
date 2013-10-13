@@ -1,0 +1,42 @@
+<dialog id="undertow-subsystem">
+	<structure>
+		<editorpanel id="undertow" operator="Choice">
+			<dmr address="/{selected.profile}/subsystem=undertow"/>
+			<pages id="handler" operator="Choice">
+				<container id="undertow#fileHandler" operator="Concurrency">
+					<select id="fileHandler">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*">
+							<attribute name="entity.key"/>
+							<attribute name="path"/>
+						</dmr>
+					</select>
+					<form id="undertow#fileAttributes" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file={selected.entity}"/>
+					</form>
+				</container>
+			</pages>
+			<pages id="filter" operator="Choice">
+				<container id="undertow#basicAuth" operator="Concurrency">
+					<select id="undertow#basicAuthSelection">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*">
+							<attribute name="entity.key"/>
+						</dmr>
+					</select>
+					<form id="undertow#filterAuthAttributes" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth={selected.entity}"/>
+					</form>
+				</container>
+				<container id="undertow#connectionLimit" operator="Concurrency">
+					<select id="undertow#connectionLimitSelection">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*">
+							<attribute name="entity.key"/>
+						</dmr>
+					</select>
+					<form id="undertow#connectionLimitAttributes" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit={selected.entity}"/>
+					</form>
+				</container>
+			</pages>
+		</editorpanel>
+	</structure>
+</dialog>

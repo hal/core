@@ -1,0 +1,109 @@
+<dialog id="http-server">
+	<structure>
+		<editorpanel id="httpServer" operator="Choice">
+			<pages id="listener" operator="Choice">
+				<container id="listener#http" operator="Concurrency">
+					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
+						<attribute name="entity.key"/>
+						<attribute name="enabled"/>
+					</dmr>
+					<toolstrip id="httptools" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
+						<trigger id="add">
+							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
+								<attribute name="entity.key"/>
+								<attribute name="enabled"/>
+							</dmr>
+						</trigger>
+						<trigger id="remove"/>
+					</toolstrip>
+					<select id="httpListener">
+						<dmr>
+							<attribute name="entity.key"/>
+							<attribute name="enabled"/>
+						</dmr>
+					</select>
+					<container id="undertow#httpListenerConfig" operator="Choice">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
+						<form id="undertow#httpListenerAttributes" operator="Concurrency">
+							<dmr>
+								<attribute name="worker"/>
+								<attribute name="enabled"/>
+								<attribute name="socket-binding"/>
+								<attribute name="buffer-pool"/>
+							</dmr>
+						</form>
+					</container>
+				</container>
+				<container id="listener#ajp" operator="Concurrency">
+					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
+						<attribute name="entity.key"/>
+						<attribute name="enabled"/>
+					</dmr>
+					<toolstrip id="ajptools" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
+						<trigger id="add">
+							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
+								<attribute name="entity.key"/>
+								<attribute name="enabled"/>
+							</dmr>
+						</trigger>
+						<trigger id="remove"/>
+					</toolstrip>
+					<select id="ajpListener">
+						<dmr>
+							<attribute name="entity.key"/>
+							<attribute name="enabled"/>
+						</dmr>
+					</select>
+					<container id="undertow#ajpListenerConfig" operator="Choice">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
+						<form id="undertow#ajpListenerAttributes" operator="Concurrency">
+							<dmr>
+								<attribute name="worker"/>
+								<attribute name="enabled"/>
+								<attribute name="socket-binding"/>
+								<attribute name="buffer-pool"/>
+							</dmr>
+						</form>
+					</container>
+				</container>
+				<container id="listener#https" operator="Concurrency">
+					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
+						<attribute name="entity.key"/>
+						<attribute name="enabled"/>
+					</dmr>
+					<toolstrip id="httpstools" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
+						<trigger id="add">
+							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
+								<attribute name="entity.key"/>
+								<attribute name="enabled"/>
+							</dmr>
+						</trigger>
+						<trigger id="remove"/>
+					</toolstrip>
+					<select id="httpsListener">
+						<dmr>
+							<attribute name="entity.key"/>
+							<attribute name="enabled"/>
+							<attribute name="security-realm"/>
+						</dmr>
+					</select>
+					<container id="undertow#httpsListenerConfig" operator="Choice">
+						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
+						<form id="undertow#httpsListenerAttributes" operator="Concurrency">
+							<dmr>
+								<attribute name="worker"/>
+								<attribute name="enabled"/>
+								<attribute name="socket-binding"/>
+								<attribute name="buffer-pool"/>
+								<attribute name="security-realm"/>
+							</dmr>
+						</form>
+					</container>
+				</container>
+			</pages>
+		</editorpanel>
+	</structure>
+</dialog>

@@ -1,0 +1,42 @@
+<dialog id="servlet-container">
+	<structure>
+		<container id="servletContainer" operator="Concurrency">
+			<dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>
+			<container id="details" operator="Choice">
+				<form id="servletContainer#attributes" operator="Concurrency">
+					<dmr>
+						<attribute name="development"/>
+						<attribute name="disabled"/>
+					</dmr>
+				</form>
+				<form id="servletContainer#jsp" operator="Concurrency">
+					<dmr>
+						<attribute name="trim-spaces"/>
+						<attribute name="recompile-on-fail"/>
+						<attribute name="check-interval"/>
+						<attribute name="modification-test-interval"/>
+						<attribute name="display-source-fragment"/>
+						<attribute name="error-on-use-bean-invalid-class-attribute"/>
+						<attribute name="java-encoding"/>
+						<attribute name="tag-pooling"/>
+						<attribute name="generate-strings-as-char-arrays"/>
+					</dmr>
+				</form>
+				<form id="servletContainer#other" operator="Concurrency">
+					<dmr>
+						<attribute name="smap"/>
+						<attribute name="keep-generated"/>
+						<attribute name="scratch-dir"/>
+						<attribute name="display-source-fragment"/>
+						<attribute name="error-on-use-bean-invalid-class-attribute"/>
+						<attribute name="target-vm"/>
+						<attribute name="x-powered-by"/>
+						<attribute name="dump-smap"/>
+						<attribute name="mapped-file"/>
+						<attribute name="source-vm"/>
+					</dmr>
+				</form>
+			</container>
+		</container>
+	</structure>
+</dialog>

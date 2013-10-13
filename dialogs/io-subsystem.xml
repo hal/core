@@ -1,0 +1,47 @@
+<dialog id="io-subsystem">
+	<structure>
+		<editorpanel id="io-subsystem" operator="Concurrency">
+			<dmr address="/{selected.profile}/subsystem=io"/>
+			<container id="editors" operator="Choice">
+				<container id="workers" operator="Concurrency">
+					<toolstrip id="worker-tools" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
+						<trigger id="add">
+							<dmr address="/{selected.profile}/subsystem=io/worker=*">
+								<attribute name="entity.key"/>
+							</dmr>
+						</trigger>
+						<trigger id="remove"/>
+					</toolstrip>
+					<select id="worker">
+						<dmr address="/{selected.profile}/subsystem=io/worker=*">
+							<attribute name="entity.key"/>
+						</dmr>
+					</select>
+					<form id="workerDetails" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
+					</form>
+				</container>
+				<container id="buffers" operator="Concurrency">
+					<toolstrip id="buffer-tools" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
+						<trigger id="add">
+							<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">
+								<attribute name="entity.key"/>
+							</dmr>
+						</trigger>
+						<trigger id="remove"/>
+					</toolstrip>
+					<select id="buffer">
+						<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">
+							<attribute name="entity.key"/>
+						</dmr>
+					</select>
+					<form id="bufferDetails" operator="Concurrency">
+						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
+					</form>
+				</container>
+			</container>
+		</editorpanel>
+	</structure>
+</dialog>

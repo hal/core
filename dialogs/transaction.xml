@@ -1,0 +1,31 @@
+<dialog id="transaction-subsystem">
+	<structure>
+		<container id="transactionManager" operator="Concurrency">
+			<dmr address="/{selected.profile}/subsystem=transactions"/>
+			<form id="transactionManager#basicAttributes" operator="Concurrency">
+				<dmr>
+					<attribute name="enable-statistics"/>
+					<attribute name="enable-tsm-status"/>
+					<attribute name="jts"/>
+					<attribute name="default-timeout"/>
+					<attribute name="node-identifier"/>
+					<attribute name="use-hornetq-store"/>
+				</dmr>
+			</form>
+			<container id="configGroups" operator="Choice">
+				<form id="transactionManager#processAttributes" operator="Concurrency">
+					<dmr>
+						<attribute name="process-id-uuid"/>
+						<attribute name="process-id-socket-binding"/>
+					</dmr>
+				</form>
+				<form id="transactionManager#recoveryAttributes" operator="Concurrency">
+					<dmr>
+						<attribute name="recovery-listener"/>
+						<attribute name="socket-binding"/>
+					</dmr>
+				</form>
+			</container>
+		</container>
+	</structure>
+</dialog>

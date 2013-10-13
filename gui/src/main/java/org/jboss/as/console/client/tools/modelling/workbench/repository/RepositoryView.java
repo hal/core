@@ -19,13 +19,13 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,8 +59,13 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     }
 
     @Override
-    public void setDialogNames(Set<DialogRef> names) {
-        lhsNavigation.setDialogNames(names);
+    public void updateDirectory(Entry dir, List<Entry> entries) {
+        lhsNavigation.updateDirectory(dir, entries);
+    }
+
+    @Override
+    public void clearHistory() {
+        lhsNavigation.clearHistory();
     }
 
     @Override

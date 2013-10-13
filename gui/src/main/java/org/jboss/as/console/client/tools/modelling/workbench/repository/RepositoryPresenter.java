@@ -20,11 +20,9 @@ package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
-import com.google.gwt.xml.client.XMLParser;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -38,18 +36,19 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
+import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Vfs;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.marshall.Marshaller;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.model.Dialog;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Lists the available interaction units and let the user create new interaction units.
@@ -67,6 +66,9 @@ public class RepositoryPresenter
         implements EditorResizeEvent.ResizeListener
 {
 
+    private Vfs vfs;
+
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
     private final Kernel kernel;
@@ -81,10 +83,11 @@ public class RepositoryPresenter
     public interface MyView extends View
     {
         void setPresenter(RepositoryPresenter presenter);
-        void setDialogNames(Set<DialogRef> names);
         void setDocument(String name, String content);
-
         void setFullScreen(boolean fullscreen);
+        void updateDirectory(Entry dir, List<Entry> entries);
+
+        void clearHistory();
     }
 
     @ProxyStandard
@@ -119,6 +122,9 @@ public class RepositoryPresenter
             }
         }, globalContext);
 
+
+        this.vfs = new Vfs();
+
     }
 
     @Override
@@ -136,16 +142,7 @@ public class RepositoryPresenter
 
     @Override
     protected void onReset() {
-        loadRepo();
-    }
-
-    private void loadRepo() {
-
-        Set<DialogRef> dialogs = new HashSet<DialogRef>();
-        for(Sample sample : sampleRepository.getSamples())
-            dialogs.add(new DialogRef(sample.getName()));
-
-        getView().setDialogNames(dialogs);
+        loadDir(Entry.ROOT, true);
     }
 
     public void setDisableCache(boolean disableCache) {
@@ -238,5 +235,22 @@ public class RepositoryPresenter
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    public void loadDir(final Entry dir, boolean clearHistory) {
+
+        if(clearHistory)
+            getView().clearHistory();
+
+        vfs.listEntries(
+                dir,
+                new SimpleCallback<List<Entry>>() {
+                    @Override
+                    public void onSuccess(List<Entry> result) {
+
+                        getView().updateDirectory(dir, result);
+
+                    }
+                });
     }
 }

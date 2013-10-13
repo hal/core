@@ -16,15 +16,11 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
-import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Vfs;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
 import java.util.List;
-import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -34,18 +30,15 @@ import java.util.Stack;
 public class RepositoryNavigation {
 
     private RepositoryPresenter presenter;
-    private DefaultCellTable<DialogRef> table;
-    private ListDataProvider<DialogRef> dataProvider;
 
-    private Vfs vfs;
-    private Stack<Entry> history = new Stack<Entry>();
     private HorizontalPanel breadcrumb ;
     private DefaultCellTable<Entry> fileSystem;
+    private Stack<Entry> history = new Stack<Entry>();
     private ListDataProvider<Entry> fileSystemProvider;
+    private SingleSelectionModel<Entry> fsSelection;
 
     public void setPresenter(RepositoryPresenter presenter) {
         this.presenter = presenter;
-        this.vfs = new Vfs();
     }
 
     Widget asWidget() {
@@ -56,33 +49,27 @@ public class RepositoryNavigation {
         panel.setStyleName("fill-layout-width");
         panel.getElement().setAttribute("style", "padding:10px");
 
-        table = new DefaultCellTable<DialogRef>(
-                5,
-                new ProvidesKey<DialogRef>() {
-                    @Override
-                    public Object getKey(DialogRef item) {
-                        return item.getName();
-                    }
-                });
 
-        dataProvider = new ListDataProvider<DialogRef>();
-        dataProvider.addDataDisplay(table);
+        // ----
 
+        fileSystem = new DefaultCellTable<Entry>(30);
 
-        TextColumn<DialogRef> nameColumn = new TextColumn<DialogRef>() {
+        fileSystemProvider = new ListDataProvider<Entry>();
+        fileSystemProvider.addDataDisplay(fileSystem);
+
+        TextColumn<Entry> entryCol = new TextColumn<Entry>() {
             @Override
-            public String getValue(DialogRef dialogRef) {
-                return dialogRef.getName();
+            public String getValue(Entry entry) {
+                return entry.getName();
             }
         };
-        table.addColumn(nameColumn, "Dialog");
 
-        panel.add(table);
-        DefaultPager pager = new DefaultPager();
-        pager.setDisplay(table);
-        panel.add(pager);
+        fileSystem.addColumn(entryCol);
+        fileSystem.getElement().setAttribute("style", "margin-bottom:10px;");
 
-        pager.getElement().setAttribute("style", "margin-bottom:10px;");
+        panel.add(breadcrumb);
+        panel.add(fileSystem);
+
 
         // --
         Button visualize = new NavButton("Visualize", new ClickHandler() {
@@ -134,56 +121,22 @@ public class RepositoryNavigation {
         });
         panel.add(cacheDisabled);
 
+        // ----
 
-        final SingleSelectionModel<DialogRef> selectionModel = new SingleSelectionModel<DialogRef>();
-        table.setSelectionModel(selectionModel);
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        fsSelection  = new SingleSelectionModel<Entry>();
+        fileSystem.setSelectionModel(fsSelection);
+
+        fsSelection.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                presenter.setActiveDialog(selectionModel.getSelectedObject());
-                presenter.onMarshall();
-            }
-        });
-
-
-        // ---
-
-        fileSystem = new DefaultCellTable<Entry>(
-                5,
-                new ProvidesKey<Entry>() {
-                    @Override
-                    public Object getKey(Entry item) {
-                        return item.getName();
-                    }
-                });
-
-        fileSystemProvider = new ListDataProvider<Entry>();
-        fileSystemProvider.addDataDisplay(fileSystem);
-
-        TextColumn<Entry> entryCol = new TextColumn<Entry>() {
-            @Override
-            public String getValue(Entry entry) {
-                return entry.getName();
-            }
-        };
-
-        fileSystem.addColumn(entryCol);
-
-
-        final SingleSelectionModel<Entry> entrySelection  = new SingleSelectionModel<Entry>();
-        fileSystem.setSelectionModel(entrySelection);
-
-        entrySelection.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Entry selection = entrySelection.getSelectedObject();
+                Entry selection = fsSelection.getSelectedObject();
                 if(selection!=null)
                 {
                     if(Entry.Type.DIR == selection.getType())
                     {
                         // directories
                         Entry dir = history.peek();
-                        loadDir(new Entry(dir.getName() + selection.getName(), Entry.Type.DIR));
+                        presenter.loadDir(new Entry(dir.getName() + selection.getName(), Entry.Type.DIR), false);
                     }
                     else
                     {
@@ -194,39 +147,8 @@ public class RepositoryNavigation {
             }
         });
 
-        Button loadDir = new Button("Init", new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                history.clear();
-                loadDir(Entry.ROOT);
-            }
-        });
-
-        panel.add(loadDir);
-        panel.add(breadcrumb);
-        panel.add(fileSystem);
 
         return panel;
-    }
-
-    private void loadDir(final Entry dir) {
-
-        vfs.listEntries(
-                dir,
-                new SimpleCallback<List<Entry>>() {
-                    @Override
-                    public void onSuccess(List<Entry> result) {
-
-                        // keep a history
-                        history.push(dir);
-                        fileSystemProvider.getList().clear();
-                        fileSystemProvider.getList().addAll(result);
-
-                        updateBreadcrump();
-
-                    }
-                });
     }
 
     private void updateBreadcrump() {
@@ -242,6 +164,20 @@ public class RepositoryNavigation {
             i++;
         }
 
+    }
+
+    public void updateDirectory(Entry dir, List<Entry> entries) {
+
+        // keep a history
+        history.push(dir);
+
+        fileSystemProvider.getList().clear();
+        fileSystemProvider.getList().addAll(entries);
+        updateBreadcrump();
+    }
+
+    public void clearHistory() {
+        history.clear();
     }
 
     class BreadcrumbClick implements ClickHandler
@@ -266,18 +202,15 @@ public class RepositoryNavigation {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
-                    loadDir(item);
+
+                    if(fsSelection.getSelectedObject()!=null)
+                        fsSelection.setSelected(fsSelection.getSelectedObject(), false);
+
+                    presenter.loadDir(item, false);
                 }
             });
 
         }
-    }
-
-    public void setDialogNames(Set<DialogRef> dialogs) {
-        dataProvider.getList().clear();
-        dataProvider.getList().addAll(dialogs);
-
-        table.selectDefaultEntity();
     }
 
     class NavButton extends DefaultButton
