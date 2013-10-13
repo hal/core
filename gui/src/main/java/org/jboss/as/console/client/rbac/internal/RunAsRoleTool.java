@@ -110,7 +110,7 @@ public class RunAsRoleTool implements Tool {
         List<String> roleNames = new ArrayList<String>();
         roleNames.add("No preselection");
         for (StandardRole standardRole : StandardRole.values()) {
-            roleNames.add(standardRole.getTitle());
+            roleNames.add(standardRole.getId());
         }
         roleNames.addAll(serverGroupScoped);
         roleNames.addAll(hostScoped);

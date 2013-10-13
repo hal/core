@@ -297,8 +297,9 @@ public class RoleAssignmentPresenter
 
         int usage = usedInAssignments(role);
         if (usage > 0) {
-            Console.error(Console.MESSAGES
-                    .deletionFailed(role.getName() + ". " + Console.MESSAGES.administration_scoped_role_in_use(usage)));
+            String errorMessage = Console.MESSAGES.deletionFailed(role.getName()) + ": " +
+                    Console.MESSAGES.administration_scoped_role_in_use(usage);
+            Console.error(errorMessage);
             loadAssignments();
             return;
         }

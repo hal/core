@@ -39,7 +39,7 @@ public class Role {
     private boolean includeAll;
 
     public Role(StandardRole role) {
-        this(role.name(), role.getTitle(), null, Type.STANDARD, Collections.<String>emptySet());
+        this(role.getId(), role.getId(), null, Type.STANDARD, Collections.<String>emptySet());
     }
 
     public Role(final String id, final String name, final StandardRole baseRole, final Type type,
@@ -85,7 +85,7 @@ public class Role {
         if (isStandard()) {
             return name;
         }
-        return id + " extends " + baseRole.getTitle() + " scoped to " + type.name()
+        return id + " extends " + baseRole.getId() + " scoped to " + type.name()
                 .toLowerCase() + scope + " includeAll: " + includeAll;
     }
 

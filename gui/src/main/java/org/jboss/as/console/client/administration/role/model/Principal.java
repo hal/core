@@ -27,32 +27,34 @@ import com.google.gwt.user.client.ui.HasName;
  */
 public class Principal implements HasName {
 
+    private final String id;
     private String name;
     private final Type type;
 
-    public Principal(final Type type, final String name) {
-        this.type = type;
+    public Principal(final String id, final String name, final Type type) {
+        this.id = id;
         this.name = name;
+        this.type = type;
     }
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Principal)) { return false; }
-
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Principal)) {
+            return false;
+        }
         Principal principal = (Principal) o;
-
-        if (!name.equals(principal.name)) { return false; }
-        if (type != principal.type) { return false; }
-
+        if (!id.equals(principal.id)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + type.hashCode();
-        return result;
+        return id.hashCode();
     }
 
     @Override
@@ -61,11 +63,7 @@ public class Principal implements HasName {
     }
 
     public String getId() {
-        return id(type, name);
-    }
-
-    static String id(Type type, String name) {
-        return type.name().toLowerCase() + "-" + name;
+        return id;
     }
 
     @Override

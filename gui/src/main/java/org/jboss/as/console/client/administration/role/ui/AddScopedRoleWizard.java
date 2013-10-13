@@ -35,6 +35,7 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.administration.role.form.MultiselectListBoxItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
+import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -66,8 +67,7 @@ public class AddScopedRoleWizard implements IsWidget {
 
         final PojoForm<Role> form = new PojoForm<Role>();
         final TextBoxItem nameItem = new TextBoxItem("name", "Name");
-        final EnumFormItem<StandardRole> baseRoleItem = new EnumFormItem<StandardRole>("baseRole", "Base Role");
-        baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
+        final StandardRoleFormItem baseRoleItem = new StandardRoleFormItem("baseRole", "Base Role");
         final EnumFormItem<Role.Type> typeItem = new EnumFormItem<Role.Type>("type", "Type");
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());

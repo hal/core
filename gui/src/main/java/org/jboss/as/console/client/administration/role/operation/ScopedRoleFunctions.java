@@ -57,7 +57,7 @@ public final class ScopedRoleFunctions {
         @Override
         public void execute(final Control<Stack<Object>> control) {
             ModelNode node = ModelHelper.scopedRole(role);
-            node.get("base-role").set(role.getBaseRole().name());
+            node.get("base-role").set(role.getBaseRole().getId());
             String scope = role.getType() == HOST ? "hosts" : "server-groups";
             for (String s : role.getScope()) {
                 node.get(scope).add(s);
@@ -81,7 +81,7 @@ public final class ScopedRoleFunctions {
         public void execute(final Control<Stack<Object>> control) {
             ModelNode baseRoleNode = ModelHelper.scopedRole(role);
             baseRoleNode.get(NAME).set("base-role");
-            baseRoleNode.get(VALUE).set(role.getBaseRole().name());
+            baseRoleNode.get(VALUE).set(role.getBaseRole().getId());
             baseRoleNode.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
             ModelNode scopeNode = ModelHelper.scopedRole(role);

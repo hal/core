@@ -96,8 +96,9 @@ public class PrincipalFormItem extends FormItem<Principal> {
             principal = cache.get(name);
             if (principal == null) {
                 // create a new principal
-                principal = new Principal(type, name);
-                cache.put(principal.getName(), principal);
+                String id = type.name().toLowerCase() + "-" + name;
+                principal = new Principal(id, name, type);
+                cache.put(principal.getId(), principal);
             }
         }
         setValue(principal);

@@ -93,10 +93,16 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>
                             new PrincipalFunctions.Remove(dispatcher, removedExclude, assignment.getPrincipal(),
                                     assignment.getRealm(), "exclude"));
                 }
+                // Clear empty / unused role assignments (this could be optimized!)
+                functions.add(new RoleAssignmentFunctions.Find(dispatcher));
+                functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
                 break;
             }
             case REMOVE:
                 functions.add(new RoleAssignmentFunctions.Remove(dispatcher, assignment));
+                // Clear empty / unused role assignments (this could be optimized!)
+                functions.add(new RoleAssignmentFunctions.Find(dispatcher));
+                functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
                 break;
         }
         new Async<Stack<Object>>()

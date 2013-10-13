@@ -70,7 +70,8 @@ public class ShowMembersOperation implements ManagementOperation<RoleAssignment.
                     if (assignmentNode.hasDefined("include")) {
                         List<Property> inclusions = assignmentNode.get("include").asPropertyList();
                         for (Property inclusion : inclusions) {
-                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(inclusion.getValue());
+                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(inclusion.getName(),
+                                    inclusion.getValue());
                             if (prt != null) {
                                 internal.include(prt);
                             }
@@ -79,7 +80,8 @@ public class ShowMembersOperation implements ManagementOperation<RoleAssignment.
                     if (assignmentNode.hasDefined("exclude")) {
                         List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
                         for (Property exclusion : exclusions) {
-                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(exclusion.getValue());
+                            RoleAssignment.PrincipalRealmTupel prt = mapPrincipal(exclusion.getName(),
+                                    exclusion.getValue());
                             if (prt != null) {
                                 internal.exclude(prt);
                             }
@@ -96,7 +98,7 @@ public class ShowMembersOperation implements ManagementOperation<RoleAssignment.
         throw new UnsupportedOperationException("not implemented");
     }
 
-    private RoleAssignment.PrincipalRealmTupel mapPrincipal(ModelNode principalNode) {
+    private RoleAssignment.PrincipalRealmTupel mapPrincipal(String id, ModelNode principalNode) {
         String principalName = principalNode.get("name").asString();
         if (ModelHelper.LOCAL_USERNAME.equals(principalName)) {
             // Skip the local user
@@ -107,7 +109,7 @@ public class ShowMembersOperation implements ManagementOperation<RoleAssignment.
         if (principalNode.hasDefined("realm")) {
             realm = principalNode.get("realm").asString();
         }
-        Principal principal = principals.lookup(type, principalName);
+        Principal principal = principals.lookup(type, id);
         if (principal != null) {
             return new RoleAssignment.PrincipalRealmTupel(principal, realm);
         }

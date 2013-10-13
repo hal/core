@@ -42,18 +42,12 @@ public final class ModelHelper {
         return node;
     }
 
-    public static ModelNode includeExclude(final Role role, final Principal principal, final String realm,
-            final String includeExclude) {
-        StringBuilder principalId = new StringBuilder(principal.getId());
-        if (realm != null && realm.trim().length() != 0) {
-            principalId.append("@").append(realm);
-        }
-
+    public static ModelNode includeExclude(final Role role, final Principal principal, final String includeExclude) {
         ModelNode node = new ModelNode();
         node.get(ADDRESS).add("core-service", "management");
         node.get(ADDRESS).add("access", "authorization");
         node.get(ADDRESS).add("role-mapping", role.getId());
-        node.get(ADDRESS).add(includeExclude, principalId.toString());
+        node.get(ADDRESS).add(includeExclude, principal.getId());
         return node;
     }
 

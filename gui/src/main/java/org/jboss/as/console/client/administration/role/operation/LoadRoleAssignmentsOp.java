@@ -208,7 +208,8 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             for (ModelNode scopeNode : scopeNodes) {
                 scope.add(scopeNode.asString());
             }
-            Role scopedRole = new Role(property.getName(), property.getName(), StandardRole.fromString(baseRoleName),
+            // Use matchId here since the configuration might contain roles in mixed / lower / upper case
+            Role scopedRole = new Role(property.getName(), property.getName(), StandardRole.matchId(baseRoleName),
                     type, scope);
             roles.add(scopedRole);
         }
@@ -226,7 +227,8 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                 if (assignmentNode.hasDefined("include")) {
                     List<Property> inclusions = assignmentNode.get("include").asPropertyList();
                     for (Property inclusion : inclusions) {
-                        PrincipalRealmTupel principal = mapPrincipal(principals, inclusion.getValue());
+                        PrincipalRealmTupel principal = mapPrincipal(principals, inclusion.getName(),
+                                inclusion.getValue());
                         if (principal != null) {
                             internal.include(principal);
                         }
@@ -235,7 +237,8 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                 if (assignmentNode.hasDefined("exclude")) {
                     List<Property> exclusions = assignmentNode.get("exclude").asPropertyList();
                     for (Property exclusion : exclusions) {
-                        PrincipalRealmTupel principal = mapPrincipal(principals, exclusion.getValue());
+                        PrincipalRealmTupel principal = mapPrincipal(principals, exclusion.getName(),
+                                exclusion.getValue());
                         if (principal != null) {
                             internal.exclude(principal);
                         }
@@ -245,7 +248,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             }
         }
 
-        private PrincipalRealmTupel mapPrincipal(final Principals principals, final ModelNode node) {
+        private PrincipalRealmTupel mapPrincipal(final Principals principals, final String id, final ModelNode node) {
             String name = node.get("name").asString();
             if (ModelHelper.LOCAL_USERNAME.equals(name)) {
                 // Skip the local user
@@ -253,7 +256,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             }
 
             Principal.Type type = Principal.Type.valueOf(node.get("type").asString());
-            Principal principal = new Principal(type, name);
+            Principal principal = new Principal(id, name, type);
             principals.add(principal);
 
             String realm = null;

@@ -59,7 +59,7 @@ public class ScopedRoleTable extends RoleTable {
         TextColumn<Role> baseRoleColumn = new TextColumn<Role>() {
             @Override
             public String getValue(Role role) {
-                return role.getBaseRole().getTitle();
+                return role.getBaseRole().getId();
             }
         };
         Column<Role, Collection<String>> scopeColumn = new Column<Role, Collection<String>>(new ScopeCell()) {

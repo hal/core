@@ -18,28 +18,81 @@
  */
 package org.jboss.as.console.client.rbac;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 /**
  * @author Heiko Braun
  */
-public enum StandardRole {
+public class StandardRole {
 
-    MONITOR("Monitor"),
-    OPERATOR("Operator"),
-    MAINTAINER("Maintainer"),
-    DEPLOYER("Deployer"),
-    ADMINISTRATOR("Administrator"),
-    AUDITOR("Auditor"),
-    SuperUser("SuperUser");
+    public static final String SUPER_USER = "SuperUser";
+    public static final String ADMINISTRATOR = "Administrator";
+    private static SortedMap<String, StandardRole> repository = new TreeMap<String, StandardRole>();
+    private final String id;
 
-    private final String title;
+    private StandardRole(final String id) {this.id = id;}
 
-    StandardRole(final String title) {this.title = title;}
-
-    public String getTitle() {
-        return title;
+    public static void clearValues() {
+        repository.clear();
     }
 
-    public static StandardRole fromString(String s) {
-        return StandardRole.valueOf(s.toUpperCase());
+    public static void add(String id) {
+        repository.put(id, new StandardRole(id));
+    }
+
+    public static StandardRole fromId(String id) {
+        return repository.get(id);
+    }
+
+    public static StandardRole matchId(String id) {
+        for (StandardRole role : repository.values()) {
+            if (id.equalsIgnoreCase(role.getId())) {
+                return role;
+            }
+        }
+        return null;
+    }
+
+    public static Collection<StandardRole> values() {
+        return repository.values();
+    }
+
+    public static SortedMap<String, StandardRole> repository() {
+        return repository;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof StandardRole)) {
+            return false;
+        }
+
+        StandardRole that = (StandardRole) o;
+
+        if (!id.equals(that.id)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "StandardRole{" + id + "}";
+    }
+
+    public String getId() {
+        return id;
     }
 }

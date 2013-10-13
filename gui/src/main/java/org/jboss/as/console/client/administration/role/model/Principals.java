@@ -67,7 +67,7 @@ public class Principals implements Iterable<Principal> {
         return principals.get(type);
     }
 
-    public Principal lookup(final Principal.Type type, final String name) {
-        return lookup.get(Principal.id(type, name));
+    public Principal lookup(final Principal.Type type, final String id) {
+        return lookup.get(id);
     }
 }

@@ -70,7 +70,7 @@ public final class UIHelper {
     public static Map<StandardRole, String> enumFormItemsForStandardRole() {
         Map<StandardRole, String> roles = new LinkedHashMap<StandardRole, String>();
         for (StandardRole role : StandardRole.values()) {
-            roles.put(role, role.getTitle());
+            roles.put(role, role.getId());
         }
         return roles;
     }
@@ -104,8 +104,8 @@ public final class UIHelper {
         } else {
             String scopes = csv(role.getScope());
             return include ?
-                    TEMPLATES.scopedRole(role.getName(), role.getBaseRole().getTitle(), scopes) :
-                    TEMPLATES.scopedExclude(role.getName(), role.getBaseRole().getTitle(), scopes);
+                    TEMPLATES.scopedRole(role.getName(), role.getBaseRole().getId(), scopes) :
+                    TEMPLATES.scopedExclude(role.getName(), role.getBaseRole().getId(), scopes);
         }
     }
 

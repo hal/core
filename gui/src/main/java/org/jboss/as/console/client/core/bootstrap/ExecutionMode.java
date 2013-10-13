@@ -29,6 +29,7 @@ import java.util.Set;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -96,6 +97,13 @@ public class ExecutionMode implements Function<BootstrapContext> {
         step.get(ADDRESS).setEmptyList();
         steps.add(step);
 
+        // standard role names
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("standard-role-names");
+        step.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+        steps.add(step);
+
         // whoami
         step = new ModelNode();
         step.get(OP).set("whoami");
@@ -145,21 +153,43 @@ public class ExecutionMode implements Function<BootstrapContext> {
                         context.setProductVersion(releaseVersion.get(RESULT).asString());
                     }
 
-                    ModelNode whoami = response.get(RESULT).get("step-6");
+                    // standard role names
+                    ModelNode standardRoleNames = response.get(RESULT).get("step-6");
+                    if (standardRoleNames.get(RESULT).isDefined()) {
+                        for (ModelNode node : standardRoleNames.get(RESULT).asList()) {
+                            StandardRole.add(node.asString());
+                        }
+                    } else {
+                        // hardcoded fallback
+                        Log.error("Cannot read standard role names from management API. Fallback to hardcoded defaults!");
+                        StandardRole.add("Administrator");
+                        StandardRole.add("Auditor");
+                        StandardRole.add("Deployer");
+                        StandardRole.add("Maintainer");
+                        StandardRole.add("Monitor");
+                        StandardRole.add("Operator");
+                        StandardRole.add("SuperUser");
+                    }
+
+                    ModelNode whoami = response.get(RESULT).get("step-7");
                     ModelNode whoamiResult = whoami.get(RESULT);
                     String username = whoamiResult.get("identity").get("username").asString();
                     context.setPrincipal(username);
-
                     Set<String> mappedRoles = new HashSet<String>();
                     if(whoamiResult.hasDefined("mapped-roles"))
                     {
                         List<ModelNode> roles = whoamiResult.get("mapped-roles").asList();
                         for(ModelNode role : roles)
                         {
-                            mappedRoles.add(role.asString());
+                            final String roleName = role.asString();
+                            final StandardRole standardRole = StandardRole.matchId(roleName);
+                            if (standardRole != null) {
+                                mappedRoles.add(standardRole.getId());
+                            } else {
+                                mappedRoles.add(roleName);
+                            }
                         }
                     }
-
                     context.setRoles(mappedRoles);
 
                     if(context.isSuperUser() && Preferences.has(Preferences.Key.RUN_AS_ROLE))

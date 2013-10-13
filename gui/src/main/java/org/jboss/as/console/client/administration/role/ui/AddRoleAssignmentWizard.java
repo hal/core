@@ -91,8 +91,15 @@ public class AddRoleAssignmentWizard implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            RoleAssignment roleAssignment = new RoleAssignment(principalItem.getValue());
-                            roleAssignment.setRealm(realmItem.getValue());
+                            // if a realm was specified, include the realm in the principals id.
+                            final String realm = realmItem.getValue();
+                            Principal principal = principalItem.getValue();
+                            if (realm != null && realm.length() != 0) {
+                                principal = new Principal(principal.getId() + "@" + realm, principal.getName(),
+                                        principal.getType());
+                            }
+                            RoleAssignment roleAssignment = new RoleAssignment(principal);
+                            roleAssignment.setRealm(realm);
                             if ("Include".equals(includeExcludeItem.getValue())) {
                                 roleAssignment.addRoles(rolesItem.getValue());
                             } else if ("Exclude".equals(includeExcludeItem.getValue())) {

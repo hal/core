@@ -60,14 +60,13 @@ public final class PrincipalFunctions {
 
         @Override
         public void execute(final Control<Stack<Object>> control) {
-            ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
+            ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
             node.get("name").set(ModelType.STRING, principal.getName());
             node.get("type").set(ModelType.STRING, principal.getType().name());
             if (realm != null && realm.length() != 0) {
                 node.get("realm").set(ModelType.STRING, realm);
             }
             node.get(OP).set(ADD);
-            System.out.println(node);
             dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
@@ -91,7 +90,7 @@ public final class PrincipalFunctions {
 
         @Override
         public void execute(final Control<Stack<Object>> control) {
-            ModelNode node = ModelHelper.includeExclude(role, principal, realm, includeExclude);
+            ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
             node.get(OP).set(REMOVE);
             dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }

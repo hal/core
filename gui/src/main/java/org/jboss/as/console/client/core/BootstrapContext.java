@@ -229,7 +229,7 @@ public class BootstrapContext implements ApplicationProperties {
         boolean match = false;
         for(String role : roles)
         {
-            if(StandardRole.SuperUser.toString().equalsIgnoreCase(role))
+            if(StandardRole.SUPER_USER.equalsIgnoreCase(role))
             {
                 match = true;
                 break;
@@ -242,7 +242,7 @@ public class BootstrapContext implements ApplicationProperties {
         boolean match = false;
         for(String role : roles)
         {
-            if(StandardRole.ADMINISTRATOR.toString().equalsIgnoreCase(role))
+            if(StandardRole.ADMINISTRATOR.equalsIgnoreCase(role))
             {
                 match = true;
                 break;

@@ -142,14 +142,12 @@ public final class RoleAssignmentFunctions {
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             for (Role role : assignment.getRoles()) {
-                ModelNode step = ModelHelper.includeExclude(role, assignment.getPrincipal(),
-                        assignment.getRealm(), "include");
+                ModelNode step = ModelHelper.includeExclude(role, assignment.getPrincipal(), "include");
                 step.get(OP).set(REMOVE);
                 steps.add(step);
             }
             for (Role exclude : assignment.getExcludes()) {
-                ModelNode step = ModelHelper.includeExclude(exclude, assignment.getPrincipal(),
-                        assignment.getRealm(), "exclude");
+                ModelNode step = ModelHelper.includeExclude(exclude, assignment.getPrincipal(), "exclude");
                 step.get(OP).set(REMOVE);
                 steps.add(step);
             }

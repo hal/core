@@ -36,6 +36,7 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.administration.role.form.MultiselectListBoxItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
+import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -53,7 +54,7 @@ public class ScopedRoleDetails implements IsWidget {
     private List<String> hosts;
     private List<String> serverGroups;
     private TextBoxItem nameItem;
-    private EnumFormItem<StandardRole> baseRoleItem;
+    private StandardRoleFormItem baseRoleItem;
     private EnumFormItem<Role.Type> typeItem;
     private MultiselectListBoxItem scopeItem;
     private CheckBoxItem includeAllItem;
@@ -66,8 +67,7 @@ public class ScopedRoleDetails implements IsWidget {
     @Override
     public Widget asWidget() {
         nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
-        baseRoleItem = new EnumFormItem<StandardRole>("baseRole", "Base Role");
-        baseRoleItem.setValues(UIHelper.enumFormItemsForStandardRole());
+        baseRoleItem = new StandardRoleFormItem("baseRole", "Base Role");
         typeItem = new EnumFormItem<Role.Type>("type", Console.CONSTANTS.common_label_type());
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
