@@ -170,7 +170,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         for (ModelNode node : roleMappings) {
                             addInternalRoleAssignment(principals, assignments, roles, node.asProperty());
                         }
-                        // All entities are read - now transform the role assignements from the management model to
+                        // All entities are read - now transform the role assignments from the management model to
                         // role assignments used in the UI
                         assignments.toUI(principals);
 
