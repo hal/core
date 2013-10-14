@@ -33,6 +33,8 @@ public class LoadMainApp implements Command
     static {
         BLACK_LIST.add(NameTokens.SettingsPresenter);
         BLACK_LIST.add(NameTokens.ToolsPresenter);
+        BLACK_LIST.add(NameTokens.AdministrationPresenter);
+        BLACK_LIST.add(NameTokens.RoleAssignmentPresenter);
     }
 
     public LoadMainApp(BootstrapContext bootstrapContext, PlaceManager placeManager, TokenFormatter formatter) {
