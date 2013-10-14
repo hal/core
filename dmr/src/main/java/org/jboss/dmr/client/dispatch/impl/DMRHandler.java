@@ -151,7 +151,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         String role = properties.get("run_as");
         if (role != null && !operation.get(OP).equals("whoami")) // otherwise we get the replacement role
         {
-            operation.get("operation-headers").get("roles").set(role.toUpperCase());
+            operation.get("operation-headers").get("roles").set(role);
         }
         return operation;
     }

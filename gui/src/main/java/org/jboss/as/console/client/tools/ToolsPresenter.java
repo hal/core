@@ -177,9 +177,17 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
                 operation.get(STEPS).set(steps);
 
+                // In case we're already in "Run As"-mode the next DMR op will fail.
+                // So temporarily disable run as for the next call
+                final String runAs = Console.getBootstrapContext().getRunAs();
+                if (runAs != null) {
+                    dispatcher.clearProperty("run_as");
+                }
                 dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                     @Override
                     public void onSuccess(DMRResponse result) {
+                        restoreRunAs();
+
                         Set<String> serverGroupScoped = new HashSet<String>();
                         Set<String> hostScoped = new HashSet<String>();
 
@@ -199,6 +207,18 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
 
                         runAsRoleTool.setScopedRoles(serverGroupScoped, hostScoped);
                         runAsRoleTool.launch();
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable caught) {
+                        restoreRunAs();
+                        super.onFailure(caught);
+                    }
+
+                    private void restoreRunAs() {
+                        if (runAs != null) {
+                            dispatcher.setProperty("run_as", runAs);
+                        }
                     }
                 });
             }
