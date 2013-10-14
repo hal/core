@@ -101,20 +101,24 @@ public class ModelEditor {
         editor.addAttachHandler(new AttachEvent.Handler() {
             @Override
             public void onAttachOrDetach(AttachEvent event) {
-                Scheduler.get().scheduleDeferred(
-                        new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
 
-                                updateEditorConstraints();
+                if(event.isAttached())
+                {
+                    Scheduler.get().scheduleDeferred(
+                            new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
 
-                                editor.startEditor();
-                                editor.setMode(AceEditorMode.XML);
-                                editor.setTheme(AceEditorTheme.TWILIGHT);
+                                    updateEditorConstraints();
 
+                                    editor.startEditor();
+                                    editor.setMode(AceEditorMode.XML);
+                                    editor.setTheme(AceEditorTheme.TWILIGHT);
+
+                                }
                             }
-                        }
-                );
+                    );
+                }
             }
         });
 
@@ -181,38 +185,38 @@ public class ModelEditor {
     public static native String formatXml(String xml) /*-{
 
 
-            var formatted = '';
-            var reg = /(>)(<)(\/*)/g;
-            xml = xml.replace(reg, '$1\r\n$2$3');
-            var pad = 0;
+        var formatted = '';
+        var reg = /(>)(<)(\/*)/g;
+        xml = xml.replace(reg, '$1\r\n$2$3');
+        var pad = 0;
 
-            var lines = xml.split('\r\n');
-            for (var i = 0; i < lines.length; i++) {
-                node = lines[i];
+        var lines = xml.split('\r\n');
+        for (var i = 0; i < lines.length; i++) {
+            node = lines[i];
 
-                var indent = 0;
-                if (node.match( /.+<\/\w[^>]*>$/ )) {
-                    indent = 0;
-                } else if (node.match( /^<\/\w/ )) {
-                    if (pad != 0) {
-                        pad -= 1;
-                    }
-                } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
-                    indent = 1;
-                } else {
-                    indent = 0;
+            var indent = 0;
+            if (node.match( /.+<\/\w[^>]*>$/ )) {
+                indent = 0;
+            } else if (node.match( /^<\/\w/ )) {
+                if (pad != 0) {
+                    pad -= 1;
                 }
-
-                var padding = '';
-                for (var p = 0; p < pad; p++) {
-                    padding += '\t';
-                }
-
-                formatted += padding + node + '\r\n';
-                pad += indent;
-
+            } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
+                indent = 1;
+            } else {
+                indent = 0;
             }
-            return formatted;
+
+            var padding = '';
+            for (var p = 0; p < pad; p++) {
+                padding += '\t';
+            }
+
+            formatted += padding + node + '\r\n';
+            pad += indent;
+
+        }
+        return formatted;
 
 
     }-*/;
