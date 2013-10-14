@@ -64,6 +64,11 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     }
 
     @Override
+    public void updateFile(String fileContents) {
+        editor.setText(fileContents);
+    }
+
+    @Override
     public void clearHistory() {
         lhsNavigation.clearHistory();
     }

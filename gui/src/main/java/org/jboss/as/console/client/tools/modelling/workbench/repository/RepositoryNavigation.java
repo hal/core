@@ -141,7 +141,7 @@ public class RepositoryNavigation {
                     else
                     {
                         // files
-
+                        presenter.loadFile(selection);
                     }
                 }
             }

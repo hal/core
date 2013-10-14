@@ -1,84 +1,84 @@
 <dialog id="security-domains">
-	<structure>
-			<editorpanel id="securityDomains" operator="Choice">
-						<dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
-									<container id="availableDomains" operator="Concurrency">
-													<toolstrip id="tools" operator="Concurrency">
-																		<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
-																							<trigger id="add">
-																													<dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
-																																		</trigger>
-																																							<trigger id="remove"/>
-																																											</toolstrip>
-																																															<select id="list">
-																																																				<dmr>
-																																																										<attribute name="entity.key"/>
-																																																															</dmr>
-																																																																			</select>
-																																																																							<container id="details" operator="Choice">
-																																																																												<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
-																																																																																	<form id="details#attributes" operator="Concurrency">
-																																																																																							<dmr>
-																																																																																														<attribute name="entity.key"/>
-																																																																																																					<attribute name="cache-type"/>
-																																																																																																											</dmr>
-																																																																																																																</form>
-																																																																																																																				</container>
-																																																																																																																							</container>
-																																																																																																																										<container id="domainConfiguration" operator="Concurrency">
-																																																																																																																														<pulldown id="domainSelection">
-																																																																																																																																			<dmr>
-																																																																																																																																									<attribute name="entity.key"/>
-																																																																																																																																														</dmr>
-																																																																																																																																																		</pulldown>
-																																																																																																																																																						<pages id="securityModules" operator="Choice">
-																																																																																																																																																											<container id="authentication" operator="Concurrency">
-																																																																																																																																																																	<toolstrip id="tools" operator="Concurrency">
-																																																																																																																																																																								<trigger id="add"/>
-																																																																																																																																																																															<trigger id="remove"/>
-																																																																																																																																																																																					</toolstrip>
-																																																																																																																																																																																											<select id="loginModules">
-																																																																																																																																																																																																		<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
-																																																																																																																																																																																																										<attribute name="code"/>
-																																																																																																																																																																																																																		<attribute name="flag"/>
-																																																																																																																																																																																																																									</dmr>
-																																																																																																																																																																																																																															</select>
-																																																																																																																																																																																																																																					<container id="details" operator="Choice">
-																																																																																																																																																																																																																																												<form id="details#basicAttributers" operator="Concurrency">
-																																																																																																																																																																																																																																																				<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}">
-																																																																																																																																																																																																																																																													<attribute name="code"/>
-																																																																																																																																																																																																																																																																						<attribute name="flag"/>
-																																																																																																																																																																																																																																																																															<attribute name="module"/>
-																																																																																																																																																																																																																																																																																							</dmr>
-																																																																																																																																																																																																																																																																																														</form>
-																																																																																																																																																																																																																																																																																																					<select id="moduleOptions"/>
-																																																																																																																																																																																																																																																																																																											</container>
-																																																																																																																																																																																																																																																																																																																</container>
-																																																																																																																																																																																																																																																																																																																					<container id="authorization" operator="Concurrency">
-																																																																																																																																																																																																																																																																																																																											<toolstrip id="tools" operator="Concurrency">
-																																																																																																																																																																																																																																																																																																																																		<trigger id="add"/>
-																																																																																																																																																																																																																																																																																																																																									<trigger id="remove"/>
-																																																																																																																																																																																																																																																																																																																																															</toolstrip>
-																																																																																																																																																																																																																																																																																																																																																					<select id="policies">
-																																																																																																																																																																																																																																																																																																																																																												<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
-																																																																																																																																																																																																																																																																																																																																																																				<attribute name="code"/>
-																																																																																																																																																																																																																																																																																																																																																																												<attribute name="flag"/>
-																																																																																																																																																																																																																																																																																																																																																																																			</dmr>
-																																																																																																																																																																																																																																																																																																																																																																																									</select>
-																																																																																																																																																																																																																																																																																																																																																																																															<container id="details" operator="Choice">
-																																																																																																																																																																																																																																																																																																																																																																																																						<form id="details#basicAttributers" operator="Concurrency">
-																																																																																																																																																																																																																																																																																																																																																																																																														<dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}">
-																																																																																																																																																																																																																																																																																																																																																																																																																							<attribute name="code"/>
-																																																																																																																																																																																																																																																																																																																																																																																																																																<attribute name="flag"/>
-																																																																																																																																																																																																																																																																																																																																																																																																																																									<attribute name="module"/>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																	</dmr>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																								</form>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																															<select id="moduleOptions"/>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																					</container>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																										</container>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																														</pages>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																	</container>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																			</editorpanel>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</structure>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				</dialog>
+    <structure>
+        <editorpanel id="securityDomains" operator="Choice">
+            <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+            <container id="availableDomains" operator="Concurrency">
+                <toolstrip id="tools" operator="Concurrency">
+                    <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                    <trigger id="add">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+                    </trigger>
+                    <trigger id="remove"/>
+                </toolstrip>
+                <select id="list">
+                    <dmr>
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+                <container id="details" operator="Choice">
+                    <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                    <form id="details#attributes" operator="Concurrency">
+                        <dmr>
+                            <attribute name="entity.key"/>
+                            <attribute name="cache-type"/>
+                        </dmr>
+                    </form>
+                </container>
+            </container>
+            <container id="domainConfiguration" operator="Concurrency">
+                <pulldown id="domainSelection">
+                    <dmr>
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </pulldown>
+                <pages id="securityModules" operator="Choice">
+                    <container id="authentication" operator="Concurrency">
+                        <toolstrip id="tools" operator="Concurrency">
+                            <trigger id="add"/>
+                            <trigger id="remove"/>
+                        </toolstrip>
+                        <select id="loginModules">
+                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
+                                <attribute name="code"/>
+                                <attribute name="flag"/>
+                            </dmr>
+                        </select>
+                        <container id="details" operator="Choice">
+                            <form id="details#basicAttributers" operator="Concurrency">
+                                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}">
+                                    <attribute name="code"/>
+                                    <attribute name="flag"/>
+                                    <attribute name="module"/>
+                                </dmr>
+                            </form>
+                            <select id="moduleOptions"/>
+                        </container>
+                    </container>
+                    <container id="authorization" operator="Concurrency">
+                        <toolstrip id="tools" operator="Concurrency">
+                            <trigger id="add"/>
+                            <trigger id="remove"/>
+                        </toolstrip>
+                        <select id="policies">
+                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
+                                <attribute name="code"/>
+                                <attribute name="flag"/>
+                            </dmr>
+                        </select>
+                        <container id="details" operator="Choice">
+                            <form id="details#basicAttributers" operator="Concurrency">
+                                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}">
+                                    <attribute name="code"/>
+                                    <attribute name="flag"/>
+                                    <attribute name="module"/>
+                                </dmr>
+                            </form>
+                            <select id="moduleOptions"/>
+                        </container>
+                    </container>
+                </pages>
+            </container>
+        </editorpanel>
+    </structure>
+</dialog>
 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				

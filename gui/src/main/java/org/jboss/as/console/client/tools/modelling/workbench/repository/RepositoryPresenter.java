@@ -80,6 +80,8 @@ public class RepositoryPresenter
         this.activeDialog = activeDialog;
     }
 
+
+
     public interface MyView extends View
     {
         void setPresenter(RepositoryPresenter presenter);
@@ -88,6 +90,8 @@ public class RepositoryPresenter
         void updateDirectory(Entry dir, List<Entry> entries);
 
         void clearHistory();
+
+        void updateFile(String fileContents);
     }
 
     @ProxyStandard
@@ -252,5 +256,14 @@ public class RepositoryPresenter
 
                     }
                 });
+    }
+
+    public void loadFile(Entry selection) {
+        vfs.load(selection, new SimpleCallback<String>() {
+            @Override
+            public void onSuccess(String result) {
+                getView().updateFile(result);
+            }
+        });
     }
 }

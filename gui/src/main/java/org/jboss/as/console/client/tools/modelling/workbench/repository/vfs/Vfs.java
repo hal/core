@@ -85,18 +85,48 @@ public class Vfs {
             requestBuilder.send();
 
         } catch (RequestException e) {
-            throw new RuntimeException("VSF Error: "+ e.getMessage());
+            throw new RuntimeException("VFS Error: "+ e.getMessage());
         }
 
     }
 
     public void save(Entry entry, byte[] contents) {
-        RequestBuilder requestBuilder = createRequestBuilder(RequestBuilder.POST);
-        requestBuilder.setHeader(METHOD_OVERRIDE, PUT);
+
     }
 
-    public byte[] load(Entry entry) {
-        return null;
+    public void load(final Entry entry, final AsyncCallback<String> callback) {
+
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, entry.getLink());
+        requestBuilder.setCallback(new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+
+                if(200==response.getStatusCode())
+                {
+
+                    callback.onSuccess(response.getText());
+                }
+                else
+                {
+                    callback.onFailure(
+                            new RuntimeException("Request failed "+ entry.getLink()+ ", status="+response.getStatusCode()+":" +response.getStatusText())
+                    );
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Console.error("Failed: "+exception.getMessage());
+            }
+        });
+
+        try {
+            requestBuilder.send();
+        } catch (RequestException e) {
+            throw new RuntimeException("VFS Error: "+ e.getMessage());
+
+        }
+
     }
 
     public void create(Entry entry){
