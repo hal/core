@@ -128,6 +128,7 @@ public class RepositoryPresenter
             }
         }, globalContext);
 
+        kernel.setCaching(false);
 
         this.vfs = new Vfs();
 

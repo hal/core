@@ -14,7 +14,6 @@ import org.jboss.as.console.mbui.marshall.adapters.ToolstripAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.UsewareAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
-import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.MappingType;
 import org.useware.kernel.model.structure.Container;
@@ -24,7 +23,6 @@ import org.useware.kernel.model.structure.builder.Builder;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -94,54 +92,57 @@ public class DialogXML {
         return null;
     }
 
-    private InteractionUnit dfsElement(Builder builder, Node root) {
+    private void dfsElement(Builder builder, Node root) {
 
         // the node itself
-        InteractionUnit parentUnit = (InteractionUnit)getAdapter(root.getNodeName()).fromXML(root);
-        if( !(parentUnit instanceof Container))
-            throw new IllegalArgumentException("Unexpected top unit: "+parentUnit);
+        ElementAdapter adapter = getAdapter(root.getNodeName());
 
-        builder.start((Container)parentUnit);
-
-        // it's children
-        NodeList children = root.getChildNodes();
-
-        for(int i=0; i<children.getLength(); i++)
+        if(InteractionUnit.class == adapter.getType())
         {
+            // interaction unit contents
+            InteractionUnit unit = (InteractionUnit)adapter.fromXML(root);
 
-            Node child = children.item(i);
+            if(unit instanceof Container)
+                builder.start((Container)unit);
+            else
+                builder.add(unit);
 
-            // skip anything except elements
-            if(! (Node.ELEMENT_NODE == child.getNodeType()))
-                continue;
+            // it's children
+            NodeList children = root.getChildNodes();
 
-            ElementAdapter adapter = getAdapter(child.getNodeName());
-
-            if(InteractionUnit.class == adapter.getType())
+            for(int i=0; i<children.getLength(); i++)
             {
-                InteractionUnit unit = (InteractionUnit)adapter.fromXML(child);
-                if(unit instanceof Container)
+
+                Node child = children.item(i);
+
+                // skip anything except elements
+                if(! (Node.ELEMENT_NODE == child.getNodeType()))
+                    continue;
+
+                if(child.hasChildNodes())
                 {
-                    // parse children
-                    InteractionUnit container = dfsElement(builder, child);
+                    dfsElement(builder, child);
                 }
                 else
                 {
-                    // parse siblings
-                    builder.add((InteractionUnit)adapter.fromXML(child));
+                    ElementAdapter childAdapter = getAdapter(child.getNodeName());
+                    if(DMRMapping.class==childAdapter.getType())
+                        builder.mappedBy((DMRMapping)childAdapter.fromXML(child));
+                    else if(InteractionUnit.class==childAdapter.getType())
+                        builder.add((InteractionUnit)childAdapter.fromXML(child));
                 }
             }
-            else if (DMRMapping.class == adapter.getType())
-            {
-                // TODO
-                DMRMapping mapping = (DMRMapping)adapter.fromXML(child);
-                parentUnit.addMapping(mapping);
-            }
+
+            if(unit instanceof Container)
+                builder.end();
+        }
+        else if (DMRMapping.class == adapter.getType())
+        {
+            // dmr mapping contents
+            DMRMapping mapping = (DMRMapping) adapter.fromXML(root);
+            builder.mappedBy(mapping);
         }
 
-        builder.end();
-
-        return parentUnit;
     }
 
     ElementAdapter getAdapter(String name) {
@@ -160,6 +161,10 @@ public class DialogXML {
 
         return match;
     }
+
+
+    // ----------------------------
+
 
     public Document marshall(Dialog dialog) {
 

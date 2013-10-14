@@ -47,6 +47,7 @@ public class FormAdapter implements ElementAdapter<InteractionUnit> {
                 el.setAttribute("operator", container.getTemporalOperator().toString());
             }
         }
+
         return el;
     }
 

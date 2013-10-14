@@ -1,6 +1,6 @@
 <dialog id="transaction-subsystem">
 
-    <container id="transactionManager" operator="Concurrency">
+    <container id="transactionManager" operator="Concurrency" label="TransactionManager">
         <dmr address="/{selected.profile}/subsystem=transactions"/>
         <form id="transactionManager#basicAttributes" operator="Concurrency">
             <dmr>

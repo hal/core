@@ -1,84 +1,88 @@
 <dialog id="security-domains">
 
-        <editorpanel id="securityDomains" operator="Choice">
-            <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
-            <container id="availableDomains" operator="Concurrency">
-                <toolstrip id="tools" operator="Concurrency">
-                    <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
-                    <trigger id="add" type="org.jboss.as:resource-operation#add">
-                        <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
-                    </trigger>
-                    <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-                </toolstrip>
-                <select id="list">
+    <editorpanel id="security:securityDomains" operator="Choice">
+        <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+
+        <container id="security:domains" operator="Concurrency">
+            <toolstrip id="domains:tools" operator="Concurrency">
+                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                <trigger id="domains:add" type="org.jboss.as:resource-operation#add" label="Add">
+                    <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+                </trigger>
+                <trigger id="domains:remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+            </toolstrip>
+            <select id="domains:available">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </select>
+            <container id="domain:details" operator="Choice">
+                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                <form id="domain:details#attributes" operator="Concurrency" label="Attributes">
                     <dmr>
                         <attribute name="entity.key"/>
+                        <attribute name="cache-type"/>
                     </dmr>
-                </select>
-                <container id="details" operator="Choice">
-                    <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
-                    <form id="details#attributes" operator="Concurrency">
-                        <dmr>
-                            <attribute name="entity.key"/>
-                            <attribute name="cache-type"/>
+                </form>
+            </container>
+        </container>
+
+        <container id="security:domainConfiguration" operator="Concurrency">
+            <pulldown id="domain:domainSelection">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </pulldown>
+            <pages id="domain:securityModules" operator="Choice">
+
+                <container id="domain.authentication:modules" operator="Concurrency">
+                    <toolstrip id="domain.authentication:tools" operator="Concurrency">
+                        <trigger id="domain.authentication:add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="domain.authentication:remove" type="org.jboss.as:resource-operation#remove"/>
+                    </toolstrip>
+                    <select id="domain.authentication:loginModules">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
+                            <attribute name="code"/>
+                            <attribute name="flag"/>
                         </dmr>
-                    </form>
+                    </select>
+                    <container id="domain.authentication:details" operator="Choice">
+                        <form id="domain.authentication:details#basicAttributers" operator="Concurrency">
+                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}">
+                                <attribute name="code"/>
+                                <attribute name="flag"/>
+                                <attribute name="module"/>
+                            </dmr>
+                        </form>
+                        <select id="domain.authentication:moduleOptions"/>
+                    </container>
                 </container>
-            </container>
-            <container id="domainConfiguration" operator="Concurrency">
-                <pulldown id="domainSelection">
-                    <dmr>
-                        <attribute name="entity.key"/>
-                    </dmr>
-                </pulldown>
-                <pages id="securityModules" operator="Choice">
-                    <container id="authentication" operator="Concurrency">
-                        <toolstrip id="tools" operator="Concurrency">
-                            <trigger id="add" type="org.jboss.as:resource-operation#add"/>
-                            <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-                        </toolstrip>
-                        <select id="loginModules">
-                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
+
+                <container id="domain.authorization:modules" operator="Concurrency">
+                    <toolstrip id="authorization:tools" operator="Concurrency">
+                        <trigger id="authorization:add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="authorization:remove" type="org.jboss.as:resource-operation#remove"/>
+                    </toolstrip>
+                    <select id="domain.authorization:policies">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
+                            <attribute name="code"/>
+                            <attribute name="flag"/>
+                        </dmr>
+                    </select>
+                    <container id="domain.authorization:details" operator="Choice">
+                        <form id="domain.authorization:details#basicAttributers" operator="Concurrency">
+                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}">
                                 <attribute name="code"/>
                                 <attribute name="flag"/>
+                                <attribute name="module"/>
                             </dmr>
-                        </select>
-                        <container id="details" operator="Choice">
-                            <form id="details#basicAttributers" operator="Concurrency">
-                                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}">
-                                    <attribute name="code"/>
-                                    <attribute name="flag"/>
-                                    <attribute name="module"/>
-                                </dmr>
-                            </form>
-                            <select id="moduleOptions"/>
-                        </container>
+                        </form>
+                        <select id="domain.authorization:moduleOptions"/>
                     </container>
-                    <container id="authorization" operator="Concurrency">
-                        <toolstrip id="tools" operator="Concurrency">
-                            <trigger id="add" type="org.jboss.as:resource-operation#add"/>
-                            <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-                        </toolstrip>
-                        <select id="policies">
-                            <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
-                                <attribute name="code"/>
-                                <attribute name="flag"/>
-                            </dmr>
-                        </select>
-                        <container id="details" operator="Choice">
-                            <form id="details#basicAttributers" operator="Concurrency">
-                                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}">
-                                    <attribute name="code"/>
-                                    <attribute name="flag"/>
-                                    <attribute name="module"/>
-                                </dmr>
-                            </form>
-                            <select id="moduleOptions"/>
-                        </container>
-                    </container>
-                </pages>
-            </container>
-        </editorpanel>
+                </container>
+            </pages>
+        </container>
+    </editorpanel>
 
 </dialog>
 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				

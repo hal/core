@@ -64,13 +64,14 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
         InteractionUnit unit = null;
 
         String id = ParseUtils.failSafe(node.getAttributes().getNamedItem("id"), "");
+        String label = ParseUtils.IDOrLabel(node);
 
         if("container".equals(name))
         {
             String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
             unit = new Container(USEWARE,
                     id,
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""),
+                    label,
                     TemporalOperator.valueOf(op)
             );
 
@@ -79,7 +80,7 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
         {
             unit = new Input(USEWARE,
                     id,
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""));
+                    label);
 
         }
         else if("output".equals(name))
@@ -87,27 +88,27 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
 
             unit = new Output(USEWARE,
                     id,
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""));
+                    label);
         }
         else if("select".equals(name))
         {
             unit = new Select(USEWARE,
                     id,
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""));
+                    label);
         }
         else if("trigger".equals(name))
         {
             unit = new Trigger(USEWARE,
                     id,
                     QName.valueOf(ParseUtils.failSafe(node.getAttributes().getNamedItem("type"), "")),
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""));
+                    label);
         }
         else if("link".equals(name))
         {
             unit = new Link(USEWARE,
                     id,
                     null, // todo: target
-                    ParseUtils.failSafe(node.getAttributes().getNamedItem("label"), ""));
+                    label);
         }
         return unit;
     }
