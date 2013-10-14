@@ -73,25 +73,25 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>
                 if (oldValue == null) {
                     throw new IllegalStateException("No old value provided");
                 }
-                // Calculate the changeset between assignment and oldValue
+                // Calculate the change set between assignment and oldValue
                 Set<Role> addedRoles = added(assignment.getRoles(), oldValue.getRoles());
-                Set<Role> addedExcludes = added(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role role : addedRoles) {
                     checkAndAdd(functions, role, "include");
                 }
+                Set<Role> addedExcludes = added(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role exclude : addedExcludes) {
                     checkAndAdd(functions, exclude, "exclude");
                 }
                 Set<Role> removedRoles = removed(assignment.getRoles(), oldValue.getRoles());
-                Set<Role> removedExcludes = removed(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role removedRole : removedRoles) {
                     functions.add(new PrincipalFunctions.Remove(dispatcher, removedRole, assignment.getPrincipal(),
-                            assignment.getRealm(), "include"));
+                            "include"));
                 }
+                Set<Role> removedExcludes = removed(assignment.getExcludes(), oldValue.getExcludes());
                 for (Role removedExclude : removedExcludes) {
                     functions.add(
                             new PrincipalFunctions.Remove(dispatcher, removedExclude, assignment.getPrincipal(),
-                                    assignment.getRealm(), "exclude"));
+                                    "exclude"));
                 }
                 // Clear empty / unused role assignments (this could be optimized!)
                 functions.add(new RoleAssignmentFunctions.Find(dispatcher));

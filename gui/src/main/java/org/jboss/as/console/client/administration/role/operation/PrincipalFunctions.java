@@ -76,15 +76,13 @@ public final class PrincipalFunctions {
         private final DispatchAsync dispatcher;
         private final Role role;
         private final Principal principal;
-        private final String realm;
         private final String includeExclude;
 
-        public Remove(final DispatchAsync dispatcher, final Role role,
-                final Principal principal, final String realm, final String includeExclude) {
+        public Remove(final DispatchAsync dispatcher, final Role role, final Principal principal,
+                final String includeExclude) {
             this.dispatcher = dispatcher;
             this.role = role;
             this.principal = principal;
-            this.realm = realm;
             this.includeExclude = includeExclude;
         }
 

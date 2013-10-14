@@ -20,9 +20,10 @@ package org.jboss.as.console.client.administration.role.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gwt.view.client.ProvidesKey;
@@ -111,15 +112,6 @@ public class RoleAssignment {
         }
     }
 
-    public Set<Role> changedRoles(RoleAssignment diff) {
-        if (diff != null) {
-            Set<Role> copy = new HashSet<Role>(diff.getRoles());
-            copy.removeAll(this.roles);
-            return copy;
-        }
-        return Collections.emptySet();
-    }
-
     public Set<Role> getExcludes() {
         return excludes;
     }
@@ -132,15 +124,6 @@ public class RoleAssignment {
         if (excludes != null) {
             this.excludes.addAll(excludes);
         }
-    }
-
-    public Set<Role> changedExcludes(RoleAssignment diff) {
-        if (diff != null) {
-            Set<Role> copy = new HashSet<Role>(diff.getExcludes());
-            copy.removeAll(this.excludes);
-            return copy;
-        }
-        return Collections.emptySet();
     }
 
     public static class Key implements ProvidesKey<RoleAssignment> {

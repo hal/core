@@ -57,27 +57,24 @@ public class Role {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) { return true; }
-        if (!(o instanceof Role)) { return false; }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Role)) {
+            return false;
+        }
 
         Role role = (Role) o;
-
-        if (baseRole != role.baseRole) { return false; }
-        if (!id.equals(role.id)) { return false; }
-        if (!scope.equals(role.scope)) { return false; }
         //noinspection RedundantIfStatement
-        if (type != role.type) { return false; }
-
+        if (!id.equals(role.id)) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + (baseRole != null ? baseRole.hashCode() : 0);
-        result = 31 * result + type.hashCode();
-        result = 31 * result + scope.hashCode();
-        return result;
+        return id.hashCode();
     }
 
     @Override
@@ -99,10 +96,6 @@ public class Role {
 
     public String getId() {
         return id;
-    }
-
-    public void setId(final String id) {
-        this.id = id;
     }
 
     public String getName() {

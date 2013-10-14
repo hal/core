@@ -216,8 +216,8 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
         private void addInternalRoleAssignment(final Principals principals, final RoleAssignments assignments,
                 final Roles roles, final Property property) {
-            String roleName = property.getName();
-            Role role = roles.getRole(roleName);
+            String roleId = property.getName();
+            Role role = roles.getRole(roleId);
             if (role != null) {
                 RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
                 ModelNode assignmentNode = property.getValue();

@@ -50,7 +50,7 @@ public class Roles implements Iterable<Role> {
 
     public void add(Role role) {
         if (role != null) {
-            lookup.put(role.getName(), role);
+            lookup.put(role.getId(), role);
             if (role.isStandard()) {
                 standardRoles.add(role);
             } else if (role.isScoped()) {
@@ -79,9 +79,9 @@ public class Roles implements Iterable<Role> {
         return new ArrayList<Role>(scopedRoles);
     }
 
-    public Role getRole(String name) {
-        if (name != null) {
-            return lookup.get(name);
+    public Role getRole(String id) {
+        if (id != null) {
+            return lookup.get(id);
         }
         return null;
     }
