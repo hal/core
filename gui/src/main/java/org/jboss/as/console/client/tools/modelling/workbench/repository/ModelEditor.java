@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -14,6 +15,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
+import edu.ycp.cs.dh.acegwt.client.ace.AceEditorCallback;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorMode;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
 import org.jboss.as.console.client.Console;
@@ -36,6 +38,20 @@ public class ModelEditor {
     private MenuItem fullScreenItem;
     private VerticalPanel editorPanel;
 
+    private Presenter presenter;
+
+    public String getText() {
+        return editor.getText();
+    }
+
+    public interface Presenter {
+        void onSave(String text);
+    }
+
+    public void setPresenter(Presenter presenter) {
+        this.presenter = presenter;
+    }
+
     Widget asWidget() {
 
 
@@ -48,7 +64,7 @@ public class ModelEditor {
         file.addItem("Save", new Command() {
             @Override
             public void execute() {
-
+                presenter.onSave(editor.getText());
             }
         });
 
@@ -96,6 +112,7 @@ public class ModelEditor {
 
         // ---
         editorPanel.add(editor);
+
 
         editor.getElement().setAttribute("style", "border:1px solid #cccccc");
         editor.addAttachHandler(new AttachEvent.Handler() {

@@ -15,6 +15,11 @@ import org.useware.kernel.model.behaviour.ResourceType;
  */
 public class Trigger<S extends Enum<S>> extends InteractionUnit<S> {
 
+    public Trigger(String ns, String name, QName triggerType, String label)
+    {
+        this(new QName(ns, name), triggerType, label);
+    }
+
     public Trigger(QName unitId, QName triggerType, String label) {
         super(unitId, label);
 
@@ -23,6 +28,12 @@ public class Trigger<S extends Enum<S>> extends InteractionUnit<S> {
 
         // explicit output
         setOutputs(new Resource<ResourceType>(triggerType, ResourceType.Interaction));
+
+
+    }
+
+    public QName getType() {
+        return getOutputs().iterator().next().getId();
     }
 
     @Override

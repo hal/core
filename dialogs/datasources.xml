@@ -1,16 +1,16 @@
 <dialog id="datasource-subsystem">
-	<structure>
+
 		<editorpanel id="datasources" operator="Choice">
 			<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 			<container id="regularDS" operator="Concurrency">
 				<toolstrip id="tools" operator="Concurrency">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
-					<trigger id="add">
+					<trigger id="add" type="org.jboss.as:resource-operation#add">
 						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 					</trigger>
-					<trigger id="remove"/>
-					<trigger id="enable"/>
-					<trigger id="disable"/>
+					<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
+					<trigger id="enable" type="org.jboss.as:resource-operation#enable"/>
+					<trigger id="disable" type="org.jboss.as:resource-operation#disable"/>
 				</toolstrip>
 				<select id="list">
 					<dmr>
@@ -52,5 +52,5 @@
 			</container>
 			<container id="xsDS" operator="Concurrency"/>
 		</editorpanel>
-	</structure>
+
 </dialog>

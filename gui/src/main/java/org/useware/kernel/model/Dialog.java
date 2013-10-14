@@ -24,10 +24,14 @@ public class Dialog {
         this.id = id;
         this.root = root;
 
+         // create scope model
         ScopeAssignment scopeAssignment = new ScopeAssignment();
         root.accept(scopeAssignment);
         this.scopeModel = scopeAssignment.getScopeModel();
+    }
 
+    public Dialog(QName id) {
+        this(id, null);
     }
 
     public QName getId() {

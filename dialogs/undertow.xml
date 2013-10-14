@@ -1,5 +1,5 @@
 <dialog id="undertow-subsystem">
-	<structure>
+
 		<editorpanel id="undertow" operator="Choice">
 			<dmr address="/{selected.profile}/subsystem=undertow"/>
 			<pages id="handler" operator="Choice">
@@ -38,5 +38,5 @@
 				</container>
 			</pages>
 		</editorpanel>
-	</structure>
+
 </dialog>

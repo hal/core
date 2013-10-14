@@ -22,7 +22,6 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.xml.client.Document;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -40,10 +39,11 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Vfs;
+import org.jboss.as.console.mbui.DialogRepository;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.marshall.Marshaller;
+import org.jboss.as.console.mbui.marshall.DialogXML;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.useware.kernel.model.Dialog;
@@ -63,7 +63,7 @@ import java.util.List;
  */
 public class RepositoryPresenter
         extends Presenter<RepositoryPresenter.MyView, RepositoryPresenter.MyProxy>
-        implements EditorResizeEvent.ResizeListener
+        implements EditorResizeEvent.ResizeListener, ModelEditor.Presenter
 {
 
     private Vfs vfs;
@@ -73,25 +73,20 @@ public class RepositoryPresenter
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
     private final Kernel kernel;
     private final DispatchAsync dispatcher;
-    private SampleRepository sampleRepository;
-    private DialogRef activeDialog;
+    //private SampleRepository sampleRepository;
     private DefaultWindow preview;
-    public void setActiveDialog(DialogRef activeDialog) {
-        this.activeDialog = activeDialog;
-    }
-
-
 
     public interface MyView extends View
     {
         void setPresenter(RepositoryPresenter presenter);
-        void setDocument(String name, String content);
         void setFullScreen(boolean fullscreen);
         void updateDirectory(Entry dir, List<Entry> entries);
 
         void clearHistory();
 
         void updateFile(String fileContents);
+
+        String getText();
     }
 
     @ProxyStandard
@@ -105,7 +100,6 @@ public class RepositoryPresenter
             final SampleRepository sampleRepository, final DispatchAsync dispatcher) {
         super(eventBus, view, proxy);
 
-        this.sampleRepository = sampleRepository;
         this.dispatcher = dispatcher;
 
         CoreGUIContext globalContext = new CoreGUIContext(
@@ -113,8 +107,16 @@ public class RepositoryPresenter
                 Console.MODULES.getCurrentUser(), Console.MODULES.getDomainEntityManager()
         );
 
+
+        DialogRepository adhocRepo = new DialogRepository() {
+            @Override
+            public Dialog getDialog(String name) {
+                return new DialogXML().unmarshall(getView().getText());
+            }
+        };
+
         // mbui kernel instance
-        this.kernel = new Kernel(sampleRepository, new Framework() {
+        this.kernel = new Kernel(adhocRepo, new Framework() {
             @Override
             public DispatchAsync getDispatcher() {
                 return dispatcher;
@@ -155,13 +157,8 @@ public class RepositoryPresenter
 
     public void onVisualize()
     {
-        if(null==activeDialog)
-        {
-            Console.error("No dialog selected");
-            return;
-        }
 
-        Dialog dialog = sampleRepository.getDialog(activeDialog.getName());
+        Dialog dialog = new DialogXML().unmarshall(getView().getText());
         DialogVisualization visualization = new DialogVisualization(dialog);
         DefaultWindow window = new DefaultWindow("Dialog: "+dialog.getId());
         window.setWidth(800);
@@ -171,25 +168,13 @@ public class RepositoryPresenter
         window.center();
     }
 
-    public void onMarshall()
-    {
-        Marshaller m = new Marshaller();
-        Document doc = m.marshall(sampleRepository.getDialog(activeDialog.getName()));
-        getView().setDocument(activeDialog.getName(), doc.toString());
-    }
-
     public void onReify()
     {
-        if(null==activeDialog)
-        {
-            Console.error("No dialog selected");
-            return;
-        }
 
         if(preview!=null)
             preview.hide();
 
-        kernel.reify(activeDialog.getName(), new AsyncCallback<Widget>() {
+        kernel.reify("", new AsyncCallback<Widget>() {
             @Override
             public void onFailure(Throwable throwable) {
                 Console.error("Reification failed", throwable.getMessage());
@@ -212,7 +197,7 @@ public class RepositoryPresenter
 
         if(null==preview)
         {
-            preview = new DefaultWindow("Preview: "+ activeDialog.getName());
+            preview = new DefaultWindow("Preview: "+ "TODO");
             preview.setWidth(640);
             preview.setHeight(480);
 
@@ -234,6 +219,14 @@ public class RepositoryPresenter
 
     public void onPassivate() {
         kernel.passivate();
+    }
+
+    @Override
+    public void onSave(String xml) {
+        DialogXML parser = new DialogXML();
+        Dialog dialog = parser.unmarshall(xml);
+
+        getView().updateFile(parser.marshall(dialog).toString());
     }
 
     @Override

@@ -40,7 +40,7 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
 
     //private SimplePanel contentCanvas;
     private RepositoryNavigation lhsNavigation;
-    private ModelEditor editor;
+    private ModelEditor editor = new ModelEditor();
     private Widget nav;
     private DefaultSplitLayoutPanel layout;
 
@@ -56,6 +56,12 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     public void setPresenter(RepositoryPresenter presenter) {
         this.presenter = presenter;
         lhsNavigation.setPresenter(presenter);
+        editor.setPresenter(presenter);
+    }
+
+    @Override
+    public String getText() {
+        return editor.getText();
     }
 
     @Override
@@ -82,16 +88,9 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
         nav.getElement().setAttribute("role", "navigation");
         layout.addWest(nav, 250);
 
-        editor = new ModelEditor();
         layout.add(editor.asWidget());
 
         return layout;
-    }
-
-    @Override
-    public void setDocument(String name, String content) {
-        editor.setDialogName(name);
-        editor.setText(content);
     }
 
     @Override

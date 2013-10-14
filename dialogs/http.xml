@@ -1,21 +1,22 @@
 <dialog id="http-server">
-	<structure>
+
 		<editorpanel id="httpServer" operator="Choice">
 			<pages id="listener" operator="Choice">
-				<container id="listener#http" operator="Concurrency">
+
+                <container id="listener#http" operator="Concurrency">
 					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
 						<attribute name="entity.key"/>
 						<attribute name="enabled"/>
 					</dmr>
 					<toolstrip id="httptools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
-						<trigger id="add">
+						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
 								<attribute name="entity.key"/>
 								<attribute name="enabled"/>
 							</dmr>
 						</trigger>
-						<trigger id="remove"/>
+						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
 					<select id="httpListener">
 						<dmr>
@@ -35,6 +36,7 @@
 						</form>
 					</container>
 				</container>
+
 				<container id="listener#ajp" operator="Concurrency">
 					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
 						<attribute name="entity.key"/>
@@ -42,13 +44,13 @@
 					</dmr>
 					<toolstrip id="ajptools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
-						<trigger id="add">
+						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
 								<attribute name="entity.key"/>
 								<attribute name="enabled"/>
 							</dmr>
 						</trigger>
-						<trigger id="remove"/>
+						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
 					<select id="ajpListener">
 						<dmr>
@@ -75,13 +77,13 @@
 					</dmr>
 					<toolstrip id="httpstools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
-						<trigger id="add">
+						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
 								<attribute name="entity.key"/>
 								<attribute name="enabled"/>
 							</dmr>
 						</trigger>
-						<trigger id="remove"/>
+						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
 					<select id="httpsListener">
 						<dmr>
@@ -105,5 +107,5 @@
 				</container>
 			</pages>
 		</editorpanel>
-	</structure>
+
 </dialog>

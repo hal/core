@@ -1,5 +1,5 @@
 <dialog id="io-subsystem">
-	<structure>
+
 		<editorpanel id="io-subsystem" operator="Concurrency">
 			<dmr address="/{selected.profile}/subsystem=io"/>
 			<container id="editors" operator="Choice">
@@ -43,5 +43,5 @@
 				</container>
 			</container>
 		</editorpanel>
-	</structure>
+
 </dialog>

@@ -1,5 +1,5 @@
 <dialog id="servlet-container">
-	<structure>
+
 		<container id="servletContainer" operator="Concurrency">
 			<dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>
 			<container id="details" operator="Choice">
@@ -38,5 +38,5 @@
 				</form>
 			</container>
 		</container>
-	</structure>
+
 </dialog>

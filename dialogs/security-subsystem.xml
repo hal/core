@@ -1,14 +1,14 @@
 <dialog id="security-domains">
-    <structure>
+
         <editorpanel id="securityDomains" operator="Choice">
             <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
             <container id="availableDomains" operator="Concurrency">
                 <toolstrip id="tools" operator="Concurrency">
                     <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
-                    <trigger id="add">
+                    <trigger id="add" type="org.jboss.as:resource-operation#add">
                         <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
                     </trigger>
-                    <trigger id="remove"/>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
                 </toolstrip>
                 <select id="list">
                     <dmr>
@@ -34,8 +34,8 @@
                 <pages id="securityModules" operator="Choice">
                     <container id="authentication" operator="Concurrency">
                         <toolstrip id="tools" operator="Concurrency">
-                            <trigger id="add"/>
-                            <trigger id="remove"/>
+                            <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                            <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
                         </toolstrip>
                         <select id="loginModules">
                             <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
@@ -56,8 +56,8 @@
                     </container>
                     <container id="authorization" operator="Concurrency">
                         <toolstrip id="tools" operator="Concurrency">
-                            <trigger id="add"/>
-                            <trigger id="remove"/>
+                            <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                            <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
                         </toolstrip>
                         <select id="policies">
                             <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
@@ -79,6 +79,6 @@
                 </pages>
             </container>
         </editorpanel>
-    </structure>
+
 </dialog>
 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				
