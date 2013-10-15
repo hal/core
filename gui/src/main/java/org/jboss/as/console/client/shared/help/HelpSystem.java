@@ -112,17 +112,6 @@ public class HelpSystem {
             }
         }
 
-       /* for(PropertyBinding binding : bindings)
-        {
-            if(!binding.isKey() && formItemNames.contains(binding.getJavaName())) {
-                String[] splitDetypedNames = binding.getDetypedName().split("/");
-                // last one in the path is the attribute name
-                Lookup lookup = new Lookup(splitDetypedNames[splitDetypedNames.length - 1], binding.getJavaName());
-                if(!fieldNames.contains(lookup))
-                    fieldNames.add(lookup);
-            }
-        }*/
-
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
