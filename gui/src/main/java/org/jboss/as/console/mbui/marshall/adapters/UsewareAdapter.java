@@ -63,14 +63,14 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
     {
         InteractionUnit unit = null;
 
-        String id = ParseUtils.failSafe(node.getAttributes().getNamedItem("id"), "");
+        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
         String label = ParseUtils.IDOrLabel(node);
 
         if("container".equals(name))
         {
             String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
-            unit = new Container(USEWARE,
-                    id,
+            unit = new Container(
+                    id.getNamespaceURI(), id.getLocalPart(),
                     label,
                     TemporalOperator.valueOf(op)
             );
@@ -78,35 +78,30 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
         }
         else if("input".equals(name))
         {
-            unit = new Input(USEWARE,
-                    id,
+            unit = new Input(id.getNamespaceURI(), id.getLocalPart(),
                     label);
 
         }
         else if("output".equals(name))
         {
 
-            unit = new Output(USEWARE,
-                    id,
+            unit = new Output(id.getNamespaceURI(), id.getLocalPart(),
                     label);
         }
         else if("select".equals(name))
         {
-            unit = new Select(USEWARE,
-                    id,
+            unit = new Select(id.getNamespaceURI(), id.getLocalPart(),
                     label);
         }
         else if("trigger".equals(name))
         {
-            unit = new Trigger(USEWARE,
-                    id,
+            unit = new Trigger(id.getNamespaceURI(), id.getLocalPart(),
                     QName.valueOf(ParseUtils.failSafe(node.getAttributes().getNamedItem("type"), "")),
                     label);
         }
         else if("link".equals(name))
         {
-            unit = new Link(USEWARE,
-                    id,
+            unit = new Link(id.getNamespaceURI(), id.getLocalPart(),
                     null, // todo: target
                     label);
         }

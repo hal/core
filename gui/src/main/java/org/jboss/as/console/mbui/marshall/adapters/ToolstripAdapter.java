@@ -7,6 +7,7 @@ import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 
 /**
  * @author Heiko Braun
@@ -24,8 +25,9 @@ public class ToolstripAdapter implements ElementAdapter<InteractionUnit> {
 
         String label = ParseUtils.IDOrLabel(node);
 
+        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
         Container form = new Container(
-                USEWARE, node.getAttributes().getNamedItem("id").getNodeValue(),
+                id.getNamespaceURI(), id.getLocalPart(),
                 label,
                 StereoTypes.Toolstrip);
         return form;

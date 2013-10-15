@@ -7,6 +7,7 @@ import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
 import org.useware.kernel.model.structure.TemporalOperator;
 
 /**
@@ -26,8 +27,9 @@ public class EditorPanelAdapter implements ElementAdapter<InteractionUnit> {
 
         String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
 
+        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
         Container container = new Container(
-                USEWARE, node.getAttributes().getNamedItem("id").getNodeValue(),
+                id.getNamespaceURI(), id.getLocalPart(),
                 label,
                 TemporalOperator.valueOf(op),
                 StereoTypes.EditorPanel);

@@ -1,28 +1,28 @@
 <dialog id="datasource-subsystem">
 
-		<editorpanel id="datasources" operator="Choice">
+		<editorpanel id="org.jboss.datasource:datasources" operator="Choice">
 			<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 
-			<container id="regularDS" operator="Concurrency" label="Datasources">
-				<toolstrip id="tools" operator="Concurrency">
+			<container id="org.jboss.datasource:regularDS" operator="Concurrency" label="Datasources">
+				<toolstrip id="org.jboss.datasource:tools" operator="Concurrency">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
-					<trigger id="add" type="org.jboss.as:resource-operation#add">
+					<trigger id="org.jboss.datasource:add" type="org.jboss.as:resource-operation#add" label="Add">
 						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 					</trigger>
-					<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-					<trigger id="enable" type="org.jboss.as:resource-operation#enable"/>
-					<trigger id="disable" type="org.jboss.as:resource-operation#disable"/>
+					<trigger id="org.jboss.datasource:remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+					<trigger id="org.jboss.datasource:enable" type="org.jboss.as:resource-operation#enable" label="Enable"/>
+					<trigger id="org.jboss.datasource:disable" type="org.jboss.as:resource-operation#disable" label="Disable"/>
 				</toolstrip>
-				<select id="list">
+				<select id="org.jboss.datasource:list">
 					<dmr>
 						<attribute name="entity.key"/>
 						<attribute name="jndi-name"/>
 						<attribute name="enabled"/>
 					</dmr>
 				</select>
-				<container id="details" operator="Choice">
+				<container id="org.jboss.datasource:details" operator="Choice">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
-					<form id="datasource#basicAttributes" operator="Concurrency" label="Attributes">
+					<form id="org.jboss.datasource:datasource#basicAttributes" operator="Concurrency" label="Attributes">
 						<dmr>
 							<attribute name="entity.key"/>
 							<attribute name="jndi-name"/>
@@ -33,7 +33,7 @@
 							<attribute name="prepared-statements-cache-size"/>
 						</dmr>
 					</form>
-					<form id="datasource#connectionAttributes" operator="Concurrency" label="Connection">
+					<form id="org.jboss.datasource:datasource#connectionAttributes" operator="Concurrency" label="Connection">
 						<dmr>
 							<attribute name="connection-url"/>
 							<attribute name="new-connection-sql"/>
@@ -42,7 +42,7 @@
 							<attribute name="use-ccm"/>
 						</dmr>
 					</form>
-					<form id="datasource#securityAttributes" operator="Concurrency" label="Security">
+					<form id="org.jboss.datasource:datasource#securityAttributes" operator="Concurrency" label="Security">
 						<dmr>
 							<attribute name="user-name"/>
 							<attribute name="password"/>
@@ -51,7 +51,7 @@
 					</form>
 				</container>
 			</container>
-			<container id="xsDS" operator="Concurrency" label="XA-Datasources"/>
+			<container id="org.jboss.datasource:xsDS" operator="Concurrency" label="XA-Datasources"/>
 		</editorpanel>
 
 </dialog>

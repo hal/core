@@ -10,8 +10,6 @@ import com.google.gwt.xml.client.Node;
  */
 public interface ElementAdapter<T> {
 
-    String USEWARE = "org.useware";
-
     String getElementName();
     T fromXML(Node node);
     Element toXML(Document doc, T unit);

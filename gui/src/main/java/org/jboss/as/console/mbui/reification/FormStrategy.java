@@ -85,7 +85,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
         Map<QName, ModelNode> descriptions = context.get (ContextKey.MODEL_DESCRIPTIONS);
 
          // TODO (BUG): After the first reification the behaviour is modified,
-        // so the predicate might apply to a dfferent unit. As a result the correllation id is different!
+        // so the predicate might apply to a different unit. As a result the correlation id is different!
 
         QName correlationId = interactionUnit.findMapping(MappingType.DMR, new Predicate<DMRMapping>() {
             @Override
