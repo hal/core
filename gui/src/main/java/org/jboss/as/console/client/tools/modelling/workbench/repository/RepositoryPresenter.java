@@ -198,7 +198,7 @@ public class RepositoryPresenter
 
         if(null==preview)
         {
-            preview = new DefaultWindow("Preview: "+ "TODO");
+            preview = new DefaultWindow("Preview");
             preview.setWidth(640);
             preview.setHeight(480);
 

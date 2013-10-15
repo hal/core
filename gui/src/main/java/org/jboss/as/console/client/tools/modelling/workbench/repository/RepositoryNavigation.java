@@ -119,6 +119,7 @@ public class RepositoryNavigation {
                 presenter.setDisableCache(event.getValue());
             }
         });
+        cacheDisabled.setValue(true);
         panel.add(cacheDisabled);
 
         // ----

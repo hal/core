@@ -80,12 +80,12 @@ public class ReadResourceDescription extends ReificationBootstrap
         final CollectOperationsVisitor visitor = new CollectOperationsVisitor(context);
         dialog.getInterfaceModel().accept(visitor);
 
-        ModelNode compsite = new ModelNode();
-        compsite.get(OP).set(COMPOSITE);
-        compsite.get(ADDRESS).setEmptyList();
-        compsite.get(STEPS).set(visitor.steps);
+        ModelNode composite = new ModelNode();
+        composite.get(OP).set(COMPOSITE);
+        composite.get(ADDRESS).setEmptyList();
+        composite.get(STEPS).set(visitor.steps);
 
-        dispatcher.execute(new DMRAction(compsite), new AsyncCallback<DMRResponse>()
+        dispatcher.execute(new DMRAction(composite), new AsyncCallback<DMRResponse>()
         {
             @Override
             public void onFailure(final Throwable caught)
@@ -173,8 +173,8 @@ public class ReadResourceDescription extends ReificationBootstrap
             if (mapping != null)
             {
                 String address = mapping.getResolvedAddress();
-                if (!resolvedAdresses.contains(address))
-                {
+                //if (!resolvedAdresses.contains(address))        // TODO: Optimisations
+                //{
                     AddressMapping addressMapping = AddressMapping.fromString(address);
                     ModelNode op = addressMapping.asResource(new FilteringStatementContext(
                             statementContext,
@@ -201,7 +201,7 @@ public class ReadResourceDescription extends ReificationBootstrap
 
                     resolvedAdresses.add(address);
                     stepReference.put("step-" + steps.size(), interactionUnit);
-                }
+               // }
             }
         }
     }

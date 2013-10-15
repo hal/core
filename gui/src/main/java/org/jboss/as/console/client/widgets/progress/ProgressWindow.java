@@ -13,6 +13,7 @@ public class ProgressWindow extends PopupPanel {
     public ProgressWindow(final String title) {
 
         bar = new ProgressBar(0.0, 100.0);
+        bar.addStyleName("progess-window");
         bar.setTextFormatter(new ProgressBar.TextFormatter() {
             @Override
             protected String getText(ProgressBar bar, double curProgress) {
@@ -23,6 +24,8 @@ public class ProgressWindow extends PopupPanel {
 
         setWidth("240px");
         setHeight("25px");
+
+        setGlassEnabled(true);
 
     }
 
