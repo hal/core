@@ -75,6 +75,7 @@ public class AddScopedRoleWizard implements IsWidget {
         final MultiselectListBoxItem scopeItem = new MultiselectListBoxItem("scope", "Scope", 3);
         final CheckBoxItem includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
+        layout.add(new ScopedRoleHelpPanel().asWidget());
         layout.add(form.asWidget());
 
         typeItem.addChangeHandler(new ChangeHandler() {

@@ -72,6 +72,7 @@ public class StandardRoleDetails implements IsWidget {
 
         VerticalPanel content = new VerticalPanel();
         content.setStyleName("fill-layout-width");
+        content.add(new StandardRoleHelpPanel().asWidget());
         content.add(form.asWidget());
 
         return content;

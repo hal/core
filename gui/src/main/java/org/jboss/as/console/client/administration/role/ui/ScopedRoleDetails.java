@@ -38,7 +38,6 @@ import org.jboss.as.console.client.administration.role.form.MultiselectListBoxIt
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
 import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -101,6 +100,7 @@ public class ScopedRoleDetails implements IsWidget {
 
         VerticalPanel content = new VerticalPanel();
         content.setStyleName("fill-layout-width");
+        content.add(new ScopedRoleHelpPanel().asWidget());
         content.add(form.asWidget());
 
         return content;

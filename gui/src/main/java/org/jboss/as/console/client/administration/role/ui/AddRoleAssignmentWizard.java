@@ -82,6 +82,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
+        layout.add(new RoleAssignmentHelpPanel().asWidget());
         layout.add(form.asWidget());
         rolesItem.update(roles);
 
