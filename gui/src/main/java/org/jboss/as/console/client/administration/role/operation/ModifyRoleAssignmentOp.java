@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
@@ -34,7 +33,7 @@ import org.jboss.gwt.flow.client.Outcome;
 /**
  * @author Harald Pehl
  */
-public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>> {
+public class ModifyRoleAssignmentOp implements ManagementOperation<FunctionContext> {
 
     private final DispatchAsync dispatcher;
     private final RoleAssignment assignment;
@@ -56,8 +55,8 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>
 
     @Override
     @SuppressWarnings("unchecked")
-    public void execute(final Outcome<Stack<Object>> outcome) {
-        List<Function<Stack<Object>>> functions = new ArrayList<Function<Stack<Object>>>();
+    public void execute(final Outcome<FunctionContext> outcome) {
+        List<Function<FunctionContext>> functions = new ArrayList<Function<FunctionContext>>();
 
         switch (operation) {
             case ADD: {
@@ -105,14 +104,17 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<Stack<Object>
                 functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
                 break;
         }
-        new Async<Stack<Object>>()
-                .waterfall(new Stack<Object>(), outcome, functions.toArray(new Function[functions.size()]));
+        new Async<FunctionContext>()
+                .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
-    private void checkAndAdd(final List<Function<Stack<Object>>> functions, final Role role,
+    private void checkAndAdd(final List<Function<FunctionContext>> functions, final Role role,
             final String includeExclude) {
         functions.add(new RoleAssignmentFunctions.Check(dispatcher, role));
         functions.add(new RoleAssignmentFunctions.Add(dispatcher, role));
+
+        functions.add(new PrincipalFunctions.Check(dispatcher, role, assignment.getPrincipal(),
+                assignment.getRealm(), includeExclude));
         functions.add(new PrincipalFunctions.Add(dispatcher, role, assignment.getPrincipal(),
                 assignment.getRealm(), includeExclude));
     }

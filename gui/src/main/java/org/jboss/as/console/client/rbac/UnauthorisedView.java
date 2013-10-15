@@ -2,6 +2,7 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -16,8 +17,8 @@ public class UnauthorisedView extends SuspendableViewImpl implements Unauthorise
     public Widget createWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("rhs-content-panel");
-        layout.add(new ContentHeaderLabel("Authorisation Required"));
-        layout.add(new ContentDescription("You don't have the permissions to access this resource!"));
+        layout.add(new ContentHeaderLabel(Console.CONSTANTS.unauthorized()));
+        layout.add(new ContentDescription(Console.CONSTANTS.unauthorized_desc()));
         return layout;
     }
 }

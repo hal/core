@@ -21,6 +21,7 @@ package org.jboss.as.console.client.administration.role.operation;
 import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
@@ -28,25 +29,32 @@ import org.jboss.gwt.flow.client.Control;
 /**
  * @author Harald Pehl
  */
-public class FunctionCallback<T> implements AsyncCallback<DMRResponse> {
+public class FunctionCallback implements AsyncCallback<DMRResponse> {
 
-    private final Control<T> control;
+    private final Control<FunctionContext> control;
 
-    public FunctionCallback(final Control<T> control) {this.control = control;}
+    public FunctionCallback(final Control<FunctionContext> control) {this.control = control;}
 
     @Override
     public final void onSuccess(final DMRResponse response) {
         ModelNode result = response.get();
         if (!result.hasDefined(OUTCOME) || result.isFailure()) {
+            control.getContext().setError(new RuntimeException(result.getFailureDescription()));
             abort();
         } else {
+            onSuccess(result);
             proceed();
         }
     }
 
     @Override
     public final void onFailure(final Throwable caught) {
+        control.getContext().setError(caught);
         abort();
+    }
+
+    protected void onSuccess(final ModelNode result) {
+        // empty
     }
 
     protected void abort() {

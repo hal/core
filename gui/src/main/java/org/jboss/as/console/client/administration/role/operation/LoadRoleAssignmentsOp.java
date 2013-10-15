@@ -25,10 +25,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
@@ -61,8 +59,14 @@ import org.jboss.gwt.flow.client.Outcome;
  *
  * @author Harald Pehl
  */
-public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAssignmentsOp.Results, Object>> {
+public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContext> {
 
+    public final static String PRINCIPALS = "LoadRoleAssignmentsOp.principals";
+    public final static String ASSIGNMENTS = "LoadRoleAssignmentsOp.assignments";
+    public final static String ROLES = "LoadRoleAssignmentsOp.roles";
+    public final static String HOSTS = "LoadRoleAssignmentsOp.hosts";
+    public final static String SERVER_GROUPS = "LoadRoleAssignmentsOp.serverGroups";
+    public final static String ACCESS_CONTROL_PROVIDER = "LoadRoleAssignmentsOp.accessControlProvider";
     private final RoleAssignmentPresenter presenter;
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
@@ -78,10 +82,10 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
     }
 
     @Override
-    public void execute(final Outcome<Map<Results, Object>> outcome) {
+    public void execute(final Outcome<FunctionContext> outcome) {
         pending = true;
-        Map<Results, Object> context = new HashMap<Results, Object>();
-        new Async<Map<Results, Object>>().waterfall(context, outcome, new RolesAndMappingFunction(),
+        final FunctionContext context = new FunctionContext();
+        new Async<FunctionContext>().waterfall(context, outcome, new RolesAndMappingFunction(),
                 new HostsFunction(), new ServerGroupsFunction());
     }
 
@@ -89,20 +93,10 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         return pending;
     }
 
-    public static enum Results {
-        PRINCIPALS,
-        ASSIGNMENTS,
-        ROLES,
-        HOSTS,
-        SERVER_GROUPS,
-        ACCESS_CONTROL_PROVIDER,
-        ERROR
-    }
-
-    class RolesAndMappingFunction implements Function<Map<Results, Object>> {
+    class RolesAndMappingFunction implements Function<FunctionContext> {
 
         @Override
-        public void execute(final Control<Map<Results, Object>> control) {
+        public void execute(final Control<FunctionContext> control) {
             ModelNode operation = new ModelNode();
             operation.get(ADDRESS).setEmptyList();
             operation.get(OP).set(COMPOSITE);
@@ -154,7 +148,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
                     ModelNode result = response.get();
                     if (result.isFailure()) {
-                        control.getContext().put(Results.ERROR,
+                        control.getContext().setError(
                                 new RuntimeException("Failed to load contents: " + result.getFailureDescription()));
                         control.abort();
                     } else {
@@ -199,19 +193,19 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                             if (!providerNode.isFailure()) {
                                 provider = providerNode.get(RESULT).asString();
                             }
-                            control.getContext().put(Results.ACCESS_CONTROL_PROVIDER, provider);
+                            control.getContext().set(ACCESS_CONTROL_PROVIDER, provider);
                         }
 
-                        control.getContext().put(Results.PRINCIPALS, principals);
-                        control.getContext().put(Results.ASSIGNMENTS, assignments);
-                        control.getContext().put(Results.ROLES, roles);
+                        control.getContext().set(PRINCIPALS, principals);
+                        control.getContext().set(ASSIGNMENTS, assignments);
+                        control.getContext().set(ROLES, roles);
                         control.proceed();
                     }
                 }
 
                 @Override
                 public void onFailure(final Throwable caught) {
-                    control.getContext().put(Results.ERROR, caught);
+                    control.getContext().setError(caught);
                     control.abort();
                 }
             });
@@ -286,12 +280,12 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         }
     }
 
-    class HostsFunction implements Function<Map<Results, Object>> {
+    class HostsFunction implements Function<FunctionContext> {
 
         @Override
-        public void execute(final Control<Map<Results, Object>> control) {
+        public void execute(final Control<FunctionContext> control) {
             if (presenter.isStandalone()) {
-                control.getContext().put(Results.HOSTS, Collections.emptyList());
+                control.getContext().set(HOSTS, Collections.emptyList());
                 control.proceed();
             } else {
                 hostInformationStore.getHosts(new AsyncCallback<List<Host>>() {
@@ -301,13 +295,13 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         for (Host host : result) {
                             hosts.add(host.getName());
                         }
-                        control.getContext().put(Results.HOSTS, hosts);
+                        control.getContext().set(HOSTS, hosts);
                         control.proceed();
                     }
 
                     @Override
                     public void onFailure(final Throwable caught) {
-                        control.getContext().put(Results.ERROR, caught);
+                        control.getContext().setError(caught);
                         control.abort();
                     }
                 });
@@ -315,12 +309,12 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
         }
     }
 
-    class ServerGroupsFunction implements Function<Map<Results, Object>> {
+    class ServerGroupsFunction implements Function<FunctionContext> {
 
         @Override
-        public void execute(final Control<Map<Results, Object>> control) {
+        public void execute(final Control<FunctionContext> control) {
             if (presenter.isStandalone()) {
-                control.getContext().put(Results.SERVER_GROUPS, Collections.emptyList());
+                control.getContext().set(SERVER_GROUPS, Collections.emptyList());
                 control.proceed();
                 finish();
             } else {
@@ -331,14 +325,14 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         for (ServerGroupRecord serverGroup : result) {
                             serverGroups.add(serverGroup.getName());
                         }
-                        control.getContext().put(Results.SERVER_GROUPS, serverGroups);
+                        control.getContext().set(SERVER_GROUPS, serverGroups);
                         control.proceed();
                         finish();
                     }
 
                     @Override
                     public void onFailure(final Throwable caught) {
-                        control.getContext().put(Results.ERROR, caught);
+                        control.getContext().setError(caught);
                         control.abort();
                         finish();
                     }

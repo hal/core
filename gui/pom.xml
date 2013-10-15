@@ -176,7 +176,6 @@
                                     generated GWT module (without the 'gwt.' prefix)
                                 -->
                                 <gwt.console.core.version>${project.version}</gwt.console.core.version>
-
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
                             </options>
                         </configuration>

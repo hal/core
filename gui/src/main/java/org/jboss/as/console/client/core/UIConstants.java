@@ -995,4 +995,8 @@ public interface UIConstants extends Constants {
     String administration_excluded_roles();
 
     String common_label_basedOn();
+
+    String unauthorized();
+
+    String unauthorized_desc();
 }

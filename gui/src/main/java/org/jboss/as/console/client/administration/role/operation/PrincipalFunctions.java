@@ -41,7 +41,46 @@ public final class PrincipalFunctions {
 
     private PrincipalFunctions() {}
 
-    public static class Add implements Function<Stack<Object>> {
+    public static class Check implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+        private final Role role;
+        private final Principal principal;
+        private final String realm;
+        private final String includeExclude;
+
+        public Check(final DispatchAsync dispatcher, final Role role,
+                final Principal principal, final String realm, final String includeExclude) {
+            this.dispatcher = dispatcher;
+            this.role = role;
+            this.principal = principal;
+            this.realm = realm;
+            this.includeExclude = includeExclude;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
+            node.get(OP).set(READ_RESOURCE_OPERATION);
+            dispatcher.execute(new DMRAction(node), new FunctionCallback(control){
+                @Override
+                protected void proceed() {
+                    // principal exists - next function will skip its DMR operation
+                    control.getContext().push(true);
+                    control.proceed();
+                }
+
+                @Override
+                protected void abort() {
+                    // no principal - create it in the next function
+                    control.getContext().push(false);
+                    control.proceed();
+                }
+            });
+        }
+    }
+
+    public static class Add implements Function<FunctionContext> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -59,19 +98,24 @@ public final class PrincipalFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Object>> control) {
-            ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
-            node.get("name").set(ModelType.STRING, principal.getName());
-            node.get("type").set(ModelType.STRING, principal.getType().name());
-            if (realm != null && realm.length() != 0) {
-                node.get("realm").set(ModelType.STRING, realm);
+        public void execute(final Control<FunctionContext> control) {
+            boolean principalExists = Boolean.valueOf(control.getContext().pop().toString());
+            if (principalExists) {
+                control.proceed();
+            } else {
+                ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
+                node.get("name").set(ModelType.STRING, principal.getName());
+                node.get("type").set(ModelType.STRING, principal.getType().name());
+                if (realm != null && realm.length() != 0) {
+                    node.get("realm").set(ModelType.STRING, realm);
+                }
+                node.get(OP).set(ADD);
+                dispatcher.execute(new DMRAction(node), new FunctionCallback(control));
             }
-            node.get(OP).set(ADD);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
         }
     }
 
-    public static class Remove implements Function<Stack<Object>> {
+    public static class Remove implements Function<FunctionContext> {
 
         private final DispatchAsync dispatcher;
         private final Role role;
@@ -87,10 +131,10 @@ public final class PrincipalFunctions {
         }
 
         @Override
-        public void execute(final Control<Stack<Object>> control) {
+        public void execute(final Control<FunctionContext> control) {
             ModelNode node = ModelHelper.includeExclude(role, principal, includeExclude);
             node.get(OP).set(REMOVE);
-            dispatcher.execute(new DMRAction(node), new FunctionCallback<Stack<Object>>(control));
+            dispatcher.execute(new DMRAction(node), new FunctionCallback(control));
         }
     }
 }

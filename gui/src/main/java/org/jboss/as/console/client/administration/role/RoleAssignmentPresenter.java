@@ -19,16 +19,12 @@
 package org.jboss.as.console.client.administration.role;
 
 import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-import static org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp.Results;
 import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -45,6 +41,7 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.role.operation.FunctionContext;
 import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
 import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
@@ -81,7 +78,7 @@ public class RoleAssignmentPresenter
     private final boolean standalone;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
-    private final ManagementOperation<Map<Results, Object>> loadRoleAssignmentsOp;
+    private final ManagementOperation<FunctionContext> loadRoleAssignmentsOp;
     private boolean initialized;
     private DefaultWindow window;
     private Principals principals;
@@ -135,32 +132,28 @@ public class RoleAssignmentPresenter
         if (!loadRoleAssignmentsOp.isPending()) {
             System.out.print("Loading role assignments...");
             final long start = System.currentTimeMillis();
-            loadRoleAssignmentsOp.execute(new Outcome<Map<Results, Object>>() {
+            loadRoleAssignmentsOp.execute(new Outcome<FunctionContext>() {
                 @Override
-                public void onFailure(final Map<Results, Object> context) {
+                public void onFailure(final FunctionContext context) {
                     System.out.println("FAILED");
-                    Throwable caught = (Throwable) context.get(Results.ERROR);
-                    if (caught != null) {
-                        Log.error("Unknown error", caught);
-                        Console.error("Unknown error", caught.getMessage());
-                    }
+                    context.showError();
                 }
 
                 @Override
                 @SuppressWarnings("unchecked")
-                public void onSuccess(final Map<Results, Object> context) {
+                public void onSuccess(final FunctionContext context) {
                     long end = System.currentTimeMillis();
                     System.out.println("DONE in " + (end - start) + " ms");
-                    principals = (Principals) context.get(Results.PRINCIPALS);
-                    assignments = (RoleAssignments) context.get(Results.ASSIGNMENTS);
-                    roles = (Roles) context.get(Results.ROLES);
-                    hosts = (List<String>) context.get(Results.HOSTS);
-                    serverGroups = (List<String>) context.get(Results.SERVER_GROUPS);
+                    principals = context.get(LoadRoleAssignmentsOp.PRINCIPALS);
+                    assignments = context.get(LoadRoleAssignmentsOp.ASSIGNMENTS);
+                    roles = context.get(LoadRoleAssignmentsOp.ROLES);
+                    hosts = context.get(LoadRoleAssignmentsOp.HOSTS);
+                    serverGroups = context.get(LoadRoleAssignmentsOp.SERVER_GROUPS);
                     getView().update(principals, assignments, roles, hosts, serverGroups);
 
                     // show warning about simple access control provider (if not already done)
                     if (!initialized) {
-                        String acp = (String) context.get(Results.ACCESS_CONTROL_PROVIDER);
+                        String acp = context.get(LoadRoleAssignmentsOp.ACCESS_CONTROL_PROVIDER);
                         if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
                             openWindow("Access Control Provider", 480, 200,
                                     new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
@@ -182,54 +175,18 @@ public class RoleAssignmentPresenter
 
     public void addRoleAssignment(final RoleAssignment assignment) {
         closeWindow();
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.addingFailed("Role Assignment"));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.added("Role Assignment"));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, ADD);
+        mo.execute(new FunctionOutcome("Role Assignment", ADD));
     }
 
     public void saveRoleAssignment(final RoleAssignment assignment, final RoleAssignment oldValue) {
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, oldValue, MODIFY);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.saveFailed("Role Assignment"));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.saved("Role Assignment"));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, oldValue, MODIFY);
+        mo.execute(new FunctionOutcome("Role Assignment", MODIFY));
     }
 
     public void removeRoleAssignment(final RoleAssignment assignment) {
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.deletionFailed("Role Assignment"));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.deleted("Role Assignment"));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleAssignmentOp(dispatcher, assignment, REMOVE);
+        mo.execute(new FunctionOutcome("Role Assignment", REMOVE));
     }
 
     public void launchAddScopedRoleWizard() {
@@ -242,56 +199,20 @@ public class RoleAssignmentPresenter
         if (!assertDomainMode()) { return; }
 
         closeWindow();
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, role, ADD);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.addingFailed(role.getName()));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.added(role.getName()));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleOp(dispatcher, role, ADD);
+        mo.execute(new FunctionOutcome(role.getName(), ADD));
     }
 
-    public void saveScopedRole(final Role scopedRole) {
+    public void saveScopedRole(final Role role) {
         if (!assertDomainMode()) { return; }
 
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, scopedRole, MODIFY);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.saveFailed(scopedRole.getName()));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.saved(scopedRole.getName()));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleOp(dispatcher, role, MODIFY);
+        mo.execute(new FunctionOutcome(role.getName(), MODIFY));
     }
 
-    public void modifyIncludeAll(final Role standardRole) {
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, standardRole, MODIFY);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.saveFailed(standardRole.getName()));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.saved(standardRole.getName()));
-                loadAssignments();
-            }
-        });
+    public void modifyIncludeAll(final Role role) {
+        ManagementOperation<FunctionContext> mo = new ModifyRoleOp(dispatcher, role, MODIFY);
+        mo.execute(new FunctionOutcome(role.getName(), MODIFY));
     }
 
     public void removeScopedRole(final Role role) {
@@ -306,20 +227,8 @@ public class RoleAssignmentPresenter
             return;
         }
 
-        ManagementOperation<Stack<Object>> mo = new ModifyRoleOp(dispatcher, role, REMOVE);
-        mo.execute(new Outcome<Stack<Object>>() {
-            @Override
-            public void onFailure(final Stack<Object> context) {
-                Console.error(Console.MESSAGES.deletionFailed(role.getName()));
-                loadAssignments();
-            }
-
-            @Override
-            public void onSuccess(final Stack<Object> context) {
-                Console.info(Console.MESSAGES.deleted(role.getName()));
-                loadAssignments();
-            }
-        });
+        ManagementOperation<FunctionContext> mo = new ModifyRoleOp(dispatcher, role, REMOVE);
+        mo.execute(new FunctionOutcome(role.getName(), REMOVE));
     }
 
     public void showMembers(final Role role) {
@@ -405,7 +314,7 @@ public class RoleAssignmentPresenter
         return standalone;
     }
 
-    // ------------------------------------------------------ proxy and view
+    // ------------------------------------------------------ inner classes
 
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
@@ -419,5 +328,47 @@ public class RoleAssignmentPresenter
 
         void update(final Principals principals, final RoleAssignments assignments, final Roles roles,
                 final List<String> hosts, final List<String> serverGroups);
+    }
+
+    class FunctionOutcome implements Outcome<FunctionContext> {
+
+        private final String successMessage;
+        private final String failureMessage;
+
+        public FunctionOutcome(final String entity, final ManagementOperation.Operation op) {
+            switch (op) {
+                case ADD:
+                    successMessage = Console.MESSAGES.added(entity);
+                    failureMessage = Console.MESSAGES.addingFailed(entity);
+                    break;
+                case MODIFY:
+                    successMessage = Console.MESSAGES.saved(entity);
+                    failureMessage = Console.MESSAGES.saveFailed(entity);
+                    break;
+                case REMOVE:
+                    successMessage = Console.MESSAGES.deleted(entity);
+                    failureMessage = Console.MESSAGES.deletionFailed(entity);
+                    break;
+                default:
+                    successMessage = Console.CONSTANTS.common_label_success();
+                    failureMessage = Console.CONSTANTS.common_error_failure();
+            }
+        }
+
+        @Override
+        public void onSuccess(final FunctionContext context) {
+            Console.info(successMessage);
+            loadAssignments();
+        }
+
+        public void onFailure(final FunctionContext context) {
+            if (context.isForbidden()) {
+                Console.error(failureMessage, Console.CONSTANTS.unauthorized_desc());
+            } else {
+                String errorMessage = context.getErrorMessage();
+                Console.error(failureMessage, errorMessage);
+            }
+            loadAssignments();
+        }
     }
 }

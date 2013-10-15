@@ -31,7 +31,7 @@ import org.jboss.gwt.flow.client.Outcome;
 /**
  * @author Harald Pehl
  */
-public class ModifyRoleOp implements ManagementOperation<Stack<Object>> {
+public class ModifyRoleOp implements ManagementOperation<FunctionContext> {
 
     private final DispatchAsync dispatcher;
     private final Role role;
@@ -45,8 +45,8 @@ public class ModifyRoleOp implements ManagementOperation<Stack<Object>> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void execute(final Outcome<Stack<Object>> outcome) {
-        List<Function<Stack<Object>>> functions = new ArrayList<Function<Stack<Object>>>();
+    public void execute(final Outcome<FunctionContext> outcome) {
+        List<Function<FunctionContext>> functions = new ArrayList<Function<FunctionContext>>();
         switch (op) {
             case ADD:
                 if (role.isStandard()) {
@@ -87,8 +87,8 @@ public class ModifyRoleOp implements ManagementOperation<Stack<Object>> {
         functions.add(new RoleAssignmentFunctions.Find(dispatcher));
         functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
 
-        new Async<Stack<Object>>()
-                .waterfall(new Stack<Object>(), outcome, functions.toArray(new Function[functions.size()]));
+        new Async<FunctionContext>()
+                .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
     @Override
