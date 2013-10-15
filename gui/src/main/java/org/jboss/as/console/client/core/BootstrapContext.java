@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -46,8 +47,8 @@ public class BootstrapContext implements ApplicationProperties {
     private boolean hostManagementDisabled;
     private boolean groupManagementDisabled;
     private Set<String> roles;
-    private Set<String> addressableHosts;
-    private Set<String> addressableGroups;
+    private Set<String> addressableHosts = Collections.EMPTY_SET;
+    private Set<String> addressableGroups = Collections.EMPTY_SET;
     private String runAs;
 
     @Inject
