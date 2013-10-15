@@ -48,58 +48,17 @@ public class DataSourceDetails {
 
     private Form<DataSource> form;
     private DataSourcePresenter presenter;
-    private ToolButton disableBtn;
 
     public DataSourceDetails(DataSourcePresenter presenter) {
         this.presenter = presenter;
         form = new Form(DataSource.class);
         form.setNumColumns(2);
 
-        /*form.addEditListener(new EditListener<DataSource>() {
-            @Override
-            public void editingBean(DataSource bean) {
-                String nextState = bean.isEnabled() ? Console.CONSTANTS.common_label_disable():Console.CONSTANTS.common_label_enable();
-                disableBtn.setText(nextState);
-            }
-        });*/
     }
 
     public Widget asWidget() {
         VerticalPanel detailPanel = new VerticalPanel();
         detailPanel.setStyleName("fill-layout-width");
-
-
-        /*ClickHandler disableHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                final boolean nextState = !form.getEditedEntity().isEnabled();
-                Feedback.confirm(Console.MESSAGES.modify("datasource"),
-                        Console.MESSAGES.modifyConfirm("Datasource "+form.getEditedEntity().getName()),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    presenter.onDisable(form.getEditedEntity(), nextState);
-                                }
-                            }
-                        });
-            }
-        };
-
-        disableBtn = new ToolButton(Console.CONSTANTS.common_label_enOrDisable(), disableHandler);
-        disableBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_enOrDisable_dataSourceDetails());
-
-        ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                presenter.verifyConnection(form.getEditedEntity().getName(), false);
-            }
-        });
-
-        verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
-
-        */
 
         FormToolStrip<DataSource> toolStrip = new FormToolStrip<DataSource>(
                 form,
@@ -118,24 +77,19 @@ public class DataSourceDetails {
 
         toolStrip.providesDeleteOp(false);
 
-       /* toolStrip.addToolButtonRight(disableBtn);
-
-        // not available in domain mode
-        if(Console.getBootstrapContext().isStandalone())
-            toolStrip.addToolButtonRight(verifyBtn);  */
-
         detailPanel.add(toolStrip.asWidget());
 
         final TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem jndiItem = new JndiNameItem("jndiName", "JNDI");
         StatusItem enabledFlagItem = new StatusItem("enabled", "Is enabled?");
         TextAreaItem dsClassItem = new TextAreaItem("datasourceClass", "Datasource Class",false);
-        TextItem driverItem = new TextItem("driverName", "Driver");
+        TextBoxItem driverItem = new TextBoxItem("driverName", "Driver");
+        TextBoxItem driverClassItem = new TextBoxItem("driverClass", "Driver Class");
 
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
         NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
 
-        form.setFields(nameItem, jndiItem, enabledFlagItem, dsClassItem, driverItem, shareStatements, statementCacheSize);
+        form.setFields(nameItem, jndiItem, enabledFlagItem, dsClassItem, driverItem,driverClassItem, shareStatements, statementCacheSize);
 
         form.setEnabled(false); // currently not editable
 

@@ -82,7 +82,7 @@ public class XADataSourceDetails {
         final TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem jndiItem = new JndiNameItem("jndiName", "JNDI");
         StatusItem enabledFlagItem = new StatusItem("enabled", "Is enabled?");
-        TextItem driverItem = new TextItem("driverName", "Driver");
+        TextBoxItem driverItem = new TextBoxItem("driverName", "Driver");
         TextAreaItem dsClass = new TextAreaItem("dataSourceClass", "XA Data Source Class");
 
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");

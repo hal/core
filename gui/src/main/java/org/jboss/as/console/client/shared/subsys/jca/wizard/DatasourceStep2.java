@@ -114,10 +114,20 @@ public class DatasourceStep2 {
         // --
 
         final Form<JDBCDriver> form = new Form<JDBCDriver>(JDBCDriver.class);
-        TextBoxItem name = new TextBoxItem("name", "Name");
-        TextBoxItem driverClass = new TextBoxItem("driverClass", "Driver Class");
-        NumberBoxItem major = new NumberBoxItem("majorVersion", "Major Version");
-        NumberBoxItem minor = new NumberBoxItem("minorVersion", "Minor Version");
+        TextBoxItem name = new TextBoxItem("name", "Name", true);
+        TextBoxItem driverClass = new TextBoxItem("driverClass", "Driver Class", false);
+        NumberBoxItem major = new NumberBoxItem("majorVersion", "Major Version")
+        {
+            {
+                setRequired(false);
+            }
+        };
+        NumberBoxItem minor = new NumberBoxItem("minorVersion", "Minor Version")
+        {
+            {
+                setRequired(false);
+            }
+        };
 
         form.setFields(name, driverClass, major, minor);
 
@@ -132,8 +142,8 @@ public class DatasourceStep2 {
             }
         });
 
-        tabs.add(driverPanel, "Chose Driver");
-        //tabs.add(form.asWidget(), "Specify Driver");
+        tabs.add(driverPanel, "Detected Driver");
+        tabs.add(form.asWidget(), "Specify Driver");
 
         layout.add(tabs);
         tabs.selectTab(0);
@@ -166,15 +176,17 @@ public class DatasourceStep2 {
 
                 if(driver!=null) { // force selected driver
                     editedEntity.setDriverName(driver.getName());
-                    editedEntity.setDriverClass(driver.getDriverClass());
+
+                    if(driver.getDriverClass()!=null && !driver.getDriverClass().equals(""))
+                        editedEntity.setDriverClass(driver.getDriverClass());
+
                     editedEntity.setMajorVersion(driver.getMajorVersion());
                     editedEntity.setMinorVersion(driver.getMinorVersion());
 
                     wizard.onConfigureDriver(editedEntity);
                 }
                 else {
-                    Console.warning(Console.CONSTANTS.subsys_jca_dataSource_select_driver(),
-                            "If no driver is available you may need to deploy one!");
+                    Console.warning("A driver needs to be specified or chosen!");
                 }
 
             }
