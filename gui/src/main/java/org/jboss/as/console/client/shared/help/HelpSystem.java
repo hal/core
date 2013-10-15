@@ -94,9 +94,25 @@ public class HelpSystem {
         List<String> formItemNames = form.getFormItemNames();
         BeanMetaData beanMetaData = propertyMetaData.getBeanMetaData(form.getConversionType());
         List<PropertyBinding> bindings = beanMetaData.getProperties();
-        final List<Lookup> fieldNames = new ArrayList<Lookup>();
+        final LinkedList<Lookup> fieldNames = new LinkedList<Lookup>();
 
-        for(PropertyBinding binding : bindings)
+
+        for(String name : formItemNames)
+        {
+
+            for(PropertyBinding binding : bindings)
+            {
+                if(!binding.isKey() && binding.getJavaName().equals(name)) {
+                    String[] splitDetypedNames = binding.getDetypedName().split("/");
+                    // last one in the path is the attribute name
+                    Lookup lookup = new Lookup(splitDetypedNames[splitDetypedNames.length - 1], binding.getJavaName());
+                    if(!fieldNames.contains(lookup))
+                        fieldNames.add(lookup);
+                }
+            }
+        }
+
+       /* for(PropertyBinding binding : bindings)
         {
             if(!binding.isKey() && formItemNames.contains(binding.getJavaName())) {
                 String[] splitDetypedNames = binding.getDetypedName().split("/");
@@ -105,7 +121,7 @@ public class HelpSystem {
                 if(!fieldNames.contains(lookup))
                     fieldNames.add(lookup);
             }
-        }
+        }*/
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
@@ -119,7 +135,7 @@ public class HelpSystem {
                 }
                 else
                 {
-                    List<FieldDesc> fields = new ArrayList<FieldDesc>();
+                    LinkedList<FieldDesc> fields = new LinkedList<FieldDesc>();
                     ModelNode payload = response.get(RESULT);
 
                     ModelNode descriptionModel = null;
@@ -179,7 +195,7 @@ public class HelpSystem {
                 }
                 else
                 {
-                    List<FieldDesc> fields = new ArrayList<FieldDesc>();
+                    LinkedList<FieldDesc> fields = new LinkedList<FieldDesc>();
 
                     ModelNode payload = response.get(RESULT);
 
@@ -205,26 +221,26 @@ public class HelpSystem {
     }
 
 
-    private static void matchSubElements(ModelNode descriptionModel, List<Lookup> fieldNames, List<FieldDesc> fields) {
+    private static void matchSubElements(ModelNode descriptionModel, List<Lookup> fieldNames, LinkedList<FieldDesc> fields) {
 
         if (descriptionModel.hasDefined(RESULT))
             descriptionModel = descriptionModel.get(RESULT).asObject();
 
         try {
 
-
             // match attributes
             if(descriptionModel.hasDefined(ATTRIBUTES))
             {
                 List<Property> elements = descriptionModel.get(ATTRIBUTES).asPropertyList();
 
-                for(Property element : elements)
+                for(Lookup lookup : fieldNames)
                 {
-                    String childName = element.getName();
-                    ModelNode value = element.getValue();
 
-                    for(Lookup lookup : fieldNames)
+                    for(Property element : elements)
                     {
+                        String childName = element.getName();
+                        ModelNode value = element.getValue();
+
                         if(lookup.getDetypedName().equals(childName))
                         {
                             FieldDesc desc = new FieldDesc(lookup.getJavaName(), value.get("description").asString());
@@ -235,8 +251,11 @@ public class HelpSystem {
                             if(!fields.contains(desc))
                                 fields.add(desc);
                         }
+
                     }
                 }
+
+
             }
 
             if(fieldNames.isEmpty())
