@@ -56,14 +56,22 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                ModelNode payload = response.get("result").asObject();
 
-                List<ConnectionFactory> factories = parseFactories(payload);
-                List<Queue> queues = parseQueues(payload);
-                List<JMSEndpoint> topics = parseTopics(payload);
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to load JMS endpoints:"+response.getFailureDescription()));
+                }
+                else
+                {
+                    ModelNode payload = response.get("result").asObject();
 
-                AggregatedJMSModel model = new AggregatedJMSModel(factories, queues, topics);
-                callback.onSuccess(model);
+                    List<ConnectionFactory> factories = parseFactories(payload);
+                    List<Queue> queues = parseQueues(payload);
+                    List<JMSEndpoint> topics = parseTopics(payload);
+
+                    AggregatedJMSModel model = new AggregatedJMSModel(factories, queues, topics);
+                    callback.onSuccess(model);
+                }
             }
         });
     }

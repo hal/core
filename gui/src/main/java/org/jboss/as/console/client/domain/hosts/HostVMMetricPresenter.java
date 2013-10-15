@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -128,7 +129,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error(Console.MESSAGES.failed("JVM Status "), caught.getMessage());
+                Log.error(caught.getMessage());
             }
 
             @Override

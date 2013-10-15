@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.jpa;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -181,7 +182,7 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
 
                 if(compositeResponse.isFailure())
                 {
-                    Console.error(Console.MESSAGES.failed("JPA Deployments"), compositeResponse.getFailureDescription());
+                    Log.error(Console.MESSAGES.failed("JPA Deployments"), compositeResponse.getFailureDescription());
                 }
                 else
                 {

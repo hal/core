@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -89,6 +90,12 @@ public class WebServiceRuntimePresenter
     private void loadEndpoints() {
 
         endpointRegistry.create().refreshEndpoints(new SimpleCallback<List<WebServiceEndpoint>>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(List<WebServiceEndpoint> result) {
                 getView().updateEndpoints(result);

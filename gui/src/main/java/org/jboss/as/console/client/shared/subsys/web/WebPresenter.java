@@ -122,7 +122,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
         containerAdapter =
                 new EntityAdapter<JSPContainerConfiguration>(JSPContainerConfiguration.class, metaData);
 
-        this.loadConnectorCmd = new LoadConnectorCmd(dispatcher, factory);
+        this.loadConnectorCmd = new LoadConnectorCmd(dispatcher, factory, false);
         this.socketBinding = new LoadSocketBindingsCmd(dispatcher);
     }
 

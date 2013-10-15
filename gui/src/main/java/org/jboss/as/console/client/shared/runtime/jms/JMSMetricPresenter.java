@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -131,6 +132,12 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         address.add("hornetq-server", "default");
 
         loadJMSCmd.execute(address, new SimpleCallback<AggregatedJMSModel>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(AggregatedJMSModel result) {
                 getView().setTopics(result.getTopics());

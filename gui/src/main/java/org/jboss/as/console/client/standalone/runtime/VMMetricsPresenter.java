@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -8,6 +9,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -88,7 +90,13 @@ public class VMMetricsPresenter
 
         getView().clearSamples();
 
-        loadMetricCmd.execute(new SimpleCallback<CompositeVMMetric>() {
+        loadMetricCmd.execute(new AsyncCallback<CompositeVMMetric>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.warning(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(CompositeVMMetric result) {
 

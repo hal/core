@@ -185,7 +185,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                 //callback.onFailure(new RuntimeException("Failed to create security context for "+id, caught));
 
-                Console.warning("Failed to create security context for "+id+ ", fallback to temporary read-only context", caught.getMessage());
+                Log.error("Failed to create security context for "+id+ ", fallback to temporary read-only context", caught.getMessage());
                 contextMapping.put(id, READ_ONLY);
                 callback.onSuccess(READ_ONLY);
             }
@@ -204,7 +204,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
                 if(response.isFailure())
                 {
-                    Console.warning(
+                    Log.error(
                             "Failed to retrieve access control meta data, " +
                                     "fallback to temporary read-only context: ",
                             response.getFailureDescription());

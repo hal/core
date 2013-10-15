@@ -111,7 +111,7 @@ public class LoadJVMMetricsCmd extends AddressableModelCmd implements AsyncComma
 
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Error loading VM metrics", caught.getMessage());
+                Console.warning("Error loading VM metrics", caught.getMessage());
             }
 
             @Override
@@ -122,7 +122,11 @@ public class LoadJVMMetricsCmd extends AddressableModelCmd implements AsyncComma
 
                 CompositeVMMetric metric = new CompositeVMMetric();
 
-                if(ModelAdapter.wasSuccess(response))
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Error loading VM metrics: "+response.getFailureDescription()));
+                }
+                else
                 {
                     // memory
                     ModelNode memory  = steps.get("step-1").get(RESULT);
@@ -158,15 +162,8 @@ public class LoadJVMMetricsCmd extends AddressableModelCmd implements AsyncComma
 
                     callback.onSuccess(metric);
 
-
                 }
-                else
-                {
-                    callback.onFailure(new RuntimeException("The server doesn't seem to be running: "+address));
-                    Log.error("Failed to load server status: "+ response.getFailureDescription());
 
-                    //callback.onFailure(new RuntimeException("Failed to load VM metrics: "+response.toString()));
-                }
             }
         });
     }

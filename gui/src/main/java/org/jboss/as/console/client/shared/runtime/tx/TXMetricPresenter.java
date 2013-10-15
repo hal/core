@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.tx;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -74,12 +75,12 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
 
     @Override
     public void onServerSelectionChanged(boolean isRunning) {
-         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 if(isVisible()) refresh();
             }
-         });
+        });
     }
 
     @Override
@@ -114,22 +115,29 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
 
-                TransactionManager metrics = entityAdapter.fromDMR(result.get(RESULT));
+                if(result.isFailure())
+                {
+                    Log.error("Failed to load TX metrics: "+ result.getFailureDescription());
+                }
+                else
+                {
 
-                getView().setTxMetric(new Metric(
-                        metrics.getNumTransactions(),
-                        metrics.getNumCommittedTransactions(),
-                        metrics.getNumAbortedTransactions(),
-                        metrics.getNumTimeoutTransactions()
-                        ));
+                    TransactionManager metrics = entityAdapter.fromDMR(result.get(RESULT));
 
-                getView().setRollbackMetric(new Metric(
-                        metrics.getNumApplicationRollback(),
-                        metrics.getNumResourceRollback()
-                ));
+                    getView().setTxMetric(new Metric(
+                            metrics.getNumTransactions(),
+                            metrics.getNumCommittedTransactions(),
+                            metrics.getNumAbortedTransactions(),
+                            metrics.getNumTimeoutTransactions()
+                    ));
+
+                    getView().setRollbackMetric(new Metric(
+                            metrics.getNumApplicationRollback(),
+                            metrics.getNumResourceRollback()
+                    ));
 
 
-                //provideRandomMetrics();
+                }
 
             }
         });

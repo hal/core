@@ -28,6 +28,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.HasRows;
@@ -138,7 +139,7 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
         if (groups == null || groups.isEmpty())
         {
             // no server/groups available ...
-            Hint blank = new Hint(Console.MESSAGES.topology_no_server());
+            HTML blank = new HTML("There don't seem to be any servers configured on this system.");
             container.clear();
             container.insert(blank, 0);
             return;

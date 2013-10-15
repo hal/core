@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.naming;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
@@ -131,24 +132,31 @@ public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
-                ModelNode model = result.get(RESULT);
 
-                CellTree cellTree = null;
-                JndiTreeParser parser = new JndiTreeParser();
-                if(model.hasDefined("java: contexts"))
-                    cellTree = parser.parse(model.get("java: contexts").asPropertyList());
-
-                if(model.hasDefined("applications")) {
-                    ModelNode tempParent = new ModelNode();
-                    ModelNode apps = model.get("applications");
-                    tempParent.get("applications").set(apps);
-                    cellTree = parser.parse(tempParent.asPropertyList());
+                if(result.isFailure())
+                {
+                    Log.error("Failed to load JNDI: "+ result.getFailureDescription());
                 }
-
-                if(cellTree != null)
-                    getView().setJndiTree(cellTree, parser.getSelectionModel());
                 else
-                    Console.error(Console.MESSAGES.subsys_naming_failedToLoadJNDIView());
+                {
+                    ModelNode model = result.get(RESULT);
+
+                    CellTree cellTree = null;
+                    JndiTreeParser parser = new JndiTreeParser();
+                    if(model.hasDefined("java: contexts"))
+                        cellTree = parser.parse(model.get("java: contexts").asPropertyList());
+
+                    if(model.hasDefined("applications")) {
+                        ModelNode tempParent = new ModelNode();
+                        ModelNode apps = model.get("applications");
+                        tempParent.get("applications").set(apps);
+                        cellTree = parser.parse(tempParent.asPropertyList());
+                    }
+
+                    if(cellTree != null)
+                        getView().setJndiTree(cellTree, parser.getSelectionModel());
+
+                }
             }
         });
     }

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
@@ -39,7 +40,7 @@ public class LoadDataSourceCmd implements AsyncCommand<List<DataSource>>{
     }
 
     public void execute(final AsyncCallback<List<DataSource>> callback, boolean isXA) {
-        ModelNode address = RuntimeBaseAddress.get();
+        final ModelNode address = RuntimeBaseAddress.get();
         address.add("subsystem", "datasources");
 
         String subresource = isXA ? "xa-data-source": "data-source";
@@ -55,8 +56,16 @@ public class LoadDataSourceCmd implements AsyncCommand<List<DataSource>>{
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response  = result.get();
-                List<DataSource> datasources = adapter.fromDMRList(response.get(RESULT).asList());
-                callback.onSuccess(datasources);
+
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to read DS metrics: "+ response.getFailureDescription()));
+                }
+                else
+                {
+                    List<DataSource> datasources = adapter.fromDMRList(response.get(RESULT).asList());
+                    callback.onSuccess(datasources);
+                }
             }
         });
     }

@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.env;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -25,6 +26,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
@@ -82,8 +84,8 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
 
     @Inject
     public EnvironmentPresenter(final EventBus eventBus, final MyView view,
-            final MyProxy proxy, final DispatchAsync dispatcher, final BeanFactory factory,
-            final RevealStrategy revealStrategy, final BootstrapContext bootstrap)
+                                final MyProxy proxy, final DispatchAsync dispatcher, final BeanFactory factory,
+                                final RevealStrategy revealStrategy, final BootstrapContext bootstrap)
     {
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
@@ -137,16 +139,25 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
             public void onSuccess(DMRResponse result)
             {
                 ModelNode response = result.get();
-                List<Property> properties = response.get(RESULT).asPropertyList();
-                List<PropertyRecord> environment = new ArrayList<PropertyRecord>(properties.size());
-                for (Property property : properties)
+
+                if(response.isFailure())
                 {
-                    PropertyRecord model = factory.property().as();
-                    model.setKey(property.getName());
-                    model.setValue(property.getValue().asString());
-                    environment.add(model);
+                    Log.error("Failed to read environment properties: "+ response.getFailureDescription());
                 }
-                getView().setEnvironment(environment);
+                else
+                {
+
+                    List<Property> properties = response.get(RESULT).asPropertyList();
+                    List<PropertyRecord> environment = new ArrayList<PropertyRecord>(properties.size());
+                    for (Property property : properties)
+                    {
+                        PropertyRecord model = factory.property().as();
+                        model.setKey(property.getName());
+                        model.setValue(property.getValue().asString());
+                        environment.add(model);
+                    }
+                    getView().setEnvironment(environment);
+                }
             }
         });
     }

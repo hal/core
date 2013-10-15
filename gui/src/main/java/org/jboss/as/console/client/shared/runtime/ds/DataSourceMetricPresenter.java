@@ -5,6 +5,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 import java.util.Collections;
 import java.util.List;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -110,6 +111,12 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
 
         // Regular Datasources
         loadDSCmd.execute(new SimpleCallback<List<DataSource>>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(List<DataSource> result) {
                 getView().setDatasources(result, false);
@@ -118,6 +125,12 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
 
         // XA Data Sources
         loadDSCmd.execute(new SimpleCallback<List<DataSource>>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(List<DataSource> result) {
                 getView().setDatasources(result, true);

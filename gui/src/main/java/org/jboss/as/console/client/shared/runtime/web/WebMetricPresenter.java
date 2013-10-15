@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.web;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -70,7 +71,7 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.factory = factory;
-        this.cmd = new LoadConnectorCmd(dispatcher, factory);
+        this.cmd = new LoadConnectorCmd(dispatcher, factory, true);
     }
 
     public void setSelectedConnector(HttpConnector selection) {
@@ -97,6 +98,12 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
         getView().setConnectors(Collections.EMPTY_LIST);
 
         cmd.execute(new SimpleCallback<List<HttpConnector>>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Log.error(caught.getMessage());
+            }
+
             @Override
             public void onSuccess(List<HttpConnector> result) {
                 getView().setConnectors(result);
@@ -127,7 +134,7 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
 
                 if(response.isFailure())
                 {
-                    Console.error(Console.MESSAGES.failed("Web Metrics"), response.getFailureDescription());
+                    Log.error(Console.MESSAGES.failed("Web Metrics"), response.getFailureDescription());
                 }
                 else
                 {

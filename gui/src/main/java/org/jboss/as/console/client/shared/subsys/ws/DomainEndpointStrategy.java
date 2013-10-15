@@ -88,7 +88,7 @@ public class DomainEndpointStrategy extends BaseRegistry implements EndpointStra
 
                 if(compositeResponse.isFailure())
                 {
-                    callback.onFailure(new RuntimeException(compositeResponse.getFailureDescription()));
+                    callback.onFailure(new RuntimeException("Failed to load endpoints: "+compositeResponse.getFailureDescription()));
                 }
                 else
                 {
