@@ -956,6 +956,14 @@ public interface UIConstants extends Constants {
 
     String common_label_recover();
 
+    String administration_assignment_user_group_desc();
+
+    String administration_assignment_realm_desc();
+
+    String administration_assignment_type_desc();
+
+    String administration_assignment_roles_desc();
+
     String administration_audit_log_desc();
 
     String administration_add_scoped_role();
@@ -963,6 +971,12 @@ public interface UIConstants extends Constants {
     String administration_standard_roles_desc();
 
     String administration_scoped_roles_desc();
+
+    String administration_scoped_role_base_role_desc();
+
+    String administration_scoped_role_scope_desc();
+
+    String administration_role_include_all_desc();
 
     String administration_group_assignment();
 

@@ -21,7 +21,10 @@ package org.jboss.as.console.client.administration.role.ui;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.TextResource;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 
 /**
@@ -29,15 +32,22 @@ import org.jboss.as.console.client.shared.help.StaticHelpPanel;
  */
 public class ScopedRoleHelpPanel extends StaticHelpPanel {
 
-    final static Resources RESOURCES = GWT.create(Resources.class);
+    final static Templates TEMPLATES = GWT.create(Templates.class);
 
     public ScopedRoleHelpPanel() {
-        super(new SafeHtmlBuilder().appendHtmlConstant(RESOURCES.help().getText()).toSafeHtml());
+        super(new SafeHtmlBuilder().append(TEMPLATES.help(
+                Console.CONSTANTS.administration_scoped_role_base_role_desc(),
+                Console.CONSTANTS.administration_scoped_role_scope_desc(),
+                Console.CONSTANTS.administration_role_include_all_desc())).toSafeHtml());
     }
 
-    interface Resources extends ClientBundle {
+    interface Templates extends SafeHtmlTemplates {
 
-        @Source("ScopedRoleHelp.html")
-        TextResource help();
+        @Template("<table style=\"vertical-align:top\" cellpadding=\"3\">" +
+                "<tr><td>Base Role</td><td>{0}</td></tr>" +
+                "<tr><td>Scope</td><td>{1}</td></tr>" +
+                "<tr><td>Include All</td><td>{2}</td></tr>" +
+                "</table>")
+        SafeHtml help(String baseRoleDesc, String scopeDesc, String includeAllDesc);
     }
 }
