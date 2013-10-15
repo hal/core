@@ -29,6 +29,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
@@ -72,7 +73,7 @@ public class RolesFormItem extends FormItem<List<Role>> {
     public Widget asWidget() {
         // table
         DefaultCellTable<Role> table = new DefaultCellTable<Role>(pageSize, keyProvider);
-        table.setSelectionModel(selectionModel);
+        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Role>createCheckboxManager());
         dataProvider.addDataDisplay(table);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -91,14 +92,12 @@ public class RolesFormItem extends FormItem<List<Role>> {
                 return selectionModel.isSelected(role);
             }
         };
-        TextColumn<Role> nameColumn = new
-
-                TextColumn<Role>() {
-                    @Override
-                    public String getValue(Role role) {
-                        return role.getName();
-                    }
-                };
+        TextColumn<Role> nameColumn = new TextColumn<Role>() {
+            @Override
+            public String getValue(Role role) {
+                return role.getName();
+            }
+        };
         table.addColumn(checkColumn, SafeHtmlUtils.fromSafeConstant("<br/>"));
         table.setColumnWidth(checkColumn, 40, PX);
         table.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
