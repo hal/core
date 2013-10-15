@@ -99,6 +99,9 @@ public class ServerGroupLifecycleCallback extends SimpleCallback<Boolean>
                                                 Console.MODULES.getEventBus().fireEvent(
                                                         new StaleModelEvent(StaleModelEvent.SERVER_GROUPS)
                                                 );
+                                                Console.MODULES.getEventBus().fireEvent(
+                                                        new StaleModelEvent(StaleModelEvent.SERVER_INSTANCES)
+                                                );
                                             }
                                             callback.onSuccess(keepPolling);
                                         }
