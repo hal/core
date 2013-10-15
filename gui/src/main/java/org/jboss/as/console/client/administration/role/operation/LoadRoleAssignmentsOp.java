@@ -108,6 +108,13 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
             operation.get(OP).set(COMPOSITE);
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
+            // standard role names
+            ModelNode standardRoles = new ModelNode();
+            standardRoles.get(OP).set(READ_ATTRIBUTE_OPERATION);
+            standardRoles.get(NAME).set("standard-role-names");
+            standardRoles.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+            steps.add(standardRoles);
+
             if (!presenter.isStandalone()) {
                 ModelNode hostScopeOp = new ModelNode();
                 hostScopeOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
@@ -154,19 +161,30 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
                         ModelNode stepsResult = result.get(RESULT);
 
                         // the order of processing is important!
+                        ModelNode standardRoleNames = stepsResult.get("step-1");
+                        if (standardRoleNames.get(RESULT).isDefined()) {
+                            for (ModelNode node : standardRoleNames.get(RESULT).asList()) {
+                                StandardRole.add(node.asString());
+                            }
+                            for (StandardRole standardRole : StandardRole.values()) {
+                                roles.add(new Role(standardRole));
+                            }
+                        }
+
                         if (!presenter.isStandalone()) {
-                            List<ModelNode> hostScopedRoles = stepsResult.get("step-1").get(RESULT).asList();
+                            List<ModelNode> hostScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
                             for (ModelNode node : hostScopedRoles) {
                                 addScopedRole(roles, node.asProperty(), "hosts", HOST);
                             }
 
-                            List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-2").get(RESULT).asList();
+                            List<ModelNode> serverGroupScopedRoles = stepsResult.get("step-3").get(RESULT).asList();
                             for (ModelNode node : serverGroupScopedRoles) {
                                 addScopedRole(roles, node.asProperty(), "server-groups", SERVER_GROUP);
                             }
                         }
-                        List<ModelNode> roleMappings = stepsResult.get(presenter.isStandalone() ? "step-1" : "step-3").get(RESULT)
-                                .asList();
+                        List<ModelNode> roleMappings =
+                                stepsResult.get(presenter.isStandalone() ? "step-2" : "step-4").get(RESULT)
+                                        .asList();
                         for (ModelNode node : roleMappings) {
                             addInternalRoleAssignment(principals, assignments, roles, node.asProperty());
                         }
@@ -176,7 +194,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<Map<LoadRoleAs
 
                         if (!presenter.isInitialized()) {
                             String provider = "undefined";
-                            String step = presenter.isStandalone() ? "step-2" : "step-4";
+                            String step = presenter.isStandalone() ? "step-3" : "step-5";
                             ModelNode providerNode = stepsResult.get(step);
                             if (!providerNode.isFailure()) {
                                 provider = providerNode.get(RESULT).asString();

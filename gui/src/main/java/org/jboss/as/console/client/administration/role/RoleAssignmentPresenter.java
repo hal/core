@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -160,8 +161,9 @@ public class RoleAssignmentPresenter
                     // show warning about simple access control provider (if not already done)
                     if (!initialized) {
                         String acp = (String) context.get(Results.ACCESS_CONTROL_PROVIDER);
-                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {openWindow("Access Control Provider", 480, 200,
-                                new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
+                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
+                            openWindow("Access Control Provider", 480, 200,
+                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
                         }
                     }
                     initialized = true;

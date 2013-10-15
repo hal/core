@@ -55,7 +55,9 @@ public class StandardRoleFormItem extends FormItem<StandardRole> {
         });
         wrapper = new InputElementWrapper(listBox.asWidget(), this);
         wrapper.getElement().setAttribute("style", "width:100%");
+    }
 
+    public void setValues() {
         for (StandardRole role : StandardRole.values()) {
             listBox.addItem(role.getId(), role.getId());
         }
@@ -64,8 +66,13 @@ public class StandardRoleFormItem extends FormItem<StandardRole> {
 
     @Override
     public StandardRole getValue() {
-        final String value = listBox.getValue(listBox.getSelectedIndex());
-        return StandardRole.fromId(value);
+        final int selectedIndex = listBox.getSelectedIndex();
+        if (selectedIndex == -1) {
+            return null;
+        } else {
+            final String value = listBox.getValue(selectedIndex);
+            return StandardRole.fromId(value);
+        }
     }
 
     @Override

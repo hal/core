@@ -38,6 +38,7 @@ import org.jboss.as.console.client.tools.Tool;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.ListBoxItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -71,7 +72,7 @@ public class RunAsRoleTool implements Tool {
     }
 
     private void setupWindow() {
-        initRoles(Collections.EMPTY_SET, Collections.EMPTY_SET);
+        initRoles(Collections.<String>emptySet(), Collections.<String>emptySet());
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("window-content");
@@ -79,14 +80,17 @@ public class RunAsRoleTool implements Tool {
         panel.add(new ContentHeaderLabel("Select Role"));
         panel.add(new ContentDescription("Select the role you want to act on their behalf."));
 
-        Form<Object> form = new Form<Object>(Object.class);
+        final Form<Object> form = new Form<Object>(Object.class);
         form.setFields(role);
         panel.add(form.asWidget());
 
         ClickHandler runAsHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                runAs(role.getValue());
+                final FormValidation validation = form.validate();
+                if (!validation.hasErrors()) {
+                    runAs(role.getValue());
+                }
             }
         };
         ClickHandler cancelHandler = new ClickHandler() {
@@ -125,7 +129,7 @@ public class RunAsRoleTool implements Tool {
             return;
         }
 
-        if (!role.equals("No preselection")) {
+        if (role.length() != 0 && !role.equals("No preselection")) {
             Preferences.set(RUN_AS_ROLE, role); // temporary, see console bootstrap : clears the pref again
         }
 

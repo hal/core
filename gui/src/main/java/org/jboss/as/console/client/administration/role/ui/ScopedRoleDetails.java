@@ -110,6 +110,7 @@ public class ScopedRoleDetails implements IsWidget {
             final Role selectedRole) {
         this.hosts = hosts;
         this.serverGroups = serverGroups;
+        baseRoleItem.setValues();
         if (scopedRoles.isEmpty()) {
             form.clearValues();
         } else {

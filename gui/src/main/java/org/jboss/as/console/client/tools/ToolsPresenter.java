@@ -23,6 +23,7 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
+import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -35,6 +36,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -153,14 +156,20 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
                 runAsRoleTool = new RunAsRoleTool();
             }
 
-            if(!Console.MODULES.getBootstrapContext().isStandalone())
+            final ModelNode operation = new ModelNode();
+            operation.get(OP).set(COMPOSITE);
+            operation.get(ADDRESS).setEmptyList();
+            final List<ModelNode> steps = new LinkedList<ModelNode>();
+
+            ModelNode s = new ModelNode();
+            s.get(OP).set(READ_ATTRIBUTE_OPERATION);
+            s.get(NAME).set("standard-role-names");
+            s.get(ADDRESS).add("core-service", "management").add("access", "authorization");
+            steps.add(s);
+
+            final boolean domain = !Console.MODULES.getBootstrapContext().isStandalone();
+            if (domain)
             {
-                final ModelNode operation = new ModelNode();
-                operation.get(OP).set(COMPOSITE);
-                operation.get(ADDRESS).setEmptyList();
-
-                final List<ModelNode> steps = new LinkedList<ModelNode>();
-
                 ModelNode sg = new ModelNode();
                 sg.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
                 sg.get(ADDRESS).add("core-service", "management");
@@ -175,58 +184,59 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
                 h.get(CHILD_TYPE).set("host-scoped-role");
                 steps.add(h);
 
-                operation.get(STEPS).set(steps);
+            }
+            operation.get(STEPS).set(steps);
 
-                // In case we're already in "Run As"-mode the next DMR op will fail.
-                // So temporarily disable run as for the next call
-                final String runAs = Console.getBootstrapContext().getRunAs();
-                if (runAs != null) {
-                    dispatcher.clearProperty("run_as");
-                }
-                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-                    @Override
-                    public void onSuccess(DMRResponse result) {
-                        restoreRunAs();
+            // In case we're already in "Run As"-mode the next DMR op will fail.
+            // So temporarily disable run as for the next call
+            final String runAs = Console.getBootstrapContext().getRunAs();
+            if (runAs != null) {
+                dispatcher.clearProperty("run_as");
+            }
+            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+                @Override
+                public void onSuccess(DMRResponse result) {
+                    restoreRunAs();
 
-                        Set<String> serverGroupScoped = new HashSet<String>();
-                        Set<String> hostScoped = new HashSet<String>();
+                    Set<String> serverGroupScoped = new HashSet<String>();
+                    Set<String> hostScoped = new HashSet<String>();
 
-                        ModelNode compositeResponse = result.get();
+                    ModelNode compositeResponse = result.get();
 
-                        List<ModelNode> serverGroupRoles = compositeResponse.get(RESULT).get("step-1").get(RESULT).asList();
+                    List<ModelNode> standardRoles= compositeResponse.get(RESULT).get("step-1").get(RESULT).asList();
+                    for (ModelNode node : standardRoles) {
+                        StandardRole.add(node.asString());
+                    }
+
+                    if (domain) {
+                        List<ModelNode> serverGroupRoles = compositeResponse.get(RESULT).get("step-2").get(RESULT).asList();
                         for(ModelNode role : serverGroupRoles)
                         {
                             serverGroupScoped.add(role.asString());
                         }
 
-                        List<ModelNode> hostRoles = compositeResponse.get(RESULT).get("step-2").get(RESULT).asList();
+                        List<ModelNode> hostRoles = compositeResponse.get(RESULT).get("step-3").get(RESULT).asList();
                         for(ModelNode role : hostRoles)
                         {
                             hostScoped.add(role.asString());
                         }
-
-                        runAsRoleTool.setScopedRoles(serverGroupScoped, hostScoped);
-                        runAsRoleTool.launch();
                     }
+                    runAsRoleTool.setScopedRoles(serverGroupScoped, hostScoped);
+                    runAsRoleTool.launch();
+                }
 
-                    @Override
-                    public void onFailure(final Throwable caught) {
-                        restoreRunAs();
-                        super.onFailure(caught);
-                    }
+                @Override
+                public void onFailure(final Throwable caught) {
+                    restoreRunAs();
+                    super.onFailure(caught);
+                }
 
-                    private void restoreRunAs() {
-                        if (runAs != null) {
-                            dispatcher.setProperty("run_as", runAs);
-                        }
+                private void restoreRunAs() {
+                    if (runAs != null) {
+                        dispatcher.setProperty("run_as", runAs);
                     }
-                });
-            }
-            else
-            {
-                // standalone mode
-                runAsRoleTool.launch();
-            }
+                }
+            });
         }
     }
 }

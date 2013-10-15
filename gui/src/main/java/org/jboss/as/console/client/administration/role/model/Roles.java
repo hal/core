@@ -43,9 +43,6 @@ public class Roles implements Iterable<Role> {
         this.lookup = new HashMap<String, Role>();
         this.standardRoles = new TreeSet<Role>(new RoleComparator());
         this.scopedRoles = new TreeSet<Role>(new RoleComparator());
-        for (StandardRole standardRole : StandardRole.values()) {
-            add(new Role(standardRole));
-        }
     }
 
     public void add(Role role) {

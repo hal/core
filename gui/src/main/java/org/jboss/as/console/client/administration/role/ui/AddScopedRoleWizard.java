@@ -68,6 +68,7 @@ public class AddScopedRoleWizard implements IsWidget {
         final PojoForm<Role> form = new PojoForm<Role>();
         final TextBoxItem nameItem = new TextBoxItem("name", "Name");
         final StandardRoleFormItem baseRoleItem = new StandardRoleFormItem("baseRole", "Base Role");
+        baseRoleItem.setValues();
         final EnumFormItem<Role.Type> typeItem = new EnumFormItem<Role.Type>("type", "Type");
         typeItem.setDefaultToFirst(true);
         typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
