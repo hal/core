@@ -12,6 +12,7 @@ import org.jboss.gwt.flow.client.Function;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The main function of this bootstrap step is to provide a host preselection.
@@ -55,7 +56,7 @@ public class EagerLoadHosts implements Function<BootstrapContext> {
                         context.setHostManagementDisabled(true);
                     }
 
-                    Set<String> hosts = new HashSet<String>(hostList.getHosts().size());
+                    Set<String> hosts = new TreeSet<String>();
                     for(Host host : hostList.getHosts()) hosts.add(host.getName());
                     control.getContext().setAddressableHosts(hosts);
                     control.proceed();

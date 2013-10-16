@@ -10,6 +10,7 @@ import org.jboss.gwt.flow.client.Function;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class EagerLoadGroups implements Function<BootstrapContext> {
 
@@ -39,7 +40,7 @@ public class EagerLoadGroups implements Function<BootstrapContext> {
                         context.setGroupManagementDisabled(true);
                     }
 
-                    Set<String> groups = new HashSet<String>(result.size());
+                    Set<String> groups = new TreeSet<String>();
                     for(ServerGroupRecord group : result) groups.add(group.getName());
                     control.getContext().setAdressableGroups(groups);
                     control.proceed();

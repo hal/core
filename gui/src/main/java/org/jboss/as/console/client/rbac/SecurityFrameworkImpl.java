@@ -353,7 +353,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             if(accessControl.hasDefined(EXCEPTIONS))
             {
 
-                // TODO: API V3
+                // TODO: API V3 -> https://issues.jboss.org/browse/HAL-259
 
                 /*for(Property exception : accessControl.get(EXCEPTIONS).asPropertyList())
                 {
