@@ -12,7 +12,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -97,7 +97,7 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
 
         getView().setConnectors(Collections.EMPTY_LIST);
 
-        cmd.execute(new SimpleCallback<List<HttpConnector>>() {
+        cmd.execute(new LoggingCallback<List<HttpConnector>>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -127,7 +127,7 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();

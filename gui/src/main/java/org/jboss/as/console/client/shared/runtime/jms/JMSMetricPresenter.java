@@ -12,7 +12,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -131,7 +131,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         address.add("subsystem", "messaging");
         address.add("hornetq-server", "default");
 
-        loadJMSCmd.execute(address, new SimpleCallback<AggregatedJMSModel>() {
+        loadJMSCmd.execute(address, new LoggingCallback<AggregatedJMSModel>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -161,7 +161,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -216,7 +216,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -286,7 +286,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
 
         operation.get(OP).set("remove-messages");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -314,7 +314,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
 
         operation.get(OP).set("remove-messages");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();

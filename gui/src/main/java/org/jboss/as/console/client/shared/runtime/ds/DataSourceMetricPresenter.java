@@ -18,7 +18,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -110,7 +110,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
         getView().setDatasources(Collections.EMPTY_LIST, false);
 
         // Regular Datasources
-        loadDSCmd.execute(new SimpleCallback<List<DataSource>>() {
+        loadDSCmd.execute(new LoggingCallback<List<DataSource>>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -124,7 +124,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
         }, false);
 
         // XA Data Sources
-        loadDSCmd.execute(new SimpleCallback<List<DataSource>>() {
+        loadDSCmd.execute(new LoggingCallback<List<DataSource>>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -203,7 +203,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -250,7 +250,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();

@@ -30,7 +30,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -133,7 +133,7 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
         operation.get(OP).set(READ_ATTRIBUTE_OPERATION);
         operation.get(NAME).set("system-properties");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>()
         {
             @Override
             public void onSuccess(DMRResponse result)

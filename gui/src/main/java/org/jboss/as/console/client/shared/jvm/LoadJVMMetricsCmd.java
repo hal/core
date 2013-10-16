@@ -1,24 +1,21 @@
 package org.jboss.as.console.client.shared.jvm;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.util.AddressableModelCmd;
-import org.jboss.dmr.client.dispatch.AsyncCommand;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.jvm.model.CompositeVMMetric;
 import org.jboss.as.console.client.shared.jvm.model.HeapMetric;
 import org.jboss.as.console.client.shared.jvm.model.OSMetric;
 import org.jboss.as.console.client.shared.jvm.model.RuntimeMetric;
 import org.jboss.as.console.client.shared.jvm.model.ThreadMetric;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
+import org.jboss.as.console.client.shared.util.AddressableModelCmd;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.AsyncCommand;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,12 +104,7 @@ public class LoadJVMMetricsCmd extends AddressableModelCmd implements AsyncComma
 
         composite.get(STEPS).set(steps);
 
-        dispatcher.execute(new DMRAction(composite), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.warning("Error loading VM metrics", caught.getMessage());
-            }
+        dispatcher.execute(new DMRAction(composite), new LoggingCallback<DMRResponse>() {
 
             @Override
             public void onSuccess(DMRResponse result) {

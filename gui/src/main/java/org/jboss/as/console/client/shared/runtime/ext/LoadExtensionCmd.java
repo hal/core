@@ -3,7 +3,7 @@ package org.jboss.as.console.client.shared.runtime.ext;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.settings.ModelVersions;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -43,7 +43,7 @@ public class LoadExtensionCmd implements AsyncCommand<List<Extension>>{
         fetchExtensions.get(CHILD_TYPE).set("extension");
         fetchExtensions.get(RECURSIVE).set(true);
 
-        dispatcher.execute(new DMRAction(fetchExtensions), new SimpleCallback<DMRResponse>()
+        dispatcher.execute(new DMRAction(fetchExtensions), new LoggingCallback<DMRResponse>()
         {
             @Override
             public void onFailure(Throwable caught) {
@@ -129,7 +129,7 @@ public class LoadExtensionCmd implements AsyncCommand<List<Extension>>{
         operation.get(STEPS).set(steps);
 
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
@@ -144,7 +144,7 @@ public class LoadExtensionCmd implements AsyncCommand<List<Extension>>{
 
                 //System.out.println("Core Management version:"+coreVersion);
 
-                LoadExtensionCmd.this.execute(new SimpleCallback<List<Extension>>() {
+                LoadExtensionCmd.this.execute(new LoggingCallback<List<Extension>>() {
                     @Override
                     public void onSuccess(List<Extension> extensions) {
 

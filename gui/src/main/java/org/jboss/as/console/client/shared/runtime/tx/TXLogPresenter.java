@@ -10,7 +10,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -123,7 +123,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(CHILD_TYPE).set("transactions");
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
@@ -172,7 +172,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(CHILD_TYPE).set("participants");
         operation.get(INCLUDE_RUNTIME).set(true);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
@@ -213,7 +213,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(ADDRESS).set(address);
         operation.get(OP).set("delete");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
@@ -243,7 +243,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(ADDRESS).set(address);
         operation.get(OP).set("refresh");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
@@ -271,7 +271,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(ADDRESS).set(address);
         operation.get(OP).set("recover");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
@@ -297,7 +297,7 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
         operation.get(ADDRESS).set(address);
         operation.get(OP).set("probe");
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();

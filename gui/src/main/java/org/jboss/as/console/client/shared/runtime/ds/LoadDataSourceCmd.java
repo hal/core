@@ -2,7 +2,7 @@ package org.jboss.as.console.client.shared.runtime.ds;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -50,7 +50,7 @@ public class LoadDataSourceCmd implements AsyncCommand<List<DataSource>>{
         operation.get(ADDRESS).set(address);
         operation.get(CHILD_TYPE).set(subresource);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
 
             @Override
             public void onSuccess(DMRResponse result) {
