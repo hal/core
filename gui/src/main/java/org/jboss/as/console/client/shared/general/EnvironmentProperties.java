@@ -68,7 +68,6 @@ public class EnvironmentProperties {
         sortHandler.setComparator(keyColumn, new Comparator<PropertyRecord>() {
             @Override
             public int compare(PropertyRecord o1, PropertyRecord o2) {
-                System.out.println("key1 = " + o1.getKey() + " / key2 = " + o2.getKey());
                 return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
             }
         });
@@ -151,6 +150,12 @@ public class EnvironmentProperties {
 
         List<PropertyRecord> propList = propertyProvider.getList();
         propList.clear(); // cannot call setList() as that breaks the sort handler
+        Collections.sort(environment, new Comparator<PropertyRecord>() {
+            @Override
+            public int compare(PropertyRecord o1, PropertyRecord o2) {
+                return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+            }
+        });
         propList.addAll(environment);
 
         // Make sure the new values are properly sorted
