@@ -90,7 +90,37 @@ public class Vfs {
 
     }
 
-    public void save(Entry entry, byte[] contents) {
+    public void save(final Entry entry, String  contents, final AsyncCallback<Boolean> callback) {
+
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, entry.getLink());
+        requestBuilder.setHeader(METHOD_OVERRIDE, PUT);
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+
+                if (200 == response.getStatusCode()) {
+
+                    callback.onSuccess(true);
+                } else {
+                    callback.onFailure(
+                            new RuntimeException("Request failed " + entry.getLink() + ", status=" + response.getStatusCode() + ":" + response.getStatusText())
+                    );
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Console.error("Failed: " + exception.getMessage());
+            }
+        };
+
+
+        try {
+            requestBuilder.sendRequest(contents, requestCallback);
+        } catch (RequestException e) {
+            throw new RuntimeException("VFS Error: "+ e.getMessage());
+
+        }
 
     }
 

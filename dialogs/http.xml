@@ -1,112 +1,107 @@
 <dialog xmlns="http://undertow.org" id="http-server">
-
-		<editorpanel id="httpServer" operator="Choice">
-			<pages id="listener" operator="Choice" label="Listener">
-
-                <container xmlns="http://undertow.org/listener/http" id="listeners" operator="Concurrency" label="HTTP">
-					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
-						<attribute name="entity.key"/>
-						<attribute name="enabled"/>
-					</dmr>
-					<toolstrip id="httptools" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
-						<trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
-							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
-								<attribute name="entity.key"/>
-								<attribute name="enabled"/>
-							</dmr>
-						</trigger>
-						<trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
-					</toolstrip>
-					<select id="httpListener">
-						<dmr>
+	<editorpanel id="httpServer" label="httpServer" operator="Choice">
+		<pages id="listener" label="Listener" operator="Choice">
+			<container xmlns="http://undertow.org/listener/http" id="listeners" label="HTTP" operator="Concurrency">
+				<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
+					<attribute name="entity.key"/>
+					<attribute name="enabled"/>
+				</dmr>
+				<toolstrip id="httptools" label="httptools">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
+					<trigger id="add" label="Add" type="org.jboss.as:resource-operation#add">
+						<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
 							<attribute name="entity.key"/>
 							<attribute name="enabled"/>
 						</dmr>
-					</select>
-					<container id="undertow#httpListenerConfig" operator="Choice">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
-						<form id="undertow#httpListenerAttributes" operator="Concurrency" label="Attributes">
-							<dmr>
-								<attribute name="worker"/>
-								<attribute name="enabled"/>
-								<attribute name="socket-binding"/>
-								<attribute name="buffer-pool"/>
-							</dmr>
-						</form>
-					</container>
-				</container>
-
-				<container xmlns="http://undertow.org/listener/ajp" id="listeners" operator="Concurrency" label="AJP">
-					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
+					</trigger>
+					<trigger id="remove" label="Remove" type="org.jboss.as:resource-operation#remove"/>
+				</toolstrip>
+				<select id="httpListener" label="httpListener">
+					<dmr xmlns="htt://whildfly.org">
 						<attribute name="entity.key"/>
 						<attribute name="enabled"/>
 					</dmr>
-					<toolstrip id="ajptools" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
-						<trigger id="add" type="org.jboss.as:resource-operation#add">
-							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
-								<attribute name="entity.key"/>
-								<attribute name="enabled"/>
-							</dmr>
-						</trigger>
-						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-					</toolstrip>
-					<select id="ajpListener">
-						<dmr>
+				</select>
+				<container id="undertow#httpListenerConfig" label="undertow#httpListenerConfig" operator="Choice">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
+					<form id="undertow#httpListenerAttributes" label="Attributes" operator="Concurrency">
+						<dmr xmlns="htt://whildfly.org">
+							<attribute name="worker"/>
+							<attribute name="enabled"/>
+							<attribute name="socket-binding"/>
+							<attribute name="buffer-pool"/>
+						</dmr>
+					</form>
+				</container>
+			</container>
+			<container xmlns="http://undertow.org/listener/ajp" id="listeners" label="AJP" operator="Concurrency">
+				<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
+					<attribute name="entity.key"/>
+					<attribute name="enabled"/>
+				</dmr>
+				<toolstrip id="ajptools" label="ajptools">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
+					<trigger id="add" label="add" type="org.jboss.as:resource-operation#add">
+						<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
 							<attribute name="entity.key"/>
 							<attribute name="enabled"/>
 						</dmr>
-					</select>
-					<container id="undertow#ajpListenerConfig" operator="Choice">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
-						<form id="undertow#ajpListenerAttributes" operator="Concurrency" label="Attributes">
-							<dmr>
-								<attribute name="worker"/>
-								<attribute name="enabled"/>
-								<attribute name="socket-binding"/>
-								<attribute name="buffer-pool"/>
-							</dmr>
-						</form>
-					</container>
-				</container>
-
-				<container xmlns="http://undertow.org/listener/https" id="listeners" operator="Concurrency" label="HTTPS">
-					<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
+					</trigger>
+					<trigger id="remove" label="remove" type="org.jboss.as:resource-operation#remove"/>
+				</toolstrip>
+				<select id="ajpListener" label="ajpListener">
+					<dmr xmlns="htt://whildfly.org">
 						<attribute name="entity.key"/>
 						<attribute name="enabled"/>
 					</dmr>
-					<toolstrip id="httpstools" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
-						<trigger id="add" type="org.jboss.as:resource-operation#add">
-							<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
-								<attribute name="entity.key"/>
-								<attribute name="enabled"/>
-							</dmr>
-						</trigger>
-						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
-					</toolstrip>
-					<select id="httpsListener">
-						<dmr>
+				</select>
+				<container id="undertow#ajpListenerConfig" label="undertow#ajpListenerConfig" operator="Choice">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
+					<form id="undertow#ajpListenerAttributes" label="Attributes" operator="Concurrency">
+						<dmr xmlns="htt://whildfly.org">
+							<attribute name="worker"/>
+							<attribute name="enabled"/>
+							<attribute name="socket-binding"/>
+							<attribute name="buffer-pool"/>
+						</dmr>
+					</form>
+				</container>
+			</container>
+			<container xmlns="http://undertow.org/listener/https" id="listeners" label="HTTPS" operator="Concurrency">
+				<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
+					<attribute name="entity.key"/>
+					<attribute name="enabled"/>
+				</dmr>
+				<toolstrip id="httpstools" label="httpstools">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
+					<trigger id="add" label="add" type="org.jboss.as:resource-operation#add">
+						<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
 							<attribute name="entity.key"/>
 							<attribute name="enabled"/>
+						</dmr>
+					</trigger>
+					<trigger id="remove" label="remove" type="org.jboss.as:resource-operation#remove"/>
+				</toolstrip>
+				<select id="httpsListener" label="httpsListener">
+					<dmr xmlns="htt://whildfly.org">
+						<attribute name="entity.key"/>
+						<attribute name="enabled"/>
+						<attribute name="security-realm"/>
+					</dmr>
+				</select>
+				<container id="undertow#httpsListenerConfig" label="undertow#httpsListenerConfig" operator="Choice">
+					<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
+					<form id="undertow#httpsListenerAttributes" label="Attributes" operator="Concurrency">
+						<dmr xmlns="htt://whildfly.org">
+							<attribute name="worker"/>
+							<attribute name="enabled"/>
+							<attribute name="socket-binding"/>
+							<attribute name="buffer-pool"/>
 							<attribute name="security-realm"/>
 						</dmr>
-					</select>
-					<container id="undertow#httpsListenerConfig" operator="Choice">
-						<dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
-						<form id="undertow#httpsListenerAttributes" operator="Concurrency" label="Attributes">
-							<dmr>
-								<attribute name="worker"/>
-								<attribute name="enabled"/>
-								<attribute name="socket-binding"/>
-								<attribute name="buffer-pool"/>
-								<attribute name="security-realm"/>
-							</dmr>
-						</form>
-					</container>
+					</form>
 				</container>
-			</pages>
-		</editorpanel>
-
+			</container>
+		</pages>
+	</editorpanel>
 </dialog>

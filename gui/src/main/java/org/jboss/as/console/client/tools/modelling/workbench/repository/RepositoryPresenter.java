@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -74,6 +75,7 @@ public class RepositoryPresenter
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private Entry selectedDialog = null;
 
     public interface MyView extends View
     {
@@ -168,7 +170,7 @@ public class RepositoryPresenter
         window.center();
     }
 
-    public void onReify(String name)
+    public void onReify(final String name)
     {
 
         if(preview!=null)
@@ -183,21 +185,20 @@ public class RepositoryPresenter
             @Override
             public void onSuccess(Widget widget) {
 
-                doPreview(widget);
+                doPreview(widget, name);
                 kernel.activate();
                 kernel.reset();
             }
         });
     }
 
-    private void doPreview(Widget widget) {
+    private void doPreview(Widget widget, String name) {
 
         if(null==preview)
         {
-            preview = new DefaultWindow("Preview");
+            preview = new DefaultWindow("Preview: "+ name);
             preview.setWidth(640);
             preview.setHeight(480);
-
         }
 
         preview.setWidget(widget);
@@ -220,11 +221,29 @@ public class RepositoryPresenter
 
     @Override
     public void onSave(String xml) {
-        DialogXML parser = new DialogXML();
-        Dialog dialog = parser.unmarshall(xml);
 
-        Document document = parser.marshall(dialog);
-        getView().updateFile(document.toString());
+        if(null==selectedDialog) return;
+
+        try {
+            DialogXML parser = new DialogXML();
+
+            // validation
+            Dialog dialog = parser.unmarshall(xml);
+
+            final Document document = parser.marshall(dialog);
+
+            vfs.save(selectedDialog, ModelEditor.formatXml(document.toString()), new SimpleCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean result) {
+                    Console.info("Successfully saved "+selectedDialog.getName());
+                    getView().updateFile(document.toString());
+                }
+            });
+        } catch (Throwable e) {
+            e.printStackTrace();
+            Console.error("Failed to save dialog", e.getMessage());
+        }
+
     }
 
     @Override
@@ -249,7 +268,8 @@ public class RepositoryPresenter
                 });
     }
 
-    public void loadFile(Entry selection) {
+    public void loadFile(final Entry selection) {
+        this.selectedDialog = selection;
         vfs.load(selection, new SimpleCallback<String>() {
             @Override
             public void onSuccess(String result) {
