@@ -83,7 +83,8 @@ public class RepositoryNavigation {
         Button reify = new NavButton("Reify", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onReify();
+                Entry dialog = fsSelection.getSelectedObject();
+                presenter.onReify(dialog.getName());
             }
         });
         panel.add(reify);

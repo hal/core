@@ -68,14 +68,12 @@ public class RepositoryPresenter
 {
 
     private Vfs vfs;
-
+    private final Kernel kernel;
+    private final DispatchAsync dispatcher;
+    private DefaultWindow preview;
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
-    private final Kernel kernel;
-    private final DispatchAsync dispatcher;
-    //private SampleRepository sampleRepository;
-    private DefaultWindow preview;
 
     public interface MyView extends View
     {
@@ -170,13 +168,13 @@ public class RepositoryPresenter
         window.center();
     }
 
-    public void onReify()
+    public void onReify(String name)
     {
 
         if(preview!=null)
             preview.hide();
 
-        kernel.reify("", new AsyncCallback<Widget>() {
+        kernel.reify(name, new AsyncCallback<Widget>() {
             @Override
             public void onFailure(Throwable throwable) {
                 Console.error("Reification failed", throwable.getMessage());
@@ -185,11 +183,8 @@ public class RepositoryPresenter
             @Override
             public void onSuccess(Widget widget) {
 
-                //getView().show(widget);
-                //kernel.onActivate();
-
                 doPreview(widget);
-
+                kernel.activate();
                 kernel.reset();
             }
         });
