@@ -3,6 +3,7 @@ package org.jboss.as.console.mbui.marshall.adapters;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.impl.DOMUtils;
 import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.Input;
@@ -39,8 +40,8 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
     @Override
     public Element toXML(Document document, InteractionUnit unit) {
 
-        Element el = document.createElement(elementName);
-        el.setAttribute("id", unit.getId().toString());
+        Element el = DOMUtils.createElementNS(document, unit.getId().getNamespaceURI(), elementName);
+        el.setAttribute("id", unit.getId().getLocalPart());
         el.setAttribute("label", unit.getLabel());
 
         if(unit instanceof Container)

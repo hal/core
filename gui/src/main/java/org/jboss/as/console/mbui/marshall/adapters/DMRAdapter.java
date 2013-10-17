@@ -4,6 +4,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
+import com.google.gwt.xml.client.impl.DOMUtils;
 import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
@@ -15,6 +16,9 @@ import java.util.List;
  * @date 10/14/13
  */
 public class DMRAdapter implements ElementAdapter<DMRMapping>{
+
+    private static final String DMR_NS = "http://wildfly.org/protocol";
+
     @Override
     public String getElementName() {
         return "dmr";
@@ -46,7 +50,10 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
 
     @Override
     public Element toXML(Document document, DMRMapping mapping) {
-        Element el = document.createElement("dmr");
+        Element el = DOMUtils.createElementNS(
+                document,
+                DMR_NS,
+                "dmr");
 
         if(mapping.getAddress()!=null)
             el.setAttribute("address", mapping.getAddress());
@@ -54,7 +61,7 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
         List<ResourceAttribute> attributes = mapping.getAttributes();
         for(ResourceAttribute att : attributes)
         {
-            Element attEl = document.createElement("attribute");
+            Element attEl =  DOMUtils.createElementNS(document, DMR_NS,"attribute");
             attEl.setAttribute("name", att.getName());
             if(att.getLabel()!=null) attEl.setAttribute("label", att.getLabel());
             el.appendChild(attEl);

@@ -1,6 +1,7 @@
 package org.jboss.as.console.mbui.marshall.adapters;
 
 import com.google.gwt.xml.client.Node;
+import com.google.gwt.xml.client.NodeList;
 
 /**
  * @author Heiko Braun

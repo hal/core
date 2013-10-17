@@ -5,8 +5,7 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
-import com.google.gwt.xml.client.impl.Sarissa;
-import com.google.gwt.xml.client.impl.SarissaException;
+import com.google.gwt.xml.client.impl.DOMUtils;
 import org.jboss.as.console.mbui.marshall.adapters.DMRAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.EditorPanelAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.FormAdapter;
@@ -70,36 +69,19 @@ public class DialogXML {
     {
 
         Document document = XMLParser.parse(xml);
-        /*try {
-            document = Sarissa.parse(xml);
-        } catch (SarissaException e) {
-            throw new RuntimeException("Failed to parse document", e);
-        } */
-
         Element root = document.getDocumentElement();
 
         // model
         Builder builder = new Builder();
-        dfsElement(builder, getFirstChildElement(root));
+        dfsElement(builder, DOMUtils.getFirstChildElement(root));
 
         // dialog
-        Dialog dialog = new Dialog(QName.valueOf(root.getAttribute("id")), builder.build());
+        Dialog dialog = new Dialog(new QName(root.getNamespaceURI(), root.getAttribute("id")), builder.build());
 
         return dialog;
     }
 
-    private static Node getFirstChildElement(Node parent) {
-        NodeList children = parent.getChildNodes();
 
-        for(int i=0; i<children.getLength(); i++)
-        {
-            Node child = children.item(i);
-            if(child.getNodeType() == Node.ELEMENT_NODE)
-                return child;
-        }
-
-        return null;
-    }
 
     private void dfsElement(Builder builder, Node root) {
 
@@ -192,10 +174,6 @@ public class DialogXML {
         DMRMarshallRoutine(Dialog dialog) {
             this.dialog = dialog;
             this.document = XMLParser.createDocument();
-            /*this.document = Sarissa.createDocument(
-                    dialog.getId().getNamespaceURI(),
-                    dialog.getId().getLocalPart()
-            );*/
         }
 
         Document getResult() {
@@ -239,8 +217,8 @@ public class DialogXML {
             {
                 Node root = stack.pop();
 
-                Element dialogEl = document.createElement("dialog");
-                dialogEl.setAttribute("id", dialog.getId().toString());
+                Element dialogEl = DOMUtils.createElementNS(document, dialog.getId().getNamespaceURI(), "dialog");
+                dialogEl.setAttribute("id", dialog.getId().getLocalPart());
                 dialogEl.appendChild(root);
                 document.appendChild(dialogEl);
 
