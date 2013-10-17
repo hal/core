@@ -20,6 +20,7 @@ package org.jboss.as.console.mbui.model.mapping;
 
 import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.mapping.MappingType;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ public class DMRMapping extends Mapping
     private String address;
     private final List<ResourceAttribute> attributes;
     private String parentAddress;
+    public final static QName ID = new QName("htt://whildfly.org", "dmr");
 
     public DMRMapping()
     {
@@ -115,5 +117,10 @@ public class DMRMapping extends Mapping
     @Override
     public DMRMapping copy() {
         return new DMRMapping(attributes, address);
+    }
+
+    @Override
+    public QName getId() {
+        return ID;
     }
 }

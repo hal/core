@@ -77,4 +77,6 @@ public abstract class Mapping
 
     public abstract Mapping copy();
 
+    public abstract QName getId();
+
 }

@@ -17,8 +17,6 @@ import java.util.List;
  */
 public class DMRAdapter implements ElementAdapter<DMRMapping>{
 
-    private static final String DMR_NS = "http://wildfly.org/protocol";
-
     @Override
     public String getElementName() {
         return "dmr";
@@ -52,8 +50,8 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
     public Element toXML(Document document, DMRMapping mapping) {
         Element el = DOMUtils.createElementNS(
                 document,
-                DMR_NS,
-                "dmr");
+                mapping.getId().getNamespaceURI(),
+                mapping.getId().getLocalPart());
 
         if(mapping.getAddress()!=null)
             el.setAttribute("address", mapping.getAddress());
@@ -61,7 +59,7 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
         List<ResourceAttribute> attributes = mapping.getAttributes();
         for(ResourceAttribute att : attributes)
         {
-            Element attEl =  DOMUtils.createElementNS(document, DMR_NS,"attribute");
+            Element attEl =  DOMUtils.createElementNS(document, mapping.getId().getNamespaceURI(),"attribute");
             attEl.setAttribute("name", att.getName());
             if(att.getLabel()!=null) attEl.setAttribute("label", att.getLabel());
             el.appendChild(attEl);
