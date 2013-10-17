@@ -1,4 +1,4 @@
-<dialog id="undertow-subsystem">
+<dialog  xmlns="http://wildfly.org/undertow/config" id="undertow-subsystem">
 
 		<editorpanel id="undertow" operator="Choice">
 			<dmr address="/{selected.profile}/subsystem=undertow"/>

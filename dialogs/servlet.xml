@@ -1,4 +1,4 @@
-<dialog id="servlet-container">
+<dialog  xmlns="http://wildfly.org/undertow/servlet" id="servlet-container">
 
 		<container id="servletContainer" operator="Concurrency">
 			<dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>

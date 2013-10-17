@@ -24,7 +24,7 @@ public class PulldownAdapter implements ElementAdapter<InteractionUnit> {
 
         String label = ParseUtils.IDOrLabel(node);
 
-        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
+        QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
         Container form = new Container(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label,

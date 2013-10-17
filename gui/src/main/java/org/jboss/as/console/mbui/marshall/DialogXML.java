@@ -5,6 +5,8 @@ import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.Sarissa;
+import com.google.gwt.xml.client.impl.SarissaException;
 import org.jboss.as.console.mbui.marshall.adapters.DMRAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.EditorPanelAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.FormAdapter;
@@ -66,7 +68,14 @@ public class DialogXML {
 
     public Dialog unmarshall(String xml)
     {
-        Document document = XMLParser.parse(xml);
+
+        Document document = null;
+        try {
+            document = Sarissa.parse(xml);
+        } catch (SarissaException e) {
+            throw new RuntimeException("Failed to parse document", e);
+        }
+
         Element root = document.getDocumentElement();
 
         // model
@@ -183,6 +192,10 @@ public class DialogXML {
         DMRMarshallRoutine(Dialog dialog) {
             this.dialog = dialog;
             this.document = XMLParser.createDocument();
+            /*this.document = Sarissa.createDocument(
+                    dialog.getId().getNamespaceURI(),
+                    dialog.getId().getLocalPart()
+            );*/
         }
 
         Document getResult() {

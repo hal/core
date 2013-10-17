@@ -63,7 +63,8 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
     {
         InteractionUnit unit = null;
 
-        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
+        //QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
+        QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
         String label = ParseUtils.IDOrLabel(node);
 
         if("container".equals(name))

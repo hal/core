@@ -27,7 +27,9 @@ public class EditorPanelAdapter implements ElementAdapter<InteractionUnit> {
 
         String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
 
-        QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
+        //QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
+        QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
+
         Container container = new Container(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label,

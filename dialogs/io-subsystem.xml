@@ -1,17 +1,18 @@
-<dialog id="io-subsystem">
+<dialog xmlns="http://undertow.org/io" id="io-subsystem">
 
 		<editorpanel id="io-subsystem" operator="Concurrency">
 			<dmr address="/{selected.profile}/subsystem=io"/>
-			<container id="editors" operator="Choice">
-				<container id="workers" operator="Concurrency">
+
+            <container id="editors" operator="Choice">
+				<container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency">
 					<toolstrip id="worker-tools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
-						<trigger id="add">
+						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=io/worker=*">
 								<attribute name="entity.key"/>
 							</dmr>
 						</trigger>
-						<trigger id="remove"/>
+						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
 					<select id="worker">
 						<dmr address="/{selected.profile}/subsystem=io/worker=*">
@@ -22,15 +23,16 @@
 						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
 					</form>
 				</container>
-				<container id="buffers" operator="Concurrency">
+
+				<container xmlns="http://undertow.org/io/buffers" id="buffers" operator="Concurrency">
 					<toolstrip id="buffer-tools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
-						<trigger id="add">
+						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">
 								<attribute name="entity.key"/>
 							</dmr>
 						</trigger>
-						<trigger id="remove"/>
+						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
 					<select id="buffer">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">

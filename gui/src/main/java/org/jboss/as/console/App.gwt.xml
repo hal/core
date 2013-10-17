@@ -35,6 +35,7 @@
     <inherits name="com.allen_sauer.gwt.log.gwt-log-ERROR" />
 
     <inherits name="edu.ycp.cs.dh.acegwt.AceGWT"/>
+    <inherits name="com.google.gwt.xml.Sarissa"/>
 
     <!--
        https://issues.jboss.org/browse/AS7-3977

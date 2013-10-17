@@ -1,4 +1,4 @@
-<dialog id="transaction-subsystem">
+<dialog xmlns="http://wildfly.org/transactions" id="transaction-subsystem">
 
     <container id="transactionManager" operator="Concurrency" label="TransactionManager">
         <dmr address="/{selected.profile}/subsystem=transactions"/>
