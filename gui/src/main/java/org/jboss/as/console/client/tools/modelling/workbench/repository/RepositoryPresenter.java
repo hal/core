@@ -22,6 +22,10 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.xml.client.Document;
+import com.google.gwt.xml.client.XMLParser;
+import com.google.gwt.xml.client.impl.Sarissa;
+import com.google.gwt.xml.client.impl.SarissaException;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -227,7 +231,8 @@ public class RepositoryPresenter
         DialogXML parser = new DialogXML();
         Dialog dialog = parser.unmarshall(xml);
 
-        getView().updateFile(parser.marshall(dialog).toString());
+        Document document = parser.marshall(dialog);
+        getView().updateFile(document.toString());
     }
 
     @Override

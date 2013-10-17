@@ -69,12 +69,12 @@ public class DialogXML {
     public Dialog unmarshall(String xml)
     {
 
-        Document document = null;
-        try {
+        Document document = XMLParser.parse(xml);
+        /*try {
             document = Sarissa.parse(xml);
         } catch (SarissaException e) {
             throw new RuntimeException("Failed to parse document", e);
-        }
+        } */
 
         Element root = document.getDocumentElement();
 
