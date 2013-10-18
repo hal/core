@@ -38,6 +38,7 @@ import org.jboss.as.console.client.administration.role.form.MultiselectListBoxIt
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
 import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -52,9 +53,9 @@ public class ScopedRoleDetails implements IsWidget {
     private final PojoForm<Role> form;
     private List<String> hosts;
     private List<String> serverGroups;
-    private TextBoxItem nameItem;
+    private TextItem nameItem;
     private StandardRoleFormItem baseRoleItem;
-    private EnumFormItem<Role.Type> typeItem;
+    private TextItem typeItem;
     private MultiselectListBoxItem scopeItem;
     private CheckBoxItem includeAllItem;
 
@@ -67,15 +68,7 @@ public class ScopedRoleDetails implements IsWidget {
     public Widget asWidget() {
         nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
         baseRoleItem = new StandardRoleFormItem("baseRole", "Base Role");
-        typeItem = new EnumFormItem<Role.Type>("type", Console.CONSTANTS.common_label_type());
-        typeItem.setDefaultToFirst(true);
-        typeItem.setValues(UIHelper.enumFormItemsForScopedRoleTyp());
-        typeItem.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(final ChangeEvent event) {
-                updateScope(typeItem.getValue());
-            }
-        });
+        typeItem = new TextItem("name", Console.CONSTANTS.common_label_type());
         scopeItem = new MultiselectListBoxItem("scope", "Scope", 3);
         includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
@@ -86,7 +79,6 @@ public class ScopedRoleDetails implements IsWidget {
                 Role edited = form.getEditedEntity();
                 if (edited != null) {
                     edited.setBaseRole(baseRoleItem.getValue());
-                    edited.setType(typeItem.getValue());
                     edited.setScope(scopeItem.getValue());
                     edited.setIncludeAll(includeAllItem.getValue());
                     presenter.saveScopedRole(edited);
@@ -140,7 +132,7 @@ public class ScopedRoleDetails implements IsWidget {
             updateScope(role.getType());
             nameItem.setValue(role.getName());
             baseRoleItem.setValue(role.getBaseRole());
-            typeItem.setValue(role.getType());
+            typeItem.setValue(EnumLabelLookup.labelFor("ScopeType", role.getType()));
             scopeItem.setValue(new ArrayList<String>(role.getScope()));
             includeAllItem.setValue(role.isIncludeAll());
             form.setUndefined(false);

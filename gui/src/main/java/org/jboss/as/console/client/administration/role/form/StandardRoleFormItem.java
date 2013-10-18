@@ -58,6 +58,7 @@ public class StandardRoleFormItem extends FormItem<StandardRole> {
     }
 
     public void setValues() {
+        listBox.clear();
         for (StandardRole role : StandardRole.values()) {
             listBox.addItem(role.getId(), role.getId());
         }

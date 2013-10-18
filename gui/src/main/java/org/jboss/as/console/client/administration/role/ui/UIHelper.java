@@ -67,14 +67,6 @@ public final class UIHelper {
         return builder.toString();
     }
 
-    public static Map<StandardRole, String> enumFormItemsForStandardRole() {
-        Map<StandardRole, String> roles = new LinkedHashMap<StandardRole, String>();
-        for (StandardRole role : StandardRole.values()) {
-            roles.put(role, role.getId());
-        }
-        return roles;
-    }
-
     public static Map<Role.Type, String> enumFormItemsForScopedRoleTyp() {
         Map<Role.Type, String> scopes = new LinkedHashMap<Role.Type, String>();
         scopes.put(Role.Type.HOST, EnumLabelLookup.labelFor("ScopeType", Role.Type.HOST));
