@@ -148,7 +148,6 @@ public class ExecutionMode implements Function<BootstrapContext> {
 
                     ModelNode whoami = response.get(RESULT).get("step-6");
                     ModelNode whoamiResult = whoami.get(RESULT);
-                    System.out.println(whoamiResult);
 
                     String username = whoamiResult.get("identity").get("username").asString();
                     context.setPrincipal(username);
