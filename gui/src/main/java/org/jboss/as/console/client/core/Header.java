@@ -322,16 +322,6 @@ public class Header implements ValueChangeHandler<String> {
             final String token = section[0];
             final String id = "header-" + token;
 
-
-            // rbac (filter admin section)
-
-            if(NameTokens.AdministrationPresenter.equals(token))
-            {
-                boolean adminPriviledges = (bootstrap.isSuperUser() || bootstrap.isAdmin());
-                if(!adminPriviledges)
-                    continue;
-            }
-
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<div class='header-link-label'>");
             html.appendHtmlConstant("<span role='menuitem'>");
