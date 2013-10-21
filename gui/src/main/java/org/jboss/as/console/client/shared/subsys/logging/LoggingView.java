@@ -42,6 +42,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
     private LoggerSubview loggerSubview;
 
     private ConsoleHandlerSubview consoleHandlerSubview;
+    private SyslogHandlerView syslogHandlerView;
     private FileHandlerSubview fileHandlerSubview;
     private PeriodicRotatingFileHandlerSubview periodicRotatingFileHandlerSubview;
     private SizeRotatingFileHandlerSubview sizeRotatingFileHandlerSubview;
@@ -63,6 +64,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         sizeRotatingFileHandlerSubview = new SizeRotatingFileHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         asyncHandlerSubview = new AsyncHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         customHandlerSubview = new CustomHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
+        syslogHandlerView = new SyslogHandlerView(applicationMetaData, dispatcher, handlerListManager);
 
         handlerListManager.addHandlerConsumers(rootLoggerSubview, loggerSubview, asyncHandlerSubview);
         handlerListManager.addHandlerProducers(consoleHandlerSubview,
@@ -70,7 +72,8 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
                 periodicRotatingFileHandlerSubview,
                 sizeRotatingFileHandlerSubview,
                 asyncHandlerSubview,
-                customHandlerSubview);
+                customHandlerSubview,
+                syslogHandlerView);
     }
 
     @Override
@@ -94,6 +97,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_size(), sizeRotatingFileHandlerSubview.asWidget());
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_async(), asyncHandlerSubview.asWidget());
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_custom(), customHandlerSubview.asWidget());
+        handlerPages.addPage("Syslog Handler", syslogHandlerView.asWidget());
 
         loggersTabs.add(handlerPages.asWidget(), Console.CONSTANTS.subsys_logging_handler(), true);
 
@@ -108,7 +112,8 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
                 periodicRotatingFileHandlerSubview,
                 sizeRotatingFileHandlerSubview,
                 asyncHandlerSubview,
-                customHandlerSubview
+                customHandlerSubview,
+                syslogHandlerView
         );
 
 
@@ -125,5 +130,6 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         sizeRotatingFileHandlerSubview.initialLoad();
         asyncHandlerSubview.initialLoad();
         customHandlerSubview.initialLoad();
+        syslogHandlerView.initialLoad();
     }
 }

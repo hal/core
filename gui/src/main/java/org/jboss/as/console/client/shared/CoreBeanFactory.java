@@ -102,6 +102,7 @@ import org.jboss.as.console.client.shared.subsys.logging.model.Logger;
 import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicRotatingFileHandler;
 import org.jboss.as.console.client.shared.subsys.logging.model.RootLogger;
 import org.jboss.as.console.client.shared.subsys.logging.model.SizeRotatingFileHandler;
+import org.jboss.as.console.client.shared.subsys.logging.model.SyslogHandler;
 import org.jboss.as.console.client.shared.subsys.mail.MailServerDefinition;
 import org.jboss.as.console.client.shared.subsys.mail.MailSession;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
@@ -203,6 +204,7 @@ public interface CoreBeanFactory {
     AutoBean<Logger> logger();
     AutoBean<AsyncHandler> asyncHandler();
     AutoBean<ConsoleHandler> consoleHanlder();
+    AutoBean<SyslogHandler> syslogHandler();
     AutoBean<FileHandler> fileHandler();
     AutoBean<PeriodicRotatingFileHandler> periodicRotatingFileHandler();
     AutoBean<SizeRotatingFileHandler> sizeRotatingFileHandler();
