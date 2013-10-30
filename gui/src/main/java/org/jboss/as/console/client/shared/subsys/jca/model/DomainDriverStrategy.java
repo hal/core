@@ -62,6 +62,7 @@ public class DomainDriverStrategy implements DriverStrategy {
     @Override
     public void refreshDrivers(final AsyncCallback<List<JDBCDriver>> callback) {
 
+        // TODO Rewrite this using flow API
         final Counter counter = new Counter();
         final List<JDBCDriver> drivers = new ArrayList<JDBCDriver>();
 
