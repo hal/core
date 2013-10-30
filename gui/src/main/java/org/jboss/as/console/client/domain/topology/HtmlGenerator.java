@@ -211,10 +211,16 @@ final class HtmlGenerator {
     }
 
     HtmlGenerator startLinks(boolean groupLinks) {
+        AuthorisationDecision decision;
+        if (groupLinks) {
+            decision = SECURITY_SERVICE.getSecurityContext()
+                    .getOperationPriviledge("/server-group={addressable.group}", "start-servers");
+        } else {
+            decision = SECURITY_SERVICE.getSecurityContext()
+                    .getOperationPriviledge("/{selected.host}/server-config=*", "start");
+        }
 
-        AuthorisationDecision startGroupPriv = SECURITY_SERVICE.getSecurityContext().getOperationPriviledge("/server-group={addressable.group}", "start-servers");
-
-        if (startGroupPriv.isGranted()) {
+        if (decision.isGranted()) {
             appendHtmlConstant("<div>");
         } else {
             appendHtmlConstant("<div class='rbac-suppressed'>");

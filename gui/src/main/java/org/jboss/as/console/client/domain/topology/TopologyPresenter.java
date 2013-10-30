@@ -78,6 +78,7 @@ public class TopologyPresenter extends
     @NameToken(NameTokens.Topology)
     @AccessControl(resources = {
             "/server-group={addressable.group}",
+            "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
     }, recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place
