@@ -2,23 +2,26 @@
 
     <container id="transactionManager" operator="Concurrency" label="TransactionManager">
         <dmr address="/{selected.profile}/subsystem=transactions"/>
-        <form id="transactionManager#basicAttributes" operator="Concurrency">
-            <dmr>
-                <attribute name="enable-statistics"/>
-                <attribute name="enable-tsm-status"/>
-                <attribute name="jts"/>
-                <attribute name="default-timeout"/>
-                <attribute name="node-identifier"/>
-                <attribute name="use-hornetq-store"/>
-            </dmr>
-        </form>
         <container id="configGroups" operator="Choice">
+
+            <form id="transactionManager#basicAttributes" operator="Concurrency" label="Attributes">
+                <dmr>
+                    <attribute name="enable-statistics"/>
+                    <attribute name="enable-tsm-status"/>
+                    <attribute name="jts"/>
+                    <attribute name="default-timeout"/>
+                    <attribute name="node-identifier"/>
+                    <attribute name="use-hornetq-store"/>
+                </dmr>
+            </form>
+
             <form id="transactionManager#processAttributes" operator="Concurrency" label="Process ID">
                 <dmr>
                     <attribute name="process-id-uuid"/>
                     <attribute name="process-id-socket-binding"/>
                 </dmr>
             </form>
+
             <form id="transactionManager#recoveryAttributes" operator="Concurrency" label="Recovery">
                 <dmr>
                     <attribute name="recovery-listener"/>
