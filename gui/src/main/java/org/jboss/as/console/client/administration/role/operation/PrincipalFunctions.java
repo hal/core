@@ -20,11 +20,11 @@ package org.jboss.as.console.client.administration.role.operation;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
-import java.util.Stack;
-
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
 import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;

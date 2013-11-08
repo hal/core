@@ -41,7 +41,7 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.operation.FunctionContext;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
 import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
@@ -134,9 +134,20 @@ public class RoleAssignmentPresenter
             final long start = System.currentTimeMillis();
             loadRoleAssignmentsOp.execute(new Outcome<FunctionContext>() {
                 @Override
+                @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
                 public void onFailure(final FunctionContext context) {
                     System.out.println("FAILED");
-                    context.showError();
+                    String details = null;
+                    String message = Console.CONSTANTS.common_error_unknownError();
+                    if (context.getError() != null) {
+                        details = context.getError().getMessage();
+                        Log.error(details, context.getError());
+                        if (context.isForbidden()) {
+                            message = Console.CONSTANTS.unauthorized();
+                            details = Console.CONSTANTS.unauthorized_desc();
+                        }
+                    }
+                    Console.error(message, details);
                 }
 
                 @Override
@@ -365,8 +376,9 @@ public class RoleAssignmentPresenter
             if (context.isForbidden()) {
                 Console.error(failureMessage, Console.CONSTANTS.unauthorized_desc());
             } else {
-                String errorMessage = context.getErrorMessage();
-                Console.error(failureMessage, errorMessage);
+                //noinspection ThrowableResultOfMethodCallIgnored
+                String details = context.getError() != null ? context.getError().getMessage() : null;
+                Console.error(failureMessage, details);
             }
             loadAssignments();
         }

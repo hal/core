@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Function;

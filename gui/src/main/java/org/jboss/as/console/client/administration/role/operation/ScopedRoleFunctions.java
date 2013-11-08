@@ -27,6 +27,8 @@ import java.util.List;
 
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;

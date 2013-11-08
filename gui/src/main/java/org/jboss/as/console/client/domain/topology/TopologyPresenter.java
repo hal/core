@@ -18,6 +18,17 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
+import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
+import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Random;
@@ -33,6 +44,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -45,34 +57,24 @@ import org.jboss.as.console.client.domain.model.impl.ServerGroupLifecycleCallbac
 import org.jboss.as.console.client.domain.model.impl.ServerInstanceLifecycleCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Outcome;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
-import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-
-public class TopologyPresenter extends
-        Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
-        implements ExtensionManager
-{
+public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
+        implements ExtensionManager {
 
     /**
      * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
      * the security service (race condition). So do not use them in the annotations below!
+     *
      * @author Harald Pehl
-     * @date 10/15/12
      */
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
@@ -81,18 +83,16 @@ public class TopologyPresenter extends
             "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
     }, recursive = false)
-    public interface MyProxy extends Proxy<TopologyPresenter>, Place
-    {
-    }
+    public interface MyProxy extends Proxy<TopologyPresenter>, Place {}
 
+    public interface MyView extends SuspendableView {
 
-    public interface MyView extends SuspendableView
-    {
         void setPresenter(TopologyPresenter presenter);
+
         void updateHosts(final SortedSet<ServerGroup> groups, final int hostIndex);
+
         void setExtensions(List<Extension> extensions);
     }
-
 
     public static final int VISIBLE_HOSTS_COLUMNS = 3;
 
@@ -100,23 +100,24 @@ public class TopologyPresenter extends
     private final ServerGroupStore serverGroupStore;
     private final HostInformationStore hostInfoStore;
     private final BeanFactory beanFactory;
-    private final Map<String,ServerGroup> serverGroups;
+    private final DispatchAsync dispatcher;
+    private final Map<String, ServerGroup> serverGroups;
     private LoadExtensionCmd loadExtensionCmd;
     private boolean fake;
+    private boolean flow;
     private int hostIndex;
-
 
     @Inject
     public TopologyPresenter(final EventBus eventBus, final MyView view,
-                             final MyProxy proxy, final PlaceManager placeManager,
-                             final HostInformationStore hostInfoStore, final ServerGroupStore serverGroupStore,
-                             final BeanFactory beanFactory, DispatchAsync dispatcher)
-    {
+            final MyProxy proxy, final PlaceManager placeManager,
+            final HostInformationStore hostInfoStore, final ServerGroupStore serverGroupStore,
+            final BeanFactory beanFactory, DispatchAsync dispatcher) {
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         this.serverGroupStore = serverGroupStore;
         this.hostInfoStore = hostInfoStore;
         this.beanFactory = beanFactory;
+        this.dispatcher = dispatcher;
 
         this.loadExtensionCmd = new LoadExtensionCmd(dispatcher, beanFactory);
         this.serverGroups = new HashMap<String, ServerGroup>();
@@ -124,85 +125,91 @@ public class TopologyPresenter extends
         this.hostIndex = 0;
     }
 
-
-    // ------------------------------------------------------ presenter lifecycle
-
     @Override
-    protected void onBind()
-    {
+    protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
 
     }
 
     @Override
-    protected void onReset()
-    {
+    protected void onReset() {
         super.onReset();
         loadTopology();
         loadExtensions();
     }
 
+
+    // ------------------------------------------------------ presenter lifecycle
+
     @Override
-    public void prepareFromRequest(final PlaceRequest request)
-    {
+    public void prepareFromRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
+        flow = Boolean.valueOf(request.getParameter("flow", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));
     }
 
     @Override
-    protected void revealInParent()
-    {
+    protected void revealInParent() {
         RevealContentEvent.fire(this, DomainRuntimePresenter.TYPE_MainContent, this);
     }
 
-
-    // ------------------------------------------------------ public presenter API
-
-
-    public void loadTopology()
-    {
-        if (fake)
-        {
+    public void loadTopology() {
+        if (fake) {
             getView().updateHosts(deriveGroups(generateFakeDomain()), hostIndex);
-        }
-        else
-        {
-            hostInfoStore.loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>()
-            {
+        } else if (flow) {
+            Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
                 @Override
-                public void onSuccess(final List<HostInfo> result)
-                {
+                public void onFailure(final FunctionContext context) {
+                    //noinspection ThrowableResultOfMethodCallIgnored
+                    String details = context.getError() != null ? context.getError().getMessage() : null;
+                    Console.error("Unable to load topology", details);
+                }
+
+                @Override
+                public void onSuccess(final FunctionContext context) {
+                    List<HostInfo> hosts = context.pop();
+                    getView().updateHosts(deriveGroups(hosts), hostIndex);
+                }
+            };
+            new Async<FunctionContext>().waterfall(new FunctionContext(), outcome,
+                    new TopologyFunctions.HostsAndGroups(dispatcher),
+                    new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
+                    new TopologyFunctions.RunningServerInstances(dispatcher));
+        } else {
+            hostInfoStore.loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>() {
+                @Override
+                public void onSuccess(final List<HostInfo> result) {
                     getView().updateHosts(deriveGroups(result), hostIndex);
                 }
             });
         }
     }
 
-    public void requestHostIndex(int hostIndex)
-    {
-        PlaceRequest placeRequest = new PlaceRequest(NameTokens.Topology).with("hostIndex", String.valueOf(hostIndex));
-        if (fake)
-        {
-            placeRequest = placeRequest.with("fake", String.valueOf(fake));
+    public void requestHostIndex(int hostIndex) {
+        PlaceRequest.Builder builder = new PlaceRequest.Builder().nameToken(NameTokens.Topology)
+                .with("hostIndex", String.valueOf(hostIndex));
+        if (fake) {
+            builder.with("fake", "true");
+        } else if (flow) {
+            builder.with("flow", "true");
         }
-        placeManager.revealPlace(placeRequest);
+        placeManager.revealPlace(builder.build());
     }
 
-    public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op)
-    {
+
+    // ------------------------------------------------------ public presenter API
+
+    public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
         ServerInstanceLifecycleCallback lifecycleCallback = new ServerInstanceLifecycleCallback(
-                hostInfoStore, host, server, op, new SimpleCallback<Server>()
-        {
+                hostInfoStore, host, server, op, new SimpleCallback<Server>() {
             @Override
-            public void onSuccess(final Server server)
-            {
+            public void onSuccess(final Server server) {
                 loadTopology();
             }
         });
-        switch (op)
-        {
+        switch (op) {
             case START:
                 hostInfoStore.startServer(host, server, true, lifecycleCallback);
                 break;
@@ -220,22 +227,17 @@ public class TopologyPresenter extends
         }
     }
 
-    public void onGroupLifecycle(final String group, final LifecycleOperation op)
-    {
+    public void onGroupLifecycle(final String group, final LifecycleOperation op) {
         ServerGroup serverGroup = serverGroups.get(group);
-        if (serverGroup != null)
-        {
+        if (serverGroup != null) {
             ServerGroupLifecycleCallback lifecycleCallback = new ServerGroupLifecycleCallback(hostInfoStore,
-                    serverGroup.serversPerHost, op, new SimpleCallback<List<Server>>()
-            {
+                    serverGroup.serversPerHost, op, new SimpleCallback<List<Server>>() {
                 @Override
-                public void onSuccess(final List<Server> result)
-                {
+                public void onSuccess(final List<Server> result) {
                     loadTopology();
                 }
             });
-            switch (op)
-            {
+            switch (op) {
                 case START:
                     serverGroupStore.startServerGroup(group, lifecycleCallback);
                     break;
@@ -251,26 +253,18 @@ public class TopologyPresenter extends
         }
     }
 
-
-    // ------------------------------------------------------ helper methods
-
     /**
      * Builds {@link ServerGroup} instances and populates the map {@link #serverGroups}
-     * @param hosts
      */
-    private SortedSet<ServerGroup> deriveGroups(List<HostInfo> hosts)
-    {
+    private SortedSet<ServerGroup> deriveGroups(List<HostInfo> hosts) {
         serverGroups.clear();
-        for (HostInfo host : hosts)
-        {
+        for (HostInfo host : hosts) {
             List<ServerInstance> serverInstances = host.getServerInstances();
-            for (ServerInstance server : serverInstances)
-            {
+            for (ServerInstance server : serverInstances) {
                 String group = server.getGroup();
                 String profile = server.getProfile();
                 ServerGroup serverGroup = serverGroups.get(group);
-                if (serverGroup == null)
-                {
+                if (serverGroup == null) {
                     serverGroup = new ServerGroup(group, profile);
                     serverGroup.fill(hosts);
                     serverGroups.put(group, serverGroup);
@@ -280,17 +274,16 @@ public class TopologyPresenter extends
         return new TreeSet<ServerGroup>(serverGroups.values());
     }
 
-    private List<HostInfo> generateFakeDomain()
-    {
+    private List<HostInfo> generateFakeDomain() {
         String[] hostNames = new String[]{"lightning", "eeak-a-mouse", "dirty-harry"};
-        String[] groupNames = new String[]{"staging", "production", "messaging-back-server-test", "uat", "messaging", "backoffice", "starlight"};
-        String[] profiles = new String[]{"default", "default", "default", "messaging", "web", "full-ha", "full-ha"};
+        String[] groupNames =
+                new String[]{"staging", "production", "messaging-back-server-test", "uat", "messaging", "backoffice",
+                        "starlight"};
 
         int numHosts = 13;
         final List<HostInfo> hostInfos = new ArrayList<HostInfo>();
 
-        for (int i = 0; i < numHosts; i++)
-        {
+        for (int i = 0; i < numHosts; i++) {
             // host info
             String name = hostNames[Random.nextInt(2)] + "-" + i;
             boolean isController = (i < 1);
@@ -299,20 +292,15 @@ public class TopologyPresenter extends
             host.setServerInstances(new ArrayList<ServerInstance>());
 
             // server instances
-            for (int x = 0; x < (Random.nextInt(5) + 1); x++)
-            {
+            for (int x = 0; x < (Random.nextInt(5) + 1); x++) {
                 int groupIndex = Random.nextInt(groupNames.length - 1);
                 ServerInstance serverInstance = beanFactory.serverInstance().as();
                 serverInstance.setGroup(groupNames[groupIndex]);
                 serverInstance.setRunning((groupIndex % 2 == 0));
-                if (serverInstance.isRunning())
-                {
-                    if (Random.nextBoolean())
-                    {
+                if (serverInstance.isRunning()) {
+                    if (Random.nextBoolean()) {
                         serverInstance.setFlag(Random.nextBoolean() ? RESTART_REQUIRED : RELOAD_REQUIRED);
-                    }
-                    else
-                    {
+                    } else {
                         serverInstance.setFlag(null);
                     }
                 }
@@ -327,8 +315,10 @@ public class TopologyPresenter extends
         return hostInfos;
     }
 
-    public void loadExtensions()
-    {
+
+    // ------------------------------------------------------ helper methods
+
+    public void loadExtensions() {
         loadExtensionCmd.execute(new SimpleCallback<List<Extension>>() {
             @Override
             public void onSuccess(List<Extension> extensions) {
@@ -348,8 +338,7 @@ public class TopologyPresenter extends
 
     }
 
-    private void showVersionInfo(String json)
-    {
+    private void showVersionInfo(String json) {
         DefaultWindow window = new DefaultWindow("Management Model Versions");
         window.setWidth(480);
         window.setHeight(360);

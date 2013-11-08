@@ -16,17 +16,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.operation;
+package org.jboss.as.console.client.shared.flow;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.StatusCodeException;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 
 /**
+ * General purpose call back for functions inside a flow. Expects a {@link FunctionContext} as context where an error
+ * is stored.
+ *
  * @author Harald Pehl
  */
 public class FunctionCallback implements AsyncCallback<DMRResponse> {

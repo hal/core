@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.operation;
+package org.jboss.as.console.client.shared.flow;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +28,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.dmr.client.dispatch.DispatchError;
 
 /**
+ * General purpose context to be used for functions inside a flow
  * @author Harald Pehl
  */
 public class FunctionContext {
@@ -63,25 +64,8 @@ public class FunctionContext {
         this.error = error;
     }
 
-    public void showError() {
-        String details = null;
-        String message = Console.CONSTANTS.common_error_unknownError();
-        if (error != null) {
-            details = error.getMessage();
-            Log.error(details, error);
-            if (isForbidden()) {
-                message = Console.CONSTANTS.unauthorized();
-                details = Console.CONSTANTS.unauthorized_desc();
-            }
-        }
-        Console.error(message, details);
-    }
-
-    public String getErrorMessage() {
-        if (error != null) {
-            return error.getMessage();
-        }
-        return null;
+    public Throwable getError() {
+        return error;
     }
 
     public boolean isForbidden() {
@@ -92,5 +76,4 @@ public class FunctionContext {
     public String toString() {
         return "FunctionContext {data: " + data + ", stack: " + stack + "}";
     }
-
 }
