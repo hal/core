@@ -104,7 +104,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     private final Map<String, ServerGroup> serverGroups;
     private LoadExtensionCmd loadExtensionCmd;
     private boolean fake;
-    private boolean flow;
     private int hostIndex;
 
     @Inject
@@ -146,7 +145,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public void prepareFromRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
-        flow = Boolean.valueOf(request.getParameter("flow", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));
     }
 
@@ -158,13 +156,13 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public void loadTopology() {
         if (fake) {
             getView().updateHosts(deriveGroups(generateFakeDomain()), hostIndex);
-        } else if (flow) {
+        } else {
             Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
                 @Override
                 public void onFailure(final FunctionContext context) {
                     //noinspection ThrowableResultOfMethodCallIgnored
                     String details = context.getError() != null ? context.getError().getMessage() : null;
-                    Console.error("Unable to load topology", details);
+                    Console.error("Unable to load topology", details); // TODO i18n
                 }
 
                 @Override
@@ -177,13 +175,14 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
                     new TopologyFunctions.HostsAndGroups(dispatcher),
                     new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
                     new TopologyFunctions.RunningServerInstances(dispatcher));
-        } else {
+
+            /* old unperformant code
             hostInfoStore.loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>() {
                 @Override
                 public void onSuccess(final List<HostInfo> result) {
                     getView().updateHosts(deriveGroups(result), hostIndex);
                 }
-            });
+            }); */
         }
     }
 
@@ -192,8 +191,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
                 .with("hostIndex", String.valueOf(hostIndex));
         if (fake) {
             builder.with("fake", "true");
-        } else if (flow) {
-            builder.with("flow", "true");
         }
         placeManager.revealPlace(builder.build());
     }
