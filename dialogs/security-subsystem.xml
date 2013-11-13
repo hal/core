@@ -54,7 +54,10 @@
                                 <attribute name="module"/>
                             </dmr>
                         </form>
-                        <properties id="domain.authentication:moduleOptions" label="Module Options"/>
+                        <properties id="domain.authentication:moduleOptions" label="Module Options">
+                            <!--dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*/module-options=*"/-->
+                        </properties>
+
                     </container>
                 </container>
 

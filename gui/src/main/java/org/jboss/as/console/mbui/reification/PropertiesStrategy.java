@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.mbui.reification;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -29,6 +30,7 @@ import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
+import org.useware.kernel.gui.behaviour.InteractionEvent;
 import org.useware.kernel.gui.behaviour.PresentationEvent;
 import org.useware.kernel.gui.behaviour.SystemEvent;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
@@ -68,7 +70,7 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
     public boolean prepare(InteractionUnit<StereoTypes> interactionUnit, Context context) {
         Map<QName, ModelNode> descriptions = context.get (ContextKey.MODEL_DESCRIPTIONS);
 
-         // TODO (BUG): After the first reification the behaviour is modified,
+        // TODO (BUG): After the first reification the behaviour is modified,
         // so the predicate might apply to a different unit. As a result the correlation id is different!
 
         QName correlationId = interactionUnit.findMapping(MappingType.DMR, new Predicate<DMRMapping>() {
@@ -169,6 +171,20 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
                 @Override
                 public void onSystemEvent(SystemEvent event) {
 
+
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            // request loading of data
+                            InteractionEvent loadEvent = new InteractionEvent(JBossQNames.LOAD_ID);
+
+                            // update interaction units
+                            coordinator.fireEventFromSource(
+                                    loadEvent,
+                                    interactionUnit.getId()
+                            );
+                        }
+                    });
                 }
             });
 
