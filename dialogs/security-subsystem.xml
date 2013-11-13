@@ -3,7 +3,7 @@
     <editorpanel id="securityDomains" operator="Choice">
         <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
 
-        <container xmlns="http://wildfly.org/security/domains" id="domains" operator="Concurrency">
+        <container xmlns="http://wildfly.org/security/domains" id="domains" operator="Concurrency" label="Security Domains">
             <toolstrip id="tools" operator="Concurrency">
                 <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
                 <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
@@ -27,15 +27,15 @@
             </container>
         </container>
 
-        <container xmlns="http://wildfly.org/security/domain/config" id="domainConfiguration" operator="Concurrency">
-            <pulldown id="domainSelection">
+        <container xmlns="http://wildfly.org/security/domain/config" id="domainConfiguration" operator="Concurrency" label="Domain Configuration">
+            <pulldown id="domainSelection" label="Security Domain">
                 <dmr>
                     <attribute name="entity.key"/>
                 </dmr>
             </pulldown>
             <pages id="securityModules" operator="Choice">
 
-                <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" operator="Concurrency">
+                <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" label="Authentication" operator="Concurrency">
                     <toolstrip id="tools" operator="Concurrency">
                         <trigger id="add" type="org.jboss.as:resource-operation#add"/>
                         <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
@@ -47,18 +47,18 @@
                         </dmr>
                     </select>
                     <container id="details" operator="Choice">
-                        <form id="details#basicAttributers" operator="Concurrency">
+                        <form id="details#basicAttributers" operator="Concurrency" label="Attributes">
                             <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}">
                                 <attribute name="code"/>
                                 <attribute name="flag"/>
                                 <attribute name="module"/>
                             </dmr>
                         </form>
-                        <select id="domain.authentication:moduleOptions"/>
+                        <select id="domain.authentication:moduleOptions" label="Module Options"/>
                     </container>
                 </container>
 
-                <container xmlns="http://wildfly.org/security/domain/authorisation" id="modules" operator="Concurrency">
+                <container xmlns="http://wildfly.org/security/domain/authorisation" id="modules" label="Authorisation" operator="Concurrency">
                     <toolstrip id="tools" operator="Concurrency">
                         <trigger id="add" type="org.jboss.as:resource-operation#add"/>
                         <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
@@ -70,14 +70,14 @@
                         </dmr>
                     </select>
                     <container id="details" operator="Choice">
-                        <form id="details#basicAttributers" operator="Concurrency">
+                        <form id="details#basicAttributers" operator="Concurrency" label="Attributes">
                             <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}">
                                 <attribute name="code"/>
                                 <attribute name="flag"/>
                                 <attribute name="module"/>
                             </dmr>
                         </form>
-                        <select id="moduleOptions"/>
+                        <select id="moduleOptions" label="Module Options"/>
                     </container>
                 </container>
             </pages>
