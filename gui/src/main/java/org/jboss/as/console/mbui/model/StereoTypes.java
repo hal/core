@@ -6,6 +6,7 @@ package org.jboss.as.console.mbui.model;
  */
 public enum StereoTypes {
 
+    Properties,
     Form,
     Toolstrip,
     EditorPanel,

@@ -10,6 +10,7 @@ import org.jboss.as.console.mbui.marshall.adapters.DMRAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.EditorPanelAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.FormAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.PagesAdapter;
+import org.jboss.as.console.mbui.marshall.adapters.PropertiesAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.PulldownAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.ToolstripAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.UsewareAdapter;
@@ -45,6 +46,7 @@ public class DialogXML {
         adapters.add(new UsewareAdapter("output"));
         adapters.add(new UsewareAdapter("link"));
 
+        adapters.add(new PropertiesAdapter());
         adapters.add(new FormAdapter());
         adapters.add(new ToolstripAdapter());
         adapters.add(new PagesAdapter());

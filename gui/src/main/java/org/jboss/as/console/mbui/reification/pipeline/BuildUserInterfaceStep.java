@@ -20,6 +20,7 @@ package org.jboss.as.console.mbui.reification.pipeline;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.mbui.reification.PropertiesStrategy;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ReificationException;
 import org.useware.kernel.gui.reification.StructureLogger;
@@ -78,7 +79,7 @@ public class BuildUserInterfaceStep extends ReificationStep
 
         @Override
         public Widget asWidget() {
-            return new HTML("<div style='width:95%; padding:20px; border:1px solid red'>"+unit.getId()+"</div>");
+            return new HTML("<div style='width:95%; padding:20px; border:1px solid red'>Unsatisfied preconditions: "+unit.getId()+"</div>");
         }
     };
 
@@ -94,6 +95,7 @@ public class BuildUserInterfaceStep extends ReificationStep
         this.strategies.add(new FormStrategy());
         this.strategies.add(new SelectStrategy());
         this.strategies.add(new PullDownStrategy());
+        this.strategies.add(new PropertiesStrategy());
 
         // containerStack
         this.strategies.add(new ConcurrencyStrategy());

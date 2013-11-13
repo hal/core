@@ -54,7 +54,7 @@
                                 <attribute name="module"/>
                             </dmr>
                         </form>
-                        <select id="domain.authentication:moduleOptions" label="Module Options"/>
+                        <properties id="domain.authentication:moduleOptions" label="Module Options"/>
                     </container>
                 </container>
 
@@ -77,7 +77,7 @@
                                 <attribute name="module"/>
                             </dmr>
                         </form>
-                        <select id="moduleOptions" label="Module Options"/>
+                        <properties id="moduleOptions" label="Module Options"/>
                     </container>
                 </container>
             </pages>
