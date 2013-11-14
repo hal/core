@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,7 +31,6 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.administration.role.form.MultiselectListBoxItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
@@ -41,7 +38,6 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 
 /**
@@ -68,7 +64,7 @@ public class ScopedRoleDetails implements IsWidget {
     public Widget asWidget() {
         nameItem = new TextItem("name", Console.CONSTANTS.common_label_name());
         baseRoleItem = new StandardRoleFormItem("baseRole", "Base Role");
-        typeItem = new TextItem("name", Console.CONSTANTS.common_label_type());
+        typeItem = new TextItem("type", Console.CONSTANTS.common_label_type());
         scopeItem = new MultiselectListBoxItem("scope", "Scope", 3);
         includeAllItem = new CheckBoxItem("includeAll", "Include All");
         form.setFields(nameItem, baseRoleItem, typeItem, scopeItem, includeAllItem);
@@ -143,7 +139,7 @@ public class ScopedRoleDetails implements IsWidget {
     }
 
     private void updateScope(final Role.Type type) {
-        if (form != null && typeItem != null && scopeItem != null) {
+        if (typeItem != null && scopeItem != null) {
             if (type == Role.Type.HOST) {
                 scopeItem.setChoices(hosts);
             } else if (type == Role.Type.SERVER_GROUP) {
