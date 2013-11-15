@@ -21,6 +21,7 @@ package org.jboss.as.console.mbui.reification;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.shared.properties.ModelNodePropertyEditor;
@@ -146,7 +147,7 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
 
         @Override
         public void onDeleteProperty(String reference, Property prop) {
-
+            Window.alert("Not yet implemented");
         }
 
         @Override
@@ -156,7 +157,7 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
 
         @Override
         public void launchNewPropertyDialoge(String reference) {
-
+            Window.alert("Not yet implemented");
         }
 
         @Override
