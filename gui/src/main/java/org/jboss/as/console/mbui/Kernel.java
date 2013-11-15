@@ -178,11 +178,15 @@ public class Kernel implements NavigationDelegate {
                                     new ImplicitBehaviourStep(framework.getDispatcher()),
                                     new IntegrityStep());
 
-                            pipeline.execute(dialog, context);
+                            try {
+                                pipeline.execute(dialog, context);
+                                progress.getBar().setProgress(100.0);
+                                control.proceed();
+                            } catch (Throwable e) {
+                                Console.error("Reification failed: "+ e.getMessage());
+                                control.abort();
+                            }
 
-                            progress.getBar().setProgress(100.0);
-
-                            control.proceed();
                         }
 
                         @Override

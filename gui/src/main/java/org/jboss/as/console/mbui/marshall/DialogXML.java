@@ -1,5 +1,6 @@
 package org.jboss.as.console.mbui.marshall;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
@@ -70,17 +71,22 @@ public class DialogXML {
     public Dialog unmarshall(String xml)
     {
 
-        Document document = XMLParser.parse(xml);
-        Element root = document.getDocumentElement();
+        try {
+            Document document = XMLParser.parse(xml);
+            Element root = document.getDocumentElement();
 
-        // model
-        Builder builder = new Builder();
-        dfsElement(builder, DOMUtils.getFirstChildElement(root));
+            // model
+            Builder builder = new Builder();
+            dfsElement(builder, DOMUtils.getFirstChildElement(root));
 
-        // dialog
-        Dialog dialog = new Dialog(new QName(root.getNamespaceURI(), root.getAttribute("id")), builder.build());
+            // dialog
+            Dialog dialog = new Dialog(new QName(root.getNamespaceURI(), root.getAttribute("id")), builder.build());
 
-        return dialog;
+            return dialog;
+        } catch (RuntimeException e) {
+            Window.alert("Faile to parse XML: "+e.getMessage());
+            throw e;
+        }
     }
 
 

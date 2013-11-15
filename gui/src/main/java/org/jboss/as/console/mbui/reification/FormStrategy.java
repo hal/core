@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.mbui.reification;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -229,7 +230,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                             }
                             break;
                         default:
-                            throw new RuntimeException("Unsupported ModelType "+type);
+                            Log.debug("Unsupported ModelType " + type);
                     }
 
                 }
