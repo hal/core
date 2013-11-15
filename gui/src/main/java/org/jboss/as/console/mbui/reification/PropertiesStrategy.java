@@ -18,18 +18,19 @@
  */
 package org.jboss.as.console.mbui.reification;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.as.console.client.shared.properties.PropertyEditor;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.properties.ModelNodePropertyEditor;
+import org.jboss.as.console.client.shared.properties.ModelNodePropertyManagement;
 import org.jboss.as.console.mbui.JBossQNames;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.useware.kernel.gui.behaviour.InteractionEvent;
 import org.useware.kernel.gui.behaviour.PresentationEvent;
 import org.useware.kernel.gui.behaviour.SystemEvent;
@@ -45,6 +46,7 @@ import org.useware.kernel.model.mapping.Predicate;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.useware.kernel.gui.behaviour.common.CommonQNames.RESET_ID;
@@ -101,11 +103,12 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
         return StereoTypes.Properties == interactionUnit.getStereotype();
     }
 
-    class PropertyEditorAdapter implements ReificationWidget, PropertyManagement
+    class PropertyEditorAdapter implements ReificationWidget, ModelNodePropertyManagement
     {
 
         final InteractionUnit interactionUnit;
-        private final PropertyEditor editor;
+        private final ModelNodePropertyEditor editor;
+        private String objectName = null;
         private SafeHtmlBuilder helpTexts;
         private EventBus coordinator;
 
@@ -117,22 +120,37 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
             DMRMapping dmrMapping = (DMRMapping)
                     this.interactionUnit.findMapping(MappingType.DMR);
 
-            this.editor = new PropertyEditor(PropertyEditorAdapter.this, true);
+            ModelNode attDesc = modelDescription.get("attributes").asObject();
+            if(dmrMapping.getObjects().size()>0
+                    && attDesc .hasDefined(dmrMapping.getObjects().get(0)))
+            {
+                // mapped to ModelType.Object
+                objectName = dmrMapping.getObjects().get(0);
+                ModelNode description = attDesc.get(objectName).asObject();
+                Log.debug(description.toString());
+
+            }
+            else
+            {
+                Log.warn(interactionUnit.getId() + "is missing valid DMR mapping");
+            }
+
+            this.editor = new ModelNodePropertyEditor(PropertyEditorAdapter.this, true);
 
         }
 
         @Override
-        public void onCreateProperty(String reference, PropertyRecord prop) {
+        public void onCreateProperty(String reference, Property prop) {
 
         }
 
         @Override
-        public void onDeleteProperty(String reference, PropertyRecord prop) {
+        public void onDeleteProperty(String reference, Property prop) {
 
         }
 
         @Override
-        public void onChangeProperty(String reference, PropertyRecord prop) {
+        public void onChangeProperty(String reference, Property prop) {
 
         }
 
@@ -207,7 +225,12 @@ public class PropertiesStrategy implements ReificationStrategy<ReificationWidget
 
                     assert (event.getPayload() instanceof ModelNode) : "Unexpected type "+event.getPayload().getClass();
 
-                    // TODO
+                    ModelNode modelNode = (ModelNode)event.getPayload();
+                    if(modelNode.hasDefined(objectName))
+                    {
+                        List<Property> properties = modelNode.get(objectName).asPropertyList();
+                        editor.setProperties("self", properties);
+                    }
                 }
             });
 

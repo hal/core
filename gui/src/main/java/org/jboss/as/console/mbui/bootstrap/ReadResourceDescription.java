@@ -85,7 +85,7 @@ public class ReadResourceDescription extends ReificationBootstrap
         composite.get(ADDRESS).setEmptyList();
         composite.get(STEPS).set(visitor.steps);
 
-        System.out.println(composite);
+        //System.out.println(composite);
         dispatcher.execute(new DMRAction(composite), new AsyncCallback<DMRResponse>()
         {
             @Override

@@ -9,6 +9,7 @@ import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.as.console.mbui.model.mapping.ResourceAttribute;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -33,16 +34,25 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
         }
 
         NodeList children = node.getChildNodes();
-        String[] attributes = new String[children.getLength()];
+        List<String> attributes = new LinkedList<String>();
+        List<String> objects = new LinkedList<String>();
         for(int i=0; i<children.getLength(); i++)
         {
             Node child = children.item(i);
             if(!( Node.ELEMENT_NODE == child.getNodeType()))
                 continue;
 
-            attributes[i] = child.getAttributes().getNamedItem("name").getNodeValue();
+            if(child.getNodeName().equals("attribute"))
+            {
+                attributes.add(child.getAttributes().getNamedItem("name").getNodeValue());
+            }
+            else if(child.getNodeName().equals("object"))
+            {
+                objects.add(child.getAttributes().getNamedItem("name").getNodeValue());
+            }
         }
         mapping.addAttributes(attributes);
+        mapping.addObjects(objects);
         return mapping;
     }
 
@@ -62,6 +72,14 @@ public class DMRAdapter implements ElementAdapter<DMRMapping>{
             Element attEl =  DOMUtils.createElementNS(document, mapping.getId().getNamespaceURI(),"attribute");
             attEl.setAttribute("name", att.getName());
             if(att.getLabel()!=null) attEl.setAttribute("label", att.getLabel());
+            el.appendChild(attEl);
+        }
+
+        List<String> objects = mapping.getObjects();
+        for(String objName : objects)
+        {
+            Element attEl =  DOMUtils.createElementNS(document, mapping.getId().getNamespaceURI(),"object");
+            attEl.setAttribute("name", objName);
             el.appendChild(attEl);
         }
         return el;
