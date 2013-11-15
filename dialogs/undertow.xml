@@ -90,6 +90,30 @@
 
         </pages>
 
+        <container xmlns="http://wildfly.org/undertow/errorPages" id="errorPage" label="Error Pages">
+            <toolstrip id="tools">
+                <dmr address="/{selected.profile}/subsystem=undertow/error-page={selected.entity}"/>
+                <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                    <dmr address="/{selected.profile}/subsystem=undertow/error-page=*"/>
+                </trigger>
+                <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+            </toolstrip>
+
+            <select id="undertow#errorPageSelection">
+                <dmr address="/{selected.profile}/subsystem=undertow/error-page=*">
+                    <attribute name="entity.key"/>
+                </dmr>
+            </select>
+            <form id="undertow#errorPageAttributes">
+                <dmr address="/{selected.profile}/subsystem=undertow/error-page={selected.entity}"/>
+            </form>
+        </container>
+
+        <container xmlns="http://wildfly.org/undertow/buffer" id="bufferCache" label="Buffer Cache">
+            <form id="undertow#bufferCache">
+                <dmr address="/{selected.profile}/subsystem=undertow/buffer-cache=default"/>
+            </form>
+        </container>
     </editorpanel>
 
 </dialog>
