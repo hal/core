@@ -1,0 +1,74 @@
+<dialog xmlns="http://wildfly.org/batch" id="batch-subsystem">
+
+
+    <editorpanel id="batchSubsystem" label="Batch Subsystem">
+
+        <container id="jobs" operator="Concurrency" label="Jobs">
+            <dmr address="/profile={selected.profile}/subsystem=batch/job-repository=in-memory"/>
+
+            <select id="job-list">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </select>
+
+            <form id="batch#jobRepository" operator="Concurrency">
+                <dmr>
+                </dmr>
+            </form>
+        </container>
+
+        <container id="threading" operator="Choice" label="Threading">
+
+            <container  xmlns="http://wildfly.org/batch/factories" id="factories" label="Thread Factories" operator="Concurrency">
+                <dmr address="/profile={selected.profile}/subsystem=batch/thread-factory=*"/>
+
+                <toolstrip id="tools" operator="Concurrency">
+                    <dmr address="/{selected.profile}/subsystem=batch/thread-factory={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=batch/thread-factory=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
+                <select id="factory-list">
+                    <dmr>
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+
+                <form id="batch#factories" operator="Concurrency">
+                    <dmr address="/profile={selected.profile}/subsystem=batch/thread-factory={selected.entity}">
+
+                    </dmr>
+                </form>
+            </container>
+
+            <container xmlns="http://wildfly.org/batch/pools" id="pools" label="Thread Pools" operator="Concurrency">
+                <dmr address="/profile={selected.profile}/subsystem=batch/thread-pool=batch"/>
+
+                <toolstrip id="tools" operator="Concurrency">
+                    <dmr address="/{selected.profile}/subsystem=batch/thread-pool={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=batch/thread-pool=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
+                <select id="pool-list">
+                    <dmr>
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+
+                <form id="batch#pools" operator="Concurrency">
+                    <dmr>
+
+                    </dmr>
+                </form>
+            </container>
+
+        </container>
+    </editorpanel>
+
+</dialog>
