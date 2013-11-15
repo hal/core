@@ -26,15 +26,13 @@ public class FormAdapter implements ElementAdapter<InteractionUnit> {
     public InteractionUnit fromXML(Node node) {
         String label = ParseUtils.IDOrLabel(node);
 
-        String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
-
         //QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
         QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
 
         Container form = new Container(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label,
-                TemporalOperator.valueOf(op),
+                TemporalOperator.Concurrency,
                 StereoTypes.Form);
         return form;
     }
@@ -44,15 +42,6 @@ public class FormAdapter implements ElementAdapter<InteractionUnit> {
         Element el = DOMUtils.createElementNS(document, unit.getId().getNamespaceURI(), getElementName());
         el.setAttribute("id", unit.getId().getLocalPart());
         el.setAttribute("label", unit.getLabel());
-
-        if(unit instanceof Container)
-        {
-            Container container = (Container)unit;
-            if(container.getTemporalOperator()!=null) {
-                el.setAttribute("operator", container.getTemporalOperator().toString());
-            }
-        }
-
         return el;
     }
 

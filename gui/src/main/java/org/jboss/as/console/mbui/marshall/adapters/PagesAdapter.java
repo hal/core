@@ -26,13 +26,11 @@ public class PagesAdapter implements ElementAdapter<InteractionUnit> {
 
         String label = ParseUtils.IDOrLabel(node);
 
-        String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
-
         QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
         Container form = new Container(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label,
-                TemporalOperator.valueOf(op),
+                TemporalOperator.Choice,
                 StereoTypes.Pages);
         return form;
     }
@@ -43,13 +41,6 @@ public class PagesAdapter implements ElementAdapter<InteractionUnit> {
         el.setAttribute("id", unit.getId().getLocalPart());
         el.setAttribute("label", unit.getLabel());
 
-        if(unit instanceof Container)
-        {
-            Container container = (Container)unit;
-            if(container.getTemporalOperator()!=null) {
-                el.setAttribute("operator", container.getTemporalOperator().toString());
-            }
-        }
         return el;
     }
 

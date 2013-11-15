@@ -26,8 +26,6 @@ public class EditorPanelAdapter implements ElementAdapter<InteractionUnit> {
 
         String label = ParseUtils.IDOrLabel(node);
 
-        //String op = ParseUtils.failSafe(node.getAttributes().getNamedItem("operator"), TemporalOperator.Concurrency.toString());
-
         //QName id = QName.valueOf(node.getAttributes().getNamedItem("id").getNodeValue());
         QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
 
@@ -46,13 +44,6 @@ public class EditorPanelAdapter implements ElementAdapter<InteractionUnit> {
         el.setAttribute("id", unit.getId().getLocalPart());
         el.setAttribute("label", unit.getLabel());
 
-        /*if(unit instanceof Container)
-        {
-            Container container = (Container)unit;
-            if(container.getTemporalOperator()!=null) {
-                el.setAttribute("operator", container.getTemporalOperator().toString());
-            }
-        } */
         return el;
     }
 

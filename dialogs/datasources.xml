@@ -1,10 +1,11 @@
 <dialog xmlns="http://wildfly.org/datasources" id="datasource-subsystem">
 
-		<editorpanel id="datasources" operator="Choice">
+		<editorpanel id="datasources">
 			<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 
 			<container id="regularDS" operator="Concurrency" label="Datasources">
-				<toolstrip id="tools" operator="Concurrency">
+
+                <toolstrip id="tools" operator="Concurrency">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
 					<trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
 						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
@@ -20,9 +21,10 @@
 						<attribute name="enabled"/>
 					</dmr>
 				</select>
+
 				<container id="details" operator="Choice">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
-					<form id="datasource#basicAttributes" operator="Concurrency" label="Attributes">
+					<form id="datasource#basicAttributes" label="Attributes">
 						<dmr>
 							<attribute name="entity.key"/>
 							<attribute name="jndi-name"/>
@@ -33,7 +35,7 @@
 							<attribute name="prepared-statements-cache-size"/>
 						</dmr>
 					</form>
-					<form id="datasource#connectionAttributes" operator="Concurrency" label="Connection">
+					<form id="datasource#connectionAttributes" label="Connection">
 						<dmr>
 							<attribute name="connection-url"/>
 							<attribute name="new-connection-sql"/>
@@ -42,7 +44,7 @@
 							<attribute name="use-ccm"/>
 						</dmr>
 					</form>
-					<form id="datasource#securityAttributes" operator="Concurrency" label="Security">
+					<form id="datasource#securityAttributes" label="Security">
 						<dmr>
 							<attribute name="user-name"/>
 							<attribute name="password"/>
