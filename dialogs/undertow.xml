@@ -3,8 +3,7 @@
     <editorpanel id="undertow">
         <dmr address="/{selected.profile}/subsystem=undertow"/>
 
-
-        <pages id="handler" operator="Choice">
+        <pages id="handler">
             <container xmlns="http://wildfly.org/undertow/fileHandler" id="undertow#fileHandler" label="File">
                 <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*"/>
                 <toolstrip id="tools">
@@ -47,9 +46,18 @@
             </container>
         </pages>
 
-        <!--pages id="filter">
+        <pages id="filter">
 
-            <container id="undertow#basicAuth" operator="Concurrency">
+            <container xmlns="http://wildfly.org/undertow/basicAuth" id="undertow#basicAuth" operator="Concurrency" label="Basic Auth">
+
+                <toolstrip id="tools">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
                 <select id="undertow#basicAuthSelection">
                     <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*">
                         <attribute name="entity.key"/>
@@ -60,7 +68,16 @@
                 </form>
             </container>
 
-            <container id="undertow#connectionLimit" operator="Concurrency">
+            <container xmlns="http://wildfly.org/undertow/connectionLimit" id="undertow#connectionLimit" operator="Concurrency" label="Connection Limit">
+
+                <toolstrip id="tools">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
                 <select id="undertow#connectionLimitSelection">
                     <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*">
                         <attribute name="entity.key"/>
@@ -71,7 +88,7 @@
                 </form>
             </container>
 
-        </pages-->
+        </pages>
 
     </editorpanel>
 
