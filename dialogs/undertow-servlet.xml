@@ -1,18 +1,8 @@
 <dialog xmlns="http://wildfly.org/undertow/server-config" id="server-config">
 
-    <editorpanel id="server" label="Server Config">
-
-        <container xmlns="http://wildfly.org/undertow/server" id="server" label="Server" operator="Concurrency">
-            <form id="server#common" label="Attributes">
-                <dmr address="/{selected.profile}/subsystem=undertow/server=default-server">
-                    <attribute name="default-host"/>
-                    <attribute name="servlet-container"/>
-                </dmr>
-            </form>
-        </container>
+    <editorpanel id="panel">
 
         <container xmlns="http://wildfly.org/undertow/servlet" id="servletContainer" label="Servlet Container" operator="Concurrency">
-
 
             <pages id="servlet-configuration" operator="Choice">
 
