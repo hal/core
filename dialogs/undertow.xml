@@ -1,42 +1,78 @@
 <dialog  xmlns="http://wildfly.org/undertow/config" id="undertow-subsystem">
 
-		<editorpanel id="undertow" operator="Choice">
-			<dmr address="/{selected.profile}/subsystem=undertow"/>
-			<pages id="handler" operator="Choice">
-				<container id="undertow#fileHandler" operator="Concurrency">
-					<select id="fileHandler">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*">
-							<attribute name="entity.key"/>
-							<attribute name="path"/>
-						</dmr>
-					</select>
-					<form id="undertow#fileAttributes" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file={selected.entity}"/>
-					</form>
-				</container>
-			</pages>
-			<pages id="filter" operator="Choice">
-				<container id="undertow#basicAuth" operator="Concurrency">
-					<select id="undertow#basicAuthSelection">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*">
-							<attribute name="entity.key"/>
-						</dmr>
-					</select>
-					<form id="undertow#filterAuthAttributes" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth={selected.entity}"/>
-					</form>
-				</container>
-				<container id="undertow#connectionLimit" operator="Concurrency">
-					<select id="undertow#connectionLimitSelection">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*">
-							<attribute name="entity.key"/>
-						</dmr>
-					</select>
-					<form id="undertow#connectionLimitAttributes" operator="Concurrency">
-						<dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit={selected.entity}"/>
-					</form>
-				</container>
-			</pages>
-		</editorpanel>
+    <editorpanel id="undertow">
+        <dmr address="/{selected.profile}/subsystem=undertow"/>
+
+
+        <pages id="handler" operator="Choice">
+            <container xmlns="http://wildfly.org/undertow/fileHandler" id="undertow#fileHandler" label="File">
+                <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*"/>
+                <toolstrip id="tools">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
+                <select id="fileHandler">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file=*">
+                        <attribute name="entity.key"/>
+                        <attribute name="path"/>
+                    </dmr>
+                </select>
+                <form id="undertow#fileAttributes">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/file={selected.entity}"/>
+                </form>
+            </container>
+
+            <container xmlns="http://wildfly.org/undertow/proxy" id="undertow#proxy" label="Reverse Proxy">
+
+                <toolstrip id="tools">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/reverse-proxy={selected.entity}"/>
+                    <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                        <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/reverse-proxy=*"/>
+                    </trigger>
+                    <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+                </toolstrip>
+
+                <select id="proxySelection">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/reverse-proxy=*">
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+                <form id="undertow#proxyAttributes">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=handler/reverse-proxy={selected.entity}"/>
+                </form>
+            </container>
+        </pages>
+
+        <!--pages id="filter">
+
+            <container id="undertow#basicAuth" operator="Concurrency">
+                <select id="undertow#basicAuthSelection">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth=*">
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+                <form id="undertow#filterAuthAttributes">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/basic-auth={selected.entity}"/>
+                </form>
+            </container>
+
+            <container id="undertow#connectionLimit" operator="Concurrency">
+                <select id="undertow#connectionLimitSelection">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit=*">
+                        <attribute name="entity.key"/>
+                    </dmr>
+                </select>
+                <form id="undertow#connectionLimitAttributes">
+                    <dmr address="/{selected.profile}/subsystem=undertow/configuration=filter/connection-limit={selected.entity}"/>
+                </form>
+            </container>
+
+        </pages-->
+
+    </editorpanel>
 
 </dialog>

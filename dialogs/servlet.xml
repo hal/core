@@ -1,40 +1,41 @@
-<dialog xmlns="http://wildfly.org/undertow/servlet" id="servlet-container">
-	<container id="servletContainer" label="servletContainer" operator="Concurrency">
-		<dmr xmlns="htt://whildfly.org" address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>
-		<container id="details" label="details" operator="Choice">
-			<form id="servletContainer#attributes" label="Attributes" operator="Concurrency">
-				<dmr xmlns="htt://whildfly.org">
-					<attribute name="development"/>
-					<attribute name="disabled"/>
-				</dmr>
-			</form>
-			<form id="servletContainer#jsp" label="JSP" operator="Concurrency">
-				<dmr xmlns="htt://whildfly.org">
-					<attribute name="trim-spaces"/>
-					<attribute name="recompile-on-fail"/>
-					<attribute name="check-interval"/>
-					<attribute name="modification-test-interval"/>
-					<attribute name="display-source-fragment"/>
-					<attribute name="error-on-use-bean-invalid-class-attribute"/>
-					<attribute name="java-encoding"/>
-					<attribute name="tag-pooling"/>
-					<attribute name="generate-strings-as-char-arrays"/>
-				</dmr>
-			</form>
-			<form id="servletContainer#other" label="Other" operator="Concurrency">
-				<dmr xmlns="htt://whildfly.org">
-					<attribute name="smap"/>
-					<attribute name="keep-generated"/>
-					<attribute name="scratch-dir"/>
-					<attribute name="display-source-fragment"/>
-					<attribute name="error-on-use-bean-invalid-class-attribute"/>
-					<attribute name="target-vm"/>
-					<attribute name="x-powered-by"/>
-					<attribute name="dump-smap"/>
-					<attribute name="mapped-file"/>
-					<attribute name="source-vm"/>
-				</dmr>
-			</form>
-		</container>
-	</container>
+<dialog xmlns="http://wildfly.org/undertow/server-config" id="server-config">
+
+    <editorpanel id="server" label="Server Config">
+
+        <container xmlns="http://wildfly.org/undertow/server" id="server" label="Server" operator="Concurrency">
+            <form id="server#common" label="Attributes">
+                <dmr address="/{selected.profile}/subsystem=undertow/server=default-server">
+                    <attribute name="default-host"/>
+                    <attribute name="servlet-container"/>
+                </dmr>
+            </form>
+        </container>
+
+        <container xmlns="http://wildfly.org/undertow/servlet" id="servletContainer" label="Servlet Container" operator="Concurrency">
+
+
+            <pages id="servlet-configuration" operator="Choice">
+
+                <container id="common" label="Common">
+                    <form id="servletContainer">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default"/>
+                    </form>
+                </container>
+
+                <container id="JSP">
+                    <form id="servletContainer#jsp">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>
+                    </form>
+                </container>
+
+                <container id="sessions" label="Sessions">
+                    <form id="servletContainer#sessions">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=persistent-sessions"/>
+                    </form>
+                </container>
+
+            </pages>
+        </container>
+
+    </editorpanel>
 </dialog>
