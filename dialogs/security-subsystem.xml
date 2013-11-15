@@ -87,9 +87,9 @@
                             </dmr>
                         </form>
                         <properties id="moduleOptions" label="Module Options">
-                            <!--dmr>
+                            <dmr>
                                 <object name="module-options"/>
-                            </dmr-->
+                            </dmr>
                         </properties>
                     </container>
                 </container>
