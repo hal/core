@@ -33,6 +33,7 @@
                     <attribute name="entity.key"/>
                 </dmr>
             </pulldown>
+
             <pages id="securityModules" operator="Choice">
 
                 <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" label="Authentication" operator="Concurrency">

@@ -23,7 +23,7 @@ public class TodoStrategy implements ReificationStrategy<ReificationWidget, Ster
     public ReificationWidget reify(final InteractionUnit<StereoTypes> interactionUnit, Context context) {
         final HTML placeholder = new HTML();
         placeholder.getElement().setAttribute("style", "border:1px solid red; padding:20px;font-size:16px");
-        placeholder.setText("TODO:"+interactionUnit.getLabel());
+        placeholder.setText("TODO: "+interactionUnit.getLabel());
 
         return new ReificationWidget() {
             @Override

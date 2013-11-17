@@ -53,7 +53,9 @@
 					</form>
 				</container>
 			</container>
-			<container id="xsDS" operator="Concurrency" label="XA-Datasources"/>
+			<container id="xsDS" operator="Concurrency" label="XA-Datasources">
+                <todo id="xsDs-todo" label="Dialog content not provided yet"/>
+			</container>
 		</editorpanel>
 
 </dialog>

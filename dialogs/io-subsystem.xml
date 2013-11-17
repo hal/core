@@ -4,7 +4,7 @@
 			<dmr address="/{selected.profile}/subsystem=io"/>
 
             <container id="editors" operator="Choice">
-				<container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency">
+				<container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency" label="Workers">
 					<toolstrip id="worker-tools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
 						<trigger id="add" type="org.jboss.as:resource-operation#add">
@@ -24,7 +24,7 @@
 					</form>
 				</container>
 
-				<container xmlns="http://undertow.org/io/buffers" id="buffers" operator="Concurrency">
+				<container xmlns="http://undertow.org/io/buffers" id="buffers" operator="Concurrency" label="Buffers">
 					<toolstrip id="buffer-tools" operator="Concurrency">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
 						<trigger id="add" type="org.jboss.as:resource-operation#add">
