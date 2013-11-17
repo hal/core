@@ -11,5 +11,7 @@ public enum StereoTypes {
     Toolstrip,
     EditorPanel,
     Pages,
-    PullDown
+    PullDown,
+    Todo;
+
 }

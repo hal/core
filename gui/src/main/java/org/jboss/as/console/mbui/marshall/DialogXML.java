@@ -13,6 +13,7 @@ import org.jboss.as.console.mbui.marshall.adapters.FormAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.PagesAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.PropertiesAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.PulldownAdapter;
+import org.jboss.as.console.mbui.marshall.adapters.TodoAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.ToolstripAdapter;
 import org.jboss.as.console.mbui.marshall.adapters.UsewareAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
@@ -53,6 +54,7 @@ public class DialogXML {
         adapters.add(new PagesAdapter());
         adapters.add(new PulldownAdapter());
         adapters.add(new EditorPanelAdapter());
+        adapters.add(new TodoAdapter());
 
         adapters.add(new DMRAdapter());
     }

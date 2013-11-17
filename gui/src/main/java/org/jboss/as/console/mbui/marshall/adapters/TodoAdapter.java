@@ -8,17 +8,18 @@ import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.Output;
 import org.useware.kernel.model.structure.QName;
 
 /**
  * @author Heiko Braun
  * @date 10/14/13
  */
-public class ToolstripAdapter implements ElementAdapter<InteractionUnit> {
+public class TodoAdapter implements ElementAdapter<InteractionUnit> {
 
     @Override
     public String getElementName() {
-        return "toolstrip";
+        return "todo";
     }
 
     @Override
@@ -27,11 +28,11 @@ public class ToolstripAdapter implements ElementAdapter<InteractionUnit> {
         String label = ParseUtils.IDOrLabel(node);
 
         QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
-        Container tools = new Container(
+        Output output = new Output(
                 id.getNamespaceURI(), id.getLocalPart(),
-                label,
-                StereoTypes.Toolstrip);
-        return tools;
+                label, StereoTypes.Todo);
+
+        return output;
     }
 
     @Override

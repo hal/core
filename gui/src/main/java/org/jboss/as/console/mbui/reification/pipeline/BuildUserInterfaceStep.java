@@ -96,6 +96,7 @@ public class BuildUserInterfaceStep extends ReificationStep
         this.strategies.add(new SelectStrategy());
         this.strategies.add(new PullDownStrategy());
         this.strategies.add(new PropertiesStrategy());
+        this.strategies.add(new TodoStrategy());
 
         // containerStack
         this.strategies.add(new ConcurrencyStrategy());
