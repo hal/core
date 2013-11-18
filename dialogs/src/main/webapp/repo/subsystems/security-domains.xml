@@ -3,7 +3,7 @@
     <editorpanel id="securityDomains" operator="Choice">
         <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
 
-        <container xmlns="http://wildfly.org/security/domains" id="domains" operator="Concurrency" label="Security Domains">
+        <container xmlns="http://wildfly.org/security/domains" id="domains" label="Security Domains">
             <toolstrip id="tools">
                 <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
                 <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
@@ -27,7 +27,7 @@
             </container>
         </container>
 
-        <container xmlns="http://wildfly.org/security/domain/config" id="domainConfiguration" operator="Concurrency" label="Domain Configuration">
+        <container xmlns="http://wildfly.org/security/domain/config" id="domainConfiguration" label="Domain Configuration">
             <pulldown id="domainSelection" label="Security Domain">
                 <dmr>
                     <attribute name="entity.key"/>
@@ -36,7 +36,7 @@
 
             <pages id="securityModules" operator="Choice">
 
-                <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" label="Authentication" operator="Concurrency">
+                <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" label="Authentication">
 
                     <toolstrip id="tools">
                         <trigger id="add" type="org.jboss.as:resource-operation#add"/>
@@ -68,7 +68,7 @@
                     </container>
                 </container>
 
-                <container xmlns="http://wildfly.org/security/domain/authorisation" id="modules" label="Authorisation" operator="Concurrency">
+                <container xmlns="http://wildfly.org/security/domain/authorisation" id="modules" label="Authorisation">
 
                     <toolstrip id="tools">
                         <trigger id="add" type="org.jboss.as:resource-operation#add"/>
