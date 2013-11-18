@@ -26,7 +26,6 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entr
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Harald Pehl
@@ -70,8 +69,8 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
     }
 
     @Override
-    public void updateFile(String fileContents) {
-        editor.setText(fileContents);
+    public void updateFile(String name, String fileContents) {
+        editor.setText(name, fileContents);
     }
 
     @Override

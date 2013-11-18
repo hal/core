@@ -8,6 +8,7 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -32,7 +33,7 @@ public class ModelEditor {
 
     private AceEditor editor = new AceEditor();
     private String text;
-    private ContentHeaderLabel header;
+    private HTML header;
     private String dialogName;
     private MenuBar menu;
     private MenuItem fullScreenItem;
@@ -188,7 +189,9 @@ public class ModelEditor {
         });
     }
 
-    public void setText(String text) {
+    public void setText(String name, String text) {
+
+        header.setText("Dialog: "+name);
         String formatted = null;
         try {
             formatted = formatXml(text);

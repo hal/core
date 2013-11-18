@@ -84,7 +84,7 @@ public class RepositoryPresenter
 
         void clearHistory();
 
-        void updateFile(String fileContents);
+        void updateFile(String name, String fileContents);
 
         String getText();
     }
@@ -164,14 +164,13 @@ public class RepositoryPresenter
         DefaultWindow window = new DefaultWindow("Dialog: "+dialog.getId());
         window.setWidth(800);
         window.setHeight(600);
-        window.setWidget(new ScrollPanel(visualization.getChart()));
+        ScrollPanel widgets = new ScrollPanel(visualization.getChart());
+        window.setWidget(widgets);
         window.center();
     }
 
     public void onReify(final String name)
     {
-
-        System.out.println(">>"+name);
 
         if(preview!=null)
             preview.hide();
@@ -232,7 +231,7 @@ public class RepositoryPresenter
                 @Override
                 public void onSuccess(Boolean result) {
                     Console.info("Successfully saved "+selectedDialog.getName());
-                    getView().updateFile(document.toString());
+                    getView().updateFile(selectedDialog.getName(), document.toString());
                 }
             });
         } catch (Throwable e) {
@@ -269,7 +268,7 @@ public class RepositoryPresenter
         vfs.load(selection, new SimpleCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                getView().updateFile(result);
+                getView().updateFile(selection.getName(), result);
             }
         });
     }
