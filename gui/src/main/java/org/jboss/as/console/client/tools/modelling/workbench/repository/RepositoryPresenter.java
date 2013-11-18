@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -165,13 +164,14 @@ public class RepositoryPresenter
         DefaultWindow window = new DefaultWindow("Dialog: "+dialog.getId());
         window.setWidth(800);
         window.setHeight(600);
-        window.setModal(true);
         window.setWidget(new ScrollPanel(visualization.getChart()));
         window.center();
     }
 
     public void onReify(final String name)
     {
+
+        System.out.println(">>"+name);
 
         if(preview!=null)
             preview.hide();
@@ -194,16 +194,12 @@ public class RepositoryPresenter
 
     private void doPreview(Widget widget, String name) {
 
-        if(null==preview)
-        {
-            preview = new DefaultWindow("Preview: "+ name);
-            preview.setWidth(640);
-            preview.setHeight(480);
-        }
+        preview = new DefaultWindow("Preview: "+ name);
+        preview.setWidth(640);
+        preview.setHeight(480);
 
         preview.setWidget(widget);
         preview.center();
-
     }
 
     public void onActivate()
