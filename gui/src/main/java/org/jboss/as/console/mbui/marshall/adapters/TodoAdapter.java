@@ -4,6 +4,7 @@ import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.Element;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.impl.DOMUtils;
+import org.jboss.as.console.client.tools.UUID;
 import org.jboss.as.console.mbui.marshall.ElementAdapter;
 import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.model.structure.Container;
@@ -27,7 +28,8 @@ public class TodoAdapter implements ElementAdapter<InteractionUnit> {
 
         String label = ParseUtils.IDOrLabel(node);
 
-        QName id = new QName(node.getNamespaceURI(), node.getAttributes().getNamedItem("id").getNodeValue());
+        String idAtt = UUID.uuid().toString();//node.getAttributes().getNamedItem("id").getNodeValue();
+        QName id = new QName(node.getNamespaceURI(), idAtt);
         Output output = new Output(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label, StereoTypes.Todo);
