@@ -3,7 +3,7 @@
 		<editorpanel id="io-subsystem">
 			<dmr address="/{selected.profile}/subsystem=io"/>
 
-            <container id="editors" operator="Choice">
+            <container id="main" operator="Choice" label="IO Configuration">
 
                 <container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency" label="Workers">
 

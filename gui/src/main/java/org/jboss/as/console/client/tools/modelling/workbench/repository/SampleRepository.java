@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.mbui.DialogRepository;
 import org.useware.kernel.model.Dialog;
 
@@ -51,7 +52,7 @@ public class SampleRepository implements DialogRepository
     }
 
     @Override
-    public Dialog getDialog(String name) {
+    public void getDialog(String name, AsyncCallback<Dialog> callback) {
         Dialog dialog = null;
 
         for(Sample sample : samples)
@@ -62,6 +63,6 @@ public class SampleRepository implements DialogRepository
                 break;
             }
         }
-        return dialog;
+        callback.onSuccess(dialog);
     }
 }

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -16,6 +17,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.mbui.DialogRepository;
 import org.jboss.as.console.mbui.Framework;
 import org.jboss.as.console.mbui.Kernel;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -32,7 +34,7 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
-    private final CommonDialogs dialogs;
+    private final DialogRepository dialogs;
     private String dialog;
 
     @ProxyCodeSplit
@@ -59,7 +61,7 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
         );
 
         // mbui kernel instance
-        this.dialogs = new CommonDialogs();
+        this.dialogs = new RemoteRepository();
         this.kernel = new Kernel(dialogs, new Framework() {
             @Override
             public DispatchAsync getDispatcher() {
@@ -82,12 +84,16 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
     @Override
     public void prepareFromRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
-        dialog = request.getParameter("dialog", null);
-        if(null==dialog)
+        String name = request.getParameter("dialog", null);
+        if(null==name)
         {
-            System.out.println("Parameter dialog is missing");
+            Window.alert(("Parameter dialog is missing"));
             throw new RuntimeException("Parameter dialog is missing");
         }
+
+        dialog = name.replace("_", "/"); // workaround for URL parameters
+
+
     }
 
 

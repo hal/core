@@ -110,8 +110,8 @@ public class RepositoryPresenter
 
         DialogRepository adhocRepo = new DialogRepository() {
             @Override
-            public Dialog getDialog(String name) {
-                return new DialogXML().unmarshall(getView().getText());
+            public void getDialog(String name, AsyncCallback<Dialog> callback) {
+                callback.onSuccess(new DialogXML().unmarshall(getView().getText()));
             }
         };
 

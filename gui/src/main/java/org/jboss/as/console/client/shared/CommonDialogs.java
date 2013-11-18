@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.IOSubsystemExample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.Sample;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.ServletContainerExample;
@@ -26,7 +27,7 @@ public class CommonDialogs implements DialogRepository {
         dialogs.add(new IOSubsystemExample());
     }
     @Override
-    public Dialog getDialog(String name) {
+    public void getDialog(String name, AsyncCallback<Dialog> callback) {
         Dialog dialog = null;
 
         for(Sample sample : dialogs)
@@ -37,6 +38,6 @@ public class CommonDialogs implements DialogRepository {
                 break;
             }
         }
-        return dialog;
+        callback.onSuccess(dialog);
     }
 }
