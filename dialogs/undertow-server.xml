@@ -10,18 +10,19 @@
             </form>
         </container-->
 
-        <container xmlns="http://wildfly.org/undertow/host" id="host" label="Host" operator="Concurrency">
+        <container xmlns="http://wildfly.org/undertow/host" id="host" label="Host">
            <todo id="host-todo" label="The host model needs to be revisited..."/>
         </container>
 
         <pages id="listener" label="Listener" operator="Choice">
 
-            <container xmlns="http://undertow.org/listener/http" id="listeners" label="HTTP" operator="Concurrency">
+            <container xmlns="http://undertow.org/listener/http" id="listeners" label="HTTP">
                 <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
                     <attribute name="entity.key"/>
                     <attribute name="enabled"/>
                 </dmr>
-                <toolstrip id="httptools" label="httptools">
+
+                <toolstrip id="httptools">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
                     <trigger id="add" label="Add" type="org.jboss.as:resource-operation#add">
                         <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener=*">
@@ -31,15 +32,17 @@
                     </trigger>
                     <trigger id="remove" label="Remove" type="org.jboss.as:resource-operation#remove"/>
                 </toolstrip>
-                <select id="httpListener" label="httpListener">
+
+                <select id="httpListener">
                     <dmr>
                         <attribute name="entity.key"/>
                         <attribute name="enabled"/>
                     </dmr>
                 </select>
+
                 <container id="undertow#httpListenerConfig" label="undertow#httpListenerConfig" operator="Choice">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/http-listener={selected.entity}"/>
-                    <form id="undertow#httpListenerAttributes" label="Attributes" operator="Concurrency">
+                    <form id="undertow#httpListenerAttributes" label="Attributes">
                         <dmr>
                             <attribute name="worker"/>
                             <attribute name="enabled"/>
@@ -56,17 +59,17 @@
                     <attribute name="entity.key"/>
                     <attribute name="enabled"/>
                 </dmr>
-                <toolstrip id="ajptools" label="ajptools">
+                <toolstrip id="ajptools">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
-                    <trigger id="add" label="add" type="org.jboss.as:resource-operation#add">
+                    <trigger id="add" label="Add" type="org.jboss.as:resource-operation#add">
                         <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener=*">
                             <attribute name="entity.key"/>
                             <attribute name="enabled"/>
                         </dmr>
                     </trigger>
-                    <trigger id="remove" label="remove" type="org.jboss.as:resource-operation#remove"/>
+                    <trigger id="remove" label="Remove" type="org.jboss.as:resource-operation#remove"/>
                 </toolstrip>
-                <select id="ajpListener" label="ajpListener">
+                <select id="ajpListener">
                     <dmr>
                         <attribute name="entity.key"/>
                         <attribute name="enabled"/>
@@ -74,7 +77,7 @@
                 </select>
                 <container id="undertow#ajpListenerConfig" label="undertow#ajpListenerConfig" operator="Choice">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/ajp-listener={selected.entity}"/>
-                    <form id="undertow#ajpListenerAttributes" label="Attributes" operator="Concurrency">
+                    <form id="undertow#ajpListenerAttributes" label="Attributes">
                         <dmr>
                             <attribute name="worker"/>
                             <attribute name="enabled"/>
@@ -86,22 +89,22 @@
             </container>
 
 
-            <container xmlns="http://undertow.org/listener/https" id="listeners" label="HTTPS" operator="Concurrency">
+            <container xmlns="http://undertow.org/listener/https" id="listeners" label="HTTPS">
                 <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
                     <attribute name="entity.key"/>
                     <attribute name="enabled"/>
                 </dmr>
-                <toolstrip id="httpstools" label="httpstools">
+                <toolstrip id="httpstools">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
-                    <trigger id="add" label="add" type="org.jboss.as:resource-operation#add">
+                    <trigger id="add" label="Add" type="org.jboss.as:resource-operation#add">
                         <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener=*">
                             <attribute name="entity.key"/>
                             <attribute name="enabled"/>
                         </dmr>
                     </trigger>
-                    <trigger id="remove" label="remove" type="org.jboss.as:resource-operation#remove"/>
+                    <trigger id="remove" label="Remove" type="org.jboss.as:resource-operation#remove"/>
                 </toolstrip>
-                <select id="httpsListener" label="httpsListener">
+                <select id="httpsListener">
                     <dmr>
                         <attribute name="entity.key"/>
                         <attribute name="enabled"/>
@@ -110,7 +113,7 @@
                 </select>
                 <container id="undertow#httpsListenerConfig" label="undertow#httpsListenerConfig" operator="Choice">
                     <dmr address="/{selected.profile}/subsystem=undertow/server=default-server/https-listener={selected.entity}"/>
-                    <form id="undertow#httpsListenerAttributes" label="Attributes" operator="Concurrency">
+                    <form id="undertow#httpsListenerAttributes" label="Attributes">
                         <dmr>
                             <attribute name="worker"/>
                             <attribute name="enabled"/>

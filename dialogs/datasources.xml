@@ -3,9 +3,9 @@
 		<editorpanel id="datasources">
 			<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
 
-			<container id="regularDS" operator="Concurrency" label="Datasources">
+			<container id="regularDS" label="Datasources">
 
-                <toolstrip id="tools" operator="Concurrency">
+                <toolstrip id="tools">
 					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
 					<trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
 						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
@@ -53,7 +53,7 @@
 					</form>
 				</container>
 			</container>
-			<container id="xsDS" operator="Concurrency" label="XA-Datasources">
+			<container id="xsDS" label="XA-Datasources">
                 <todo id="xsDs-todo" label="Dialog content not provided yet"/>
 			</container>
 		</editorpanel>

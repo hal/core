@@ -1,11 +1,13 @@
 <dialog xmlns="http://undertow.org/io" id="io-subsystem">
 
-		<editorpanel id="io-subsystem" operator="Concurrency">
+		<editorpanel id="io-subsystem">
 			<dmr address="/{selected.profile}/subsystem=io"/>
 
             <container id="editors" operator="Choice">
-				<container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency" label="Workers">
-					<toolstrip id="worker-tools" operator="Concurrency">
+
+                <container xmlns="http://undertow.org/io/workers" id="workers" operator="Concurrency" label="Workers">
+
+                    <toolstrip id="worker-tools">
 						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
 						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=io/worker=*">
@@ -14,18 +16,20 @@
 						</trigger>
 						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
+
 					<select id="worker">
 						<dmr address="/{selected.profile}/subsystem=io/worker=*">
 							<attribute name="entity.key"/>
 						</dmr>
 					</select>
-					<form id="workerDetails" operator="Concurrency">
+					<form id="workerDetails">
 						<dmr address="/{selected.profile}/subsystem=io/worker={selected.entity}"/>
 					</form>
 				</container>
 
 				<container xmlns="http://undertow.org/io/buffers" id="buffers" operator="Concurrency" label="Buffers">
-					<toolstrip id="buffer-tools" operator="Concurrency">
+
+                    <toolstrip id="buffer-tools">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
 						<trigger id="add" type="org.jboss.as:resource-operation#add">
 							<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">
@@ -34,12 +38,13 @@
 						</trigger>
 						<trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
 					</toolstrip>
-					<select id="buffer">
+
+                    <select id="buffer">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool=*">
 							<attribute name="entity.key"/>
 						</dmr>
 					</select>
-					<form id="bufferDetails" operator="Concurrency">
+					<form id="bufferDetails">
 						<dmr address="/{selected.profile}/subsystem=io/buffer-pool={selected.entity}"/>
 					</form>
 				</container>

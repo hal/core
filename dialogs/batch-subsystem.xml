@@ -12,7 +12,7 @@
                 </dmr>
             </select>
 
-            <form id="batch#jobRepository" operator="Concurrency">
+            <form id="batch#jobRepository">
                 <dmr>
                 </dmr>
             </form>
@@ -23,7 +23,7 @@
             <container  xmlns="http://wildfly.org/batch/factories" id="factories" label="Thread Factories" operator="Concurrency">
                 <dmr address="/profile={selected.profile}/subsystem=batch/thread-factory=*"/>
 
-                <toolstrip id="tools" operator="Concurrency">
+                <toolstrip id="tools">
                     <dmr address="/{selected.profile}/subsystem=batch/thread-factory={selected.entity}"/>
                     <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
                         <dmr address="/{selected.profile}/subsystem=batch/thread-factory=*"/>
@@ -37,7 +37,7 @@
                     </dmr>
                 </select>
 
-                <form id="batch#factories" operator="Concurrency">
+                <form id="batch#factories">
                     <dmr address="/profile={selected.profile}/subsystem=batch/thread-factory={selected.entity}">
 
                     </dmr>
@@ -47,13 +47,14 @@
             <container xmlns="http://wildfly.org/batch/pools" id="pools" label="Thread Pools" operator="Concurrency">
                 <dmr address="/profile={selected.profile}/subsystem=batch/thread-pool=batch"/>
 
-                <toolstrip id="tools" operator="Concurrency">
+                <todo id="pool-todo" label="The wildcard handler for 'batch=*' seems to be missing"/>
+                <!--toolstrip id="tools">
                     <dmr address="/{selected.profile}/subsystem=batch/thread-pool={selected.entity}"/>
                     <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
                         <dmr address="/{selected.profile}/subsystem=batch/thread-pool=*"/>
                     </trigger>
                     <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
-                </toolstrip>
+                </toolstrip-->
 
                 <select id="pool-list">
                     <dmr>
@@ -61,7 +62,7 @@
                     </dmr>
                 </select>
 
-                <form id="batch#pools" operator="Concurrency">
+                <form id="batch#pools">
                     <dmr>
 
                     </dmr>

@@ -2,9 +2,9 @@
 
     <editorpanel id="panel">
 
-        <container xmlns="http://wildfly.org/undertow/servlet" id="servletContainer" label="Servlet Container" operator="Concurrency">
+        <container xmlns="http://wildfly.org/undertow/servlet" id="servletContainer" label="Servlet Container">
 
-            <pages id="servlet-configuration" operator="Choice">
+            <pages id="servlet-configuration">
 
                 <container id="common" label="Common">
                     <form id="servletContainer">
