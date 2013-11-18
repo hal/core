@@ -46,6 +46,12 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-console-dialogs</artifactId>
+            <type>war</type>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-console-core</artifactId>
             <scope>provided</scope>
         </dependency>
@@ -92,6 +98,11 @@
                             <overlay>
                                 <groupId>org.jboss.as</groupId>
                                 <artifactId>jboss-as-console-resources</artifactId>
+                                <type>war</type>
+                            </overlay>
+                            <overlay>
+                                <groupId>org.jboss.as</groupId>
+                                <artifactId>jboss-as-console-dialogs</artifactId>
                                 <type>war</type>
                             </overlay>
                         </overlays>

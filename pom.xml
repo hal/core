@@ -101,6 +101,7 @@
         <module>bom</module>
         <module>spi</module>
         <module>resources</module>
+        <module>dialogs</module>
         <module>dmr</module>
         <module>flow</module>
         <module>gui</module>
