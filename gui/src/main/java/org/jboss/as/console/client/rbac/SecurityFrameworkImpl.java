@@ -1,5 +1,17 @@
 package org.jboss.as.console.client.rbac;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
@@ -16,17 +28,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * The security manager creates and provides a {@link SecurityContext} per place
@@ -350,23 +351,18 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 context.setConstraints(ref.address, defaultConstraints);
 
             // exceptions (instances) of requested resource type
-            if(accessControl.hasDefined(EXCEPTIONS))
-            {
-
+            if (accessControl.hasDefined(EXCEPTIONS)) {
                 // TODO: API V3 -> https://issues.jboss.org/browse/HAL-259
-
-                /*for(Property exception : accessControl.get(EXCEPTIONS).asPropertyList())
-                {
+                for (Property exception : accessControl.get(EXCEPTIONS).asPropertyList()) {
                     // TODO: AddressMapping compatible expression
                     // See https://issues.jboss.org/browse/WFLY-2263
                     ResourceRef exceptionRef = new ResourceRef(exception.getName());
                     Constraints instanceConstraints = parseConstraints(exceptionRef, exception.getValue());
 
                     // TODO: child context wiring
-                    System.out.println("child context: "+instanceConstraints.getResourceAddress());
-                } */
+                    System.out.println("child context: " + instanceConstraints.getResourceAddress());
+                }
             }
-
         }
     }
 
