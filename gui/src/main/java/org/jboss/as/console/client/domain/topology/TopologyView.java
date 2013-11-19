@@ -59,16 +59,14 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
  * @author Harald Pehl
- * @date 10/09/12
  */
-public class TopologyView extends SuspendableViewImpl implements TopologyPresenter.MyView
-{
+public class TopologyView extends SuspendableViewImpl implements TopologyPresenter.MyView {
+
     static final String SERVER_GROUP_CLASS = "serverGroup";
     static final int TABLE_WIDTH = 100; // percent
     static final int SERVER_GROUPS_COLUMN = 15; // percent
     static final int HOSTS_COLUMNS = TABLE_WIDTH - SERVER_GROUPS_COLUMN;
     static final int SERVER_GROUP_COLORS = 5; // must match the '.serverGroupX' css class names
-
     private int hostIndex = 0; // the index of the current visible host
     private int visibleHosts = TopologyPresenter.VISIBLE_HOSTS_COLUMNS;
     private int hostSize = 0;
@@ -80,17 +78,14 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
     private HostsPager pager;
 
     @Override
-    public Widget createWidget()
-    {
+    public Widget createWidget() {
         lifecycleLinkListener = new LifecycleLinkListener();
 
         ToolStrip topLevelTools = new ToolStrip();
         topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(),
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent event)
-                    {
+                    public void onClick(ClickEvent event) {
                         presenter.loadTopology();
                     }
                 }));
@@ -110,37 +105,35 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
 
         layout.addContent("topology", container);
 
-        // ---------------------
-
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
-
         tabLayoutpanel.add(layout.build(), "Topology", true);
         tabLayoutpanel.add(extensions.asWidget(), "Extensions", true);
-
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;
     }
 
     @Override
-    public void setPresenter(final TopologyPresenter presenter)
-    {
+    public void setPresenter(final TopologyPresenter presenter) {
         this.presenter = presenter;
         extensions.setPresenter(presenter);
     }
 
     @Override
-    public void updateHosts(SortedSet<ServerGroup> groups, final int index)
-    {
+    public void setExtensions(List<Extension> result) {
+        extensions.setExtensions(result);
+    }
+
+    @Override
+    public void updateHosts(SortedSet<ServerGroup> groups, final int index) {
         // validation
         HtmlGenerator html = new HtmlGenerator();
-        if (groups == null || groups.isEmpty())
-        {
+        if (groups == null || groups.isEmpty()) {
             // no server/groups available ...
             HTML blank = new HTML("There don't seem to be any servers configured on this system.");
             container.clear();
-            container.insert(blank, 0);
+            container.add(blank);
             return;
         }
 
@@ -158,16 +151,14 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
         html.startTable().appendHtmlConstant("<colgroup>");
         int columnWidth = HOSTS_COLUMNS / (endIndex - this.hostIndex);
         html.appendColumn(SERVER_GROUPS_COLUMN);
-        for (int i = this.hostIndex; i < endIndex; i++)
-        {
+        for (int i = this.hostIndex; i < endIndex; i++) {
             html.appendColumn(columnWidth);
         }
         html.appendHtmlConstant("</colgroup>");
 
         // first row contains host names
         html.appendHtmlConstant("<thead><tr><th class='cellTableHeader'>Hosts&nbsp;&rarr;<br/>Groups&nbsp;&darr;</th>");
-        for (int i = this.hostIndex; i < endIndex; i++)
-        {
+        for (int i = this.hostIndex; i < endIndex; i++) {
             HostInfo host = hosts.get(i);
             html.appendHost(host);
         }
@@ -175,25 +166,18 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
 
         // remaining rows contain server groups and server instances
         html.appendHtmlConstant("<tbody>");
-        for (ServerGroup group : groups)
-        {
-            for (int serverIndex = 0; serverIndex < group.maxServersPerHost; serverIndex++)
-            {
+        for (ServerGroup group : groups) {
+            for (int serverIndex = 0; serverIndex < group.maxServersPerHost; serverIndex++) {
                 html.appendHtmlConstant("<tr>");
-                if (serverIndex == 0)
-                {
+                if (serverIndex == 0) {
                     html.appendServerGroup(group);
                 }
-                for (int i = this.hostIndex; i < endIndex; i++)
-                {
+                for (int i = this.hostIndex; i < endIndex; i++) {
                     HostInfo host = hosts.get(i);
                     List<ServerInstance> servers = group.serversPerHost.get(host);
-                    if (servers.isEmpty() || serverIndex >= servers.size())
-                    {
+                    if (servers.isEmpty() || serverIndex >= servers.size()) {
                         html.emptyCell();
-                    }
-                    else
-                    {
+                    } else {
                         html.appendServer(group, host.getName(), servers.get(serverIndex));
                     }
                 }
@@ -204,40 +188,29 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
 
         // create html panel and register events
         HTMLPanel panel = html.createPanel();
-        for (String id : html.getLifecycleIds())
-        {
+        for (String id : html.getLifecycleIds()) {
             com.google.gwt.user.client.Element element = panel.getElementById(id);
-            if (element != null)
-            {
+            if (element != null) {
                 DOM.setEventListener(element, lifecycleLinkListener);
                 DOM.sinkEvents(element, ONCLICK);
             }
         }
-        if (container.getWidgetCount() == 2)
-        {
-            container.remove(0);
-        }
-        {
-            container.clear();
-        }
-
-        container.insert(panel, 0);
-
+        container.clear();
+        container.add(panel);
         container.add(pager);
 
         // update navigation
         RowCountChangeEvent.fire(display, hostSize, true);
     }
 
-    private void assignColors(SortedSet<ServerGroup> serverGroups)
-    {
+    private void assignColors(SortedSet<ServerGroup> serverGroups) {
         int index = 0;
-        for (ServerGroup group : serverGroups)
-        {
+        for (ServerGroup group : serverGroups) {
             group.cssClassname = SERVER_GROUP_CLASS + (index % SERVER_GROUP_COLORS);
             index++;
         }
     }
+
 
     // ------------------------------------------------------ inner classes
 
@@ -245,53 +218,40 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
      * Listener for lifecycle links (start, stop, reload (server) groups. The clicked element contains
      * "data"- attributes which carry the relevant (server) group and host information.
      */
-    private class LifecycleLinkListener implements EventListener
-    {
+    private class LifecycleLinkListener implements EventListener {
+
         @Override
-        public void onBrowserEvent(final Event event)
-        {
-            if (event.getTypeInt() == ONCLICK)
-            {
+        public void onBrowserEvent(final Event event) {
+            if (event.getTypeInt() == ONCLICK) {
                 Element element = event.getEventTarget().cast();
                 final String id = element.getId();
-                if (id != null)
-                {
-                    if (id.contains("_server_"))
-                    {
+                if (id != null) {
+                    if (id.contains("_server_")) {
                         final String server = element.getAttribute(DATA_SERVER_NAME);
                         final String host = element.getAttribute(DATA_HOST_NAME);
                         final LifecycleOperation op = getLifecycleOperation(id);
-                        if (op != null)
-                        {
+                        if (op != null) {
                             Feedback.confirm("Modify Server",
                                     "Do really want to " + op.name().toLowerCase() + " server " + server + "?",
-                                    new Feedback.ConfirmationHandler()
-                                    {
+                                    new Feedback.ConfirmationHandler() {
                                         @Override
-                                        public void onConfirmation(boolean isConfirmed)
-                                        {
-                                            if (isConfirmed)
-                                            {
+                                        public void onConfirmation(boolean isConfirmed) {
+                                            if (isConfirmed) {
                                                 presenter.onServerInstanceLifecycle(host, server, op);
                                             }
                                         }
                                     });
                         }
-                    }
-                    else if (id.contains("_group_"))
-                    {
+                    } else if (id.contains("_group_")) {
                         final String group = element.getAttribute(DATA_GROUP_NAME);
                         final LifecycleOperation op = getLifecycleOperation(id);
-                        if (op != null)
-                        {
-                            Feedback.confirm("Modify Server", "Do really want to " + op.name().toLowerCase() + " all servers in group " + group + "?",
-                                    new Feedback.ConfirmationHandler()
-                                    {
+                        if (op != null) {
+                            Feedback.confirm("Modify Server", "Do really want to " + op.name()
+                                    .toLowerCase() + " all servers in group " + group + "?",
+                                    new Feedback.ConfirmationHandler() {
                                         @Override
-                                        public void onConfirmation(boolean isConfirmed)
-                                        {
-                                            if (isConfirmed)
-                                            {
+                                        public void onConfirmation(boolean isConfirmed) {
+                                            if (isConfirmed) {
                                                 presenter.onGroupLifecycle(group, op);
                                             }
                                         }
@@ -302,130 +262,99 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
             }
         }
 
-        private LifecycleOperation getLifecycleOperation(final String id)
-        {
+        private LifecycleOperation getLifecycleOperation(final String id) {
             LifecycleOperation op = null;
-            if (id.startsWith("start_"))
-            {
+            if (id.startsWith("start_")) {
                 op = START;
-            }
-            else if (id.startsWith("stop_"))
-            {
+            } else if (id.startsWith("stop_")) {
                 op = STOP;
-            }
-            else if (id.startsWith("kill_"))
-            {
+            } else if (id.startsWith("kill_")) {
                 op = KILL;
-            }
-            else if (id.startsWith("reload_"))
-            {
+            } else if (id.startsWith("reload_")) {
                 op = RELOAD;
-            }
-            else if (id.startsWith("restart_"))
-            {
+            } else if (id.startsWith("restart_")) {
                 op = RESTART;
             }
             return op;
         }
     }
 
-
     /**
      * Pager which delegates to {@link TopologyPresenter#requestHostIndex(int)}
      */
-    private class HostsPager extends DefaultPager
-    {
+    private class HostsPager extends DefaultPager {
+
         @Override
-        public void firstPage()
-        {
+        public void firstPage() {
             presenter.requestHostIndex(0);
         }
 
         @Override
-        public void lastPage()
-        {
+        public void lastPage() {
             presenter.requestHostIndex((getPageCount() - 1) * TopologyPresenter.VISIBLE_HOSTS_COLUMNS);
         }
 
         @Override
-        public void nextPage()
-        {
+        public void nextPage() {
             presenter.requestHostIndex(getPageStart() + TopologyPresenter.VISIBLE_HOSTS_COLUMNS);
         }
 
         @Override
-        public void previousPage()
-        {
+        public void previousPage() {
             presenter.requestHostIndex(getPageStart() - TopologyPresenter.VISIBLE_HOSTS_COLUMNS);
         }
     }
-
 
     /**
      * An implementation for the topology tabel pagers display. Although this class implements
      * Has<em>Rows</em> the paging is over <em>columns</em>.
      */
-    private class HostsDisplay implements HasRows
-    {
+    private class HostsDisplay implements HasRows {
+
         @Override
-        public HandlerRegistration addRangeChangeHandler(final RangeChangeEvent.Handler handler)
-        {
+        public HandlerRegistration addRangeChangeHandler(final RangeChangeEvent.Handler handler) {
             return container.addHandler(handler, RangeChangeEvent.getType());
         }
 
         @Override
-        public HandlerRegistration addRowCountChangeHandler(final RowCountChangeEvent.Handler handler)
-        {
+        public HandlerRegistration addRowCountChangeHandler(final RowCountChangeEvent.Handler handler) {
             return container.addHandler(handler, RowCountChangeEvent.getType());
         }
 
         @Override
-        public int getRowCount()
-        {
+        public int getRowCount() {
             return hostSize;
         }
 
         @Override
-        public Range getVisibleRange()
-        {
+        public void setRowCount(final int count) {
+        }
+
+        @Override
+        public Range getVisibleRange() {
             return new Range(hostIndex, visibleHosts);
         }
 
         @Override
-        public boolean isRowCountExact()
-        {
+        public void setVisibleRange(final Range range) {
+        }
+
+        @Override
+        public boolean isRowCountExact() {
             return true;
         }
 
         @Override
-        public void setRowCount(final int count)
-        {
+        public void setRowCount(final int count, final boolean isExact) {
         }
 
         @Override
-        public void setRowCount(final int count, final boolean isExact)
-        {
+        public void setVisibleRange(final int start, final int length) {
         }
 
         @Override
-        public void setVisibleRange(final int start, final int length)
-        {
-        }
-
-        @Override
-        public void setVisibleRange(final Range range)
-        {
-        }
-
-        @Override
-        public void fireEvent(final GwtEvent<?> event)
-        {
+        public void fireEvent(final GwtEvent<?> event) {
             container.fireEvent(event);
         }
-    }
-
-    @Override
-    public void setExtensions(List<Extension> result) {
-        extensions.setExtensions(result);
     }
 }

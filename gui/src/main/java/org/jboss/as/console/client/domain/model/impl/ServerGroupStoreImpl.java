@@ -19,16 +19,20 @@
 
 package org.jboss.as.console.client.domain.model.impl;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
@@ -38,13 +42,9 @@ import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun
@@ -102,12 +102,10 @@ public class ServerGroupStoreImpl implements ServerGroupStore {
                 if (response.isFailure())
                 {
                     callback.onSuccess(Boolean.FALSE);
-                    Console.error(Console.MESSAGES.modificationFailed("ServerGroup "+name));
                 }
                 else
                 {
                     callback.onSuccess(Boolean.TRUE);
-                    Console.info(Console.MESSAGES.modified("ServerGroup "+name));
                 }
             }
 

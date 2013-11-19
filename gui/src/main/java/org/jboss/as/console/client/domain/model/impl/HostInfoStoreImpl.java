@@ -19,32 +19,7 @@
 
 package org.jboss.as.console.client.domain.model.impl;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.ServerFlag;
-import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.domain.topology.HostInfo;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.jvm.Jvm;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.client.widgets.forms.PropertyBinding;
-import org.jboss.dmr.client.ModelDescriptionConstants;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,7 +29,31 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.inject.Inject;
+import org.jboss.as.console.client.domain.model.Host;
+import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.ServerFlag;
+import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.shared.model.ModelAdapter;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun
@@ -697,15 +696,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(response.isFailure())
-                {
-                    callback.onSuccess(Boolean.FALSE);
-                    Console.error(Console.MESSAGES.modificationFailed("Server " + configName));
-                }
-                else
-                {
-                    callback.onSuccess(Boolean.TRUE);
-                    Console.info(Console.MESSAGES.modified("Server " + configName));
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
                 }
             }
 
@@ -714,7 +708,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
                 callback.onFailure(caught);
             }
         });
-
     }
 
     @Override
@@ -730,16 +723,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
                @Override
                public void onSuccess(DMRResponse result) {
                    ModelNode response = result.get();
-
-                   if(response.isFailure())
-                   {
-                       callback.onSuccess(Boolean.FALSE);
-                       Console.error(Console.MESSAGES.modificationFailed("Server " + configName));
-                   }
-                   else
-                   {
-                       callback.onSuccess(Boolean.TRUE);
-                       Console.info(Console.MESSAGES.modified("Server " + configName));
+                   if (response.isFailure()) {
+                       callback.onSuccess(false);
+                   } else {
+                       callback.onSuccess(true);
                    }
                }
 
@@ -748,7 +735,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
                    callback.onFailure(caught);
                }
            });
-
        }
 
 
@@ -763,15 +749,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(response.isFailure())
-                {
-                    callback.onSuccess(Boolean.FALSE);
-                    Console.error(Console.MESSAGES.modificationFailed("Server " + configName));
-                }
-                else
-                {
-                    callback.onSuccess(Boolean.TRUE);
-                    Console.info(Console.MESSAGES.modified("Server " + configName));
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
                 }
             }
 
@@ -780,7 +761,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
                 callback.onSuccess(Boolean.FALSE);
             }
         });
-
     }
 
     @Override
