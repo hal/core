@@ -20,7 +20,6 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -43,26 +42,11 @@ import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 /**
  * @author Heiko Braun
- * @date 11/2/11
  */
 public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
         implements StaleModelEvent.StaleModelListener,
         ServerSelectionChanged.ChangeListener,
         HostSelectionChanged.ChangeListener, UnauthorizedEvent.UnauthorizedHandler {
-
-    private final PlaceManager placeManager;
-    private boolean hasBeenRevealed = false;
-    private HostInformationStore hostInfoStore;
-    private SubsystemStore subsysStore;
-    private BootstrapContext bootstrap;
-    private ServerGroupStore serverGroupStore;
-    private String previousServerSelection = null;
-    private Header header;
-    private final UnauthorisedPresenter unauthorisedPresenter;
-    private PlaceRequest lastSubRequest = null;
-    private final DomainEntityManager domainManager;
-
-
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
@@ -70,23 +54,30 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
     }
 
+    public interface MyView extends View {
+
+        void setPresenter(DomainRuntimePresenter presenter);
+
+        void setHosts(HostList hosts);
+
+        void setSubsystems(List<SubsystemRecord> result);
+    }
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
 
-    public interface MyView extends View {
-        void setPresenter(DomainRuntimePresenter presenter);
-        void setHosts(HostList hosts);
-        void setSubsystems(List<SubsystemRecord> result);
-        void resetHostSelection();
-    }
+    private final PlaceManager placeManager;
+    private final UnauthorisedPresenter unauthorisedPresenter;
+    private final DomainEntityManager domainManager;
+    private HostInformationStore hostInfoStore;
+    private SubsystemStore subsysStore;
+    private ServerGroupStore serverGroupStore;
+    private Header header;
 
     @Inject
-    public DomainRuntimePresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,  HostInformationStore hostInfoStore,
-            DomainEntityManager domainManager,
-            SubsystemStore subsysStore, BootstrapContext bootstrap,
+    public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
+            HostInformationStore hostInfoStore, DomainEntityManager domainManager, SubsystemStore subsysStore,
             ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
 
@@ -94,7 +85,6 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
         this.hostInfoStore = hostInfoStore;
         this.domainManager = domainManager;
         this.subsysStore = subsysStore;
-        this.bootstrap = bootstrap;
         this.serverGroupStore = serverGroupStore;
         this.header = header;
         this.unauthorisedPresenter = unauthorisedPresenter;
@@ -112,59 +102,36 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     }
 
     @Override
-    protected void onReset() {
-        super.onReset();
-
-        header.highlight(NameTokens.DomainRuntimePresenter);
-
-        String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
-        if(!currentToken.equals(getProxy().getNameToken()))
-        {
-            lastSubRequest = placeManager.getCurrentPlaceRequest();
-        }
-        else if(lastSubRequest!=null)
-        {
-            placeManager.revealPlace(lastSubRequest);
-        }
-
-        // first request, select default contents
-        if(!hasBeenRevealed && NameTokens.DomainRuntimePresenter.equals(currentToken))
-        {
-            if (lastSubRequest != null)
-            {
-                placeManager.revealPlace(lastSubRequest);
+    protected void onReveal() {
+        super.onReveal();
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadHostData();
             }
-            else
-            {
-                placeManager.revealPlace(new PlaceRequest(NameTokens.Topology));
-            }
-            hasBeenRevealed = true;
-        }
-        else if(!NameTokens.DomainRuntimePresenter.equals(currentToken))
-        {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    loadHostData();
-                }
-            });
-
-        }
-
+        });
     }
 
-
     private void loadHostData() {
-
         // load host and server data
         domainManager.getHosts(new SimpleCallback<HostList>() {
             @Override
             public void onSuccess(final HostList hosts) {
-
                 getView().setHosts(hosts);
-
             }
         });
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        header.highlight(NameTokens.DomainRuntimePresenter);
+
+        String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
+        if (currentToken.equals(getProxy().getNameToken())) {
+            placeManager
+                    .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
+        }
     }
 
     @Override
@@ -174,9 +141,7 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
 
     @Override
     public void onServerSelectionChanged(boolean isRunning) {
-
         // we can ignore if the server is running, it only requires configuration data
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -187,60 +152,12 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
 
     @Override
     public void onHostSelectionChanged() {
-
     }
-
-    private void loadSubsystems() {
-
-        // clear view
-
-        getView().setSubsystems(Collections.EMPTY_LIST);
-
-        // load subsystems for selected server
-
-        hostInfoStore.getServerConfiguration(
-
-                domainManager.getSelectedHost(), domainManager.getSelectedServer(),
-                new SimpleCallback<Server>() {
-                    @Override
-                    public void onSuccess(Server server) {
-                        serverGroupStore.loadServerGroup(server.getGroup(),
-                                new SimpleCallback<ServerGroupRecord>() {
-                                    @Override
-                                    public void onSuccess(ServerGroupRecord group)
-                                    {
-                                        subsysStore.loadSubsystems(group.getProfileName(), new SimpleCallback<List<SubsystemRecord>>() {
-                                            @Override
-                                            public void onSuccess(List<SubsystemRecord> result) {
-                                                getView().setSubsystems(result);
-
-
-                                                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                                    @Override
-                                                    public void execute() {
-                                                        Console.getEventBus().fireEvent(
-                                                                new LHSHighlightEvent(
-                                                                        placeManager.getCurrentPlaceRequest().getNameToken()
-                                                                )
-                                                        );
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
-
-                    }
-                }
-        );
-    }
-
 
     @Override
     public void onStaleModel(String modelName) {
-        if(StaleModelEvent.SERVER_INSTANCES.equals(modelName)
-                || StaleModelEvent.SERVER_CONFIGURATIONS.equals(modelName))
-        {
+        if (StaleModelEvent.SERVER_INSTANCES.equals(modelName)
+                || StaleModelEvent.SERVER_CONFIGURATIONS.equals(modelName)) {
 
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
@@ -248,12 +165,52 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
                     loadHostData();
                 }
             });
-
         }
     }
 
     @Override
     public void onUnauthorized(final UnauthorizedEvent event) {
         setInSlot(TYPE_MainContent, unauthorisedPresenter);
+    }
+
+    private void loadSubsystems() {
+        // clear view
+        getView().setSubsystems(Collections.<SubsystemRecord>emptyList());
+
+        // load subsystems for selected server
+        hostInfoStore.getServerConfiguration(
+                domainManager.getSelectedHost(), domainManager.getSelectedServer(),
+                new SimpleCallback<Server>() {
+                    @Override
+                    public void onSuccess(Server server) {
+                        serverGroupStore.loadServerGroup(server.getGroup(),
+                                new SimpleCallback<ServerGroupRecord>() {
+                                    @Override
+                                    public void onSuccess(ServerGroupRecord group) {
+                                        subsysStore.loadSubsystems(group.getProfileName(),
+                                                new SimpleCallback<List<SubsystemRecord>>() {
+                                                    @Override
+                                                    public void onSuccess(List<SubsystemRecord> result) {
+                                                        getView().setSubsystems(result);
+                                                        Scheduler.get()
+                                                                .scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                                                    @Override
+                                                                    public void execute() {
+                                                                        Console.getEventBus().fireEvent(
+                                                                                new LHSHighlightEvent(
+                                                                                        placeManager
+                                                                                                .getCurrentPlaceRequest()
+                                                                                                .getNameToken()
+                                                                                )
+                                                                        );
+                                                                    }
+                                                                });
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                }
+        );
     }
 }
