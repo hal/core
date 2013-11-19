@@ -352,23 +352,18 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 context.setConstraints(ref.address, defaultConstraints);
 
             // exceptions (instances) of requested resource type
-            if(accessControl.hasDefined(EXCEPTIONS))
-            {
-
+            if (accessControl.hasDefined(EXCEPTIONS)) {
                 // TODO: API V3 -> https://issues.jboss.org/browse/HAL-259
-
-                /*for(Property exception : accessControl.get(EXCEPTIONS).asPropertyList())
-                {
+                for (Property exception : accessControl.get(EXCEPTIONS).asPropertyList()) {
                     // TODO: AddressMapping compatible expression
                     // See https://issues.jboss.org/browse/WFLY-2263
                     ResourceRef exceptionRef = new ResourceRef(exception.getName());
                     Constraints instanceConstraints = parseConstraints(exceptionRef, exception.getValue());
 
                     // TODO: child context wiring
-                    System.out.println("child context: "+instanceConstraints.getResourceAddress());
-                } */
+                    System.out.println("child context: " + instanceConstraints.getResourceAddress());
+                }
             }
-
         }
     }
 
