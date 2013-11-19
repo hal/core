@@ -25,22 +25,27 @@ import com.google.gwt.core.client.Scheduler;
  * Integrates with the default GWT scheduling mechanism.
  *
  * @author Heiko Braun
- * @date 3/8/13
  */
-public class Async<C>
-{
+public class Async<C> {
+
     private final static Object EMPTY_CONTEXT = new Object();
+    private final Progress progress;
+
+    public Async() {
+        this(new Progress.Nop());
+    }
+
+    public Async(final Progress progress) {
+        this.progress = progress;
+    }
 
     /**
      * Run an array of functions in series, each one running once the previous function has completed.
      * If any functions in the series pass an error to its callback,
      * no more functions are run and outcome for the series is immediately called with the value of the error.
-     *
-     * @param outcome
-     * @param functions
      */
-    public void series(final Outcome outcome, final Function... functions)
-    {
+    @SuppressWarnings("unchecked")
+    public void series(final Outcome outcome, final Function... functions) {
         _series(null, outcome, functions);  // generic signature problem, hence null
     }
 
@@ -48,56 +53,47 @@ public class Async<C>
      * Runs an array of functions in series, working on a shared context.
      * However, if any of the functions pass an error to the callback,
      * the next function is not executed and the outcome is immediately called with the error.
-     *
-     * @param context
-     * @param outcome
-     * @param functions
      */
-    public void waterfall(final C context, final Outcome<C> outcome, final Function<C>... functions)
-    {
+    @SafeVarargs
+    public final void waterfall(final C context, final Outcome<C> outcome, final Function<C>... functions) {
         _series(context, outcome, functions);
     }
 
-    private void _series(C context, final Outcome<C> outcome, final Function<C>... functions)
-    {
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
+    private final void _series(C context, final Outcome<C> outcome, final Function<C>... functions) {
         final C finalContext = context != null ? context : (C) EMPTY_CONTEXT;
         final SequentialControl<C> ctrl = new SequentialControl<C>(finalContext, functions);
 
-        // select first function anf start
+        // reset progress
+        progress.reset(functions.length);
+
+        // select first function and start
         ctrl.proceed();
-        Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand()
-        {
+        Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
             @Override
-            public boolean execute()
-            {
-                if (ctrl.isDrained())
-                {
+            public boolean execute() {
+                if (ctrl.isDrained()) {
                     // schedule deferred so that 'return false' executes first!
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand()
-                    {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
-                        public void execute()
-                        {
+                        public void execute() {
+                            progress.finish();
                             outcome.onSuccess(finalContext);
                         }
                     });
                     return false;
-                }
-                else if (ctrl.isAborted())
-                {
+                } else if (ctrl.isAborted()) {
                     // schedule deferred so that 'return false' executes first!
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand()
-                    {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
-                        public void execute()
-                        {
+                        public void execute() {
+                            progress.finish();
                             outcome.onFailure(finalContext);
                         }
                     });
                     return false;
-                }
-                else
-                {
+                } else {
                     ctrl.nextUnlessPending();
                     return true;
                 }
@@ -109,37 +105,32 @@ public class Async<C>
      * Run an array of functions in parallel, without waiting until the previous function has completed.
      * If any of the functions pass an error to its callback, the outcome is immediately called with the value of the
      * error.
-     *
-     * @param outcome
-     * @param functions
      */
-    public void parallel(final Outcome outcome, final Function... functions)
-    {
+    public void parallel(final Outcome outcome, final Function... functions) {
         final CountingControl ctrl = new CountingControl(functions);
-        Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand()
-        {
+        progress.reset(functions.length);
+
+        Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
             @Override
-            public boolean execute()
-            {
-                if (ctrl.isAborted() || ctrl.allFinished())
-                {
+            public boolean execute() {
+                if (ctrl.isAborted() || ctrl.allFinished()) {
                     // schedule deferred so that 'return false' executes first!
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand()
-                    {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
-                        public void execute()
-                        {
-                            if (ctrl.isAborted())
-                            { outcome.onFailure(EMPTY_CONTEXT); }
-                            else
-                            { outcome.onSuccess(EMPTY_CONTEXT); }
+                        @SuppressWarnings("unchecked")
+                        public void execute() {
+                            if (ctrl.isAborted()) {
+                                progress.finish();
+                                outcome.onFailure(EMPTY_CONTEXT);
+                            } else {
+                                progress.finish();
+                                outcome.onSuccess(EMPTY_CONTEXT);
+                            }
 
                         }
                     });
                     return false;
-                }
-                else
-                {
+                } else {
                     // one after the other until all are active
                     ctrl.next();
                     return true;
@@ -150,47 +141,57 @@ public class Async<C>
 
     /**
      * Repeatedly call function, while condition is met. Calls the callback when stopped, or an error occurs.
-     *
-     * @param condition
-     * @param outcome
-     * @param function
      */
-    public void whilst(Precondition condition, final Outcome outcome, final Function function)
-    {
+    public void whilst(Precondition condition, final Outcome outcome, final Function function) {
+        whilst(condition, outcome, function, -1);
+    }
+
+    /**
+     * Same as {@link #whilst(Precondition, Outcome, Function)} but waits {@code period} millis between calls to
+     * {@code function}.
+     *
+     * @param period any value below 100 is ignored!
+     */
+    public void whilst(Precondition condition, final Outcome outcome, final Function function, int period) {
         final GuardedControl ctrl = new GuardedControl(condition);
-        Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand()
-        {
+        progress.reset();
+
+        Scheduler.RepeatingCommand repeatingCommand = new Scheduler.RepeatingCommand() {
             @Override
-            public boolean execute()
-            {
-                if (!ctrl.shouldProceed())
-                {
+            @SuppressWarnings("unchecked")
+            public boolean execute() {
+                if (!ctrl.shouldProceed()) {
                     // schedule deferred so that 'return false' executes first!
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand()
-                    {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
-                        public void execute()
-                        {
-                            if (ctrl.isAborted())
-                            { outcome.onFailure(EMPTY_CONTEXT); }
-                            else
-                            { outcome.onSuccess(EMPTY_CONTEXT); }
+                        public void execute() {
+                            if (ctrl.isAborted()) {
+                                progress.finish();
+                                outcome.onFailure(EMPTY_CONTEXT);
+                            } else {
+                                progress.finish();
+                                outcome.onSuccess(EMPTY_CONTEXT);
+                            }
                         }
                     });
                     return false;
-                }
-                else
-                {
+                } else {
                     function.execute(ctrl);
+                    progress.tick();
                     return true;
                 }
             }
-        });
+        };
+
+        if (period > 100) {
+            Scheduler.get().scheduleFixedPeriod(repeatingCommand, period);
+        } else {
+            Scheduler.get().scheduleIncremental(repeatingCommand);
+        }
     }
 
+    private class SequentialControl<C> implements Control<C> {
 
-    private class SequentialControl<C> implements Control<C>
-    {
         private final C context;
         private final Function<C>[] functions;
         private Function<C> next;
@@ -199,28 +200,23 @@ public class Async<C>
         private boolean aborted;
         private boolean pending;
 
-        SequentialControl(final C context, final Function<C>... functions)
-        {
+        @SafeVarargs
+        SequentialControl(final C context, final Function<C>... functions) {
             this.context = context;
             this.functions = functions;
         }
 
         @Override
-        public C getContext()
-        {
+        public C getContext() {
             return context;
         }
 
         @Override
-        public void proceed()
-        {
-            if (index >= functions.length)
-            {
+        public void proceed() {
+            if (index >= functions.length) {
                 next = null;
                 drained = true;
-            }
-            else
-            {
+            } else {
                 next = functions[index];
                 index++;
             }
@@ -228,126 +224,107 @@ public class Async<C>
         }
 
         @Override
-        public void abort()
-        {
+        public void abort() {
             new RuntimeException("").printStackTrace();
             this.aborted = true;
             this.pending = false;
         }
 
-        public boolean isAborted()
-        {
+        public boolean isAborted() {
             return aborted;
         }
 
-        public boolean isDrained()
-        {
+        public boolean isDrained() {
             return drained;
         }
 
-        public void nextUnlessPending()
-        {
-            if (!pending)
-            {
+        public void nextUnlessPending() {
+            if (!pending) {
                 pending = true;
                 next.execute(this);
+                progress.tick();
             }
         }
     }
 
+    private class CountingControl implements Control {
 
-    private class CountingControl implements Control
-    {
         private final Function[] functions;
+        protected boolean aborted;
         private int index;
         private int finished;
-        protected boolean aborted;
 
-        CountingControl(Function... functions)
-        {
+        CountingControl(Function... functions) {
             this.functions = functions;
         }
 
         @Override
-        public Object getContext()
-        {
+        public Object getContext() {
             return EMPTY_CONTEXT;
         }
 
-        public void next()
-        {
-            if (index < functions.length)
-            {
+        @SuppressWarnings("unchecked")
+        public void next() {
+            if (index < functions.length) {
                 functions[index].execute(this);
+                progress.tick();
                 index++;
             }
         }
 
         @Override
-        public void proceed()
-        {
+        public void proceed() {
             increment();
         }
 
-        private void increment()
-        {
+        private void increment() {
             ++finished;
         }
 
         @Override
-        public void abort()
-        {
+        public void abort() {
             increment();
             aborted = true;
         }
 
-        public boolean isAborted()
-        {
+        public boolean isAborted() {
             return aborted;
         }
 
-        public boolean allFinished()
-        {
+        public boolean allFinished() {
             return finished >= functions.length;
         }
     }
 
+    private class GuardedControl implements Control {
 
-    private class GuardedControl implements Control
-    {
         private final Precondition condition;
         private boolean aborted;
 
-        GuardedControl(Precondition condition)
-        {
+        GuardedControl(Precondition condition) {
             this.condition = condition;
         }
 
         @Override
-        public void proceed()
-        {
+        public void proceed() {
             // ignore
         }
 
-        public boolean shouldProceed()
-        {
+        public boolean shouldProceed() {
             return condition.isMet() && !aborted;
         }
 
         @Override
-        public void abort()
-        {
+        public void abort() {
             this.aborted = true;
         }
 
-        public boolean isAborted()
-        {
+        public boolean isAborted() {
             return aborted;
         }
 
         @Override
-        public Object getContext()
-        {
+        public Object getContext() {
             return EMPTY_CONTEXT;
         }
     }

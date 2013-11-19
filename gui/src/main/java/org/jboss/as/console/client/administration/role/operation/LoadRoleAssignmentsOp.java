@@ -50,6 +50,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
@@ -86,7 +87,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
     public void execute(final Outcome<FunctionContext> outcome) {
         pending = true;
         final FunctionContext context = new FunctionContext();
-        new Async<FunctionContext>().waterfall(context, outcome, new RolesAndMappingFunction(),
+        new Async<FunctionContext>(new ConsoleProgress("loadRoleAssignments")).waterfall(context, outcome, new RolesAndMappingFunction(),
                 new HostsFunction(), new ServerGroupsFunction());
     }
 

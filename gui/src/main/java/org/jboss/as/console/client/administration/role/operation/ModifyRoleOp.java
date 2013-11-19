@@ -25,6 +25,7 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
@@ -87,7 +88,7 @@ public class ModifyRoleOp implements ManagementOperation<FunctionContext> {
         functions.add(new RoleAssignmentFunctions.Find(dispatcher));
         functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
 
-        new Async<FunctionContext>()
+        new Async<FunctionContext>(new ConsoleProgress("modifyRole"))
                 .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
     }
 

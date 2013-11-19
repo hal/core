@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
+ * Copyright 2013 Red Hat Inc. and/or its affiliates and other contributors
  * as indicated by the @author tags. All rights reserved.
  * See the copyright.txt in the distribution for a
  * full listing of individual contributors.
@@ -19,15 +19,32 @@
 package org.jboss.gwt.flow.client;
 
 /**
- * Execution control handle passed into functions
+ * Interface to reflect progress for flow control functions.
  *
- * @author Heiko Braun
+ * @author Harald Pehl
  */
-public interface Control<C> {
+public interface Progress {
 
-    void proceed();
+    void reset();
 
-    void abort();
+    void reset(int max);
 
-    C getContext();
+    void tick();
+
+    void finish();
+
+    static final class Nop implements Progress {
+
+        @Override
+        public void reset() {}
+
+        @Override
+        public void reset(final int max) {}
+
+        @Override
+        public void tick() {}
+
+        @Override
+        public void finish() {}
+    }
 }
