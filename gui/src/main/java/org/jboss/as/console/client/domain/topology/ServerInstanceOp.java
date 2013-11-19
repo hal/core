@@ -21,6 +21,7 @@ package org.jboss.as.console.client.domain.topology;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.dmr.client.ModelNode;
@@ -28,7 +29,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
@@ -80,8 +80,7 @@ public class ServerInstanceOp extends TopologyOp {
                 // not supported for server instances
                 break;
         }
-        new Async(new ConsoleProgress("serverInstanceOp"))
-                .whilst(new KeepGoing(), new Finish(), new QueryStatus(), 750);
+        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 750);
     }
 
     class QueryStatus implements Function<Object> {

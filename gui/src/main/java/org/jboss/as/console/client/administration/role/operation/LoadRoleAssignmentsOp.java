@@ -37,6 +37,7 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -50,7 +51,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
@@ -87,7 +87,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
     public void execute(final Outcome<FunctionContext> outcome) {
         pending = true;
         final FunctionContext context = new FunctionContext();
-        new Async<FunctionContext>(new ConsoleProgress("loadRoleAssignments")).waterfall(context, outcome, new RolesAndMappingFunction(),
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(context, outcome, new RolesAndMappingFunction(),
                 new HostsFunction(), new ServerGroupsFunction());
     }
 

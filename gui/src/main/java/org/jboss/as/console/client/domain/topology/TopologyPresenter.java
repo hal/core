@@ -44,6 +44,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -61,7 +62,6 @@ import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Outcome;
 
 public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
@@ -171,7 +171,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
                     getView().updateHosts(deriveGroups(hosts), hostIndex);
                 }
             };
-            new Async<FunctionContext>(new ConsoleProgress("topology")).waterfall(new FunctionContext(), outcome,
+            new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                     new TopologyFunctions.HostsAndGroups(dispatcher),
                     new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
                     new TopologyFunctions.RunningServerInstances(dispatcher));
@@ -189,10 +189,10 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     }
 
     public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
-        ServerInstanceOp serverInstanceOp = new ServerInstanceOp(op, new TopologyCallback(), dispatcher, hostInfoStore, host, server
-        );
+        ServerInstanceOp serverInstanceOp = new ServerInstanceOp(op, new TopologyCallback(), dispatcher, hostInfoStore,
+                host, server);
         serverInstanceOp.run();
-   }
+    }
 
     public void onGroupLifecycle(final String group, final LifecycleOperation op) {
         ServerGroup serverGroup = serverGroups.get(group);

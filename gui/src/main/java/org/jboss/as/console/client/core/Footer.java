@@ -19,29 +19,28 @@
 
 package org.jboss.as.console.client.core;
 
+import static com.google.gwt.dom.client.Style.Unit.PX;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.layout.client.Layout;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.widgets.InlineLink;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -50,31 +49,26 @@ import org.jboss.dmr.client.dispatch.Diagnostics;
 
 /**
  * @author Heiko Braun
- * @date 1/28/11
  */
 public class Footer {
 
+    public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
+
     private final BootstrapContext context;
-    private Label userName;
     private PlaceManager placeManager;
     private ProductConfig productConfig;
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
 
     @Inject
-    public Footer(EventBus bus, CurrentUser user, PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context) {
-        this.userName = new Label();
-        this.userName.setText(user.getUserName());
+    public Footer(PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context) {
         this.placeManager = placeManager;
         this.productConfig = prodConfig;
         this.context = context;
     }
 
     public Widget asWidget() {
-
         final LayoutPanel layout = new LayoutPanel();
-
         final PopupPanel toolsPopup = new DefaultPopup(DefaultPopup.Arrow.BOTTOM);
-
         final List<String[]> toolReference = new ArrayList<String[]>();
 
         if(context.isSuperUser()) {
@@ -82,23 +76,18 @@ public class Footer {
         }
 
         toolReference.add(new String[]{"Expression Resolver", "expressions"});
-
-        if(diagnostics.isEnabled())
-        {
+        if (diagnostics.isEnabled()) {
             toolReference.add(new String[]{"Diagnostics", "debug-panel"});
         }
 
         // only enabled in dev mode
-        if(!GWT.isScript())
-        {
-            toolReference.add(new String[] {"Modelling", "mbui-workbench"});
-            toolReference.add(new String[] {"Resource Access", "access-log"});
+        if (!GWT.isScript()) {
+            toolReference.add(new String[]{"Modelling", "mbui-workbench"});
+            toolReference.add(new String[]{"Resource Access", "access-log"});
         }
-
 
         final VerticalPanel toolsList = new VerticalPanel();
         toolsList.getElement().setAttribute("width", "160px");
-
         for(final String[] tool : toolReference)
         {
             InlineLink browser = new InlineLink(tool[0]);
@@ -108,11 +97,10 @@ public class Footer {
                 public void onClick(ClickEvent clickEvent) {
                     toolsPopup.hide();
                     placeManager.revealPlace(
-                            new PlaceRequest(NameTokens.ToolsPresenter).with("name", tool[1])
-                    );
+                            new PlaceRequest.Builder().nameToken(NameTokens.ToolsPresenter).with("name", tool[1])
+                                    .build());
                 }
             });
-
             toolsList.add(browser);
         }
         toolsPopup.setWidget(toolsList);
@@ -122,15 +110,11 @@ public class Footer {
         toolsLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
                 int listHeight = toolsList.getWidgetCount() * 25;
-
                 toolsPopup.setPopupPosition(
                         toolsLink.getAbsoluteLeft()-45,
                         toolsLink.getAbsoluteTop()-(listHeight-25)-50
-
                 );
-
                 toolsPopup.setWidth("165");
                 toolsPopup.setHeight(listHeight +"");
                 toolsPopup.show();
@@ -143,7 +127,7 @@ public class Footer {
             @Override
             public void onClick(ClickEvent event) {
                 placeManager.revealPlace(
-                        new PlaceRequest(NameTokens.SettingsPresenter)
+                        new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build()
                 );
             }
         });
@@ -151,8 +135,10 @@ public class Footer {
         HorizontalPanel tools = new HorizontalPanel();
         tools.add(toolsLink);
         tools.add(settings);
-
         layout.add(tools);
+
+        PROGRESS_ELEMENT.addStyleName("footer");
+        layout.add(PROGRESS_ELEMENT);
 
         String versionToShow = productConfig.getConsoleVersion();
         if (versionToShow == null) {
@@ -187,12 +173,14 @@ public class Footer {
         });
 
         layout.add(version);
+        layout.setWidgetLeftWidth(version, 20, PX, 200, PX);
+        layout.setWidgetTopHeight(version, 10, PX, 32, PX);
 
-        layout.setWidgetLeftWidth(version, 20, Style.Unit.PX, 200, Style.Unit.PX);
-        layout.setWidgetTopHeight(version, 10, Style.Unit.PX, 32, Style.Unit.PX);
+        layout.setWidgetRightWidth(PROGRESS_ELEMENT, 200, PX, 150, PX);
+        layout.setWidgetTopHeight(PROGRESS_ELEMENT, 12, PX, 32, PX);
 
-        layout.setWidgetRightWidth(tools, 5, Style.Unit.PX, 500, Style.Unit.PX);
-        layout.setWidgetTopHeight(tools, 10, Style.Unit.PX, 32, Style.Unit.PX);
+        layout.setWidgetRightWidth(tools, 5, PX, 200, PX);
+        layout.setWidgetTopHeight(tools, 10, PX, 32, PX);
 
         layout.setWidgetHorizontalPosition(tools, Layout.Alignment.END);
         layout.getElement().setAttribute("role", "complementary");

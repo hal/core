@@ -20,6 +20,9 @@
 
 package org.jboss.as.console.client;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -61,13 +64,11 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
+import org.jboss.as.console.client.widgets.progress.ProgressPolyfill;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
-
-import java.util.EnumSet;
-import java.util.Map;
 
 /**
  * Main application entry point. Executes several initialisation phases.
@@ -108,6 +109,9 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         ConsoleResources.INSTANCE.prettifyCss().ensureInjected();
         ScriptInjector.fromString(ConsoleResources.INSTANCE.prettifyJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
                 .inject();
+
+        // Inject progress polyfill js code
+        ProgressPolyfill.inject();
 
         // display the loading panel
         final Widget loadingPanel = new LoadingPanel().asWidget();

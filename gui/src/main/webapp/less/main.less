@@ -1,4 +1,5 @@
 @import "fonts.less";
+@import "progress-polyfill";
 
 body {
   background-color: @body-background-color;
@@ -19,14 +20,14 @@ body, p, td, th, option, input, textarea, select {
   border-left: 1px solid #cecece;
   margin: 0 auto;
   -moz-box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
   -webkit-box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
   box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
 }
 
 .main-content-panel {
@@ -48,6 +49,12 @@ body, p, td, th, option, input, textarea, select {
   width: 100%;
 }
 
+progress.footer {
+  height: 12px;
+  width: 98%;
+  margin: 1px;
+}
+
 #loading-panel {
   margin-top: 200px;
   margin-left: auto;
@@ -60,14 +67,14 @@ body, p, td, th, option, input, textarea, select {
   -moz-border-radius: 2px;
   border-radius: 2px;
   -moz-box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
   -webkit-box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
   box-shadow: 6px 6px 6px #e3e3e3, -6px 6px 6px #e3e3e3,
-    6px -6px 6px #e3e3e3,
-    -6px -6px 6px #e3e3e3;
+  6px -6px 6px #e3e3e3,
+  -6px -6px 6px #e3e3e3;
 }
 
 .header-label {
@@ -2184,8 +2191,7 @@ input[type="checkbox"] {
   bottom: auto;
   left: -30px; /* value = - border-left-width - border-right-width */
   border-width: 15px 30px 15px 0;
-  border-color:transparent #CFCFCF
-;
+  border-color:transparent #CFCFCF;
 }
 
 /* creates the smaller  triangle */
@@ -2194,8 +2200,7 @@ input[type="checkbox"] {
   bottom: auto;
   left: -21px; /* value = - border-left-width - border-right-width */
   border-width: 9px 21px 9px 0;
-  border-color:transparent #fff
-;
+  border-color:transparent #fff;
 }
 
 /* Variant : right
@@ -2208,8 +2213,7 @@ input[type="checkbox"] {
   left: auto;
   right: -11px; /* value = - border-left-width - border-right-width */
   border-width: 10px 0 10px 10px;
-  border-color:transparent #CFCFCF
-;
+  border-color:transparent #CFCFCF;
 }
 
 /* creates the smaller  triangle */
@@ -2219,8 +2223,7 @@ input[type="checkbox"] {
   left: auto;
   right: -8px; /* value = - border-left-width - border-right-width */
   border-width: 8px 0 8px 8px;
-  border-color:transparent #fff
-;
+  border-color:transparent #fff;
 }
 
 /* right top*/
@@ -2265,19 +2268,19 @@ input[type="checkbox"] {
 }
 
 .domainOverviewCell {
-    cursor: pointer;
-    vertical-align: top;
-    white-space: normal !important; /* overwrites cellTableCell to render the status icons correctly */
-    border-bottom: 1px solid rgb(229,229,229) !important;
-    transition: color .66s ease-out, background-color .66s ease-out;
-    -moz-transition: color .66s ease-out, background-color .66s ease-out;
-    -webkit-transition: color .66s ease-out, background-color .66s ease-out;
-    font-size:10px;
+  cursor: pointer;
+  vertical-align: top;
+  white-space: normal !important; /* overwrites cellTableCell to render the status icons correctly */
+  border-bottom: 1px solid rgb(229, 229, 229) !important;
+  transition: color .66s ease-out, background-color .66s ease-out;
+  -moz-transition: color .66s ease-out, background-color .66s ease-out;
+  -webkit-transition: color .66s ease-out, background-color .66s ease-out;
+  font-size: 10px;
 }
 
 .groupColumn {
-  font-size:12px;
-  font-weight:600;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .domainOverviewCell:hover .lifecycleLinks {
@@ -2299,83 +2302,85 @@ input[type="checkbox"] {
 }
 
 .serverGroup0 {
-    border-right: 5px solid rgb(232,243,248) !important;
+  border-right: 5px solid rgb(232, 243, 248) !important;
 }
 
 .serverGroup0_light {
-    background-color: rgba(232,243,248,.8);
+  background-color: rgba(232, 243, 248, .8);
 }
 
 .serverGroup0_light:hover {
-    background-color: rgb(232,243,248);
+  background-color: rgb(232, 243, 248);
 }
 
 .serverGroup1 {
-    border-right: 5px solid rgb(194,203,206) !important;
+  border-right: 5px solid rgb(194, 203, 206) !important;
 }
 
 .serverGroup1_light {
-    background-color: rgba(194,203,206,.8);
+  background-color: rgba(194, 203, 206, .8);
 }
 
 .serverGroup1_light:hover {
-    background-color: rgb(194,203,206);
+  background-color: rgb(194, 203, 206);
 }
 
 .serverGroup2 {
-    border-right: 5px solid rgb(129,168,184) !important;
+  border-right: 5px solid rgb(129, 168, 184) !important;
 }
 
 .serverGroup2_light {
-    background-color: rgba(129,168,184,.8);
+  background-color: rgba(129, 168, 184, .8);
 }
 
 .serverGroup2_light:hover {
-    background-color: rgb(129,168,184);
+  background-color: rgb(129, 168, 184);
 }
 
 .serverGroup3 {
-    border-right: 5px solid rgb(164,188,194) !important;
+  border-right: 5px solid rgb(164, 188, 194) !important;
 }
 
 .serverGroup3_light {
-    background-color: rgba(164,188,194,.8);
+  background-color: rgba(164, 188, 194, .8);
 }
 
 .serverGroup3_light:hover {
-    background-color: rgb(164,188,194);
+  background-color: rgb(164, 188, 194);
 }
 
 .serverGroup4 {
-    border-right: 5px solid rgb(219,230,236) !important;
+  border-right: 5px solid rgb(219, 230, 236) !important;
 }
 
 .serverGroup4_light {
-    background-color: rgba(219,230,236,.8);
+  background-color: rgba(219, 230, 236, .8);
 }
 
 .serverGroup4_light:hover {
-    background-color: rgb(219,230,236);
+  background-color: rgb(219, 230, 236);
 }
 
 .serverGroup5 {
-    border-right: 5px solid rgb(204,204,204) !important;
+  border-right: 5px solid rgb(204, 204, 204) !important;
 }
+
 .serverGroup5_light {
-    background-color: rgba(204,204,204,.8);
+  background-color: rgba(204, 204, 204, .8);
 }
+
 .serverGroup5_light:hover {
-    background-color: rgb(204,204,204);
+  background-color: rgb(204, 204, 204);
 }
 
 .topology .cellTableHeader {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    font-weight:600;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  font-weight: 600;
 }
 
 .topology .groupColumn {
-    border-left:none!important;
+  border-left: none !important;
 }
 
 .topology .cellTableHeader:first-of-type {
@@ -2416,26 +2421,6 @@ input[type="checkbox"] {
 
 .inactive-default {
   border: none;
-}
-
-.gwt-ProgressBar-shell {
-  border: 1px solid @border2-color;
-  height: 20pt;
-  width: 100%;
-  margin-left: 2px;
-  margin-right: 2px;
-  background-color: #ffffff;
-}
-
-.gwt-ProgressBar-shell .gwt-ProgressBar-bar {
-  background-color: #C7E5F0;
-}
-
-.gwt-ProgressBar-shell .gwt-ProgressBar-text {
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 20px;
-  margin: 0px;
 }
 
 .rbac-suppressed {

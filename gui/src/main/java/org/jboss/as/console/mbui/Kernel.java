@@ -1,12 +1,15 @@
 package org.jboss.as.console.mbui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.client.widgets.progress.ProgressWindow;
 import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
 import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
 import org.jboss.as.console.mbui.bootstrap.ReificationBootstrap;
@@ -32,9 +35,6 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Heiko Braun
  * @date 3/22/13
@@ -58,8 +58,6 @@ public class Kernel implements NavigationDelegate {
 
     /**
      * Absolute navigation
-     * @param source
-     * @param dialog
      */
     @Override
     public void onNavigation(QName source, QName dialog) {
@@ -91,9 +89,6 @@ public class Kernel implements NavigationDelegate {
             // top level interaction unit & context
             final Context context = new Context();
 
-            final ProgressWindow progress = new ProgressWindow("Building Dialog");
-
-
             // build reification pipeline
             Function<Context> prepareContext = new Function<Context>() {
                 @Override
@@ -115,14 +110,12 @@ public class Kernel implements NavigationDelegate {
                         @Override
                         public void onError(Throwable caught) {
                             Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
-                            progress.getBar().setProgress(25.0);
                             control.abort();
                         }
 
                         @Override
                         public void onSuccess() {
                             Log.info("Successfully retrieved operation meta data");
-                            progress.getBar().setProgress(25.0);
                             control.proceed();
                         }
                     });
@@ -143,14 +136,12 @@ public class Kernel implements NavigationDelegate {
                                 @Override
                                 public void onFailure(Throwable caught) {
                                     Console.error("Failed to create security context", caught.getMessage());
-                                    progress.getBar().setProgress(50.0);
                                     control.abort();
                                 }
 
                                 @Override
                                 public void onSuccess(SecurityContext result) {
                                     control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
-                                    progress.getBar().setProgress(50.0);
                                     control.proceed();
                                 }
                             }
@@ -158,7 +149,6 @@ public class Kernel implements NavigationDelegate {
 
                 }
             };
-
 
             Function<Context> readResourceMetaData = new Function<Context>() {
                 @Override
@@ -179,9 +169,6 @@ public class Kernel implements NavigationDelegate {
                                     new IntegrityStep());
 
                             pipeline.execute(dialog, context);
-
-                            progress.getBar().setProgress(100.0);
-
                             control.proceed();
                         }
 
@@ -189,7 +176,6 @@ public class Kernel implements NavigationDelegate {
                         public void onError(final Throwable caught)
                         {
                             Log.error("ReadResourceDescription failed: " + caught.getMessage(), caught);
-                            progress.getBar().setProgress(100.0);
                             control.abort();
                         }
                     });
@@ -199,16 +185,11 @@ public class Kernel implements NavigationDelegate {
             Outcome<Context> outcome = new Outcome<Context>() {
                 @Override
                 public void onFailure(final Context context) {
-
-                    progress.hide();
                     Window.alert("Reification failed");
                 }
 
                 @Override
                 public void onSuccess(final Context context) {
-
-                    progress.hide();
-
                     // show result
                     ReificationWidget widget = context.get(ContextKey.WIDGET);
                     assert widget !=null;
@@ -221,15 +202,8 @@ public class Kernel implements NavigationDelegate {
                     callback.onSuccess(widget.asWidget());
                 }
             };
-
-            // execute pipeline
-            progress.center();
-            progress.getBar().setProgress(25.0);
-
-            new Async<Context>().waterfall(
-                    context, outcome,
-                    prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData
-            );
+            new Async<Context>(Footer.PROGRESS_ELEMENT).waterfall(context, outcome,
+                    prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData);
         }
         else
         {

@@ -25,10 +25,10 @@ import java.util.Set;
 
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.ConsoleProgress;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
@@ -106,7 +106,7 @@ public class ModifyRoleAssignmentOp implements ManagementOperation<FunctionConte
                 functions.add(new RoleAssignmentFunctions.RemoveMatching(dispatcher));
                 break;
         }
-        new Async<FunctionContext>(new ConsoleProgress("modifyRoleAssignment"))
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
                 .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
     }
 
