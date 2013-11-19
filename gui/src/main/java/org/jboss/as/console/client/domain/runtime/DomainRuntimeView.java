@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.domain.runtime;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -7,34 +11,24 @@ import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.hosts.HostSelector;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
-import javax.inject.Inject;
-import java.util.List;
-
 /**
  * @author Heiko Braun
- * @date 11/2/11
  */
 public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresenter.MyView {
-
-    private DomainRuntimePresenter presenter;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
     private DomainRuntimeNavigation lhsNavigation;
-
-    private HostSelector hostSelector;
 
     @Inject
     public DomainRuntimeView() {
         super();
 
         layout = new DefaultSplitLayoutPanel(2);
-
         contentCanvas = new LayoutPanel();
         lhsNavigation = new DomainRuntimeNavigation();
 
@@ -45,7 +39,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
         layout.addWest(nav, 217);
         layout.add(contentCanvas);
-
     }
 
     @Override
@@ -56,13 +49,12 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
     @Override
     public void setInSlot(Object slot, IsWidget  content) {
-
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
 
         } else {
-            Console.getMessageCenter().notify(
+            Console.MODULES.getMessageCenter().notify(
                     new Message("Unknown slot requested:" + slot)
             );
         }
@@ -74,9 +66,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     @Override
-    public void setPresenter(DomainRuntimePresenter presenter) {
-        this.presenter = presenter;
-    }
+    public void setPresenter(DomainRuntimePresenter presenter) {}
 
     @Override
     public void setHosts(HostList hosts) {
@@ -86,10 +76,5 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     @Override
     public void setSubsystems(List<SubsystemRecord> result) {
         lhsNavigation.setSubsystems(result);
-    }
-
-    @Override
-    public void resetHostSelection() {
-        lhsNavigation.resetHostSelection();
     }
 }
