@@ -18,11 +18,8 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -39,7 +36,6 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  */
 public class AccessControlProviderDialog implements IsWidget {
 
-    static final Templates TEMPLATES = GWT.create(Templates.class);
     private final RoleAssignmentPresenter presenter;
 
     public AccessControlProviderDialog(final RoleAssignmentPresenter presenter) {this.presenter = presenter;}
@@ -49,7 +45,7 @@ public class AccessControlProviderDialog implements IsWidget {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        builder.append(TEMPLATES.warning());
+        builder.append(Console.MESSAGES.access_control_provider());
         layout.add(new HTML(builder.toSafeHtml()));
 
         DialogueOptions options = new DialogueOptions(
@@ -70,12 +66,5 @@ public class AccessControlProviderDialog implements IsWidget {
         );
         options.showCancel(false);
         return new WindowContentBuilder(new ScrollPanel(layout), options).build();
-    }
-
-    interface Templates extends SafeHtmlTemplates {
-
-        @Template("<p>You've configured the 'simple' access control provider. You can configure role mappings, " +
-                "but they will not become active, until you switched to the 'rbac' provider.")
-        SafeHtml warning();
     }
 }

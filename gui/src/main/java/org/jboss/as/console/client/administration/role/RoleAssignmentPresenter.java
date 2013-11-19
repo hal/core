@@ -166,7 +166,7 @@ public class RoleAssignmentPresenter
                     if (!initialized) {
                         String acp = context.get(LoadRoleAssignmentsOp.ACCESS_CONTROL_PROVIDER);
                         if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
-                            openWindow("Access Control Provider", 480, 200,
+                            openWindow("Access Control Provider", 480, 220,
                                     new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
                         }
                     }

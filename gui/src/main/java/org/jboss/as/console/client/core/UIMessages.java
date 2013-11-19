@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Messages;
+import com.google.gwt.safehtml.shared.SafeHtml;
 
 /**
  * @author Heiko Braun
@@ -203,4 +204,6 @@ public interface UIMessages extends Messages {
     String administration_scoped_role_in_use(int usage);
 
     String administration_members(String name);
+
+    SafeHtml access_control_provider();
 }
