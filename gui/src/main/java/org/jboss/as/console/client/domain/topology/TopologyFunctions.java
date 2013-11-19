@@ -215,35 +215,37 @@ public final class TopologyFunctions {
                 @Override
                 protected void onSuccess(final ModelNode result) {
                     ModelNode stepsResult = result.get(RESULT);
-                    List<Property> properties = stepsResult.asPropertyList();
-                    for (Iterator<Property> iterator = properties.iterator(); iterator.hasNext(); ) {
-                        Property property = iterator.next();
-                        String step = property.getName();
-                        ModelNode node = property.getValue();
-                        ServerInstance serverInstance = stepToServer.get(step);
-                        if (serverInstance != null) {
-                            // step-n: server state
-                            if (node.get(RESULT).isDefined()) {
-                                String state = node.get(RESULT).asString();
-                                if (state.equals("reload-required")) {
-                                    serverInstance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                                } else if (state.equals("restart-required")) {
-                                    serverInstance.setFlag(ServerFlag.RESTART_REQUIRED);
+                    if (stepsResult.isDefined()) {
+                        List<Property> properties = stepsResult.asPropertyList();
+                        for (Iterator<Property> iterator = properties.iterator(); iterator.hasNext(); ) {
+                            Property property = iterator.next();
+                            String step = property.getName();
+                            ModelNode node = property.getValue();
+                            ServerInstance serverInstance = stepToServer.get(step);
+                            if (serverInstance != null) {
+                                // step-n: server state
+                                if (node.get(RESULT).isDefined()) {
+                                    String state = node.get(RESULT).asString();
+                                    if (state.equals("reload-required")) {
+                                        serverInstance.setFlag(ServerFlag.RELOAD_REQUIRED);
+                                    } else if (state.equals("restart-required")) {
+                                        serverInstance.setFlag(ServerFlag.RESTART_REQUIRED);
+                                    }
                                 }
-                            }
 
-                            // step-n + 1: socket binding groups
-                            property = iterator.next();
-                            node = property.getValue();
-                            if (node.get(RESULT).isDefined()) {
-                                List<Property> sockets = node.get(RESULT).asPropertyList();
-                                for (Property socket : sockets) {
-                                    serverInstance.getSocketBindings()
-                                            .put(socket.getName(), socket.getValue().get("port-offset").asString());
+                                // step-n + 1: socket binding groups
+                                property = iterator.next();
+                                node = property.getValue();
+                                if (node.get(RESULT).isDefined()) {
+                                    List<Property> sockets = node.get(RESULT).asPropertyList();
+                                    for (Property socket : sockets) {
+                                        serverInstance.getSocketBindings()
+                                                .put(socket.getName(), socket.getValue().get("port-offset").asString());
+                                    }
                                 }
                             }
                         }
-                    }
+                    } // else no running servers!
                     control.getContext().push(hosts);
                 }
             });
