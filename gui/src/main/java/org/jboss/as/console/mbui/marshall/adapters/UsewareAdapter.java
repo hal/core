@@ -56,6 +56,11 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
             Trigger trigger = (Trigger)unit;
             el.setAttribute("type", trigger.getType().toString());
         }
+        else if(unit instanceof Link)
+        {
+            Link link = (Link)unit;
+            el.setAttribute("target", link.getTarget().toString());
+        }
 
         return el;
     }
@@ -104,13 +109,13 @@ public class UsewareAdapter implements ElementAdapter<InteractionUnit> {
         else if("link".equals(name))
         {
             unit = new Link(id.getNamespaceURI(), id.getLocalPart(),
-                    null, // todo: target
+                    QName.valueOf(ParseUtils.failSafe(node.getAttributes().getNamedItem("target"), "")),
                     label);
         }
         return unit;
     }
 
-   
+
     @Override
     public Class<?> getType() {
         return InteractionUnit.class;

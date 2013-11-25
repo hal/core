@@ -49,17 +49,19 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             rootNode.setData(new Scope(createContextId(), true));
             shadowTree.setRootElement(rootNode);
 
-            stack.push(new ChildStrategy(rootNode) {
-                @Override
-                Integer getOrCreateId() {
-                    return rootNode.getData().getScopeId();
-                }
+            stack.push(
+                    new ChildStrategy(rootNode) {
+                        @Override
+                        Integer getOrCreateId() {
+                            return rootNode.getData().getScopeId();
+                        }
 
-                @Override
-                boolean childStartsNewScope() {
-                    return true;
-                }
-            });
+                        @Override
+                        boolean childStartsNewScope() {
+                            return true;  // all children of root create new scopes
+                        }
+                    }
+            );
 
             containerNode = rootNode;
         }
@@ -72,35 +74,38 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         if(container.getTemporalOperator().isScopeBoundary())
         {
             // children of boundary units will assign new scopes
-            stack.push(new ChildStrategy(containerNode, stack.peek().getOrCreateId()) {
-                @Override
-                Integer getOrCreateId() {
-                    return createContextId();
-                }
+            stack.push(
+                    new ChildStrategy(containerNode, stack.peek().getOrCreateId()) {
+                        @Override
+                        Integer getOrCreateId() {
+                            return createContextId();
+                        }
 
-                @Override
-                boolean childStartsNewScope() {
-                    return true;
-                }
-            });
-
+                        @Override
+                        boolean childStartsNewScope() {
+                            return true;
+                        }
+                    }
+            );
         }
         else
         {
             // children of regular units will use the the parent scope
             final Integer sharedContextId = stack.peek().getOrCreateId();
-            stack.push(new ChildStrategy(containerNode) {
+            stack.push(
+                    new ChildStrategy(containerNode) {
 
-                @Override
-                Integer getOrCreateId() {
-                    return sharedContextId;
-                }
+                        @Override
+                        Integer getOrCreateId() {
+                            return sharedContextId;
+                        }
 
-                @Override
-                boolean childStartsNewScope() {
-                    return false;
-                }
-            });
+                        @Override
+                        boolean childStartsNewScope() {
+                            return false;
+                        }
+                    }
+            );
 
         }
 
@@ -121,25 +126,25 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     @Override
     public void endVisit(Container container) {
 
-        ChildStrategy strategy = stack.pop();
+        ChildStrategy parent = stack.pop();
 
         // the demarcation containers inherit the previous scope
         // only their children may create new scopes (if necessary)
-        if(strategy.childStartsNewScope())
+        if(parent.childStartsNewScope())
         {
-            strategy.getNode().setData(
+            parent.getNode().setData(
                     new Scope(
-                            strategy.getPreviousScope(),
-                            strategy.childStartsNewScope()
+                            parent.getParentScope(),
+                            parent.childStartsNewScope()
                     )
             );
         }
         else
         {
-            strategy.getNode().setData(
+            parent.getNode().setData(
                     new Scope(
-                            strategy.getOrCreateId(),
-                            strategy.childStartsNewScope()
+                            parent.getOrCreateId(),
+                            parent.childStartsNewScope()
                     )
             );
         }
@@ -154,19 +159,19 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     abstract class ChildStrategy {
 
         Node<Scope> node;
-        Integer previousScope = null;
+        Integer parentScope = null;
 
         protected ChildStrategy(Node<Scope> container) {
             this.node = container;
         }
 
-        public Integer getPreviousScope() {
-            return previousScope;
+        public Integer getParentScope() {
+            return parentScope;
         }
 
         protected ChildStrategy(Node<Scope> container, Integer previousScope) {
             this.node = container;
-            this.previousScope = previousScope;
+            this.parentScope = previousScope;
         }
 
         public Node<Scope> getNode() {

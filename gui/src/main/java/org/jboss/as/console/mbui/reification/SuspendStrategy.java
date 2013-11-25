@@ -45,20 +45,20 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.useware.kernel.model.structure.TemporalOperator.Deactivation;
+import static org.useware.kernel.model.structure.TemporalOperator.SuspendResume;
 
 /**
- * Strategy for a container with temporal operator == Deactivation.
+ * Strategy for a container with temporal operator == SuspendResume.
  *
- * @author Harald Pehl
  * @author Heiko Braun
- * @date 11/01/2012
+ * @date 19/11/2013
  */
-public class DeactivationStrategy implements ReificationStrategy<ReificationWidget, StereoTypes>
+public class SuspendStrategy implements ReificationStrategy<ReificationWidget, StereoTypes>
 {
 
     private EventBus eventBus;
     private static final Resource<ResourceType> ACTIVATION = new Resource<ResourceType>(CommonQNames.ACTIVATION_ID, ResourceType.System);
-
+    private int numChildContainers = 0;
 
     @Override
     public boolean prepare(InteractionUnit<StereoTypes> interactionUnit, Context context) {
@@ -78,7 +78,7 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
     public boolean appliesTo(final InteractionUnit<StereoTypes> interactionUnit)
     {
         return (interactionUnit instanceof Container) && (((Container) interactionUnit)
-                .getTemporalOperator() == Deactivation);
+                .getTemporalOperator() == SuspendResume);
     }
 
 
@@ -101,24 +101,60 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
                         @Override
                         public boolean accepts(SystemEvent event) {
 
-                            return event.getId().equals(CommonQNames.ACTIVATION_ID)
-                                    && index2child.containsValue(event.getPayload()
-                            );
+                            QName id = (QName)event.getPayload();
+                            if(id!=null)  // TODO: how can this happen?
+                            {
+                                boolean childTarget = index2child.containsValue(id);
+                                boolean relativeNav = id.getSuffix()!=null;
+
+                                return event.getId().equals(CommonQNames.ACTIVATION_ID)
+                                        && (childTarget||relativeNav);
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
+
 
                         @Override
                         public void onSystemEvent(SystemEvent event) {
                             QName id = (QName)event.getPayload();
+                            String suffix = id.getSuffix();
 
-                            Set<Integer> keys = index2child.keySet();
-                            for(Integer key : keys)
+                            if(suffix!=null)
                             {
-                                if(index2child.get(key).equals(id))
+                                // relative nav
+                                if("next".equals(suffix))
                                 {
-                                    deckPanel.showWidget(key);
-                                    break;
+                                    if(deckPanel.getVisibleWidget()==0)
+                                        deckPanel.showWidget(1);
+                                    else
+                                        throw new IllegalStateException("Illegal call 'next' on visible widget "+deckPanel.getVisibleWidget());
+                                }
+                                else if("prev".equals(suffix))
+                                {
+                                    if(deckPanel.getVisibleWidget()==1)
+                                        deckPanel.showWidget(0);
+                                    else
+                                        throw new IllegalStateException("Illegal call 'prev' on visible widget "+deckPanel.getVisibleWidget());
                                 }
                             }
+                            else
+                            {
+
+                                // absolute nav
+                                Set<Integer> keys = index2child.keySet();
+                                for(Integer key : keys)
+                                {
+                                    if(index2child.get(key).equals(id))
+                                    {
+                                        deckPanel.showWidget(key);
+                                        break;
+                                    }
+                                }
+                            }
+
                         }
                     }
             );
@@ -136,7 +172,12 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
         @Override
         public void add(final ReificationWidget widget)
         {
-            assert deckPanel.getWidgetCount()<2 : "Operator.Deactivation only supports two child units";
+            boolean isContainer = widget.getInteractionUnit() instanceof Container;
+            if(isContainer) numChildContainers++;
+
+            if(numChildContainers>2)
+                throw new IllegalStateException("Operator.SuspendResume only supports a single child container");
+
             deckPanel.add(widget.asWidget());
             index2child.put(deckPanel.getWidgetCount()-1, widget.getInteractionUnit().getId());
         }
@@ -144,35 +185,8 @@ public class DeactivationStrategy implements ReificationStrategy<ReificationWidg
         @Override
         public Widget asWidget()
         {
-            LayoutPanel layout = new LayoutPanel();
-            layout.setStyleName("fill-layout");
-
-            FakeTabPanel titleBar = new FakeTabPanel(interactionUnit.getLabel());
-            layout.add(titleBar);
-
-            Widget deckPanelWidget = deckPanel.asWidget();
-
-            VerticalPanel panel = new VerticalPanel();
-            panel.setStyleName("rhs-content-panel");
-            panel.add(deckPanelWidget);
-
-            ScrollPanel scroll = new ScrollPanel(panel);
-            layout.add(scroll);
-
-            layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(scroll, 40, Style.Unit.PX, 100, Style.Unit.PCT);
-
-            deckPanelWidget.addAttachHandler(new AttachEvent.Handler() {
-                @Override
-                public void onAttachOrDetach(AttachEvent attachEvent) {
-                    deckPanel.showWidget(0);
-                }
-            });
-
-
             //deckPanel.showWidget(0);
-
-            return layout;
+            return deckPanel;
         }
     }
 }

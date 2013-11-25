@@ -6,6 +6,7 @@ import org.useware.kernel.gui.behaviour.Procedure;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
+import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
 /**
@@ -33,18 +34,23 @@ public class ActivationProcedure extends Procedure {
             public void execute(Dialog dialog, Object data) {
 
                 // activate target unit
-                QName targetUnit = (QName)data;
+                QName targetId = (QName)data;
 
                 // 1.) verify activation constraints
-                assert getRuntimeAPI().canBeActivated(targetUnit) : "Unit is not activatable: "+ targetUnit;
+                assert getRuntimeAPI().canBeActivated(targetId) : "Unit is not activatable: "+ targetId;
 
 
-                coordinator.getDialogState().activateBranch(
-                        dialog.findUnit(targetUnit)
-                );
+                String suffix = targetId.getSuffix();
+                boolean isRelative = suffix !=null && (suffix.equals("prev")||suffix.equals("next"));
+
+                InteractionUnit unit = dialog.findUnit(targetId);
+                if(isRelative)
+                    coordinator.getDialogState().activateBranch(unit, suffix);
+                else
+                    coordinator.getDialogState().activateBranch(unit);
 
                 // 2.) activate the scope of the unit
-                //coordinator.getDialogState().activateScope(targetUnit);
+                //coordinator.getDialogState().activateScope(targetId);
 
                 // 3.) activate the unit itself
                 // typically the parent unit is the listener for these events

@@ -36,7 +36,7 @@ public class InterfaceStructureShadow<T> {
         walk(getRootElement(), results, new NodePredicate<T>() {
             @Override
             public boolean appliesTo(Node<T> node) {
-                return id.equals(node.getId());
+                return id.equalsIgnoreSuffix(node.getId());
             }
         });
         return results.isEmpty() ? null : results.get(0);

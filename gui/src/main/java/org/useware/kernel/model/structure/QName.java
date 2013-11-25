@@ -405,7 +405,7 @@ public class QName {
         }
 
         // local part only?
-        int colon = qNameAsString.indexOf(":");
+        int colon = qNameAsString.lastIndexOf(":");
         if (colon == -1) {
             return new QName(
                     "",

@@ -24,7 +24,8 @@ public class Trigger<S extends Enum<S>> extends InteractionUnit<S> {
         super(unitId, label);
 
         // the suffix determines the operation name
-        assert triggerType.getSuffix()!=null : "Invalid trigger type declaration. Suffix required: "+triggerType;
+        if(triggerType.getSuffix()==null)
+            throw new IllegalStateException("Invalid trigger type declaration. Suffix required: "+triggerType);
 
         // explicit output
         setOutputs(new Resource<ResourceType>(triggerType, ResourceType.Interaction));

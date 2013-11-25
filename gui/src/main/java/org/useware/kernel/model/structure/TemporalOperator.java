@@ -73,6 +73,12 @@ public enum TemporalOperator
     Deactivation(true),
 
     /**
+     * Specifies second task cannot begin until first task performed.
+     * TODO: IMO this is an equivalent to 'Sequence'...
+     */
+    Activation(true),
+
+    /**
      * First task can be interrupted by the second one.
      * When the second terminates then the first one can be reactivated from the state reached before.
      */

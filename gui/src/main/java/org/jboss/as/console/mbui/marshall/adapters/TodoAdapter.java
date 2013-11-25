@@ -29,7 +29,7 @@ public class TodoAdapter implements ElementAdapter<InteractionUnit> {
         String label = ParseUtils.IDOrLabel(node);
 
         String idAtt = UUID.uuid().toString();//node.getAttributes().getNamedItem("id").getNodeValue();
-        QName id = new QName(node.getNamespaceURI(), idAtt);
+        QName id = new QName(node.getNamespaceURI(), "todo_"+idAtt);
         Output output = new Output(
                 id.getNamespaceURI(), id.getLocalPart(),
                 label, StereoTypes.Todo);

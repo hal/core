@@ -49,7 +49,12 @@ public class DialogState {
      *
      * @return the leaf unit of that branch (used for scope activation)
      */
+    final static String NONE = "none";
     public QName activateBranch(InteractionUnit unit) {
+        return activateBranch(unit, NONE);
+    }
+
+    public QName activateBranch(InteractionUnit unit, String suffix) {
 
         BranchActivation activation = new BranchActivation();
         unit.accept(activation);
@@ -57,7 +62,11 @@ public class DialogState {
         for(QName unitId : activation.getActiveItems().values())
         {
             // trigger activation procedure
-            stateCoordination.activateUnit(unitId);
+            // TODO: Improve passing of relative nav information
+            QName target = NONE.equals(suffix) ? unitId :
+                    new QName(unitId.getNamespaceURI(), unitId.getLocalPart()+"#"+suffix);
+
+            stateCoordination.activateUnit(target);
         }
 
         return activation.getActiveItems().get(activation.getActiveItems().size()-1);

@@ -50,13 +50,13 @@ public class Dialog {
 
             @Override
             public void startVisit(Container container) {
-                if (container.getId().equals(id))
+                if (container.getId().equalsIgnoreSuffix(id))
                     result.setUnit(container);
             }
 
             @Override
             public void visit(InteractionUnit interactionUnit) {
-                if (interactionUnit.getId().equals(id))
+                if (interactionUnit.getId().equalsIgnoreSuffix(id))
                     result.setUnit(interactionUnit);
             }
 
