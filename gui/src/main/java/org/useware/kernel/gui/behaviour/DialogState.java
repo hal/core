@@ -208,7 +208,7 @@ public class DialogState {
 
         Node<Scope> node = dialog.getScopeModel().findNode(interactionUnit);
         assert node!=null : "Unit doesn't exist in scopeModel: "+interactionUnit;
-        boolean isRootElement = node.getParent() == null;
+        boolean isRootElement = node.getData().getScopeId() == 0;
         boolean parentIsDemarcationType = node.getParent()!=null && node.getParent().getData().isDemarcationType();
         return isRootElement || parentIsDemarcationType;
     }
@@ -284,8 +284,11 @@ public class DialogState {
         @Override
         public boolean appliesTo(Node<Scope> node) {
 
+            // skip root scope
+            if(node.getData().getScopeId()==0) return false;
+
             Scope parentScope = node.getData();
-            boolean isParent = parentScope.getScopeId() != scopeOfUnit.getScopeId();
+            boolean isParent =(parentScope.getScopeId() != scopeOfUnit.getScopeId());
             boolean isActive = scopeActivationState.get(parentScope.getScopeId())!=null
                     ? scopeActivationState.get(parentScope.getScopeId()) : false;
 
