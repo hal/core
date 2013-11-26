@@ -40,19 +40,19 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         stack.push(
                 new ScopeApplication(rootScope) {
                     @Override
-                    Node<Scope> applyToContainer(Container container) {
+                    Node<Scope> applyContainer(Container container) {
 
                         // any container below root has a distinct scope
                         return rootScope.addChild(
                                 new Node(
                                         container.getId(),
-                                        new Scope(createContextId(), container.getTemporalOperator().isScopeBoundary())
+                                        new Scope(newScopeId(), container.getTemporalOperator().isScopeBoundary())
                                 )
                         );
                     }
 
                     @Override
-                    void applyToUnit(InteractionUnit unit) {
+                    void applyUnit(InteractionUnit unit) {
                         throw new IllegalArgumentException("Root scope doesn't support child units");
                     }
                 }
@@ -63,18 +63,18 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     public void startVisit(final Container container) {
 
         // apply scope to container
-        final Node<Scope> scope = stack.peek().applyToContainer(container);
+        final Node<Scope> scope = stack.peek().applyContainer(container);
 
         // push another child strategy
         stack.push(new ScopeApplication(scope) {
             @Override
-            Node<Scope> applyToContainer(Container childContainer) {
+            Node<Scope> applyContainer(Container childContainer) {
 
-                Scope parentScope = scope.getData();
-                Integer scopeId = parentScope.isDemarcationType() ? createContextId() : parentScope.getScopeId();
+                Scope parentScope = getParentScope().getData();
+                Integer scopeId = parentScope.isDemarcationType() ? newScopeId() : parentScope.getScopeId();
 
                 // container added as child, inherits parent scope
-                return scope.addChild(
+                return getParentScope().addChild(
                         new Node(
                                 childContainer.getId(),
                                 new Scope(scopeId, childContainer.getTemporalOperator().isScopeBoundary())
@@ -83,12 +83,12 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             }
 
             @Override
-            void applyToUnit(InteractionUnit unit) {
+            void applyUnit(InteractionUnit unit) {
 
-                Scope parentScope = scope.getData();
-                Integer scopeId = parentScope.isDemarcationType() ? createContextId() : parentScope.getScopeId();
+                Scope parentScope = getParentScope().getData();
+                Integer scopeId = parentScope.isDemarcationType() ? newScopeId() : parentScope.getScopeId();
 
-                scope.addChild(
+                getParentScope().addChild(
                         new Node(
                                 unit.getId(),
                                 new Scope(scopeId, false)
@@ -101,7 +101,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
     @Override
     public void visit(InteractionUnit<S> unit) {
-        stack.peek().applyToUnit(unit);
+        stack.peek().applyUnit(unit);
     }
 
     @Override
@@ -121,16 +121,15 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             this.parentScope = parentScope;
         }
 
-        Node<Scope> getParentScope() {
+        protected Node<Scope> getParentScope() {
             return parentScope;
         }
 
-        abstract Node<Scope> applyToContainer(Container childContainer);
-        abstract void applyToUnit(InteractionUnit childUnit);
+        abstract Node<Scope> applyContainer(Container childContainer);
+        abstract void applyUnit(InteractionUnit childUnit);
     }
 
-    private Integer createContextId() {
-        int contextId = ++scopeIdx;
-        return contextId;
+    private Integer newScopeId() {
+        return ++scopeIdx;
     }
 }
