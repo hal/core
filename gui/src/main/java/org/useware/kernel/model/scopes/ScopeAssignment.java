@@ -27,7 +27,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
     private final ScopeModel<Scope> scopeModel;
     private int scopeIdx = 0;
-    private Stack<ScopeApplication> stack = new Stack<ScopeApplication>();
+    private Stack<Directive> stack = new Stack<Directive>();
 
     public ScopeAssignment() {
         this.scopeModel = new ScopeModel<Scope>();
@@ -38,7 +38,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
 
         // install root reference
         stack.push(
-                new ScopeApplication(rootScope) {
+                new Directive(rootScope) {
                     @Override
                     Node<Scope> applyContainer(Container container) {
 
@@ -66,7 +66,7 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         final Node<Scope> scope = stack.peek().applyContainer(container);
 
         // push another child strategy
-        stack.push(new ScopeApplication(scope) {
+        stack.push(new Directive(scope) {
             @Override
             Node<Scope> applyContainer(Container childContainer) {
 
@@ -113,11 +113,11 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         return scopeModel;
     }
 
-    abstract class ScopeApplication {
+    abstract class Directive {
 
         private Node<Scope> parentScope;
 
-        protected ScopeApplication(Node<Scope> parentScope) {
+        protected Directive(Node<Scope> parentScope) {
             this.parentScope = parentScope;
         }
 
