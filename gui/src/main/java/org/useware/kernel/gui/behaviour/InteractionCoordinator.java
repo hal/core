@@ -240,28 +240,6 @@ public class InteractionCoordinator implements KernelContract,
         InteractionUnit targetUnit = dialog.findUnit(target);
         if(targetUnit!=null)  // local to dialog
         {
-            /*
-            String suffix = target.getSuffix();
-
-            if("prev".equals(suffix) || "next".equals(suffix)) // relative, local (#prev, #next)
-            {
-                throw new RuntimeException("Relative navigation not implemented: "+suffix);
-
-                if(NavigationEvent.RELATION.next.equals(suffix))
-                {
-
-                }
-                else if(NavigationEvent.RELATION.prev.equals(suffix))
-                {
-
-                }
-            }
-            else // absolute, local
-            {
-                Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
-                                activateProcedure.getCommand().execute(dialog, targetUnit.getId());
-            }                                                                                      */
-
             Procedure activateProcedure = procedures.getSingle(CommonQNames.ACTIVATION_ID);
             activateProcedure.getCommand().execute(dialog, target);
         }

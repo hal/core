@@ -11,11 +11,11 @@ import java.util.List;
  * A mirror representation of the dialog structure.
  * It is used to create associated models without overloading the actual interface model.
  *
- * @param <T> the data assigned to a node in the structure model.
+ * @param <T> the data assigned to a parent in the structure model.
  *
  * @author Heiko Braun
  */
-public class InterfaceStructureShadow<T> {
+public class ScopeModel<T> {
 
     private Node<T> rootElement;
 

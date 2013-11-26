@@ -3,7 +3,7 @@ package org.useware.kernel.model;
 import org.junit.Before;
 import org.junit.Test;
 import org.useware.kernel.gui.behaviour.DialogState;
-import org.useware.kernel.model.scopes.InterfaceStructureShadow;
+import org.useware.kernel.model.scopes.ScopeModel;
 import org.useware.kernel.model.scopes.Scope;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
@@ -65,7 +65,7 @@ public class ScopeTest {
     public void testScopeAssignment()
     {
 
-        InterfaceStructureShadow<Scope> scopeModel = dialog.getScopeModel();
+        ScopeModel<Scope> scopeModel = dialog.getScopeModel();
         Integer basicAttScope = scopeModel.findNode(basicAttributes).getData().getScopeId();
         Integer processAttScope = scopeModel.findNode(processAttributes).getData().getScopeId();
         Integer recoveryAttScope = scopeModel.findNode(recoveryAttributes).getData().getScopeId();

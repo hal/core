@@ -18,15 +18,10 @@
  */
 package org.jboss.as.console.mbui.reification;
 
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+import org.jboss.as.console.mbui.model.StereoTypes;
 import org.useware.kernel.gui.behaviour.SystemEvent;
 import org.useware.kernel.gui.behaviour.common.CommonQNames;
 import org.useware.kernel.gui.reification.Context;
@@ -38,13 +33,11 @@ import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.jboss.as.console.mbui.model.StereoTypes;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.useware.kernel.model.structure.TemporalOperator.Deactivation;
 import static org.useware.kernel.model.structure.TemporalOperator.SuspendResume;
 
 /**
@@ -102,7 +95,7 @@ public class SuspendStrategy implements ReificationStrategy<ReificationWidget, S
                         public boolean accepts(SystemEvent event) {
 
                             QName id = (QName)event.getPayload();
-                            if(id!=null)  // TODO: how can this happen?
+                            if(id!=null)
                             {
                                 boolean childTarget = index2child.containsValue(id);
                                 boolean relativeNav = id.getSuffix()!=null;
@@ -112,7 +105,7 @@ public class SuspendStrategy implements ReificationStrategy<ReificationWidget, S
                             }
                             else
                             {
-                                return false;
+                                return false;   // TODO: how can this happen?
                             }
                         }
 
@@ -129,15 +122,17 @@ public class SuspendStrategy implements ReificationStrategy<ReificationWidget, S
                                 {
                                     if(deckPanel.getVisibleWidget()==0)
                                         deckPanel.showWidget(1);
-                                    else
-                                        throw new IllegalStateException("Illegal call 'next' on visible widget "+deckPanel.getVisibleWidget());
+                                    //else  TODO
+                                    //    throw new IllegalStateException("Illegal call 'next' on visible widget "+deckPanel.getVisibleWidget());
                                 }
                                 else if("prev".equals(suffix))
                                 {
                                     if(deckPanel.getVisibleWidget()==1)
                                         deckPanel.showWidget(0);
-                                    else
-                                        throw new IllegalStateException("Illegal call 'prev' on visible widget "+deckPanel.getVisibleWidget());
+
+
+                                    //else TODO
+                                    //    throw new IllegalStateException("Illegal call 'prev' on visible widget "+deckPanel.getVisibleWidget());
                                 }
                             }
                             else

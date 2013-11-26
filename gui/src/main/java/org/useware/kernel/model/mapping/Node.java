@@ -171,14 +171,20 @@ public class Node<T> {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("{").append(getData().toString()).append(",[");
-        int i = 0;
-        for (Node<T> e : getChildren()) {
-            if (i > 0) {
-                sb.append(",");
+        String data = getData()!=null ? getData().toString() : "<no data>";
+        sb.append(getId()).append(" ");
+        sb.append("{").append(data).append(",[");
+
+        if(getChildren()!=null){
+            int i = 0;
+            for (Node<T> e : getChildren()) {
+                if (i > 0) {
+                    sb.append(",");
+                }
+                String childData = e.getData()!=null ? e.getData().toString() : "<no data>";
+                sb.append(childData);
+                i++;
             }
-            sb.append(e.getData().toString());
-            i++;
         }
         sb.append("]").append("}");
         return sb.toString();
