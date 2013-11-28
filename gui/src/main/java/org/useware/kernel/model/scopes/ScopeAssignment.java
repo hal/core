@@ -4,7 +4,6 @@ import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
-import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.Stack;
@@ -65,8 +64,10 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         // apply scope to container
         final Node<Scope> scope = stack.peek().applyContainer(container);
 
+        boolean isBoundary = container.getTemporalOperator().isScopeBoundary();
+
         // push another child strategy
-        stack.push(new Directive(scope, asBoundary(container), container.getId()) {
+        stack.push(new Directive(scope, isBoundary, container.getId()) {
             @Override
             Node<Scope> applyContainer(Container childContainer) {
 
@@ -108,10 +109,6 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
             }
         });
 
-    }
-
-    private boolean asBoundary(Container container) {
-        return container.getTemporalOperator() == TemporalOperator.Choice; // TODO remaining
     }
 
     @Override
