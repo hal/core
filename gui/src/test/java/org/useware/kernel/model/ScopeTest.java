@@ -66,9 +66,9 @@ public class ScopeTest {
     {
 
         ScopeModel<Scope> scopeModel = dialog.getScopeModel();
-        Integer basicAttScope = scopeModel.findNode(basicAttributes).getData().getScopeId();
-        Integer processAttScope = scopeModel.findNode(processAttributes).getData().getScopeId();
-        Integer recoveryAttScope = scopeModel.findNode(recoveryAttributes).getData().getScopeId();
+        Integer basicAttScope = scopeModel.findNode(basicAttributes).getData().getId();
+        Integer processAttScope = scopeModel.findNode(processAttributes).getData().getId();
+        Integer recoveryAttScope = scopeModel.findNode(recoveryAttributes).getData().getId();
 
         // choice operators create separate scopes for container children
         assertNotEquals("Unit's should not share the same scope", basicAttScope, processAttScope);

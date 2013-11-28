@@ -42,6 +42,7 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
     private final QName id;
     private Container parent;
     private String label;
+    private Integer scopeId;
 
     private final Map<MappingType, Mapping> mappings;
 
@@ -281,5 +282,13 @@ public abstract class InteractionUnit<S extends Enum<S>> implements Consumer, Pr
     public Set<Resource<ResourceType>> getOutputs() {
         assert resourceProduction.getOutputs()!=null : "Check doesProduce() before calling getOutputs()";
         return resourceProduction.getOutputs();
+    }
+
+    public Integer getScopeId() {
+        return scopeId;
+    }
+
+    public void setScopeId(Integer scopeId) {
+        this.scopeId = scopeId;
     }
 }

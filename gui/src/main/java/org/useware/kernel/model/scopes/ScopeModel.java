@@ -2,7 +2,6 @@ package org.useware.kernel.model.scopes;
 
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.mapping.NodePredicate;
-import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,52 +10,50 @@ import java.util.List;
  * A mirror representation of the dialog structure.
  * It is used to create associated models without overloading the actual interface model.
  *
- * @param <T> the data assigned to a parent in the structure model.
- *
  * @author Heiko Braun
  */
-public class ScopeModel<T> {
+public class ScopeModel {
 
-    private Node<T> rootElement;
+    private Node<Scope> rootElement;
 
     /**
      * Return the root Node of the tree.
      * @return the root element.
      */
-    public Node<T> getRootElement() {
+    public Node<Scope> getRootElement() {
         return this.rootElement;
     }
 
-    public void setRootElement(Node<T> rootElement) {
+    public void setRootElement(Node<Scope> rootElement) {
         this.rootElement = rootElement;
     }
 
-    public Node<T> findNode(final QName id) {
-        List<Node<T>> results = new ArrayList<Node<T>>();
-        walk(getRootElement(), results, new NodePredicate<T>() {
+    public Node<Scope> findNode(final int scopeId) {
+        List<Node<Scope>> results = new ArrayList<Node<Scope>>();
+        walk(getRootElement(), results, new NodePredicate<Scope>() {
             @Override
-            public boolean appliesTo(Node<T> node) {
-                return id.equals(node.getId());
+            public boolean appliesTo(Node<Scope> node) {
+                return node.getData().getId()==scopeId;
             }
         });
         return results.isEmpty() ? null : results.get(0);
     }
 
     /**
-     * Returns the Tree<T> as a List of Node<T> objects. The elements of the
+     * Returns the Scoperee<Scope> as a List of Node<Scope> objects. Scopehe elements of the
      * List are generated from a pre-order traversal of the tree.
-     * @return a List<Node<T>>.
+     * @return a List<Node<Scope>>.
      */
-    public List<Node<T>> toList() {
-        List<Node<T>> list = new ArrayList<Node<T>>();
+    public List<Node<Scope>> toList() {
+        List<Node<Scope>> list = new ArrayList<Node<Scope>>();
         walk(rootElement, list);
         return list;
     }
 
     /**
-     * Returns a String representation of the Tree. The elements are generated
-     * from a pre-order traversal of the Tree.
-     * @return the String representation of the Tree.
+     * Returns a String representation of the Scoperee. Scopehe elements are generated
+     * from a pre-order traversal of the Scoperee.
+     * @return the String representation of the Scoperee.
      */
     public String toString() {
         return toList().toString();
@@ -65,7 +62,7 @@ public class ScopeModel<T> {
 
 
     /**
-     * Walks the Tree in pre-order style. This is a recursive method, and is
+     * Walks the Scoperee in pre-order style. Scopehis is a recursive method, and is
      * called from the toList() method with the root element as the first
      * argument. It appends to the second argument, which is passed by reference
      * as it recurses down the tree.
@@ -73,25 +70,41 @@ public class ScopeModel<T> {
      * @param element the starting element.
      * @param list the output of the walk.
      */
-    private void walk(Node<T> element, List<Node<T>> list) {
-        walk(element, list, new NodePredicate<T>() {
+    private void walk(Node<Scope> element, List<Node<Scope>> list) {
+        walk(element, list, new NodePredicate<Scope>() {
             @Override
-            public boolean appliesTo(Node<T> node) {
+            public boolean appliesTo(Node<Scope> node) {
                 return true;
             }
         });
     }
 
 
-    private void walk(Node<T> element, List<Node<T>> list, NodePredicate<T> predicate) {
+    private void walk(Node<Scope> element, List<Node<Scope>> list, NodePredicate<Scope> predicate) {
         if (predicate.appliesTo(element)) {
             list.add(element);
         }
-        for (Node<T> data : element.getChildren()) {
+        for (Node<Scope> data : element.getChildren()) {
             walk(data, list, predicate);
         }
     }
 
+    public void clearActivation() {
+
+        List<Node<Scope>> list = new ArrayList<Node<Scope>>();
+        walk(getRootElement(), list, new NodePredicate<Scope>() {
+            @Override
+            public boolean appliesTo(Node<Scope> node) {
+                if(node.getData().isActive())
+                {
+                    node.getData().setActive(false);
+                    return true;
+                }
+                return false;
+            }
+        });
+
+    }
 }
 
 

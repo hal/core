@@ -18,7 +18,7 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 public class Dialog {
     private QName id;
     private InteractionUnit root;
-    private ScopeModel<Scope> scopeModel;
+    private ScopeModel scopeModel;
 
     public Dialog(QName id, InteractionUnit root) {
         this.id = id;
@@ -74,7 +74,7 @@ public class Dialog {
         return result.getUnit();
     }
 
-    public ScopeModel<Scope> getScopeModel() {
+    public ScopeModel getScopeModel() {
         assert this.scopeModel !=null : "Scope model not set";
         return this.scopeModel;
     }

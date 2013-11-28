@@ -1,7 +1,5 @@
 package org.useware.kernel.model.mapping;
 
-import org.useware.kernel.model.structure.QName;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,25 +12,12 @@ import java.util.List;
 public class Node<T> {
 
     private T data;
-    private QName id;
+
     private Node<T> parent;
     private List<Node<T>> children;
 
-    public Node() {
-        this(null);
-    }
-
-    public Node(final QName id) {
-        this.id = id;
-    }
-
-    public Node(QName id, T data) {
-        this.id = id;
+    public Node(T data) {
         this.data = data;
-    }
-
-    public QName getId() {
-        return id;
     }
 
     public Node<T> getParent() {
@@ -104,12 +89,8 @@ public class Node<T> {
         return children.size();
     }
 
-    public Node<T> addChild(QName id, T data) {
-        return addChild(new Node<T>(id, data));
-    }
-
-    public Node<T> addChild(QName id) {
-        return addChild(new Node<T>(id));
+    public Node<T> addChild(T data) {
+        return addChild(new Node<T>(data));
     }
 
 
@@ -170,9 +151,8 @@ public class Node<T> {
     }
 
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        /*StringBuilder sb = new StringBuilder();
         String data = getData()!=null ? getData().toString() : "<no data>";
-        sb.append(getId()).append(" ");
         sb.append("{").append(data).append(",[");
 
         if(getChildren()!=null){
@@ -186,7 +166,8 @@ public class Node<T> {
                 i++;
             }
         }
-        sb.append("]").append("}");
-        return sb.toString();
+        sb.append("]").append("}");  */
+
+        return getData().toString();
     }
 }

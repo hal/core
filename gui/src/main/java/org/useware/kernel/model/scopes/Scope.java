@@ -7,26 +7,28 @@ package org.useware.kernel.model.scopes;
 public final class Scope {
 
     private int scopeId;
-    private boolean demarcationType;
+    private boolean active;
 
-    public Scope(int scopeId, boolean demarcationType) {
+    public Scope(int scopeId) {
         this.scopeId = scopeId;
-        this.demarcationType = demarcationType;
     }
 
-    public int getScopeId() {
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public int getId() {
         return scopeId;
-    }
-
-    public boolean isDemarcationType() {
-        return demarcationType;
     }
 
     @Override
     public String toString() {
         return "Scope{" +
                 "id=" + scopeId +
-                ", demarcation=" + demarcationType+
                 '}';
     }
 

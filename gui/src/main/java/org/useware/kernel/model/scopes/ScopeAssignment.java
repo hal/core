@@ -4,6 +4,7 @@ import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.Stack;
@@ -23,30 +24,29 @@ import java.util.Stack;
  */
 public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisitor<S> {
 
-    private final static QName ROOT = QName.valueOf("org.useware.scope:root");
-
-    private final ScopeModel<Scope> scopeModel;
+    private final ScopeModel scopeModel;
     private int scopeIdx = 0;
     private Stack<Directive> stack = new Stack<Directive>();
 
     public ScopeAssignment() {
-        this.scopeModel = new ScopeModel<Scope>();
+        this.scopeModel = new ScopeModel();
 
-        final Node<Scope> rootScope  = new Node<Scope>( ROOT, new Scope(0, true) );
+        final Node<Scope> rootScope  = new Node<Scope>( new Scope(scopeIdx) );
 
         scopeModel.setRootElement(rootScope);
 
-        // install root reference
+        // install root directive
         stack.push(
-                new Directive(rootScope) {
+                new Directive(rootScope, true, QName.valueOf("org.useware:root")) { // any container below root has a distinct scope
                     @Override
                     Node<Scope> applyContainer(Container container) {
 
-                        // any container below root has a distinct scope
+                        Integer scopeId = newScopeId();
+                        container.setScopeId(scopeId);
+
                         return rootScope.addChild(
                                 new Node(
-                                        container.getId(),
-                                        new Scope(newScopeId(), container.getTemporalOperator().isScopeBoundary())
+                                        new Scope(scopeId)
                                 )
                         );
                     }
@@ -60,43 +60,58 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
     }
 
     @Override
-    public void startVisit(final Container container) {
+    public void startVisit(Container container) {
 
         // apply scope to container
         final Node<Scope> scope = stack.peek().applyContainer(container);
 
         // push another child strategy
-        stack.push(new Directive(scope) {
+        stack.push(new Directive(scope, asBoundary(container), container.getId()) {
             @Override
             Node<Scope> applyContainer(Container childContainer) {
 
-                Scope parentScope = getParentScope().getData();
-                Integer scopeId = parentScope.isDemarcationType() ? newScopeId() : parentScope.getScopeId();
+                if(isBoundary())
+                {
+                    // new scope
+                    Integer scopeId = newScopeId();
+                    childContainer.setScopeId(scopeId);
 
-                // container added as child, inherits parent scope
-                return getParentScope().addChild(
-                        new Node(
-                                childContainer.getId(),
-                                new Scope(scopeId, childContainer.getTemporalOperator().isScopeBoundary())
-                        )
-                );
+                    return getParentScope().addChild(
+                            new Node(
+                                    new Scope(scopeId)
+                            )
+                    );
+                }
+                else
+                {
+                    // scope remains the same
+                    childContainer.setScopeId(
+                            getParentScope().getData().getId()
+                    );
+
+                    return getParentScope();
+                }
+
             }
 
             @Override
             void applyUnit(InteractionUnit unit) {
 
-                Scope parentScope = getParentScope().getData();
-                Integer scopeId = parentScope.isDemarcationType() ? newScopeId() : parentScope.getScopeId();
+                int scopeId = getParentScope().getData().getId();
+                unit.setScopeId(scopeId);
 
                 getParentScope().addChild(
                         new Node(
-                                unit.getId(),
-                                new Scope(scopeId, false)
+                                new Scope(scopeId)
                         )
                 );
             }
         });
 
+    }
+
+    private boolean asBoundary(Container container) {
+        return container.getTemporalOperator() == TemporalOperator.Choice; // TODO remaining
     }
 
     @Override
@@ -109,16 +124,24 @@ public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisito
         stack.pop();
     }
 
-    public ScopeModel<Scope> getScopeModel() {
+    public ScopeModel getScopeModel() {
         return scopeModel;
     }
 
     abstract class Directive {
 
+        private final boolean boundary;
+        private final QName parentId;
         private Node<Scope> parentScope;
 
-        protected Directive(Node<Scope> parentScope) {
+        protected Directive(Node<Scope> parentScope, boolean boundary, QName parentId) {
             this.parentScope = parentScope;
+            this.boundary = boundary;
+            this.parentId = parentId; // debug utility
+        }
+
+        boolean isBoundary() {
+            return boundary;
         }
 
         protected Node<Scope> getParentScope() {

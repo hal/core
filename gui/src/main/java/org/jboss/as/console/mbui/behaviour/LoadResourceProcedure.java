@@ -131,29 +131,37 @@ public class    LoadResourceProcedure extends Procedure {
 
                         // the result is either a single resource or a collection
                         ModelNode result = response.get(RESULT);
-                        if(ModelType.LIST==result.getType())
+
+                        if(response.isFailure())
                         {
-                            List<ModelNode> collection = result.asList();
-                            List normalized = new ArrayList<ModelNode>(collection.size());
-                            for(ModelNode model : collection)
-                            {
-                                ModelNode payload = model.get(RESULT).asObject();
-                                assignKeyFromAddressNode(payload, model.get(ADDRESS));
-                                normalized.add(payload);
-                            }
-                            presentation.setPayload(normalized);
+                            Console.error("Failed to load resource", response.getFailureDescription());
                         }
                         else
                         {
-                            ModelNode payload = result.asObject();
-                            assignKeyFromAddressNode(payload, operation.get(ADDRESS));
-                            presentation.setPayload(payload);
+                            if(ModelType.LIST==result.getType())
+                            {
+                                List<ModelNode> collection = result.asList();
+                                List normalized = new ArrayList<ModelNode>(collection.size());
+                                for(ModelNode model : collection)
+                                {
+                                    ModelNode payload = model.get(RESULT).asObject();
+                                    assignKeyFromAddressNode(payload, model.get(ADDRESS));
+                                    normalized.add(payload);
+                                }
+                                presentation.setPayload(normalized);
+                            }
+                            else
+                            {
+                                ModelNode payload = result.asObject();
+                                assignKeyFromAddressNode(payload, operation.get(ADDRESS));
+                                presentation.setPayload(payload);
+                            }
+
+                            // unit and target are the same
+                            presentation.setTarget(getJustification());
+
+                            coordinator.fireEvent(presentation);
                         }
-
-                        // unit and target are the same
-                        presentation.setTarget(getJustification());
-
-                        coordinator.fireEvent(presentation);
                     }
                 });
 
