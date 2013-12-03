@@ -94,6 +94,7 @@
         <guice.version>3.0</guice.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <ace.version>1.0.0-SNAPSHOT</ace.version>
+        <gwt.bindPort>9990</gwt.bindPort>
     </properties>
 
 

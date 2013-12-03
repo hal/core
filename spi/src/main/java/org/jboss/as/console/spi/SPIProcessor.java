@@ -1,11 +1,17 @@
 package org.jboss.as.console.spi;
 
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import org.jboss.as.console.client.plugins.AccessControlMetaData;
-import org.jboss.as.console.client.plugins.BootstrapOperation;
-import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
-import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
+import static javax.lang.model.SourceVersion.RELEASE_7;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -21,18 +27,13 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static javax.lang.model.SourceVersion.RELEASE_7;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import org.jboss.as.console.client.plugins.AccessControlMetaData;
+import org.jboss.as.console.client.plugins.BootstrapOperation;
+import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
+import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
 /**
  * @author Heiko Braun
@@ -508,11 +509,14 @@ public class SPIProcessor extends AbstractProcessor {
 
     private void writeProxyConfigurations() {
         try {
-            String devHostUrl = processingEnv.getOptions().get("console.dev.host") != null ?
-                    processingEnv.getOptions().get("console.dev.host") : "127.0.0.1";
+            String devHost = gwtConfigProps.get("console.dev.host") != null ? gwtConfigProps
+                    .get("console.dev.host") : "127.0.0.1";
+            String devPort = gwtConfigProps.get("console.dev.port") != null ? gwtConfigProps
+                    .get("console.dev.port") : "9990";
 
             Map<String, Object> model = new HashMap<>();
-            model.put("devHost", devHostUrl);
+            model.put("devHost", devHost);
+            model.put("devPort", devPort);
 
             FileObject sourceFile = filer.createResource(
                     StandardLocation.SOURCE_OUTPUT, "", "gwt-proxy.properties");

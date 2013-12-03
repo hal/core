@@ -188,6 +188,7 @@
                                 -->
                                 <gwt.console.core.version>${project.version}</gwt.console.core.version>
                                 <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
+                                <gwt.console.dev.port>${gwt.bindPort}</gwt.console.dev.port>
                             </options>
                         </configuration>
                     </execution>

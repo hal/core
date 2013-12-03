@@ -54,27 +54,6 @@
 
     <build>
         <plugins>
-            <!--plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>process-spi</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDiagnostics>false</outputDiagnostics>
-                            <addCompileSourceRoots>false</addCompileSourceRoots>
-                            <appendSourceArtifacts>true</appendSourceArtifacts>
-                            <processors>
-                                <processor>org.jboss.as.console.spi.SPIProcessor</processor>
-                            </processors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
