@@ -19,13 +19,12 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-
 import java.util.List;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author Heiko Braun
- * @date 5/24/11
  */
 public interface DriverStrategy {
     void refreshDrivers(AsyncCallback<List<JDBCDriver>> callback);

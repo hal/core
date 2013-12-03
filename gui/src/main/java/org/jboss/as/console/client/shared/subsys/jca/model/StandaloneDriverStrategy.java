@@ -19,28 +19,28 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import javax.inject.Inject;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun
- * @date 5/24/11
  */
 public class StandaloneDriverStrategy implements DriverStrategy {
 
+    final List<JDBCDriver> drivers = new ArrayList<JDBCDriver>();
     private BeanFactory factory;
     private DispatchAsync dispatcher;
-    final List<JDBCDriver> drivers = new ArrayList<JDBCDriver>();
 
     @Inject
     public StandaloneDriverStrategy(DispatchAsync dispatcher, BeanFactory factory) {
@@ -68,14 +68,11 @@ public class StandaloneDriverStrategy implements DriverStrategy {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(!response.isFailure()) {
-
-                    if(response.hasDefined(RESULT)) {
+                if (!response.isFailure()) {
+                    if (response.hasDefined(RESULT)) {
                         List<ModelNode> payload = response.get(RESULT).asList();
 
-                        for(ModelNode item : payload)
-                        {
-
+                        for (ModelNode item : payload) {
                             JDBCDriver driver = factory.jdbcDriver().as();
                             driver.setDriverClass(item.get("driver-class-name").asString());
                             driver.setName(item.get("driver-name").asString());
@@ -83,34 +80,28 @@ public class StandaloneDriverStrategy implements DriverStrategy {
                             driver.setMajorVersion(item.get("driver-major-version").asInt());
                             driver.setMinorVersion(item.get("driver-minor-version").asInt());
 
-                            if(item.hasDefined("driver-xa-datasource-class-name"))
+                            if (item.hasDefined("driver-xa-datasource-class-name")) {
                                 driver.setXaDataSourceClass(item.get("driver-xa-datasource-class-name").asString());
-
+                            }
                             addIfNotExists(driver);
-
                         }
-
                     }
                 }
-
                 callback.onSuccess(drivers);
             }
         });
     }
 
     private void addIfNotExists(JDBCDriver driver) {
-
         boolean doesExist = false;
-        for(JDBCDriver existing : drivers) // we don't control the AutoBean hash() or equals() method.
-        {
-            if(existing.getName().equals(driver.getName()) &&
-                    existing.getGroup().equals(driver.getGroup()))
-            {
+        for (JDBCDriver existing : drivers) {
+            // we don't control the AutoBean hash() or equals() method.
+            if (existing.getName().equals(driver.getName()) &&
+                    existing.getGroup().equals(driver.getGroup())) {
                 doesExist = true;
                 break;
             }
         }
-        if(!doesExist)
-            drivers.add(driver);
+        if (!doesExist) { drivers.add(driver); }
     }
 }

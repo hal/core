@@ -19,17 +19,15 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import org.jboss.as.console.client.core.ApplicationProperties;
-
 import javax.inject.Inject;
+
+import org.jboss.as.console.client.core.ApplicationProperties;
 
 /**
  * @author Heiko Braun
- * @date 5/24/11
  */
 public class DriverRegistry {
 
-    private ApplicationProperties bootstrap;
     private DriverStrategy chosenStrategy;
 
     @Inject
@@ -37,11 +35,10 @@ public class DriverRegistry {
             ApplicationProperties bootstrap,
             DomainDriverStrategy domainStrategy,
             StandaloneDriverStrategy standaloneStrategy) {
-        this.bootstrap = bootstrap;
-        this.chosenStrategy = bootstrap.isStandalone() ?  standaloneStrategy : domainStrategy;
+        this.chosenStrategy = bootstrap.isStandalone() ? standaloneStrategy : domainStrategy;
     }
 
     public DriverStrategy create() {
-       return chosenStrategy;
+        return chosenStrategy;
     }
 }

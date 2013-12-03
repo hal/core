@@ -19,205 +19,183 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import javax.inject.Inject;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.domain.topology.TopologyFunctions;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 
 /**
  * @author Heiko Braun
- * @date 5/16/11
  */
 public class DomainDriverStrategy implements DriverStrategy {
 
-
     private DispatchAsync dispatcher;
-    private HostInformationStore hostInformationStore;
-    private BeanFactory factory;
+    private BeanFactory beanFactory;
 
     @Inject
-    public DomainDriverStrategy(
-            DispatchAsync dispatcher,
-            HostInformationStore hostInformationStore,
-            BeanFactory factory) {
+    public DomainDriverStrategy(DispatchAsync dispatcher, BeanFactory beanFactory) {
         this.dispatcher = dispatcher;
-        this.hostInformationStore = hostInformationStore;
-        this.factory = factory;
+        this.beanFactory = beanFactory;
     }
 
     @Override
     public void refreshDrivers(final AsyncCallback<List<JDBCDriver>> callback) {
-
-        // TODO Rewrite this using flow API
-        final Counter counter = new Counter();
-        final List<JDBCDriver> drivers = new ArrayList<JDBCDriver>();
-
-        hostInformationStore.getHosts(new SimpleCallback<List<Host>>() {
+        Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
-            public void onSuccess(List<Host> hosts) {
-
-                for(Host host : hosts)
-                {
-                    counter.numRequests++;
-
-                    driversOnHost(host.getName(), new SimpleCallback<List<JDBCDriver>>() {
-
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            super.onFailure(caught);
-                            counter.numResponses++;
-                        }
-
-                        @Override
-                        public void onSuccess(List<JDBCDriver> jdbcDrivers) {
-                            // for each host
-
-                            counter.numResponses++;
-
-
-                            for(JDBCDriver driver : jdbcDrivers)
-                                addIfNotExists(driver, drivers);
-
-                            if(counter.numRequests==counter.numResponses)
-                            {
-                                callback.onSuccess(drivers);
-                            }
-                        }
-                    });
-                }
+            public void onFailure(final FunctionContext context) {
+                callback.onFailure(context.getError());
             }
-        });
 
-    }
-
-    class Counter {
-        int numRequests = 0;
-        int numResponses = 0;
-    }
-
-    private void driversOnHost(final String host, final AsyncCallback<List<JDBCDriver>> callback) {
-
-        final List<JDBCDriver> drivers = new ArrayList<JDBCDriver>();
-        final Counter counter = new Counter();
-
-        hostInformationStore.getServerInstances(host, new SimpleCallback<List<ServerInstance>>() {
             @Override
-            public void onSuccess(List<ServerInstance> result) {
-
-                int numSkipped = 0;
-                for(final ServerInstance server : result){
-
-                    if(!server.isRunning())
-                    {
-                        numSkipped++;
-                        continue;
-                    }
-
-                    ModelNode operation = new ModelNode();
-                    operation.get(OP).set("installed-drivers-list");
-                    operation.get(ADDRESS).add("host", host);
-                    operation.get(ADDRESS).add("server", server.getName());
-                    operation.get(ADDRESS).add("subsystem", "datasources");
-
-                    counter.numRequests++;
-
-                    dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-
-                        @Override
-                        public void onFailure(Throwable caught) {
-
-                            counter.numResponses++;
-                            checkComplete(counter, callback, caught);
-                        }
-
-                        @Override
-                        public void onSuccess(DMRResponse result) {
-
-                            counter.numResponses++;
-
-                            ModelNode response = result.get();
-
-                            if(SUCCESS.equals(response.get(OUTCOME).asString())) {
-
-
-                                List<ModelNode> payload = response.get(RESULT).asList();
-
-                                for(ModelNode item : payload)
-                                {
-
-                                    JDBCDriver driver = factory.jdbcDriver().as();
-                                    driver.setGroup(server.getGroup());
-                                    driver.setDriverClass(item.get("driver-class-name").asString());
-                                    driver.setName(item.get("driver-name").asString());
-                                    driver.setDeploymentName(item.get("deployment-name").asString());
-                                    driver.setMajorVersion(item.get("driver-major-version").asInt());
-                                    driver.setMinorVersion(item.get("driver-minor-version").asInt());
-
-                                    if(item.hasDefined("driver-xa-datasource-class-name"))
-                                        driver.setXaDataSourceClass(item.get("driver-xa-datasource-class-name").asString());
-
-                                    addIfNotExists(driver, drivers);
-
-                                }
-
-                            }
-                            else {
-                                checkComplete(counter, callback, new RuntimeException(response.toString()));
-                            }
-
-                            checkComplete(counter, drivers, callback);
-
-                        }
-                    });
-                }
-
-                if(numSkipped==result.size())
-                    callback.onSuccess(Collections.EMPTY_LIST);
-
+            public void onSuccess(final FunctionContext context) {
+                List<JDBCDriver> driver = context.pop();
+                callback.onSuccess(driver);
             }
-        });
+        };
 
+        new Async<FunctionContext>().waterfall(new FunctionContext(), outcome,
+                new TopologyFunctions.HostsAndGroups(dispatcher), // we need only hosts here, but still better to DRY
+                new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
+                new DriversOnRunningServers(dispatcher, beanFactory));
     }
 
-    private void addIfNotExists(JDBCDriver driver, List<JDBCDriver> drivers) {
+    static class DriversOnRunningServers implements Function<FunctionContext> {
 
-        boolean doesExist = false;
-        for(JDBCDriver existing : drivers) // we don't control the AutoBean hash() or equals() method.
-        {
-            if(existing.getName().equals(driver.getName()) &&
-                    existing.getGroup().equals(driver.getGroup()))
-            {
-                doesExist = true;
-                break;
-            }
+        private final DispatchAsync dispatcher;
+        private final BeanFactory beanFactory;
+        private final List<JDBCDriver> drivers;
+
+        DriversOnRunningServers(final DispatchAsync dispatcher, final BeanFactory beanFactory) {
+            this.dispatcher = dispatcher;
+            this.beanFactory = beanFactory;
+            this.drivers = new LinkedList<JDBCDriver>();
         }
-        if(!doesExist)
-            drivers.add(driver);
-    }
 
-    private void checkComplete(Counter counter, List<JDBCDriver> drivers, AsyncCallback<List<JDBCDriver>> callback) {
-        if(counter.numResponses==counter.numResponses)
-            callback.onSuccess(drivers);
-    }
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            final ModelNode node = new ModelNode();
+            node.get(ADDRESS).setEmptyList();
+            node.get(OP).set(COMPOSITE);
+            List<ModelNode> steps = new LinkedList<ModelNode>();
 
-    private void checkComplete(Counter counter, AsyncCallback<List<JDBCDriver>> callback, Throwable caught) {
-        if(counter.numResponses==counter.numRequests)
-            callback.onFailure(caught);
-        else
-            Console.error("Failed to query JDBC drivers", caught.getMessage());
+            final List<HostInfo> hosts = control.getContext().get(TopologyFunctions.HOSTS_KEY);
+            for (HostInfo hostInfo : hosts) {
+                for (ServerInstance serverInstance : hostInfo.getServerInstances()) {
+                    if (serverInstance.isRunning()) {
+                        ModelNode dsOp = new ModelNode();
+                        dsOp.get(OP).set("installed-drivers-list");
+                        dsOp.get(ADDRESS).add("host", hostInfo.getName());
+                        dsOp.get(ADDRESS).add("server", serverInstance.getName());
+                        dsOp.get(ADDRESS).add("subsystem", "datasources");
+                        steps.add(dsOp);
+                    }
+                }
+            }
+
+            node.get(STEPS).set(steps);
+            dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
+                @Override
+                protected void onSuccess(final ModelNode result) {
+                    /* For a composite op the "installed-drivers-list" reads as
+                     * "server-groups" => {"<groupName>" => {"host" => {"<hostName>" => {"<serverName>" => {"response" => {
+                     *   "outcome" => "success",
+                     *   "result" => {"step-x" => {
+                     *     "outcome" => "success",
+                     *     "result" => [{
+                     *       "driver-name" => "h2",
+                     *       ...
+                     *     }]
+                     *   }}
+                     * }}}}}}
+                     */
+                    ModelNode serverGroups = result.get("server-groups");
+                    if (serverGroups.isDefined()) {
+                        List<Property> groupProperties = serverGroups.asPropertyList();
+                        for (Property groupProperty : groupProperties) {
+                            String groupName = groupProperty.getName();
+                            ModelNode groupNode = groupProperty.getValue();
+                            ModelNode hostNode = groupNode.get("host");
+                            if (hostNode.isDefined()) {
+                                List<Property> hostProperties = hostNode.asPropertyList();
+                                for (Property hostProperty : hostProperties) {
+                                    hostNode = hostProperty.getValue();
+                                    List<Property> serverProperties = hostNode.asPropertyList();
+                                    for (Property serverProperty : serverProperties) {
+                                        ModelNode serverNode = serverProperty.getValue();
+                                        addDrivers(groupName, serverNode);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    control.getContext().push(drivers);
+                }
+
+                private void addDrivers(final String groupName, final ModelNode serverNode) {
+                    ModelNode response = serverNode.get(RESPONSE);
+                    if (response.isDefined()) {
+                        ModelNode result = response.get(RESULT);
+                        List<Property> steps = result.asPropertyList();
+                        if (!steps.isEmpty()) {
+                            ModelNode stepNode = steps.get(0).getValue();
+                            result = stepNode.get(RESULT);
+                            if (result.isDefined()) {
+                                List<ModelNode> driverNodes = result.asList();
+                                for (ModelNode driverNode : driverNodes) {
+                                    String name = driverNode.get("driver-name").asString();
+                                    if (!alreadyExists(name, groupName)) {
+                                        JDBCDriver driver = driverFor(groupName, driverNode);
+                                        drivers.add(driver);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                private boolean alreadyExists(String name, String group) {
+                    for (JDBCDriver existing : drivers) {
+                        if (existing.getName().equals(name) && existing.getGroup().equals(group)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+
+                private JDBCDriver driverFor(final String groupName, final ModelNode driverNode) {
+                    JDBCDriver driver = beanFactory.jdbcDriver().as();
+                    driver.setGroup(groupName);
+                    driver.setDriverClass(driverNode.get("driver-class-name").asString());
+                    driver.setName(driverNode.get("driver-name").asString());
+                    driver.setDeploymentName(driverNode.get("deployment-name").asString());
+                    driver.setMajorVersion(driverNode.get("driver-major-version").asInt());
+                    driver.setMinorVersion(driverNode.get("driver-minor-version").asInt());
+
+                    if (driverNode.hasDefined("driver-xa-datasource-class-name")) {
+                        driver.setXaDataSourceClass(
+                                driverNode.get("driver-xa-datasource-class-name").asString());
+                    }
+                    return driver;
+                }
+            });
+        }
     }
 }
