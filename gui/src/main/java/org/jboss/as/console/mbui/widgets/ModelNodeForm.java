@@ -1,7 +1,6 @@
 package org.jboss.as.console.mbui.widgets;
 
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -250,17 +249,42 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                 ModelNode src = ModelNodeForm.this.editedEntity;
                 ModelNode dest = getUpdatedEntity();
 
-                if(src.hasDefined(propertyName))
-                {
-                    if(!src.get(propertyName).equals(dest.get(propertyName)))
-                        changedValues.put(propertyName, downCast(dest.get(propertyName)));
-                }
+                if(!src.get(propertyName).equals(dest.get(propertyName)))
+                    changedValues.put(propertyName, downCast(dest.get(propertyName)));
+
                 return true;
             }
         }
         );
 
-        return changedValues;
+        Map<String, Object> finalDiff = new HashMap<String,Object>();
+
+        // map changes, but skip unmodified fields
+        for(Map<String, FormItem> groupItems : formItems.values())
+        {
+            for(FormItem item : groupItems.values())
+            {
+                Object val = changedValues.get(item.getName());
+
+                // expression have precedence over real values
+                if(item.isExpressionValue())
+                {
+                    finalDiff.put(item.getName(), item.asExpressionValue());
+                }
+
+                // regular values
+                else if(val!=null && item.isModified())
+                {
+                    if(item.isUndefined())
+                        finalDiff.put(item.getName(), FormItem.VALUE_SEMANTICS.UNDEFINED);
+                    else
+                        finalDiff.put(item.getName(), val);
+                }
+            }
+        }
+
+        return finalDiff;
+
     }
 
     @Override

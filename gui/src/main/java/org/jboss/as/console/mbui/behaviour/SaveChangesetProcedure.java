@@ -88,6 +88,8 @@ public class SaveChangesetProcedure extends Procedure {
                 changeset,
                 address.asResource(statementContext));
 
+       // System.out.println(operation);
+
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {

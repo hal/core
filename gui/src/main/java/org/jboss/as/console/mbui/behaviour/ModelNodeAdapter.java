@@ -14,6 +14,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 public class ModelNodeAdapter {
 
+    private static final String UNDEFINE_ATTRIBUTE = "undefine-attribute";
     private KeyAssignment keyAssignment = null;
 
     public ModelNodeAdapter with(KeyAssignment keyAssignment)
@@ -32,9 +33,13 @@ public class ModelNodeAdapter {
     public ModelNode fromChangeset(Map<String, Object> changeSet, ModelNode address, ModelNode... extraSteps)
     {
 
-        ModelNode protoType = new ModelNode();
-        protoType.get(ADDRESS).set(address.get(ADDRESS));
-        protoType.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+        ModelNode define = new ModelNode();
+        define.get(ADDRESS).set(address.get(ADDRESS));
+        define.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+
+        ModelNode undefine = new ModelNode();
+        undefine.get(ADDRESS).set(address.get(ADDRESS));
+        undefine.get(OP).set(UNDEFINE_ATTRIBUTE);
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -46,12 +51,21 @@ public class ModelNodeAdapter {
         {
             Object value = changeSet.get(key);
 
-            ModelNode step = protoType.clone();
-            step.get(NAME).set(key);
+            ModelNode step = null;
+            if(value.equals(FormItem.VALUE_SEMANTICS.UNDEFINED))
+            {
+                step = undefine.clone();
+                step.get(NAME).set(key);
+            }
+            else
+            {
+                step = define.clone();
+                step.get(NAME).set(key);
 
-            // set value, including type conversion
-            ModelNode valueNode = step.get(VALUE);
-            setValue(valueNode, value);
+                // set value, including type conversion
+                ModelNode valueNode = step.get(VALUE);
+                setValue(valueNode, value);
+            }
 
             steps.add(step);
         }
