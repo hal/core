@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.mbui.reification;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -85,7 +86,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
         Map<QName, ModelNode> descriptions = context.get (ContextKey.MODEL_DESCRIPTIONS);
 
          // TODO (BUG): After the first reification the behaviour is modified,
-        // so the predicate might apply to a dfferent unit. As a result the correllation id is different!
+        // so the predicate might apply to a different unit. As a result the correlation id is different!
 
         QName correlationId = interactionUnit.findMapping(MappingType.DMR, new Predicate<DMRMapping>() {
             @Override
@@ -229,7 +230,7 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                             }
                             break;
                         default:
-                            throw new RuntimeException("Unsupported ModelType "+type);
+                            Log.debug("Unsupported ModelType " + type);
                     }
 
                 }

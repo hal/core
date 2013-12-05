@@ -35,11 +35,25 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>FileIO</servlet-name>
+        <servlet-class>org.codehaus.mojo.mrm.servlet.FileSystemServlet</servlet-class>
+        <init-param>
+            <param-name>repository.dir</param-name>
+            <param-value>./../../dialogs/src/main/webapp/repo</param-value>
+        </init-param>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>logout</servlet-name>
         <url-pattern>/app/logout/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>FileIO</servlet-name>
+        <url-pattern>/app/repo/*</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>gwtProxy</servlet-name>

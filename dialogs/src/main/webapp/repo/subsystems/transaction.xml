@@ -1,0 +1,34 @@
+<dialog xmlns="http://wildfly.org/transactions" id="transaction-subsystem">
+
+    <container id="transactionManager" operator="Concurrency" label="TransactionManager">
+        <dmr address="/{selected.profile}/subsystem=transactions"/>
+        <container id="configGroups" operator="Choice">
+
+            <form id="transactionManager#basicAttributes" label="Attributes">
+                <dmr>
+                    <attribute name="enable-statistics"/>
+                    <attribute name="enable-tsm-status"/>
+                    <attribute name="jts"/>
+                    <attribute name="default-timeout"/>
+                    <attribute name="node-identifier"/>
+                    <attribute name="use-hornetq-store"/>
+                </dmr>
+            </form>
+
+            <form id="transactionManager#processAttributes" label="Process ID">
+                <dmr>
+                    <attribute name="process-id-uuid"/>
+                    <attribute name="process-id-socket-binding"/>
+                </dmr>
+            </form>
+
+            <form id="transactionManager#recoveryAttributes" label="Recovery">
+                <dmr>
+                    <attribute name="recovery-listener"/>
+                    <attribute name="socket-binding"/>
+                </dmr>
+            </form>
+        </container>
+    </container>
+
+</dialog>

@@ -1,0 +1,98 @@
+<dialog xmlns="http://wildfly.org/infinispan" id="cache-configuration">
+
+    <editorpanel id="main" operator="Choice">
+        <dmr address="/{selected.profile}/subsystem=infinispan/cache-container=*"/>
+
+        <container xmlns="http://wildfly.org/infinispan/container" id="container" label="Cache Container">
+            <toolstrip id="tools">
+                <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}"/>
+                <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                    <dmr address="/{selected.profile}/subsystem=infinispan/cache-container=*"/>
+                </trigger>
+                <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+            </toolstrip>
+            <select id="available">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </select>
+            <container id="details" operator="Choice">
+                <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}"/>
+                <form id="details#attributes" label="Attributes"/>
+            </container>
+        </container>
+
+        <container xmlns="http://wildfly.org/infinispan/caches" id="caches" label="Container Configuration">
+            <pulldown id="containerSelection" label="Cache Container">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </pulldown>
+
+            <pages id="securityModules" operator="Choice">
+
+                <!--container xmlns="http://wildfly.org/infinispan/caches/distributed" id="distributed" label="Distributed">
+                    <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/distributed-cache=*"/>
+                    <toolstrip id="tools">
+                        <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="remove" type="org.jboss.as:resource-operation#remove">
+                            <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/distributed-cache={selected.entity}"/>
+                        </trigger>
+                    </toolstrip>
+
+                    <select id="cache">
+                        <dmr>
+                            <attribute name="entity.key"/>
+                        </dmr>
+                    </select>
+
+                    <container id="details" operator="Choice">
+                        <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/distributed-cache={selected.entity}"/>
+                        <form id="details#basicAttributers" label="Attributes"/>
+                    </container>
+                </container-->
+
+                <container xmlns="http://wildfly.org/infinispan/caches/local" id="local" label="Local">
+                    <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/local-cache=*"/>
+                    <toolstrip id="tools">
+                        <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="remove" type="org.jboss.as:resource-operation#remove">
+                            <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/local-cache={selected.entity}"/>
+                        </trigger>
+                    </toolstrip>
+
+                    <select id="cache">
+                        <dmr>
+                            <attribute name="entity.key"/>
+                        </dmr>
+                    </select>
+
+                    <container id="details" operator="Choice">
+
+                        <form id="details#basicAttributers" label="Attributes">
+                            <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/local-cache={selected.entity}"/>
+                        </form>
+
+                        <container id="details#eviction" label="Eviction">
+                            <todo label="https://issues.jboss.org/browse/WFLY-2527"/>
+                        </container>
+
+                        <form id="details#fileHandler" label="File Store">
+                            <dmr address="/{selected.profile}/subsystem=infinispan/cache-container={selected.entity}/local-cache={selected.entity}/file-store=FILE_STORE"/>
+                        </form>
+
+                        <container id="other" label="...">
+                            <todo label="Remaining sub resources ..."/>
+                        </container>
+                    </container>
+                </container>
+
+                <container id="other" xmlns="http://wildfly.org/infinispan/caches/other" label="...">
+                    <todo label="Remaining cache types ..."/>
+                </container>
+            </pages>
+        </container>
+    </editorpanel>
+
+</dialog>
+

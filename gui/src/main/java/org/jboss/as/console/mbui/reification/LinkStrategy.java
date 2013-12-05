@@ -57,10 +57,12 @@ public class LinkStrategy implements ReificationStrategy<ReificationWidget, Ster
                 @Override
                 public void onClick(ClickEvent clickEvent) {
 
-                    QName target = ((Link)interactionUnit).getTarget();
+                    Link link = (Link) interactionUnit;
+                    QName target = link.getTarget();
 
                     NavigationEvent navigationEvent  = new NavigationEvent(
-                            CommonQNames.NAVIGATION_ID, target
+                            CommonQNames.NAVIGATION_ID, target,
+                            NavigationEvent.Relation.fromString(link.getId().getLocalPart())  // TODO: local part?
                     );
 
                     eventBus.fireEventFromSource(

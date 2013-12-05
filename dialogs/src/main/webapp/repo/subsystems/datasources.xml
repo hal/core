@@ -1,0 +1,61 @@
+<dialog xmlns="http://wildfly.org/datasources" id="datasource-subsystem">
+
+		<editorpanel id="datasources">
+			<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
+
+			<container id="regularDS" label="Datasources">
+
+                <toolstrip id="tools">
+					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
+					<trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+						<dmr address="/{selected.profile}/subsystem=datasources/data-source=*"/>
+					</trigger>
+					<trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+					<trigger id="enable" type="org.jboss.as:resource-operation#enable" label="Enable"/>
+					<trigger id="disable" type="org.jboss.as:resource-operation#disable" label="Disable"/>
+				</toolstrip>
+				<select id="list">
+					<dmr>
+						<attribute name="entity.key"/>
+						<attribute name="jndi-name"/>
+						<attribute name="enabled"/>
+					</dmr>
+				</select>
+
+				<container id="details" operator="Choice">
+					<dmr address="/{selected.profile}/subsystem=datasources/data-source={selected.entity}"/>
+					<form id="datasource#basicAttributes" label="Attributes">
+						<dmr>
+							<attribute name="entity.key"/>
+							<attribute name="jndi-name"/>
+							<attribute name="enabled"/>
+							<attribute name="datasource-class"/>
+							<attribute name="driver-name"/>
+							<attribute name="share-prepared-statements"/>
+							<attribute name="prepared-statements-cache-size"/>
+						</dmr>
+					</form>
+					<form id="datasource#connectionAttributes" label="Connection">
+						<dmr>
+							<attribute name="connection-url"/>
+							<attribute name="new-connection-sql"/>
+							<attribute name="transaction-isolation"/>
+							<attribute name="jta"/>
+							<attribute name="use-ccm"/>
+						</dmr>
+					</form>
+					<form id="datasource#securityAttributes" label="Security">
+						<dmr>
+							<attribute name="user-name"/>
+							<attribute name="password"/>
+							<attribute name="security-domain"/>
+						</dmr>
+					</form>
+				</container>
+			</container>
+			<container id="xsDS" label="XA-Datasources">
+                <todo id="xsDs-todo" label="Dialog content not provided yet"/>
+			</container>
+		</editorpanel>
+
+</dialog>

@@ -1,0 +1,106 @@
+<dialog xmlns="http://wildfly.org/security" id="security-domains">
+
+    <editorpanel id="securityDomains" operator="Choice">
+        <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+
+        <container xmlns="http://wildfly.org/security/domains" id="domains" label="Security Domains">
+            <toolstrip id="tools">
+                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                <trigger id="add" type="org.jboss.as:resource-operation#add" label="Add">
+                    <dmr address="/{selected.profile}/subsystem=security/security-domain=*"/>
+                </trigger>
+                <trigger id="remove" type="org.jboss.as:resource-operation#remove" label="Remove"/>
+            </toolstrip>
+            <select id="available">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </select>
+            <container id="details" operator="Choice">
+                <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}"/>
+                <form id="details#attributes" label="Attributes">
+                    <dmr>
+                        <attribute name="entity.key"/>
+                        <attribute name="cache-type"/>
+                    </dmr>
+                </form>
+            </container>
+        </container>
+
+        <container xmlns="http://wildfly.org/security/domain/config" id="domainConfiguration" label="Domain Configuration">
+            <pulldown id="domainSelection" label="Security Domain">
+                <dmr>
+                    <attribute name="entity.key"/>
+                </dmr>
+            </pulldown>
+
+            <pages id="securityModules" operator="Choice">
+
+                <container xmlns="http://wildfly.org/security/domain/authentication" id="modules" label="Authentication">
+
+                    <toolstrip id="tools">
+                        <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
+                    </toolstrip>
+
+                    <select id="loginModules">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module=*">
+                            <attribute name="code"/>
+                            <attribute name="flag"/>
+                        </dmr>
+                    </select>
+
+                    <container id="details" operator="Choice">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authentication=classic/login-module={selected.entity}"/>
+                        <form id="details#basicAttributers" label="Attributes">
+                            <dmr>
+                                <attribute name="code"/>
+                                <attribute name="flag"/>
+                                <attribute name="module"/>
+                            </dmr>
+                        </form>
+                        <properties id="domain.authentication:moduleOptions" label="Module Options">
+                            <dmr>
+                                <object name="module-options"/>
+                            </dmr>
+                        </properties>
+
+                    </container>
+                </container>
+
+                <container xmlns="http://wildfly.org/security/domain/authorisation" id="modules" label="Authorisation">
+
+                    <toolstrip id="tools">
+                        <trigger id="add" type="org.jboss.as:resource-operation#add"/>
+                        <trigger id="remove" type="org.jboss.as:resource-operation#remove"/>
+                    </toolstrip>
+
+                    <select id="policies">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module=*">
+                            <attribute name="code"/>
+                            <attribute name="flag"/>
+                        </dmr>
+                    </select>
+
+                    <container id="details" operator="Choice">
+                        <dmr address="/{selected.profile}/subsystem=security/security-domain={selected.entity}/authorization=classic/policy-module={selected.entity}"/>
+                        <form id="details#basicAttributers" label="Attributes">
+                            <dmr>
+                                <attribute name="code"/>
+                                <attribute name="flag"/>
+                                <attribute name="module"/>
+                            </dmr>
+                        </form>
+                        <properties id="moduleOptions" label="Module Options">
+                            <dmr>
+                                <object name="module-options"/>
+                            </dmr>
+                        </properties>
+                    </container>
+                </container>
+            </pages>
+        </container>
+    </editorpanel>
+
+</dialog>
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																				

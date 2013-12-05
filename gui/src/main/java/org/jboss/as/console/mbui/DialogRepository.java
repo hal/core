@@ -1,5 +1,6 @@
 package org.jboss.as.console.mbui;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.useware.kernel.model.Dialog;
 
 /**
@@ -7,5 +8,5 @@ import org.useware.kernel.model.Dialog;
  * @date 3/22/13
  */
 public interface DialogRepository {
-    Dialog getDialog(String name);
+    void getDialog(String name, AsyncCallback<Dialog> callback);
 }

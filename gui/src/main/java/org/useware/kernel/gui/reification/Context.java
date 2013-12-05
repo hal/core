@@ -43,7 +43,7 @@ public class Context
     public <T> T get(final ContextKey name)
     {
         Object value = data.get(name);
-        assert value != null : "Context key " + name + " expected";
+        if(value == null ) throw new RuntimeException( "Context key " + name + " expected");
         return (T) value;
     }
 

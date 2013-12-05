@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.1.0-SNAPSHOT</version>
+        <version>2.2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -128,6 +128,17 @@
         <dependency>
             <groupId>com.google.gwt.inject</groupId>
             <artifactId>gin</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.edu.ycp</groupId>
+            <artifactId>ace-gwt</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>mrm-servlet</artifactId>
+            <version>1.0-jboss-1</version>
         </dependency>
 
         <!-- Test -->

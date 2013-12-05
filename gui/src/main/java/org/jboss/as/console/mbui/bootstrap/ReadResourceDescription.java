@@ -80,12 +80,13 @@ public class ReadResourceDescription extends ReificationBootstrap
         final CollectOperationsVisitor visitor = new CollectOperationsVisitor(context);
         dialog.getInterfaceModel().accept(visitor);
 
-        ModelNode compsite = new ModelNode();
-        compsite.get(OP).set(COMPOSITE);
-        compsite.get(ADDRESS).setEmptyList();
-        compsite.get(STEPS).set(visitor.steps);
+        ModelNode composite = new ModelNode();
+        composite.get(OP).set(COMPOSITE);
+        composite.get(ADDRESS).setEmptyList();
+        composite.get(STEPS).set(visitor.steps);
 
-        dispatcher.execute(new DMRAction(compsite), new AsyncCallback<DMRResponse>()
+        //System.out.println(composite);
+        dispatcher.execute(new DMRAction(composite), new AsyncCallback<DMRResponse>()
         {
             @Override
             public void onFailure(final Throwable caught)
@@ -98,25 +99,37 @@ public class ReadResourceDescription extends ReificationBootstrap
             {
                 ModelNode response = result.get();
 
-                // evaluate step responses
-                for (String step : visitor.stepReference.keySet())
+                if(response.isFailure())
                 {
-                    ModelNode stepResponse = response.get(RESULT).get(step);
-
-                    // might be a LIST response type (resource=*:read-resource-description)
-                    ModelNode description = ModelType.LIST == stepResponse.get(RESULT).getType() ?
-                            stepResponse.get(RESULT).asList().get(0).get(RESULT).asObject() :
-                            stepResponse.get(RESULT).asObject();
-
-
-                    if (!context.has(MODEL_DESCRIPTIONS))
-                    {
-                        context.set(MODEL_DESCRIPTIONS, new HashMap<QName, ModelNode>());
-                    }
-
-                    DMRMapping mapping = (DMRMapping) visitor.stepReference.get(step).findMapping(DMR);
-                    context.<Map>get(MODEL_DESCRIPTIONS).put(mapping.getCorrelationId(), description);
+                    callback.onError(new RuntimeException("Resource description failed:"+response.getFailureDescription()));
                 }
+                else
+                {
+                    try {
+                        // evaluate step responses
+                        for (String step : visitor.stepReference.keySet())
+                        {
+                            ModelNode stepResponse = response.get(RESULT).get(step);
+
+                            // might be a LIST response type (resource=*:read-resource-description)
+                            ModelNode description = ModelType.LIST == stepResponse.get(RESULT).getType() ?
+                                    stepResponse.get(RESULT).asList().get(0).get(RESULT).asObject() :
+                                    stepResponse.get(RESULT).asObject();
+
+
+                            if (!context.has(MODEL_DESCRIPTIONS))
+                            {
+                                context.set(MODEL_DESCRIPTIONS, new HashMap<QName, ModelNode>());
+                            }
+
+                            DMRMapping mapping = (DMRMapping) visitor.stepReference.get(step).findMapping(DMR);
+                            context.<Map>get(MODEL_DESCRIPTIONS).put(mapping.getCorrelationId(), description);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        callback.onError(e);
+                    }
+                }
+
                 callback.onSuccess();
             }
         });
@@ -173,35 +186,35 @@ public class ReadResourceDescription extends ReificationBootstrap
             if (mapping != null)
             {
                 String address = mapping.getResolvedAddress();
-                if (!resolvedAdresses.contains(address))
-                {
-                    AddressMapping addressMapping = AddressMapping.fromString(address);
-                    ModelNode op = addressMapping.asResource(new FilteringStatementContext(
-                            statementContext,
-                            new FilteringStatementContext.Filter() {
-                                @Override
-                                public String filter(String key) {
-                                    if("selected.entity".equals(key))
-                                        return "*";
-                                    else
-                                        return null;
-                                }
-
-                                @Override
-                                public String[] filterTuple(String key) {
+                //if (!resolvedAdresses.contains(address))        // TODO: Optimisations
+                //{
+                AddressMapping addressMapping = AddressMapping.fromString(address);
+                ModelNode op = addressMapping.asResource(new FilteringStatementContext(
+                        statementContext,
+                        new FilteringStatementContext.Filter() {
+                            @Override
+                            public String filter(String key) {
+                                if("selected.entity".equals(key))
+                                    return "*";
+                                else
                                     return null;
-                                }
                             }
-                    ) {
 
-                    });
+                            @Override
+                            public String[] filterTuple(String key) {
+                                return null;
+                            }
+                        }
+                ) {
 
-                    op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-                    steps.add(op);
+                });
 
-                    resolvedAdresses.add(address);
-                    stepReference.put("step-" + steps.size(), interactionUnit);
-                }
+                op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
+                steps.add(op);
+
+                resolvedAdresses.add(address);
+                stepReference.put("step-" + steps.size(), interactionUnit);
+                // }
             }
         }
     }

@@ -1,14 +1,12 @@
 package org.jboss.as.console.mbui;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.mbui.bootstrap.ReadOperationDescriptions;
 import org.jboss.as.console.mbui.bootstrap.ReadResourceDescription;
@@ -35,6 +33,9 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Heiko Braun
  * @date 3/22/13
@@ -58,6 +59,8 @@ public class Kernel implements NavigationDelegate {
 
     /**
      * Absolute navigation
+     * @param source
+     * @param dialog
      */
     @Override
     public void onNavigation(QName source, QName dialog) {
@@ -65,6 +68,26 @@ public class Kernel implements NavigationDelegate {
         System.out.println("absolute navigation " + source + ">" + dialog);
     }
 
+    class DialogWrapper {
+        Dialog dialog;
+        InteractionCoordinator coordinator;
+
+        Dialog getDialog() {
+            return dialog;
+        }
+
+        void setDialog(Dialog dialog) {
+            this.dialog = dialog;
+        }
+
+        InteractionCoordinator getCoordinator() {
+            return coordinator;
+        }
+
+        void setCoordinator(InteractionCoordinator coordinator) {
+            this.coordinator = coordinator;
+        }
+    }
     public void reify(final String name, final AsyncCallback<Widget> callback) {
 
 
@@ -74,142 +97,215 @@ public class Kernel implements NavigationDelegate {
 
         activeDialog = name;
 
+
         if (null == cachedWidgets.get(name) || this.enableCache == false)
         {
 
-            // fetch dialog meta data
-            final Dialog dialog  =  repository.getDialog(name);
-
-            // create coordinator instance
-            final InteractionCoordinator coordinator = new InteractionCoordinator(
-                    dialog, globalContext, this
-            );
-            coordinators.put(name, coordinator);
-
-            // top level interaction unit & context
-            final Context context = new Context();
-
-            // build reification pipeline
-            Function<Context> prepareContext = new Function<Context>() {
+            Function<DialogWrapper> retrieveDialogDescription = new Function<DialogWrapper>() {
                 @Override
-                public void execute(Control<Context> control) {
-                    context.set(ContextKey.EVENTBUS, coordinator.getLocalBus());
-                    context.set(ContextKey.COORDINATOR, coordinator);
-                    context.set(ContextKey.SECURITY_CONTEXT, framework.getSecurityFramework());
-                    control.proceed();
-                }
-            };
+                public void execute(final Control<DialogWrapper> control) {
 
-            Function<Context> readOperationMetaData = new Function<Context>() {
-                @Override
-                public void execute(final Control<Context> control) {
+                    // fetch dialog meta data
+                    repository.getDialog(name, new SimpleCallback<Dialog>() {
 
-                    ReadOperationDescriptions operationMetaData = new ReadOperationDescriptions(framework.getDispatcher());
-                    operationMetaData.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
-                    {
                         @Override
-                        public void onError(Throwable caught) {
-                            Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
+                        public void onFailure(Throwable caught) {
+                            super.onFailure(caught);
                             control.abort();
                         }
 
                         @Override
-                        public void onSuccess() {
-                            Log.info("Successfully retrieved operation meta data");
+                        public void onSuccess(Dialog result) {
+                            control.getContext().setDialog(result);
+
+                            // create coordinator instance
+                            final InteractionCoordinator coordinator = new InteractionCoordinator(
+                                    result, globalContext, Kernel.this
+                            );
+
+                            control.getContext().setCoordinator(coordinator);
                             control.proceed();
                         }
                     });
                 }
             };
 
-            Function<Context> createSecurityContext = new Function<Context>() {
+            Outcome<DialogWrapper> delegateOutcome = new Outcome<DialogWrapper>() {
                 @Override
-                public void execute(final Control<Context> control) {
+                public void onFailure(DialogWrapper context) {
+                    Console.error("Failed to retrieve dialog description: "+name);
+                }
 
-                    SecurityFramework securityFramework = framework.getSecurityFramework();
-
-                    RequiredResources resourceVisitor = new RequiredResources();
-                    dialog.getInterfaceModel().accept(resourceVisitor);
-
-                    securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(),
-                            new AsyncCallback<SecurityContext>() {
-                                @Override
-                                public void onFailure(Throwable caught) {
-                                    Console.error("Failed to create security context", caught.getMessage());
-                                    control.abort();
-                                }
-
-                                @Override
-                                public void onSuccess(SecurityContext result) {
-                                    control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
-                                    control.proceed();
-                                }
-                            }
-                    );
-
+                @Override
+                public void onSuccess(DialogWrapper context) {
+                    doReification(name, context.getDialog(), context.getCoordinator(), callback);
                 }
             };
 
-            Function<Context> readResourceMetaData = new Function<Context>() {
-                @Override
-                public void execute(final Control<Context> control) {
-                    ReificationBootstrap readResourceDescription = new ReadResourceDescription(framework.getDispatcher());
-                    readResourceDescription.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
-                    {
-                        @Override
-                        public void onSuccess()
-                        {
-                            Log.info("Successfully retrieved resource meta data");
+            // step 1
+            DialogWrapper setup = new DialogWrapper();
+            new Async<DialogWrapper>().waterfall(setup, delegateOutcome, retrieveDialogDescription);
 
-                            // setup & start the reification pipeline
-                            ReificationPipeline pipeline = new ReificationPipeline(
-                                    new UniqueIdCheckStep(),
-                                    new BuildUserInterfaceStep(),
-                                    new ImplicitBehaviourStep(framework.getDispatcher()),
-                                    new IntegrityStep());
-
-                            pipeline.execute(dialog, context);
-                            control.proceed();
-                        }
-
-                        @Override
-                        public void onError(final Throwable caught)
-                        {
-                            Log.error("ReadResourceDescription failed: " + caught.getMessage(), caught);
-                            control.abort();
-                        }
-                    });
-                }
-            };
-
-            Outcome<Context> outcome = new Outcome<Context>() {
-                @Override
-                public void onFailure(final Context context) {
-                    Window.alert("Reification failed");
-                }
-
-                @Override
-                public void onSuccess(final Context context) {
-                    // show result
-                    ReificationWidget widget = context.get(ContextKey.WIDGET);
-                    assert widget !=null;
-
-                    cachedWidgets.put(name, widget);
-                    BranchActivation activation = new BranchActivation();
-                    dialog.getInterfaceModel().accept(activation);
-                    //System.out.println("<< Default Activation: "+activation.getCandidate()+">>");
-
-                    callback.onSuccess(widget.asWidget());
-                }
-            };
-            new Async<Context>(Footer.PROGRESS_ELEMENT).waterfall(context, outcome,
-                    prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData);
         }
         else
         {
             callback.onSuccess(cachedWidgets.get(name).asWidget());
         }
 
+    }
+
+    private void doReification(
+            final String name,
+            final Dialog dialog, final InteractionCoordinator coordinator,
+            final AsyncCallback<Widget> widgetCallback)
+    {
+
+        // cache coordinator
+        coordinators.put(name, coordinator);
+
+        // top level interaction unit & context
+        final Context context = new Context();
+
+        // build reification pipeline
+        Function<Context> prepareContext = new Function<Context>() {
+            @Override
+            public void execute(Control<Context> control) {
+                context.set(ContextKey.EVENTBUS, coordinator.getLocalBus());
+                context.set(ContextKey.COORDINATOR, coordinator);
+                context.set(ContextKey.SECURITY_CONTEXT, framework.getSecurityFramework());
+                control.proceed();
+            }
+        };
+
+        Function<Context> readOperationMetaData = new Function<Context>() {
+            @Override
+            public void execute(final Control<Context> control) {
+
+                ReadOperationDescriptions operationMetaData = new ReadOperationDescriptions(framework.getDispatcher());
+                operationMetaData.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
+                {
+                    @Override
+                    public void onError(Throwable caught) {
+                        Log.error("ReadOperationDescriptions failed: " + caught.getMessage(), caught);
+                        //progress.getBar().setProgress(25.0);
+                        control.abort();
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        Log.info("Successfully retrieved operation meta data");
+                        //progress.getBar().setProgress(25.0);
+                        control.proceed();
+                    }
+                });
+            }
+        };
+
+        Function<Context> createSecurityContext = new Function<Context>() {
+            @Override
+            public void execute(final Control<Context> control) {
+
+                SecurityFramework securityFramework = framework.getSecurityFramework();
+
+                RequiredResources resourceVisitor = new RequiredResources();
+                dialog.getInterfaceModel().accept(resourceVisitor);
+
+                securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(),
+                        new AsyncCallback<SecurityContext>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                Console.error("Failed to create security context", caught.getMessage());
+                                //progress.getBar().setProgress(50.0);
+                                control.abort();
+                            }
+
+                            @Override
+                            public void onSuccess(SecurityContext result) {
+                                control.getContext().set(ContextKey.SECURITY_CONTEXT, result);
+                                //progress.getBar().setProgress(50.0);
+                                control.proceed();
+                            }
+                        }
+                );
+
+            }
+        };
+
+
+        Function<Context> readResourceMetaData = new Function<Context>() {
+            @Override
+            public void execute(final Control<Context> control) {
+                ReificationBootstrap readResourceDescription = new ReadResourceDescription(framework.getDispatcher());
+                readResourceDescription.prepareAsync(dialog, context, new ReificationBootstrap.Callback()
+                {
+                    @Override
+                    public void onSuccess()
+                    {
+                        Log.info("Successfully retrieved resource meta data");
+
+                        // setup & start the reification pipeline
+                        ReificationPipeline pipeline = new ReificationPipeline(
+                                new UniqueIdCheckStep(),
+                                new BuildUserInterfaceStep(),
+                                new ImplicitBehaviourStep(framework.getDispatcher()),
+                                new IntegrityStep());
+
+                        try {
+                            pipeline.execute(dialog, context);
+                            //progress.getBar().setProgress(100.0);
+                            control.proceed();
+                        } catch (Throwable e) {
+                            Console.error("Reification failed: "+ e.getMessage());
+                            control.abort();
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(final Throwable caught)
+                    {
+                        Log.error("ReadResourceDescription failed: " + caught.getMessage(), caught);
+                        //progress.getBar().setProgress(100.0);
+                        control.abort();
+                    }
+                });
+            }
+        };
+
+        Outcome<Context> outcome = new Outcome<Context>() {
+            @Override
+            public void onFailure(final Context context) {
+
+                //progress.hide();
+                Window.alert("Reification failed");
+            }
+
+            @Override
+            public void onSuccess(final Context context) {
+
+                //progress.hide();
+
+                // show result
+                ReificationWidget widget = context.get(ContextKey.WIDGET);
+                assert widget !=null;
+
+                cachedWidgets.put(name, widget);
+                BranchActivation activation = new BranchActivation();
+                dialog.getInterfaceModel().accept(activation);
+                //System.out.println("<< Default Activation: "+activation.getCandidate()+">>");
+
+                widgetCallback.onSuccess(widget.asWidget());
+            }
+        };
+
+        // execute pipeline
+        //progress.center();
+        //progress.getBar().setProgress(25.0);
+
+        new Async<Context>(Footer.PROGRESS_ELEMENT).waterfall(
+                context, outcome,
+                prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData
+        );
     }
 
     public void activate() {

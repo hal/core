@@ -5,27 +5,29 @@ import org.useware.kernel.model.scopes.Scope;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
+ *
+ * Parent delegation for statement contexts.
  *
  * @author Heiko Braun
  * @date 3/20/13
  */
 class ParentDelegationContextImpl implements DialogState.MutableContext{
 
-    Map<String,String> delegate = new HashMap<String,String>();
-    private final List<Integer> parentScopeIds;
-    private final StatementContext externalContext;
-    private final DialogState.Scopes availableScopes;
-    private final Scope scope;
+    private final DialogState.StateManagement stateManager;
+    private Map<String,String> statements = new HashMap<String,String>();
 
-    public ParentDelegationContextImpl(Scope scope, StatementContext externalContext, List<Integer> parentScopeIds, DialogState.Scopes scopes) {
-        this.externalContext = externalContext;
-        this.parentScopeIds = parentScopeIds;
-        this.availableScopes = scopes;
+    private final Scope scope;
+    private final LinkedList<Scope> parents;
+
+    public ParentDelegationContextImpl(
+            Scope scope, LinkedList<Scope> parents,
+            DialogState.StateManagement stateManager) {
         this.scope = scope;
+        this.parents = parents;
+        this.stateManager = stateManager;
     }
 
     public Scope getScope() {
@@ -34,7 +36,7 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
 
     @Override
     public String get(String key) {
-        return delegate.get(key);
+        return statements.get(key);
     }
 
     @Override
@@ -44,12 +46,12 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
 
     @Override
     public void setStatement(String key, String value) {
-        delegate.put(key, value);
+        statements.put(key, value);
     }
 
     @Override
     public void clearStatement(String key) {
-        delegate.remove(key);
+        statements.remove(key);
     }
 
     @Override
@@ -60,10 +62,10 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         resolvedValue = get(key);
 
         // iterate delegates
-        Iterator<Integer> delegateIds = parentScopeIds.iterator();
-        while(null==resolvedValue && delegateIds.hasNext())
+        Iterator<Scope> delegates = parents.iterator();
+        while(null==resolvedValue && delegates.hasNext())
         {
-            StatementContext delegationContext = availableScopes.get(delegateIds.next());
+            StatementContext delegationContext = stateManager.get(delegates.next().getId());
             if(delegationContext!=null) // may not be created yet, aka unused
             {
                 resolvedValue = delegationContext.resolve(key);
@@ -71,7 +73,7 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         }
 
         // last but not least: external context
-        return resolvedValue == null ? externalContext.resolve(key) : resolvedValue;
+        return resolvedValue == null ? stateManager.getExternal().resolve(key) : resolvedValue;
     }
 
     @Override
@@ -82,10 +84,10 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         resolvedTuple = getTuple(key);
 
         // iterate delegates
-        Iterator<Integer> delegateIds = parentScopeIds.iterator();
-        while(null==resolvedTuple && delegateIds.hasNext())
+        Iterator<Scope> delegates = parents.iterator();
+        while(null==resolvedTuple && delegates.hasNext())
         {
-            StatementContext delegationContext = availableScopes.get(delegateIds.next());
+            StatementContext delegationContext = stateManager.get(delegates.next().getId());
             if(delegationContext!=null) // may not be created yet, aka unused
             {
                 resolvedTuple = delegationContext.resolveTuple(key);
@@ -93,7 +95,7 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         }
 
         // last but not least: external context
-        return resolvedTuple == null ? externalContext.resolveTuple(key) : resolvedTuple;
+        return resolvedTuple == null ? stateManager.getExternal().resolveTuple(key) : resolvedTuple;
     }
 
     @Override
@@ -105,10 +107,10 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
             resolvedValues.add(get(key));
 
         // iterate delegates
-        Iterator<Integer> delegateIds = parentScopeIds.iterator();
-        while(delegateIds.hasNext())
+        Iterator<Scope> delegates = parents.iterator();
+        while(delegates.hasNext())
         {
-            StatementContext delegationContext = availableScopes.get(delegateIds.next());
+            StatementContext delegationContext = stateManager.get(delegates.next().getId());
             if(delegationContext!=null && delegationContext.get(key)!=null) // may not be created yet, aka unused
             {
                 resolvedValues.add(delegationContext.get(key));
@@ -116,7 +118,7 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         }
 
         // last but not least: external context
-        LinkedList<String> external = externalContext.collect(key);
+        LinkedList<String> external = stateManager.getExternal().collect(key);
         if(external!=null) resolvedValues.addAll(external);
 
         return resolvedValues;
@@ -131,10 +133,10 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
             resolvedTuple.add(getTuple(key));
 
         // iterate delegates
-        Iterator<Integer> delegateIds = parentScopeIds.iterator();
-        while(delegateIds.hasNext())
+        Iterator<Scope> delegates = parents.iterator();
+        while(delegates.hasNext())
         {
-            StatementContext delegationContext = availableScopes.get(delegateIds.next());
+            StatementContext delegationContext = stateManager.get(delegates.next().getId());
             if(delegationContext!=null && delegationContext.getTuple(key)!=null) // may not be created yet, aka unused
             {
                 resolvedTuple.add(delegationContext.getTuple(key));
@@ -142,7 +144,7 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
         }
 
         // last but not least: external context
-        LinkedList<String[]> external = externalContext.collectTuples(key);
+        LinkedList<String[]> external = stateManager.getExternal().collectTuples(key);
         if(external!=null) resolvedTuple.addAll(external);
 
         return resolvedTuple;
@@ -150,6 +152,6 @@ class ParentDelegationContextImpl implements DialogState.MutableContext{
 
     @Override
     public void clearStatements() {
-        delegate.clear();
+        statements.clear();
     }
 }

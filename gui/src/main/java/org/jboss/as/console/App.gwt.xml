@@ -34,6 +34,8 @@
 
     <inherits name="com.allen_sauer.gwt.log.gwt-log-ERROR" />
 
+    <inherits name="edu.ycp.cs.dh.acegwt.AceGWT"/>
+
     <!--
        https://issues.jboss.org/browse/AS7-3977
        inherits name="com.google.gwt.precompress.Precompress"/-->

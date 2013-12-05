@@ -82,14 +82,14 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("JAXRS", "jaxrs",Boolean.TRUE));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("mod_cluster", "modcluster", NameTokens.ModclusterPresenter));
 
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.DialogPresenter+";dialog=servlet"));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.DialogPresenter+";dialog=http"));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.DialogPresenter+";dialog=undertow"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow-servlet.xml"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow-server.xml"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow.xml"));
 
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
 
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", "threads", Boolean.TRUE));
-        groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.DialogPresenter+";dialog=io"));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.DialogPresenter+";dialog=subsystems_io.xml"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Deployment Scanners", "deployment-scanner"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Remoting", "remoting",Boolean.TRUE));
@@ -105,6 +105,7 @@ public class SubsystemMetaData {
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Weld", "weld",Boolean.TRUE));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JPA", "jpa"));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JacORB", "jacorb"));
+        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batching", "batch", NameTokens.DialogPresenter+";dialog=subsystems_batch.xml"));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));

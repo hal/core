@@ -13,6 +13,9 @@ public class Link<S extends Enum<S>> extends InteractionUnit<S> {
     private static final Resource<ResourceType> NAVIGATION = new Resource<ResourceType>(CommonQNames.NAVIGATION_ID, ResourceType.Navigation);
     private QName target;
 
+    public Link(String ns, String name, QName target, String label) {
+        this(new QName(ns, name), target, label);
+    }
     public Link(QName id, QName target, String label) {
         super(id, label);
 

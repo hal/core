@@ -20,6 +20,7 @@ package org.jboss.as.console.mbui.model.mapping;
 
 import org.useware.kernel.model.mapping.Mapping;
 import org.useware.kernel.model.mapping.MappingType;
+import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,17 +35,22 @@ public class DMRMapping extends Mapping
 {
     private String address;
     private final List<ResourceAttribute> attributes;
+    private final List<String> objects;
+
     private String parentAddress;
+    public final static QName ID = new QName("htt://whildfly.org", "dmr");
 
     public DMRMapping()
     {
         super(MappingType.DMR);
         this.attributes = new ArrayList<ResourceAttribute>();
+        this.objects = new ArrayList<String>();
     }
 
     private DMRMapping(List<ResourceAttribute> attributes, String address) {
         super(MappingType.DMR);
         this.attributes = attributes;
+        this.objects = new ArrayList<String>();
         this.address = address;
     }
 
@@ -52,6 +58,17 @@ public class DMRMapping extends Mapping
     {
         assert address != null : "Address must not be null";
         this.address = address;
+        return this;
+    }
+
+    public DMRMapping addAttributes(final List<String> attributes) {
+        for (String attribute : attributes)
+        {
+            if (attribute != null && attribute.length() != 0)
+            {
+                this.attributes.add(new ResourceAttribute(attribute));
+            }
+        }
         return this;
     }
 
@@ -115,5 +132,19 @@ public class DMRMapping extends Mapping
     @Override
     public DMRMapping copy() {
         return new DMRMapping(attributes, address);
+    }
+
+    @Override
+    public QName getId() {
+        return ID;
+    }
+
+    // TODO method name: do we stick with 'objects'?
+    public void addObjects(List<String> objects) {
+        this.objects.addAll(objects);
+    }
+
+    public List<String> getObjects() {
+        return objects;
     }
 }

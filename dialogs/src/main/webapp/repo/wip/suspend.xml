@@ -1,0 +1,24 @@
+<dialog xmlns="http://foobar.com/examples" id="suspend-resume-example">
+
+    <!--
+
+    suspend/resume example:
+
+    parent will be suspended for the time the child is activated.
+    when the child task is finished, the parent will be resumed
+
+    -->
+
+    <container id="parent" operator="SuspendResume">
+
+        <container id="first">
+            <link id="next" target="http://foobar.com/examples:parent" label="Next"/>
+            <todo label="Parent Contents"/>
+        </container>
+
+        <container id="second">
+            <link id="prev" target="http://foobar.com/examples:parent" label="Previous"/>
+            <todo label="Child Contents"/>
+        </container>
+    </container>
+</dialog>

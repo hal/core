@@ -130,8 +130,8 @@ public class DialogVisualization
             String style = activeItems.values().contains(interactionUnit.getId()) ? ACTIVE_STYLE : INACTIVE_STYLE;
 
             // statement context shadow visualisation
-            Node<Scope> self = dialog.getScopeModel().findNode(interactionUnit.getId());
-            Integer scopeId = self.getData().getScopeId();
+            Node<Scope> self = dialog.getScopeModel().findNode(interactionUnit.getScopeId());
+            Integer scopeId = self.getData().getId();
             String color = scopeId>colors.length-1 ? "#ffffff" : colors[scopeId];
 
             if (interactionUnit instanceof Container)
@@ -157,8 +157,11 @@ public class DialogVisualization
             if (interactionUnit.doesProduce())
                 tooltip.append("[output]\n").append(interactionUnit.getOutputs()).append("\n\n");
 
-            tooltip.append("[scope]\n").append(scopeId).append("\n");
-            tooltip.append("demarcation: ").append(self.getData().isDemarcationType()).append("\n");
+            tooltip.append("[scope]\n").append("\n");
+            tooltip.append("id:").append(scopeId).append("\n");
+            int parentScope = self.getParent()!=null ? self.getParent().getData().getId() : -1;
+            tooltip.append("parent:").append(parentScope).append("\n");
+            //tooltip.append("demarcation: ").append(self.getData().isDemarcationType()).append("\n");
 
 
             dataTable.addRow();

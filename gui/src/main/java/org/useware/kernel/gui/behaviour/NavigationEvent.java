@@ -15,17 +15,42 @@ import org.useware.kernel.model.structure.QName;
 public class NavigationEvent extends GwtEvent<NavigationEvent.NavigationHandler> {
 
     public static final Type TYPE = new Type<NavigationHandler>();
+    private Relation relation;
 
     private QName id;
 
     private QName target;
 
-    public static enum RELATION { prev, next }
+    public static enum Relation {
+        None, Prev, Next;
+
+        public static Relation fromString(String s) {
+            Relation rel = None;
+            if(s.equals("next"))
+                rel = Next;
+            else if(s.equals("prev"))
+                rel = Prev;
+
+            return rel;
+        }
+    }
 
     public NavigationEvent(QName id, QName target) {
         super();
         this.id = id;
         this.target = target;
+        this.relation = Relation.None;
+    }
+
+    public NavigationEvent(QName id, QName target, Relation relation) {
+        super();
+        this.id = id;
+        this.target = target;
+        this.relation = relation;
+    }
+
+    public Relation getRelation() {
+        return relation;
     }
 
     public QName getId() {

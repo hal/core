@@ -15,14 +15,26 @@ import org.useware.kernel.model.behaviour.ResourceType;
  */
 public class Trigger<S extends Enum<S>> extends InteractionUnit<S> {
 
+    public Trigger(String ns, String name, QName triggerType, String label)
+    {
+        this(new QName(ns, name), triggerType, label);
+    }
+
     public Trigger(QName unitId, QName triggerType, String label) {
         super(unitId, label);
 
         // the suffix determines the operation name
-        assert triggerType.getSuffix()!=null : "Invalid trigger type declaration: "+triggerType;
+        if(triggerType.getSuffix()==null)
+            throw new IllegalStateException("Invalid trigger type declaration. Suffix required: "+triggerType);
 
         // explicit output
         setOutputs(new Resource<ResourceType>(triggerType, ResourceType.Interaction));
+
+
+    }
+
+    public QName getType() {
+        return getOutputs().iterator().next().getId();
     }
 
     @Override

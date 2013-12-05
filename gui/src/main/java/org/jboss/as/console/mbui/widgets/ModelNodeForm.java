@@ -317,6 +317,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
     @Override
     public void clearValues() {
+
+        editedEntity = null;
+
         for(Map<String, FormItem> groupItems : formItems.values())
         {
             for(String key : groupItems.keySet())

@@ -3,6 +3,8 @@ package org.useware.kernel.model.scopes;
 import org.useware.kernel.model.mapping.Node;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
+import org.useware.kernel.model.structure.QName;
+import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 
 import java.util.Stack;
@@ -22,159 +24,175 @@ import java.util.Stack;
  */
 public class ScopeAssignment<S extends Enum<S>> implements InteractionUnitVisitor<S> {
 
-    private final InterfaceStructureShadow<Scope> shadowTree;
-
-    private Stack<ChildStrategy> stack = new Stack<ChildStrategy>();
-
+    private final ScopeModel scopeModel;
     private int scopeIdx = 0;
+    private Stack<Directive> stack = new Stack<Directive>();
 
     public ScopeAssignment() {
-        this.shadowTree = new InterfaceStructureShadow<Scope>();
-    }
+        this.scopeModel = new ScopeModel();
 
-    private Integer createContextId() {
-        int contextId = ++scopeIdx;
-        return contextId;
+        final Node<Scope> rootScope  = new Node<Scope>( new Scope(scopeIdx) );
+
+        scopeModel.setRootElement(rootScope);
+
+        // install root directive
+        stack.push(
+                new Directive(rootScope, TemporalOperator.Choice, QName.valueOf("org.useware:root")) { // any container below root has a distinct scope
+                    @Override
+                    Node<Scope> applyContainer(Container container) {
+
+                        Integer scopeId = newScopeId();
+                        container.setScopeId(scopeId);
+
+                        return rootScope.addChild(
+                                new Node(
+                                        new Scope(scopeId)
+                                )
+                        );
+                    }
+
+                    @Override
+                    void applyUnit(InteractionUnit unit) {
+                        throw new IllegalArgumentException("Root scope doesn't support child units");
+                    }
+                }
+        );
     }
 
     @Override
     public void startVisit(Container container) {
 
-        Node<Scope> containerNode = null;
+        // apply scope to container
+        final Node<Scope> scope = stack.peek().applyContainer(container);
 
-        if(stack.isEmpty())  // root level: create parent
-        {
-            // top level: create new root node
-            final Node<Scope> rootNode = new Node<Scope>(container.getId());
-            rootNode.setData(new Scope(createContextId(), true));
-            shadowTree.setRootElement(rootNode);
+        TemporalOperator operator = container.getTemporalOperator();
 
-            stack.push(new ChildStrategy(rootNode) {
-                @Override
-                Integer getOrCreateId() {
-                    return rootNode.getData().getScopeId();
+        // push another child strategy
+        stack.push(new Directive(scope, operator, container.getId()) {
+            @Override
+            Node<Scope> applyContainer(Container childContainer) {
+
+                if(isBoundary(getOperator()))
+                {
+                    // new scope
+                    Integer scopeId = newScopeId();
+                    childContainer.setScopeId(scopeId);
+
+                    Node<Scope> newScope = null;
+
+                    // suspend/resume, seuqence, etc
+                    if(chainSiblings(getOperator()))
+                    {
+                        // sibling chaining
+                        int numSiblings = getParentScope().getNumberOfChildren();
+                        if(numSiblings==0)
+                        {
+                            // first sibling
+                            newScope = getParentScope().addChild(
+                                    new Node(
+                                            new Scope(scopeId)
+                                    )
+                            );
+                        }
+                        else
+                        {
+                            // remaining siblingß
+                            Node<Scope> siblingScope = getParentScope().getChildren().get(numSiblings - 1);
+                            newScope = siblingScope.addChild(new Node(
+                                    new Scope(scopeId)
+                            ));
+                        }
+
+                    }
+                    else
+                    {
+                         // parent chaining
+                         newScope = getParentScope().addChild(
+                                 new Node(
+                                         new Scope(scopeId)
+                                 )
+                         );
+                    }
+
+                    return newScope;
+                }
+                else
+                {
+                    // scope remains the same
+                    childContainer.setScopeId(
+                            getParentScope().getData().getId()
+                    );
+
+                    return getParentScope();
                 }
 
-                @Override
-                boolean childStartsNewScope() {
-                    return true;
-                }
-            });
+            }
 
-            containerNode = rootNode;
-        }
-        else
-        {
-            // below root: add container as new child
-            containerNode = stack.peek().getNode().addChild(container.getId());
-        }
+            @Override
+            void applyUnit(InteractionUnit unit) {
 
-        if(container.getTemporalOperator().isScopeBoundary())
-        {
-            // children of boundary units will assign new scopes
-            stack.push(new ChildStrategy(containerNode, stack.peek().getOrCreateId()) {
-                @Override
-                Integer getOrCreateId() {
-                    return createContextId();
-                }
+                int scopeId = getParentScope().getData().getId();
+                unit.setScopeId(scopeId);
 
-                @Override
-                boolean childStartsNewScope() {
-                    return true;
-                }
-            });
-
-        }
-        else
-        {
-            // children of regular units will use the the parent scope
-            final Integer sharedContextId = stack.peek().getOrCreateId();
-            stack.push(new ChildStrategy(containerNode) {
-
-                @Override
-                Integer getOrCreateId() {
-                    return sharedContextId;
-                }
-
-                @Override
-                boolean childStartsNewScope() {
-                    return false;
-                }
-            });
-
-        }
+                getParentScope().addChild(
+                        new Node(
+                                new Scope(scopeId)
+                        )
+                );
+            }
+        });
 
     }
 
     @Override
-    public void visit(InteractionUnit<S> interactionUnit) {
-
-        ChildStrategy strategy = stack.peek();
-        Node<Scope> node = strategy.getNode().addChild(interactionUnit.getId());
-        node.setData(new Scope(
-                strategy.getOrCreateId(),
-                strategy.childStartsNewScope())
-        );
-
+    public void visit(InteractionUnit<S> unit) {
+        stack.peek().applyUnit(unit);
     }
 
     @Override
     public void endVisit(Container container) {
-
-        ChildStrategy strategy = stack.pop();
-
-        // the demarcation containers inherit the previous scope
-        // only their children may create new scopes (if necessary)
-        if(strategy.childStartsNewScope())
-        {
-            strategy.getNode().setData(
-                    new Scope(
-                            strategy.getPreviousScope(),
-                            strategy.childStartsNewScope()
-                    )
-            );
-        }
-        else
-        {
-            strategy.getNode().setData(
-                    new Scope(
-                            strategy.getOrCreateId(),
-                            strategy.childStartsNewScope()
-                    )
-            );
-        }
-
+        stack.pop();
     }
 
-    public InterfaceStructureShadow<Scope> getScopeModel() {
-        return shadowTree;
+    public ScopeModel getScopeModel() {
+        return scopeModel;
     }
 
+    private boolean chainSiblings(TemporalOperator operator) {
+        return operator == TemporalOperator.SuspendResume
+                || operator == TemporalOperator.Sequence;
+    }
 
-    abstract class ChildStrategy {
+    private boolean isBoundary(TemporalOperator op) {
+        return op.equals(TemporalOperator.Choice)
+                || op.equals(TemporalOperator.SuspendResume)
+                || op.equals(TemporalOperator.Sequence);
+    }
+    abstract class Directive {
 
-        Node<Scope> node;
-        Integer previousScope = null;
+        private final TemporalOperator operator;
+        private final QName parentId;
+        private Node<Scope> parentScope;
 
-        protected ChildStrategy(Node<Scope> container) {
-            this.node = container;
+        protected Directive(Node<Scope> parentScope, TemporalOperator operator, QName parentId) {
+            this.parentScope = parentScope;
+            this.operator = operator;
+            this.parentId = parentId; // debug utility
         }
 
-        public Integer getPreviousScope() {
-            return previousScope;
+        TemporalOperator getOperator() {
+            return operator;
         }
 
-        protected ChildStrategy(Node<Scope> container, Integer previousScope) {
-            this.node = container;
-            this.previousScope = previousScope;
+        protected Node<Scope> getParentScope() {
+            return parentScope;
         }
 
-        public Node<Scope> getNode() {
-            return node;
-        }
+        abstract Node<Scope> applyContainer(Container childContainer);
+        abstract void applyUnit(InteractionUnit childUnit);
+    }
 
-        abstract Integer getOrCreateId();
-
-        abstract boolean childStartsNewScope();
+    private Integer newScopeId() {
+        return ++scopeIdx;
     }
 }

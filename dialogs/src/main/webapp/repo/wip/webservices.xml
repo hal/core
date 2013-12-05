@@ -1,0 +1,44 @@
+<dialog xmlns="http://wildfly.org/webservices" id="webservices-subsystem">
+
+    <editorpanel id="main" label="Webservices">
+
+        <!-- overall configuration -->
+        <container xmlns="http://wildfly.org/webservices/config" id="jobs" label="Subsystem">
+            <dmr address="/{selected.profile}/subsystem=webservices"/>
+            <form id="config#overall"/>
+        </container>
+
+        <!-- client configs -->
+        <container  xmlns="http://wildfly.org/webservices/client-config" id="config" label="Client Config">
+            <dmr address="/{selected.profile}/subsystem=webservices/client-config=*"/>
+
+            <container xmlns="http://wildfly.org/webservices/client-configs" id="config-selection" operator="Sequence">
+
+                <container id="first">
+                    <select id="configSelection" label="Client Config">
+                        <dmr>
+                            <attribute name="entity.key"/>
+                        </dmr>
+                    </select>
+                </container>
+
+            </container>
+
+            <pages id="pages">
+
+                <container id="pre-handler" label="Pre Handler Chain">
+                    <todo label="The nesting level is difficult"/>
+                </container>
+
+                <container id="post-handler" label="Post Handler">
+                    <todo label="The nesting level is difficult"/>
+                </container>
+
+            </pages>
+
+        </container>
+
+
+    </editorpanel>
+
+</dialog>

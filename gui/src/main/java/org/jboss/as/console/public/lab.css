@@ -1,0 +1,32 @@
+.gwt-MenuBar {
+    padding:4px;
+    background-color:#F9F9F9;
+    border:1px solid #cccccc;
+}
+
+.gwt-MenuItem {
+    background-color:#F9F9F9;
+    padding:4px;
+    cursor:pointer;
+}
+
+.gwt-MenuItem:hover {
+    font-weight:BOLD;
+}
+
+.gwt-MenuItem-selected {
+    font-weight: BOLD;
+}
+
+.gwt-MenuBarPopup {
+    z-index:1000;
+}
+
+.editorMenu {
+
+}
+
+.progess-window {
+    background-color: #ffffff!important;
+    z-index: 50;
+}

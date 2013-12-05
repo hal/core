@@ -20,12 +20,13 @@ package org.jboss.as.console.mbui.reification.pipeline;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.mbui.reification.PropertiesStrategy;
+import org.jboss.as.console.mbui.reification.SuspendStrategy;
 import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ReificationException;
 import org.useware.kernel.gui.reification.StructureLogger;
 import org.jboss.as.console.mbui.reification.ChoiceStrategy;
 import org.jboss.as.console.mbui.reification.ConcurrencyStrategy;
-import org.jboss.as.console.mbui.reification.DeactivationStrategy;
 import org.jboss.as.console.mbui.reification.FormStrategy;
 import org.jboss.as.console.mbui.reification.LinkStrategy;
 import org.jboss.as.console.mbui.reification.PullDownStrategy;
@@ -78,7 +79,7 @@ public class BuildUserInterfaceStep extends ReificationStep
 
         @Override
         public Widget asWidget() {
-            return new HTML("<div style='width:95%; padding:20px; border:1px solid red'>"+unit.getId()+"</div>");
+            return new HTML("<div style='width:95%; padding:20px; border:1px solid red'>Unsatisfied preconditions: "+unit.getId()+"</div>");
         }
     };
 
@@ -94,11 +95,13 @@ public class BuildUserInterfaceStep extends ReificationStep
         this.strategies.add(new FormStrategy());
         this.strategies.add(new SelectStrategy());
         this.strategies.add(new PullDownStrategy());
+        this.strategies.add(new PropertiesStrategy());
+        this.strategies.add(new TodoStrategy());
 
         // containerStack
         this.strategies.add(new ConcurrencyStrategy());
         this.strategies.add(new ChoiceStrategy());
-        this.strategies.add(new DeactivationStrategy());
+        this.strategies.add(new SuspendStrategy());
 
     }
 
@@ -158,7 +161,9 @@ public class BuildUserInterfaceStep extends ReificationStep
                 ReificationWidget widget = isPrepared ?
                         strategy.reify(interactionUnit, context) : new BlankWidget(interactionUnit);
 
-                assert !this.containerStack.isEmpty() : "Atomic units needs to reside within container";
+                if(this.containerStack.isEmpty())
+                    throw new IllegalStateException( "Atomic unit needs to reside within container: "+interactionUnit.getId());
+
                 this.containerStack.peek().add(widget);
 
             }

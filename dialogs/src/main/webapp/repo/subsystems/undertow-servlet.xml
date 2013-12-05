@@ -1,0 +1,31 @@
+<dialog xmlns="http://wildfly.org/undertow/server-config" id="server-config">
+
+    <editorpanel id="panel">
+
+        <container xmlns="http://wildfly.org/undertow/servlet" id="servletContainer" label="Servlet Container">
+
+            <pages id="servlet-configuration">
+
+                <container id="common" label="Common">
+                    <form id="servletContainer">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default"/>
+                    </form>
+                </container>
+
+                <container id="JSP">
+                    <form id="servletContainer#jsp">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=jsp"/>
+                    </form>
+                </container>
+
+                <container id="sessions" label="Sessions">
+                    <form id="servletContainer#sessions">
+                        <dmr address="/{selected.profile}/subsystem=undertow/servlet-container=default/setting=persistent-sessions"/>
+                    </form>
+                </container>
+
+            </pages>
+        </container>
+
+    </editorpanel>
+</dialog>

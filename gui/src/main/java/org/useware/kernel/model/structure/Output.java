@@ -32,6 +32,12 @@ public class Output<S extends Enum<S>> extends InteractionUnit<S>
         super(new QName(ns, id), label);
     }
 
+    public Output(String ns, final String id, final String label, S stereoType)
+    {
+        super(new QName(ns, id), label, stereoType);
+
+    }
+
     @Override
     public String toString()
     {
