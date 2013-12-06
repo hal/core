@@ -4,12 +4,14 @@ import com.google.gwt.core.client.Scheduler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.JBossQNames;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.ModelDrivenCommand;
 import org.useware.kernel.gui.behaviour.Precondition;
 import org.useware.kernel.gui.behaviour.PresentationEvent;
@@ -19,15 +21,12 @@ import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.behaviour.Resource;
 import org.useware.kernel.model.behaviour.ResourceType;
 import org.useware.kernel.model.mapping.MappingType;
-import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -120,55 +119,55 @@ public class    LoadResourceProcedure extends Procedure {
             public void onSuccess(DMRResponse dmrResponse) {
                 final  ModelNode response = dmrResponse.get();
 
-                if (response.isFailure())
-                    Console.error(Console.MESSAGES.modificationFailed(name), response.getFailureDescription());
+                if(response.isFailure())
+                {
+                    Console.error("Failed to load resource", response.getFailureDescription());
+                }
+                else
+                {
 
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
+                    final PresentationEvent presentation = new PresentationEvent(getJustification());
 
-                        PresentationEvent presentation = new PresentationEvent(getJustification());
+                    // the result is either a single resource or a collection
+                    ModelNode result = response.get(RESULT);
 
-                        // the result is either a single resource or a collection
-                        ModelNode result = response.get(RESULT);
-
-                        if(response.isFailure())
+                    if(ModelType.LIST==result.getType())
+                    {
+                        List<ModelNode> collection = result.asList();
+                        List normalized = new ArrayList<ModelNode>(collection.size());
+                        for(ModelNode model : collection)
                         {
-                            Console.error("Failed to load resource", response.getFailureDescription());
+                            ModelNode payload = model.get(RESULT).asObject();
+                            assignKeyFromAddressNode(payload, model.get(ADDRESS));
+                            normalized.add(payload);
                         }
-                        else
-                        {
-                            if(ModelType.LIST==result.getType())
-                            {
-                                List<ModelNode> collection = result.asList();
-                                List normalized = new ArrayList<ModelNode>(collection.size());
-                                for(ModelNode model : collection)
-                                {
-                                    ModelNode payload = model.get(RESULT).asObject();
-                                    assignKeyFromAddressNode(payload, model.get(ADDRESS));
-                                    normalized.add(payload);
-                                }
-                                presentation.setPayload(normalized);
-                            }
-                            else
-                            {
-                                ModelNode payload = result.asObject();
-                                assignKeyFromAddressNode(payload, operation.get(ADDRESS));
-                                presentation.setPayload(payload);
-                            }
+                        presentation.setPayload(normalized);
+                    }
+                    else
+                    {
+                        ModelNode payload = result.asObject();
+                        assignKeyFromAddressNode(payload, operation.get(ADDRESS));
+                        presentation.setPayload(payload);
+                    }
 
-                            // unit and target are the same
-                            presentation.setTarget(getJustification());
+                    // unit and target are the same
+                    presentation.setTarget(getJustification());
 
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
                             coordinator.fireEvent(presentation);
                         }
-                    }
-                });
+                    });
 
+                }
             }
-        });
 
+
+
+        });
     }
+
 
     /**
      * the model representations we use internally carry along the entity keys.

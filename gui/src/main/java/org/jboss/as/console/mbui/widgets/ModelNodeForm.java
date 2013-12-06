@@ -232,7 +232,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
     @Override
     public void cancel() {
-        clearValues();
+        //clearValues();
         if(editedEntity!=null && editedEntity.isDefined()) edit(editedEntity);
     }
 

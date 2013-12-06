@@ -272,6 +272,8 @@ public class InteractionCoordinator implements KernelContract,
         Procedure stmtProcedure = procedures.getSingle(CommonQNames.SELECT_ID);
         stmtProcedure.getCommand().execute(dialog, event);
 
+        // TODO: Should this reset() ?
+
     }
 
     @Override
@@ -282,7 +284,7 @@ public class InteractionCoordinator implements KernelContract,
     }
 
     @Override
-    public void clearStatement(QName sourceId, String key, String value) {
+    public void clearStatement(QName sourceId, String key) {
         dialogState.flushChildScopes(sourceId);
         dialogState.clearStatement(sourceId, key);
     }

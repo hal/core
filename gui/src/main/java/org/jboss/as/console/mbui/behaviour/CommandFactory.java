@@ -99,6 +99,7 @@ public class CommandFactory {
 
                                 if(confirmed)
                                 {
+
                                     dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                                         @Override
                                         public void onSuccess(DMRResponse dmrResponse) {
@@ -111,11 +112,17 @@ public class CommandFactory {
                                             {
                                                 Console.info(Console.MESSAGES.deleted(label));
 
-                                                clearReset(context);
-
                                             }
                                         }
                                     });
+
+                                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                        @Override
+                                        public void execute() {
+                                            clearReset(context);
+                                        }
+                                    });
+
                                 }
                             }
                         });
@@ -143,6 +150,7 @@ public class CommandFactory {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
+                context.getCoordinator().clearStatement(context.getUnit().getId(), "selected.entity");
                 context.getCoordinator().reset();
             }
         });
@@ -487,11 +495,10 @@ public class CommandFactory {
                     {
                         Console.info(Console.MESSAGES.successful(msg));
 
-                        clearReset(context);
-
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                             @Override
                             public void execute() {
+                                clearReset(context);
                                 window.hide();
                             }
                         });

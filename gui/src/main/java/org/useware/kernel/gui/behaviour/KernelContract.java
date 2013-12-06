@@ -15,6 +15,6 @@ public interface KernelContract {
     void passivate();
 
     void setStatement(QName sourceId, String key, String value);
-    void clearStatement(QName sourceId, String key, String value);
+    void clearStatement(QName sourceId, String key);
 
 }

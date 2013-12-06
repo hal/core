@@ -179,7 +179,9 @@ public class FormStrategy implements ReificationStrategy<ReificationWidget, Ster
                     helpTexts.appendHtmlConstant("</td>");
                     helpTexts.appendHtmlConstant("<td class='help-field-desc'>");
                     try {
-                        helpTexts.appendHtmlConstant(attrValue.get("description").asString());
+                        String descWorkaround = attrValue.get("description").asString();
+
+                        helpTexts.appendHtmlConstant(descWorkaround.equals("null") ? "n/a" : descWorkaround);
                     } catch (Throwable e) {
                         // ignore parse errors
                         helpTexts.appendHtmlConstant("<i>Failed to parse description</i>");

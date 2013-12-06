@@ -48,6 +48,7 @@ import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.Select;
 import org.jboss.as.console.mbui.model.StereoTypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -184,15 +185,15 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
 
                 @Override
                 public void onSystemEvent(SystemEvent event) {
-                    dataProvider.getList().clear();
-                    dataProvider.refresh();
+                    dataProvider.setList(new ArrayList<ModelNode>());
+                    dataProvider.flush();
 
                     // request loading of data
-                    InteractionEvent reset = new InteractionEvent(JBossQNames.LOAD_ID);
+                    InteractionEvent load = new InteractionEvent(JBossQNames.LOAD_ID);
 
                     // update interaction units
                     coordinator.fireEventFromSource(
-                            reset,
+                            load,
                             interactionUnit.getId()
                     );
                 }

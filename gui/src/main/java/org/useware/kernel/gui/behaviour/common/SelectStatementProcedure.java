@@ -36,7 +36,7 @@ public class SelectStatementProcedure extends Procedure {
                 if(value!=null)
                     coordinator.setStatement(sourceId, key, value);
                 else
-                    coordinator.clearStatement(sourceId, key, value);
+                    coordinator.clearStatement(sourceId, key);
 
                 // when statement change, the system will be clear
                 coordinator.reset();

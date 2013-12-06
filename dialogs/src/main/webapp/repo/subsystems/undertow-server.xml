@@ -1,18 +1,9 @@
 <dialog xmlns="http://undertow.org" id="undertow-server">
     <editorpanel id="server" operator="Choice">
 
-        <!--container xmlns="http://wildfly.org/undertow/server" id="server" label="Server" operator="Concurrency">
-            <form id="server#common" label="Attributes">
-                <dmr address="/{selected.profile}/subsystem=undertow/server=default-server">
-                    <attribute name="default-host"/>
-                    <attribute name="servlet-container"/>
-                </dmr>
-            </form>
-        </container-->
-
-        <container xmlns="http://wildfly.org/undertow/host" id="host" label="Host">
+        <!--container xmlns="http://wildfly.org/undertow/host" id="host" label="Host">
            <todo id="host-todo" label="The host model needs to be revisited..."/>
-        </container>
+        </container-->
 
         <pages id="listener" label="Listener" operator="Choice">
 
