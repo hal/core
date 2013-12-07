@@ -19,6 +19,8 @@
 package org.jboss.as.console.mbui.bootstrap;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -31,8 +33,6 @@ import org.useware.kernel.gui.reification.Context;
 import org.useware.kernel.gui.reification.ContextKey;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Predicate;
-import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -41,7 +41,6 @@ import org.useware.kernel.model.structure.builder.InteractionUnitVisitor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +50,7 @@ import static org.useware.kernel.gui.reification.ContextKey.MODEL_DESCRIPTIONS;
 import static org.useware.kernel.model.mapping.MappingType.DMR;
 
 /**
- * TODO Implement caching for resource descriptions (memory, local storage, ...)
+ * TODO: Implement caching for resource descriptions (memory, local storage, ...)
  *
  * @author Harald Pehl
  * @date 11/12/2012
@@ -59,6 +58,8 @@ import static org.useware.kernel.model.mapping.MappingType.DMR;
 public class ReadResourceDescription extends ReificationBootstrap
 {
     final DispatchAsync dispatcher;
+
+    private Map<String, Set<QName>> aliasMappings = new HashMap<String, Set<QName>>();
 
     public ReadResourceDescription(final DispatchAsync dispatcher)
     {
@@ -111,6 +112,9 @@ public class ReadResourceDescription extends ReificationBootstrap
                         {
                             ModelNode stepResponse = response.get(RESULT).get(step);
 
+                            if(!stepResponse.isDefined())
+                                throw new IllegalStateException("Failed to parse response: Missing step "+step);
+
                             // might be a LIST response type (resource=*:read-resource-description)
                             ModelNode description = ModelType.LIST == stepResponse.get(RESULT).getType() ?
                                     stepResponse.get(RESULT).asList().get(0).get(RESULT).asObject() :
@@ -122,8 +126,22 @@ public class ReadResourceDescription extends ReificationBootstrap
                                 context.set(MODEL_DESCRIPTIONS, new HashMap<QName, ModelNode>());
                             }
 
+                            // Correlation ID matters! See CollectOperationsVisitor as well...
                             DMRMapping mapping = (DMRMapping) visitor.stepReference.get(step).findMapping(DMR);
                             context.<Map>get(MODEL_DESCRIPTIONS).put(mapping.getCorrelationId(), description);
+
+                            // aliases
+                            String addressKey = mapping.getResolvedAddress();
+                            Set<QName> aliases = aliasMappings.get(addressKey);
+
+                            if(aliases!=null)
+                            {
+                                for(QName correlationId : aliases)
+                                {
+                                    context.<Map>get(MODEL_DESCRIPTIONS).put(correlationId, description);
+                                }
+                            }
+
                         }
                     } catch (IllegalArgumentException e) {
                         callback.onError(e);
@@ -168,10 +186,9 @@ public class ReadResourceDescription extends ReificationBootstrap
 
         private void addStep(InteractionUnit interactionUnit)
         {
-            InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
-
-            final StatementContext statementContext = coordinator.getDialogState().getContext(interactionUnit.getId());
-            assert statementContext != null : "StatementContext not provided";
+            final InteractionCoordinator coordinator = context.get(ContextKey.COORDINATOR);
+            final StatementContext delegate = coordinator.getDialogState().getContext(interactionUnit.getId());
+            assert delegate != null : "StatementContext not provided";
 
             DMRMapping mapping = (DMRMapping) interactionUnit.findMapping(DMR, new Predicate<DMRMapping>()
             {
@@ -183,38 +200,53 @@ public class ReadResourceDescription extends ReificationBootstrap
                     return candidate.getAddress() != null;
                 }
             });
+
             if (mapping != null)
             {
-                String address = mapping.getResolvedAddress();
-                //if (!resolvedAdresses.contains(address))        // TODO: Optimisations
-                //{
-                AddressMapping addressMapping = AddressMapping.fromString(address);
-                ModelNode op = addressMapping.asResource(new FilteringStatementContext(
-                        statementContext,
-                        new FilteringStatementContext.Filter() {
-                            @Override
-                            public String filter(String key) {
-                                if("selected.entity".equals(key))
-                                    return "*";
-                                else
+
+                String step = "step-" + (steps.size()+1);
+                String addressKey = mapping.getResolvedAddress();
+
+                if (!resolvedAdresses.contains(addressKey))
+                {
+                    FilteringStatementContext stmtContext = new FilteringStatementContext(
+                            delegate,
+                            new FilteringStatementContext.Filter() {
+                                @Override
+                                public String filter(String key) {
+                                    if ("selected.entity".equals(key))
+                                        return "*";
+                                    else
+                                        return null;
+                                }
+
+                                @Override
+                                public String[] filterTuple(String key) {
                                     return null;
+                                }
                             }
+                    ) {
 
-                            @Override
-                            public String[] filterTuple(String key) {
-                                return null;
-                            }
-                        }
-                ) {
+                    };
 
-                });
+                    AddressMapping addressMapping = AddressMapping.fromString(mapping.getResolvedAddress());
+                    ModelNode op = addressMapping.asResource(stmtContext);
 
-                op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-                steps.add(op);
+                    op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
+                    steps.add(op);
 
-                resolvedAdresses.add(address);
-                stepReference.put("step-" + steps.size(), interactionUnit);
-                // }
+                    // retain references
+                    resolvedAdresses.add(addressKey);
+                    stepReference.put(step, interactionUnit);
+                }
+                else
+                {
+                    // create an alias for later reference
+                    if(null==aliasMappings.get(addressKey))
+                        aliasMappings.put(addressKey, new HashSet<QName>());
+
+                    aliasMappings.get(addressKey).add(mapping.getCorrelationId());
+                }
             }
         }
     }
