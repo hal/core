@@ -113,16 +113,10 @@ public class CommandFactory {
                                                 Console.info(Console.MESSAGES.deleted(label));
 
                                             }
-                                        }
-                                    });
 
-                                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                        @Override
-                                        public void execute() {
                                             clearReset(context);
                                         }
                                     });
-
                                 }
                             }
                         });
@@ -139,18 +133,12 @@ public class CommandFactory {
      * @param context
      */
     private void clearReset(final OperationContext context) {
-        // clear the select statement
-        context.getCoordinator().fireEvent(
-                new StatementEvent(
-                        CommonQNames.SELECT_ID,
-                        "selected.entity",
-                        null)
-        );
+
+        context.getCoordinator().clearStatement(context.getUnit().getId(), "selected.entity");
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                context.getCoordinator().clearStatement(context.getUnit().getId(), "selected.entity");
                 context.getCoordinator().reset();
             }
         });
@@ -495,10 +483,11 @@ public class CommandFactory {
                     {
                         Console.info(Console.MESSAGES.successful(msg));
 
+                        clearReset(context);
+
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                             @Override
                             public void execute() {
-                                clearReset(context);
                                 window.hide();
                             }
                         });

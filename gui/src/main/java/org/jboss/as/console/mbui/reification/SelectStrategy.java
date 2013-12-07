@@ -23,6 +23,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
@@ -127,7 +128,12 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
                 }, attributeKey);
             }
 
-            final ListDataProvider<ModelNode> dataProvider = new ListDataProvider<ModelNode>();
+            final ListDataProvider<ModelNode> dataProvider = new ListDataProvider<ModelNode>(new ProvidesKey<ModelNode>() {
+                @Override
+                public Object getKey(ModelNode item) {
+                    return item.get("entity.key").asString();
+                }
+            });
             dataProvider.addDataDisplay(table);
 
             DefaultPager pager = new DefaultPager();
@@ -185,6 +191,7 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
 
                 @Override
                 public void onSystemEvent(SystemEvent event) {
+
                     dataProvider.setList(new ArrayList<ModelNode>());
                     dataProvider.flush();
 
@@ -212,8 +219,8 @@ public class SelectStrategy implements ReificationStrategy<ReificationWidget, St
                 @Override
                 public void onPresentationEvent(PresentationEvent event) {
                     List<ModelNode> entities = (List<ModelNode>)event.getPayload();
-                    dataProvider.getList().clear();
-                    dataProvider.getList().addAll(entities);
+                    dataProvider.setList(entities);
+                    dataProvider.flush();
                 }
             });
 

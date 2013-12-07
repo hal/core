@@ -88,7 +88,7 @@ public class SaveChangesetProcedure extends Procedure {
                 changeset,
                 address.asResource(statementContext));
 
-       // System.out.println(operation);
+        // System.out.println(operation);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -100,8 +100,11 @@ public class SaveChangesetProcedure extends Procedure {
                 else
                     Console.info(Console.MESSAGES.modified(name));
 
+
                 // arguable: does each save lead to a clear?
                 // arguable: calling clear directly opposed to invoking a procedure...
+                coordinator.clearStatement(unit.getId(), "selected.entity");
+
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
