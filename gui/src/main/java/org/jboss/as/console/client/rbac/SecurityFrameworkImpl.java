@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -21,6 +22,9 @@ import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityContextAware;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedHandler;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -36,7 +40,7 @@ import org.useware.kernel.gui.behaviour.FilteringStatementContext;
  *
  * @author Heiko Braun
  */
-public class SecurityFrameworkImpl implements SecurityFramework {
+public class SecurityFrameworkImpl implements SecurityFramework, SecurityContextChangedHandler {
 
 
     private static final String MODEL_DESCRIPTION = "model-description";
@@ -54,22 +58,23 @@ public class SecurityFrameworkImpl implements SecurityFramework {
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final ContextKeyResolver keyResolver;
+
     private final FilteringStatementContext filteringStatementContext;
+    private final Map<String, SecurityContextAware> contextAwareWidgets;
 
     protected Map<String, SecurityContext> contextMapping = new HashMap<String, SecurityContext>();
 
     private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
 
     @Inject
-    public SecurityFrameworkImpl(
-            AccessControlRegistry accessControlMetaData,
-            DispatchAsync dispatcher,
-            CoreGUIContext statementContext, final BootstrapContext bootstrap) {
+    public SecurityFrameworkImpl(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
+            CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus) {
+
         this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.keyResolver = new PlaceSecurityResolver();
-
+        this.contextAwareWidgets = new HashMap<String, SecurityContextAware>();
         this.filteringStatementContext = new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {
@@ -94,6 +99,8 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                     }
                 }
         );
+
+        SecurityContextChangedEvent.register(eventBus, this);
     }
 
     @Override
@@ -111,7 +118,33 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         return contextMapping.get(id);
     }
 
+    @Override
+    public void registerWidget(final String id, final SecurityContextAware widget) {
+        contextAwareWidgets.put(id, widget);
+    }
 
+    @Override
+    public void unregisterWidget(final String id) {
+        contextAwareWidgets.remove(id);
+    }
+
+    @Override
+    public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
+        System.out.println("Security context change for " + event.getResourceAddress());
+        String resourceAddress = event.getResourceAddress();
+        SecurityContext context = getSecurityContext();
+        if (context.hasChildContext(resourceAddress)) {
+            context = context.getChildContext(resourceAddress);
+        }
+        for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
+            String id = entry.getKey();
+            SecurityContextAware widget = entry.getValue();
+            if (widget.isVisible()) {
+                System.out.println("Update widget " + id);
+                widget.updateSecurityContext(context);
+            }
+        }
+    }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
         createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
@@ -353,11 +386,12 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             // exceptions (instances) of requested resource type
             if (accessControl.hasDefined(EXCEPTIONS)) {
                 for (Property exception : accessControl.get(EXCEPTIONS).asPropertyList()) {
-                    String address = normalize(exception.getValue().get(ADDRESS));
+                    ModelNode addressNode = exception.getValue().get(ADDRESS);
+                    String address = normalize(addressNode);
                     if (address != null) {
                         ResourceRef exceptionRef = new ResourceRef(address);
                         Constraints instanceConstraints = parseConstraints(exceptionRef, exception.getValue());
-                        context.addChildContext(exceptionRef.address, instanceConstraints);
+                        context.addChildContext(address, instanceConstraints);
                     } else {
                         Log.error("Skip exception " + exception.getName() + ": No address found in " + exception
                                 .getValue());
