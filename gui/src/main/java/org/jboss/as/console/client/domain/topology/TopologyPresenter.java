@@ -76,7 +76,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
     @AccessControl(resources = {
-            "/server-group={addressable.group}",
+            "/server-group=*",
             "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
     }, recursive = false)

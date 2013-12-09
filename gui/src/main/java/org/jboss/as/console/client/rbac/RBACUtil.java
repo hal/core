@@ -1,10 +1,10 @@
 package org.jboss.as.console.client.rbac;
 
+import java.util.Map;
+
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-
-import java.util.Map;
 
 /**
  * @author Heiko Braun

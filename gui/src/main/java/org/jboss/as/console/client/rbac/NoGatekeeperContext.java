@@ -52,4 +52,14 @@ public class NoGatekeeperContext implements SecurityContext {
     public AuthorisationDecision getWritePrivilege(String resourceAddress) {
         return GRANTED;
     }
+
+    @Override
+    public boolean hasChildContext(final String resourceAddress) {
+        return false;
+    }
+
+    @Override
+    public SecurityContext getChildContext(final String resourceAddress) {
+        return null;
+    }
 }

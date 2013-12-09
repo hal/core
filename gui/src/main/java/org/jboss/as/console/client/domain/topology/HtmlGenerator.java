@@ -18,6 +18,13 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
+import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
+import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -32,13 +39,6 @@ import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.icons.Icons;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
-import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-
 /**
  * Contains most of the html generator code used in {@link TopologyView}. The generated html contains several <a
  * href="http://dev.w3.org/html5/spec/global-attributes.html#embedding-custom-non-visible-data-with-the-data-*-attributes">HTML5
@@ -51,7 +51,6 @@ import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIR
  * </ul>
  *
  * @author Harald Pehl
- * @date 10/15/12
  */
 final class HtmlGenerator {
 
@@ -105,7 +104,8 @@ final class HtmlGenerator {
             startLine().appendEscaped("Profile: " + group.profile).endLine();
         }
 
-        startLinks(true);
+        SecurityContext securityContext = findContext("/server-group=" + group.name);
+        startLinks(securityContext, true);
         String startId = START_GROUP_ID + group.name;
         String stopId = STOP_GROUP_ID + group.name;
         String restartId = RESTART_GROUP_ID + group.name;
@@ -150,7 +150,8 @@ final class HtmlGenerator {
             startLine().appendHtmlConstant("Ports: +").appendEscaped(server.getSocketBindings().get(first)).endLine();
         }
 
-        startLinks(false);
+        SecurityContext securityContext = findContext("/host=" + host + "/server-config=" + server.getName());
+        startLinks(securityContext, false);
         String uniqueServerName = host + "_" + server.getName();
         if (server.isRunning()) {
             appendLifecycleLink(STOP_SERVER_ID + uniqueServerName, null, host, server.getName(), "Stop Server");
@@ -167,6 +168,14 @@ final class HtmlGenerator {
 
         appendHtmlConstant("</td>");
         return this;
+    }
+
+    SecurityContext findContext(final String resourceAddress) {
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
+        if (securityContext.hasChildContext(resourceAddress)) {
+            securityContext = securityContext.getChildContext(resourceAddress);
+        }
+        return securityContext;
     }
 
     HtmlGenerator appendIcon(final ImageResource img, String alt) {
@@ -210,14 +219,12 @@ final class HtmlGenerator {
         return this;
     }
 
-    HtmlGenerator startLinks(boolean groupLinks) {
+    HtmlGenerator startLinks(final SecurityContext securityContext, boolean groupLinks) {
         AuthorisationDecision decision;
         if (groupLinks) {
-            decision = SECURITY_SERVICE.getSecurityContext()
-                    .getOperationPriviledge("/server-group={addressable.group}", "start-servers");
+            decision = securityContext.getOperationPriviledge("/server-group=*", "start-servers");
         } else {
-            decision = SECURITY_SERVICE.getSecurityContext()
-                    .getOperationPriviledge("/{selected.host}/server-config=*", "start");
+            decision = securityContext.getOperationPriviledge("/{selected.host}/server-config=*", "start");
         }
 
         if (decision.isGranted()) {

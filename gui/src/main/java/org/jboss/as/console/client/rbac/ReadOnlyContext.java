@@ -53,4 +53,14 @@ public class ReadOnlyContext implements SecurityContext {
     public AuthorisationDecision getWritePrivilege(String resourceAddress) {
         return DENIED;
     }
+
+    @Override
+    public boolean hasChildContext(final String resourceAddress) {
+        return false;
+    }
+
+    @Override
+    public SecurityContext getChildContext(final String resourceAddress) {
+        return null;
+    }
 }

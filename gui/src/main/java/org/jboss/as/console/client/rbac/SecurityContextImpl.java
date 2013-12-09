@@ -1,13 +1,13 @@
 package org.jboss.as.console.client.rbac;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * The security context has access to the authorisation meta data and provides policies to reason over it.
@@ -31,19 +31,19 @@ public class SecurityContextImpl implements SecurityContext {
      * Taken from access control meta data
      */
     Set<ResourceRef> requiredResources;
-
     /**
      * A list of access constraint definitions
      * (result of :read-resource-description(access-control=true))
      */
     Map<String, Constraints> accessConstraints = new HashMap<String, Constraints>();
     Map<String, Constraints> optionalConstraints = new HashMap<String, Constraints>();
+    Map<String, SecurityContext> childContexts = new HashMap<String, SecurityContext>();
+
 
     /**
      * A sealed context cannot be modified
      */
     private boolean sealed;
-
 
     public SecurityContextImpl(String nameToken, Set<ResourceRef> requiredResources) {
         this.nameToken = nameToken;
@@ -58,6 +58,11 @@ public class SecurityContextImpl implements SecurityContext {
         boolean isGranted(Constraints c);
     }
 
+    /**
+     * Iterates over all required (and optional) resources, grabs the related constraints and checks if the given
+     * privilege for these constraints holds true.
+     * @return granted if the privilege holds true for *all* tested resources
+     */
     private AuthorisationDecision checkPriviledge(Priviledge p, boolean includeOptional) {
 
         if(!sealed)
@@ -116,6 +121,7 @@ public class SecurityContextImpl implements SecurityContext {
         return new AuthorisationDecision(constraints.isReadResource());
     }
 
+    @Override
     public AuthorisationDecision getWritePriviledge() {
         return checkPriviledge(new Priviledge() {
             @Override
@@ -157,35 +163,46 @@ public class SecurityContextImpl implements SecurityContext {
     }
 
     private Constraints getConstraints(String resourceAddress, boolean includeOptional) {
-
-        Constraints constraints = null;
-        if(includeOptional)
-        {
+        Constraints constraints;
+        if (includeOptional) {
             constraints = accessConstraints.containsKey(resourceAddress) ?
                     accessConstraints.get(resourceAddress) : optionalConstraints.get(resourceAddress);
-        }
-        else
-        {
+        } else {
             constraints = accessConstraints.get(resourceAddress);
         }
 
-        if(null==constraints) throw new RuntimeException("Missing constraints for "+resourceAddress+". Make sure the resource address matches the @AccessControl annotation");
+        // at least here must have found something!
+        if (null == constraints) {
+            throw new RuntimeException(
+                    "Missing constraints for " + resourceAddress + ". Make sure the resource address matches the @AccessControl annotation");
+        }
         return constraints;
     }
 
     void setConstraints(String resourceAddress, Constraints model) {
-
-        if(sealed)
-            throw new RuntimeException("Sealed security context cannot be modified");
-
+        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         accessConstraints.put(resourceAddress, model);
     }
 
-    public void setOptionalConstraints(String address, Constraints model) {
-        if(sealed)
-            throw new RuntimeException("Sealed security context cannot be modified");
+    void setOptionalConstraints(String resourceAddress, Constraints model) {
+        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
+        optionalConstraints.put(resourceAddress, model);
+    }
 
-        optionalConstraints.put(address, model);
+    void addChildContext(String resourceAddress, Constraints model) {
+        if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
+        ChildContext childContext = new ChildContext(resourceAddress, model);
+        childContexts.put(resourceAddress, childContext);
+    }
+
+    @Override
+    public boolean hasChildContext(final String resourceAddress) {
+        return resourceAddress != null && childContexts.containsKey(resourceAddress);
+    }
+
+    @Override
+    public SecurityContext getChildContext(String resourceAddress) {
+        return childContexts.get(resourceAddress);
     }
 
     public void seal() {
@@ -204,5 +221,83 @@ public class SecurityContextImpl implements SecurityContext {
         return descision;
     }
 
+    /**
+     * Security context which solely is based on the resource address specified as constructor parameter. The methods
+     * which take a resource address as parameter don't operate on that address, but the one given as constructor
+     * parameter.
+     */
+    static class ChildContext implements SecurityContext {
+
+        private final String resourceAddress;
+        private final Constraints constraints;
+
+        ChildContext(final String resourceAddress, final Constraints constraints) {
+            this.resourceAddress = resourceAddress;
+            this.constraints = constraints;
+        }
+
+        @Override
+        public AuthorisationDecision getReadPriviledge() {
+            return new AuthorisationDecision(constraints.isReadResource());
+        }
+
+        @Override
+        public AuthorisationDecision getReadPrivilege(final String resourceAddress) {
+            return getReadPriviledge();
+        }
+
+        @Override
+        public AuthorisationDecision getWritePriviledge() {
+            return new AuthorisationDecision(constraints.isWriteResource());
+        }
+
+        @Override
+        public AuthorisationDecision getWritePrivilege(final String resourceAddress) {
+            return getWritePriviledge();
+        }
+
+        @Override
+        public AuthorisationDecision getAttributeWritePriviledge(final String attributeName) {
+            Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
+            if (attributePerm == null) { throw new RuntimeException("No such attribute: " + attributeName); }
+            return new AuthorisationDecision(attributePerm.isWrite());
+        }
+
+        @Override
+        public AuthorisationDecision getAttributeWritePriviledge(final String resourceAddress,
+                final String attributeName) {
+            return getAttributeWritePriviledge(attributeName);
+        }
+
+        @Override
+        public AuthorisationDecision getOperationPriviledge(final String resourceAddress, final String operationName) {
+            boolean execPerm = constraints.isOperationExec(this.resourceAddress, operationName);
+            AuthorisationDecision descision = new AuthorisationDecision(true);
+            descision.setGranted(execPerm);
+            return descision;
+        }
+
+        /**
+         * @return false
+         */
+        @Override
+        public boolean hasChildContext(final String resourceAddress) {
+            return false;
+        }
+
+        /**
+         * @return null
+         */
+        @Override
+        public SecurityContext getChildContext(final String resourceAddress) {
+            return null;
+        }
+
+        /**
+         * Sealed by default
+         */
+        @Override
+        public void seal() {}
+    }
 }
 
