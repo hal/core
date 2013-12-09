@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -69,13 +68,9 @@ import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityContextAwareWidgets;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
-import org.jboss.ballroom.client.rbac.SecurityContextChangedHandler;
-import org.jboss.ballroom.client.rbac.SecurityService;
-import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -89,11 +84,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
  */
 public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement,
-        HostSelectionChanged.ChangeListener,
-        SecurityContextChangedHandler {
-
-    private final static Framework FRAMEWORK = GWT.create(Framework.class);
-    private final static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
+        HostSelectionChanged.ChangeListener {
 
     private HostInformationStore hostInfoStore;
     private ServerGroupStore serverGroupStore;
@@ -109,11 +100,12 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     private LoadSocketBindingsCmd loadSocketCmd;
     private final DomainEntityManager domainManager;
+    private final CoreGUIContext statementContext;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @AccessControl(resources = {
-            "/{selected.host}/server-config=*",
+            "/{selected.host}/server-config={selected.entity}",
             "opt://{selected.host}/server-config=*/system-property=*"
     }, recursive = false)
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
@@ -144,7 +136,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @Inject
     public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostInformationStore hostInfoStore,
             ServerGroupStore serverGroupStore, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
-            BeanFactory factory, PlaceManager placeManager, DomainEntityManager domainManager) {
+            BeanFactory factory, PlaceManager placeManager, DomainEntityManager domainManager,
+            CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy);
 
@@ -155,7 +148,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         this.factory = factory;
         this.placeManager = placeManager;
         this.domainManager = domainManager;
-
+        this.statementContext = statementContext;
         this.loadSocketCmd = new LoadSocketBindingsCmd(dispatcher, factory, propertyMetaData);
     }
 
@@ -165,7 +158,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
-        getEventBus().addHandler(SecurityContextChangedEvent.TYPE, this);
     }
 
     @Override
@@ -180,7 +172,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @Override
     protected void onReset() {
         super.onReset();
-        SecurityContextAwareWidgets.reset(getView().asWidget(), SECURITY_SERVICE.getSecurityContext());
 
         // step1
         if (placeManager.getCurrentPlaceRequest().getNameToken().equals(getProxy().getNameToken())) {
@@ -204,15 +195,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         }
     }
 
-    @Override
-    public void onChanged(final SecurityContextChangedEvent event) {
-        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
-        if (securityContext.hasChildContext(event.getResourceAddress())) {
-            securityContext = securityContext.getChildContext(event.getResourceAddress());
-        }
-        SecurityContextAwareWidgets.update(getView().asWidget(), securityContext);
-    }
-
     private void loadSocketBindings() {
         serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
             @Override
@@ -226,7 +208,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     private void loadServerConfigurations() {
-
         domainManager.getHosts(new SimpleCallback<HostList>() {
             @Override
             public void onSuccess(HostList hostList) {
@@ -246,7 +227,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                 getView().setGroups(result);
             }
         });
-
     }
 
 
