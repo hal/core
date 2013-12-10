@@ -131,6 +131,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         });
 
         toolStrip.addToolButtonRight(copyBtn);
+        toolStrip.setFilter("/{selected.host}/server-config=*");
 
         // ------------------------------------------------------
 

@@ -57,6 +57,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     protected final AccessControlRegistry accessControlMetaData;
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
+    protected final CoreGUIContext coreGUIContext;
     protected final ContextKeyResolver keyResolver;
 
     private final FilteringStatementContext filteringStatementContext;
@@ -68,11 +69,13 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Inject
     public SecurityFrameworkImpl(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
-            CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus) {
+            CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus,
+            CoreGUIContext coreGUIContext) {
 
         this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
+        this.coreGUIContext = coreGUIContext;
         this.keyResolver = new PlaceSecurityResolver();
         this.contextAwareWidgets = new HashMap<String, SecurityContextAware>();
         this.filteringStatementContext = new FilteringStatementContext(
@@ -130,13 +133,31 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
-        String resourceAddress = event.getResourceAddress();
+        // address resolution
+        String addressTemplate = event.getResourceAddress();
+        ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
+                event.getWildcards());
+        String resourceAddress = normalize(addressNode.get(ADDRESS));
+        System.out.println("Receiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+
+        // look for child context
         SecurityContext context = getSecurityContext();
         if (context.hasChildContext(resourceAddress)) {
+            System.out.println("Found child context for " + resourceAddress);
             context = context.getChildContext(resourceAddress);
         }
-        for (SecurityContextAware widget : contextAwareWidgets.values()) {
-            if (widget.isVisible()) {
+
+        // update widgets (if visible and filter applies)
+        for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
+            String id = entry.getKey();
+            SecurityContextAware widget = entry.getValue();
+
+            boolean update = true;
+            if (widget.getFilter() != null) {
+                update = widget.getFilter().equals(addressTemplate);
+            }
+            if (update && widget.isAttached()) {
+                System.out.println("Updating widget " + id);
                 widget.updateSecurityContext(context);
             }
         }
