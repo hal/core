@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -18,11 +23,6 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -116,6 +116,7 @@ public class ServerConfigDetails {
 
         form.setEnabled(false);
         layout.add(form.asWidget());
+        form.setSecurityContextFilter("/{selected.host}/server-config=*");
 
         return layout;
     }

@@ -1,8 +1,6 @@
 package org.jboss.as.console.mbui.model.mapping;
 
-import com.allen_sauer.gwt.log.client.Log;
-import org.jboss.dmr.client.ModelNode;
-import org.useware.kernel.gui.behaviour.StatementContext;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,7 +9,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import com.allen_sauer.gwt.log.client.Log;
+import org.jboss.dmr.client.ModelNode;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
  * Address mapping of domain references used within the interface model.
@@ -233,8 +233,7 @@ public class AddressMapping {
                 // wildcards
                 String addressValue = resolved_value;
 
-                if ("*".equals(resolved_value)
-                        && wildcards.length>0)
+                if ("*".equals(resolved_value) && wildcards.length > 0 && wildcardCount < wildcards.length)
                 {
                     addressValue = wildcards[wildcardCount];
                     wildcardCount++;

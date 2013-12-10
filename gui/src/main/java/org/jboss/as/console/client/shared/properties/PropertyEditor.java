@@ -19,6 +19,10 @@
 
 package org.jboss.as.console.client.shared.properties;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -39,10 +43,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @author David Bosschaert
@@ -53,6 +53,7 @@ public class PropertyEditor {
     private boolean inlineEditing;
     private ListDataProvider<PropertyRecord> propertyProvider;
     private DefaultCellTable<PropertyRecord> propertyTable;
+    private ToolStrip propTools = new ToolStrip();
     private ToolButton addButton = new ToolButton(Console.CONSTANTS.common_label_add());
     private ToolButton removeButton = new ToolButton(Console.CONSTANTS.common_label_delete());
 
@@ -87,8 +88,6 @@ public class PropertyEditor {
         propertyTable.setSelectionModel(selectionModel);
 
         if (!hideButtons) {
-            ToolStrip propTools = new ToolStrip();
-
             //add
             addButton.addClickHandler(new ClickHandler() {
                 @Override
@@ -98,7 +97,6 @@ public class PropertyEditor {
             });
             addButton.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_propertyEditor());
             propTools.addToolButtonRight(addButton);
-
 
             // remove
             removeButton.addClickHandler(
@@ -132,7 +130,6 @@ public class PropertyEditor {
 
         ColumnSortEvent.ListHandler<PropertyRecord> sortHandler =
                 new ColumnSortEvent.ListHandler<PropertyRecord>(propertyProvider.getList());
-
 
         Column<PropertyRecord, String> keyColumn = null;
         Column<PropertyRecord, String> valueColumn = null;
@@ -256,11 +253,11 @@ public class PropertyEditor {
     }
 
     // RBAC
-    public void setOperationAddress(String resource, String op)
-    {
-        addButton.setOperationAddress(resource, op);
+    public void setOperationAddress(String resource, String op) {
+        propTools.setFilter(resource);
 
         // i think it's safe to assume that add/remove have the same permissions
+        addButton.setOperationAddress(resource, op);
         removeButton.setOperationAddress(resource, op);
     }
 
