@@ -130,17 +130,13 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
-        System.out.println("Security context change for " + event.getResourceAddress());
         String resourceAddress = event.getResourceAddress();
         SecurityContext context = getSecurityContext();
         if (context.hasChildContext(resourceAddress)) {
             context = context.getChildContext(resourceAddress);
         }
-        for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
-            String id = entry.getKey();
-            SecurityContextAware widget = entry.getValue();
+        for (SecurityContextAware widget : contextAwareWidgets.values()) {
             if (widget.isVisible()) {
-                System.out.println("Update widget " + id);
                 widget.updateSecurityContext(context);
             }
         }
