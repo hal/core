@@ -99,20 +99,18 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
     @Override
     protected void doRevealPlace(final PlaceRequest request, final boolean updateBrowserUrl) {
-
         Function<ContextCreation> createContext = new Function<ContextCreation>() {
             @Override
             public void execute(final Control<ContextCreation> control) {
                 final String nameToken = control.getContext().getRequest().getNameToken();
                 final SecurityContext context = securityFramework.getSecurityContext(nameToken);
-                if(context==null || (context instanceof ReadOnlyContext)) // force re-creation if read-only fallback
-                {
+                if (context == null || (context instanceof ReadOnlyContext)) {
+                    // force re-creation if read-only fallback
                     securityFramework.createSecurityContext(nameToken, new AsyncCallback<SecurityContext>() {
                         @Override
                         public void onFailure(Throwable throwable) {
                             control.getContext().setError(throwable);
                             control.abort();
-
                         }
 
                         @Override
@@ -120,36 +118,36 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                             control.proceed();
                         }
                     });
-                }
-                else
-                {
+                } else {
                     control.proceed();
                 }
             }
         };
 
         Outcome<ContextCreation> outcome = new Outcome<ContextCreation>() {
-            @Override
-            public void onFailure(ContextCreation context) {
-                unlock();
-                Console.error("Failed to create security context", context.getError().getMessage());
-            }
-            @Override
-            public void onSuccess(final ContextCreation context) {
-//                unlock(); // remove?
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
-                    public void execute() {
-                        final PlaceRequest placeRequest = context.getRequest();
-                        DefaultPlaceManager.super.doRevealPlace(placeRequest, updateBrowserUrl);
-                        eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
+                    public void onFailure(ContextCreation context) {
+                        unlock();
+                        //noinspection ThrowableResultOfMethodCallIgnored
+                        Console.error("Failed to create security context", context.getError().getMessage());
                     }
-                });
-            }
-        };
 
-        new Async().waterfall(new ContextCreation(request), outcome, createContext);
+                    @Override
+                    public void onSuccess(final ContextCreation context) {
+                        // unlock(); // remove?
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                final PlaceRequest placeRequest = context.getRequest();
+                                DefaultPlaceManager.super.doRevealPlace(placeRequest, updateBrowserUrl);
+                                eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
+                            }
+                        });
+                    }
+                };
 
+        new Async<ContextCreation>(Footer.PROGRESS_ELEMENT)
+                .waterfall(new ContextCreation(request), outcome, createContext);
     }
 
     @Override
