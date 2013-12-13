@@ -20,7 +20,7 @@ public class RemoteRepository implements DialogRepository {
     private final String repoUrl;
 
     public RemoteRepository() {
-        repoUrl = GWT.getModuleBaseURL()+"repo";
+        repoUrl = GWT.getHostPageBaseURL()+"repo";
     }
 
     @Override
