@@ -1,12 +1,14 @@
 package org.jboss.as.console.client.shared.subsys.messaging.forms;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ClusterConnection;
-import org.jboss.as.console.client.layout.FormLayout;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -15,9 +17,6 @@ import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -110,7 +109,7 @@ public class ClusterConnectionForm {
 
         NumberBoxItem maxHops = new NumberBoxItem("maxHops", "Max Hops");
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
-        NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry");
+        NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry Interval");
         NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts");
 
         CheckBoxItem duplicateDetection = new CheckBoxItem("duplicateDetection","Duplicate Detection?");
