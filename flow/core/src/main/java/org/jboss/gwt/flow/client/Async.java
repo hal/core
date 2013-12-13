@@ -213,6 +213,10 @@ public class Async<C> {
 
         @Override
         public void proceed() {
+            if (index > 0) {
+                // start ticking *after* the first function has finished
+                progress.tick();
+            }
             if (index >= functions.length) {
                 next = null;
                 drained = true;
@@ -242,7 +246,6 @@ public class Async<C> {
             if (!pending) {
                 pending = true;
                 next.execute(this);
-                progress.tick();
             }
         }
     }
@@ -267,13 +270,16 @@ public class Async<C> {
         public void next() {
             if (index < functions.length) {
                 functions[index].execute(this);
-                progress.tick();
                 index++;
             }
         }
 
         @Override
         public void proceed() {
+            if (index > 0) {
+                // start ticking *after* the first function has finished
+                progress.tick();
+            }
             increment();
         }
 

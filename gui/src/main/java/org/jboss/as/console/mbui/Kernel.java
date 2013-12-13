@@ -1,5 +1,8 @@
 package org.jboss.as.console.mbui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,9 +35,6 @@ import org.useware.kernel.gui.reification.strategy.ReificationWidget;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.scopes.BranchActivation;
 import org.useware.kernel.model.structure.QName;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -89,7 +89,6 @@ public class Kernel implements NavigationDelegate {
         }
     }
     public void reify(final String name, final AsyncCallback<Widget> callback) {
-
 
         // passivate current instance before switching
         if(getActiveCoordinator()!=null)
@@ -159,7 +158,6 @@ public class Kernel implements NavigationDelegate {
             final Dialog dialog, final InteractionCoordinator coordinator,
             final AsyncCallback<Widget> widgetCallback)
     {
-
         // cache coordinator
         coordinators.put(name, coordinator);
 
@@ -302,8 +300,7 @@ public class Kernel implements NavigationDelegate {
         //progress.center();
         //progress.getBar().setProgress(25.0);
 
-        new Async<Context>(Footer.PROGRESS_ELEMENT).waterfall(
-                context, outcome,
+        new Async<Context>(Footer.PROGRESS_ELEMENT).waterfall(context, outcome,
                 prepareContext, readOperationMetaData, createSecurityContext, readResourceMetaData
         );
     }

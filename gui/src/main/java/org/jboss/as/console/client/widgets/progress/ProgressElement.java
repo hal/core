@@ -54,7 +54,7 @@ public class ProgressElement extends Widget implements Progress {
     public void reset(final int mx) {
         value = 0;
         max = mx;
-        determinate = max > 0;
+        determinate = max > 1; // if there's just one step, choose none-determinate state
 
         if (determinate) {
             getElement().setAttribute("max", String.valueOf(max));
