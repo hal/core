@@ -52,7 +52,7 @@
 
     <servlet-mapping>
         <servlet-name>FileIO</servlet-name>
-        <url-pattern>/app/repo/*</url-pattern>
+        <url-pattern>/repo/*</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>

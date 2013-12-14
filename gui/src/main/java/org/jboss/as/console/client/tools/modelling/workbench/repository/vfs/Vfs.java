@@ -27,7 +27,7 @@ public class Vfs {
     private static final String METHOD_OVERRIDE = "X-HTTP-Method-Override";
     private static final String JSON = "application/json";
     private static final String ACCEPT = "Accept";
-    private static final String BASE_URL = GWT.getModuleBaseURL() + "repo";
+    private static final String BASE_URL = GWT.getHostPageBaseURL() + "repo";
 
     public Vfs() {
 
