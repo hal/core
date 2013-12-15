@@ -60,6 +60,7 @@ public class ReadResourceDescription extends ReificationBootstrap
     final DispatchAsync dispatcher;
 
     private Map<String, Set<QName>> aliasMappings = new HashMap<String, Set<QName>>();
+    private Map<String, StatementContext> contexts = new HashMap<String, StatementContext>();
 
     public ReadResourceDescription(final DispatchAsync dispatcher)
     {
@@ -131,7 +132,12 @@ public class ReadResourceDescription extends ReificationBootstrap
                             context.<Map>get(MODEL_DESCRIPTIONS).put(mapping.getCorrelationId(), description);
 
                             // aliases
-                            String addressKey = mapping.getResolvedAddress();
+                            String mappedAddress = mapping.getResolvedAddress();
+                            StatementContext stmtContext = contexts.get(mappedAddress);
+
+                            AddressMapping addressMapping = AddressMapping.fromString(mappedAddress);
+                            String addressKey = addressMapping.asResource(stmtContext).toString();
+
                             Set<QName> aliases = aliasMappings.get(addressKey);
 
                             if(aliases!=null)
@@ -204,40 +210,44 @@ public class ReadResourceDescription extends ReificationBootstrap
             if (mapping != null)
             {
 
+                FilteringStatementContext stmtContext = new FilteringStatementContext(
+                        delegate,
+                        new FilteringStatementContext.Filter() {
+                            @Override
+                            public String filter(String key) {
+                                if ("selected.entity".equals(key))
+                                    return "*";
+                                else
+                                    return null;
+                            }
+
+                            @Override
+                            public String[] filterTuple(String key) {
+                                return null;
+                            }
+                        }
+                ) {
+
+                };
+
                 String step = "step-" + (steps.size()+1);
-                String addressKey = mapping.getResolvedAddress();
+
+                String mappedAddress = mapping.getResolvedAddress();
+                contexts.put(mappedAddress, stmtContext);
+
+                AddressMapping addressMapping = AddressMapping.fromString(mappedAddress);
+                ModelNode op = addressMapping.asResource(stmtContext);
+                String addressKey = addressMapping.asResource(stmtContext).toString(); // mapping.getResolvedAddress();
 
                 if (!resolvedAdresses.contains(addressKey))
                 {
-                    FilteringStatementContext stmtContext = new FilteringStatementContext(
-                            delegate,
-                            new FilteringStatementContext.Filter() {
-                                @Override
-                                public String filter(String key) {
-                                    if ("selected.entity".equals(key))
-                                        return "*";
-                                    else
-                                        return null;
-                                }
-
-                                @Override
-                                public String[] filterTuple(String key) {
-                                    return null;
-                                }
-                            }
-                    ) {
-
-                    };
-
-                    AddressMapping addressMapping = AddressMapping.fromString(mapping.getResolvedAddress());
-                    ModelNode op = addressMapping.asResource(stmtContext);
-
                     op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
                     steps.add(op);
 
                     // retain references
                     resolvedAdresses.add(addressKey);
                     stepReference.put(step, interactionUnit);
+
                 }
                 else
                 {
@@ -245,6 +255,7 @@ public class ReadResourceDescription extends ReificationBootstrap
                     if(null==aliasMappings.get(addressKey))
                         aliasMappings.put(addressKey, new HashSet<QName>());
 
+                    // if a mapping resolves to the same address we can reuse the model description later on
                     aliasMappings.get(addressKey).add(mapping.getCorrelationId());
                 }
             }

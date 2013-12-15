@@ -208,7 +208,7 @@ public class Kernel implements NavigationDelegate {
                 RequiredResources resourceVisitor = new RequiredResources();
                 dialog.getInterfaceModel().accept(resourceVisitor);
 
-                securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(),
+                securityFramework.createSecurityContext(activeDialog, resourceVisitor.getRequiredresources(), false,
                         new AsyncCallback<SecurityContext>() {
                             @Override
                             public void onFailure(Throwable caught) {

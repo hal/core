@@ -78,8 +78,8 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
     @Override
     protected void onReset() {         // presenter API
 
-        HTML blank = new HTML("<center><i class='icon-cogs'></i></center>");
-        blank.getElement().setAttribute("style", "padding-top:150px;font-size:140px; color:#cccccc;");
+        HTML blank = new HTML("<center><i style='font-size:140px;color:#cccccc;' class='icon-cogs'></i><p style='font-size:24px;color:#cccccc;'>Generating interface ...</p></center>");
+        blank.getElement().setAttribute("style", "padding-top:150px;");
         blank.setStyleName("fill-layout-width");
 
         getView().show(blank); // clear view

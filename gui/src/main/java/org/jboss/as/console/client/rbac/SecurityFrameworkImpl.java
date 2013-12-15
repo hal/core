@@ -115,10 +115,10 @@ public class SecurityFrameworkImpl implements SecurityFramework {
 
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-        createSecurityContext(id, accessControlMetaData.getResources(id), callback);
+        createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
     }
 
-    public void createSecurityContext(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
+    public void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
 
         // @NoGatekeeper (and thus no mapped resources ...)
         if(requiredResources.isEmpty())
@@ -131,12 +131,12 @@ public class SecurityFrameworkImpl implements SecurityFramework {
         // @RBACGatekeeper & @AccessControl
         else
         {
-            loadSecurityMetadata(id, requiredResources, callback);
+            loadSecurityMetadata(id, requiredResources, recursive, callback);
         }
 
     }
 
-    private void loadSecurityMetadata(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback) {
+    private void loadSecurityMetadata(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
         operation.get(ADDRESS).setEmptyList();
@@ -163,7 +163,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
             step.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
             //step.get(RECURSIVE).set(true);
 
-            if(accessControlMetaData.isRecursive(id))
+            if(recursive)
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
             step.get(ACCESS_CONTROL).set(TRIM_DESCRIPTIONS); // reduces the payload size

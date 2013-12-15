@@ -37,7 +37,7 @@ public interface SecurityFramework extends SecurityService {
      * @param requiredResources a list of resources to operate on
      * @param callback
      */
-    void createSecurityContext(final String id, final Set<String> requiredResources, final AsyncCallback<SecurityContext> callback);
+    void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback);
 
     /**
      * Check wether or not a context exists.
