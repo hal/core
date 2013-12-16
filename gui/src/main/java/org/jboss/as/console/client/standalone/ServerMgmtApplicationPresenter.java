@@ -24,7 +24,6 @@ import java.util.List;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -35,122 +34,80 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
+import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 
 /**
  * A collection of tools to manage a standalone server instance.
  *
  * @author Heiko Braun
- * @date 1/28/11
  */
-public class ServerMgmtApplicationPresenter extends Presenter<ServerMgmtApplicationPresenter.ServerManagementView,
-        ServerMgmtApplicationPresenter.ServerManagementProxy> implements UnauthorizedEvent.UnauthorizedHandler {
+public class ServerMgmtApplicationPresenter extends
+        PerspectivePresenter<ServerMgmtApplicationPresenter.ServerManagementView, ServerMgmtApplicationPresenter.ServerManagementProxy> {
 
-    private PlaceManager placeManager;
-    private SubsystemStore subsysStore;
-    private boolean hasBeenRevealed;
-
-    private BootstrapContext bootstrap;
-    private String lastSubPlace;
-    private Header header;
-    private final UnauthorisedPresenter unauthorisedPresenter;
-
-    public interface ServerManagementView extends View {
-
-        void updateFrom(List<SubsystemRecord> subsystemRecords);
-
-    }
+    @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.serverConfig)
-    @NoGatekeeper
     public interface ServerManagementProxy extends ProxyPlace<ServerMgmtApplicationPresenter> {}
+
+    public interface ServerManagementView extends View {
+        void updateFrom(List<SubsystemRecord> subsystemRecords);
+    }
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
+    private PlaceManager placeManager;
+    private SubsystemStore subsysStore;
+
     @Inject
-    public ServerMgmtApplicationPresenter(
-            EventBus eventBus, ServerManagementView view,
-            ServerManagementProxy proxy, PlaceManager placeManager,
-            SubsystemStore subsysStore, BootstrapContext bootstrap, Header header,
+    public ServerMgmtApplicationPresenter(EventBus eventBus, ServerManagementView view,
+            ServerManagementProxy proxy, PlaceManager placeManager, SubsystemStore subsysStore, Header header,
             UnauthorisedPresenter unauthorisedPresenter) {
-        super(eventBus, view, proxy);
+
+        super(eventBus, view, proxy, placeManager, header, NameTokens.serverConfig, unauthorisedPresenter,
+                TYPE_MainContent);
+
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
-        this.bootstrap = bootstrap;
-        this.header = header;
-        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
-    protected void onBind() {
-        super.onBind();
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
+    protected void onFirstReveal(final PlaceRequest placeRequest) {
+        subsysStore.loadSubsystems("default", new SimpleCallback<List<SubsystemRecord>>() {
+            @Override
+            public void onSuccess(List<SubsystemRecord> existingSubsystems) {
+                getView().updateFrom(existingSubsystems);
+
+                // chose default view if necessary
+                PlaceRequest preference = NameTokens.serverConfig
+                        .equals(placeRequest.getNameToken()) ? preferredPlace() : placeRequest;
+
+                final String[] defaultSubsystem = SubsystemMetaData
+                        .getDefaultSubsystem(preference.getNameToken(), existingSubsystems);
+                placeManager.revealPlace(new PlaceRequest.Builder().nameToken(defaultSubsystem[1]).build());
+            }
+        });
     }
 
     @Override
-    protected void onReset() {
-        super.onReset();
-
-        header.highlight(NameTokens.serverConfig);
-
-        final String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
-        if(!currentToken.equals(getProxy().getNameToken()))
-        {
-            lastSubPlace = currentToken;
-        }
-        else if(lastSubPlace!=null)
-        {
-            placeManager.revealPlace(new PlaceRequest(lastSubPlace));
-        }
-
-        if(!hasBeenRevealed)
-        {
-
-            hasBeenRevealed = true;
-
-            subsysStore.loadSubsystems("default", new SimpleCallback<List<SubsystemRecord>>() {
-                @Override
-                public void onSuccess(List<SubsystemRecord> existingSubsystems) {
-
-                    getView().updateFrom(existingSubsystems);
-
-
-                    // chose default view if necessary
-
-                    String preference = NameTokens.serverConfig.equals(currentToken) ? NameTokens.DataSourcePresenter : currentToken;
-
-                    final String[] defaultSubsystem = SubsystemMetaData.getDefaultSubsystem(
-                            preference, existingSubsystems
-                    );
-
-                    placeManager.revealPlace(new PlaceRequest(defaultSubsystem[1]));
-
-
-
-                }
-            });
-
-        }
+    protected void onDefaultPlace(final PlaceManager placeManager) {
+        onFirstReveal(preferredPlace());
     }
 
     @Override
     protected void revealInParent() {
-        // reveal in main layout
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
+    private PlaceRequest preferredPlace() {
+        return new PlaceRequest.Builder().nameToken(NameTokens.DataSourcePresenter).build();
     }
 }

@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -16,9 +19,6 @@ import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -132,8 +132,6 @@ public class StandaloneRuntimeNavigation {
 
 
     public void setSubsystems(List<SubsystemRecord> subsystems) {
-
-
         metricLeaf.removeItems();
         runtimeLeaf.removeItems();
         runtimeLeaf.setVisible(true);
@@ -141,7 +139,6 @@ public class StandaloneRuntimeNavigation {
         if(subsystems.isEmpty()) return;
 
         final GroupItem platformGroup = new GroupItem("Platform");
-
         platformGroup.addItem(new LHSNavTreeItem("JVM", NameTokens.VirtualMachine));
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
 
@@ -149,17 +146,13 @@ public class StandaloneRuntimeNavigation {
 
         final GroupItem subsystemGroup = new GroupItem("Subsystems");
         // match subsystems
-        for(SubsystemRecord subsys : subsystems)
-        {
-
-            for(Predicate predicate : metricPredicates)
-            {
+        for(SubsystemRecord subsys : subsystems) {
+            for(Predicate predicate : metricPredicates) {
                 if(predicate.matches(subsys.getKey()))
                     subsystemGroup.addItem(predicate.getNavItem());
             }
 
-            for(Predicate predicate : runtimePredicates)
-            {
+            for(Predicate predicate : runtimePredicates) {
                 if(predicate.matches(subsys.getKey()))
                     runtimeLeaf.addItem(predicate.getNavItem());
             }
@@ -171,9 +164,6 @@ public class StandaloneRuntimeNavigation {
 
         // empty runtime operations
         runtimeLeaf.setVisible(runtimeLeaf.getChildCount()>0);
-
         navigation.expandTopLevel();
     }
-
-
 }

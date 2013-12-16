@@ -7,7 +7,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -20,6 +19,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -32,20 +32,27 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
+import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
+import org.jboss.gwt.flow.client.PushFlowCallback;
 
 /**
  * @author Heiko Braun
  */
-public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements StaleModelEvent.StaleModelListener,
-        ServerSelectionChanged.ChangeListener,
+public class DomainRuntimePresenter
+        extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
+        implements StaleModelEvent.StaleModelListener, ServerSelectionChanged.ChangeListener,
         HostSelectionChanged.ChangeListener, UnauthorizedEvent.UnauthorizedHandler {
 
     @ProxyCodeSplit
@@ -55,11 +62,8 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     }
 
     public interface MyView extends View {
-
         void setPresenter(DomainRuntimePresenter presenter);
-
         void setHosts(HostList hosts);
-
         void setSubsystems(List<SubsystemRecord> result);
     }
 
@@ -67,27 +71,25 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
 
-    private final PlaceManager placeManager;
-    private final UnauthorisedPresenter unauthorisedPresenter;
     private final DomainEntityManager domainManager;
-    private HostInformationStore hostInfoStore;
-    private SubsystemStore subsysStore;
-    private ServerGroupStore serverGroupStore;
-    private Header header;
+    private final PlaceManager placeManager;
+    private final HostInformationStore hostInfoStore;
+    private final SubsystemStore subsysStore;
+    private final ServerGroupStore serverGroupStore;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             HostInformationStore hostInfoStore, DomainEntityManager domainManager, SubsystemStore subsysStore,
             ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
-        super(eventBus, view, proxy);
+
+        super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,
+                TYPE_MainContent);
 
         this.placeManager = placeManager;
         this.hostInfoStore = hostInfoStore;
         this.domainManager = domainManager;
         this.subsysStore = subsysStore;
         this.serverGroupStore = serverGroupStore;
-        this.header = header;
-        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
@@ -98,7 +100,6 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
         getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
         getEventBus().addHandler(StaleModelEvent.TYPE, this);
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -123,15 +124,9 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
     }
 
     @Override
-    protected void onReset() {
-        super.onReset();
-        header.highlight(NameTokens.DomainRuntimePresenter);
-
-        String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
-        if (currentToken.equals(getProxy().getNameToken())) {
-            placeManager
-                    .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
-        }
+    protected void onDefaultPlace(final PlaceManager placeManager) {
+        placeManager
+                .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
     }
 
     @Override
@@ -156,9 +151,8 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
 
     @Override
     public void onStaleModel(String modelName) {
-        if (StaleModelEvent.SERVER_INSTANCES.equals(modelName)
-                || StaleModelEvent.SERVER_CONFIGURATIONS.equals(modelName)) {
-
+        if (StaleModelEvent.SERVER_INSTANCES.equals(modelName) || StaleModelEvent.SERVER_CONFIGURATIONS
+                .equals(modelName)) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
@@ -168,49 +162,54 @@ public class DomainRuntimePresenter extends Presenter<DomainRuntimePresenter.MyV
         }
     }
 
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
-    }
-
     private void loadSubsystems() {
         // clear view
         getView().setSubsystems(Collections.<SubsystemRecord>emptyList());
 
-        // load subsystems for selected server
-        hostInfoStore.getServerConfiguration(
-                domainManager.getSelectedHost(), domainManager.getSelectedServer(),
-                new SimpleCallback<Server>() {
+        Function<FunctionContext> f1 = new Function<FunctionContext>() {
+            @Override
+            public void execute(final Control<FunctionContext> control) {
+                hostInfoStore.getServerConfiguration(domainManager.getSelectedHost(), domainManager.getSelectedServer(),
+                        new PushFlowCallback<Server>(control));
+            }
+        };
+        Function<FunctionContext> f2 = new Function<FunctionContext>() {
+            @Override
+            public void execute(final Control<FunctionContext> control) {
+                final Server server = control.getContext().pop();
+                serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
+            }
+        };
+        Function<FunctionContext> f3 = new Function<FunctionContext>() {
+            @Override
+            public void execute(final Control<FunctionContext> control) {
+                ServerGroupRecord group = control.getContext().pop();
+                subsysStore.loadSubsystems(group.getProfileName(),
+                        new PushFlowCallback<List<SubsystemRecord>>(control));
+            }
+        };
+        Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
+            @Override
+            public void onFailure(final FunctionContext context) {
+                // TODO i18n
+                Console.error("Cannot load subsystems of selected server");
+            }
+
+            @Override
+            public void onSuccess(final FunctionContext context) {
+                List<SubsystemRecord> subsystems = context.pop();
+                getView().setSubsystems(subsystems);
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
-                    public void onSuccess(Server server) {
-                        serverGroupStore.loadServerGroup(server.getGroup(),
-                                new SimpleCallback<ServerGroupRecord>() {
-                                    @Override
-                                    public void onSuccess(ServerGroupRecord group) {
-                                        subsysStore.loadSubsystems(group.getProfileName(),
-                                                new SimpleCallback<List<SubsystemRecord>>() {
-                                                    @Override
-                                                    public void onSuccess(List<SubsystemRecord> result) {
-                                                        getView().setSubsystems(result);
-                                                        Scheduler.get()
-                                                                .scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                                                    @Override
-                                                                    public void execute() {
-                                                                        Console.getEventBus().fireEvent(
-                                                                                new LHSHighlightEvent(
-                                                                                        placeManager
-                                                                                                .getCurrentPlaceRequest()
-                                                                                                .getNameToken()
-                                                                                )
-                                                                        );
-                                                                    }
-                                                                });
-                                                    }
-                                                });
-                                    }
-                                });
+                    public void execute() {
+                        Console.getEventBus()
+                                .fireEvent(new LHSHighlightEvent(placeManager.getCurrentPlaceRequest().getNameToken()));
                     }
-                }
-        );
+                });
+            }
+        };
+
+        // load subsystems for selected server
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome, f1, f2, f3);
     }
 }

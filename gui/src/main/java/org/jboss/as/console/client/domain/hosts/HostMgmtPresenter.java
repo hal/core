@@ -23,7 +23,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -43,30 +42,21 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
+import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 /**
  * @author Heiko Braun
- * @date 3/2/11
  */
-public class HostMgmtPresenter
-        extends Presenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy> implements
-        UnauthorizedEvent.UnauthorizedHandler {
-
-    private final PlaceManager placeManager;
-
-    private boolean hasBeenRevealed;
+public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy> {
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+
     private BootstrapContext bootstrap;
-    private String lastSubPlace;
-    private Header header;
     private final DomainEntityManager domainManager;
-    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -80,88 +70,56 @@ public class HostMgmtPresenter
     }
 
     @Inject
-    public HostMgmtPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
+    public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             BootstrapContext bootstrap, Header header, DomainEntityManager domainManager,
             UnauthorisedPresenter unauthorisedPresenter) {
-        super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
+        super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
+                TYPE_MainContent);
+
         this.bootstrap = bootstrap;
-        this.header = header;
         this.domainManager = domainManager;
-        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
     protected void onReset() {
-        super.onReset();
-
-        // first thing: update host data
         domainManager.getHosts(new SimpleCallback<HostList>() {
             @Override
             public void onSuccess(HostList hostList) {
+                clearInitialPlace();
                 getView().updateHosts(hostList);
-                loadViews();
+                HostMgmtPresenter.super.onReset();
             }
         });
-
     }
 
-    private void loadViews() {
+    @Override
+    protected void onDefaultPlace(final PlaceManager placeManager) {
+        placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.ServerPresenter).build());
+    }
 
-        if(bootstrap.getInitialPlace()!=null)
-        {
+    private void clearInitialPlace() {
+        if (bootstrap.getInitialPlace() != null) {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
                     Console.getEventBus().fireEvent(
                             new LHSHighlightEvent(bootstrap.getInitialPlace())
                     );
-
                     bootstrap.setInitialPlace(null);
                 }
             });
-        }
-
-        header.highlight(NameTokens.HostMgmtPresenter);
-
-        String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
-
-        if(!currentToken.equals(getProxy().getNameToken()))
-        {
-            lastSubPlace = currentToken;
-        }
-        else if(lastSubPlace!=null)
-        {
-            placeManager.revealPlace(new PlaceRequest(lastSubPlace));
-        }
-
-        // first request, select default contents
-        if(!hasBeenRevealed)
-        {
-
-            placeManager.revealPlace( new PlaceRequest(NameTokens.ServerPresenter));
-            hasBeenRevealed = true;
-
         }
     }
 
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
-    }
-
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 }

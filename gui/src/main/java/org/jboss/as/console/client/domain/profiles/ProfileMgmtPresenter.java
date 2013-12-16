@@ -26,7 +26,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
@@ -37,7 +36,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -45,169 +43,106 @@ import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
+import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 
 /**
  * @author Heiko Braun
- * @date 2/11/11
  */
 public class ProfileMgmtPresenter
-        extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
-        implements ProfileSelectionEvent.ProfileSelectionListener, UnauthorizedEvent.UnauthorizedHandler {
-
-    private final PlaceManager placeManager;
-    private ProfileStore profileStore;
-    private SubsystemStore subsysStore;
-    private boolean hasBeenRevealed;
-    private CurrentProfileSelection profileSelection;
-
-    private String lastPlace;
-    private BootstrapContext bootstrap;
-    private Header header;
-    private final UnauthorisedPresenter unauthorisedPresenter;
+        extends PerspectivePresenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
+        implements ProfileSelectionEvent.ProfileSelectionListener {
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
-    public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {
+    public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {}
 
-    }
     public interface MyView extends SuspendableView {
-
         void setProfiles(List<ProfileRecord> profileRecords);
         void setSubsystems(List<SubsystemRecord> subsystemRecords);
         void setPreselection(String preselection);
     }
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
 
+    private SubsystemStore subsysStore;
+    private final PlaceManager placeManager;
+    private ProfileStore profileStore;
+    private CurrentProfileSelection profileSelection;
+
     @Inject
-    public ProfileMgmtPresenter(
-            EventBus eventBus,
-            MyView view, MyProxy proxy,
-            PlaceManager placeManager, ProfileStore profileStore,
-            SubsystemStore subsysStore,
-            ServerGroupStore serverGroupStore,
-            CurrentProfileSelection currentProfileSelection, BootstrapContext bootstrap,
+    public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
+            ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
             Header header, UnauthorisedPresenter unauthorisedPresenter) {
 
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, placeManager, header, NameTokens.ProfileMgmtPresenter, unauthorisedPresenter,
+                TYPE_MainContent);
 
         this.placeManager = placeManager;
         this.profileStore = profileStore;
         this.subsysStore = subsysStore;
         this.profileSelection = currentProfileSelection;
-        this.bootstrap = bootstrap;
-        this.header = header;
-        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
-    protected void onReset() {
-
-        super.onReset();
-
-        header.highlight(NameTokens.ProfileMgmtPresenter);
-
-        // default init when revealed the first time
-        if(!hasBeenRevealed)
-        {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    hasBeenRevealed = true;
-                    loadProfiles();
-
-                }
-            });
-
-            return;
-        }
-
-        // chose sub place to reveal
-        String currentToken = placeManager.getCurrentPlaceRequest().getNameToken();
-
-        // already sub place chosen (token in URL)
-        if(!getProxy().getNameToken().equals(currentToken))
-        {
-            lastPlace = currentToken;
-        }
-
-        // no token in URL (top level nav)
-        else
-        {
-            if(lastPlace!=null)
-            {
-                placeManager.revealPlace(new PlaceRequest(lastPlace));
-            }
-            else
-            {
-                // no token and no last place given
-
-                assert profileSelection.isSet() : "no profile not selected!";
-
-                subsysStore.loadSubsystems(profileSelection.getName(), new SimpleCallback<List<SubsystemRecord>>() {
-                    @Override
-                    public void onSuccess(List<SubsystemRecord> existingSubsystems) {
-                        revealDefaultSubsystem(NameTokens.DataSourcePresenter, existingSubsystems);
-                    }
-                });
-            }
-        }
-
+    protected void onBind() {
+        super.onBind();
+        getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
     }
-
-
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
-
-        super.prepareFromRequest(request);
-
-        final String preselection = request.getParameter("profile", null);
-
-        if(preselection!=null)
-        {
-            getView().setPreselection(preselection);
-            hasBeenRevealed = false;
-            lastPlace = null;
-            profileSelection.setName(preselection);
-        }
-    }
-
-    private void loadProfiles() {
-
-        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+    protected void onFirstReveal(final PlaceRequest placeRequest) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onSuccess(final List<ProfileRecord> result) {
-
-                getView().setProfiles(result);
+            public void execute() {
+                loadProfiles();
             }
         });
     }
 
     @Override
-    protected void onHide() {
-        super.onHide();
-
+    protected void onDefaultPlace(final PlaceManager placeManager) {
+        subsysStore.loadSubsystems(profileSelection.getName(), new SimpleCallback<List<SubsystemRecord>>() {
+            @Override
+            public void onSuccess(List<SubsystemRecord> existingSubsystems) {
+                revealDefaultSubsystem(preferredPlace(), existingSubsystems);
+            }
+        });
     }
 
-    private void revealDefaultSubsystem(String preference, List<SubsystemRecord> existingSubsystems) {
+    private void revealDefaultSubsystem(PlaceRequest preference, List<SubsystemRecord> existingSubsystems) {
+        final String[] defaultSubsystem = SubsystemMetaData
+                .getDefaultSubsystem(preference.getNameToken(), existingSubsystems);
+        Log.debug("reveal default subsystem : pref " + preference + "; chosen " + defaultSubsystem[1]);
+        placeManager.revealPlace(new PlaceRequest.Builder().nameToken(defaultSubsystem[1]).build());
+    }
 
-        final String[] defaultSubsystem = SubsystemMetaData.getDefaultSubsystem(
-                preference, existingSubsystems
-        );
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
+        super.prepareFromRequest(request);
 
-        Log.debug("reveal default subsystem : pref "+ preference + "; chosen "+defaultSubsystem[1]);
+        final String preselection = request.getParameter("profile", null);
+        if (preselection != null) {
+            getView().setPreselection(preselection);
+            profileSelection.setName(preselection);
+            resetLastPlace();
+        }
+    }
 
-        placeManager.revealPlace(new PlaceRequest(defaultSubsystem[1]));
+    private void loadProfiles() {
+        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+            @Override
+            public void onSuccess(final List<ProfileRecord> result) {
+                getView().setProfiles(result);
+            }
+        });
     }
 
     @Override
@@ -217,39 +152,25 @@ public class ProfileMgmtPresenter
     }
 
     @Override
-    protected void onBind() {
-        super.onBind();
-        getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
-
-    }
-
-    @Override
     public void onProfileSelection(String profileName) {
-
         assert profileName!=null && !profileName.equals("") : "illegal profile name: "+profileName;
-
         if(!isVisible()) return;
 
         Log.debug("onProfileSelection: "+profileName + "/ "+placeManager.getCurrentPlaceRequest().getNameToken());
-
         profileSelection.setName(profileName);
-
         subsysStore.loadSubsystems(profileName, new SimpleCallback<List<SubsystemRecord>>() {
             @Override
             public void onSuccess(List<SubsystemRecord> result) {
                 getView().setSubsystems(result);
 
                 // prefer to reveal the last place, if exists in selected profile
-                String preference = lastPlace!=null ? lastPlace : NameTokens.DataSourcePresenter;
+                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
                 revealDefaultSubsystem(preference, result);
             }
         });
-
     }
 
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
+    private PlaceRequest preferredPlace() {
+        return new PlaceRequest.Builder().nameToken(NameTokens.DataSourcePresenter).build();
     }
 }
