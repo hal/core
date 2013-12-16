@@ -140,7 +140,17 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                             public void execute() {
                                 final PlaceRequest placeRequest = context.getRequest();
                                 DefaultPlaceManager.super.doRevealPlace(placeRequest, updateBrowserUrl);
-                                eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
+                                StringBuffer nameToken = new StringBuffer(placeRequest.getNameToken());
+
+                                if(!placeRequest.getParameterNames().isEmpty())
+                                {
+                                    nameToken.append(";");
+                                    for(String param : placeRequest.getParameterNames())
+                                    {
+                                        nameToken.append(param).append("=").append(placeRequest.getParameter(param,""));
+                                    }
+                                }
+                                eventBus.fireEvent(new LHSHighlightEvent(nameToken.toString()));
                             }
                         });
                     }
