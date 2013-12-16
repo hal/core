@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.standalone;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -12,9 +16,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionView;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -22,8 +26,6 @@ import org.jboss.ballroom.client.widgets.icons.Icons;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
 
 
 /**
@@ -57,12 +59,24 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
             }
         });
         reloadBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_reload_standaloneServerView());
-
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(reloadBtn);
 
-        headline = new Label("HEADLINE");
+        // TODO HAL-327 Replace with reloadBtn.setOperationAddress(...) once the presenter is no longer
+        // annotated with @NoGatekeeper. That is once the presenter is no longer the homepage for standalone
+        boolean granted = true;
+        Set<String> roles = Console.getBootstrapContext().getRoles();
+        for (Iterator<String> iterator = roles.iterator(); iterator.hasNext() && granted; ) {
+            String role = iterator.next();
+            granted = "superuser".equalsIgnoreCase(role) || "administrator".equalsIgnoreCase(role) || "maintainer"
+                    .equalsIgnoreCase(role) || "operator".equalsIgnoreCase(role);
+        }
+        if (!granted) {
+            tools.setVisible(false);
+            tools.getElement().addClassName("rbac-suppressed");
+        }
 
+        headline = new Label("HEADLINE");
         headline.setStyleName("content-header-label");
 
         form = new Form<StandaloneServer>(StandaloneServer.class);
