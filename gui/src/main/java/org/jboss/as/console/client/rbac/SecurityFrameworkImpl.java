@@ -1,5 +1,17 @@
 package org.jboss.as.console.client.rbac;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
@@ -16,17 +28,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * The security manager creates and provides a {@link SecurityContext} per place
@@ -167,6 +168,7 @@ public class SecurityFrameworkImpl implements SecurityFramework {
                 step.get("recursive-depth").set(2); // Workaround for Beta2 : some browsers choke on two big payload size
 
             step.get(ACCESS_CONTROL).set(TRIM_DESCRIPTIONS); // reduces the payload size
+            step.get(INCLUDE_ALIASES).set("true"); // TODO Test if this is still necessary once WFLY-2738 is fixed
             step.get(OPERATIONS).set(true);
             steps.add(step);
 

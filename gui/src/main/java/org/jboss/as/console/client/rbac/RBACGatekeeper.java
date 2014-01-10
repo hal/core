@@ -3,6 +3,7 @@ package org.jboss.as.console.client.rbac;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
@@ -36,24 +37,30 @@ public class RBACGatekeeper implements Gatekeeper {
         String token = placemanager.getCurrentPlaceRequest().getNameToken();
 
         if (securityFramework.hasContext(token)) {
-            SecurityContext securityContext = securityFramework.getSecurityContext(token);
-            final AuthorisationDecision readPrivilege = securityContext.getReadPriviledge();
+            try {
+                SecurityContext securityContext = securityFramework.getSecurityContext(token);
+                final AuthorisationDecision readPrivilege = securityContext.getReadPriviledge();
 
-            // bootstrap operations
-            boolean bootstrapRequirementsSatisfied = true;
-            for (String op : accessControlMetaData.getOperations(token)) {
-                int idx = op.indexOf("#");
-                AuthorisationDecision opPrivilege = securityContext.getOperationPriviledge(
-                        op.substring(0, idx),
-                        op.substring(idx + 1, op.length())
-                );
+                // bootstrap operations
+                boolean bootstrapRequirementsSatisfied = true;
+                for (String op : accessControlMetaData.getOperations(token)) {
+                    int idx = op.indexOf("#");
+                    AuthorisationDecision opPrivilege = securityContext.getOperationPriviledge(
+                            op.substring(0, idx),
+                            op.substring(idx + 1, op.length())
+                    );
 
-                if (!opPrivilege.isGranted()) {
-                    bootstrapRequirementsSatisfied = false;
-                    break;
+                    if (!opPrivilege.isGranted()) {
+                        bootstrapRequirementsSatisfied = false;
+                        break;
+                    }
                 }
+                outcome = readPrivilege.isGranted() && bootstrapRequirementsSatisfied;
+            } catch (Throwable e) {
+                // placemanager might be locked
+                placemanager.unlock();
+                Log.error("Failed to check security context in RBACGatekeeper.canReveal() for " + token + ": " + e.getMessage());
             }
-            outcome = readPrivilege.isGranted() && bootstrapRequirementsSatisfied;
         }
         return outcome;
     }

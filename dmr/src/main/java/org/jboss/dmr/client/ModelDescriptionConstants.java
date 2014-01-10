@@ -70,6 +70,7 @@ public class ModelDescriptionConstants {
     public static final String IGNORED = "ignored";
     public static final String INCLUDE = "include";
     public static final String INCLUDES = "includes";
+    public static final String INCLUDE_ALIASES = "include-aliases";
     public static final String INCLUDE_RUNTIME = "include-runtime";
     public static final String INHERITED = "inherited";
     public static final String INET_ADDRESS = "inet-address";
