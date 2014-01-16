@@ -25,8 +25,8 @@ import java.util.Map;
 
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 
 /**
  * @author Harald Pehl
@@ -67,10 +67,10 @@ public class Index {
     public void add(final String token, final String description) {
         long id = idCounter++;
         documents.put(id, new Document(id, token, description));
-        addInternal(id, token, description);
+        addInternal(String.valueOf(id), token, description);
     }
 
-    private native void addInternal(final long id, final String token, final String description) /*-{
+    private native void addInternal(final String id, final String token, final String description) /*-{
         this.@org.jboss.as.console.client.search.Index::indexRef.add({
             id: id,
             token: token,
@@ -84,9 +84,9 @@ public class Index {
         if (jsonResult != null) {
             for (int i = 0; i < jsonResult.length(); i++) {
                 JSONObject json = new JSONObject(jsonResult.get(i));
-                JSONNumber jsonId = json.get("ref").isNumber();
+                JSONString jsonId = json.get("ref").isString();
                 if (jsonId != null) {
-                    long id = (long) jsonId.doubleValue();
+                    long id = Long.parseLong(jsonId.stringValue());
                     Document document = documents.get(id);
                     if (document != null) {
                         results.add(document);

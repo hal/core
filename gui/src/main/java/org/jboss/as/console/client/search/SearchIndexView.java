@@ -8,17 +8,15 @@ import com.google.gwt.user.client.ui.Widget;
  * @date 16/01/14
  */
 public class SearchIndexView {
-    public Widget asWidget() {
 
+    public Widget asWidget() {
         final TabPanel tabPanel = new TabPanel();
         tabPanel.setStyleName("default-tabpanel");
-
 
         tabPanel.add(new IndexBuilderView().asWidget(), "Index Builder");
         tabPanel.add(new SearchView().asWidget(), "Search");
 
         tabPanel.selectTab(0);
-
         return tabPanel;
     }
 }
