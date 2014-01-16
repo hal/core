@@ -2,6 +2,7 @@ package org.jboss.as.console.client.search;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -10,10 +11,15 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -77,6 +83,10 @@ public class Harvest {
 
     public void run(final Handler handler) {
         handler.onStart();
+
+
+        Set<Function> functions = new HashSet<Function>();
+
         for(final String token : accessControlMetaData.getTokens())
         {
 
@@ -89,42 +99,65 @@ public class Harvest {
                 final ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
                 op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
 
-                dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                Function f = new Function() {
                     @Override
-                    public void onFailure(Throwable caught) {
-                        handler.onError(caught);
-                    }
+                    public void execute(final Control control) {
 
-                    @Override
-                    public void onSuccess(DMRResponse result) {
-                        ModelNode response = result.get();
-                        if(response.isFailure())
-                        {
-                            handler.onError(new RuntimeException(response.getFailureDescription()));
-                        }
-                        else
-                        {
-
-                            if(response.hasDefined(RESULT)){
-                                ModelNode desc = response.get(RESULT);
-                                if(desc.hasDefined(DESCRIPTION))
-                                {
-                                    String text = desc.get(DESCRIPTION).asString();
-                                    // create index
-                                    Index.get().add(token, text);
-                                    handler.onHarvest(token, op.get(ADDRESS).asString());
-                                }
+                        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                handler.onError(caught);
+                                control.proceed();
                             }
 
-                        }
+                            @Override
+                            public void onSuccess(DMRResponse result) {
+                                ModelNode response = result.get();
+                                if(response.isFailure())
+                                {
+                                    handler.onError(new RuntimeException(response.getFailureDescription()));
+                                    control.proceed();
+                                }
+                                else
+                                {
+
+                                    if(response.hasDefined(RESULT)){
+                                        ModelNode desc = response.get(RESULT);
+                                        if(desc.hasDefined(DESCRIPTION))
+                                        {
+                                            String text = desc.get(DESCRIPTION).asString();
+                                            // create index
+                                            Index.get().add(token, text);
+                                            handler.onHarvest(token, op.get(ADDRESS).asString());
+                                            control.proceed();
+                                        }
+                                    }
+
+                                }
+
+
+                            }
+                        });
                     }
-                });
+                } ;
+
+                functions.add(f);
 
             }
         }
 
 
-        // async, doesn't work
-        //handler.onFinish();
+        new Async().waterfall("", new Outcome() {
+            @Override
+            public void onFailure(Object context) {
+                Console.error("Harvest failed");
+            }
+
+            @Override
+            public void onSuccess(Object context) {
+                handler.onFinish();
+            }
+        }, functions.toArray(new Function[]{}));
+
     }
 }
