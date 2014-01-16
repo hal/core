@@ -56,7 +56,7 @@ public class Index {
     }
 
     private native void setupIndex()  /*-{
-        var hal_idx = $wnd.lunr(function () {
+        var $wnd.org_jboss_as_console_client_search_index = $wnd.lunr(function () {
             this.field('token')
             this.field('desc')
         })
@@ -96,7 +96,7 @@ public class Index {
     }
 
     private native JsArray searchInternal(final String text) /*-{
-        return hal_idx.search(text);
+        return $wnd.org_jboss_as_console_client_search_index.search(text);
     }-*/;
 
 
