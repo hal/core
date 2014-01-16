@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 
 /**
@@ -62,14 +63,9 @@ public class Index {
     }-*/;
 
     public void add(final String token, final String description) {
-        long id = nextId();
+        long id = idCounter++;
         idCache.put(id, new Document(id, token, description));
         addInternal(id, token, description);
-    }
-
-    private long nextId() {
-        idCounter++;
-        return idCounter;
     }
 
     private native void addInternal(final long id, final String token, final String description) /*-{
@@ -83,12 +79,17 @@ public class Index {
     public List<Document> search(final String text) {
         List<Document> results = new ArrayList<Document>();
         JsArray jsonResult = searchInternal(text);
-        for (int i = 0; i < jsonResult.length(); i++) {
-            JSONObject json = new JSONObject(jsonResult.get(i));
-            long id = (long) json.get("ref").isNumber().doubleValue();
-            Document document = idCache.get(id);
-            if (document != null) {
-                results.add(document);
+        if (jsonResult != null) {
+            for (int i = 0; i < jsonResult.length(); i++) {
+                JSONObject json = new JSONObject(jsonResult.get(i));
+                JSONNumber jsonId = json.get("ref").isNumber();
+                if (jsonId != null) {
+                    long id = (long) jsonId.doubleValue();
+                    Document document = idCache.get(id);
+                    if (document != null) {
+                        results.add(document);
+                    }
+                }
             }
         }
         return results;
