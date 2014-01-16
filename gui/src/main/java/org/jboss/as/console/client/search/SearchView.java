@@ -6,6 +6,9 @@ import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.TextBox;
@@ -41,6 +44,15 @@ public class SearchView {
     public Widget asWidget() {
         ToolStrip tools = new ToolStrip();
         final TextBox searchBox = new TextBox();
+        searchBox.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(final KeyUpEvent event) {
+                boolean enterPressed = KeyCodes.KEY_ENTER == event.getNativeEvent().getKeyCode();
+                if (enterPressed) {
+                    onSearch(searchBox.getText());
+                }
+            }
+        });
         tools.addToolWidget(searchBox);
         tools.addToolButtonRight(new ToolButton("Search", new ClickHandler() {
             @Override
@@ -63,7 +75,14 @@ public class SearchView {
                         return document.getDescription();
                     }
                 };
-        Column<Index.Document, String> tokenColumn = new Column<Index.Document, String>(
+        TextColumn<Index.Document> tokenColumn = new
+                TextColumn<Index.Document>() {
+                    @Override
+                    public String getValue(final Index.Document document) {
+                        return document.getToken();
+                    }
+                };
+        Column<Index.Document, String> viewColumn = new Column<Index.Document, String>(
                 new TextLinkCell<String>("View", new ActionCell.Delegate<String>() {
                     @Override
                     public void execute(final String token) {
@@ -77,9 +96,13 @@ public class SearchView {
         };
 
         documentTable.addColumn(descColumn, "Description");
-        documentTable.setColumnWidth(descColumn, 80, Style.Unit.PCT);
-        documentTable.addColumn(tokenColumn, "Place");
-        documentTable.setColumnWidth(tokenColumn, 20, Style.Unit.PCT);
+        documentTable.setColumnWidth(descColumn, 65, Style.Unit.PCT);
+
+        documentTable.addColumn(tokenColumn, "Token");
+        documentTable.setColumnWidth(tokenColumn, 15, Style.Unit.PCT);
+
+        documentTable.addColumn(viewColumn, "");
+        documentTable.setColumnWidth(viewColumn, 10, Style.Unit.PCT);
 
         dataProvider = new ListDataProvider<Index.Document>();
         dataProvider.addDataDisplay(documentTable);
