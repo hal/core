@@ -18,27 +18,31 @@
  */
 package org.jboss.as.console.client.search;
 
-import com.google.gwt.json.client.JSONArray;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.google.gwt.core.client.JsArray;
+import com.google.gwt.json.client.JSONObject;
 
 /**
  * @author Harald Pehl
  */
 public class Index {
 
-    private static long idCounter = 0;
     private final static Index instance = new Index();
-
-    private Index() {
-        reset();
-    }
 
     public static Index get() {
         return instance;
     }
 
-    private static long nextId() {
-        idCounter++;
-        return idCounter;
+    private long idCounter = 0;
+    private final Map<Long, Document> idCache;
+
+    private Index() {
+        idCache = new HashMap<Long, Document>();
+        reset();
     }
 
     /**
@@ -46,30 +50,76 @@ public class Index {
      */
     public void reset() {
         idCounter = 0;
+        idCache.clear();
         setupIndex();
     }
 
     private native void setupIndex()  /*-{
-        var hal_idx = lunr(function () {
+        var hal_idx = $wnd.lunr(function () {
+            this.field('token')
             this.field('desc')
         })
     }-*/;
 
-    public void add(String token, String description) {
-//        addInternal(String.valueOf(nextId()) + "#", token, description);
+    public void add(final String token, final String description) {
+        long id = nextId();
+        idCache.put(id, new Document(id, token, description));
+        addInternal(String.valueOf(id), token, description);
     }
 
+    private long nextId() {
+        idCounter++;
+        return idCounter;
+    }
 
-    private native void addInternal(final String idToekn, final String description)  /*-{
-        index.add({
-            id: 1,
-            title: 'Foo',
-            body: 'Foo foo foo!'
+    private native void addInternal(final String id, final String idToken, final String description) /*-{
+        $wnd.hal_idx.add({
+            id: id,
+            token: token,
+            desc: description
         })
     }-*/;
 
-    public JSONArray search(String text) {
+    public List<Document> search(final String text) {
+        ArrayList<Document> results = new ArrayList<Document>();
+        JsArray jsonResult = searchInternal(text);
+        for (int i = 0; i < jsonResult.length(); i++) {
+            JSONObject json = new JSONObject(jsonResult.get(i));
+            long id = (long) json.get("ref").isNumber().doubleValue();
+            Document document = idCache.get(id);
+            if (document != null) {
+                results.add(document);
+            }
+        }
+        return results;
+    }
 
-        return null;
+    private native JsArray searchInternal(final String text) /*-{
+        return $wnd.hal_idx.search(text);
+    }-*/;
+
+
+    public static class Document {
+        private final long id;
+        private final String token;
+        private final String description;
+
+        public Document(final long id, final String token, final String description) {
+            this.id = id;
+            this.token = token;
+            this.description = description;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public String getDescription() {
+            return description;
+        }
     }
 }
