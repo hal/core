@@ -8,6 +8,7 @@ import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -119,20 +120,19 @@ public class Harvest {
                                 else
                                 {
 
-                                    if(response.hasDefined(RESULT)){
-                                        ModelNode desc = response.get(RESULT);
-                                        if(desc.hasDefined(DESCRIPTION))
-                                        {
-                                            String text = desc.get(DESCRIPTION).asString();
-                                            // create index
-                                            Index.get().add(token, text);
-                                            handler.onHarvest(token, op.get(ADDRESS).asString());
+                                    ModelNode delegate = response.get(RESULT).getType().equals(ModelType.LIST) ?
+                                            response.get(RESULT).asList().get(0) : response.get(RESULT);
 
-                                        }
-                                        else
-                                        {
-                                            System.out.println("Skipped "+token+": "+resource);
-                                        }
+
+                                    try {
+                                        String text = delegate.hasDefined(DESCRIPTION) ?
+                                                delegate.get(DESCRIPTION).asString() : delegate.get(RESULT).get(DESCRIPTION).asString();
+
+                                        // create index
+                                        Index.get().add(token, text);
+                                        handler.onHarvest(token, op.get(ADDRESS).asString());
+                                    } catch (Throwable e) {
+                                        System.out.println("Skipped "+token+" > "+resource);
                                     }
 
                                 }
