@@ -1,11 +1,15 @@
 package org.jboss.as.console.client.search;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
@@ -71,23 +75,56 @@ public class Harvest {
         );
     }
 
-    public void run(Handler handler) {
+    public void run(final Handler handler) {
         handler.onStart();
-        for(String token : accessControlMetaData.getTokens())
+        for(final String token : accessControlMetaData.getTokens())
         {
 
             Set<String> resources = accessControlMetaData.getResources(token);
-            for(String resource : resources)
+            for(final String resource : resources)
             {
                 // TODO
                 if(resource.startsWith("opt:")) continue;
 
-                ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
+                final ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
+                op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
 
-                System.out.println(op);
-                handler.onHarvest(token, resource);
+                dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        handler.onError(caught);
+                    }
+
+                    @Override
+                    public void onSuccess(DMRResponse result) {
+                        ModelNode response = result.get();
+                        if(response.isFailure())
+                        {
+                            handler.onError(new RuntimeException(response.getFailureDescription()));
+                        }
+                        else
+                        {
+
+                            if(response.hasDefined(RESULT)){
+                                ModelNode desc = response.get(RESULT);
+                                if(desc.hasDefined(DESCRIPTION))
+                                {
+                                    String text = desc.get(DESCRIPTION).asString();
+                                    // create index
+                                    Index.get().add(token, text);
+                                    handler.onHarvest(token, op.get(ADDRESS).asString());
+                                }
+                            }
+
+                        }
+                    }
+                });
+
             }
         }
-        handler.onFinish();
+
+
+        // async, doesn't work
+        //handler.onFinish();
     }
 }

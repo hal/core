@@ -11,6 +11,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
@@ -63,18 +64,22 @@ public class IndexBuilderView {
 
                     @Override
                     public void onStart() {
+                        Index.get().reset();
                         dataProvider.setList(data);
                     }
 
                     @Override
                     public void onHarvest(String token, String address) {
                         data.add(new Asset(token, address));
-                        dataProvider.flush();
+                        //dataProvider.flush();
+
+                        dataProvider.setList(data);
+
                     }
 
                     @Override
                     public void onFinish() {
-                        Console.info("Finished building index");
+
                     }
 
                     @Override
@@ -85,12 +90,20 @@ public class IndexBuilderView {
             }
         }));
 
+
+        /*tools.addToolButton(new ToolButton("View Index", new ClickHandler(){
+            @Override
+            public void onClick(ClickEvent event) {
+
+            }
+        } ));*/
+
         layout.add(tools.asWidget());
 
         // ----------
 
         table = new DefaultCellTable<Asset>(
-                25,
+                12,
                 new ProvidesKey<Asset>() {
                     @Override
                     public Object getKey(Asset item) {
@@ -119,6 +132,10 @@ public class IndexBuilderView {
 
 
         layout.add(table.asWidget());
+
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
+        layout.add(pager);
 
         return layout;
     }
