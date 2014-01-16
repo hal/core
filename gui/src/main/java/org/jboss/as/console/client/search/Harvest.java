@@ -1,9 +1,9 @@
 package org.jboss.as.console.client.search;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
@@ -18,7 +18,6 @@ import org.jboss.gwt.flow.client.Outcome;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -116,7 +115,6 @@ public class Harvest {
                                 if(response.isFailure())
                                 {
                                     handler.onError(new RuntimeException(response.getFailureDescription()));
-                                    control.proceed();
                                 }
                                 else
                                 {
@@ -129,12 +127,17 @@ public class Harvest {
                                             // create index
                                             Index.get().add(token, text);
                                             handler.onHarvest(token, op.get(ADDRESS).asString());
-                                            control.proceed();
+
+                                        }
+                                        else
+                                        {
+                                            System.out.println("Skipped "+token+": "+resource);
                                         }
                                     }
 
                                 }
 
+                                control.proceed();
 
                             }
                         });
@@ -147,7 +150,7 @@ public class Harvest {
         }
 
 
-        new Async().waterfall("", new Outcome() {
+        new Async(Footer.PROGRESS_ELEMENT).parallel(new Outcome() {
             @Override
             public void onFailure(Object context) {
                 Console.error("Harvest failed");
@@ -156,6 +159,7 @@ public class Harvest {
             @Override
             public void onSuccess(Object context) {
                 handler.onFinish();
+
             }
         }, functions.toArray(new Function[]{}));
 

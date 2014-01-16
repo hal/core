@@ -79,7 +79,7 @@ public class IndexBuilderView {
 
                     @Override
                     public void onFinish() {
-
+                        Console.info("Successfully build index!");
                     }
 
                     @Override
