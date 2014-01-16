@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.search;
 
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -9,6 +9,16 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class SearchIndexView {
     public Widget asWidget() {
-        return new HTML("Index Management") ;
+
+        final TabPanel tabPanel = new TabPanel();
+        tabPanel.setStyleName("default-tabpanel");
+
+
+        tabPanel.add(new IndexBuilderView().asWidget(), "Index Builder");
+        tabPanel.add(new SearchView().asWidget(), "Search");
+
+        tabPanel.selectTab(0);
+
+        return tabPanel;
     }
 }
