@@ -31,5 +31,8 @@ public interface ConsoleResources extends ClientBundle {
 
     @Source("org/jboss/as/console/public/prettyprint/prettify.js")
     TextResource prettifyJs();
+
+    @Source("org/jboss/as/console/public/lunr.js")
+    TextResource lunrJs();
 }
 

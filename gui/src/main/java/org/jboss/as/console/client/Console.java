@@ -110,6 +110,10 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         ScriptInjector.fromString(ConsoleResources.INSTANCE.prettifyJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
                 .inject();
 
+        // inject lunr.js
+        ScriptInjector.fromString(ConsoleResources.INSTANCE.lunrJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
+                .inject();
+
         // Inject progress polyfill js code
         ProgressPolyfill.inject();
 
