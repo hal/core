@@ -64,7 +64,7 @@ public class SearchView {
                     }
                 };
         Column<Index.Document, String> tokenColumn = new Column<Index.Document, String>(
-                new TextLinkCell<String>("Token", new ActionCell.Delegate<String>() {
+                new TextLinkCell<String>("View", new ActionCell.Delegate<String>() {
                     @Override
                     public void execute(final String token) {
                         onToken(token);
@@ -77,9 +77,9 @@ public class SearchView {
         };
 
         documentTable.addColumn(descColumn, "Description");
-        documentTable.setColumnWidth(descColumn, 70, Style.Unit.PCT);
-        documentTable.addColumn(tokenColumn, "Token");
-        documentTable.setColumnWidth(tokenColumn, 30, Style.Unit.PCT);
+        documentTable.setColumnWidth(descColumn, 80, Style.Unit.PCT);
+        documentTable.addColumn(tokenColumn, "Place");
+        documentTable.setColumnWidth(tokenColumn, 20, Style.Unit.PCT);
 
         dataProvider = new ListDataProvider<Index.Document>();
         dataProvider.addDataDisplay(documentTable);
