@@ -64,7 +64,7 @@ public class Index {
     public void add(final String token, final String description) {
         long id = nextId();
         idCache.put(id, new Document(id, token, description));
-        addInternal(String.valueOf(id), token, description);
+        addInternal(id, token, description);
     }
 
     private long nextId() {
@@ -72,8 +72,8 @@ public class Index {
         return idCounter;
     }
 
-    private native void addInternal(final String id, final String idToken, final String description) /*-{
-        $wnd.hal_idx.add({
+    private native void addInternal(final long id, final String token, final String description) /*-{
+        hal_idx.add({
             id: id,
             token: token,
             desc: description
@@ -81,7 +81,7 @@ public class Index {
     }-*/;
 
     public List<Document> search(final String text) {
-        ArrayList<Document> results = new ArrayList<Document>();
+        List<Document> results = new ArrayList<Document>();
         JsArray jsonResult = searchInternal(text);
         for (int i = 0; i < jsonResult.length(); i++) {
             JSONObject json = new JSONObject(jsonResult.get(i));
@@ -95,7 +95,7 @@ public class Index {
     }
 
     private native JsArray searchInternal(final String text) /*-{
-        return $wnd.hal_idx.search(text);
+        return hal_idx.search(text);
     }-*/;
 
 
