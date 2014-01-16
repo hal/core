@@ -128,9 +128,16 @@ public class Harvest {
                                         String text = delegate.hasDefined(DESCRIPTION) ?
                                                 delegate.get(DESCRIPTION).asString() : delegate.get(RESULT).get(DESCRIPTION).asString();
 
-                                        // create index
-                                        Index.get().add(token, text);
-                                        handler.onHarvest(token, op.get(ADDRESS).asString());
+                                        // todo: cleanup
+                                        if(text.equals("undefined"))
+                                        {
+                                            System.out.println("Undefined description "+token+" > "+resource);
+                                        }
+                                        else
+                                        {
+                                            Index.get().add(token, text);
+                                            handler.onHarvest(token, op.get(ADDRESS).asString());
+                                        }
                                     } catch (Throwable e) {
                                         System.out.println("Skipped "+token+" > "+resource);
                                     }
