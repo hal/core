@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
@@ -39,10 +40,11 @@ public class Index {
     }
 
     private long idCounter = 0;
-    private final Map<Long, Document> idCache;
+    private final Map<Long, Document> documents;
+    private JavaScriptObject indexRef;
 
     private Index() {
-        idCache = new HashMap<Long, Document>();
+        documents = new HashMap<Long, Document>();
         reset();
     }
 
@@ -51,12 +53,12 @@ public class Index {
      */
     public void reset() {
         idCounter = 0;
-        idCache.clear();
-        setupIndex();
+        documents.clear();
+        resetInternal();
     }
 
-    private native void setupIndex()  /*-{
-        var $wnd.org_jboss_as_console_client_search_index = $wnd.lunr(function () {
+    private native void resetInternal()  /*-{
+        this.@org.jboss.as.console.client.search.Index::indexRef = $wnd.lunr(function () {
             this.field('token')
             this.field('desc')
         })
@@ -64,12 +66,12 @@ public class Index {
 
     public void add(final String token, final String description) {
         long id = idCounter++;
-        idCache.put(id, new Document(id, token, description));
+        documents.put(id, new Document(id, token, description));
         addInternal(id, token, description);
     }
 
     private native void addInternal(final long id, final String token, final String description) /*-{
-        hal_idx.add({
+        this.@org.jboss.as.console.client.search.Index::indexRef.add({
             id: id,
             token: token,
             desc: description
@@ -85,7 +87,7 @@ public class Index {
                 JSONNumber jsonId = json.get("ref").isNumber();
                 if (jsonId != null) {
                     long id = (long) jsonId.doubleValue();
-                    Document document = idCache.get(id);
+                    Document document = documents.get(id);
                     if (document != null) {
                         results.add(document);
                     }
@@ -96,11 +98,11 @@ public class Index {
     }
 
     private native JsArray searchInternal(final String text) /*-{
-        return $wnd.org_jboss_as_console_client_search_index.search(text);
+        return this.@org.jboss.as.console.client.search.Index::indexRef.search(text);
     }-*/;
 
-
     public static class Document {
+
         private final long id;
         private final String token;
         private final String description;
