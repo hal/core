@@ -15,6 +15,10 @@ public class ResourceMapping {
     private Map<String, MetaData> mappings = new HashMap<String, MetaData>();
     private Map<String, Set<String>> operations = new HashMap<String, Set<String>>();
 
+    public Set<String> getTokens() {
+        return mappings.keySet();
+    }
+
     public void put(String token, String address, String recursive){
         if(null==token2address.get(token))
             token2address.put(token, new HashSet<String>());

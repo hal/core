@@ -84,6 +84,7 @@ public class Footer {
         if (!GWT.isScript()) {
             toolReference.add(new String[]{"Modelling", "mbui-workbench"});
             toolReference.add(new String[]{"Resource Access", "access-log"});
+            toolReference.add(new String[]{"Search Index", "indexing"});
         }
 
         final VerticalPanel toolsList = new VerticalPanel();

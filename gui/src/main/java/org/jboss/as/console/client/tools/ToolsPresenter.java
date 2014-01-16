@@ -2,6 +2,7 @@ package org.jboss.as.console.client.tools;
 
 import com.google.gwt.debugpanel.client.DebugPanel;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -25,6 +26,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.AccessLogView;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.rbac.internal.RunAsRoleTool;
+import org.jboss.as.console.client.search.SearchIndexView;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -237,6 +239,16 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
                     }
                 }
             });
+        }
+        else if("indexing".equals(requestedTool))
+        {
+            DefaultWindow indexWindow = new DefaultWindow("Search Index");
+            indexWindow.setWidth(640);
+            indexWindow.setHeight(480);
+
+            indexWindow.setWidget(new ScrollPanel(new SearchIndexView().asWidget()));
+            indexWindow.setModal(true);
+            indexWindow.center();
         }
     }
 }

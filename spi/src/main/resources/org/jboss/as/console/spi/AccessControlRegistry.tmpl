@@ -25,6 +25,10 @@ public class AccessControlRegistryImpl implements AccessControlRegistry{
 
      }
 
+    public Set<String> getTokens() {
+        return resourceMapping.getTokens();
+    }
+
     public Set<String> getResources(String token) {
          return resourceMapping.getResources(token);
     }
