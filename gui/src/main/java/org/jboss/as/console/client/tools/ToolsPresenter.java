@@ -1,8 +1,14 @@
 package org.jboss.as.console.client.tools;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.debugpanel.client.DebugPanel;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -33,15 +39,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -246,7 +243,7 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
             indexWindow.setWidth(640);
             indexWindow.setHeight(480);
 
-            indexWindow.setWidget(new ScrollPanel(new SearchIndexView().asWidget()));
+            indexWindow.setWidget(new ScrollPanel(new SearchIndexView(indexWindow).asWidget()));
             indexWindow.setModal(true);
             indexWindow.center();
         }
