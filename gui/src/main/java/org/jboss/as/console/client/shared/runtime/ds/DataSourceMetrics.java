@@ -224,17 +224,6 @@ public class DataSourceMetrics {
                     .setWidth(100, Style.Unit.PCT);
         }
 
-//        OneToOneLayout layout = new OneToOneLayout()
-//                .setTitle(isXA? "XA Data Sources":"Data Sources")
-//                .setPlain(true)
-//                .setTopLevelTools(toolStrip.asWidget())
-//                .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
-//                .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
-//                .setMaster("Datasource", tablePanel)
-//                .addDetail("Pool Usage", poolSampler.asWidget())
-//                .addDetail("Prepared Statement Cache", cacheSampler.asWidget());
-
-        
         SafeHtml description = new SafeHtmlBuilder().appendHtmlConstant(Console.CONSTANTS.subsys_jca_dataSource_metric_desc()).toSafeHtml();
         
         MultipleToOneLayout layout = new MultipleToOneLayout()
