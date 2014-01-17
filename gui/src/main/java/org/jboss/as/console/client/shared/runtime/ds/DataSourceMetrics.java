@@ -1,17 +1,12 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
-import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
+import java.util.List;
+
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
+import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
@@ -20,7 +15,6 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -28,7 +22,19 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 
 /**
  * @author Heiko Braun
@@ -121,6 +127,28 @@ public class DataSourceMetrics {
                 return address;
             }
         };
+        
+        
+        ToolStrip tools = new ToolStrip();
+        final ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                presenter.verifyConnection(getCurrentSelection().getName(), isXA);
+            }
+        });
+        final ToolButton flushBtn = new ToolButton("Flush", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                presenter.flush(getCurrentSelection().getName(), isXA);
+            }
+        });
+        verifyBtn.setVisible(true);
+        verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
+        flushBtn.setVisible(true);
+        flushBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
+        tools.addToolButtonRight(verifyBtn);
+        tools.addToolButtonRight(flushBtn);
+        tools.setVisible(true);
 
         // ----
 
@@ -196,16 +224,30 @@ public class DataSourceMetrics {
                     .setWidth(100, Style.Unit.PCT);
         }
 
-        OneToOneLayout layout = new OneToOneLayout()
-                .setTitle(isXA? "XA Data Sources":"Data Sources")
-                .setPlain(true)
-                .setTopLevelTools(toolStrip.asWidget())
-                .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
-                .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
-                .setMaster("Datasource", tablePanel)
-                .addDetail("Pool Usage", poolSampler.asWidget())
-                .addDetail("Prepared Statement Cache", cacheSampler.asWidget());
+//        OneToOneLayout layout = new OneToOneLayout()
+//                .setTitle(isXA? "XA Data Sources":"Data Sources")
+//                .setPlain(true)
+//                .setTopLevelTools(toolStrip.asWidget())
+//                .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
+//                .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
+//                .setMaster("Datasource", tablePanel)
+//                .addDetail("Pool Usage", poolSampler.asWidget())
+//                .addDetail("Prepared Statement Cache", cacheSampler.asWidget());
 
+        
+        SafeHtml description = new SafeHtmlBuilder().appendHtmlConstant(Console.CONSTANTS.subsys_jca_dataSource_metric_desc()).toSafeHtml();
+        
+        MultipleToOneLayout layout = new MultipleToOneLayout()
+        .setPlain(true)
+        .setTitle(isXA? "XA Data Sources":"Data Sources")
+        .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
+        .setDescription(description)
+        .setTopLevelTools(toolStrip.asWidget())
+        .setMaster("Datasource", table)
+        .setMasterTools(tools)
+        .addDetail("Pool Usage", poolSampler.asWidget())
+        .addDetail("Prepared Statement Cache", cacheSampler.asWidget());
+        
         return layout.build();
     }
 
