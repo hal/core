@@ -109,15 +109,11 @@ public class ContentRepositoryPanel implements IsWidget
         form.setEnabled(false);
         TextAreaItem name = new TextAreaItem("name", "Name");
         TextAreaItem runtimeName = new TextAreaItem("runtimeName", "Runtime Name");
-        TextAreaItem hashPath = new TextAreaItem("hash", "Hash code");
-        TextAreaItem deployTime = new TextAreaItem("deployTime", "Date and time");
         final ListItem groups = new ListItem("assignments", "Assigned Groups");
-        form.setFields(name, runtimeName, hashPath, deployTime, groups);
+        form.setFields(name, runtimeName, groups);
 
         runtimeName.setEnabled(false);
-        deployTime.setEnabled(false);
         name.setEnabled(false);
-        hashPath.setEnabled(false);
         groups.setEnabled(false);
 
         form.bind(deploymentsTable);
