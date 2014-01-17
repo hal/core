@@ -16,15 +16,19 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.ConnectionWindow;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -275,5 +279,64 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
                 }
             }
         });
+    }
+
+    public void verifyConnection(final String dsName, boolean isXA) {
+        
+        
+        String subresource = isXA ? "xa-data-source": "data-source";
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "datasources");
+        operation.get(ADDRESS).add(subresource, dsName);
+        operation.get(OP).set("test-connection-in-pool");
+
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if(response.isFailure())
+                {
+                    Console.error(Console.MESSAGES.failed("Connection error " + dsName), response.getFailureDescription() + ". See server log for details.");
+                }
+                else
+                {
+                    Console.info(Console.MESSAGES.successful("Connection verified: "+ dsName));
+                    new ConnectionWindow(dsName, true).show();
+                }
+            }
+        });        
+        
+    }
+
+    public void flush(final String dsName, boolean isXA) {
+        
+        
+        String subresource = isXA ? "xa-data-source": "data-source";
+        
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "datasources");
+        operation.get(ADDRESS).add(subresource, dsName);
+        operation.get(OP).set("flush-all-connection-in-pool");
+        
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                
+                if(response.isFailure())
+                {
+                    Console.error(Console.MESSAGES.failed("Flush connections error for " + dsName), response.getFailureDescription());
+                }
+                else
+                {
+                    Console.info(Console.MESSAGES.successful("Flush connections for " + dsName));
+                }
+            }
+        });        
+        
     }
 }
