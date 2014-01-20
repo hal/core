@@ -118,13 +118,13 @@ public class SearchView {
         return layout;
     }
 
-    private void onToken(final String token) {
-        indexWindow.hide();
-        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest.Builder().nameToken(token).build(), true);
-    }
-
     private void onSearch(final String text) {
         List<Index.Document> documents = index.search(text);
         dataProvider.setList(documents);
+    }
+
+    private void onToken(final String token) {
+        indexWindow.hide();
+        Console.MODULES.getPlaceManager().revealPlace(new PlaceRequest.Builder().nameToken(token).build(), true);
     }
 }
