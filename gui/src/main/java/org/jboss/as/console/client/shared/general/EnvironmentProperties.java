@@ -1,5 +1,19 @@
 package org.jboss.as.console.client.shared.general;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
+import org.jboss.ballroom.client.widgets.forms.TextItem;
+import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -8,24 +22,12 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
-import org.jboss.ballroom.client.widgets.forms.TextItem;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -66,7 +68,7 @@ public class EnvironmentProperties {
         sortHandler.setComparator(keyColumn, new Comparator<PropertyRecord>() {
             @Override
             public int compare(PropertyRecord o1, PropertyRecord o2) {
-                return o1.getKey().compareTo(o2.getKey());
+                return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
             }
         });
 
@@ -81,16 +83,12 @@ public class EnvironmentProperties {
             }
         };
 
-
         // Add the columns.
         propertyTable.addColumn(keyColumn, Console.CONSTANTS.common_label_key());
         propertyTable.addColumn(valueColumn, Console.CONSTANTS.common_label_value());
 
-
         propertyTable.addColumnSortHandler(sortHandler);
         propertyTable.getColumnSortList().push(keyColumn);
-
-
 
         // --
 
@@ -152,6 +150,12 @@ public class EnvironmentProperties {
 
         List<PropertyRecord> propList = propertyProvider.getList();
         propList.clear(); // cannot call setList() as that breaks the sort handler
+        Collections.sort(environment, new Comparator<PropertyRecord>() {
+            @Override
+            public int compare(PropertyRecord o1, PropertyRecord o2) {
+                return o1.getKey().toLowerCase().compareTo(o2.getKey().toLowerCase());
+            }
+        });
         propList.addAll(environment);
 
         // Make sure the new values are properly sorted
@@ -173,7 +177,7 @@ public class EnvironmentProperties {
         final List<PropertyRecord> next  = new ArrayList<PropertyRecord>();
         for(PropertyRecord prop : origValues)
         {
-            if(prop.getKey().startsWith(prefix))
+            if(prop.getKey().toLowerCase().contains(prefix.toLowerCase()))
                 next.add(prop);
         }
 

@@ -139,7 +139,7 @@
                     <logLevel>INFO</logLevel>
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
-                    <extraJvmArgs>-Xmx1024m -DDEBUG -XX:MaxPermSize=256M</extraJvmArgs>
+                    <extraJvmArgs>-Xmx1024m -DDEBUG -XX:MaxPermSize=512M</extraJvmArgs>
                     <style>OBF</style>
                     <hostedWebapp>war</hostedWebapp>
                     <localWorkers>4</localWorkers>

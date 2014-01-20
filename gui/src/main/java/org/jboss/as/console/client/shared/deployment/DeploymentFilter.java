@@ -14,7 +14,7 @@ public class DeploymentFilter extends DataProviderFilter<DeploymentRecord> {
         super(delegate, new Predicate<DeploymentRecord>() {
             @Override
             public boolean apply(String prefix, DeploymentRecord candiate) {
-                return candiate.getName().startsWith(prefix);
+                return candiate.getName().toLowerCase().contains(prefix.toLowerCase());
             }
         });
     }
