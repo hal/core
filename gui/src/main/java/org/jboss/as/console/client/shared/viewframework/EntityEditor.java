@@ -19,6 +19,9 @@
 
 package org.jboss.as.console.client.shared.viewframework;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -36,9 +39,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.EnumSet;
-import java.util.List;
 
 /**
  * The editor that allows CRUD operations on an Entity.  This includes an Entity table, add button, and
@@ -254,6 +254,7 @@ public class EntityEditor<T> implements EntityListView<T> {
     private void setSelected(T entity) {
 
         table.selectDefaultEntity();
+        doneInitialSelection = true;
 
         /*table.getSelectionModel().setSelected(entity, true);
         doneInitialSelection = true;

@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.subsys.security;
 
+import java.util.List;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
@@ -31,7 +33,6 @@ import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.security.model.AuthenticationLoginModule;
 import org.jboss.as.console.client.shared.subsys.security.model.AuthorizationPolicyProvider;
 import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
@@ -49,8 +50,7 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-
-import java.util.List;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author David Bosschaert
@@ -179,8 +179,8 @@ public class SecurityDomainsView extends AbstractEntityView<SecurityDomain>
                     @Override
                     public void execute(SecurityDomain selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.SecurityDomainsPresenter).with("name", selection.getName())
-                        );
+                                new PlaceRequest.Builder().nameToken(NameTokens.SecurityDomainsPresenter)
+                                        .with("name", selection.getName()).build());
                     }
                 })
         ) {
@@ -243,16 +243,12 @@ public class SecurityDomainsView extends AbstractEntityView<SecurityDomain>
 
     @Override
     public void setSelectedDomain(String selectedDomain) {
-
         this.selectedDomain = selectedDomain;
 
-        if(selectedDomain!=null)
-        {
-
-            pages.showPage(1);
+        if (selectedDomain != null) {
             loadSecurityDomain(selectedDomain);
-        }
-        else {
+            pages.showPage(1);
+        } else {
             pages.showPage(0);
         }
     }
