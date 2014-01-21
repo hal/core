@@ -206,6 +206,10 @@ public interface UIMessages extends Messages {
     String administration_members(String name);
 
     SafeHtml access_control_provider();
-    
+
     String deployment_assign_help();
+
+    String no_groups_header();
+
+    String no_groups_warning();
 }

@@ -21,6 +21,7 @@ package org.jboss.as.console.client.core;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
@@ -50,6 +52,7 @@ public class BootstrapContext implements ApplicationProperties {
     private Set<String> addressableHosts = Collections.EMPTY_SET;
     private Set<String> addressableGroups = Collections.EMPTY_SET;
     private String runAs;
+    private List<ProfileRecord> initialProfiles;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -133,10 +136,18 @@ public class BootstrapContext implements ApplicationProperties {
     }
 
     public PlaceRequest getDefaultPlace() {
-
-        PlaceRequest defaultPlace  = getProperty(STANDALONE).equals("true") ?
-                new PlaceRequest(NameTokens.StandaloneRuntimePresenter) : new PlaceRequest(NameTokens.DomainRuntimePresenter);
-        return defaultPlace;
+        PlaceRequest.Builder builder = new PlaceRequest.Builder();
+        if (isStandalone()) {
+            builder.nameToken(NameTokens.StandaloneRuntimePresenter);
+        } else {
+            if (isGroupManagementDisabled()) {
+                // HAL-336: If there are no groups, fallback to profile
+                builder.nameToken(NameTokens.ProfileMgmtPresenter);
+            } else {
+                builder.nameToken(NameTokens.DomainRuntimePresenter);
+            }
+        }
+        return builder.build();
     }
 
     @Override
@@ -274,5 +285,13 @@ public class BootstrapContext implements ApplicationProperties {
 
     public String getRunAs() {
         return runAs;
+    }
+
+    public void setInitialProfiles(final List<ProfileRecord> initialProfiles) {
+        this.initialProfiles = initialProfiles;
+    }
+
+    public List<ProfileRecord> getInitialProfiles() {
+        return initialProfiles;
     }
 }

@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.core.bootstrap;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.History;
@@ -9,23 +13,12 @@ import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
- *
  * Either loads the default place or one specified from external context (URL tokens)
  *
  * @author Heiko Braun
- * @date 12/7/11
  */
-public class LoadMainApp implements Command
-{
-
-    private PlaceManager placeManager;
-    private TokenFormatter formatter;
-    private BootstrapContext bootstrapContext;
+public class LoadMainApp implements Command {
 
     // blackisted token can not be linked externally...
     private static Set<String> BLACK_LIST = new HashSet<String>();
@@ -37,6 +30,21 @@ public class LoadMainApp implements Command
         BLACK_LIST.add(NameTokens.RoleAssignmentPresenter);
     }
 
+    private static boolean isBlackListed(String token) {
+        boolean match = false;
+        for (String listed : BLACK_LIST) {
+            if (token.startsWith(listed)) {
+                match = true;
+                break;
+            }
+        }
+        return match;
+    }
+
+    private PlaceManager placeManager;
+    private TokenFormatter formatter;
+    private BootstrapContext bootstrapContext;
+
     public LoadMainApp(BootstrapContext bootstrapContext, PlaceManager placeManager, TokenFormatter formatter) {
         this.bootstrapContext = bootstrapContext;
         this.placeManager = placeManager;
@@ -45,19 +53,8 @@ public class LoadMainApp implements Command
 
     @Override
     public void execute() {
-
-
         String initialToken = History.getToken();
-
-        if(!bootstrapContext.isStandalone()
-                && (bootstrapContext.isGroupManagementDisabled() || bootstrapContext.isHostManagementDisabled())
-                )
-        {
-            new InsufficientPrivileges().execute();
-        }
-
-        else if(!initialToken.isEmpty() && !isBlackListed(initialToken))
-        {
+        if (!initialToken.isEmpty() && !isBlackListed(initialToken)) {
             List<PlaceRequest> hierarchy = formatter.toPlaceRequestHierarchy(initialToken);
             final PlaceRequest placeRequest = hierarchy.get(hierarchy.size() - 1);
 
@@ -67,28 +64,9 @@ public class LoadMainApp implements Command
                     placeManager.revealPlace(placeRequest, true);
                 }
             });
-
             bootstrapContext.setInitialPlace(placeRequest.getNameToken());
-
-        }
-
-        else
-        {
+        } else {
             placeManager.revealDefaultPlace();
         }
-    }
-
-    private static boolean isBlackListed (String token)
-    {
-        boolean match = false;
-        for(String listed : BLACK_LIST)
-        {
-            if(token.startsWith(listed))
-            {
-                match =true;
-                break;
-            }
-        }
-        return match;
     }
 }
