@@ -114,6 +114,7 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
      */
     @Override
     public void onUnauthorized(final UnauthorizedEvent event) {
+        resetLastPlace();
         setInSlot(contentSlot, unauthorisedPresenter);
     }
 
