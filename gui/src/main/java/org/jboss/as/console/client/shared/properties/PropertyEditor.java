@@ -19,10 +19,19 @@
 
 package org.jboss.as.console.client.shared.properties;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -38,10 +47,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -186,7 +191,7 @@ public class PropertyEditor {
                 }
             };
 
-            valueColumn = new TextColumn<PropertyRecord>() {
+            valueColumn = new Column<PropertyRecord, String>(new ValueCell()) {
                 @Override
                 public String getValue(PropertyRecord object) {
                     return object.getValue();
@@ -298,5 +303,22 @@ public class PropertyEditor {
 
     public DefaultCellTable<PropertyRecord> getPropertyTable() {
         return propertyTable;
+    }
+
+    static class ValueCell extends TextCell {
+
+        interface ValueTemplate extends SafeHtmlTemplates {
+            @Template("<div class=\"horizontalScroll\">{0}</div>")
+            SafeHtml value(SafeHtml value);
+        }
+
+        private static final ValueTemplate VALUE_TEMPLATE = GWT.create(ValueTemplate.class);
+
+        @Override
+        public void render(final Context context, final SafeHtml value, final SafeHtmlBuilder sb) {
+            if (value != null) {
+                sb.append(VALUE_TEMPLATE.value(value));
+            }
+        }
     }
 }
