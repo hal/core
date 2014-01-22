@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.search;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -167,7 +168,10 @@ public class SearchTool extends Composite implements ClickHandler {
                 }
 
                 @Override
-                public void onError(Throwable t) {Console.error("Failed to build index", t.getMessage());}
+                public void onError(Throwable t) {
+                    // Don't show as error message as this would overlay with the search popup.
+                    Log.error("Failed to index resource: " + t.getMessage());
+                }
             }, progressBar);
         }
 
