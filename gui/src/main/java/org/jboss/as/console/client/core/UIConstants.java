@@ -54,6 +54,8 @@ public interface UIConstants extends Constants {
 
     String common_label_runtimeStatus();
 
+    String common_label_search();
+
     String common_label_serverInstances();
 
     String common_label_serverGroup();

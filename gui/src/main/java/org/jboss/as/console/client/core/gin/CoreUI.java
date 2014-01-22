@@ -66,6 +66,7 @@ import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.search.Harvest;
+import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.shared.DialogPresenter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
@@ -177,6 +178,7 @@ public interface CoreUI {
     NavigationTracker getTracker();
 
     Harvest getHarvest();
+    Index getIndex();
 
     // ----------------------------------------------------------------------
 

@@ -101,6 +101,8 @@ import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedView;
 import org.jboss.as.console.client.search.Harvest;
+import org.jboss.as.console.client.search.Index;
+import org.jboss.as.console.client.search.IndexProvider;
 import org.jboss.as.console.client.shared.DialogPresenter;
 import org.jboss.as.console.client.shared.DialogView;
 import org.jboss.as.console.client.shared.DialogViewImpl;
@@ -260,6 +262,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         requestStaticInjection(Baseadress.class);
 
         bind(Harvest.class).in(Singleton.class);
+        bind(Index.class).toProvider(IndexProvider.class).in(Singleton.class);
 
         // main layout
         bind(Header.class).in(Singleton.class);

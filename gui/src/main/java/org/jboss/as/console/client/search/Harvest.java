@@ -1,5 +1,12 @@
 package org.jboss.as.console.client.search;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
@@ -16,58 +23,43 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+import org.jboss.gwt.flow.client.Progress;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
-
-import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Creates search indexes.
  *
  * @author Heiko Braun
- * @date 16/01/14
  */
 public class Harvest {
 
     final AccessControlRegistry accessControlMetaData;
     final DispatchAsync dispatcher;
     final CoreGUIContext statementContext;
-    private final BootstrapContext bootstrap;
+    private final Index index;
     private final FilteringStatementContext filteringStatementContext;
 
-    public interface Handler {
-        void onStart();
-        void onHarvest(String token, String address);
-        void onFinish();
-        void onError(Throwable t);
-    }
-
     @Inject
-    public Harvest(
-            AccessControlRegistry accessControlMetaData,
-            DispatchAsync dispatcher,
-            CoreGUIContext statementContext, final BootstrapContext bootstrap) {
+    public Harvest(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
+            CoreGUIContext statementContext, final BootstrapContext bootstrap, Index index) {
 
         this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
-        this.bootstrap = bootstrap;
-
+        this.index = index;
         this.filteringStatementContext = new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {
                     @Override
                     public String filter(String key) {
-
                         if ("selected.entity".equals(key)) {
                             return "*";
                         } else if ("addressable.group".equals(key)) {
-                            return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups().iterator().next();
+                            return bootstrap.getAddressableGroups().isEmpty() ? "*" : bootstrap.getAddressableGroups()
+                                    .iterator().next();
                         } else if ("addressable.host".equals(key)) {
-                            return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts().iterator().next();
+                            return bootstrap.getAddressableHosts().isEmpty() ? "*" : bootstrap.getAddressableHosts()
+                                    .iterator().next();
                         } else {
                             return null;
                         }
@@ -82,19 +74,18 @@ public class Harvest {
     }
 
     public void run(final Handler handler) {
+        run(handler, Footer.PROGRESS_ELEMENT);
+    }
+
+    public void run(final Handler handler, Progress progress) {
         handler.onStart();
 
-
         Set<Function> functions = new HashSet<Function>();
-
-        for(final String token : accessControlMetaData.getTokens())
-        {
-
+        for (final String token : accessControlMetaData.getTokens()) {
             Set<String> resources = accessControlMetaData.getResources(token);
-            for(final String resource : resources)
-            {
+            for (final String resource : resources) {
                 // TODO
-                if(resource.startsWith("opt:")) continue;
+                if (resource.startsWith("opt:")) { continue; }
 
                 final ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
                 op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
@@ -113,51 +104,37 @@ public class Harvest {
                             @Override
                             public void onSuccess(DMRResponse result) {
                                 ModelNode response = result.get();
-                                if(response.isFailure())
-                                {
+                                if (response.isFailure()) {
                                     handler.onError(new RuntimeException(response.getFailureDescription()));
-                                }
-                                else
-                                {
-
+                                } else {
                                     ModelNode delegate = response.get(RESULT).getType().equals(ModelType.LIST) ?
                                             response.get(RESULT).asList().get(0) : response.get(RESULT);
-
-
                                     try {
                                         String text = delegate.hasDefined(DESCRIPTION) ?
-                                                delegate.get(DESCRIPTION).asString() : delegate.get(RESULT).get(DESCRIPTION).asString();
+                                                delegate.get(DESCRIPTION).asString() : delegate.get(RESULT)
+                                                .get(DESCRIPTION).asString();
 
                                         // todo: cleanup
-                                        if(text.equals("undefined"))
-                                        {
-                                            System.out.println("Undefined description "+token+" > "+resource);
-                                        }
-                                        else
-                                        {
-                                            Index.get().add(token, text);
+                                        if (text.equals("undefined")) {
+                                            System.out.println("Undefined description " + token + " > " + resource);
+                                        } else {
+                                            index.add(token, text);
                                             handler.onHarvest(token, op.get(ADDRESS).asString());
                                         }
                                     } catch (Throwable e) {
-                                        System.out.println("Skipped "+token+" > "+resource);
+                                        System.out.println("Skipped " + token + " > " + resource);
                                     }
-
                                 }
-
                                 control.proceed();
-
                             }
                         });
                     }
-                } ;
-
+                };
                 functions.add(f);
-
             }
         }
 
-
-        new Async(Footer.PROGRESS_ELEMENT).parallel(new Outcome() {
+        new Async(progress).parallel(new Outcome() {
             @Override
             public void onFailure(Object context) {
                 Console.error("Harvest failed");
@@ -166,9 +143,18 @@ public class Harvest {
             @Override
             public void onSuccess(Object context) {
                 handler.onFinish();
-
             }
-        }, functions.toArray(new Function[]{}));
+        }, functions.toArray(new Function[functions.size()]));
+    }
 
+    public interface Handler {
+
+        void onStart();
+
+        void onHarvest(String token, String address);
+
+        void onFinish();
+
+        void onError(Throwable t);
     }
 }

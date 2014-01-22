@@ -254,4 +254,6 @@ public interface UIMessages extends Messages {
     SafeHtml content_box_create_server_group_body();
 
     SafeHtml content_box_topology_body();
+
+    SafeHtml search_index_pending();
 }

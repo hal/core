@@ -33,6 +33,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -47,9 +48,13 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
+import org.jboss.as.console.client.search.Harvest;
+import org.jboss.as.console.client.search.Index;
+import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -66,18 +71,23 @@ public class Header implements ValueChangeHandler<String> {
     private final BootstrapContext bootstrap;
     private final MessageCenter messageCenter;
     private final PlaceManager placeManager;
+    private final Harvest harvest;
+    private final Index index;
 
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
 
     @Inject
-    public Header(ToplevelTabs toplevelTabs, MessageCenter messageCenter, ProductConfig productConfig,
-            BootstrapContext bootstrap, PlaceManager placeManager) {
+    public Header(final ToplevelTabs toplevelTabs, MessageCenter messageCenter, ProductConfig productConfig,
+            BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index) {
+
         this.toplevelTabs = toplevelTabs;
+        this.messageCenter = messageCenter;
         this.productConfig = productConfig;
         this.bootstrap = bootstrap;
-        this.messageCenter = messageCenter;
         this.placeManager = placeManager;
+        this.harvest = harvest;
+        this.index = index;
         History.addValueChangeHandler(this);
     }
 
@@ -136,8 +146,12 @@ public class Header implements ValueChangeHandler<String> {
 
         HorizontalPanel tools = new HorizontalPanel();
 
+        // global search
+        if (Storage.isLocalStorageSupported()) {
+            tools.add(new SearchTool(harvest, index, placeManager));
+        }
 
-        //messages
+        // messages
         MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
         Widget messageCenter = messageCenterView.asWidget();
         tools.add(messageCenter);
