@@ -19,7 +19,7 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;

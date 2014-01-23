@@ -20,7 +20,7 @@ package org.jboss.as.console.client.domain.topology;
 
 import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
 
 import java.util.ArrayList;
 import java.util.Collections;

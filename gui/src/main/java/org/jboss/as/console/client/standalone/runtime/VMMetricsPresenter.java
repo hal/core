@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.standalone.runtime;
 
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.STANDALONE;
+import static org.jboss.as.console.client.plugins.OperationMode.STANDALONE;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;

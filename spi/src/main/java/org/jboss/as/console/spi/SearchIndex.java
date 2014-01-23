@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.jboss.as.console.client.plugins.OperationMode;
+
 /**
  * Search index meta data for presenters. This annotation works as add-on for {@link
  * org.jboss.as.console.spi.AccessControl} which is the primarily source for the search index. Without specifying
@@ -57,9 +59,4 @@ public @interface SearchIndex {
      * @return whether to exclude this presenter
      */
     boolean exclude() default false;
-
-    enum OperationMode {
-        STANDALONE,
-        DOMAIN
-    }
 }

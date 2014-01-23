@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.search;
 
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
+import static org.jboss.as.console.client.plugins.OperationMode.STANDALONE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.HashSet;
@@ -15,7 +16,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
-import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.as.console.client.plugins.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -83,7 +84,7 @@ public class Harvest {
         handler.onStart();
 
         Set<Function> functions = new HashSet<Function>();
-        SearchIndex.OperationMode scope = bootstrap.isStandalone() ? SearchIndex.OperationMode.STANDALONE : DOMAIN;
+        OperationMode scope = bootstrap.isStandalone() ? STANDALONE : DOMAIN;
         for (final String token : searchIndexRegistry.getTokens(scope)) {
             Set<String> resources = searchIndexRegistry.getResources(token);
             for (final String resource : resources) {

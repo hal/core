@@ -32,6 +32,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.BootstrapOperation;
+import org.jboss.as.console.client.plugins.OperationMode;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SearchIndexMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
@@ -282,7 +283,7 @@ public class SPIProcessor extends AbstractProcessor {
                 SearchIndex searchIndex = element.getAnnotation(SearchIndex.class);
 
                 if (accessControl != null) {
-                    SearchIndex.OperationMode[] scope = null;
+                    OperationMode[] scope = null;
                     String[] keywords = null;
                     boolean include = true;
                     if (searchIndex != null) {

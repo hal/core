@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;

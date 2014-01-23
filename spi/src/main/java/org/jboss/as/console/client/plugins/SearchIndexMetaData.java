@@ -7,26 +7,24 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.as.console.spi.SearchIndex;
-
 /**
  * @author Harald Pehl
  */
 public class SearchIndexMetaData {
 
     private final String token;
-    private final Set<SearchIndex.OperationMode> scope;
+    private final Set<OperationMode> scope;
     private final Set<String> resources;
     private final Set<String> keywords;
 
-    public SearchIndexMetaData(final String token, final SearchIndex.OperationMode[] scope,
+    public SearchIndexMetaData(final String token, final OperationMode[] scope,
             final String[] resources, final String[] keywords) {
         this.token = token;
         if (scope == null) {
-            this.scope = EnumSet.allOf(SearchIndex.OperationMode.class);
+            this.scope = EnumSet.allOf(OperationMode.class);
         } else {
-            this.scope = new HashSet<SearchIndex.OperationMode>();
-            for (SearchIndex.OperationMode operationMode : scope) {
+            this.scope = new HashSet<OperationMode>();
+            for (OperationMode operationMode : scope) {
                 this.scope.add(operationMode);
             }
         }
@@ -38,7 +36,7 @@ public class SearchIndexMetaData {
         return token;
     }
 
-    public Set<SearchIndex.OperationMode> getScope() {
+    public Set<OperationMode> getScope() {
         return scope;
     }
 

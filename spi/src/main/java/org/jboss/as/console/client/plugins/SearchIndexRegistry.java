@@ -2,8 +2,6 @@ package org.jboss.as.console.client.plugins;
 
 import java.util.Set;
 
-import org.jboss.as.console.spi.SearchIndex;
-
 /**
  * Registry for presenters annotated with {@link org.jboss.as.console.spi.AccessControl} and {@link
  * org.jboss.as.console.spi.SearchIndex}.
@@ -20,7 +18,7 @@ public interface SearchIndexRegistry {
      *
      * @return a set of matching tokens
      */
-    public Set<String> getTokens(SearchIndex.OperationMode scope);
+    public Set<String> getTokens(OperationMode scope);
 
     public Set<String> getResources(String token);
 

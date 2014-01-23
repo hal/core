@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.standalone.deployment;
 
-import static org.jboss.as.console.spi.SearchIndex.OperationMode.STANDALONE;
+import static org.jboss.as.console.client.plugins.OperationMode.STANDALONE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
