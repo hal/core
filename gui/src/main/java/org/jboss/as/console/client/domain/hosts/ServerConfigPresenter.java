@@ -72,6 +72,7 @@ import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.as.console.client.plugins.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;

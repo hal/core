@@ -34,6 +34,7 @@ import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.BootstrapOperation;
 import org.jboss.as.console.client.plugins.OperationMode;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
+import org.jboss.as.console.client.plugins.SearchIndex;
 import org.jboss.as.console.client.plugins.SearchIndexMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
