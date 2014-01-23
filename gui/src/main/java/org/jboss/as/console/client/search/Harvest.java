@@ -97,6 +97,7 @@ public class Harvest {
                         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                             @Override
                             public void onFailure(Throwable caught) {
+                                System.out.println("Skipped " + token + " > " + resource);
                                 handler.onError(caught);
                                 control.proceed();
                             }
@@ -106,6 +107,7 @@ public class Harvest {
                                 ModelNode response = result.get();
                                 if (response.isFailure()) {
                                     handler.onError(new RuntimeException(response.getFailureDescription()));
+                                    System.out.println("Skipped " + token + " > " + resource);
                                 } else {
                                     ModelNode delegate = response.get(RESULT).getType().equals(ModelType.LIST) ?
                                             response.get(RESULT).asList().get(0) : response.get(RESULT);

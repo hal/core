@@ -20,12 +20,14 @@ package org.jboss.as.console.client.search;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.settings.ModelVersions;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.Preferences;
 
 /**
  * GIN provider which provides an index based on the locale and management version.
+ *
  * @author Harald Pehl
  */
 public class IndexProvider implements Provider<Index> {
@@ -34,10 +36,13 @@ public class IndexProvider implements Provider<Index> {
     private final BeanFactory beanFactory;
 
     @Inject
-    public IndexProvider(final BeanFactory beanFactory, final ModelVersions modelVersions) {
+    public IndexProvider(final BeanFactory beanFactory, final BootstrapContext bootstrapContext,
+            final ModelVersions modelVersions) {
         this.beanFactory = beanFactory;
-        String locale = Preferences.get(Preferences.Key.LOCALE);
-        this.prefix = "org.jboss.as.console.index_" + (locale == null ? "default" : locale) + "_v" + modelVersions
+        String operationMode = bootstrapContext.isStandalone() ? "standalone" : "domain";
+        String locale = Preferences.get(Preferences.Key.LOCALE) == null ? "default" : Preferences
+                .get(Preferences.Key.LOCALE);
+        this.prefix = "org.jboss.as.console.index_" + operationMode + "_" + locale + "_v" + modelVersions
                 .get("core-version") + "_";
     }
 
