@@ -28,6 +28,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -39,16 +40,16 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.bootstrap.GlobalShortcuts;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 
 /**
  * The global search tool. Some kind of 'presenter' which takes care of both on demand indexing and searching.
- * Could be combined with a global shortcut. See http://craig.is/killing/mice for details.
  *
  * @author Harald Pehl
  */
-public class SearchTool extends Composite implements ClickHandler {
+public class SearchTool extends Composite {
 
     private final static String INDEXING_HEIGHT = "132px";
     private final static String SEARCH_HEIGHT = "26px";
@@ -63,15 +64,27 @@ public class SearchTool extends Composite implements ClickHandler {
         this.index = index;
         this.placeManager = placeManager;
         this.root = new HTML("<i class=\"icon-search icon-large\"></i>");
-        this.root.addClickHandler(this);
+        this.root.setTitle("Search (⌘.)");
+        this.root.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                show();
+            }
+        });
         this.popup = new SearchPopup();
+
+        GlobalShortcuts.bind("mod+.", new Command() {
+            @Override
+            public void execute() {
+                show();
+            }
+        });
 
         initWidget(root);
         setStyleName("hal-searchTool");
     }
 
-    @Override
-    public void onClick(final ClickEvent event) {
+    public void show() {
         int width = 300;
         int offset = 28;
 

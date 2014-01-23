@@ -34,5 +34,8 @@ public interface ConsoleResources extends ClientBundle {
 
     @Source("org/jboss/as/console/public/lunr.js")
     TextResource lunrJs();
+
+    @Source("org/jboss/as/console/public/mousetrap.js")
+    TextResource mousetrapJs();
 }
 
