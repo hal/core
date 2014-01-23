@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.domain.groups.deployment;
 
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -75,6 +77,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentsPresenter)
+    @SearchIndex(scope = DOMAIN)
     @AccessControl(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={addressable.group}/deployment=*",

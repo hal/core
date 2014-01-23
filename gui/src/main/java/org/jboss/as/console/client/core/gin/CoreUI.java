@@ -61,6 +61,7 @@ import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
+import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -350,6 +351,9 @@ public interface CoreUI {
     Provider<RepositoryPresenter> getRepositoryPresenter();
 
     AccessControlRegistry getAccessControlRegistry();
+
+    SearchIndexRegistry getSearchIndexRegistry();
+
     SecurityFramework getSecurityFramework();
 
     UnauthorisedPresenter getUnauthorisedPresenter();

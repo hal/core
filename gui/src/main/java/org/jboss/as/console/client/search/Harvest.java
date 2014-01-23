@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.search;
 
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.HashSet;
@@ -11,9 +12,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -33,19 +35,19 @@ import org.useware.kernel.gui.behaviour.FilteringStatementContext;
  */
 public class Harvest {
 
-    final AccessControlRegistry accessControlMetaData;
-    final DispatchAsync dispatcher;
-    final CoreGUIContext statementContext;
+    private final SearchIndexRegistry searchIndexRegistry;
+    private final DispatchAsync dispatcher;
+    private final BootstrapContext bootstrap;
     private final Index index;
     private final FilteringStatementContext filteringStatementContext;
 
     @Inject
-    public Harvest(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
+    public Harvest(SearchIndexRegistry searchIndexRegistry, DispatchAsync dispatcher,
             CoreGUIContext statementContext, final BootstrapContext bootstrap, Index index) {
 
-        this.accessControlMetaData = accessControlMetaData;
+        this.searchIndexRegistry = searchIndexRegistry;
         this.dispatcher = dispatcher;
-        this.statementContext = statementContext;
+        this.bootstrap = bootstrap;
         this.index = index;
         this.filteringStatementContext = new FilteringStatementContext(
                 statementContext,
@@ -81,8 +83,9 @@ public class Harvest {
         handler.onStart();
 
         Set<Function> functions = new HashSet<Function>();
-        for (final String token : accessControlMetaData.getTokens()) {
-            Set<String> resources = accessControlMetaData.getResources(token);
+        SearchIndex.OperationMode scope = bootstrap.isStandalone() ? SearchIndex.OperationMode.STANDALONE : DOMAIN;
+        for (final String token : searchIndexRegistry.getTokens(scope)) {
+            Set<String> resources = searchIndexRegistry.getResources(token);
             for (final String resource : resources) {
                 // TODO
                 if (resource.startsWith("opt:")) { continue; }

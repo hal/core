@@ -1,0 +1,64 @@
+package org.jboss.as.console.client.plugins;
+
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.STANDALONE;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.jboss.as.console.spi.SearchIndex;
+
+public class SearchIndexRegistryImpl implements SearchIndexRegistry {
+
+    private final Map<String, SearchIndexMetaData> tokens;
+
+    public SearchIndexRegistryImpl() {
+        this.tokens = new HashMap<String, SearchIndexMetaData>();
+
+        SearchIndex.OperationMode[] scope;
+        String[] resources;
+        String[] keywords;
+
+        <#list metaData as md>
+            scope = new SearchIndex.OperationMode[]{ <#list md.getScope() as scope>${scope},</#list> };
+            resources = new String[]{ <#list md.getResources() as resource>"${resource}",</#list> };
+            keywords = new String[]{ <#list md.getKeywords() as keyword>"${keyword}",</#list> };
+            tokens.put("${md.getToken()}", new SearchIndexMetaData("${md.getToken()}", scope, resources, keywords));
+        </#list>
+     }
+
+    @Override
+    public Set<String> getTokens(SearchIndex.OperationMode scope) {
+        if (scope == null) {
+            return Collections.emptySet();
+        }
+        Set<String> matchingTokens = new HashSet<String>();
+        for (SearchIndexMetaData metaData : tokens.values()) {
+            if (metaData.getScope().contains(scope)) {
+                matchingTokens.add(metaData.getToken());
+            }
+        }
+        return matchingTokens;
+    }
+
+    @Override
+    public Set<String> getResources(String token) {
+        SearchIndexMetaData metaData = tokens.get(token);
+        if (metaData != null) {
+            return metaData.getResources();
+        }
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<String> getKeywords(String token) {
+        SearchIndexMetaData metaData = tokens.get(token);
+        if (metaData != null) {
+            return metaData.getKeywords();
+        }
+        return Collections.emptySet();
+    }
+}

@@ -19,6 +19,10 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+
+import java.util.List;
+
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -45,11 +49,10 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -66,6 +69,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
+    @SearchIndex(scope = DOMAIN)
     @AccessControl(resources = {
             "/{selected.host}/system-property=*",
     })

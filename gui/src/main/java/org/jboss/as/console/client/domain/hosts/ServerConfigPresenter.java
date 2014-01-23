@@ -71,12 +71,20 @@ import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -104,6 +112,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
+    @SearchIndex(scope = DOMAIN)
     @AccessControl(resources = {
             "/{selected.host}/server-config=*",
             "opt://{selected.host}/server-config=*/system-property=*"
@@ -676,6 +685,4 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         });
     }
-
-
 }

@@ -33,6 +33,7 @@ import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.BootstrapOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
+import org.jboss.as.console.client.plugins.SearchIndexMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
 /**
@@ -58,6 +59,9 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String ACCESS_FILENAME = "org.jboss.as.console.client.plugins.AccessControlRegistryImpl";
     private static final String ACCESS_TEMPLATE = "AccessControlRegistry.tmpl";
 
+    private static final String SEARCH_INDEX_FILENAME = "org.jboss.as.console.client.plugins.SearchIndexRegistryImpl";
+    private static final String SEARCH_INDEX_TEMPLATE = "SearchIndexRegistry.tmpl";
+
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
     private static final String RUNTIME_TEMPLATE = "RuntimeExtensions.tmpl";
 
@@ -72,6 +76,7 @@ public class SPIProcessor extends AbstractProcessor {
     private List<String> categoryClasses;
     private List<SubsystemExtensionMetaData> subsystemDeclararions;
     private List<AccessControlMetaData> accessControlDeclararions;
+    private List<SearchIndexMetaData> searchIndexDeclarations;
     private List<BootstrapOperation> bootstrapOperations;
     private List<RuntimeExtensionMetaData> runtimeExtensions;
     private Set<String> modules = new LinkedHashSet<>();
@@ -89,6 +94,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.categoryClasses = new ArrayList<>();
         this.subsystemDeclararions = new ArrayList<>();
         this.accessControlDeclararions = new ArrayList<>();
+        this.searchIndexDeclarations = new ArrayList<>();
         this.bootstrapOperations= new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
@@ -182,6 +188,16 @@ public class SPIProcessor extends AbstractProcessor {
             }
 
             System.out.println("=================================");
+            System.out.println("Parse SearchIndex metadata ...");
+            System.out.println("=================================");
+            Set<? extends Element> searchIndexElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
+
+            for (Element element: searchIndexElements)
+            {
+                handleSearchIndexElement(element);
+            }
+
+            System.out.println("=================================");
             System.out.println("Begin Runtime Extension discovery ...");
             System.out.println("=================================");
 
@@ -250,6 +266,36 @@ public class SPIProcessor extends AbstractProcessor {
                 {
                     Name simpleName = element.getEnclosingElement()!=null ? element.getEnclosingElement().getSimpleName() : element.getSimpleName();
                     System.out.println(simpleName +"(#"+nameToken.value()+")" +" is missing @AccessControl annotation!");
+                }
+            }
+        }
+    }
+
+    private void handleSearchIndexElement(final Element element) {
+        List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
+        for (AnnotationMirror mirror : annotationMirrors) {
+            final String annotationType = mirror.getAnnotationType().toString();
+
+            if (annotationType.equals(NameToken.class.getName())) {
+                NameToken nameToken = element.getAnnotation(NameToken.class);
+                AccessControl accessControl = element.getAnnotation(AccessControl.class);
+                SearchIndex searchIndex = element.getAnnotation(SearchIndex.class);
+
+                if (accessControl != null) {
+                    SearchIndex.OperationMode[] scope = null;
+                    String[] keywords = null;
+                    boolean include = true;
+                    if (searchIndex != null) {
+                        scope = searchIndex.scope();
+                        keywords = searchIndex.keywords();
+                        include = !searchIndex.exclude();
+                    }
+                    if (include) {
+                        // excluded presenters are not part of the metadata!
+                        SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value(), scope,
+                                accessControl.resources(), keywords);
+                        searchIndexDeclarations.add(searchIndexMetaData);
+                    }
                 }
             }
         }
@@ -352,6 +398,7 @@ public class SPIProcessor extends AbstractProcessor {
         writeBeanFactoryFile();
         writeSubsystemFile();
         writeAccessControlFile();
+        writeSearchIndexFile();
         writeRuntimeFile();
         writeProxyConfigurations();
         writeVersionInfo();
@@ -369,6 +416,17 @@ public class SPIProcessor extends AbstractProcessor {
         JavaFileObject sourceFile = filer.createSourceFile(ACCESS_FILENAME);
         OutputStream output = sourceFile.openOutputStream();
         new TemplateProcessor().process(ACCESS_TEMPLATE, model, output);
+        output.flush();
+        output.close();
+    }
+
+    private void writeSearchIndexFile() throws IOException {
+        Map<String, Object> model = new HashMap<>();
+        model.put("metaData", searchIndexDeclarations);
+
+        JavaFileObject sourceFile = filer.createSourceFile(SEARCH_INDEX_FILENAME);
+        OutputStream output = sourceFile.openOutputStream();
+        new TemplateProcessor().process(SEARCH_INDEX_TEMPLATE, model, output);
         output.flush();
         output.close();
     }

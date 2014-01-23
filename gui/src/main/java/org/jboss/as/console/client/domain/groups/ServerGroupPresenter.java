@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.groups;
 
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -102,6 +104,7 @@ public class ServerGroupPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
+    @SearchIndex(scope = DOMAIN)
     @AccessControl(resources = {
             "/server-group=*",
             "opt://server-group={selected.entity}/system-property=*"

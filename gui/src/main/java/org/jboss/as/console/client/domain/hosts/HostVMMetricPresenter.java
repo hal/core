@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import static org.jboss.as.console.spi.SearchIndex.OperationMode.DOMAIN;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -25,6 +27,7 @@ import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -45,6 +48,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
+    @SearchIndex(scope = DOMAIN)
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
