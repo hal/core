@@ -14,11 +14,11 @@ public interface SearchIndexRegistry {
      * Returns the tokens for the given operation mode which are not excluded by
      * {@link SearchIndex#exclude()} are not included.
      *
-     * @param standalone the execution mode
+     * @param scope the execution mode - must not be null
      *
      * @return a set of matching tokens
      */
-    public Set<String> getTokens(boolean standalone);
+    public Set<String> getTokens(OperationMode scope);
 
     public Set<String> getResources(String token);
 
