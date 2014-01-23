@@ -169,7 +169,7 @@ public class SearchTool extends Composite implements ClickHandler {
 
                 @Override
                 public void onError(Throwable t) {
-                    // Don't show as error message as this would overlay with the search popup.
+                    // Don't show an error message as this would overlay with the search popup.
                     Log.error("Failed to index resource: " + t.getMessage());
                 }
             }, progressBar);
