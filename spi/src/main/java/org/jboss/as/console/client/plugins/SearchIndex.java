@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  */
 // Actually this annotation should be in org.jboss.as.console.spi, but then the hosted mode will throw
 // an ArrayStoreException caused by an AnnotationTypeMismatchExceptionProxy. It seems to be related to
-// the fact that the OperationMode and this annotation are processed by differently by APT and GWT?
+// the fact that the OperationMode and this annotation are processed differently by APT and GWT?
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface SearchIndex {
