@@ -21,9 +21,11 @@ package org.jboss.as.console.client.search;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.bootstrap.GlobalShortcuts;
 
 /**
@@ -40,7 +42,11 @@ public class SearchTool extends Composite {
     public SearchTool(final Harvest harvest, final Index index, PlaceManager placeManager) {
         this.index = index;
         this.root = new HTML("<i class=\"icon-search icon-large\"></i>");
-        this.root.setTitle("Search (⌘.)");
+        if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
+            this.root.setTitle(Console.CONSTANTS.search_tooltip_osx());
+        } else {
+            this.root.setTitle(Console.CONSTANTS.search_tooltip_other());
+        }
         this.root.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {

@@ -40,6 +40,7 @@ class FilterDuplicatesHarvest implements Harvest.Handler {
 
     @Override
     public void onStart() {
+        entries.clear();
         searchPopup.showIndexPage();
     }
 
@@ -81,10 +82,8 @@ class FilterDuplicatesHarvest implements Harvest.Handler {
 
             Entry entry = (Entry) o;
 
-            if (!description.equals(entry.description)) { return false; }
-            if (!token.equals(entry.token)) { return false; }
+            return description.equals(entry.description) && token.equals(entry.token);
 
-            return true;
         }
 
         @Override

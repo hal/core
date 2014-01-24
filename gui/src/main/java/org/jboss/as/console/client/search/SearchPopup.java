@@ -72,7 +72,7 @@ class SearchPopup extends DefaultPopup {
         searchPanel.setStyleName("fill-layout-width");
         IndexSuggestOracle oracle = new IndexSuggestOracle(this.index);
         TextBox textBox = new TextBox();
-        textBox.getElement().setAttribute("placeholder", Console.CONSTANTS.common_label_search());
+        textBox.getElement().setAttribute("placeholder", Console.CONSTANTS.search_placeholder());
         searchBox = new SuggestBox(oracle, textBox);
         searchBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override

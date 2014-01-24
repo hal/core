@@ -54,8 +54,6 @@ public interface UIConstants extends Constants {
 
     String common_label_runtimeStatus();
 
-    String common_label_search();
-
     String common_label_serverInstances();
 
     String common_label_serverGroup();
@@ -1260,4 +1258,10 @@ public interface UIConstants extends Constants {
     String sidebar_latest_news();
 
     String patch_manager_servers_still_running_warning();
+
+    String search_placeholder();
+
+    String search_tooltip_osx();
+
+    String search_tooltip_other();
 }

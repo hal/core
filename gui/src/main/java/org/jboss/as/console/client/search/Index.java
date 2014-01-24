@@ -54,10 +54,10 @@ public class Index implements StorageEvent.Handler {
         this.prefix = prefix;
         this.beanFactory = beanFactory;
         this.localStorage = Storage.getLocalStorageIfSupported();
-        this.localStorage.addStorageEventHandler(this);
         this.idCounter = 0;
 
         load();
+        Storage.addStorageEventHandler(this);
     }
 
     public boolean isEmpty() {
