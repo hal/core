@@ -19,11 +19,12 @@
 
 package org.jboss.as.console.client.shared.subsys.infinispan;
 
+import javax.inject.Inject;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCache;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -31,8 +32,7 @@ import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-
-import javax.inject.Inject;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * Main view class for Infinispan LocalCache Containers.
@@ -83,9 +83,10 @@ public class LocalCacheView extends AbstractCacheView<LocalCache> implements Loc
                     }
                 });
 
+        // Disable until WFLY-738 is fixed
         // standalone only
-        if (Console.getBootstrapContext().isStandalone())
-            toolStrip.addToolButtonRight(clearBtn);
+//        if (Console.getBootstrapContext().isStandalone())
+//            toolStrip.addToolButtonRight(clearBtn);
         return toolStrip;
     }
 
