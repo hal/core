@@ -24,7 +24,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Operation mode meta data for presenters.
+ * Operation mode meta data for presenters. Use only for presenters which are restricted to standalone or domain.
+ * Don't use this annotation, if the presenter is supposed to run in both standalone and domain.
  *
  * @author Harald Pehl
  */
@@ -33,7 +34,7 @@ import java.lang.annotation.Target;
 public @interface OperationMode {
 
     /**
-     * No value means that the annotated presenter is supposed to run in both standalone and domain mode.
+     * Carries the operation mode
      *
      * @return the operation mode
      */
