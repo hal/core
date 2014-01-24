@@ -50,6 +50,7 @@ import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -68,6 +69,7 @@ public class StandaloneDeploymentPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentBrowserPresenter)
     @OperationMode(STANDALONE)
+    @SearchIndex(keywords = "deployment")
     @AccessControl(resources = {"/deployment=*"}, recursive = false)
     public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place
     {

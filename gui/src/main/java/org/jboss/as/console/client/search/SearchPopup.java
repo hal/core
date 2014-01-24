@@ -48,17 +48,15 @@ class SearchPopup extends DefaultPopup {
 
     private final Harvest harvest;
     private final Index index;
-    private final PlaceManager placeManager;
 
     private final DeckPanel deck;
     private final SuggestBox searchBox;
     private final ProgressElement progressBar;
 
-    SearchPopup(final Harvest harvest, final Index index, PlaceManager placeManager) {
+    SearchPopup(final Harvest harvest, final Index index, final PlaceManager placeManager) {
         super(Arrow.TOP);
         this.harvest = harvest;
         this.index = index;
-        this.placeManager = placeManager;
 
         deck = new DeckPanel();
 
@@ -113,14 +111,21 @@ class SearchPopup extends DefaultPopup {
         }
     }
 
-    void index() {
-        harvest.run(new SearchTool.RemoveDuplicatesHarvest(index), progressBar);
+    void showIndexPage() {
+        setHeight(INDEXING_HEIGHT);
+        deck.showWidget(0);
+        show();
     }
 
-    void showSearchBox() {
+    void index() {
+        harvest.run(new FilterDuplicatesHarvest(index, this), progressBar);
+    }
+
+    void showSearchPage() {
         setHeight(SEARCH_HEIGHT);
         searchBox.setValue("");
         deck.showWidget(1);
+        show();
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -128,5 +133,4 @@ class SearchPopup extends DefaultPopup {
             }
         });
     }
-
 }

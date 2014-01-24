@@ -41,9 +41,11 @@ public class IndexSuggestOracle extends SuggestOracle {
             List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
             for (Document hit : hits) {
                 String description = hit.getDescription();
-                String shortDesc = description.length() > 125 ? description.substring(0, 125) + "..." : description;
+                boolean tooLong = description.length() > 125;
+                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
+                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
                 DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
-                        shortDesc + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
+                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
                 suggestions.add(suggestion);
             }
             callback.onSuggestionsReady(request, new Response(suggestions));

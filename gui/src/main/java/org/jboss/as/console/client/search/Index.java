@@ -19,7 +19,9 @@
 package org.jboss.as.console.client.search;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JavaScriptException;
@@ -28,6 +30,7 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.storage.client.Storage;
+import com.google.gwt.storage.client.StorageEvent;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
@@ -39,7 +42,7 @@ import org.jboss.as.console.client.shared.BeanFactory;
  *
  * @author Harald Pehl
  */
-public class Index {
+public class Index implements StorageEvent.Handler {
 
     private final String prefix;
     private final BeanFactory beanFactory;
@@ -51,13 +54,15 @@ public class Index {
         this.prefix = prefix;
         this.beanFactory = beanFactory;
         this.localStorage = Storage.getLocalStorageIfSupported();
+        this.localStorage.addStorageEventHandler(this);
         this.idCounter = 0;
 
         load();
     }
 
     public boolean isEmpty() {
-        return idCounter == 0;
+        return idCounter == 0 && localStorage.getItem(documentsKey()) == null && localStorage
+                .getItem(indexKey()) == null;
     }
 
     public void save() {
@@ -104,22 +109,24 @@ public class Index {
         for (long i = 0; i < idCounter; i++) {
             localStorage.removeItem(key(i));
         }
-        localStorage.removeItem(indexKey());
+        idCounter = 0;
         localStorage.removeItem(documentsKey());
+        localStorage.removeItem(indexKey());
 
-        this.idCounter = 0;
         resetInternal();
         Log.info("Reset index to " + indexKey());
     }
 
     private native void resetInternal()  /*-{
         this.@org.jboss.as.console.client.search.Index::indexRef = $wnd.lunr(function () {
+            this.field('keywords', {boost: 3});
             this.field('token');
             this.field('desc');
+            this.ref('id');
         })
     }-*/;
 
-    public void add(final String token, final String description) {
+    public void add(final String token, final Set<String> keywords, final String description) {
         long id = idCounter++;
 
         Document document = beanFactory.indexDocument().as();
@@ -130,16 +137,36 @@ public class Index {
         String json = AutoBeanCodex.encode(autoBean).getPayload();
         localStorage.setItem(key(id), json);
 
-        addInternal(String.valueOf(id), token, description);
-
+        String keywordsValue = null;
+        if (keywords != null && !keywords.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            for (Iterator<String> iterator = keywords.iterator(); iterator.hasNext(); ) {
+                String keyword = iterator.next();
+                builder.append(keyword);
+                if (iterator.hasNext()) {
+                    builder.append(" ");
+                }
+            }
+            keywordsValue = builder.toString();
+        }
+        addInternal(String.valueOf(id), token, keywordsValue, description);
     }
 
-    private native void addInternal(final String id, final String token, final String description) /*-{
-        this.@org.jboss.as.console.client.search.Index::indexRef.add({
-            id: id,
-            token: token,
-            desc: description
-        })
+    private native void addInternal(final String id, final String token, final String keywords, final String description) /*-{
+        if (keywords == null) {
+            this.@org.jboss.as.console.client.search.Index::indexRef.add({
+                id: id,
+                token: token,
+                desc: description
+            });
+        } else {
+            this.@org.jboss.as.console.client.search.Index::indexRef.add({
+                id: id,
+                token: token,
+                keywords: keywords,
+                desc: description
+            });
+        }
     }-*/;
 
     public List<Document> search(final String text) {
@@ -165,6 +192,16 @@ public class Index {
     private native JsArray searchInternal(final String text) /*-{
         return this.@org.jboss.as.console.client.search.Index::indexRef.search(text);
     }-*/;
+
+    @Override
+    public void onStorageChange(final StorageEvent event) {
+        boolean deletedFromLocalStorage = event.getStorageArea() == localStorage && event.getNewValue() == null && event
+                .getOldValue() == null;
+        if (deletedFromLocalStorage && event.getKey().equals(indexKey()) && !isEmpty()) {
+            // the index was removed from the local storage by some external code - let's start from scratch.
+            reset();
+        }
+    }
 
     private String indexKey() {return prefix + "idx";}
 
