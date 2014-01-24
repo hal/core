@@ -19,7 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.client.plugins.SearchIndex;
+import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -67,7 +67,7 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostInterfacesPresenter)
-    @SearchIndex(scope = DOMAIN)
+    @OperationMode(DOMAIN)
     @AccessControl(resources = {
             "/{selected.host}/interface=*",
     })

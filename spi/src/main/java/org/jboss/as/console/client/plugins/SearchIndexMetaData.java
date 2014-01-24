@@ -3,7 +3,6 @@ package org.jboss.as.console.client.plugins;
 import static java.util.Arrays.asList;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,21 +12,16 @@ import java.util.Set;
 public class SearchIndexMetaData {
 
     private final String token;
-    private final Set<OperationMode> scope;
+    private final boolean standalone;
+    private final boolean domain;
     private final Set<String> resources;
     private final Set<String> keywords;
 
-    public SearchIndexMetaData(final String token, final OperationMode[] scope,
+    public SearchIndexMetaData(final String token, final boolean standalone, final boolean domain,
             final String[] resources, final String[] keywords) {
         this.token = token;
-        if (scope == null) {
-            this.scope = EnumSet.allOf(OperationMode.class);
-        } else {
-            this.scope = new HashSet<OperationMode>();
-            for (OperationMode operationMode : scope) {
-                this.scope.add(operationMode);
-            }
-        }
+        this.standalone = standalone;
+        this.domain = domain;
         this.resources = resources == null ? Collections.<String>emptySet() : new HashSet<String>(asList(resources));
         this.keywords = keywords == null ? Collections.<String>emptySet() : new HashSet<String>(asList(keywords));
     }
@@ -36,8 +30,12 @@ public class SearchIndexMetaData {
         return token;
     }
 
-    public Set<OperationMode> getScope() {
-        return scope;
+    public boolean isStandalone() {
+        return standalone;
+    }
+
+    public boolean isDomain() {
+        return domain;
     }
 
     public Set<String> getResources() {
@@ -69,7 +67,8 @@ public class SearchIndexMetaData {
     public String toString() {
         return "SearchIndexMetaData{" +
                 "token='" + token + '\'' +
-                ", scope=" + scope +
+                ", standalone=" + standalone +
+                ", domain=" + domain +
                 ", resources=" + resources +
                 ", keywords=" + keywords +
                 '}';

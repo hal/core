@@ -32,9 +32,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.AccessControlMetaData;
 import org.jboss.as.console.client.plugins.BootstrapOperation;
-import org.jboss.as.console.client.plugins.OperationMode;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
-import org.jboss.as.console.client.plugins.SearchIndex;
 import org.jboss.as.console.client.plugins.SearchIndexMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
@@ -43,30 +41,24 @@ import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
  * @date 9/13/12
  */
 
+
 @SupportedSourceVersion(RELEASE_7)
 public class SPIProcessor extends AbstractProcessor {
 
     private static final String EXTENSION_TEMPLATE = "Extension.tmpl";
     private static final String EXTENSION_FILENAME = "org.jboss.as.console.client.core.gin.Composite";
-
     private static final String BINDING_TEMPLATE = "ExtensionBinding.tmpl";
     private final static String BINDING_FILENAME = "org.jboss.as.console.client.core.gin.CompositeBinding";
-
     private static final String BEAN_FACTORY_TEMPLATE = "BeanFactory.tmpl";
     private static final String BEAN_FACTORY_FILENAME = "org.jboss.as.console.client.shared.BeanFactory";
-
     private static final String SUBSYSTEM_FILENAME = "org.jboss.as.console.client.plugins.SubsystemRegistryImpl";
     private static final String SUBSYSTEM_TEMPLATE = "SubsystemExtensions.tmpl";
-
     private static final String ACCESS_FILENAME = "org.jboss.as.console.client.plugins.AccessControlRegistryImpl";
     private static final String ACCESS_TEMPLATE = "AccessControlRegistry.tmpl";
-
     private static final String SEARCH_INDEX_FILENAME = "org.jboss.as.console.client.plugins.SearchIndexRegistryImpl";
     private static final String SEARCH_INDEX_TEMPLATE = "SearchIndexRegistry.tmpl";
-
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
     private static final String RUNTIME_TEMPLATE = "RuntimeExtensions.tmpl";
-
     private static final String VERSION_INFO_FILENAME = "org.jboss.as.console.client.VersionInfo";
     private static final String VERSION_INFO_TEMPLATE = "VersionInfo.tmpl";
 
@@ -97,7 +89,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.subsystemDeclararions = new ArrayList<>();
         this.accessControlDeclararions = new ArrayList<>();
         this.searchIndexDeclarations = new ArrayList<>();
-        this.bootstrapOperations= new ArrayList<>();
+        this.bootstrapOperations = new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
 
@@ -116,10 +108,8 @@ public class SPIProcessor extends AbstractProcessor {
     private void parseGwtProperties() {
         Map<String, String> options = processingEnv.getOptions();
         gwtConfigProps = new HashMap<String, String>();
-        for(String key : options.keySet())
-        {
-            if(key.startsWith("gwt."))
-            {
+        for (String key : options.keySet()) {
+            if (key.startsWith("gwt.")) {
                 gwtConfigProps.put(key.substring(4, key.length()), options.get(key));
             }
         }
@@ -139,7 +129,7 @@ public class SPIProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnv) {
 
-        if(!roundEnv.processingOver()) {
+        if (!roundEnv.processingOver()) {
 
             System.out.println("=================================");
             System.out.println("Begin Components discovery ...");
@@ -154,10 +144,10 @@ public class SPIProcessor extends AbstractProcessor {
             System.out.println("Begin Bindings discovery ...");
             System.out.println("=================================");
 
-            Set<? extends Element> extensionBindingElements = roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class);
+            Set<? extends Element> extensionBindingElements = roundEnv
+                    .getElementsAnnotatedWith(GinExtensionBinding.class);
 
-            for (Element element: extensionBindingElements)
-            {
+            for (Element element : extensionBindingElements) {
                 handleGinExtensionBindingElement(element);
             }
 
@@ -184,8 +174,7 @@ public class SPIProcessor extends AbstractProcessor {
             System.out.println("=================================");
             Set<? extends Element> accessElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
 
-            for (Element element: accessElements)
-            {
+            for (Element element : accessElements) {
                 handleAccessControlElement(element);
             }
 
@@ -194,8 +183,7 @@ public class SPIProcessor extends AbstractProcessor {
             System.out.println("=================================");
             Set<? extends Element> searchIndexElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
 
-            for (Element element: searchIndexElements)
-            {
+            for (Element element : searchIndexElements) {
                 handleSearchIndexElement(element);
             }
 
@@ -228,19 +216,16 @@ public class SPIProcessor extends AbstractProcessor {
 
 
         List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
-        for (AnnotationMirror mirror: annotationMirrors)
-        {
+        for (AnnotationMirror mirror : annotationMirrors) {
             final String annotationType = mirror.getAnnotationType().toString();
 
-            if ( annotationType.equals(NameToken.class.getName()) )
-            {
+            if (annotationType.equals(NameToken.class.getName())) {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
                 AccessControl accessControl = element.getAnnotation(AccessControl.class);
 
-                if(accessControl!=null)   {
+                if (accessControl != null) {
 
-                    for(String resourceAddress : accessControl.resources())
-                    {
+                    for (String resourceAddress : accessControl.resources()) {
                         AccessControlMetaData declared = new AccessControlMetaData(
                                 nameToken.value(), resourceAddress
                         );
@@ -250,11 +235,11 @@ public class SPIProcessor extends AbstractProcessor {
                         accessControlDeclararions.add(declared);
                     }
 
-                    for(String opString : accessControl.operations())
-                    {
+                    for (String opString : accessControl.operations()) {
 
-                        if(!opString.contains("#"))
-                            throw new IllegalArgumentException("Invalid operation string:"+ opString);
+                        if (!opString.contains("#")) {
+                            throw new IllegalArgumentException("Invalid operation string:" + opString);
+                        }
 
                         BootstrapOperation op = new BootstrapOperation(
                                 nameToken.value(), opString
@@ -263,11 +248,11 @@ public class SPIProcessor extends AbstractProcessor {
                     }
 
 
-                }
-                else if(element.getAnnotation(NoGatekeeper.class)==null)
-                {
-                    Name simpleName = element.getEnclosingElement()!=null ? element.getEnclosingElement().getSimpleName() : element.getSimpleName();
-                    System.out.println(simpleName +"(#"+nameToken.value()+")" +" is missing @AccessControl annotation!");
+                } else if (element.getAnnotation(NoGatekeeper.class) == null) {
+                    Name simpleName = element.getEnclosingElement() != null ? element.getEnclosingElement()
+                            .getSimpleName() : element.getSimpleName();
+                    System.out.println(
+                            simpleName + "(#" + nameToken.value() + ")" + " is missing @AccessControl annotation!");
                 }
             }
         }
@@ -282,20 +267,25 @@ public class SPIProcessor extends AbstractProcessor {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
                 AccessControl accessControl = element.getAnnotation(AccessControl.class);
                 SearchIndex searchIndex = element.getAnnotation(SearchIndex.class);
+                OperationMode operationMode = element.getAnnotation(OperationMode.class);
 
                 if (accessControl != null) {
-                    OperationMode[] scope = null;
+                    boolean standalone = true;
+                    boolean domain = true;
                     String[] keywords = null;
                     boolean include = true;
                     if (searchIndex != null) {
-                        scope = searchIndex.scope();
                         keywords = searchIndex.keywords();
                         include = !searchIndex.exclude();
                     }
+                    if (operationMode != null) {
+                        standalone = operationMode.value() == OperationMode.Mode.STANDALONE;
+                        domain = operationMode.value() == OperationMode.Mode.DOMAIN;
+                    }
                     if (include) {
                         // excluded presenters are not part of the metadata!
-                        SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value(), scope,
-                                accessControl.resources(), keywords);
+                        SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value(), standalone,
+                                domain, accessControl.resources(), keywords);
                         searchIndexDeclarations.add(searchIndexMetaData);
                     }
                 }

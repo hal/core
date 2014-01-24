@@ -20,7 +20,7 @@ package org.jboss.as.console.client.domain.topology;
 
 import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,7 +60,7 @@ import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.client.plugins.SearchIndex;
+import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
@@ -77,7 +77,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
      */
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
-    @SearchIndex(scope = DOMAIN)
+    @OperationMode(DOMAIN)
     @AccessControl(resources = {
             "/server-group=*",
             "/{selected.host}/server-config=*"

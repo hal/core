@@ -19,7 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import static org.jboss.as.console.client.plugins.OperationMode.DOMAIN;
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.client.plugins.SearchIndex;
+import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -69,7 +69,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
-    @SearchIndex(scope = DOMAIN)
+    @OperationMode(DOMAIN)
     @AccessControl(resources = {
             "/{selected.host}/system-property=*",
     })

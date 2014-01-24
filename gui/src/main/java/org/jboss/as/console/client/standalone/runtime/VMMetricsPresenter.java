@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.standalone.runtime;
 
-import static org.jboss.as.console.client.plugins.OperationMode.STANDALONE;
+import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -22,7 +22,7 @@ import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.as.console.client.plugins.SearchIndex;
+import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -39,7 +39,7 @@ public class VMMetricsPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.VirtualMachine)
-    @SearchIndex(scope = STANDALONE)
+    @OperationMode(STANDALONE)
     @AccessControl(
             resources = {
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",

@@ -16,12 +16,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.plugins;
+package org.jboss.as.console.spi;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
-* @author Harald Pehl
-*/
-public enum OperationMode {
-    STANDALONE,
-    DOMAIN
+ * Operation mode meta data for presenters.
+ *
+ * @author Harald Pehl
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface OperationMode {
+
+    /**
+     * No value means that the annotated presenter is supposed to run in both standalone and domain mode.
+     *
+     * @return the operation mode
+     */
+    Mode value();
+
+    enum Mode {
+        STANDALONE, DOMAIN
+    }
 }

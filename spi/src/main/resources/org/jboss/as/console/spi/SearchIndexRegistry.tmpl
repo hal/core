@@ -13,26 +13,21 @@ public class SearchIndexRegistryImpl implements SearchIndexRegistry {
     public SearchIndexRegistryImpl() {
         this.tokens = new HashMap<String, SearchIndexMetaData>();
 
-        OperationMode[] scope;
         String[] resources;
         String[] keywords;
 
         <#list metaData as md>
-            scope = new OperationMode[] {<#list md.getScope() as scope>OperationMode.${scope},</#list>};
             resources = new String[] {<#list md.getResources() as resource>"${resource}",</#list>};
             keywords = new String[] {<#list md.getKeywords() as keyword>"${keyword}",</#list>};
-            tokens.put("${md.getToken()}", new SearchIndexMetaData("${md.getToken()}", scope, resources, keywords));
+            tokens.put("${md.getToken()}", new SearchIndexMetaData("${md.getToken()}", ${md.isStandalone()?string("true", "false")}, ${md.isDomain()?string("true", "false")}, resources, keywords));
         </#list>
      }
 
     @Override
-    public Set<String> getTokens(OperationMode scope) {
-        if (scope == null) {
-            return Collections.emptySet();
-        }
+    public Set<String> getTokens(boolean standalone) {
         Set<String> matchingTokens = new HashSet<String>();
         for (SearchIndexMetaData metaData : tokens.values()) {
-            if (metaData.getScope().contains(scope)) {
+            if ((standalone && metaData.isStandalone()) || (!standalone && metaData.isDomain())) {
                 matchingTokens.add(metaData.getToken());
             }
         }
