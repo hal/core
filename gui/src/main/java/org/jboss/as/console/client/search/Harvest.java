@@ -83,6 +83,7 @@ public class Harvest {
         Set<Function> functions = new HashSet<Function>();
         for (final String token : searchIndexRegistry.getTokens(bootstrap.isStandalone())) {
             Set<String> resources = searchIndexRegistry.getResources(token);
+            final Set<String> keywords = searchIndexRegistry.getKeywords(token);
             for (final String resource : resources) {
                 // TODO
                 if (resource.startsWith("opt:")) { continue; }
@@ -112,16 +113,21 @@ public class Harvest {
                                     ModelNode delegate = response.get(RESULT).getType().equals(ModelType.LIST) ?
                                             response.get(RESULT).asList().get(0) : response.get(RESULT);
                                     try {
-                                        String text = delegate.hasDefined(DESCRIPTION) ?
+                                        String description = delegate.hasDefined(DESCRIPTION) ?
                                                 delegate.get(DESCRIPTION).asString() : delegate.get(RESULT)
                                                 .get(DESCRIPTION).asString();
 
                                         // todo: cleanup
-                                        if (text.equals("undefined")) {
+                                        if (description.equals("undefined")) {
                                             System.out.println("Undefined description " + token + " > " + resource);
                                         } else {
-                                            index.add(token, text);
-                                            handler.onHarvest(token, op.get(ADDRESS).asString());
+                                            String address = op.get(ADDRESS).asString();
+                                            if (handler.shouldHarvest(token, address, description)) {
+                                                index.add(token, keywords, description);
+                                                handler.onHarvest(token, address, description);
+                                            } else {
+                                                System.out.println("Denied by harvest handler " + token + " > " + resource);
+                                            }
                                         }
                                     } catch (Throwable e) {
                                         System.out.println("Skipped " + token + " > " + resource);
@@ -153,7 +159,9 @@ public class Harvest {
 
         void onStart();
 
-        void onHarvest(String token, String address);
+        boolean shouldHarvest(String token, String address, String description);
+
+        void onHarvest(String token, String address, String description);
 
         void onFinish();
 
