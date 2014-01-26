@@ -1,5 +1,12 @@
 package org.jboss.as.console.client.shared.state;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
+
+import java.util.Collections;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
@@ -11,12 +18,6 @@ import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.NOT_SET;
 
 /**
  * Domain entity manager corresponds to the picker (host, server) that rely on the host data:
@@ -238,9 +239,14 @@ public class DomainEntityManager implements
             }
         }
 
-        // match first active server
+        // match first running server
         if(active!=null && null==matched)  {
-            matched = active;
+            for(ServerInstance server : serverInstances) {
+                if (server.isRunning()) {
+                    matched = server;
+                    break;
+                }
+            }
         }
 
         // fallback match: no preselection and no active server > pick any
