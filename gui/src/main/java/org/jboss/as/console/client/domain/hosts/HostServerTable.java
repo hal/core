@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import com.allen_sauer.gwt.log.client.Log;
+import java.util.Collections;
+import java.util.List;
+
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -23,7 +25,6 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.shared.state.GlobalHostSelection;
@@ -31,13 +32,9 @@ import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.shared.state.ServerInstanceList;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
-import org.jboss.ballroom.client.widgets.InlineLink;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A miller column based selection of host/serve combinations
@@ -244,20 +241,15 @@ public class HostServerTable {
         layout.add(scroll);
 
 
-        DialogueOptions options = new DialogueOptions(
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        popup.hide();
-                    }
-                },
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        popup.hide();
-                    }
-                }
-        );
+        ClickHandler handler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                popup.hide();
+            }
+        };
+        DialogueOptions options = new DialogueOptions(Console.CONSTANTS.help_close_help(), handler,
+                Console.CONSTANTS.help_close_help(), handler);
+        options.showCancel(false);
         layout.add(options);
 
         // --------------
