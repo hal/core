@@ -18,8 +18,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.logging;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.AsyncHandler;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
@@ -31,9 +34,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * Subview for Async Handlers.
@@ -60,19 +61,16 @@ public class AsyncHandlerSubview extends AbstractHandlerSubview<AsyncHandler>
     }
 
     @Override
+    public List<NamedEntity> getHandlers() {
+        // HAL-313: Async handlers don't provide handlers to subviews - ie no nesting allowed!
+        return Collections.emptyList();
+    }
+
+    @Override
     public void handlersUpdated(List<String> handlerList) {
         handlerView.getListView().setAvailableChoices(handlerList);
     }
     
-    // don't allow an async handler to be assigned to another async handler
-    private List<String> myAvailableHandlers(List<String> handlerList) {
-        List<String> myHandlers = new ArrayList(handlerList);
-        for (NamedEntity handler : this.getHandlers()) {
-            myHandlers.remove(handler.getName());
-        }
-        return myHandlers;
-    }
-
     @Override
     protected FormAdapter<AsyncHandler> makeAddEntityForm() {
         Form<AsyncHandler> form = new Form(type);
@@ -89,7 +87,7 @@ public class AsyncHandlerSubview extends AbstractHandlerSubview<AsyncHandler>
         return Console.CONSTANTS.subsys_logging_asyncHandlers();
     }
 
-     @Override
+    @Override
     protected List<SingleEntityView<AsyncHandler>> provideAdditionalTabs(
             Class<?> beanType,
             FormMetaData formMetaData,
