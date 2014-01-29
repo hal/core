@@ -19,6 +19,9 @@
 
 package org.jboss.as.console.client.shared.subsys.messaging;
 
+import java.util.Iterator;
+import java.util.List;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -30,8 +33,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
+import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
@@ -43,13 +46,8 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Heiko Braun
- * @date 5/10/11
  */
 public class QueueList {
 
@@ -67,24 +65,7 @@ public class QueueList {
 
         VerticalPanel layout = new VerticalPanel();
 
-        form = new Form(Queue.class);
-        form.setNumColumns(2);
-
-        FormToolStrip<Queue> formTools = new FormToolStrip<Queue>(
-                form,
-                new FormToolStrip.FormCallback<Queue>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveQueue(form.getEditedEntity().getName(), form.getChangedValues());
-                    }
-
-                    @Override
-                    public void onDelete(Queue entity) {
-
-                    }
-                }
-        );
-
+        form = new Form<Queue>(Queue.class);
 
         ToolStrip tableTools = new ToolStrip();
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
@@ -179,7 +160,6 @@ public class QueueList {
         form.setFields(name, jndi, durable, selector);
         form.bind(queueTable);
 
-
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
                     @Override
@@ -193,15 +173,11 @@ public class QueueList {
                 }, form
         );
 
+        // HAL-347
+        layout.add(new ContentGroupLabel("Queues are read-only after creation"));
 
-        Widget formToolsWidget = formTools.asWidget();
-        formToolsWidget.getElement().setAttribute("style", "padding-top:15px;");
-
-        layout.add(formToolsWidget);
         layout.add(helpPanel.asWidget());
-
         layout.add(form.asWidget());
-
 
         return layout;
     }
