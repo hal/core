@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -11,10 +14,10 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.shared.help.FormHelpPanel;
+import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -26,9 +29,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -50,7 +50,7 @@ public class MailSessionEditor {
         table = new DefaultCellTable<MailSession>(8, new ProvidesKey<MailSession>() {
             @Override
             public Object getKey(MailSession item) {
-                return item.getJndiName();
+                return item.getName();
             }
         });
         dataProvider = new ListDataProvider<MailSession>();
@@ -68,8 +68,8 @@ public class MailSessionEditor {
                     @Override
                     public void execute(MailSession selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.MailPresenter).with("name", selection.getJndiName())
-                        );
+                                new PlaceRequest.Builder().nameToken(NameTokens.MailPresenter)
+                                        .with("name", selection.getName()).build());
                     }
                 })
         ) {

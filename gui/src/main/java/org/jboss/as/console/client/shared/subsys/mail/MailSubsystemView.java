@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -7,8 +9,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -62,34 +62,23 @@ public class MailSubsystemView extends DisposableViewImpl implements MailPresent
 
     @Override
     public void setSelectedSession(String selectedSession) {
-
-
-        if(null==selectedSession)
-        {
+        if (null == selectedSession) {
             panel.showPage(0);
-        }
-        else{
-
-            for(MailSession session : sessions)
-            {
-                if(session.getJndiName().equals(selectedSession))
-                {
-
+        } else {
+            for (MailSession session : sessions) {
+                if (session.getName().equals(selectedSession)) {
                     // update subpages
                     serverConfigEditor.setServerConfig(session);
                     break;
                 }
             }
-
             // move to first page if still showing topology
-            if(0==panel.getPage())
-                panel.showPage(1);
+            if (0 == panel.getPage()) { panel.showPage(1); }
         }
     }
 
     @Override
     public void updateFrom(List<MailSession> list) {
-
         this.sessions = list;
         sessionEditor.updateFrom(list);
     }

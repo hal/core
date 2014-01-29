@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -9,9 +13,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -22,10 +26,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -40,6 +40,7 @@ public class ServerConfigView {
     private ListDataProvider<MailServerDefinition> dataProvider;
     private String title;
     private DefaultCellTable<MailServerDefinition> table;
+    private MailSession parent;
 
 
     public ServerConfigView(
@@ -80,7 +81,7 @@ public class ServerConfigView {
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        presenter.launchNewServerWizard();
+                        presenter.launchNewServerWizard(parent);
                     }
                 });
 
@@ -171,11 +172,10 @@ public class ServerConfigView {
     }
 
     public void setServerConfig(MailSession parent) {
-
-        headline.setText("Mail Server: " +parent.getJndiName());
+        this.parent = parent;
+        headline.setText("Mail Server: " + parent.getName());
 
         // it's a single instance but we still use a table
-
         List<MailServerDefinition> values = new ArrayList<MailServerDefinition>(3);
 
         if(parent.getSmtpServer()!=null)
@@ -188,9 +188,6 @@ public class ServerConfigView {
             values.add(parent.getPopServer());
 
         dataProvider.setList(values);
-
         table.selectDefaultEntity();
     }
-
-
 }

@@ -11,6 +11,10 @@ import org.jboss.as.console.client.widgets.forms.Binding;
 @Address("/subsystem=mail/mail-session={0}")
 public interface MailSession {
 
+    @Binding(skip = true)
+    String getName();
+    void setName(String name);
+
     @Binding(detypedName = "jndi-name")
     String getJndiName();
     void setJndiName(String jndiName);

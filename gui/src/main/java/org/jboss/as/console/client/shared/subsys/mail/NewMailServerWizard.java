@@ -22,51 +22,71 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class NewMailServerWizard {
     private MailPresenter presenter;
+    private final MailSession selectedSession;
 
-    public NewMailServerWizard(MailPresenter presenter) {
+    public NewMailServerWizard(final MailPresenter presenter, final MailSession selectedSession) {
         this.presenter = presenter;
+        this.selectedSession = selectedSession;
     }
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<MailServerDefinition> form = new Form(MailServerDefinition.class);
-
         TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
         TextBoxItem user = new TextBoxItem("username", "Username");
         PasswordBoxItem pass = new PasswordBoxItem("password", "Password");
         CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");
 
-        final ComboBoxItem type = new ComboBoxItem("type", "Type");
+        final ComboBoxItem type = new ComboBoxItem("type", "Type") {
+            @Override
+            public boolean validate(final String value) {
+                boolean typeValid = true;
+                boolean parentValid = super.validate(value);
+                if (parentValid) {
+                    typeValid = !sessionsContains(value);
+                    if (!typeValid) {
+                        setErrMessage("Mail server of type '" + getValue() + "' already defined. Please choose another one.");
+                    }
+                }
+                return parentValid && typeValid;
+            }
 
+            boolean sessionsContains(String typeValue) {
+                ServerType serverType = null;
+                if (selectedSession.getImapServer() != null) {
+                    serverType = selectedSession.getImapServer().getType();
+                } else if (selectedSession.getPopServer() != null) {
+                    serverType = selectedSession.getPopServer().getType();
+                } else if (selectedSession.getSmtpServer() != null) {
+                    serverType = selectedSession.getSmtpServer().getType();
+                }
+                return serverType != null && serverType.name().equals(typeValue);
+            }
+        };
         type.setValueMap(new String[]{
                 ServerType.smtp.name(),
                 ServerType.imap.name(),
                 ServerType.pop3.name()
         });
-
         type.setDefaultToFirstOption(true);
 
+        final Form<MailServerDefinition> form = new Form<MailServerDefinition>(MailServerDefinition.class);
         form.setFields(socket, type, user, pass, ssl);
 
         DialogueOptions options = new DialogueOptions(
-
                 // save
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         // merge base
-
                         FormValidation validation = form.validate();
                         if(validation.hasErrors())
                             return;
 
                         MailServerDefinition entity = form.getUpdatedEntity();
                         entity.setType(ServerType.valueOf(type.getValue()));
-
                         presenter.onCreateServer(entity);
-
                     }
                 },
 
@@ -77,7 +97,6 @@ public class NewMailServerWizard {
                         presenter.closeDialoge();
                     }
                 }
-
         );
 
         // ----------------------------------------
@@ -98,9 +117,7 @@ public class NewMailServerWizard {
         );
 
         layout.add(helpPanel.asWidget());
-
         layout.add(formWidget);
-
         return new WindowContentBuilder(layout, options).build();
     }
 }

@@ -19,9 +19,10 @@ import org.jboss.dmr.client.ModelNode;
  * @date 11/28/11
  */
 public class NewMailSessionWizard {
-    private MailPresenter presenter;
 
-    public NewMailSessionWizard(MailPresenter presenter) {
+    private final MailPresenter presenter;
+
+    public NewMailSessionWizard(final MailPresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -29,10 +30,8 @@ public class NewMailSessionWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<MailSession> form = new Form(MailSession.class);
-
+        final Form<MailSession> form = new Form<MailSession>(MailSession.class);
         TextBoxItem jndi = new JndiNameItem("jndiName", "JNDI Name");
-
         form.setFields(jndi);
 
         DialogueOptions options = new DialogueOptions(
@@ -65,7 +64,6 @@ public class NewMailSessionWizard {
         // ----------------------------------------
 
         Widget formWidget = form.asWidget();
-
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
                     @Override
@@ -79,9 +77,7 @@ public class NewMailSessionWizard {
         );
 
         layout.add(helpPanel.asWidget());
-
         layout.add(formWidget);
-
         return new WindowContentBuilder(layout, options).build();
     }
 }
