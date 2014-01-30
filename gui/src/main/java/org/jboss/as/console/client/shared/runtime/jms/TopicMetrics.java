@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.cell.client.TextCell;
@@ -23,6 +22,7 @@ import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
+import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -74,28 +74,10 @@ public class TopicMetrics {
             }
         };
 
-
-        com.google.gwt.user.cellview.client.Column<JMSEndpoint, String> protocolColumn = new com.google.gwt.user.cellview.client.Column<JMSEndpoint, String>(new TextCell()) {
-            @Override
-            public String getValue(JMSEndpoint object) {
-                List<String> names = object.getEntries();
-                StringBuilder builder = new StringBuilder();
-                if (!names.isEmpty())
-                {
-                    Iterator<String> iterator = names.iterator();
-                    builder.append("[").append(iterator.next());
-                    if (iterator.hasNext())
-                    {
-                        builder.append(", ...");
-                    }
-                    builder.append("]");
-                }
-                return builder.toString();
-            }
-        };
+        JMSEndpointJndiColumn<JMSEndpoint> jndiColumn = new JMSEndpointJndiColumn<JMSEndpoint>();
 
         topicTable.addColumn(nameColumn, "Name");
-        topicTable.addColumn(protocolColumn, "JNDI");
+        topicTable.addColumn(jndiColumn, "JNDI");
 
         topicTable.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler(){
             @Override

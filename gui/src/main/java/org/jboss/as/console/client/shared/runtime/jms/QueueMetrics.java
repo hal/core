@@ -1,17 +1,11 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
 import java.util.List;
-import java.util.ListIterator;
 
-import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -28,6 +22,7 @@ import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
+import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -79,15 +74,10 @@ public class QueueMetrics {
             }
         };
 
-        com.google.gwt.user.cellview.client.Column<Queue, List<String>> protocolColumn = new com.google.gwt.user.cellview.client.Column<Queue, List<String>>(new ProtocolCell()) {
-            @Override
-            public List<String> getValue(Queue object) {
-                return object.getEntries();
-            }
-        };
+        JMSEndpointJndiColumn<Queue> jndiColumn = new JMSEndpointJndiColumn<Queue>();
 
         queueTable.addColumn(nameColumn, "Name");
-        queueTable.addColumn(protocolColumn, "JNDI");
+        queueTable.addColumn(jndiColumn, "JNDI");
 
         queueTable.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler(){
             @Override
@@ -254,42 +244,5 @@ public class QueueMetrics {
 
     public void setConsumer(Metric queueConsumer) {
         consumerSampler.addSample(queueConsumer);
-    }
-
-    static class ProtocolCell extends AbstractCell<List<String>> {
-
-        static Templates TEMPLATES = GWT.create(Templates.class);
-
-        @Override
-        public void render(final Context context, final List<String> names, final SafeHtmlBuilder safeHtmlBuilder) {
-            StringBuilder full = new StringBuilder();
-            StringBuilder abbr = new StringBuilder();
-            if (!names.isEmpty())
-            {
-                full.append("[");
-                abbr.append("[");
-                for (ListIterator<String> iterator = names.listIterator(); iterator.hasNext(); ) {
-                    String name = iterator.next();
-                    full.append(name);
-                    if (iterator.previousIndex() == 0) {
-                        abbr.append(name);
-                    }
-                    if (iterator.hasNext()) {
-                        full.append(", ");
-                        if (iterator.previousIndex() == 0) {
-                            abbr.append(", ...");
-                        }
-                    }
-                }
-                abbr.append("]");
-                full.append("]");
-            }
-            safeHtmlBuilder.append(TEMPLATES.protocol(full.toString(), abbr.toString()));
-        }
-
-        interface Templates extends SafeHtmlTemplates {
-            @Template("<span title=\"{0}\">{1}</span>")
-            SafeHtml protocol(String full, String abbr);
-        }
     }
 }

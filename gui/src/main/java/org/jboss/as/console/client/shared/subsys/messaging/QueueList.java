@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.messaging;
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -114,27 +113,10 @@ public class QueueList {
             }
         };
 
-        TextColumn<Queue> jndiNameColumn = new TextColumn<Queue>() {
-            @Override
-            public String getValue(Queue record) {
-                List<String> names = record.getEntries();
-                StringBuilder builder = new StringBuilder();
-                if (!names.isEmpty())
-                {
-                    Iterator<String> iterator = names.iterator();
-                    builder.append("[").append(iterator.next());
-                    if (iterator.hasNext())
-                    {
-                        builder.append(", ...");
-                    }
-                    builder.append("]");
-                }
-                return builder.toString();
-            }
-        };
+        JMSEndpointJndiColumn<Queue> jndiColumn = new JMSEndpointJndiColumn<Queue>();
 
         queueTable.addColumn(nameColumn, "Name");
-        queueTable.addColumn(jndiNameColumn, "JNDI");
+        queueTable.addColumn(jndiColumn, "JNDI");
 
         layout.add(queueTable);
         queueTable.getElement().setAttribute("style", "margin-bottom:15px;");
