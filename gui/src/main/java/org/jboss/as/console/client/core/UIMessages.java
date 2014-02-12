@@ -212,4 +212,6 @@ public interface UIMessages extends Messages {
     String no_groups_header();
 
     String no_groups_warning();
+
+    String common_validation_duplicateMailSession(String defaultMessage);
 }

@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -45,11 +46,13 @@ public class NewMailServerWizard {
                 boolean parentValid = super.validate(value);
                 if (parentValid) {
                     typeValid = !sessionsContains(value);
-                    if (!typeValid) {
-                        setErrMessage("Mail server of type '" + getValue() + "' already defined. Please choose another one.");
-                    }
                 }
                 return parentValid && typeValid;
+            }
+
+            @Override
+            public String getErrMessage() {
+                return Console.MESSAGES.common_validation_duplicateMailSession(super.getErrMessage());
             }
 
             boolean sessionsContains(String typeValue) {
