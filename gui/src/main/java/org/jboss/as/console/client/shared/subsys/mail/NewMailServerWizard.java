@@ -39,34 +39,7 @@ public class NewMailServerWizard {
         PasswordBoxItem pass = new PasswordBoxItem("password", "Password");
         CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");
 
-        final ComboBoxItem type = new ComboBoxItem("type", "Type") {
-            @Override
-            public boolean validate(final String value) {
-                boolean typeValid = true;
-                boolean parentValid = super.validate(value);
-                if (parentValid) {
-                    typeValid = !sessionsContains(value);
-                }
-                return parentValid && typeValid;
-            }
-
-            @Override
-            public String getErrMessage() {
-                return Console.MESSAGES.common_validation_duplicateMailSession(super.getErrMessage());
-            }
-
-            boolean sessionsContains(String typeValue) {
-                ServerType serverType = null;
-                if (selectedSession.getImapServer() != null) {
-                    serverType = selectedSession.getImapServer().getType();
-                } else if (selectedSession.getPopServer() != null) {
-                    serverType = selectedSession.getPopServer().getType();
-                } else if (selectedSession.getSmtpServer() != null) {
-                    serverType = selectedSession.getSmtpServer().getType();
-                }
-                return serverType != null && serverType.name().equals(typeValue);
-            }
-        };
+        final MailServerTypeItem type = new MailServerTypeItem();
         type.setValueMap(new String[]{
                 ServerType.smtp.name(),
                 ServerType.imap.name(),
@@ -122,5 +95,42 @@ public class NewMailServerWizard {
         layout.add(helpPanel.asWidget());
         layout.add(formWidget);
         return new WindowContentBuilder(layout, options).build();
+    }
+
+    private class MailServerTypeItem extends ComboBoxItem {
+
+        private final String defaultErrMessage;
+
+        public MailServerTypeItem() {
+            super("type", "Type");
+            this.defaultErrMessage = getErrMessage();
+        }
+
+        @Override
+        public boolean validate(final String value) {
+            boolean duplicateType = false;
+            boolean parentValid = super.validate(value);
+            if (parentValid) {
+                duplicateType = sessionsContains(value);
+                if (duplicateType) {
+                    setErrMessage(Console.CONSTANTS.duplicate_mail_server_type());
+                }
+            } else {
+                setErrMessage(defaultErrMessage);
+            }
+            return parentValid && !duplicateType;
+        }
+
+        boolean sessionsContains(String typeValue) {
+            ServerType serverType = null;
+            if (selectedSession.getImapServer() != null) {
+                serverType = selectedSession.getImapServer().getType();
+            } else if (selectedSession.getPopServer() != null) {
+                serverType = selectedSession.getPopServer().getType();
+            } else if (selectedSession.getSmtpServer() != null) {
+                serverType = selectedSession.getSmtpServer().getType();
+            }
+            return serverType != null && serverType.name().equals(typeValue);
+        }
     }
 }

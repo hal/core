@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
@@ -27,37 +29,40 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 4/15/11
  */
 public class NewDatasourceWizard {
 
-    private DataSourcePresenter presenter;
+    private final DataSourcePresenter presenter;
+    private final List<DataSource> existingDataSources;
+    private final List<JDBCDriver> drivers;
+    private final ApplicationProperties bootstrap;
+
+    private DataSource baseAttributes = null;
+    private DataSource driverAttributes = null;
 
     private DeckPanel deck;
     private DatasourceStep2 step2;
     private DataSourceStep3 step3;
-
-
-    private DataSource baseAttributes = null;
-    private DataSource driverAttributes = null;
-    private ApplicationProperties bootstrap;
-    private List<JDBCDriver> drivers;
     private TrappedFocusPanel trap;
 
-    public NewDatasourceWizard(
-            DataSourcePresenter presenter,
-            List<JDBCDriver> drivers, ApplicationProperties bootstrap) {
+    public NewDatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
+            final List<DataSource> existingDataSources, ApplicationProperties bootstrap) {
+
         this.presenter = presenter;
-        this.bootstrap = bootstrap;
         this.drivers = drivers;
+        this.existingDataSources = existingDataSources;
+        this.bootstrap = bootstrap;
     }
 
     public List<JDBCDriver> getDrivers() {
         return drivers;
+    }
+
+    public List<DataSource> getExistingDataSources() {
+        return existingDataSources;
     }
 
     ApplicationProperties getBootstrap() {
@@ -65,8 +70,6 @@ public class NewDatasourceWizard {
     }
 
     public Widget asWidget() {
-
-
         deck = new DeckPanel() {
             @Override
             public void showWidget(int index) {
@@ -84,11 +87,8 @@ public class NewDatasourceWizard {
         step3 = new DataSourceStep3(this);
         deck.add(step3.asWidget());
 
-
         trap = new TrappedFocusPanel(deck);
-
         deck.showWidget(0);
-
         return trap;
     }
 
@@ -111,19 +111,15 @@ public class NewDatasourceWizard {
     public void onFinish(DataSource updatedEntity) {
 
         // merge previous attributes into single entity
-
         updatedEntity.setName(baseAttributes.getName());
         updatedEntity.setJndiName(baseAttributes.getJndiName());
         updatedEntity.setEnabled(baseAttributes.isEnabled());
-
         updatedEntity.setDriverName(driverAttributes.getDriverName());
         updatedEntity.setDriverClass(driverAttributes.getDriverClass());
         updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
         updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
-
         updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
 
         presenter.onCreateDatasource(updatedEntity);
     }
-
 }

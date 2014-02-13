@@ -106,8 +106,10 @@ public class Async<C> {
      * If any of the functions pass an error to its callback, the outcome is immediately called with the value of the
      * error.
      */
-    public void parallel(final Outcome outcome, final Function... functions) {
-        final CountingControl ctrl = new CountingControl(functions);
+    @SuppressWarnings("unchecked")
+    public void parallel(C context, final Outcome<C> outcome, final Function<C>... functions) {
+        final C finalContext = context != null ? context : (C) EMPTY_CONTEXT;
+        final CountingControl<C> ctrl = new CountingControl<C>(finalContext, functions);
         progress.reset(functions.length);
 
         Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
@@ -121,10 +123,10 @@ public class Async<C> {
                         public void execute() {
                             if (ctrl.isAborted()) {
                                 progress.finish();
-                                outcome.onFailure(EMPTY_CONTEXT);
+                                outcome.onFailure(finalContext);
                             } else {
                                 progress.finish();
-                                outcome.onSuccess(EMPTY_CONTEXT);
+                                outcome.onSuccess(finalContext);
                             }
 
                         }
@@ -250,20 +252,23 @@ public class Async<C> {
         }
     }
 
-    private class CountingControl implements Control {
+    private class CountingControl<C> implements Control<C> {
 
-        private final Function[] functions;
+        private final C context;
+        private final Function<C>[] functions;
         protected boolean aborted;
         private int index;
         private int finished;
 
-        CountingControl(Function... functions) {
+        @SafeVarargs
+        CountingControl(final C context, Function<C>... functions) {
+            this.context = context;
             this.functions = functions;
         }
 
         @Override
-        public Object getContext() {
-            return EMPTY_CONTEXT;
+        public C getContext() {
+            return context;
         }
 
         @SuppressWarnings("unchecked")

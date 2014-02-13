@@ -999,4 +999,10 @@ public interface UIConstants extends Constants {
     String unauthorized();
 
     String unauthorized_desc();
+
+    String duplicate_mail_server_type();
+
+    String duplicate_data_source_name();
+
+    String duplicate_data_source_jndi();
 }

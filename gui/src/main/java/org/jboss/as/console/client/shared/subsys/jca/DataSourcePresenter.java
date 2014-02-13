@@ -19,10 +19,12 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -33,14 +35,19 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDataSourcesFunction;
+import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDriversFunction;
+import org.jboss.as.console.client.shared.subsys.jca.functions.LoadXADataSourcesFunction;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
 import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
@@ -53,14 +60,11 @@ import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizar
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
-
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Outcome;
 
 /**
  * @author Heiko Braun
- * @date 3/24/11
  */
 public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
         implements PropertyManagement {
@@ -80,8 +84,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             "/{selected.profile}/subsystem=datasources/data-source=*",
             "/{selected.profile}/subsystem=datasources/xa-data-source=*"
     })
-    public interface MyProxy extends Proxy<DataSourcePresenter>, Place {
-    }
+    public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
 
     public interface MyView extends SuspendableView {
         void setPresenter(DataSourcePresenter presenter);
@@ -94,7 +97,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         void setXAProperties(String dataSourceName, List<PropertyRecord> result);
         void setConnectionVerified(boolean b, String dataSourceName);
         void setConnectionProperties(String reference, List<PropertyRecord> properties);
-
     }
 
     @Inject
@@ -124,9 +126,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         loadDataSources();
         loadXADataSources();
 
-        if(!hasBeenRevealed)
-        {
-            hasBeenRevealed=true;
+        if (!hasBeenRevealed) {
+            hasBeenRevealed = true;
         }
     }
 
@@ -142,7 +143,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 getView().updateDataSources(result);
             }
         });
-
     }
 
     private void loadXADataSources() {
@@ -156,77 +156,66 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     }
 
     public void launchNewDatasourceWizard() {
-
-        driverRegistry.refreshDrivers(new SimpleCallback<List<JDBCDriver>>() {
+        Outcome<FunctionContext> wizardOutcome = new Outcome<FunctionContext>() {
             @Override
-            public void onSuccess(List<JDBCDriver> drivers) {
+            public void onFailure(final FunctionContext context) {
+                Console.error("Cannot load drivers or datasources", context.getErrorMessage()); // TODO i18n
+            }
 
-                if(drivers.size()>0)
-                {
+            @Override
+            public void onSuccess(final FunctionContext context) {
+                List<DataSource> datasources = context.get(LoadDataSourcesFunction.KEY);
+                List<JDBCDriver> drivers = context.get(LoadDriversFunction.KEY);
+                if (!drivers.isEmpty()) {
                     window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
                     window.setWidth(480);
                     window.setHeight(450);
-
-                    window.setWidget(
-                            new NewDatasourceWizard(DataSourcePresenter.this, drivers, bootstrap).asWidget()
-                    );
-
+                    window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
+                            .asWidget());
                     window.setGlassEnabled(true);
                     window.center();
-                }
-                else {
-
+                } else {
                     SafeHtmlBuilder html = new SafeHtmlBuilder();
                     html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
                     Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
                 }
             }
-        });
-    }
-
-    public void loadDriver(final AsyncCallback<List<JDBCDriver>> callback) {
-        driverRegistry.refreshDrivers(new SimpleCallback<List<JDBCDriver>>() {
-            @Override
-            public void onSuccess(List<JDBCDriver> drivers) {
-
-                callback.onSuccess(drivers);
-            }
-        });
+        };
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
+                .waterfall(new FunctionContext(), wizardOutcome, new LoadDataSourcesFunction(dataSourceStore),
+                        new LoadDriversFunction(driverRegistry));
     }
 
     public void launchNewXADatasourceWizard() {
-
-        driverRegistry.refreshDrivers(new SimpleCallback<List<JDBCDriver>>() {
+        Outcome<FunctionContext> wizardOutcome = new Outcome<FunctionContext>() {
             @Override
-            public void onSuccess(List<JDBCDriver> drivers) {
+            public void onFailure(final FunctionContext context) {
+                Console.error("Cannot load drivers or xa-datasources", context.getErrorMessage()); // TODO i18n
+            }
 
-                if(drivers.size()>0)
-                {
+            @Override
+            public void onSuccess(final FunctionContext context) {
+                List<XADataSource> xaDatasources = context.get(LoadDataSourcesFunction.KEY);
+                List<JDBCDriver> drivers = context.get(LoadDriversFunction.KEY);
+                if (!drivers.isEmpty()) {
                     window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
                     window.setWidth(480);
                     window.setHeight(450);
-                    window.addCloseHandler(new CloseHandler<PopupPanel>() {
-                        @Override
-                        public void onClose(CloseEvent<PopupPanel> event) {
-
-                        }
-                    });
-
                     window.setWidget(
-                            new NewXADatasourceWizard(DataSourcePresenter.this, drivers, bootstrap).asWidget()
-                    );
-
+                            new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
+                                    .asWidget());
                     window.setGlassEnabled(true);
                     window.center();
-                }
-                else {
+                } else {
                     SafeHtmlBuilder html = new SafeHtmlBuilder();
                     html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
                     Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
                 }
             }
-        });
-
+        };
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
+                .waterfall(new FunctionContext(), wizardOutcome, new LoadXADataSourcesFunction(dataSourceStore),
+                        new LoadDriversFunction(driverRegistry));
     }
 
 
@@ -622,5 +611,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             }
         });
     }
+
 
 }

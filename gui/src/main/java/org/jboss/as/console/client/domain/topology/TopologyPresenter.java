@@ -160,9 +160,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
             Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
                 @Override
                 public void onFailure(final FunctionContext context) {
-                    //noinspection ThrowableResultOfMethodCallIgnored
-                    String details = context.getError() != null ? context.getError().getMessage() : null;
-                    Console.error("Unable to load topology", details); // TODO i18n
+                    Console.error("Unable to load topology", context.getErrorMessage()); // TODO i18n
                 }
 
                 @Override

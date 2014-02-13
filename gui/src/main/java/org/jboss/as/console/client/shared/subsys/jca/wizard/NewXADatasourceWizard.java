@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import java.util.List;
+
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
@@ -28,43 +30,45 @@ import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 4/15/11
  */
 public class NewXADatasourceWizard {
 
-    private DataSourcePresenter presenter;
-
-    private DeckPanel deck;
-    private XADatasourceStep2 step2;
-    private XADatasourceStep3 step3;
-    private XADatasourceStep4 step4;
+    private final DataSourcePresenter presenter;
+    private final List<JDBCDriver> drivers;
+    private final List<XADataSource> existingXaDataSources;
+    private final ApplicationProperties bootstrap;
 
     private XADataSource baseAttributes = null;
     private XADataSource driverAttributes = null;
     private List<PropertyRecord> properties;
-    private ApplicationProperties bootstrap;
-    private List<JDBCDriver> drivers;
+
+    private XADatasourceStep4 step4;
+    private DeckPanel deck;
+    private XADatasourceStep2 step2;
+    private XADatasourceStep3 step3;
     private TrappedFocusPanel trap;
 
-    public NewXADatasourceWizard(
-            DataSourcePresenter presenter,
-            List<JDBCDriver> drivers, ApplicationProperties bootstrap) {
+    public NewXADatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
+            List<XADataSource> existingXaDataSources, ApplicationProperties bootstrap) {
+
         this.presenter = presenter;
-        this.bootstrap = bootstrap;
         this.drivers = drivers;
+        this.existingXaDataSources = existingXaDataSources;
+        this.bootstrap = bootstrap;
     }
 
     public List<JDBCDriver> getDrivers() {
         return drivers;
     }
 
+    public List<XADataSource> getExistingXaDataSources() {
+        return existingXaDataSources;
+    }
+
     public Widget asWidget() {
-
-
        deck = new DeckPanel() {
             @Override
             public void showWidget(int index) {

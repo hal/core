@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.user.client.rpc.StatusCodeException;
-import org.jboss.as.console.client.Console;
 import org.jboss.dmr.client.dispatch.DispatchError;
 
 /**
@@ -66,6 +63,15 @@ public class FunctionContext {
 
     public Throwable getError() {
         return error;
+    }
+
+    public boolean hasError() {
+        return error != null;
+    }
+
+    public String getErrorMessage() {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        return hasError() ? null : getError().getMessage();
     }
 
     public boolean isForbidden() {

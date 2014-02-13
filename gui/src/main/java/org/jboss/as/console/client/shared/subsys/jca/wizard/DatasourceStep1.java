@@ -28,10 +28,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
@@ -58,12 +56,14 @@ public class DatasourceStep1 {
 
         final Form<DataSource> form = new Form<DataSource>(DataSource.class);
 
-        final TextBoxItem name = new TextBoxItem("name", "Name");
-        TextBoxItem jndiName = new JndiNameItem("jndiName", "JNDI Name");
+        final DataSourceNameItem<DataSource> nameItem = new DataSourceNameItem<DataSource>(
+                wizard.getExistingDataSources());
+        final DataSourceJndiItem<DataSource> jndiNameItem = new DataSourceJndiItem<DataSource>(
+                wizard.getExistingDataSources());
         //CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
         //enabled.setValue(Boolean.TRUE);
 
-        form.setFields(name, jndiName);
+        form.setFields(nameItem, jndiNameItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
