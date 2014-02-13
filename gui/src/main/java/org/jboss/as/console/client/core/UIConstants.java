@@ -1005,4 +1005,6 @@ public interface UIConstants extends Constants {
     String duplicate_data_source_name();
 
     String duplicate_data_source_jndi();
+
+    String subsys_jca_datasource_error_load();
 }

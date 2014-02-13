@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +78,9 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     private RevealStrategy revealStrategy;
     private ApplicationProperties bootstrap;
     private DefaultWindow propertyWindow;
+    private List<DataSource> datasources;
+    private List<JDBCDriver> drivers;
+    private List<XADataSource> xaDatasources;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourcePresenter)
@@ -110,6 +114,9 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         this.driverRegistry = driverRegistry.create();
         this.revealStrategy = revealStrategy;
         this.bootstrap = bootstrap;
+        this.datasources = new ArrayList<DataSource>();
+        this.xaDatasources = new ArrayList<XADataSource>();
+        this.drivers = new ArrayList<JDBCDriver>();
     }
 
     @Override
@@ -123,12 +130,33 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     protected void onReset() {
         super.onReset();
 
-        loadDataSources();
-        loadXADataSources();
+        Outcome<FunctionContext> resetOutcome = new Outcome<FunctionContext>() {
+            @Override
+            public void onFailure(final FunctionContext context) {
+                Console.error(Console.CONSTANTS.subsys_jca_datasource_error_load(), context.getErrorMessage());
+                if (!hasBeenRevealed) {
+                    hasBeenRevealed = true;
+                }
+            }
 
-        if (!hasBeenRevealed) {
-            hasBeenRevealed = true;
-        }
+            @Override
+            public void onSuccess(final FunctionContext context) {
+                // reading this kind of information is expensive, so cache the results until the next call to reset()
+                datasources = context.get(LoadDataSourcesFunction.KEY);
+                xaDatasources = context.get(LoadXADataSourcesFunction.KEY);
+                drivers = context.get(LoadDriversFunction.KEY);
+
+                getView().updateDataSources(datasources);
+                getView().updateXADataSources(xaDatasources);
+                if (!hasBeenRevealed) {
+                    hasBeenRevealed = true;
+                }
+            }
+        };
+
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
+                .waterfall(new FunctionContext(), resetOutcome, new LoadDataSourcesFunction(dataSourceStore),
+                        new LoadXADataSourcesFunction(dataSourceStore), new LoadDriversFunction(driverRegistry));
     }
 
     @Override
@@ -140,7 +168,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         dataSourceStore.loadDataSources(new SimpleCallback<List<DataSource>>() {
             @Override
             public void onSuccess(List<DataSource> result) {
-                getView().updateDataSources(result);
+                datasources = result;
+                getView().updateDataSources(datasources);
             }
         });
     }
@@ -150,72 +179,43 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
             @Override
             public void onSuccess(List<XADataSource> result) {
-                getView().updateXADataSources(result);
+                xaDatasources = result;
+                getView().updateXADataSources(xaDatasources);
             }
         });
     }
 
     public void launchNewDatasourceWizard() {
-        Outcome<FunctionContext> wizardOutcome = new Outcome<FunctionContext>() {
-            @Override
-            public void onFailure(final FunctionContext context) {
-                Console.error("Cannot load drivers or datasources", context.getErrorMessage()); // TODO i18n
-            }
-
-            @Override
-            public void onSuccess(final FunctionContext context) {
-                List<DataSource> datasources = context.get(LoadDataSourcesFunction.KEY);
-                List<JDBCDriver> drivers = context.get(LoadDriversFunction.KEY);
-                if (!drivers.isEmpty()) {
-                    window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
-                    window.setWidth(480);
-                    window.setHeight(450);
-                    window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
-                            .asWidget());
-                    window.setGlassEnabled(true);
-                    window.center();
-                } else {
-                    SafeHtmlBuilder html = new SafeHtmlBuilder();
-                    html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
-                    Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
-                }
-            }
-        };
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
-                .waterfall(new FunctionContext(), wizardOutcome, new LoadDataSourcesFunction(dataSourceStore),
-                        new LoadDriversFunction(driverRegistry));
+        if (!drivers.isEmpty()) {
+            window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
+            window.setWidth(480);
+            window.setHeight(450);
+            window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
+                    .asWidget());
+            window.setGlassEnabled(true);
+            window.center();
+        } else {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
+            Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
+        }
     }
 
     public void launchNewXADatasourceWizard() {
-        Outcome<FunctionContext> wizardOutcome = new Outcome<FunctionContext>() {
-            @Override
-            public void onFailure(final FunctionContext context) {
-                Console.error("Cannot load drivers or xa-datasources", context.getErrorMessage()); // TODO i18n
-            }
-
-            @Override
-            public void onSuccess(final FunctionContext context) {
-                List<XADataSource> xaDatasources = context.get(LoadDataSourcesFunction.KEY);
-                List<JDBCDriver> drivers = context.get(LoadDriversFunction.KEY);
-                if (!drivers.isEmpty()) {
-                    window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
-                    window.setWidth(480);
-                    window.setHeight(450);
-                    window.setWidget(
-                            new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
-                                    .asWidget());
-                    window.setGlassEnabled(true);
-                    window.center();
-                } else {
-                    SafeHtmlBuilder html = new SafeHtmlBuilder();
-                    html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
-                    Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
-                }
-            }
-        };
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
-                .waterfall(new FunctionContext(), wizardOutcome, new LoadXADataSourcesFunction(dataSourceStore),
-                        new LoadDriversFunction(driverRegistry));
+        if (!drivers.isEmpty()) {
+            window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
+            window.setWidth(480);
+            window.setHeight(450);
+            window.setWidget(
+                    new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
+                            .asWidget());
+            window.setGlassEnabled(true);
+            window.center();
+        } else {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
+            Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
+        }
     }
 
 
