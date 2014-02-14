@@ -113,24 +113,27 @@ public class NewXADatasourceWizard {
     }
 
     public void onFinish(XADataSource updatedEntity) {
+        mergeAttributes(updatedEntity);
+        presenter.onCreateXADatasource(updatedEntity);
+    }
 
+    public void onVerifyConnection(final XADataSource updatedEntity, final boolean xa, final boolean existing) {
+        mergeAttributes(updatedEntity);
+        presenter.verifyConnection(updatedEntity, xa, existing);
+    }
+
+    private void mergeAttributes(final XADataSource updatedEntity) {
         // merge previous attributes into single entity
-
         updatedEntity.setName(baseAttributes.getName());
         updatedEntity.setJndiName(baseAttributes.getJndiName());
         updatedEntity.setEnabled(baseAttributes.isEnabled());
-
         updatedEntity.setDataSourceClass(driverAttributes.getDataSourceClass());
         updatedEntity.setDriverName(driverAttributes.getDriverName());
         updatedEntity.setDriverClass(driverAttributes.getDriverClass());
         updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
         updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
-
         updatedEntity.setProperties(properties);
-
         updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
-
-        presenter.onCreateXADatasource(updatedEntity);
     }
 
     public void onConfigureProperties(List<PropertyRecord> properties) {

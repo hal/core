@@ -109,7 +109,16 @@ public class NewDatasourceWizard {
     }
 
     public void onFinish(DataSource updatedEntity) {
+        mergeAttributes(updatedEntity);
+        presenter.onCreateDatasource(updatedEntity);
+    }
 
+    public void onVerifyConnection(final DataSource updatedEntity, final boolean xa, final boolean existing) {
+        mergeAttributes(updatedEntity);
+        presenter.verifyConnection(updatedEntity, xa, existing);
+    }
+
+    private void mergeAttributes(final DataSource updatedEntity) {
         // merge previous attributes into single entity
         updatedEntity.setName(baseAttributes.getName());
         updatedEntity.setJndiName(baseAttributes.getJndiName());
@@ -119,7 +128,5 @@ public class NewDatasourceWizard {
         updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
         updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
         updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
-
-        presenter.onCreateDatasource(updatedEntity);
     }
 }

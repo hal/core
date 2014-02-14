@@ -142,4 +142,7 @@ public interface DataSource {
     int getMinorVersion();
     void setMinorVersion(int minor);
 
+    @Binding(skip = true)
+    String getTestConnection();
+    void setTestConnection(String ignore);
 }

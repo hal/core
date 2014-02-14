@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
@@ -61,6 +64,7 @@ import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizar
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
@@ -70,6 +74,8 @@ import org.jboss.gwt.flow.client.Outcome;
 public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
         implements PropertyManagement {
 
+    private final DispatchAsync dispatcher;
+    private final BeanFactory beanFactory;
     private boolean hasBeenRevealed = false;
     private DefaultWindow window;
 
@@ -91,6 +97,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
 
     public interface MyView extends SuspendableView {
+
         void setPresenter(DataSourcePresenter presenter);
         void updateDataSources(List<DataSource> datasources);
         void updateXADataSources(List<XADataSource> result);
@@ -99,16 +106,18 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         void setPoolConfig(String name, PoolConfig poolConfig);
         void setXAPoolConfig(String dsName, PoolConfig underlying);
         void setXAProperties(String dataSourceName, List<PropertyRecord> result);
-        void setConnectionVerified(boolean b, String dataSourceName);
         void setConnectionProperties(String reference, List<PropertyRecord> properties);
+        void showVerifyConncectionResult(final String name, VerifyResult result);
     }
 
     @Inject
-    public DataSourcePresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            DataSourceStore dataSourceStore, DriverRegistry driverRegistry,
-            RevealStrategy revealStrategy, ApplicationProperties bootstrap) {
+    public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
+            DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
+            DispatchAsync dispatcher, BeanFactory beanFactory) {
+
         super(eventBus, view, proxy);
+        this.dispatcher = dispatcher;
+        this.beanFactory = beanFactory;
 
         this.dataSourceStore = new DataSourceStoreInterceptor(dataSourceStore);
         this.driverRegistry = driverRegistry.create();
@@ -124,7 +133,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         super.onBind();
         getView().setPresenter(this);
     }
-
 
     @Override
     protected void onReset() {
@@ -218,7 +226,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         }
     }
 
-
     public void onCreateDatasource(final DataSource datasource) {
         window.hide();
 
@@ -246,6 +253,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         });
 
     }
+
 
     public void onDelete(final DataSource entity) {
 
@@ -324,7 +332,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         }
     }
 
-
     public void onCreateXADatasource(final XADataSource updatedEntity) {
         window.hide();
 
@@ -349,6 +356,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             }
         });
     }
+
 
     public void onDisableXA(final XADataSource entity, boolean doEnable) {
         dataSourceStore.enableXADataSource(entity, doEnable, new SimpleCallback<ResponseWrapper<Boolean>>()
@@ -427,7 +435,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         });
     }
 
-
     public void loadXAProperties(final String dataSourceName) {
         dataSourceStore.loadXAProperties(dataSourceName, new SimpleCallback<List<PropertyRecord>>()
         {
@@ -437,6 +444,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             }
         });
     }
+
 
     public void onCreateXAProperty(final String reference, final PropertyRecord prop) {
 
@@ -517,18 +525,12 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         propertyWindow.hide();
     }
 
-    public void verifyConnection(final String dataSourceName, boolean isXA) {
-
-        dataSourceStore.verifyConnection(dataSourceName, isXA, new SimpleCallback<ResponseWrapper<Boolean>>() {
+    public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing) {
+        VerifyConnectionOp vop = new VerifyConnectionOp(dataSourceStore, dispatcher, beanFactory);
+        vop.execute(dataSource, xa, existing, new SimpleCallback<VerifyResult>() {
             @Override
-            public void onSuccess(ResponseWrapper<Boolean> response) {
-
-                if(response.getUnderlying())
-                    Console.info(Console.MESSAGES.successful("Connection settings: "+ dataSourceName));
-                else
-                    Console.error(Console.MESSAGES.failed( "Connection settings: "+ dataSourceName), response.getResponse().toString());
-
-                getView().setConnectionVerified(response.getUnderlying(), dataSourceName);
+            public void onSuccess(final VerifyResult result) {
+                getView().showVerifyConncectionResult(dataSource.getName(), result);
             }
         });
     }

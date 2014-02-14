@@ -38,10 +38,16 @@ public class FunctionCallback implements AsyncCallback<DMRResponse> {
     public FunctionCallback(final Control<FunctionContext> control) {this.control = control;}
 
     @Override
-    public final void onSuccess(final DMRResponse response) {
+    public void onFailure(final Throwable caught) {
+        control.getContext().setError(caught);
+        abort();
+    }
+
+    @Override
+    public void onSuccess(final DMRResponse response) {
         ModelNode result = response.get();
         if (!result.hasDefined(OUTCOME) || result.isFailure()) {
-            control.getContext().setError(new RuntimeException(result.getFailureDescription()));
+            onFailedOutcome(result);
             abort();
         } else {
             onSuccess(result);
@@ -49,18 +55,16 @@ public class FunctionCallback implements AsyncCallback<DMRResponse> {
         }
     }
 
-    @Override
-    public final void onFailure(final Throwable caught) {
-        control.getContext().setError(caught);
-        abort();
-    }
-
-    protected void onSuccess(final ModelNode result) {
-        // empty
+    protected void onFailedOutcome(final ModelNode result) {
+        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
     }
 
     protected void abort() {
         control.abort();
+    }
+
+    protected void onSuccess(final ModelNode result) {
+        // empty
     }
 
     protected void proceed() {

@@ -78,7 +78,7 @@ public class DataSourceConnectionEditor {
         ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                presenter.verifyConnection(form.getEditedEntity().getName(), false);
+                presenter.verifyConnection(form.getEditedEntity(), false, true);
             }
         });
 
@@ -87,9 +87,7 @@ public class DataSourceConnectionEditor {
         FormToolStrip<DataSource> formTools = new FormToolStrip<DataSource>(form,callback);
         formTools.providesDeleteOp(false);
 
-        // standalone only
-        if(Console.getBootstrapContext().isStandalone())
-            formTools.addToolButtonRight(verifyBtn);
+        formTools.addToolButtonRight(verifyBtn);
 
         FormLayout layout = new FormLayout()
                 .setHelp(new FormHelpPanel(new FormHelpPanel.AddressCallback() {

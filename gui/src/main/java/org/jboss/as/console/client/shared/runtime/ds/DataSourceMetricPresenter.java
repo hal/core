@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
+import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.Collections;
@@ -7,6 +8,7 @@ import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -16,11 +18,9 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -282,8 +282,6 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
     }
 
     public void verifyConnection(final String dsName, boolean isXA) {
-        
-        
         String subresource = isXA ? "xa-data-source": "data-source";
 
         ModelNode operation = new ModelNode();
@@ -292,23 +290,32 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
         operation.get(ADDRESS).add(subresource, dsName);
         operation.get(OP).set("test-connection-in-pool");
 
-        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode response = dmrResponse.get();
+            public void onFailure(final Throwable caught) {
+                show(new VerifyResult(caught));
+            }
 
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.failed("Connection error " + dsName), response.getFailureDescription() + ". See server log for details.");
+            @Override
+            public void onSuccess(DMRResponse response) {
+                VerifyResult verifyResult;
+                ModelNode result = response.get();
+                ResponseWrapper<Boolean> wrapped = new ResponseWrapper<Boolean>(!result.isFailure(), result);
+
+                if (wrapped.getUnderlying()) {
+                    verifyResult = new VerifyResult(true,
+                            Console.MESSAGES.verify_datasource_successful_message(dsName));
+                } else {
+                    verifyResult = new VerifyResult(false, Console.MESSAGES.verify_datasource_failed_message(dsName),
+                            result.getFailureDescription());
                 }
-                else
-                {
-                    Console.info(Console.MESSAGES.successful("Connection verified: "+ dsName));
-                    new ConnectionWindow(dsName, true).show();
-                }
+                show(verifyResult);
+            }
+
+            private void show(VerifyResult result) {
+                new ConnectionWindow(dsName, result).show();
             }
         });        
-        
     }
 
     public void flush(final String dsName, boolean isXA) {

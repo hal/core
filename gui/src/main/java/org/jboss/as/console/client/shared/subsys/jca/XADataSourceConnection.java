@@ -4,11 +4,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
-import org.jboss.as.console.client.layout.FormLayout;
-import org.jboss.as.console.client.widgets.forms.BlankItem;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -75,7 +74,7 @@ public class XADataSourceConnection {
         ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                presenter.verifyConnection(form.getEditedEntity().getName(), true);
+                presenter.verifyConnection(form.getEditedEntity(), true, true);
             }
         });
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_xADataSourceDetails());
@@ -84,9 +83,7 @@ public class XADataSourceConnection {
         FormToolStrip<XADataSource> formTools = new FormToolStrip<XADataSource>(form, callback);
         formTools.providesDeleteOp(false);
 
-        // standalone only
-        if(Console.getBootstrapContext().isStandalone())
-            formTools.addToolButtonRight(verifyBtn);
+        formTools.addToolButtonRight(verifyBtn);
 
         form.setFields(connectionSql, tx, rmOverride, interleave, padXid, wrap);
         form.setNumColumns(2);

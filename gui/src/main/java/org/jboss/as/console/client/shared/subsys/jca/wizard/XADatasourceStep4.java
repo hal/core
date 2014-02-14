@@ -29,6 +29,7 @@ import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.forms.items.NonRequiredTextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.ButtonItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
@@ -67,7 +68,18 @@ public class XADatasourceStep4 {
         };
         TextBoxItem domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
 
-        form.setFields(user,pass,domain);
+        ButtonItem testBtn = new ButtonItem("testConnection", "", Console.CONSTANTS.subsys_jca_dataSource_verify());
+        testBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                FormValidation validation = form.validate();
+                if (!validation.hasErrors()) {
+                    wizard.onVerifyConnection(form.getUpdatedEntity(), true, false);
+                }
+            }
+        });
+
+        form.setFields(user, pass, domain, testBtn);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

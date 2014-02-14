@@ -212,4 +212,8 @@ public interface UIMessages extends Messages {
     String no_groups_header();
 
     String no_groups_warning();
+
+    String verify_datasource_successful_message(String datasource);
+
+    String verify_datasource_failed_message(String datasource);
 }

@@ -1007,4 +1007,16 @@ public interface UIConstants extends Constants {
     String duplicate_data_source_jndi();
 
     String subsys_jca_datasource_error_load();
+
+    String verify_datasource_failed_header();
+
+    String verify_datasource_successful_header();
+
+    String verify_datasource_internal_error();
+
+    String verify_datasource_disabled();
+
+    String verify_datasource_no_running_servers();
+
+    String verify_datasource_dependent_error();
 }
