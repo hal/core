@@ -19,17 +19,18 @@
 
 package org.jboss.as.console.client.core.settings;
 
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.Preferences;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-
-import javax.inject.Inject;
-import java.util.Map;
 
 /**
  * Maintains the settings dialogue
@@ -40,8 +41,8 @@ import java.util.Map;
 public class SettingsPresenterWidget
         extends PresenterWidget<SettingsPresenterWidget.MyView> {
 
-    private BeanFactory factory;
-    private ApplicationMetaData metaData;
+    private final BeanFactory factory;
+    private final ProductConfig prodConfig;
 
 
     public interface MyView extends PopupView {
@@ -49,12 +50,13 @@ public class SettingsPresenterWidget
     }
 
     @Inject
-    public SettingsPresenterWidget(
-            final EventBus eventBus, final MyView view,
-            BeanFactory factory) {
+    public SettingsPresenterWidget(final EventBus eventBus, final MyView view, BeanFactory factory,
+            ProductConfig prodConfig) {
+
         super(eventBus, view);
-        view.setPresenter(this);
         this.factory = factory;
+        this.prodConfig = prodConfig;
+        view.setPresenter(this);
     }
 
     public void hideView() {
@@ -91,19 +93,9 @@ public class SettingsPresenterWidget
     public CommonSettings getCommonSettings() {
         CommonSettings settings = factory.settings().as();
         settings.setLocale(Preferences.get(Preferences.Key.LOCALE));
-        settings.setAnalytics(
-                Boolean.valueOf(
-                        Preferences.get(Preferences.Key.ANALYTICS, "true")
-                )
-        );
-
-        settings.setSecurityCache(
-                Boolean.valueOf(
-                        Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true")
-                )
-        );
+        String analyticsDefault = ProductConfig.Profile.PRODUCT.equals(prodConfig.getProfile()) ? "false" : "true";
+        settings.setAnalytics(Boolean.valueOf(Preferences.get(Preferences.Key.ANALYTICS, analyticsDefault)));
+        settings.setSecurityCache(Boolean.valueOf(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true")));
         return settings;
     }
-
-
 }

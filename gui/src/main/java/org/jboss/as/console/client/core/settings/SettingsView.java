@@ -19,9 +19,6 @@
 
 package org.jboss.as.console.client.core.settings;
 
-import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -32,7 +29,6 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -73,12 +69,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
 
         CheckBoxItem enableAnalytics = new CheckBoxItem(Preferences.Key.ANALYTICS.getToken(), Preferences.Key.ANALYTICS.getTitle());
 
-        ProductConfig productConfig = GWT.create(ProductConfig.class);
-        if (productConfig.getProfile() == COMMUNITY) {
-            form.setFields(localeItem, enableAnalytics);
-        } else {
-            form.setFields(localeItem);
-        }
+        form.setFields(localeItem, enableAnalytics);
 
         CheckBoxItem enableSecurityContextCache = new CheckBoxItem(Preferences.Key.SECURITY_CONTEXT.getToken(), Preferences.Key.SECURITY_CONTEXT.getTitle());
 
@@ -131,10 +122,8 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         SafeHtmlBuilder html = new SafeHtmlBuilder();
         html.appendHtmlConstant("<ul>");
         html.appendHtmlConstant("<li>").appendEscaped("Locale: The user interface language.");
-        if (productConfig.getProfile() == COMMUNITY) {
-            html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
-            html.appendEscaped("You can disable the analytics feature at anytime.");
-        }
+        html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
+        html.appendEscaped("You can disable the analytics feature at anytime.");
 
         //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");
         html.appendHtmlConstant("</ul>");

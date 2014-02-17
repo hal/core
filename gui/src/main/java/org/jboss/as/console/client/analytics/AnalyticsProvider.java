@@ -1,12 +1,12 @@
 package org.jboss.as.console.client.analytics;
 
+import javax.inject.Inject;
+
 import com.google.gwt.core.client.GWT;
 import com.google.inject.Provider;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
-
-import javax.inject.Inject;
 
 /**
  * @author Heiko Braun
@@ -14,7 +14,6 @@ import javax.inject.Inject;
  */
 public class AnalyticsProvider implements Provider<GoogleAnalytics> {
 
-    private GoogleAnalytics delegate;
     private static final GoogleAnalytics NOOP = new NoopAnalytics();
 
     private ProductConfig prodConfig;
@@ -27,97 +26,67 @@ public class AnalyticsProvider implements Provider<GoogleAnalytics> {
     @Override
     public GoogleAnalytics get() {
 
-        GoogleAnalytics analytics = null;
+        GoogleAnalytics analytics;
 
-        // no preferences == enabled
-        boolean prefEnabled = !Preferences.has(Preferences.Key.ANALYTICS)
-                || Preferences.get(Preferences.Key.ANALYTICS).equals("true");
-
-        // disabled for PRODUCT by default
-        boolean isEAP = ProductConfig.Profile.PRODUCT.equals(prodConfig.getProfile());
-
-        // web mode only
         boolean isWebMode = GWT.isScript();
+        boolean isEAP = ProductConfig.Profile.PRODUCT.equals(prodConfig.getProfile());
+        boolean enabledInPreferences = Preferences.has(Preferences.Key.ANALYTICS) && Preferences
+                .get(Preferences.Key.ANALYTICS).equals("true");
 
-        if(!isEAP && prefEnabled && isWebMode)
-        {
-            analytics = new CustomAnalyticsImpl();
-            System.out.println("Google analytics is setup");
-        }
-        else
-        {
-            System.out.println("Running stub analytics implementation");
+        if (isWebMode && !enabledInPreferences) {
+            // Google Analytics is an opt-in for the product and an opt-out for the community version
+            analytics = isEAP ? NOOP : new CustomAnalyticsImpl();
+        } else {
             analytics = NOOP;
         }
+        System.out.println("Google analytics: Using " + (analytics == NOOP ? "stub" : "real") + " implementation");
 
         return analytics;
     }
-    
-    static class NoopAnalytics implements GoogleAnalytics
-    {
-        @Override
-        public void init(String userAccount) {
-            
-        }
+
+
+    static class NoopAnalytics implements GoogleAnalytics {
 
         @Override
-        public void addAccount(String trackerName, String userAccount) {
-            
-        }
+        public void init(String userAccount) {}
 
         @Override
-        public void trackPageview() {
-            
-        }
+        public void addAccount(String trackerName, String userAccount) {}
 
         @Override
-        public void trackPageview(String pageName) {
-            
-        }
+        public void trackPageview() {}
 
         @Override
-        public void trackPageview(String trackerName, String pageName) {
-            
-        }
+        public void trackPageview(String pageName) {}
 
         @Override
-        public void trackEvent(String category, String action) {
-            
-        }
+        public void trackPageview(String trackerName, String pageName) {}
 
         @Override
-        public void trackEventWithTracker(String trackerName, String category, String action) {
-            
-        }
+        public void trackEvent(String category, String action) {}
 
         @Override
-        public void trackEvent(String category, String action, String optLabel) {
-            
-        }
+        public void trackEventWithTracker(String trackerName, String category, String action) {}
 
         @Override
-        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel) {
-            
-        }
+        public void trackEvent(String category, String action, String optLabel) {}
 
         @Override
-        public void trackEvent(String category, String action, String optLabel, int optValue) {
-            
-        }
+        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel) {}
 
         @Override
-        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel, int optValue) {
-            
-        }
+        public void trackEvent(String category, String action, String optLabel, int optValue) {}
 
         @Override
-        public void trackEvent(String category, String action, String optLabel, int optValue, boolean optNonInteraction) {
-            
-        }
+        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel,
+                int optValue) {}
 
         @Override
-        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel, int optValue, boolean optNonInteraction) {
-            
-        }
+        public void trackEvent(String category, String action, String optLabel, int optValue,
+                boolean optNonInteraction) {}
+
+        @Override
+        public void trackEventWithTracker(String trackerName, String category, String action, String optLabel,
+                int optValue, boolean optNonInteraction) {}
     }
 }
