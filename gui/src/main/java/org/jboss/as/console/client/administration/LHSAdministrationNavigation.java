@@ -40,6 +40,7 @@ class LHSAdministrationNavigation {
     public LHSAdministrationNavigation() {
 
         LHSTreeSection accessLeaf = new LHSTreeSection("Access Control", true);
+        accessLeaf.getElement().setId("nav-section-access-control");
         LHSNavTreeItem authItem = new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter);
         accessLeaf.addItem(authItem);
 //        LHSNavTreeItem auditLogItem = new LHSNavTreeItem("Audit Log", NameTokens.AuditLogPresenter);

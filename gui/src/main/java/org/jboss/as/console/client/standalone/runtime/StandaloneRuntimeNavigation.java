@@ -54,6 +54,7 @@ public class StandaloneRuntimeNavigation {
         // ----------------------------------------------------
 
         TreeItem serverLeaf = new LHSTreeSection("Server", true);
+        serverLeaf.getElement().setId("nav-section-server");
 
         LHSNavTreeItem server = new LHSNavTreeItem("Overview", NameTokens.StandaloneServerPresenter);
 
@@ -65,6 +66,7 @@ public class StandaloneRuntimeNavigation {
         // -------------
 
         metricLeaf = new LHSTreeSection("Status");
+        metricLeaf.getElement().setId("nav-section-status");
         navigation.addItem(metricLeaf);
 
         LHSNavTreeItem datasources = new LHSNavTreeItem("Datasources", NameTokens.DataSourceMetricPresenter);

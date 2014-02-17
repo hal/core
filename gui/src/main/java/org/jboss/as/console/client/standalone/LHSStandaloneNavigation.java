@@ -65,11 +65,13 @@ public class LHSStandaloneNavigation {
         //navigation.getElement().setAttribute("aria-controls", "rhs-content-area");
 
         subsystemLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_subsystems(), true);
+        subsystemLeaf.getElement().setId("nav-section-subsystems");
         navigation.addItem(subsystemLeaf);
 
         // ----------------------------------------------------
 
         LHSTreeSection commonLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_generalConfig());
+        commonLeaf.getElement().setId("nav-section-general-config");
         navigation.addItem(commonLeaf);
 
         LHSNavTreeItem[] commonItems = new LHSNavTreeItem[] {
