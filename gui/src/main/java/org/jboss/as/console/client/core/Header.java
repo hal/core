@@ -68,14 +68,14 @@ public class Header implements ValueChangeHandler<String> {
     //private DeckPanel subnavigation;
 
     public static final String[][] SECTIONS = {
-            new String[]{NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_profiles()},
-            new String[]{NameTokens.HostMgmtPresenter, "Hosts"},
+            new String[]{NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_configuration()},
+            new String[]{NameTokens.HostMgmtPresenter, "Domain"},
             new String[]{NameTokens.DomainRuntimePresenter, "Runtime"},
             new String[]{NameTokens.AdministrationPresenter, "Administration"},
     };
 
     public static final String[][] SECTIONS_STANDALONE = {
-            new String[]{NameTokens.serverConfig, "Profile"},
+            new String[]{NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration()},
             new String[]{NameTokens.StandaloneRuntimePresenter, "Runtime"},
             new String[]{NameTokens.AdministrationPresenter, "Administration"},
     };

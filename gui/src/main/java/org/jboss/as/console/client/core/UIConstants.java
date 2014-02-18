@@ -118,7 +118,10 @@ public interface UIConstants extends Constants {
 
     String common_label_hosts();
 
+    @Deprecated
     String common_label_profiles();
+
+    String common_label_configuration();
 
     String common_label_properties();
 
