@@ -116,6 +116,8 @@ import org.jboss.as.console.client.shared.general.SocketBindingView;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
+import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManagerView;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricView;
@@ -668,6 +670,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 EnvironmentPresenter.MyView.class,
                 EnvironmentView.class,
                 EnvironmentPresenter.MyProxy.class);
+
+        bindPresenter(PatchManagerPresenter.class,
+                PatchManagerPresenter.MyView.class,
+                PatchManagerView.class,
+                PatchManagerPresenter.MyProxy.class);
 
         // Administration
         bindPresenter(AdministrationPresenter.class,

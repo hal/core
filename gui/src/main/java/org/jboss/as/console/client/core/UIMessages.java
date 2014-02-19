@@ -21,6 +21,7 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Messages;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import java_cup.version;
 
 /**
  * @author Heiko Braun
@@ -216,4 +217,8 @@ public interface UIMessages extends Messages {
     String verify_datasource_successful_message(String datasource);
 
     String verify_datasource_failed_message(String datasource);
+
+    String patch_manager_desc(String productName);
+
+    String patch_manager_rollback_body(String id);
 }

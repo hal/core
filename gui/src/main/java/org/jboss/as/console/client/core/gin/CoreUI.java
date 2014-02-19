@@ -74,6 +74,7 @@ import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
+import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
@@ -329,6 +330,8 @@ public interface CoreUI {
     AsyncProvider<PathManagementPresenter> PathManagementPresenter();
 
     AsyncProvider<EnvironmentPresenter> EnvironmentPresenter();
+
+    AsyncProvider<PatchManagerPresenter> getPatchManagerProvider();
 
     // Administration
     AsyncProvider<AdministrationPresenter> getAdministrationPresenter();
