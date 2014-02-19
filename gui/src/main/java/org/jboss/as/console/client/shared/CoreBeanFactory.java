@@ -53,6 +53,7 @@ import org.jboss.as.console.client.shared.jvm.model.OSMetric;
 import org.jboss.as.console.client.shared.jvm.model.RuntimeMetric;
 import org.jboss.as.console.client.shared.jvm.model.ThreadMetric;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.properties.PropertyRecordCategory;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
@@ -172,6 +173,7 @@ public interface CoreBeanFactory {
     AutoBean<Server> server();
     AutoBean<Jvm> jvm();
     AutoBean<ServerInstance> serverInstance();
+    AutoBean<PatchInfo> patchInfo();
 
     AutoBean<DataSource> dataSource();
     AutoBean<XADataSource> xaDataSource();

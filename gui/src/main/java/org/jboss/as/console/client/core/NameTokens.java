@@ -67,6 +67,7 @@ public class NameTokens {
     public static final String TransactionPresenter = "transactions";
     public static final String StandaloneRuntimePresenter = "standalone-runtime";
     public static final String DomainRuntimePresenter = "domain-runtime";
+    public static final String PatchingPresenter = "patching";
 
     public static final String TXMetrics = "tx-metrics";
     public static final String TXLogs = "tx-logs";

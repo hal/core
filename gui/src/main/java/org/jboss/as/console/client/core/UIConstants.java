@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Constants;
+import java_cup.version;
 
 
 /**
@@ -1022,4 +1023,12 @@ public interface UIConstants extends Constants {
     String verify_datasource_no_running_servers();
 
     String verify_datasource_dependent_error();
+
+    String patch_manager_latest();
+
+    String patch_manager_apply_new();
+
+    String patch_manager_rollback();
+
+    String patch_manager_recently();
 }
