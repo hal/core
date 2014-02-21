@@ -30,4 +30,14 @@ public interface PatchInfo {
     String getVersion();
 
     void setVersion(String version);
+
+    Type getType();
+
+    void setType(Type type);
+
+    String getAppliedAt();
+
+    void setAppliedAt(String appliedAt);
+
+    enum Type {CUMULATIVE, ONE_OFF}
 }
