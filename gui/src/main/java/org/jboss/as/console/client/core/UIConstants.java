@@ -1031,4 +1031,6 @@ public interface UIConstants extends Constants {
     String patch_manager_rollback();
 
     String patch_manager_recently();
+
+    String patch_manager_error();
 }

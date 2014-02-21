@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.patching;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -47,6 +48,7 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
     private PatchManagerPresenter presenter;
     private Form<PatchInfo> latestForm;
     private PatchInfoTable table;
+    private FlowPanel latestContainer;
 
     @Inject
     public PatchManagerView(ProductConfig productConfig) {
@@ -63,12 +65,16 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
         panel.add(new ContentDescription(Console.MESSAGES.patch_manager_desc(productConfig.getProductName())));
 
         // latest patch info
+        latestContainer = new FlowPanel();
+        latestContainer.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_latest()));
         latestForm = new Form<PatchInfo>(PatchInfo.class);
         latestForm.setEnabled(false);
-        TextItem id = new TextItem("id", Console.CONSTANTS.patch_manager_latest());
+        TextItem id = new TextItem("id", "ID");
         TextItem version = new TextItem("version", "Version");
-        latestForm.setFields(id, version);
-        panel.add(latestForm);
+        TextItem date = new TextItem("appliedAt", Console.CONSTANTS.common_label_date());
+        latestForm.setFields(id, version, date);
+        latestContainer.add(latestForm);
+        panel.add(latestContainer);
 
         // tools & table
         table = new PatchInfoTable();
@@ -119,5 +125,15 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
     @Override
     public void setPresenter(final PatchManagerPresenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void update(final Patches patches) {
+        table.update(patches);
+        boolean latestAvailable = patches.getLatest() != PatchInfo.NO_PATCH;
+        latestContainer.setVisible(latestAvailable);
+        if (latestAvailable) {
+            latestForm.edit(patches.getLatest());
+        }
     }
 }

@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
@@ -34,7 +35,6 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 public class PatchInfoTable implements IsWidget {
 
     private static final int PAGE_SIZE = 8;
-    private DefaultCellTable<PatchInfo> table;
     private ListDataProvider<PatchInfo> dataProvider;
     private SingleSelectionModel<PatchInfo> selectionModel;
 
@@ -51,7 +51,7 @@ public class PatchInfoTable implements IsWidget {
                 return item.getId();
             }
         };
-        table = new DefaultCellTable<PatchInfo>(PAGE_SIZE, keyProvider);
+        DefaultCellTable<PatchInfo> table = new DefaultCellTable<PatchInfo>(PAGE_SIZE, keyProvider);
         selectionModel = new SingleSelectionModel(keyProvider);
         table.setSelectionModel(selectionModel);
         dataProvider = new ListDataProvider<PatchInfo>();
@@ -63,14 +63,21 @@ public class PatchInfoTable implements IsWidget {
                 return record.getId();
             }
         };
-        TextColumn<PatchInfo> versionColumn = new TextColumn<PatchInfo>() {
+        TextColumn<PatchInfo> dateColumn = new TextColumn<PatchInfo>() {
             @Override
             public String getValue(PatchInfo record) {
-                return record.getVersion();
+                return record.getAppliedAt();
+            }
+        };
+        TextColumn<PatchInfo> typeColumn = new TextColumn<PatchInfo>() {
+            @Override
+            public String getValue(PatchInfo record) {
+                return record.getType().label();
             }
         };
         table.addColumn(idColumn, "ID");
-        table.addColumn(versionColumn, "Version");
+        table.addColumn(dateColumn, Console.CONSTANTS.common_label_date());
+        table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
 
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
@@ -82,5 +89,9 @@ public class PatchInfoTable implements IsWidget {
 
     PatchInfo getCurrentSelection() {
         return selectionModel.getSelectedObject();
+    }
+
+    void update(Patches patches) {
+        dataProvider.setList(patches.asList());
     }
 }
