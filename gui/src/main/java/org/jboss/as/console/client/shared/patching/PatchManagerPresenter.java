@@ -27,6 +27,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 
@@ -43,16 +44,20 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     public interface MyView extends View {
 
         void setPresenter(PatchManagerPresenter presenter);
+
+        void update(Patches patches);
     }
 
     private final RevealStrategy revealStrategy;
+    private final PatchManager patchManager;
 
     @Inject
     public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            RevealStrategy revealStrategy) {
+            RevealStrategy revealStrategy, PatchManager patchManager) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
+        this.patchManager = patchManager;
     }
 
     @Override
@@ -64,6 +69,12 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     @Override
     protected void onReset() {
         super.onReset();
+        patchManager.getPatches(new SimpleCallback<Patches>() {
+            @Override
+            public void onSuccess(final Patches patches) {
+                getView().update(patches);
+            }
+        });
     }
 
     @Override

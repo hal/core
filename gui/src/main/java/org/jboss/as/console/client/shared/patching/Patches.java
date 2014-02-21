@@ -18,54 +18,44 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author Harald Pehl
  */
-public interface PatchInfo {
+public class Patches implements Iterable<PatchInfo> {
 
-    String getId();
+    private final List<PatchInfo> patches;
+    private PatchInfo latest;
 
-    void setId(String id);
+    public Patches() {
+        patches = new LinkedList<PatchInfo>();
+        latest = PatchInfo.NO_PATCH;
+    }
 
-    String getVersion();
+    public void setLatest(String id) {
+        for (PatchInfo patch : patches) {
+            if (id.equals(patch.getId())) {
+                latest = patch;
+                break;
+            }
+        }
+    }
 
-    void setVersion(String version);
+    public PatchInfo getLatest() {
+        return latest;
+    }
 
-    PatchType getType();
+    @Override
+    public Iterator<PatchInfo> iterator() {
+        return patches.iterator();
+    }
 
-    void setType(PatchType type);
+    public List<PatchInfo> asList() {return patches;}
 
-    String getAppliedAt();
+    public boolean isEmpty() {return patches.isEmpty();}
 
-    void setAppliedAt(String appliedAt);
-
-
-    // ------------------------------------------------------ inner classes
-
-    PatchInfo NO_PATCH = new PatchInfo() {
-
-        @Override
-        public String getId() {return "";}
-
-        @Override
-        public void setId(final String id) {}
-
-        @Override
-        public String getVersion() {return "";}
-
-        @Override
-        public void setVersion(final String version) {}
-
-        @Override
-        public PatchType getType() {return null;}
-
-        @Override
-        public void setType(final PatchType type) {}
-
-        @Override
-        public String getAppliedAt() {return "";}
-
-        @Override
-        public void setAppliedAt(final String appliedAt) {}
-    };
+    public boolean add(final PatchInfo patchInfo) {return patches.add(patchInfo);}
 }
