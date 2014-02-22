@@ -26,10 +26,15 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard;
+import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 /**
  * @author Harald Pehl
@@ -50,14 +55,20 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
+    private final DomainEntityManager domainManager;
+    private final BootstrapContext bootstrapContext;
+    private DefaultWindow window;
 
     @Inject
     public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            RevealStrategy revealStrategy, PatchManager patchManager) {
+            RevealStrategy revealStrategy, PatchManager patchManager, final DomainEntityManager domainManager,
+            BootstrapContext bootstrapContext) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.patchManager = patchManager;
+        this.domainManager = domainManager;
+        this.bootstrapContext = bootstrapContext;
     }
 
     @Override
@@ -82,12 +93,22 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         revealStrategy.revealInRuntimeParent(this);
     }
 
-    public void launchNewPatchWizard() {
+    public void launchApplyPatchWizard() {
+        ApplyPatchWizard.Context context = new ApplyPatchWizard.Context(bootstrapContext.isStandalone(),
+                domainManager.getSelectedHost(), true);
 
+        window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
+        window.setWidth(480);
+        window.setHeight(450);
+        window.setWidget(new ApplyPatchWizard(this, context));
+        window.setGlassEnabled(true);
+        window.center();
     }
 
-    public void onApply(final PatchInfo patchInfo) {
-
+    public void hideWindow() {
+        if (window != null) {
+            window.hide();
+        }
     }
 
     public void onRollback(final PatchInfo patchInfo) {

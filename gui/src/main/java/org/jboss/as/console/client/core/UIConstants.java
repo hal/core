@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Constants;
-import java_cup.version;
 
 
 /**
@@ -1033,4 +1032,18 @@ public interface UIConstants extends Constants {
     String patch_manager_recently();
 
     String patch_manager_error();
+
+    String patch_manager_stop_server_title();
+
+    String patch_manager_stop_server_yes();
+
+    String patch_manager_stop_server_no();
+
+    String patch_manager_select_patch_title();
+
+    String patch_manager_select_patch_body();
+
+    String patch_manager_applying_patch_title();
+
+    String patch_manager_applied_success_title();
 }
