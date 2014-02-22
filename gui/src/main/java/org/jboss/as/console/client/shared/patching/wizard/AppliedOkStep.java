@@ -18,12 +18,23 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
+import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.administration.role.form.EnumFormItem;
+import org.jboss.as.console.client.shared.patching.PatchInfo;
+import org.jboss.as.console.client.shared.patching.PatchType;
+import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.TextItem;
 
 /**
  * @author Harald Pehl
@@ -33,7 +44,7 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     private final String serverOrHost;
     private RadioButton yes;
     private RadioButton no;
-    private Label patchApplied;
+    private Form<PatchInfo> form;
 
     public AppliedOkStep(final ApplyPatchWizard wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_applied_success_title());
@@ -43,20 +54,35 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     @Override
     protected IsWidget body() {
         FlowPanel body = new FlowPanel();
-        patchApplied = new Label("");
-        body.add(patchApplied);
+
+        form = new Form<PatchInfo>(PatchInfo.class);
+        form.setEnabled(false);
+        TextItem id = new TextItem("id", "ID");
+        TextItem version = new TextItem("version", "Version");
+        Map<PatchType, String> values = new HashMap<PatchType, String>();
+        values.put(CUMULATIVE, CUMULATIVE.label());
+        values.put(ONE_OFF, ONE_OFF.label());
+        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
+        type.setValues(values);
+        form.setFields(id, version, type);
+        body.add(form);
+
         body.add(new HTML("<h3>" + Console.MESSAGES.patch_manager_restart_title(serverOrHost) + "</h3>"));
         body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
+
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
+        yes.addStyleName("apply-patch-radio");
         yes.setValue(true);
         no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
+        no.addStyleName("apply-patch-radio");
         body.add(yes);
         body.add(no);
+
         return body;
     }
 
     @Override
     void onShow(final ApplyPatchWizard.Context context) {
-        patchApplied.setText(Console.MESSAGES.patch_manager_applied_success_body(context.patchInfo.getId()));
+        form.edit(context.patchInfo);
     }
 }

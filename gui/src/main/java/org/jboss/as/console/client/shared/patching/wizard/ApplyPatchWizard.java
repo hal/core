@@ -25,8 +25,6 @@ import java.util.LinkedHashMap;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.DeckPanel;
@@ -35,8 +33,10 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
+import org.jboss.as.console.client.shared.patching.PatchType;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -85,9 +85,6 @@ public class ApplyPatchWizard implements IsWidget {
         for (Step step : steps.values()) {
             deck.add(step);
         }
-        for (Step step : steps.values()) {
-            step.adjustHeader();
-        }
         deck.showWidget(state.ordinal());
 
         return new TrappedFocusPanel(deck);
@@ -98,7 +95,7 @@ public class ApplyPatchWizard implements IsWidget {
             case STOP_SERVERS:
                 state = STOPPING;
                 deck.showWidget(state.ordinal());
-                steps.get(state).setEnabled(true, false);
+//                steps.get(state).setEnabled(true, false);
                 break;
             case STOPPING:
                 state = SELECT_PATCH;
@@ -110,21 +107,29 @@ public class ApplyPatchWizard implements IsWidget {
                 break;
             case APPLYING:
                 if (context.errorMessage == null) {
+                    // Test code
+                    BeanFactory beanFactory = GWT.create(BeanFactory.class);
+                    context.patchInfo = beanFactory.patchInfo().as();
+                    context.patchInfo.setId("0815");
+                    context.patchInfo.setType(PatchType.CUMULATIVE);
+                    context.patchInfo.setVersion("1.234");
                     state = SUCCESS;
-                } else {
-                    state = ERROR;
                 }
                 deck.showWidget(state.ordinal());
                 break;
             case SUCCESS:
+                close();
                 break;
             case CONFLICT:
                 if (context.overwriteConflict) {
                     state = APPLYING;
                     deck.showWidget(state.ordinal());
+                } else {
+                    close();
                 }
                 break;
             case ERROR:
+                close();
                 break;
         }
     }
@@ -170,10 +175,7 @@ public class ApplyPatchWizard implements IsWidget {
 
     abstract static class Step implements IsWidget {
 
-        private static final Template HEADER_TEMPLATE = GWT.create(Template.class);
-
         private final String title;
-        private HTML header;
         private Widget widget;
         private DialogueOptions dialogOptions;
 
@@ -188,8 +190,7 @@ public class ApplyPatchWizard implements IsWidget {
         public final Widget asWidget() {
             VerticalPanel layout = new VerticalPanel();
             layout.setStyleName("window-content");
-            header = new HTML();
-            layout.add(header);
+            layout.add(new HTML("<h3>" + title + "</div>"));
             layout.add(body());
 
             ClickHandler submitHandler = new ClickHandler() {
@@ -221,25 +222,11 @@ public class ApplyPatchWizard implements IsWidget {
             wizard.close();
         }
 
-        void adjustHeader() {
-            if (widget != null) {
-                header.setHTML(HEADER_TEMPLATE
-                        .message(title, Console.CONSTANTS.common_label_step(), wizard.deck.getWidgetIndex(widget),
-                                wizard.deck.getWidgetCount()));
-            }
-        }
-
         void setEnabled(boolean cancel, boolean next) {
             DOM.setElementPropertyBoolean((Element) dialogOptions.getCancel(), "disabled", !cancel);
             DOM.setElementPropertyBoolean((Element) dialogOptions.getSubmit(), "disabled", !next);
         }
 
         abstract IsWidget body();
-
-        interface Template extends SafeHtmlTemplates {
-
-            @Template("<h3>{1} {2} / {3}: {0}</div>")
-            SafeHtml message(String header, String step, int index, int total);
-        }
     }
 }

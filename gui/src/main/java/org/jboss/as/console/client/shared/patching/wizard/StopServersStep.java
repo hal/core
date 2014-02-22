@@ -41,8 +41,10 @@ public class StopServersStep extends ApplyPatchWizard.Step {
         FlowPanel body = new FlowPanel();
         body.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(wizard.context.host)));
         yes = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_yes());
+        yes.addStyleName("apply-patch-radio");
         yes.setValue(true);
         no = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_no());
+        no.addStyleName("apply-patch-radio");
         body.add(yes);
         body.add(no);
         return body;

@@ -18,38 +18,30 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import org.jboss.as.console.client.Console;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 
 /**
  * @author Harald Pehl
  */
-public class SelectPatchStep extends ApplyPatchWizard.Step {
+class Pending extends Composite {
 
-    private FileUpload fileUpload;
+    private final static Template TEMPLATE = GWT.create(Template.class);
+    private final String title;
 
-    public SelectPatchStep(final ApplyPatchWizard wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_select_patch_title());
+    Pending(final String title) {
+        this.title = title;
+        initWidget(new HTML(TEMPLATE.body(title)));
+        setStyleName("hal-pending");
     }
 
-    @Override
-    protected IsWidget body() {
-        FlowPanel body = new FlowPanel();
-        Label label = new Label(Console.CONSTANTS.patch_manager_select_patch_body());
-        label.getElement().getStyle().setMarginBottom(1, Style.Unit.EM);
-        body.add(label);
-        fileUpload = new FileUpload();
-        body.add(fileUpload);
-        return body;
-    }
+    interface Template extends SafeHtmlTemplates {
 
-    @Override
-    void onNext() {
-        wizard.context.filename = fileUpload.getFilename();
-        super.onNext();
+        @SafeHtmlTemplates.Template(
+                "<div><img src=\"images/loading_lite.gif\" class=\"spinner\"/><span class=\"title\">{0}</span></div>")
+        SafeHtml body(String title);
     }
 }

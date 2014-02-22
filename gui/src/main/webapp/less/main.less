@@ -1403,6 +1403,7 @@ input[disabled], select[disabled], textarea[disabled], input[readonly], select[r
 select, input[type="file"] {
   height: 28px;
   line-height: 28px;
+  width: inherit;
 }
 
 .radio input[type="radio"], .checkbox input[type="checkbox"] {
@@ -2514,4 +2515,24 @@ hr {
   color: @background1-color;
   height: 1px;
   width: 80%;
+}
+
+.apply-patch-radio {
+  display: block;
+  margin: 1em;
+  input[type=radio] {
+    width: inherit;
+    margin: 0 .5em;
+  }
+}
+
+.hal-pending {
+  margin: 2em 0;
+  text-align: center;
+  .spinner, .title {
+    vertical-align: middle;
+  }
+  .title {
+    padding-left: 1em;
+  }
 }

@@ -225,8 +225,6 @@ public interface UIMessages extends Messages {
 
     String patch_manager_applying(String filename);
 
-    String patch_manager_applied_success_body(String patch);
-
     String patch_manager_restart_title(String serverOrHost);
 
     String patch_manager_applied_restart_body(String serverOrHost);

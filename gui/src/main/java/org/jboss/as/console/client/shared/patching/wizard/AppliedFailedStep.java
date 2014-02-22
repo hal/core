@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.shared.patching.wizard;
 
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * @author Harald Pehl
@@ -26,11 +27,11 @@ import com.google.gwt.user.client.ui.IsWidget;
 public class AppliedFailedStep extends ApplyPatchWizard.Step {
 
     public AppliedFailedStep(final ApplyPatchWizard wizard) {
-        super(wizard, "");
+        super(wizard, "Failed");
     }
 
     @Override
     protected IsWidget body() {
-        return null;
+        return new Label("nyi");
     }
 }
