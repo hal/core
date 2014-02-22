@@ -82,7 +82,7 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.patch_manager_apply_new(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchNewPatchWizard();
+                presenter.launchApplyPatchWizard();
             }
         }));
         ClickHandler rollbackHandler = new ClickHandler() {
