@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 
@@ -29,23 +27,11 @@ import org.jboss.as.console.client.Console;
 public class StoppingServersStep extends ApplyPatchWizard.Step {
 
     public StoppingServersStep(final ApplyPatchWizard wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_stop_server_title());
+        super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title());
     }
 
     @Override
     protected IsWidget body() {
-        return new HTMLPanel(
-                "<center><div><img src='images/loading_lite.gif' style='padding-top:3px;vertical-align:middle'/>Stopping servers...</div></center>");
-    }
-
-    @Override
-    void onShow(final ApplyPatchWizard.Context context) {
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-            @Override
-            public boolean execute() {
-                onNext();
-                return true;
-            }
-        }, 1500);
+        return new Pending(Console.CONSTANTS.patch_manager_stopping_servers_body());
     }
 }

@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 
@@ -34,18 +32,6 @@ public class ApplyingPatchStep extends ApplyPatchWizard.Step {
 
     @Override
     protected IsWidget body() {
-        return new HTMLPanel(
-                "<center><div><img src='images/loading_lite.gif' style='padding-top:3px;vertical-align:middle'/>Applying patch...</div></center>");
-    }
-
-    @Override
-    void onShow(final ApplyPatchWizard.Context context) {
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-            @Override
-            public boolean execute() {
-                onNext();
-                return true;
-            }
-        }, 1500);
+        return new Pending(Console.CONSTANTS.patch_manager_applying_patch_body());
     }
 }

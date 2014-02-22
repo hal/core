@@ -94,8 +94,12 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void launchApplyPatchWizard() {
-        ApplyPatchWizard.Context context = new ApplyPatchWizard.Context(bootstrapContext.isStandalone(),
-                domainManager.getSelectedHost(), true);
+        String host = null;
+        boolean standalone = bootstrapContext.isStandalone();
+        if (!standalone) {
+            host = domainManager.getSelectedHost();
+        }
+        ApplyPatchWizard.Context context = new ApplyPatchWizard.Context(standalone, host, true);
 
         window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
         window.setWidth(480);
