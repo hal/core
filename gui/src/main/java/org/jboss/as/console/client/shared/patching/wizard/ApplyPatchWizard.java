@@ -106,14 +106,21 @@ public class ApplyPatchWizard implements IsWidget {
                 deck.showWidget(state.ordinal());
                 break;
             case APPLYING:
-                if (context.errorMessage == null) {
-                    // Test code
+                // Test
+                long ct = System.currentTimeMillis();
+                if (ct % 2 == 0) {
                     BeanFactory beanFactory = GWT.create(BeanFactory.class);
                     context.patchInfo = beanFactory.patchInfo().as();
                     context.patchInfo.setId("0815");
                     context.patchInfo.setType(PatchType.CUMULATIVE);
                     context.patchInfo.setVersion("1.234");
                     state = SUCCESS;
+                } else if (ct % 3 == 0) {
+                    context.errorMessage = TEST_ERROR_MESSAGE;
+                    state = ERROR;
+                } else {
+                    context.errorMessage = TEST_ERROR_MESSAGE;
+                    state = CONFLICT;
                 }
                 deck.showWidget(state.ordinal());
                 break;
@@ -157,6 +164,7 @@ public class ApplyPatchWizard implements IsWidget {
         boolean conflict;
         String errorMessage;
         boolean overwriteConflict;
+        boolean selectAgain;
 
         public Context(final boolean standalone, final String host, final boolean runningServers) {
             this.standalone = standalone;
@@ -169,17 +177,18 @@ public class ApplyPatchWizard implements IsWidget {
             this.conflict = false;
             this.errorMessage = null;
             this.overwriteConflict = false;
+            this.selectAgain = false;
         }
     }
 
 
     abstract static class Step implements IsWidget {
 
-        private final String title;
+        final ApplyPatchWizard wizard;
+        final String title;
+
         private Widget widget;
         private DialogueOptions dialogOptions;
-
-        final ApplyPatchWizard wizard;
 
         Step(final ApplyPatchWizard wizard, final String title) {
             this.title = title;
@@ -190,7 +199,9 @@ public class ApplyPatchWizard implements IsWidget {
         public final Widget asWidget() {
             VerticalPanel layout = new VerticalPanel();
             layout.setStyleName("window-content");
-            layout.add(new HTML("<h3>" + title + "</div>"));
+            layout.addStyleName("apply-patch-wizard");
+
+            layout.add(header());
             layout.add(body());
 
             ClickHandler submitHandler = new ClickHandler() {
@@ -227,6 +238,63 @@ public class ApplyPatchWizard implements IsWidget {
             DOM.setElementPropertyBoolean((Element) dialogOptions.getSubmit(), "disabled", !next);
         }
 
+        IsWidget header() {
+            return new HTML("<h3>" + title + "</h3>");
+        }
+
         abstract IsWidget body();
     }
+
+
+    final static String TEST_ERROR_MESSAGE = "{\n" +
+            "    \"outcome\" => \"success\",\n" +
+            "    \"result\" => {\n" +
+            "        \"allocation-retry\" => undefined,\n" +
+            "        \"allocation-retry-wait-millis\" => undefined,\n" +
+            "        \"allow-multiple-users\" => false,\n" +
+            "        \"background-validation\" => undefined,\n" +
+            "        \"background-validation-millis\" => undefined,\n" +
+            "        \"blocking-timeout-wait-millis\" => undefined,\n" +
+            "        \"check-valid-connection-sql\" => undefined,\n" +
+            "        \"connection-url\" => \"jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE\",\n" +
+            "        \"datasource-class\" => undefined,\n" +
+            "        \"driver-class\" => undefined,\n" +
+            "        \"driver-name\" => \"h2\",\n" +
+            "        \"enabled\" => true,\n" +
+            "        \"exception-sorter-class-name\" => undefined,\n" +
+            "        \"exception-sorter-properties\" => undefined,\n" +
+            "        \"use-try-lock\" => undefined,\n" +
+            "        \"user-name\" => \"sa\",\n" +
+            "        \"valid-connection-checker-class-name\" => undefined,\n" +
+            "        \"valid-connection-checker-properties\" => undefined,\n" +
+            "        \"validate-on-match\" => false,\n" +
+            "        \"connection-properties\" => undefined,\n" +
+            "        \"statistics\" => {\n" +
+            "            \"jdbc\" => {\n" +
+            "                \"PreparedStatementCacheAccessCount\" => \"0\",\n" +
+            "                \"PreparedStatementCacheAddCount\" => \"0\",\n" +
+            "                \"PreparedStatementCacheCurrentSize\" => \"0\",\n" +
+            "                \"PreparedStatementCacheDeleteCount\" => \"0\",\n" +
+            "                \"PreparedStatementCacheHitCount\" => \"0\",\n" +
+            "                \"PreparedStatementCacheMissCount\" => \"0\"\n" +
+            "            },\n" +
+            "            \"pool\" => {\n" +
+            "                \"ActiveCount\" => \"0\",\n" +
+            "                \"AvailableCount\" => \"20\",\n" +
+            "                \"AverageBlockingTime\" => \"0\",\n" +
+            "                \"AverageCreationTime\" => \"0\",\n" +
+            "                \"CreatedCount\" => \"0\",\n" +
+            "                \"DestroyedCount\" => \"0\",\n" +
+            "                \"InUseCount\" => \"0\",\n" +
+            "                \"MaxCreationTime\" => \"0\",\n" +
+            "                \"MaxUsedCount\" => \"0\",\n" +
+            "                \"MaxWaitCount\" => \"0\",\n" +
+            "                \"MaxWaitTime\" => \"0\",\n" +
+            "                \"TimedOut\" => \"0\",\n" +
+            "                \"TotalBlockingTime\" => \"0\",\n" +
+            "                \"TotalCreationTime\" => \"0\"\n" +
+            "            }\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
 }

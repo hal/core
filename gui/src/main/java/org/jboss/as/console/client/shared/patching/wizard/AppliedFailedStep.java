@@ -18,20 +18,67 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
+import org.jboss.as.console.client.Console;
 
 /**
  * @author Harald Pehl
  */
 public class AppliedFailedStep extends ApplyPatchWizard.Step {
 
+    final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
+
+    private ErrorDetails errorDetails;
+
     public AppliedFailedStep(final ApplyPatchWizard wizard) {
-        super(wizard, "Failed");
+        super(wizard, Console.CONSTANTS.patch_manager_error_title());
     }
 
     @Override
-    protected IsWidget body() {
-        return new Label("nyi");
+    IsWidget header() {
+        return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
+    }
+
+    @Override
+    IsWidget body() {
+        FlowPanel body = new FlowPanel();
+        body.add(new Label(Console.CONSTANTS.patch_manager_error_body()));
+
+        errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
+                Console.CONSTANTS.patch_manager_hide_details());
+        body.add(errorDetails);
+
+        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
+        HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
+                .actions(Console.CONSTANTS.patch_manager_error_cancel_title(),
+                        Console.CONSTANTS.patch_manager_error_cancel_body(),
+                        Console.CONSTANTS.patch_manager_error_select_title(),
+                        Console.CONSTANTS.patch_manager_error_select_body()));
+        body.add(actions);
+
+        return body;
+    }
+
+
+    @Override
+    void onShow(final ApplyPatchWizard.Context context) {
+        errorDetails.setDetails(context.errorMessage);
+    }
+
+
+    interface ActionsTemplate extends SafeHtmlTemplates {
+
+        @Template("<ul class=\"apply-patch-actions\">" +
+                "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
+                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}“</div></li>" +
+                "</ul>")
+        SafeHtml actions(String cancelTitle, String cancelBody, String overrideTitle, String overrideBody);
     }
 }
