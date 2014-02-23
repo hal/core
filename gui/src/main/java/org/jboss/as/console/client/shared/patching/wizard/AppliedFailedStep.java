@@ -77,7 +77,7 @@ public class AppliedFailedStep extends ApplyPatchWizard.Step {
 
         @Template("<ul class=\"apply-patch-actions\">" +
                 "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
-                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}“</div></li>" +
+                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div></li>" +
                 "</ul>")
         SafeHtml actions(String cancelTitle, String cancelBody, String overrideTitle, String overrideBody);
     }
