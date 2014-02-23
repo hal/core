@@ -186,13 +186,25 @@ public class ApplyPatchWizard implements IsWidget {
 
         final ApplyPatchWizard wizard;
         final String title;
+        final String submitText;
+        final String cancelText;
 
         private Widget widget;
         private DialogueOptions dialogOptions;
 
         Step(final ApplyPatchWizard wizard, final String title) {
-            this.title = title;
+            this(wizard, title, Console.CONSTANTS.common_label_next(), Console.CONSTANTS.common_label_cancel());
+        }
+
+        Step(final ApplyPatchWizard wizard, final String title, String submitText) {
+            this(wizard, title, submitText, Console.CONSTANTS.common_label_cancel());
+        }
+
+        Step(final ApplyPatchWizard wizard, final String title, String submitText, String cancelText) {
             this.wizard = wizard;
+            this.title = title;
+            this.submitText = submitText;
+            this.cancelText = cancelText;
         }
 
         @Override
@@ -216,8 +228,7 @@ public class ApplyPatchWizard implements IsWidget {
                     onCancel();
                 }
             };
-            dialogOptions = new DialogueOptions(Console.CONSTANTS.common_label_next(), submitHandler,
-                    Console.CONSTANTS.common_label_cancel(), cancelHandler);
+            dialogOptions = new DialogueOptions(submitText, submitHandler, cancelText, cancelHandler);
 
             widget = new WindowContentBuilder(layout, dialogOptions).build();
             return widget;
