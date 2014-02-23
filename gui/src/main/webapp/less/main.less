@@ -1525,6 +1525,12 @@ input[type="checkbox"] {
   background: -o-linear-gradient(top, @selection3-color, @selection4-color);
   color: #ffffff !important;
   border-color: @border4-color !important;
+
+  &:disabled {
+    color: #4e5156 !important;
+    background: fade(@selection3-color, 50%);
+    border: 1px solid #b9b9b9;
+  }
 }
 
 /*paged views*/
