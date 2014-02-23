@@ -52,6 +52,11 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     }
 
     @Override
+    IsWidget header() {
+        return new HTML("<h3 class=\"success\"><i class=\"icon-ok icon-large\"></i> " + title + "</h3>");
+    }
+
+    @Override
     protected IsWidget body() {
         FlowPanel body = new FlowPanel();
 
@@ -67,7 +72,7 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
         form.setFields(id, version, type);
         body.add(form);
 
-        body.add(new HTML("<h3>" + Console.MESSAGES.patch_manager_restart_title(serverOrHost) + "</h3>"));
+        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.MESSAGES.patch_manager_restart_title(serverOrHost) + "</h3>"));
         body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
 
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));

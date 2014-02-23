@@ -2526,6 +2526,10 @@ hr {
   }
 }
 
+.apply-patch-followup-header {
+  margin-top: 2em;
+}
+
 .hal-pending {
   margin: 2em 0;
   text-align: center;
@@ -2534,5 +2538,29 @@ hr {
   }
   .title {
     padding-left: 1em;
+  }
+}
+
+.success {
+  color: @success-color;
+}
+.error {
+  color: @error-color;
+}
+
+ul.apply-patch-actions {
+  list-style: none;
+  li {
+    margin-bottom: 1em;
+  }
+  .title {
+    font-weight: bold;
+  }
+  #apply-patch-conflict-override {
+    margin-top: .5em;
+    input[type=checkbox] {
+      margin: 0 .5em 0 0;
+      padding: 0;
+    }
   }
 }

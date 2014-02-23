@@ -232,4 +232,6 @@ public interface UIMessages extends Messages {
     String patch_manager_restart_yes(String serverOrHost);
 
     String patch_manager_restart_no(String serverOrHost);
+
+    SafeHtml patch_manager_conflict_override_title();
 }
