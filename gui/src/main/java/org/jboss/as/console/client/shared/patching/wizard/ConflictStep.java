@@ -58,7 +58,8 @@ public class ConflictStep extends ApplyPatchWizard.Step {
                 Console.CONSTANTS.patch_manager_hide_details());
         body.add(errorDetails);
 
-        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
+        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS
+                .patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
                 .actions(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
                         Console.CONSTANTS.patch_manager_conflict_cancel_body(),
@@ -68,9 +69,7 @@ public class ConflictStep extends ApplyPatchWizard.Step {
         overrideCheck.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
             public void onValueChange(final ValueChangeEvent<Boolean> event) {
-                if (event.getValue()) {
-                    // TODO activate continue button
-                }
+                setEnabled(event.getValue(), true);
             }
         });
         actions.add(overrideCheck, "apply-patch-conflict-override");
@@ -81,7 +80,7 @@ public class ConflictStep extends ApplyPatchWizard.Step {
 
     @Override
     void onShow(final ApplyPatchWizard.Context context) {
-        errorDetails.setDetails(context.errorMessage);
+        errorDetails.setDetails(context.patchFailedDetails);
     }
 
 

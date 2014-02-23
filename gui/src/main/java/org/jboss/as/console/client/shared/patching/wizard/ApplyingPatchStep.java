@@ -18,8 +18,13 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.patching.PatchInfo;
+import org.jboss.as.console.client.shared.patching.PatchType;
 
 /**
  * @author Harald Pehl
@@ -33,5 +38,31 @@ public class ApplyingPatchStep extends ApplyPatchWizard.Step {
     @Override
     protected IsWidget body() {
         return new Pending(Console.CONSTANTS.patch_manager_applying_patch_body());
+    }
+
+    @Override
+    void onShow(final ApplyPatchWizard.Context context) {
+        // reset old state
+        context.restartToUpdate = true;
+        context.patchInfo = PatchInfo.NO_PATCH;
+        context.conflict = false;
+        context.patchFailedDetails = null;
+        context.overrideConflict = false;
+
+        // TODO Implement patch operation
+        // TODO Take conflict.overrideConflict into account
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                BeanFactory beanFactory = GWT.create(BeanFactory.class);
+                PatchInfo appliedPatch = beanFactory.patchInfo().as();
+                appliedPatch.setId("0815");
+                appliedPatch.setType(PatchType.CUMULATIVE);
+                appliedPatch.setVersion("1.234");
+                context.patchInfo = appliedPatch;
+                wizard.next();
+                return false;
+            }
+        }, 1500);
     }
 }

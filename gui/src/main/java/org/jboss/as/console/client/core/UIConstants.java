@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Constants;
-import com.google.gwt.safehtml.shared.SafeHtml;
 
 
 /**
@@ -1083,4 +1082,18 @@ public interface UIConstants extends Constants {
     String patch_manager_show_details();
 
     String patch_manager_hide_details();
+
+    String patch_manager_stop_server_error();
+
+    String patch_manager_stop_server_timeout();
+
+    String patch_manager_stop_server_unknown_error();
+
+    String patch_manager_stop_server_error_continue_title();
+
+    String patch_manager_stop_server_error_continue_body();
+
+    String patch_manager_stop_server_error_cancel_title();
+
+    String patch_manager_stop_server_error_cancel_body();
 }

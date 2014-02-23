@@ -90,4 +90,10 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     void onShow(final ApplyPatchWizard.Context context) {
         form.edit(context.patchInfo);
     }
+
+    @Override
+    void onNext() {
+        wizard.context.restartToUpdate = yes.getValue();
+        super.onNext();
+    }
 }
