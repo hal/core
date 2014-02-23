@@ -18,6 +18,16 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard.Context;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -35,6 +45,11 @@ import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Harald Pehl
@@ -46,6 +61,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
     public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
 
+
     public interface MyView extends View {
 
         void setPresenter(PatchManagerPresenter presenter);
@@ -53,22 +69,25 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         void update(Patches patches);
     }
 
+
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
     private final DomainEntityManager domainManager;
     private final BootstrapContext bootstrapContext;
+    private final DispatchAsync dispatcher;
     private DefaultWindow window;
 
     @Inject
     public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             RevealStrategy revealStrategy, PatchManager patchManager, final DomainEntityManager domainManager,
-            BootstrapContext bootstrapContext) {
+            BootstrapContext bootstrapContext, DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.patchManager = patchManager;
         this.domainManager = domainManager;
         this.bootstrapContext = bootstrapContext;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -94,19 +113,61 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void launchApplyPatchWizard() {
-        String host = null;
-        boolean standalone = bootstrapContext.isStandalone();
-        if (!standalone) {
-            host = domainManager.getSelectedHost();
-        }
-        ApplyPatchWizard.Context context = new ApplyPatchWizard.Context(standalone, host, true);
+        // this callback is directly called from the standalone branch
+        // or after the running server instances are retrieved in the domain branch
+        final Callback<Context, Throwable> contextCallback = new Callback<Context, Throwable>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Log.error("Unable to launch apply patch wizard", caught);
+                Console.error("Unable to launch apply patch wizard", caught.getMessage());
+            }
 
-        window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
-        window.setWidth(480);
-        window.setHeight(450);
-        window.setWidget(new ApplyPatchWizard(this, context));
-        window.setGlassEnabled(true);
-        window.center();
+            @Override
+            public void onSuccess(final Context context) {
+                window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
+                window.setWidth(480);
+                window.setHeight(450);
+                window.setWidget(new ApplyPatchWizard(PatchManagerPresenter.this, dispatcher, context));
+                window.setGlassEnabled(true);
+                window.center();
+            }
+        };
+
+        if (bootstrapContext.isStandalone()) {
+            contextCallback.onSuccess(new Context(true, null, Collections.<String>emptyList()));
+        } else {
+            final String host = domainManager.getSelectedHost();
+            ModelNode operation = new ModelNode();
+            operation.get(ADDRESS).add("host", host);
+            operation.get(OPERATION_NAME).set(READ_CHILDREN_RESOURCES_OPERATION);
+            operation.get(INCLUDE_RUNTIME).set(true);
+            dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+                @Override
+                public void onSuccess(DMRResponse result) {
+                    ModelNode response = result.get();
+                    if (response.isFailure()) {
+                        contextCallback.onFailure(new RuntimeException(response.getFailureDescription()));
+                    } else {
+                        List<String> runningServers = new LinkedList<String>();
+                        List<Property> servers = response.get(RESULT).asPropertyList();
+                        for (Property server : servers) {
+                            String name = server.getName();
+                            ModelNode instance = server.getValue();
+                            String state = instance.get("server-state").asString();
+                            if ("running".equals(state)) {
+                                runningServers.add(name);
+                            }
+                        }
+                        contextCallback.onSuccess(new Context(false, host, runningServers));
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    contextCallback.onFailure(caught);
+                }
+            });
+        }
     }
 
     public void hideWindow() {

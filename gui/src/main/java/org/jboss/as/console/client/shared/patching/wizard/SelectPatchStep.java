@@ -48,6 +48,11 @@ public class SelectPatchStep extends ApplyPatchWizard.Step {
     }
 
     @Override
+    void onShow(final ApplyPatchWizard.Context context) {
+        context.filename = null;
+    }
+
+    @Override
     void onNext() {
         wizard.context.filename = fileUpload.getFilename();
         super.onNext();

@@ -48,7 +48,7 @@ public abstract class TopologyOp {
     }
 
 
-    class BooleanCallback extends SimpleCallback<Boolean> {
+    public class BooleanCallback extends SimpleCallback<Boolean> {
 
         @Override
         public void onSuccess(final Boolean result) {
@@ -61,7 +61,7 @@ public abstract class TopologyOp {
         }
     }
 
-    class KeepGoing implements Precondition {
+    public class KeepGoing implements Precondition {
 
         @Override
         public boolean isMet() {
@@ -69,7 +69,7 @@ public abstract class TopologyOp {
         }
     }
 
-    class Finish implements Outcome {
+    public class Finish implements Outcome {
 
         @Override
         public void onFailure(final Object context) {

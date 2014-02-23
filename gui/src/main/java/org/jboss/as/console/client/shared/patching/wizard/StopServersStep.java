@@ -52,7 +52,7 @@ public class StopServersStep extends ApplyPatchWizard.Step {
 
     @Override
     protected void onNext() {
-        wizard.context.shutdownServers = yes.getValue();
+        wizard.context.stopServers = yes.getValue();
         super.onNext();
     }
 }

@@ -20,18 +20,59 @@ package org.jboss.as.console.client.shared.patching.wizard;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.topology.LifecycleCallback;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Harald Pehl
  */
 public class StoppingServersStep extends ApplyPatchWizard.Step {
 
-    public StoppingServersStep(final ApplyPatchWizard wizard) {
+    private final DispatchAsync dispatcher;
+
+    public StoppingServersStep(final ApplyPatchWizard wizard, final DispatchAsync dispatcher) {
         super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title());
+        this.dispatcher = dispatcher;
     }
 
     @Override
     protected IsWidget body() {
         return new Pending(Console.CONSTANTS.patch_manager_stopping_servers_body());
+    }
+
+    @Override
+    void onShow(final ApplyPatchWizard.Context context) {
+        // reset old state
+        context.stopFailed = false;
+        context.stopError = null;
+        context.stopErrorDetails = null;
+
+        // stop running servers
+        new StopServersOp(dispatcher, context.host, context.runningServers, new LifecycleCallback() {
+            @Override
+            public void onSuccess() {
+                wizard.next();
+            }
+
+            @Override
+            public void onTimeout() {
+                wizard.context.stopFailed = true;
+                wizard.context.stopError = Console.CONSTANTS.patch_manager_stop_server_timeout();
+                wizard.next();
+            }
+
+            @Override
+            public void onAbort() {
+                // must never be called!
+            }
+
+            @Override
+            public void onError(final Throwable caught) {
+                    wizard.context.stopFailed = true;
+                wizard.context.stopError = Console.CONSTANTS.patch_manager_stop_server_unknown_error();
+                wizard.context.stopErrorDetails = caught.getMessage();
+                wizard.next();
+            }
+        });
     }
 }
