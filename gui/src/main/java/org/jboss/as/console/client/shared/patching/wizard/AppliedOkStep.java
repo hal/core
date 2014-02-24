@@ -47,7 +47,7 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     private Form<PatchInfo> form;
 
     public AppliedOkStep(final ApplyPatchWizard wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_applied_success_title());
+        super(wizard, Console.CONSTANTS.patch_manager_applied_success_title(), Console.CONSTANTS.common_label_finish());
         this.serverOrHost = wizard.context.standalone ? "server" : "host";
     }
 
@@ -72,7 +72,8 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
         form.setFields(id, version, type);
         body.add(form);
 
-        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.MESSAGES.patch_manager_restart_title(serverOrHost) + "</h3>"));
+        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.MESSAGES
+                .patch_manager_restart_title(serverOrHost) + "</h3>"));
         body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
 
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
