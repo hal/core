@@ -86,7 +86,7 @@ public class ApplyPatchWizard implements IsWidget {
         switch (state) {
             case STOP_SERVERS:
                 if (context.stopServers) {
-                    nextState(STOPPING, false, true);
+                    nextState(STOPPING);
                 } else {
                     nextState(SELECT_PATCH);
                 }
@@ -102,11 +102,13 @@ public class ApplyPatchWizard implements IsWidget {
                 nextState(SELECT_PATCH);
                 break;
             case SELECT_PATCH:
-                nextState(APPLYING, false, true);
+                nextState(APPLYING);
                 break;
             case APPLYING:
                 if (context.conflict) {
-                    nextState(CONFLICT, false, true);
+                    nextState(CONFLICT);
+                    WizardStep step = steps.get(state);
+                    step.setEnabled(false, true);
                 } else if (context.patchFailed) {
                     nextState(ERROR);
                 } else {
@@ -133,11 +135,6 @@ public class ApplyPatchWizard implements IsWidget {
     private void nextState(final WizardState state) {
         this.state = state;
         deck.showWidget(state.ordinal());
-    }
-
-    private void nextState(final WizardState state, final boolean submitEnabled, final boolean cancelEnabled) {
-        nextState(state);
-        steps.get(state).setEnabled(submitEnabled, cancelEnabled);
     }
 
     void close() {
