@@ -26,6 +26,16 @@
     </servlet>
 
     <servlet>
+        <servlet-name>patchProxy</servlet-name>
+        <servlet-class>org.jboss.as.console.server.proxy.XmlHttpProxyServlet</servlet-class>
+        <init-param>
+            <param-name>config.name</param-name>
+            <param-value>patch-proxy.properties</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
         <servlet-name>logout</servlet-name>
         <servlet-class>org.jboss.as.console.server.proxy.XmlHttpProxyServlet</servlet-class>
         <init-param>
@@ -63,6 +73,11 @@
     <servlet-mapping>
         <servlet-name>uploadProxy</servlet-name>
         <url-pattern>/app/upload/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>patchProxy</servlet-name>
+        <url-pattern>/app/patch/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

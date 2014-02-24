@@ -26,7 +26,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 /**
  * @author Harald Pehl
  */
-public class StoppingServersStep extends ApplyPatchWizard.Step {
+public class StoppingServersStep extends WizardStep {
 
     private final DispatchAsync dispatcher;
 
@@ -41,7 +41,7 @@ public class StoppingServersStep extends ApplyPatchWizard.Step {
     }
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
+    void onShow(final WizardContext context) {
         // reset old state
         context.stopFailed = false;
         context.stopError = null;

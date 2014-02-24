@@ -18,19 +18,29 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
+import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Harald Pehl
  */
-public class SelectPatchStep extends ApplyPatchWizard.Step {
+public class SelectPatchStep extends WizardStep {
 
-    private FileUpload fileUpload;
+    private Hidden operation;
+    private HTML errorMessages;
+    private FileUpload upload;
 
     public SelectPatchStep(final ApplyPatchWizard wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_select_patch_title());
@@ -38,23 +48,54 @@ public class SelectPatchStep extends ApplyPatchWizard.Step {
 
     @Override
     protected IsWidget body() {
-        FlowPanel body = new FlowPanel();
+        FormPanel form = new FormPanel();
+        form.setAction(wizard.context.patchUrl);
+        form.setEncoding(ENCODING_MULTIPART);
+        form.setMethod(METHOD_POST);
+        FlowPanel panel = new FlowPanel();
+        form.setWidget(panel);
+        wizard.context.form = form;
+
+        operation = new Hidden("operation");
+        panel.add(operation);
+
         Label label = new Label(Console.CONSTANTS.patch_manager_select_patch_body());
         label.getElement().getStyle().setMarginBottom(1, Style.Unit.EM);
-        body.add(label);
-        fileUpload = new FileUpload();
-        body.add(fileUpload);
-        return body;
+        panel.add(label);
+
+        upload = new FileUpload();
+        upload.setName("patch_file");
+        panel.add(upload);
+
+        errorMessages = new HTML("<i class=\"icon-exclamation-sign\"></i> " + Console.CONSTANTS.patch_manager_select_file());
+        errorMessages.addStyleName("error");
+        errorMessages.setVisible(false);
+        panel.add(errorMessages);
+
+        return form;
     }
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
-        context.filename = null;
+    void onShow(final WizardContext context) {
+        errorMessages.setVisible(false);
+        ModelNode patchOp = wizard.context.patchAddress.clone();
+        patchOp.get(OP).set("patch");
+        patchOp.get("content").add().get("input-stream-index").set(0);
+        if (context.overrideConflict) {
+            patchOp.get("override-all").set(true);
+        }
+        operation.setValue(patchOp.toJSONString());
     }
 
     @Override
     void onNext() {
-        wizard.context.filename = fileUpload.getFilename();
-        super.onNext();
+        errorMessages.setVisible(false);
+        String filename = upload.getFilename();
+        if (filename == null || filename.length() == 0) {
+            errorMessages.setVisible(true);
+        } else {
+            super.onNext();
+            wizard.context.form.submit();
+        }
     }
 }

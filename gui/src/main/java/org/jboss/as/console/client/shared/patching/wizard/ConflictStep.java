@@ -34,7 +34,7 @@ import org.jboss.as.console.client.Console;
 /**
  * @author Harald Pehl
  */
-public class ConflictStep extends ApplyPatchWizard.Step {
+public class ConflictStep extends WizardStep {
 
     final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
 
@@ -79,7 +79,7 @@ public class ConflictStep extends ApplyPatchWizard.Step {
     }
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
+    void onShow(final WizardContext context) {
         errorDetails.setDetails(context.patchFailedDetails);
     }
 

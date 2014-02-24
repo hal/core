@@ -18,21 +18,32 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.PatchType;
+import org.jboss.as.console.client.shared.patching.PatchManager;
+import org.jboss.as.console.client.shared.patching.Patches;
 
 /**
  * @author Harald Pehl
  */
-public class ApplyingPatchStep extends ApplyPatchWizard.Step {
+public class ApplyingPatchStep extends WizardStep {
 
-    public ApplyingPatchStep(final ApplyPatchWizard wizard) {
+    private final PatchManager patchManager;
+    private HandlerRegistration handlerRegistration;
+
+    public ApplyingPatchStep(final ApplyPatchWizard wizard, PatchManager patchManager) {
         super(wizard, Console.CONSTANTS.patch_manager_applying_patch_title());
+        this.patchManager = patchManager;
     }
 
     @Override
@@ -41,28 +52,59 @@ public class ApplyingPatchStep extends ApplyPatchWizard.Step {
     }
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
+    void onShow(final WizardContext context) {
         // reset old state
         context.restartToUpdate = true;
         context.patchInfo = PatchInfo.NO_PATCH;
         context.conflict = false;
+        context.patchFailed = false;
         context.patchFailedDetails = null;
         context.overrideConflict = false;
 
-        // TODO Implement patch operation
-        // TODO Take conflict.overrideConflict into account
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-            @Override
-            public boolean execute() {
-                BeanFactory beanFactory = GWT.create(BeanFactory.class);
-                PatchInfo appliedPatch = beanFactory.patchInfo().as();
-                appliedPatch.setId("0815");
-                appliedPatch.setType(PatchType.CUMULATIVE);
-                appliedPatch.setVersion("1.234");
-                context.patchInfo = appliedPatch;
-                wizard.next();
-                return false;
+        if (handlerRegistration == null) {
+            handlerRegistration = wizard.context.form.addSubmitCompleteHandler(new PatchAppliedHandler());
+        }
+    }
+
+    class PatchAppliedHandler implements FormPanel.SubmitCompleteHandler {
+
+        @Override
+        public void onSubmitComplete(final FormPanel.SubmitCompleteEvent event) {
+            String html = event.getResults();
+            String json = html;
+            try {
+                if (!GWT.isScript()) {
+                    // Formpanel weirdness
+                    json = html.substring(html.indexOf(">") + 1, html.lastIndexOf("<"));
+                }
+            } catch (StringIndexOutOfBoundsException e) {
+                // if I get this exception it means I shouldn't strip out the html
+                // this issue still needs more research
+                Log.debug("Failed to strip out HTML.  This should be preferred?");
             }
-        }, 1500);
+            JSONObject response = JSONParser.parseLenient(json).isObject();
+            JSONString outcome = response.get("outcome").isString();
+            if (outcome != null && "success".equalsIgnoreCase(outcome.stringValue())) {
+                patchManager.getPatches(new SimpleCallback<Patches>() {
+                    @Override
+                    public void onSuccess(final Patches result) {
+                        wizard.context.patchInfo = result.getLatest();
+                        wizard.next();
+                    }
+                });
+            } else {
+                wizard.context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
+                if (wizard.context.patchFailedDetails.contains("conflicts")) {
+                    wizard.context.conflict = true;
+                } else {
+                    wizard.context.patchFailed = true;
+                }
+                wizard.next();
+            }
+        }
+
+        private native String stringify(JavaScriptObject json, int indent) /*-{
+            return JSON.stringify(json, null, indent);
+        }-*/;
     }
 }

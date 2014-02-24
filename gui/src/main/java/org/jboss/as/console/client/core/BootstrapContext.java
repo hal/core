@@ -69,6 +69,9 @@ public class BootstrapContext implements ApplicationProperties {
         String deploymentApi = GWT.isScript() ? getBaseUrl()+"management/add-content" : "http://"+devHost+":8888/app/upload";
         setProperty(DEPLOYMENT_API, deploymentApi);
 
+        String patchApi = GWT.isScript() ? getBaseUrl()+"management-upload" : "http://"+devHost+":8888/app/patch";
+        setProperty(PATCH_API, patchApi);
+
         String logoutApi = GWT.isScript() ? getBaseUrl()+"logout" : "http://"+devHost+":8888/app/logout";
         setProperty(LOGOUT_API, logoutApi);
 

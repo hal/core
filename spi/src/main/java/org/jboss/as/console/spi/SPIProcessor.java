@@ -527,16 +527,22 @@ public class SPIProcessor extends AbstractProcessor {
             OutputStream output2 = sourceFile2.openOutputStream();
 
             FileObject sourceFile3 = filer.createResource(
-                    StandardLocation.SOURCE_OUTPUT, "", "logout.properties");
+                    StandardLocation.SOURCE_OUTPUT, "", "patch-proxy.properties");
             OutputStream output3 = sourceFile3.openOutputStream();
+
+            FileObject sourceFile4 = filer.createResource(
+                    StandardLocation.SOURCE_OUTPUT, "", "logout.properties");
+            OutputStream output4 = sourceFile4.openOutputStream();
 
             new TemplateProcessor().process("gwt.proxy.tmpl", model, output1);
             new TemplateProcessor().process("gwt.proxy.upload.tmpl", model, output2);
-            new TemplateProcessor().process("gwt.proxy.logout.tmpl", model, output3);
+            new TemplateProcessor().process("gwt.proxy.patch.tmpl", model, output3);
+            new TemplateProcessor().process("gwt.proxy.logout.tmpl", model, output4);
 
             output1.close();
             output2.close();
             output3.close();
+            output4.close();
         } catch (IOException e) {
             throw new RuntimeException("Failed to create file", e);
         }

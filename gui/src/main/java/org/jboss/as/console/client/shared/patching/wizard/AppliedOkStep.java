@@ -39,7 +39,7 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 /**
  * @author Harald Pehl
  */
-public class AppliedOkStep extends ApplyPatchWizard.Step {
+public class AppliedOkStep extends WizardStep {
 
     private final String serverOrHost;
     private RadioButton yes;
@@ -88,7 +88,7 @@ public class AppliedOkStep extends ApplyPatchWizard.Step {
     }
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
+    void onShow(final WizardContext context) {
         form.edit(context.patchInfo);
     }
 
