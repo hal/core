@@ -42,7 +42,8 @@ public class ApplyingPatchStep extends WizardStep {
     private HandlerRegistration handlerRegistration;
 
     public ApplyingPatchStep(final ApplyPatchWizard wizard, PatchManager patchManager) {
-        super(wizard, Console.CONSTANTS.patch_manager_applying_patch_title());
+        super(wizard, Console.CONSTANTS.patch_manager_applying_patch_title(), new WizardButton(false),
+                new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.patchManager = patchManager;
     }
 
@@ -61,6 +62,7 @@ public class ApplyingPatchStep extends WizardStep {
         context.patchFailedDetails = null;
         context.overrideConflict = false;
 
+        // only one handler please!
         if (handlerRegistration == null) {
             handlerRegistration = wizard.context.form.addSubmitCompleteHandler(new PatchAppliedHandler());
         }

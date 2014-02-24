@@ -24,6 +24,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -31,31 +32,32 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 /**
-* @author Harald Pehl
-*/
+ * @author Harald Pehl
+ */
 abstract class WizardStep implements IsWidget {
 
     final ApplyPatchWizard wizard;
     final String title;
-    final String submitText;
-    final String cancelText;
+    final WizardButton submitButton;
+    final WizardButton cancelButton;
 
-    private Widget widget;
     private DialogueOptions dialogOptions;
 
     WizardStep(final ApplyPatchWizard wizard, final String title) {
-        this(wizard, title, Console.CONSTANTS.common_label_next(), Console.CONSTANTS.common_label_cancel());
+        this(wizard, title, new WizardButton(Console.CONSTANTS.common_label_next()),
+                new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
     WizardStep(final ApplyPatchWizard wizard, final String title, String submitText) {
-        this(wizard, title, submitText, Console.CONSTANTS.common_label_cancel());
+        this(wizard, title, new WizardButton(submitText), new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
-    WizardStep(final ApplyPatchWizard wizard, final String title, String submitText, String cancelText) {
+    WizardStep(final ApplyPatchWizard wizard, final String title, WizardButton submitButton,
+            WizardButton cancelButton) {
         this.wizard = wizard;
         this.title = title;
-        this.submitText = submitText;
-        this.cancelText = cancelText;
+        this.submitButton = submitButton;
+        this.cancelButton = cancelButton;
     }
 
     @Override
@@ -79,10 +81,20 @@ abstract class WizardStep implements IsWidget {
                 onCancel();
             }
         };
-        dialogOptions = new DialogueOptions(submitText, submitHandler, cancelText, cancelHandler);
 
-        widget = new WindowContentBuilder(layout, dialogOptions).build();
-        return widget;
+        dialogOptions = new DialogueOptions(submitButton.title, submitHandler, cancelButton.title, cancelHandler);
+        if (submitButton.visible) {
+            DOM.setElementPropertyBoolean((Element) dialogOptions.getSubmit(), "disabled", !submitButton.enabled);
+        } else {
+            UIObject.setVisible(dialogOptions.getSubmit(), false);
+        }
+        if (cancelButton.visible) {
+            DOM.setElementPropertyBoolean((Element) dialogOptions.getCancel(), "disabled", !cancelButton.enabled);
+        } else {
+            UIObject.setVisible(dialogOptions.getCancel(), false);
+        }
+
+        return new WindowContentBuilder(layout, dialogOptions).build();
     }
 
     void onShow(final WizardContext context) {}
@@ -105,4 +117,28 @@ abstract class WizardStep implements IsWidget {
     }
 
     abstract IsWidget body();
+
+
+    static class WizardButton {
+
+        final String title;
+        final boolean enabled;
+        final boolean visible;
+
+        WizardButton(final String title) {
+            this(title, true);
+        }
+
+        WizardButton(final String title, final boolean enabled) {
+            this.title = title;
+            this.enabled = enabled;
+            this.visible = true;
+        }
+
+        WizardButton(final boolean visible) {
+            this.title = "n/a";
+            this.enabled = false;
+            this.visible = visible;
+        }
+    }
 }

@@ -31,7 +31,8 @@ public class StoppingServersStep extends WizardStep {
     private final DispatchAsync dispatcher;
 
     public StoppingServersStep(final ApplyPatchWizard wizard, final DispatchAsync dispatcher) {
-        super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title());
+        super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title(), new WizardButton(false),
+                new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.dispatcher = dispatcher;
     }
 
