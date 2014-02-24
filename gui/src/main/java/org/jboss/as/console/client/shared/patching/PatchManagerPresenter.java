@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard.Context;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.Collections;
@@ -41,6 +40,7 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.WizardContext;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
@@ -115,7 +115,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     public void launchApplyPatchWizard() {
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
-        final Callback<Context, Throwable> contextCallback = new Callback<Context, Throwable>() {
+        final Callback<WizardContext, Throwable> contextCallback = new Callback<WizardContext, Throwable>() {
             @Override
             public void onFailure(final Throwable caught) {
                 Log.error("Unable to launch apply patch wizard", caught);
@@ -123,18 +123,20 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             }
 
             @Override
-            public void onSuccess(final Context context) {
+            public void onSuccess(final WizardContext context) {
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
                 window.setWidth(480);
                 window.setHeight(450);
-                window.setWidget(new ApplyPatchWizard(PatchManagerPresenter.this, dispatcher, context));
+                window.setWidget(new ApplyPatchWizard(PatchManagerPresenter.this, dispatcher, patchManager, context));
                 window.setGlassEnabled(true);
                 window.center();
             }
         };
 
         if (bootstrapContext.isStandalone()) {
-            contextCallback.onSuccess(new Context(true, null, Collections.<String>emptyList()));
+            contextCallback
+                    .onSuccess(new WizardContext(true, null, Collections.<String>emptyList(), bootstrapContext.getProperty(
+                            BootstrapContext.PATCH_API), patchManager.baseAddress()));
         } else {
             final String host = domainManager.getSelectedHost();
             ModelNode operation = new ModelNode();
@@ -149,7 +151,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                     List<String> runningServers = new LinkedList<String>();
                     if (response.isFailure()) {
                         // no servers
-                        contextCallback.onSuccess(new Context(false, host, runningServers));
+                        contextCallback.onSuccess(new WizardContext(false, host, runningServers,
+                                bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
                     } else {
                         List<Property> servers = response.get(RESULT).asPropertyList();
                         for (Property server : servers) {
@@ -160,7 +163,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                                 runningServers.add(name);
                             }
                         }
-                        contextCallback.onSuccess(new Context(false, host, runningServers));
+                        contextCallback.onSuccess(new WizardContext(false, host, runningServers,
+                                bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
                     }
                 }
 

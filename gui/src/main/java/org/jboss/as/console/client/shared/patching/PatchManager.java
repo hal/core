@@ -114,7 +114,7 @@ public class PatchManager {
         return patchInfo;
     }
 
-    private ModelNode baseAddress() {
+    public ModelNode baseAddress() {
         ModelNode node = new ModelNode();
         if (!bootstrapContext.isStandalone()) {
             node.get(ADDRESS).add("host", domainManager.getSelectedHost());

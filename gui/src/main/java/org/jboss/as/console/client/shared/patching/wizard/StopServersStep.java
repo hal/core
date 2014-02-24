@@ -27,7 +27,7 @@ import org.jboss.as.console.client.Console;
 /**
  * @author Harald Pehl
  */
-public class StopServersStep extends ApplyPatchWizard.Step {
+public class StopServersStep extends WizardStep {
 
     private RadioButton yes;
     private RadioButton no;

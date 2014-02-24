@@ -31,7 +31,7 @@ import org.jboss.as.console.client.Console;
 /**
  * @author Harald Pehl
  */
-public class StopServersFailedStep extends ApplyPatchWizard.Step {
+public class StopServersFailedStep extends WizardStep {
 
     final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
 
@@ -70,7 +70,7 @@ public class StopServersFailedStep extends ApplyPatchWizard.Step {
 
 
     @Override
-    void onShow(final ApplyPatchWizard.Context context) {
+    void onShow(final WizardContext context) {
         errorText.setText(context.stopError);
         boolean details = context.stopErrorDetails != null;
         errorDetails.setVisible(details);

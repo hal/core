@@ -1096,4 +1096,6 @@ public interface UIConstants extends Constants {
     String patch_manager_stop_server_error_cancel_title();
 
     String patch_manager_stop_server_error_cancel_body();
+
+    String patch_manager_select_file();
 }
