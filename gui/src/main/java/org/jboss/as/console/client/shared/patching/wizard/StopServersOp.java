@@ -67,7 +67,8 @@ class StopServersOp extends TopologyOp {
             ModelNode stop = new ModelNode();
             stop.get(ADDRESS).add("host", host);
             stop.get(ADDRESS).add("server-config", server);
-            stop.get(OPERATION_NAME).set("stop");
+            stop.get(OP).set("stop");
+            steps.add(stop);
         }
         comp.get(STEPS).set(steps);
 
@@ -97,11 +98,12 @@ class StopServersOp extends TopologyOp {
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             for (String server : servers) {
-                ModelNode stop = new ModelNode();
-                stop.get(ADDRESS).add("host", host);
-                stop.get(ADDRESS).add("server-config", server);
-                stop.get(OPERATION_NAME).set(READ_ATTRIBUTE_OPERATION);
-                stop.get(NAME).set("status");
+                ModelNode query = new ModelNode();
+                query.get(ADDRESS).add("host", host);
+                query.get(ADDRESS).add("server-config", server);
+                query.get(OP).set(READ_ATTRIBUTE_OPERATION);
+                query.get(NAME).set("status");
+                steps.add(query);
             }
             queryOp.get(STEPS).set(steps);
         }

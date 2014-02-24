@@ -59,7 +59,7 @@ public class ApplyPatchWizard implements IsWidget {
         this.presenter = presenter;
         this.dispatcher = dispatcher;
         this.context = context;
-        this.state = context.runningServers.isEmpty() ? STOP_SERVERS : SELECT_PATCH;
+        this.state = context.runningServers.isEmpty() ? SELECT_PATCH : STOP_SERVERS;
         this.steps = new LinkedHashMap<State, Step>();
         this.steps.put(STOP_SERVERS, new StopServersStep(this));
         this.steps.put(STOPPING, new StoppingServersStep(this, dispatcher));

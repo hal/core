@@ -73,6 +73,6 @@ public class StoppingServersStep extends ApplyPatchWizard.Step {
                 wizard.context.stopErrorDetails = caught.getMessage();
                 wizard.next();
             }
-        });
+        }).run();
     }
 }
