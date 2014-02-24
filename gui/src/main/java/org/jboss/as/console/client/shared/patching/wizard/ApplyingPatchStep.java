@@ -94,6 +94,7 @@ public class ApplyingPatchStep extends WizardStep {
                 });
             } else {
                 wizard.context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
+                // conflict detection could be improved!?
                 if (wizard.context.patchFailedDetails.contains("conflicts")) {
                     wizard.context.conflict = true;
                 } else {
