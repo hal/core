@@ -139,16 +139,18 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             final String host = domainManager.getSelectedHost();
             ModelNode operation = new ModelNode();
             operation.get(ADDRESS).add("host", host);
-            operation.get(OPERATION_NAME).set(READ_CHILDREN_RESOURCES_OPERATION);
+            operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+            operation.get(CHILD_TYPE).set("server");
             operation.get(INCLUDE_RUNTIME).set(true);
             dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
                 @Override
                 public void onSuccess(DMRResponse result) {
                     ModelNode response = result.get();
+                    List<String> runningServers = new LinkedList<String>();
                     if (response.isFailure()) {
-                        contextCallback.onFailure(new RuntimeException(response.getFailureDescription()));
+                        // no servers
+                        contextCallback.onSuccess(new Context(false, host, runningServers));
                     } else {
-                        List<String> runningServers = new LinkedList<String>();
                         List<Property> servers = response.get(RESULT).asPropertyList();
                         for (Property server : servers) {
                             String name = server.getName();
