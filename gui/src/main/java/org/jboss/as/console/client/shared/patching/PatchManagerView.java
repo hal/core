@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -42,7 +44,9 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 /**
  * @author Harald Pehl
  */
-public class PatchManagerView extends SuspendableViewImpl implements PatchManagerPresenter.MyView {
+public class PatchManagerView extends SuspendableViewImpl
+        implements PatchManagerPresenter.MyView, PatchManagerElementId {
+
 
     private final ProductConfig productConfig;
     private PatchManagerPresenter presenter;
@@ -79,12 +83,14 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
         // tools & table
         table = new PatchInfoTable();
         ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.patch_manager_apply_new(), new ClickHandler() {
+        ToolButton apply = new ToolButton(Console.CONSTANTS.patch_manager_apply_new(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.launchApplyPatchWizard();
             }
-        }));
+        });
+        apply.getElement().setId(asId(PREFIX, getClass(), "_Apply"));
+        tools.addToolButtonRight(apply);
         ClickHandler rollbackHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -106,6 +112,7 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
             }
         };
         ToolButton rollbackButton = new ToolButton(Console.CONSTANTS.patch_manager_rollback());
+        rollbackButton.getElement().setId(asId(PREFIX, getClass(), "_Rollback"));
         rollbackButton.addClickHandler(rollbackHandler);
         tools.addToolButtonRight(rollbackButton);
 

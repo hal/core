@@ -133,7 +133,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             public void onSuccess(final WizardContext context) {
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
                 window.setWidth(480);
-                window.setHeight(450);
+                window.setHeight(400);
                 window.setWidget(new ApplyPatchWizard(PatchManagerPresenter.this, dispatcher, patchManager, context));
                 window.setGlassEnabled(true);
                 window.center();
@@ -190,7 +190,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void onRollback(final PatchInfo patchInfo) {
-
+        patchManager.rollback(patchInfo);
     }
 
     public void restart() {

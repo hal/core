@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.patching.wizard;
 
 import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
 import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
 
 import com.google.gwt.dom.client.Style;
@@ -65,6 +66,7 @@ public class SelectPatchStep extends WizardStep {
 
         upload = new FileUpload();
         upload.setName("patch_file");
+        upload.getElement().setId(asId(PREFIX, getClass(), "_Upload"));
         panel.add(upload);
 
         errorMessages = new HTML("<i class=\"icon-exclamation-sign\"></i> " + Console.CONSTANTS.patch_manager_select_file());

@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -32,7 +34,7 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 /**
  * @author Harald Pehl
  */
-public class PatchInfoTable implements IsWidget {
+public class PatchInfoTable implements IsWidget, PatchManagerElementId {
 
     private static final int PAGE_SIZE = 8;
     private ListDataProvider<PatchInfo> dataProvider;
@@ -52,6 +54,7 @@ public class PatchInfoTable implements IsWidget {
             }
         };
         DefaultCellTable<PatchInfo> table = new DefaultCellTable<PatchInfo>(PAGE_SIZE, keyProvider);
+        table.getElement().setId(asId(PREFIX, getClass()));
         selectionModel = new SingleSelectionModel(keyProvider);
         table.setSelectionModel(selectionModel);
         dataProvider = new ListDataProvider<PatchInfo>();
@@ -80,6 +83,7 @@ public class PatchInfoTable implements IsWidget {
         table.addColumn(typeColumn, Console.CONSTANTS.common_label_type());
 
         DefaultPager pager = new DefaultPager();
+        pager.getElement().setId(asId(PREFIX, getClass(), "_Pager"));
         pager.setDisplay(table);
 
         layout.add(table);

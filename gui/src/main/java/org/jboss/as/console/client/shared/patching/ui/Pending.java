@@ -18,16 +18,19 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
+import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 
 /**
  * @author Harald Pehl
  */
-public class Pending extends Composite {
+public class Pending extends Composite implements PatchManagerElementId {
 
     private final static Template TEMPLATE = GWT.create(Template.class);
     private final String title;
@@ -35,6 +38,7 @@ public class Pending extends Composite {
     public Pending(final String title) {
         this.title = title;
         initWidget(new HTML(TEMPLATE.body(title)));
+        getElement().setId(asId(PREFIX, getClass()));
         setStyleName("hal-pending");
     }
 
