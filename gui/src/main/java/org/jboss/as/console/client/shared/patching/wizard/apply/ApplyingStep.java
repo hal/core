@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
@@ -32,28 +32,31 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
 
 /**
  * @author Harald Pehl
  */
-public class ApplyingPatchStep extends WizardStep {
+public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private final PatchManager patchManager;
     private HandlerRegistration handlerRegistration;
 
-    public ApplyingPatchStep(final ApplyPatchWizard wizard, PatchManager patchManager) {
+    public ApplyingStep(final PatchWizard<ApplyContext, ApplyState> wizard, PatchManager patchManager) {
         super(wizard, Console.CONSTANTS.patch_manager_applying_patch_title(), new WizardButton(false),
                 new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.patchManager = patchManager;
     }
 
     @Override
-    protected IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         return new Pending(Console.CONSTANTS.patch_manager_applying_patch_body());
     }
 
     @Override
-    void onShow(final WizardContext context) {
+    protected void onShow(final ApplyContext context) {
         // reset old state
         context.restartToUpdate = true;
         context.patchInfo = null;
@@ -64,11 +67,18 @@ public class ApplyingPatchStep extends WizardStep {
 
         // only one handler please!
         if (handlerRegistration == null) {
-            handlerRegistration = wizard.context.form.addSubmitCompleteHandler(new PatchAppliedHandler());
+            handlerRegistration = context.form.addSubmitCompleteHandler(new PatchAppliedHandler(context));
         }
     }
 
     class PatchAppliedHandler implements FormPanel.SubmitCompleteHandler {
+
+        final ApplyContext context;
+
+        PatchAppliedHandler(final ApplyContext context) {
+
+            this.context = context;
+        }
 
         @Override
         public void onSubmitComplete(final FormPanel.SubmitCompleteEvent event) {
@@ -90,17 +100,17 @@ public class ApplyingPatchStep extends WizardStep {
                 patchManager.getPatches(new SimpleCallback<Patches>() {
                     @Override
                     public void onSuccess(final Patches result) {
-                        wizard.context.patchInfo = result.getLatest();
+                        context.patchInfo = result.getLatest();
                         wizard.next();
                     }
                 });
             } else {
-                wizard.context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
+                context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
                 // conflict detection could be improved!?
-                if (wizard.context.patchFailedDetails.contains("conflicts")) {
-                    wizard.context.conflict = true;
+                if (context.patchFailedDetails.contains("conflicts")) {
+                    context.conflict = true;
                 } else {
-                    wizard.context.patchFailed = true;
+                    context.patchFailed = true;
                 }
                 wizard.next();
             }

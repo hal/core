@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
@@ -25,23 +25,25 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class StopServersStep extends WizardStep {
+public class StopServersStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private RadioButton yes;
     private RadioButton no;
 
-    public StopServersStep(final ApplyPatchWizard wizard) {
+    public StopServersStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_stop_server_title());
     }
 
     @Override
-    protected IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(wizard.context.host)));
+        body.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(context.host)));
         yes = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_yes());
         yes.getElement().setId(asId(PREFIX, getClass(), "_Yes"));
         yes.addStyleName("apply-patch-radio");
@@ -55,8 +57,8 @@ public class StopServersStep extends WizardStep {
     }
 
     @Override
-    protected void onNext() {
-        wizard.context.stopServers = yes.getValue();
-        super.onNext();
+    protected void onNext(ApplyContext context) {
+        context.stopServers = yes.getValue();
+        super.onNext(context);
     }
 }

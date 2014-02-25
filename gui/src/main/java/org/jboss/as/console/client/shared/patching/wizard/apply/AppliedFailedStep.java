@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -28,31 +28,31 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class StopServersFailedStep extends WizardStep {
+public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
 
     private ErrorDetails errorDetails;
-    private Label errorText;
 
-    public StopServersFailedStep(final ApplyPatchWizard wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_stop_server_error());
+    public AppliedFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+        super(wizard, Console.CONSTANTS.patch_manager_error_title());
     }
 
     @Override
-    IsWidget header() {
+    protected IsWidget header(final ApplyContext context) {
         return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
     }
 
     @Override
-    IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        errorText = new Label();
-        body.add(errorText);
+        body.add(new Label(Console.CONSTANTS.patch_manager_error_body()));
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
@@ -60,10 +60,10 @@ public class StopServersFailedStep extends WizardStep {
 
         body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
-                .actions(Console.CONSTANTS.patch_manager_stop_server_error_cancel_title(),
-                        Console.CONSTANTS.patch_manager_stop_server_error_cancel_body(),
-                        Console.CONSTANTS.patch_manager_stop_server_error_continue_title(),
-                        Console.CONSTANTS.patch_manager_stop_server_error_continue_body()));
+                .actions(Console.CONSTANTS.patch_manager_error_cancel_title(),
+                        Console.CONSTANTS.patch_manager_error_cancel_body(),
+                        Console.CONSTANTS.patch_manager_error_select_title(),
+                        Console.CONSTANTS.patch_manager_error_select_body()));
         body.add(actions);
 
         return body;
@@ -71,15 +71,10 @@ public class StopServersFailedStep extends WizardStep {
 
 
     @Override
-    void onShow(final WizardContext context) {
-        errorText.setText(context.stopError);
-        boolean details = context.stopErrorDetails != null;
-        errorDetails.setVisible(details);
-        if (details) {
-            errorDetails.setDetails(context.stopErrorDetails);
-        }
+    protected void onShow(final ApplyContext context) {
+        wizard.grow();
+        errorDetails.setDetails(context.patchFailedDetails);
     }
-
 
     interface ActionsTemplate extends SafeHtmlTemplates {
 

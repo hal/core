@@ -35,27 +35,29 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 /**
+ * @param <C> The context
+ * @param <S> The state enum
+ *
  * @author Harald Pehl
  */
-abstract class WizardStep implements IsWidget, PatchManagerElementId {
+public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget, PatchManagerElementId {
 
-    final ApplyPatchWizard wizard;
-    final String title;
-    final WizardButton submitButton;
-    final WizardButton cancelButton;
-
+    protected final PatchWizard<C, S> wizard;
+    protected final String title;
+    private final WizardButton submitButton;
+    private final WizardButton cancelButton;
     private DialogueOptions dialogOptions;
 
-    WizardStep(final ApplyPatchWizard wizard, final String title) {
+    protected PatchWizardStep(final PatchWizard<C, S> wizard, final String title) {
         this(wizard, title, new WizardButton(Console.CONSTANTS.common_label_next()),
                 new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
-    WizardStep(final ApplyPatchWizard wizard, final String title, String submitText) {
+    protected PatchWizardStep(final PatchWizard<C, S> wizard, final String title, String submitText) {
         this(wizard, title, new WizardButton(submitText), new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
-    WizardStep(final ApplyPatchWizard wizard, final String title, WizardButton submitButton,
+    protected PatchWizardStep(final PatchWizard<C, S> wizard, final String title, WizardButton submitButton,
             WizardButton cancelButton) {
         this.wizard = wizard;
         this.title = title;
@@ -69,21 +71,21 @@ abstract class WizardStep implements IsWidget, PatchManagerElementId {
         layout.setStyleName("window-content");
         layout.addStyleName("apply-patch-wizard");
 
-        layout.add(header());
-        layout.add(body());
+        layout.add(header(wizard.context));
+        layout.add(body(wizard.context));
 
         ClickHandler submitHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                onNext();
+                onNext(wizard.context);
             }
         };
         ClickHandler cancelHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                onCancel();
-            }
-        };
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        onCancel(wizard.context);
+                    }
+                };
 
         dialogOptions = new DialogueOptions(submitButton.title, submitHandler, cancelButton.title, cancelHandler);
         if (submitButton.visible) {
@@ -104,48 +106,24 @@ abstract class WizardStep implements IsWidget, PatchManagerElementId {
         return windowContent;
     }
 
-    void onShow(final WizardContext context) {}
-
-    void onNext() {
-        wizard.next();
-    }
-
-    void onCancel() {
-        wizard.close();
-    }
-
-    void setEnabled(boolean submitEnabled, boolean cancelEnabled) {
+    public void setEnabled(boolean submitEnabled, boolean cancelEnabled) {
         DOM.setElementPropertyBoolean((Element) dialogOptions.getSubmit(), "disabled", !submitEnabled);
         DOM.setElementPropertyBoolean((Element) dialogOptions.getCancel(), "disabled", !cancelEnabled);
     }
 
-    IsWidget header() {
+    protected IsWidget header(final C context) {
         return new HTML("<h3>" + title + "</h3>");
     }
 
-    abstract IsWidget body();
+    protected abstract IsWidget body(final C context);
 
+    protected void onShow(C context) {}
 
-    static class WizardButton {
+    protected void onNext(C context) {
+        wizard.next();
+    }
 
-        final String title;
-        final boolean enabled;
-        final boolean visible;
-
-        WizardButton(final String title) {
-            this(title, true);
-        }
-
-        WizardButton(final String title, final boolean enabled) {
-            this.title = title;
-            this.enabled = enabled;
-            this.visible = true;
-        }
-
-        WizardButton(final boolean visible) {
-            this.title = "n/a";
-            this.enabled = false;
-            this.visible = visible;
-        }
+    protected void onCancel(C context) {
+        wizard.close();
     }
 }
