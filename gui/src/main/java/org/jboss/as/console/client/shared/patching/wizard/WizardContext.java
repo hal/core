@@ -66,7 +66,7 @@ public class WizardContext {
         this.stopErrorDetails = null;
         this.form = null;
         this.restartToUpdate = true;
-        this.patchInfo = PatchInfo.NO_PATCH;
+        this.patchInfo = null;
         this.conflict = false;
         this.patchFailed = false;
         this.patchFailedDetails = null;

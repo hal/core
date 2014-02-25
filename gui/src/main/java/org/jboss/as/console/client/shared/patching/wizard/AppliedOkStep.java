@@ -89,7 +89,9 @@ public class AppliedOkStep extends WizardStep {
 
     @Override
     void onShow(final WizardContext context) {
-        form.edit(context.patchInfo);
+        if (context.patchInfo != null) {
+            form.edit(context.patchInfo);
+        }
     }
 
     @Override

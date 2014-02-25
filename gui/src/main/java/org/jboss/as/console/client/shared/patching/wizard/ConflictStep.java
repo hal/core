@@ -30,6 +30,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 
 /**
  * @author Harald Pehl

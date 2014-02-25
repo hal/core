@@ -130,7 +130,7 @@ public class PatchManagerView extends SuspendableViewImpl implements PatchManage
     @Override
     public void update(final Patches patches) {
         table.update(patches);
-        boolean latestAvailable = patches.getLatest() != PatchInfo.NO_PATCH;
+        boolean latestAvailable = patches.getLatest() != null;
         latestContainer.setVisible(latestAvailable);
         if (latestAvailable) {
             latestForm.edit(patches.getLatest());
