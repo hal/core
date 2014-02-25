@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
 import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
@@ -32,30 +32,32 @@ import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Harald Pehl
  */
-public class SelectPatchStep extends WizardStep {
+public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private Hidden operation;
     private HTML errorMessages;
     private FileUpload upload;
 
-    public SelectPatchStep(final ApplyPatchWizard wizard) {
+    public SelectPatchStep(final PatchWizard wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_select_patch_title());
     }
 
     @Override
-    protected IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         FormPanel form = new FormPanel();
-        form.setAction(wizard.context.patchUrl);
+        form.setAction(context.patchUrl);
         form.setEncoding(ENCODING_MULTIPART);
         form.setMethod(METHOD_POST);
         FlowPanel panel = new FlowPanel();
         form.setWidget(panel);
-        wizard.context.form = form;
+        context.form = form;
 
         operation = new Hidden("operation");
         panel.add(operation);
@@ -78,9 +80,9 @@ public class SelectPatchStep extends WizardStep {
     }
 
     @Override
-    void onShow(final WizardContext context) {
+    protected void onShow(final ApplyContext context) {
         errorMessages.setVisible(false);
-        ModelNode patchOp = wizard.context.patchAddress.clone();
+        ModelNode patchOp = context.patchAddress.clone();
         patchOp.get(OP).set("patch");
         patchOp.get("content").add().get("input-stream-index").set(0);
         if (context.overrideConflict) {
@@ -90,14 +92,14 @@ public class SelectPatchStep extends WizardStep {
     }
 
     @Override
-    void onNext() {
+    protected void onNext(ApplyContext context) {
         errorMessages.setVisible(false);
         String filename = upload.getFilename();
         if (filename == null || filename.length() == 0) {
             errorMessages.setVisible(true);
         } else {
-            super.onNext();
-            wizard.context.form.submit();
+            super.onNext(context);
+            context.form.submit();
         }
     }
 }

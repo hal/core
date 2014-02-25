@@ -16,16 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
-
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -33,58 +28,58 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class ConflictStep extends WizardStep {
+public class StopServersFailedStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
 
     private ErrorDetails errorDetails;
+    private Label errorText;
 
-    public ConflictStep(final ApplyPatchWizard wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_conflict_title());
+    public StopServersFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+        super(wizard, Console.CONSTANTS.patch_manager_stop_server_error());
     }
 
     @Override
-    IsWidget header() {
-        return new HTML("<h3 class=\"error\"><i class\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
+    protected IsWidget header(final ApplyContext context) {
+        return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
     }
 
     @Override
-    IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.CONSTANTS.patch_manager_conflict_body()));
+        errorText = new Label();
+        body.add(errorText);
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
         body.add(errorDetails);
 
-        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS
-                .patch_manager_possible_actions() + "</h3>"));
+        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
-                .actions(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
-                        Console.CONSTANTS.patch_manager_conflict_cancel_body(),
-                        Console.MESSAGES.patch_manager_conflict_override_title(),
-                        Console.CONSTANTS.patch_manager_conflict_override_body()));
-        CheckBox overrideCheck = new CheckBox(Console.CONSTANTS.patch_manager_conflict_override_check());
-        overrideCheck.getElement().setId(asId(PREFIX, getClass(), "_Override"));
-        overrideCheck.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(final ValueChangeEvent<Boolean> event) {
-                setEnabled(event.getValue(), true);
-            }
-        });
-        actions.add(overrideCheck, "apply-patch-conflict-override");
+                .actions(Console.CONSTANTS.patch_manager_stop_server_error_cancel_title(),
+                        Console.CONSTANTS.patch_manager_stop_server_error_cancel_body(),
+                        Console.CONSTANTS.patch_manager_stop_server_error_continue_title(),
+                        Console.CONSTANTS.patch_manager_stop_server_error_continue_body()));
         body.add(actions);
 
         return body;
     }
 
+
     @Override
-    void onShow(final WizardContext context) {
-        errorDetails.setDetails(context.patchFailedDetails);
+    protected void onShow(final ApplyContext context) {
+        errorText.setText(context.stopError);
+        boolean details = context.stopErrorDetails != null;
+        errorDetails.setVisible(details);
+        if (details) {
+            errorDetails.setDetails(context.stopErrorDetails);
+        }
     }
 
 
@@ -92,8 +87,8 @@ public class ConflictStep extends WizardStep {
 
         @Template("<ul class=\"apply-patch-actions\">" +
                 "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
-                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"apply-patch-conflict-override\"></div></li>" +
+                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div></li>" +
                 "</ul>")
-        SafeHtml actions(String cancelTitle, String cancelBody, SafeHtml overrideTitle, String overrideBody);
+        SafeHtml actions(String cancelTitle, String cancelBody, String overrideTitle, String overrideBody);
     }
 }

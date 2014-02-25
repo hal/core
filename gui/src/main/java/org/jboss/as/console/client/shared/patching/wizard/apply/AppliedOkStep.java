@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
 import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
@@ -34,31 +34,32 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.PatchType;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 
 /**
  * @author Harald Pehl
  */
-public class AppliedOkStep extends WizardStep {
+public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private final String serverOrHost;
     private RadioButton yes;
-    private RadioButton no;
     private Form<PatchInfo> form;
 
-    public AppliedOkStep(final ApplyPatchWizard wizard) {
+    public AppliedOkStep(final PatchWizard<ApplyContext, ApplyState> wizard, String serverOrHost) {
         super(wizard, Console.CONSTANTS.patch_manager_applied_success_title(), Console.CONSTANTS.common_label_finish());
-        this.serverOrHost = wizard.context.standalone ? "server" : "host";
+        this.serverOrHost = serverOrHost;
     }
 
     @Override
-    IsWidget header() {
+    protected IsWidget header(final ApplyContext context) {
         return new HTML("<h3 class=\"success\"><i class=\"icon-ok icon-large\"></i> " + title + "</h3>");
     }
 
     @Override
-    protected IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
 
         form = new Form<PatchInfo>(PatchInfo.class);
@@ -81,7 +82,7 @@ public class AppliedOkStep extends WizardStep {
         yes.getElement().setId(asId(PREFIX, getClass(), "_RestartYes"));
         yes.addStyleName("apply-patch-radio");
         yes.setValue(true);
-        no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
+        RadioButton no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
         no.getElement().setId(asId(PREFIX, getClass(), "_RestartNo"));
         no.addStyleName("apply-patch-radio");
         body.add(yes);
@@ -91,15 +92,15 @@ public class AppliedOkStep extends WizardStep {
     }
 
     @Override
-    void onShow(final WizardContext context) {
+    protected void onShow(final ApplyContext context) {
         if (context.patchInfo != null) {
             form.edit(context.patchInfo);
         }
     }
 
     @Override
-    void onNext() {
-        wizard.context.restartToUpdate = yes.getValue();
-        super.onNext();
+    protected void onNext(final ApplyContext context) {
+        context.restartToUpdate = yes.getValue();
+        super.onNext(context);
     }
 }

@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -26,31 +26,34 @@ import java.util.List;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
-import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.patching.StopServersOp;
+import org.jboss.as.console.client.shared.patching.ui.Pending;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Harald Pehl
  */
-public class StoppingServersStep extends WizardStep {
+public class StoppingServersStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private final DispatchAsync dispatcher;
 
-    public StoppingServersStep(final ApplyPatchWizard wizard, final DispatchAsync dispatcher) {
+    public StoppingServersStep(final PatchWizard<ApplyContext, ApplyState> wizard, final DispatchAsync dispatcher) {
         super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title(), new WizardButton(false),
                 new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.dispatcher = dispatcher;
     }
 
     @Override
-    protected IsWidget body() {
+    protected IsWidget body(final ApplyContext context) {
         return new Pending(Console.CONSTANTS.patch_manager_stopping_servers_body());
     }
 
     @Override
-    void onShow(final WizardContext context) {
+    protected void onShow(final ApplyContext context) {
         // reset old state
         context.stopFailed = false;
         context.stopError = null;
@@ -78,16 +81,16 @@ public class StoppingServersStep extends WizardStep {
 
             @Override
             public void onTimeout() {
-                wizard.context.stopFailed = true;
-                wizard.context.stopError = Console.CONSTANTS.patch_manager_stop_server_timeout();
+                context.stopFailed = true;
+                context.stopError = Console.CONSTANTS.patch_manager_stop_server_timeout();
                 wizard.next();
             }
 
             @Override
             public void onError(final Throwable caught) {
-                wizard.context.stopFailed = true;
-                wizard.context.stopError = Console.CONSTANTS.patch_manager_stop_server_unknown_error();
-                wizard.context.stopErrorDetails = caught.getMessage();
+                context.stopFailed = true;
+                context.stopError = Console.CONSTANTS.patch_manager_stop_server_unknown_error();
+                context.stopErrorDetails = caught.getMessage();
                 wizard.next();
             }
         });

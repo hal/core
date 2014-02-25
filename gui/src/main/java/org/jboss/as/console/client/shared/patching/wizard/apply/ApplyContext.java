@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import org.jboss.dmr.client.ModelNode;
  *
  * @author Harald Pehl
  */
-public class WizardContext {
+public class ApplyContext {
 
     // initial data
     final boolean standalone;
@@ -51,7 +51,7 @@ public class WizardContext {
     String patchFailedDetails;
     boolean overrideConflict;
 
-    public WizardContext(final boolean standalone, final String host, final List<String> runningServers,
+    public ApplyContext(final boolean standalone, final String host, final List<String> runningServers,
             final String patchUrl, final ModelNode patchAddress) {
 
         this.standalone = standalone;

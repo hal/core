@@ -42,8 +42,8 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.patching.ui.RestartModal;
-import org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard;
-import org.jboss.as.console.client.shared.patching.wizard.WizardContext;
+import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyContext;
+import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
@@ -72,6 +72,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         void update(Patches patches);
     }
 
+    static final int NORMAL_WINDOW_HEIGHT = 400;
+    static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
 
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
@@ -122,7 +124,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     public void launchApplyPatchWizard() {
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
-        final Callback<WizardContext, Throwable> contextCallback = new Callback<WizardContext, Throwable>() {
+        final Callback<ApplyContext, Throwable> contextCallback = new Callback<ApplyContext, Throwable>() {
             @Override
             public void onFailure(final Throwable caught) {
                 Log.error("Unable to launch apply patch wizard", caught);
@@ -130,11 +132,11 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             }
 
             @Override
-            public void onSuccess(final WizardContext context) {
+            public void onSuccess(final ApplyContext context) {
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
                 window.setWidth(480);
-                window.setHeight(400);
-                window.setWidget(new ApplyPatchWizard(PatchManagerPresenter.this, dispatcher, patchManager, context));
+                window.setHeight(NORMAL_WINDOW_HEIGHT);
+                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, dispatcher, patchManager, context));
                 window.setGlassEnabled(true);
                 window.center();
             }
@@ -142,7 +144,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
         if (bootstrapContext.isStandalone()) {
             contextCallback
-                    .onSuccess(new WizardContext(true, null, Collections.<String>emptyList(), bootstrapContext.getProperty(
+                    .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), bootstrapContext.getProperty(
                             BootstrapContext.PATCH_API), patchManager.baseAddress()));
         } else {
             final String host = domainManager.getSelectedHost();
@@ -158,7 +160,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                     List<String> runningServers = new LinkedList<String>();
                     if (response.isFailure()) {
                         // no servers
-                        contextCallback.onSuccess(new WizardContext(false, host, runningServers,
+                        contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
                                 bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
                     } else {
                         List<Property> servers = response.get(RESULT).asPropertyList();
@@ -170,7 +172,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                                 runningServers.add(name);
                             }
                         }
-                        contextCallback.onSuccess(new WizardContext(false, host, runningServers,
+                        contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
                                 bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
                     }
                 }
@@ -186,6 +188,20 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     public void hideWindow() {
         if (window != null) {
             window.hide();
+        }
+    }
+
+    public void biggerWindow() {
+        if (window != null) {
+            window.setHeight(BIGGER_WINDOW_HEIGHT);
+            window.center();
+        }
+    }
+
+    public void normalWindow() {
+        if (window != null) {
+            window.setHeight(NORMAL_WINDOW_HEIGHT);
+            window.center();
         }
     }
 

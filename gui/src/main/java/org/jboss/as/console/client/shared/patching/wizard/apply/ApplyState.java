@@ -16,11 +16,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 /**
 * @author Harald Pehl
 */
-enum WizardState {
+enum ApplyState {
     STOP_SERVERS, STOPPING, STOP_FAILED, SELECT_PATCH, APPLYING, SUCCESS, CONFLICT, ERROR
 }
