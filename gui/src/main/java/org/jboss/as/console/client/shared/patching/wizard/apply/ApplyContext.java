@@ -25,7 +25,7 @@ import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.dmr.client.ModelNode;
 
 /**
- * Simple 'struct' for data exchange between wizard steps.
+ * Simple 'struct' for data exchange between apply wizard steps.
  *
  * @author Harald Pehl
  */
