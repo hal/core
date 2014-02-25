@@ -105,15 +105,15 @@ public class ApplyPatchWizard implements IsWidget {
                 nextState(APPLYING);
                 break;
             case APPLYING:
-//                if (context.conflict) {
-//                    nextState(CONFLICT);
-//                    WizardStep step = steps.get(state);
-//                    step.setEnabled(false, true);
-//                } else if (context.patchFailed) {
-//                    nextState(ERROR);
-//                } else {
+                if (context.conflict) {
+                    nextState(CONFLICT);
+                    WizardStep step = steps.get(state);
+                    step.setEnabled(false, true);
+                } else if (context.patchFailed) {
+                    nextState(ERROR);
+                } else {
                     nextState(SUCCESS);
-//                }
+                }
                 break;
             case SUCCESS:
                 close();
