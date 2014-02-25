@@ -18,9 +18,17 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.topology.LifecycleCallback;
+import org.jboss.as.console.client.shared.flow.TimeoutOperation;
+import org.jboss.as.console.client.shared.patching.ui.Pending;
+import org.jboss.as.console.client.shared.patching.StopServersOp;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
@@ -48,8 +56,21 @@ public class StoppingServersStep extends WizardStep {
         context.stopError = null;
         context.stopErrorDetails = null;
 
-        // stop running servers
-        new StopServersOp(dispatcher, context.host, context.runningServers, new LifecycleCallback() {
+        final ModelNode stopServersNode = new ModelNode();
+        stopServersNode.get(ADDRESS).setEmptyList();
+        stopServersNode.get(OP).set(COMPOSITE);
+        List<ModelNode> steps = new LinkedList<ModelNode>();
+        for (String server : context.runningServers) {
+            ModelNode stop = new ModelNode();
+            stop.get(ADDRESS).add("host", context.host);
+            stop.get(ADDRESS).add("server-config", server);
+            stop.get(OP).set("stop");
+            steps.add(stop);
+        }
+        stopServersNode.get(STEPS).set(steps);
+
+        TimeoutOperation stopServersOp = new StopServersOp(dispatcher, context.host, context.runningServers);
+        stopServersOp.start(dispatcher, stopServersNode, new TimeoutOperation.Callback() {
             @Override
             public void onSuccess() {
                 wizard.next();
@@ -63,17 +84,12 @@ public class StoppingServersStep extends WizardStep {
             }
 
             @Override
-            public void onAbort() {
-                // must never be called!
-            }
-
-            @Override
             public void onError(final Throwable caught) {
-                    wizard.context.stopFailed = true;
+                wizard.context.stopFailed = true;
                 wizard.context.stopError = Console.CONSTANTS.patch_manager_stop_server_unknown_error();
                 wizard.context.stopErrorDetails = caught.getMessage();
                 wizard.next();
             }
-        }).run();
+        });
     }
 }

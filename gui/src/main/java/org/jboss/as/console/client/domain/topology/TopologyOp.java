@@ -28,6 +28,7 @@ import org.jboss.gwt.flow.client.Precondition;
  */
 public abstract class TopologyOp {
 
+    protected final int timeout;
     protected final LifecycleOperation op;
     protected final LifecycleCallback callback;
     protected boolean lifecycleReached;
@@ -35,6 +36,7 @@ public abstract class TopologyOp {
 
     protected TopologyOp(final LifecycleOperation op, final LifecycleCallback callback) {
         this.op = op;
+        this.timeout = op.limit();
         this.callback = callback;
         lifecycleReached = false;
         start = System.currentTimeMillis();

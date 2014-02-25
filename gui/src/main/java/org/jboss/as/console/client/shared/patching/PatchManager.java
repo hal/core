@@ -98,7 +98,9 @@ public class PatchManager {
                         patches.setLatest(id);
 
                         String version = latestPatchNode.get("version").asString();
-                        patches.getLatest().setVersion(version);
+                        if (patches.getLatest() != null) {
+                            patches.getLatest().setVersion(version);
+                        }
                     }
                 }
                 callback.onSuccess(patches);

@@ -38,34 +38,4 @@ public interface PatchInfo {
     String getAppliedAt();
 
     void setAppliedAt(String appliedAt);
-
-
-    // ------------------------------------------------------ inner classes
-
-    PatchInfo NO_PATCH = new PatchInfo() {
-
-        @Override
-        public String getId() {return "";}
-
-        @Override
-        public void setId(final String id) {}
-
-        @Override
-        public String getVersion() {return "";}
-
-        @Override
-        public void setVersion(final String version) {}
-
-        @Override
-        public PatchType getType() {return null;}
-
-        @Override
-        public void setType(final PatchType type) {}
-
-        @Override
-        public String getAppliedAt() {return "";}
-
-        @Override
-        public void setAppliedAt(final String appliedAt) {}
-    };
 }

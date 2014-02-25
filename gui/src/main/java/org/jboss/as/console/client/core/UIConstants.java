@@ -1098,4 +1098,10 @@ public interface UIConstants extends Constants {
     String patch_manager_stop_server_error_cancel_body();
 
     String patch_manager_select_file();
+
+    String patch_manager_restart_pending();
+
+    String patch_manager_restart_timeout();
+
+    String patch_manager_restart_error();
 }

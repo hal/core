@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard;
+package org.jboss.as.console.client.shared.patching.ui;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -27,12 +27,12 @@ import com.google.gwt.user.client.ui.HTML;
 /**
  * @author Harald Pehl
  */
-class Pending extends Composite {
+public class Pending extends Composite {
 
     private final static Template TEMPLATE = GWT.create(Template.class);
     private final String title;
 
-    Pending(final String title) {
+    public Pending(final String title) {
         this.title = title;
         initWidget(new HTML(TEMPLATE.body(title)));
         setStyleName("hal-pending");

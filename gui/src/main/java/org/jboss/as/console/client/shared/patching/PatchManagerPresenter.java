@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Callback;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -39,6 +40,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.flow.TimeoutOperation;
+import org.jboss.as.console.client.shared.patching.ui.RestartModal;
 import org.jboss.as.console.client.shared.patching.wizard.ApplyPatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.WizardContext;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
@@ -99,6 +102,10 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     @Override
     protected void onReset() {
         super.onReset();
+        loadPatches();
+    }
+
+    public void loadPatches() {
         patchManager.getPatches(new SimpleCallback<Patches>() {
             @Override
             public void onSuccess(final Patches patches) {
@@ -184,5 +191,38 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     public void onRollback(final PatchInfo patchInfo) {
 
+    }
+
+    public void restart() {
+        ModelNode restartNode = new ModelNode();
+        if (!bootstrapContext.isStandalone()) {
+            restartNode.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        }
+        restartNode.get(OP).set(SHUTDOWN);
+        restartNode.get("restart").set(true);
+
+        final RestartModal restartModal = new RestartModal();
+        restartModal.center();
+
+        RestartOp restartOp = new RestartOp(dispatcher);
+        restartOp.start(dispatcher, restartNode, new TimeoutOperation.Callback() {
+            @Override
+            public void onSuccess() {
+                // TODO Doesn't need a full reload if a non-dc host was patched
+                Window.Location.reload();
+            }
+
+            @Override
+            public void onTimeout() {
+                // TODO Is there another way out?
+                restartModal.timeout();
+            }
+
+            @Override
+            public void onError(final Throwable caught) {
+                // TODO Is there another way out?
+                restartModal.error();
+            }
+        });
     }
 }

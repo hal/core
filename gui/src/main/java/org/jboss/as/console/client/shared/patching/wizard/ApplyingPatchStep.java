@@ -29,9 +29,9 @@ import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.Patches;
+import org.jboss.as.console.client.shared.patching.ui.Pending;
 
 /**
  * @author Harald Pehl
@@ -56,7 +56,7 @@ public class ApplyingPatchStep extends WizardStep {
     void onShow(final WizardContext context) {
         // reset old state
         context.restartToUpdate = true;
-        context.patchInfo = PatchInfo.NO_PATCH;
+        context.patchInfo = null;
         context.conflict = false;
         context.patchFailed = false;
         context.patchFailedDetails = null;

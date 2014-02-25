@@ -32,7 +32,7 @@ public class Patches implements Iterable<PatchInfo> {
 
     public Patches() {
         patches = new LinkedList<PatchInfo>();
-        latest = PatchInfo.NO_PATCH;
+        latest = null;
     }
 
     public void setLatest(String id) {
