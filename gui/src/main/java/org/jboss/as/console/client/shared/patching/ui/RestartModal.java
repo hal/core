@@ -18,17 +18,20 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 
 /**
  * @author Harald Pehl
  */
-public class RestartModal extends PopupPanel {
+public class RestartModal extends PopupPanel implements PatchManagerElementId {
 
     private final DeckLayoutPanel deck;
     private int width, height;
@@ -36,6 +39,7 @@ public class RestartModal extends PopupPanel {
     public RestartModal() {
         super(false, true);
 
+        getElement().setId(asId(PREFIX, getClass()));
         setStyleName("default-window");
         deck = new DeckLayoutPanel();
         setWidget(deck);

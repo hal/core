@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.patching.wizard;
 
 import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
 import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -77,9 +78,11 @@ public class AppliedOkStep extends WizardStep {
         body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
 
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
+        yes.getElement().setId(asId(PREFIX, getClass(), "_RestartYes"));
         yes.addStyleName("apply-patch-radio");
         yes.setValue(true);
         no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
+        no.getElement().setId(asId(PREFIX, getClass(), "_RestartNo"));
         no.addStyleName("apply-patch-radio");
         body.add(yes);
         body.add(no);

@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.shared.patching.wizard;
 
 import static org.jboss.as.console.client.shared.patching.wizard.WizardState.*;
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 import java.util.LinkedHashMap;
 
@@ -26,6 +27,7 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.patching.PatchManager;
+import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -33,7 +35,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 /**
  * @author Harald Pehl
  */
-public class ApplyPatchWizard implements IsWidget {
+public class ApplyPatchWizard implements IsWidget, PatchManagerElementId {
 
     private final PatchManagerPresenter presenter;
     private final LinkedHashMap<WizardState, WizardStep> steps;
@@ -79,7 +81,9 @@ public class ApplyPatchWizard implements IsWidget {
         }
         deck.showWidget(state.ordinal());
 
-        return new TrappedFocusPanel(deck);
+        TrappedFocusPanel trap = new TrappedFocusPanel(deck);
+        trap.getElement().setId(asId(PREFIX, getClass()));
+        return trap;
     }
 
     void next() {

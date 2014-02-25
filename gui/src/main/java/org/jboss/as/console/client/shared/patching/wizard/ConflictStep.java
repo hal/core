@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -67,6 +69,7 @@ public class ConflictStep extends WizardStep {
                         Console.MESSAGES.patch_manager_conflict_override_title(),
                         Console.CONSTANTS.patch_manager_conflict_override_body()));
         CheckBox overrideCheck = new CheckBox(Console.CONSTANTS.patch_manager_conflict_override_check());
+        overrideCheck.getElement().setId(asId(PREFIX, getClass(), "_Override"));
         overrideCheck.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
             public void onValueChange(final ValueChangeEvent<Boolean> event) {

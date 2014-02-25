@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -25,13 +27,14 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
+import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.widgets.Code;
 import org.jboss.as.console.client.widgets.nav.AriaLink;
 
 /**
  * @author Harald Pehl
  */
-public class ErrorDetails extends Composite {
+public class ErrorDetails extends Composite implements PatchManagerElementId {
 
     private final Code details;
 
@@ -39,6 +42,7 @@ public class ErrorDetails extends Composite {
 
         AriaLink showHide = new AriaLink(show);
         showHide.addStyleName("details-panel-header");
+        showHide.getElement().setId(asId(PREFIX, getClass()));
         showHide.getElement().setAttribute("style", "padding-top:.5em;");
 
         final DisclosurePanel panel = new DisclosurePanel();

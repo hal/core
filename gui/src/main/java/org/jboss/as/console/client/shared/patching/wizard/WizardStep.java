@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
@@ -28,13 +30,14 @@ import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 /**
  * @author Harald Pehl
  */
-abstract class WizardStep implements IsWidget {
+abstract class WizardStep implements IsWidget, PatchManagerElementId {
 
     final ApplyPatchWizard wizard;
     final String title;
@@ -84,17 +87,21 @@ abstract class WizardStep implements IsWidget {
 
         dialogOptions = new DialogueOptions(submitButton.title, submitHandler, cancelButton.title, cancelHandler);
         if (submitButton.visible) {
+            dialogOptions.getSubmit().setId(asId(PREFIX, getClass(), "_Submit"));
             DOM.setElementPropertyBoolean((Element) dialogOptions.getSubmit(), "disabled", !submitButton.enabled);
         } else {
             UIObject.setVisible(dialogOptions.getSubmit(), false);
         }
         if (cancelButton.visible) {
+            dialogOptions.getCancel().setId(asId(PREFIX, getClass(), "_Cancel"));
             DOM.setElementPropertyBoolean((Element) dialogOptions.getCancel(), "disabled", !cancelButton.enabled);
         } else {
             UIObject.setVisible(dialogOptions.getCancel(), false);
         }
 
-        return new WindowContentBuilder(layout, dialogOptions).build();
+        Widget windowContent = new WindowContentBuilder(layout, dialogOptions).build();
+        windowContent.getElement().setId(asId(PREFIX, getClass()));
+        return windowContent;
     }
 
     void onShow(final WizardContext context) {}

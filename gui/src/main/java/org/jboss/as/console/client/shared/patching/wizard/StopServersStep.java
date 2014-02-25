@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -41,9 +43,11 @@ public class StopServersStep extends WizardStep {
         FlowPanel body = new FlowPanel();
         body.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(wizard.context.host)));
         yes = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_yes());
+        yes.getElement().setId(asId(PREFIX, getClass(), "_Yes"));
         yes.addStyleName("apply-patch-radio");
         yes.setValue(true);
         no = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_no());
+        no.getElement().setId(asId(PREFIX, getClass(), "_No"));
         no.addStyleName("apply-patch-radio");
         body.add(yes);
         body.add(no);

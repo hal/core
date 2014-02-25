@@ -108,6 +108,11 @@ public class PatchManager {
         });
     }
 
+    public void rollback(final PatchInfo patchInfo) {
+        ModelNode rollBackOp = baseAddress();
+
+    }
+
     private PatchInfo historyToPatchInfo(final ModelNode node) {
         PatchInfo patchInfo = beanFactory.patchInfo().as();
         patchInfo.setId(node.get("patch-id").asString());
