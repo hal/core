@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.widgets;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
@@ -7,9 +8,14 @@ import com.google.gwt.user.client.ui.HTML;
  * @date 10/27/11
  */
 public class ContentDescription extends HTML {
+
     public ContentDescription(String html) {
         super(html);
+        setStyleName("content-description");
+    }
 
+    public ContentDescription(SafeHtml html) {
+        super(html);
         setStyleName("content-description");
     }
 }

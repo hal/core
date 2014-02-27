@@ -217,8 +217,6 @@ public interface UIMessages extends Messages {
 
     String verify_datasource_failed_message(String datasource);
 
-    String patch_manager_desc(String productName);
-
     String patch_manager_rollback_body(String id);
 
     String patch_manager_stop_server_body(String host);
@@ -234,4 +232,6 @@ public interface UIMessages extends Messages {
     String patch_manager_restart_no(String serverOrHost);
 
     SafeHtml patch_manager_conflict_override_title();
+
+    SafeHtml patch_manager_desc_product(String customerPortalLink);
 }

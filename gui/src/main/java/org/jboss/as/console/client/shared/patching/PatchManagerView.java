@@ -47,7 +47,6 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 public class PatchManagerView extends SuspendableViewImpl
         implements PatchManagerPresenter.MyView, PatchManagerElementId {
 
-
     private final ProductConfig productConfig;
     private PatchManagerPresenter presenter;
     private Form<PatchInfo> latestForm;
@@ -65,8 +64,13 @@ public class PatchManagerView extends SuspendableViewImpl
         VerticalPanel panel = new VerticalPanel();
 
         // header
-        panel.add(new ContentHeaderLabel("Patch Manager"));
-        panel.add(new ContentDescription(Console.MESSAGES.patch_manager_desc(productConfig.getProductName())));
+        panel.add(new ContentHeaderLabel("Patch Management"));
+        if (productConfig.getProfile() == ProductConfig.Profile.PRODUCT) {
+            panel.add(new ContentDescription(Console.MESSAGES.patch_manager_desc_product(PatchManagerPresenter.CUSTOMER_PORTAL)));
+        } else {
+            panel.add(new ContentDescription(Console.CONSTANTS.patch_manager_desc_community()));
+        }
+        panel.add(new ContentDescription(Console.CONSTANTS.patch_manager_toolstrip_desc()));
 
         // latest patch info
         latestContainer = new FlowPanel();

@@ -1104,4 +1104,8 @@ public interface UIConstants extends Constants {
     String patch_manager_restart_timeout();
 
     String patch_manager_restart_error();
+
+    String patch_manager_desc_community();
+
+    String patch_manager_toolstrip_desc();
 }
