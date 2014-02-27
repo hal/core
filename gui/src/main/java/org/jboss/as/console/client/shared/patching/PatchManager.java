@@ -108,9 +108,30 @@ public class PatchManager {
         });
     }
 
-    public void rollback(final PatchInfo patchInfo) {
-        ModelNode rollBackOp = baseAddress();
+    public void rollback(final PatchInfo patchInfo, final boolean resetConfiguration, final boolean overrideAll,
+            final AsyncCallback<Void> callback) {
+        ModelNode rollbackOp = baseAddress();
+        rollbackOp.get(OP).set("rollback");
+        rollbackOp.get("patch-id").set(patchInfo.getId());
+        rollbackOp.get("reset-configuration").set(resetConfiguration);
+        rollbackOp.get("override-all").set(overrideAll);
 
+        dispatcher.execute(new DMRAction(rollbackOp), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                callback.onFailure(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (!result.hasDefined(OUTCOME) || result.isFailure()) {
+                    callback.onFailure(new RuntimeException(result.getFailureDescription()));
+                } else {
+                    callback.onSuccess(null);
+                }
+            }
+        });
     }
 
     private PatchInfo historyToPatchInfo(final ModelNode node) {
