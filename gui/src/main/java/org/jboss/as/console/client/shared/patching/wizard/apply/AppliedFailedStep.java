@@ -44,7 +44,7 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     }
 
     @Override
-    protected IsWidget header(final ApplyContext context) {
+    protected HTML header(final ApplyContext context) {
         return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
     }
 

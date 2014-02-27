@@ -18,6 +18,8 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
+import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 import java.util.HashMap;
@@ -85,10 +87,10 @@ public class PatchManagerView extends SuspendableViewImpl
         TextItem version = new TextItem("version", "Version");
         TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
         EnumFormItem<PatchType> type = new EnumFormItem<>("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
-        Map<PatchType, String> typeLabels = new HashMap<PatchType, String>();
-        typeLabels.put(PatchType.CUMULATIVE, "Cumulutative");
-        typeLabels.put(PatchType.ONE_OFF, "One-Off");
-        type.setValues(typeLabels);
+        Map<PatchType, String> values = new HashMap<PatchType, String>();
+        values.put(CUMULATIVE, CUMULATIVE.label());
+        values.put(ONE_OFF, ONE_OFF.label());
+        type.setValues(values);
         latestForm.setFields(id, version, date, type);
         latestContainer.add(latestForm);
         panel.add(latestContainer);

@@ -43,7 +43,8 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget, PatchManagerElementId {
 
     protected final PatchWizard<C, S> wizard;
-    protected final String title;
+    protected String title;
+    private HTML header;
     private final WizardButton submitButton;
     private final WizardButton cancelButton;
     private DialogueOptions dialogOptions;
@@ -70,7 +71,8 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        layout.add(header(wizard.context));
+        header = header(wizard.context);
+        layout.add(header);
         layout.add(body(wizard.context));
 
         ClickHandler submitHandler = new ClickHandler() {
@@ -110,14 +112,23 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
         DOM.setElementPropertyBoolean((Element) dialogOptions.getCancel(), "disabled", !cancelEnabled);
     }
 
-    protected IsWidget header(final C context) {
+    protected HTML header(final C context) {
+        return new HTML(buildTitle());
+    }
+
+    protected void changeTitle(String title) {
+        this.title = title;
+        header.setHTML(buildTitle());
+    }
+
+    private String buildTitle() {
         StringBuilder header = new StringBuilder();
         header.append("<h3>").append(wizard.title);
         if (title != null) {
             header.append(": ").append(title);
         }
         header.append("h3>");
-        return new HTML(header.toString());
+        return header.toString();
     }
 
     protected abstract IsWidget body(final C context);

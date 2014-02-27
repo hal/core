@@ -22,7 +22,7 @@ package org.jboss.as.console.client.shared.patching;
 * @author Harald Pehl
 */
 public enum PatchType {
-    CUMULATIVE("cumulative"), ONE_OFF("one-off"), UNKNOWN("n/a");
+    CUMULATIVE("Cumulative"), ONE_OFF("One-off"), UNKNOWN("n/a");
 
     public static PatchType fromLabel(String label) {
         if (CUMULATIVE.label.equals(label)) {

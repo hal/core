@@ -49,18 +49,18 @@ public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
     private Form<PatchInfo> form;
 
     public AppliedOkStep(final PatchWizard<ApplyContext, ApplyState> wizard, String serverOrHost) {
-        super(wizard, Console.CONSTANTS.patch_manager_applied_success_title(), Console.CONSTANTS.common_label_finish());
+        super(wizard, Console.CONSTANTS.patch_manager_update(), Console.CONSTANTS.common_label_finish());
         this.serverOrHost = serverOrHost;
-    }
-
-    @Override
-    protected IsWidget header(final ApplyContext context) {
-        return new HTML("<h3 class=\"success\"><i class=\"icon-ok icon-large\"></i> " + title + "</h3>");
     }
 
     @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
+
+        body.add(new Label(Console.MESSAGES.patch_manager_restart_needed(serverOrHost)));
+        HTML success = new HTML(Console.MESSAGES.patch_manager_applied_success());
+        success.addStyleName("patch-success");
+        body.add(success);
 
         form = new Form<PatchInfo>(PatchInfo.class);
         form.setEnabled(false);
@@ -74,15 +74,14 @@ public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
         form.setFields(id, version, type);
         body.add(form);
 
-        body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.MESSAGES
-                .patch_manager_restart_title(serverOrHost) + "</h3>"));
-        body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
+        body.add(new HTML(
+                "<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_restart_now() + "</h3>"));
 
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
         yes.getElement().setId(asId(PREFIX, getClass(), "_RestartYes"));
         yes.addStyleName("patch-radio");
         yes.setValue(true);
-        RadioButton no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
+        RadioButton no = new RadioButton("restart_host", Console.CONSTANTS.patch_manager_restart_no());
         no.getElement().setId(asId(PREFIX, getClass(), "_RestartNo"));
         no.addStyleName("patch-radio");
         body.add(yes);

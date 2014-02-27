@@ -55,7 +55,6 @@ public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
         addStep(STOPPING, new StoppingServersStep<ApplyContext, ApplyState>(this, dispatcher));
         addStep(STOP_FAILED, new StopServersFailedStep<ApplyContext, ApplyState>(this));
         addStep(SELECT_PATCH, new SelectPatchStep(this));
-        addStep(CONFIRM_PATCH, new ConfirmPatchStep(this));
         addStep(APPLYING, new ApplyingStep(this, patchManager));
         addStep(SUCCESS, new AppliedOkStep(this, context.standalone ? "server" : "host"));
         addStep(CONFLICT, new ConflictStep(this));
@@ -87,9 +86,6 @@ public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
                 pushState(SELECT_PATCH);
                 break;
             case SELECT_PATCH:
-                pushState(CONFIRM_PATCH);
-                break;
-            case CONFIRM_PATCH:
                 pushState(APPLYING);
                 break;
             case APPLYING:
