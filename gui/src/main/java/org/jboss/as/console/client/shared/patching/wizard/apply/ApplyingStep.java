@@ -25,6 +25,7 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
@@ -45,14 +46,15 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
     private HandlerRegistration handlerRegistration;
 
     public ApplyingStep(final PatchWizard<ApplyContext, ApplyState> wizard, PatchManager patchManager) {
-        super(wizard, Console.CONSTANTS.patch_manager_applying_patch_title(), new WizardButton(false),
-                new WizardButton(Console.CONSTANTS.common_label_cancel()));
+        super(wizard, null, new WizardButton(false), new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.patchManager = patchManager;
     }
 
     @Override
     protected IsWidget body(final ApplyContext context) {
-        return new Pending(Console.CONSTANTS.patch_manager_applying_patch_body());
+        FlowPanel body = new FlowPanel();
+        body.add(new Pending(Console.MESSAGES.patch_manager_applying_patch_body(context.filename)));
+        return body;
     }
 
     @Override
@@ -106,7 +108,7 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 });
             } else {
                 context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
-                // conflict detection could be improved!?
+                // TODO conflict detection could be improved!?
                 if (context.patchFailedDetails.contains("conflicts")) {
                     context.conflict = true;
                 } else {
