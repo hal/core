@@ -21,11 +21,8 @@ package org.jboss.as.console.client.shared.patching.wizard.apply;
 import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
 import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
@@ -37,7 +34,6 @@ import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
-import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Harald Pehl
@@ -46,14 +42,13 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private boolean confirm;
     private Label intro;
-    private Label filename;
-    private Hidden operation;
+    private HTML info;
     private FileUpload upload;
     private HTML errorMessages;
 
     public SelectPatchStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_select_patch_title());
-        this.confirm = true;
+        this.confirm = false;
     }
 
     @Override
@@ -66,44 +61,32 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         form.setWidget(panel);
         context.form = form;
 
-        operation = new Hidden("operation");
+        Hidden operation = new Hidden("operation");
         panel.add(operation);
+        context.operation = operation;
 
         intro = new Label(Console.CONSTANTS.patch_manager_select_patch_body());
-        intro.getElement().getStyle().setMarginBottom(1, Style.Unit.EM);
         panel.add(intro);
 
         if (!context.standalone) {
-            Label info;
-            if (context.serversStoppped) {
-                info = new Label("Host: " + context.host + " (" + Console.MESSAGES
-                        .patch_manager_servers_still_running_warning() + ")");
-            } else {
-                info = new Label("Host: " + context.host + " (" + Console.CONSTANTS.patch_manager_servers_shutdown() + ")");
-            }
+            info = new HTML("");
+            info.getElement().getStyle().setMarginTop(2, Style.Unit.EM);
             panel.add(info);
         }
-        filename = new Label("");
-        filename.setVisible(false);
-        panel.add(filename);
 
         FlowPanel uploadPanel = new FlowPanel();
-        uploadPanel.add(new InlineLabel(Console.CONSTANTS.patch_manager_select_patch_upload()));
+        uploadPanel.getElement().getStyle().setMarginTop(2, Style.Unit.EM);
+        InlineLabel uploadLabel = new InlineLabel(Console.CONSTANTS.patch_manager_select_patch_upload());
+        uploadLabel.getElement().getStyle().setMarginRight(1, Style.Unit.EM);
+        uploadPanel.add(uploadLabel);
         upload = new FileUpload();
         upload.setName("patch_file");
         upload.getElement().setId(asId(PREFIX, getClass(), "_Upload"));
-        upload.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(final ChangeEvent event) {
-                if (upload.getFilename() != null && upload.getFilename().length() != 0 && !confirm) {
-                    switchToConfirm(upload.getFilename());
-                }
-            }
-        });
         uploadPanel.add(upload);
         panel.add(uploadPanel);
 
-        errorMessages = new HTML("<i class=\"icon-exclamation-sign\"></i> " + Console.CONSTANTS.patch_manager_select_file());
+        errorMessages = new HTML(
+                "<i class=\"icon-exclamation-sign\"></i> " + Console.CONSTANTS.patch_manager_select_file());
         errorMessages.addStyleName("error");
         errorMessages.setVisible(false);
         panel.add(errorMessages);
@@ -111,24 +94,18 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         return form;
     }
 
-    private void switchToConfirm(final String filename) {
-        this.confirm = true;
-        changeTitle(Console.CONSTANTS.patch_manager_confirm_patch_title());
-        intro.setText(Console.CONSTANTS.patch_manager_confirm_patch_body());
-        this.filename.setText("Patch: " + filename);
-        errorMessages.setVisible(false);
-    }
-
     @Override
     protected void onShow(final ApplyContext context) {
-        errorMessages.setVisible(false);
-        ModelNode patchOp = context.patchAddress.clone();
-        patchOp.get(OP).set("patch");
-        patchOp.get("content").add().get("input-stream-index").set(0);
-        if (context.overrideConflict) {
-            patchOp.get("override-all").set(true);
+        if (!context.standalone) {
+            if (context.serversStoppped) {
+                info.setText("Host: " + context.host + " (" + Console.CONSTANTS.patch_manager_servers_shutdown() + ")");
+            } else {
+                info.setHTML("Host: " + context.host + " (" + Console.MESSAGES
+                        .patch_manager_servers_still_running_warning() + ")");
+            }
+            info.getElement().getStyle().setMarginTop(2, Style.Unit.EM);
         }
-        operation.setValue(patchOp.toJSONString());
+        switchToSelect();
     }
 
     @Override
@@ -137,9 +114,24 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         context.filename = upload.getFilename();
         if (context.filename == null || context.filename.length() == 0) {
             errorMessages.setVisible(true);
+        } else if (!confirm) {
+            switchToConfirm();
         } else {
             super.onNext(context);
-            context.form.submit();
         }
+    }
+
+    private void switchToSelect() {
+        this.confirm = false;
+        changeTitle(Console.CONSTANTS.patch_manager_select_patch_title());
+        intro.setText(Console.CONSTANTS.patch_manager_select_patch_body());
+        errorMessages.setVisible(false);
+    }
+
+    private void switchToConfirm() {
+        this.confirm = true;
+        changeTitle(Console.CONSTANTS.patch_manager_confirm_patch_title());
+        intro.setText(Console.CONSTANTS.patch_manager_confirm_patch_body());
+        errorMessages.setVisible(false);
     }
 }

@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.patching.wizard.apply;
 import java.util.List;
 
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Hidden;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
@@ -36,6 +37,7 @@ public class ApplyContext extends CommonPatchContext {
     final String patchUrl;
     // process slip
     FormPanel form;
+    Hidden operation;
     String filename;
     boolean restartToUpdate;
     PatchInfo patchInfo;
@@ -51,6 +53,7 @@ public class ApplyContext extends CommonPatchContext {
         this.patchUrl = patchUrl;
 
         this.form = null;
+        this.operation = null;
         this.restartToUpdate = true;
         this.patchInfo = null;
         this.conflict = false;

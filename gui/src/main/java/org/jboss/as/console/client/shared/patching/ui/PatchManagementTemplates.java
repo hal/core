@@ -26,10 +26,10 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 */
 public interface PatchManagementTemplates extends SafeHtmlTemplates {
 
-    @Template("<div class=\"success-panel\"><i class=\"icon-ok icon-large\"></i> {0}</div>")
+    @Template("<div class=\"patch-success-panel\"><i class=\"icon-ok icon-large\"></i> {0}</div>")
     SafeHtml successPanel(String message);
 
-    @Template("<div class=\"error-panel\"><i class=\"icon-exclamation-sign icon-large\"></i> {0}</div>")
+    @Template("<div class=\"patch-error-panel\"><i class=\"icon-exclamation-sign icon-large\"></i> {0}</div>")
     SafeHtml errorPanel(String message);
 
     @Template("<ul class=\"patch-actions\">" +
@@ -41,7 +41,7 @@ public interface PatchManagementTemplates extends SafeHtmlTemplates {
     // This version takes a SafeHtml instance as 3rd parameter
     @Template("<ul class=\"patch-actions\">" +
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
-            "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"apply-patch-conflict-override\"></div></li>" +
+            "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"patch-conflict-override\"></div></li>" +
             "</ul>")
     SafeHtml patchConflicts(String cancelTitle, String cancelBody, SafeHtml overrideTitle, String overrideBody);
 

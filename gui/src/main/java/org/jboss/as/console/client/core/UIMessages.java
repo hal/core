@@ -227,11 +227,13 @@ public interface UIMessages extends Messages {
 
     SafeHtml patch_manager_conflict_override_title();
 
-    SafeHtml patch_manager_desc_product(String customerPortalLink);
+    SafeHtml patch_manager_desc_product();
 
     String patch_manager_servers_still_running_warning();
 
     String patch_manager_applying_patch_body(String filename);
 
     String patch_manager_restart_needed(String serverOrHost);
+
+    String patch_manager_error_parse_result(String exception, String payload);
 }

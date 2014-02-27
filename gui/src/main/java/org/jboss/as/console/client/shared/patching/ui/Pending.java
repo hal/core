@@ -33,13 +33,17 @@ import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 public class Pending extends Composite implements PatchManagerElementId {
 
     private final static Template TEMPLATE = GWT.create(Template.class);
-    private final String title;
+    private HTML html;
 
     public Pending(final String title) {
-        this.title = title;
-        initWidget(new HTML(TEMPLATE.body(title)));
+        html = new HTML(TEMPLATE.body(title));
+        initWidget(html);
         getElement().setId(asId(PREFIX, getClass()));
         setStyleName("hal-pending");
+    }
+
+    public void setTitle(String title) {
+        html.setHTML(TEMPLATE.body(title));
     }
 
     interface Template extends SafeHtmlTemplates {

@@ -52,6 +52,6 @@ public class CommonPatchContext {
         this.stopFailed = false;
         this.stopError = null;
         this.stopErrorDetails = null;
-        this.serversStoppped = false;
+        this.serversStoppped = runningServers.isEmpty();
     }
 }
