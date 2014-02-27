@@ -42,8 +42,11 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.patching.ui.RestartModal;
+import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyContext;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
+import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackContext;
+import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackWizard;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
@@ -59,23 +62,9 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
  */
 public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy> {
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.PatchingPresenter)
-    @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
-    public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
-
-
-    public interface MyView extends View {
-
-        void setPresenter(PatchManagerPresenter presenter);
-
-        void update(Patches patches);
-    }
-
     static final int NORMAL_WINDOW_HEIGHT = 400;
     static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
     static final String CUSTOMER_PORTAL = "https://access.redhat.com/home"; // TODO Move this to some kind of link configuration class
-
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
     private final DomainEntityManager domainManager;
@@ -122,19 +111,19 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         revealStrategy.revealInRuntimeParent(this);
     }
 
-    public void launchApplyPatchWizard() {
+    public void launchApplyWizard() {
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
         final Callback<ApplyContext, Throwable> contextCallback = new Callback<ApplyContext, Throwable>() {
             @Override
             public void onFailure(final Throwable caught) {
                 Log.error("Unable to launch apply patch wizard", caught);
-                Console.error("Unable to launch apply patch wizard", caught.getMessage());
+                Console.error(Console.CONSTANTS.patch_manager_apply_new_wizard_error(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(final ApplyContext context) {
-                window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
+                window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_patch());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
                 window.setWidget(new ApplyWizard(PatchManagerPresenter.this, context, dispatcher, patchManager));
@@ -147,43 +136,57 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             contextCallback
                     .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
                             bootstrapContext.getProperty(
-                            BootstrapContext.PATCH_API)));
+                                    BootstrapContext.PATCH_API)));
         } else {
             final String host = domainManager.getSelectedHost();
-            ModelNode operation = new ModelNode();
-            operation.get(ADDRESS).add("host", host);
-            operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-            operation.get(CHILD_TYPE).set("server");
-            operation.get(INCLUDE_RUNTIME).set(true);
-            dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-                @Override
-                public void onSuccess(DMRResponse result) {
-                    ModelNode response = result.get();
-                    List<String> runningServers = new LinkedList<String>();
-                    if (response.isFailure()) {
-                        // no servers
-                        contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
-                                patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
-                    } else {
-                        List<Property> servers = response.get(RESULT).asPropertyList();
-                        for (Property server : servers) {
-                            String name = server.getName();
-                            ModelNode instance = server.getValue();
-                            String state = instance.get("server-state").asString();
-                            if ("running".equals(state)) {
-                                runningServers.add(name);
-                            }
+            dispatcher
+                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
+                        @Override
+                        protected void onServers(final List<String> runningServers) {
+                            contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
+                                    patchManager.baseAddress(),
+                                    bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
                         }
-                        contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
-                                patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
-                    }
-                }
+                    });
+        }
+    }
 
-                @Override
-                public void onFailure(Throwable caught) {
-                    contextCallback.onFailure(caught);
-                }
-            });
+    public void launchRollbackWizard(final PatchInfo patchInfo) {
+        // this callback is directly called from the standalone branch
+        // or after the running server instances are retrieved in the domain branch
+        final Callback<RollbackContext, Throwable> contextCallback = new Callback<RollbackContext, Throwable>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Log.error("Unable to launch apply patch wizard", caught);
+                Console.error(Console.CONSTANTS.patch_manager_rollback_wizard_error(), caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final RollbackContext context) {
+                window = new DefaultWindow(Console.CONSTANTS.patch_manager_rollback());
+                window.setWidth(480);
+                window.setHeight(NORMAL_WINDOW_HEIGHT);
+                window.setWidget(new RollbackWizard(PatchManagerPresenter.this, context));
+                window.setGlassEnabled(true);
+                window.center();
+            }
+        };
+
+        if (bootstrapContext.isStandalone()) {
+            contextCallback
+                    .onSuccess(
+                            new RollbackContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
+                                    patchInfo));
+        } else {
+            final String host = domainManager.getSelectedHost();
+            dispatcher
+                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
+                        @Override
+                        protected void onServers(final List<String> runningServers) {
+                            contextCallback.onSuccess(new RollbackContext(false, host, runningServers,
+                                    patchManager.baseAddress(), patchInfo));
+                        }
+                    });
         }
     }
 
@@ -205,10 +208,6 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             window.setHeight(NORMAL_WINDOW_HEIGHT);
             window.center();
         }
-    }
-
-    public void onRollback(final PatchInfo patchInfo) {
-        patchManager.rollback(patchInfo);
     }
 
     public void restart() {
@@ -242,5 +241,62 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 restartModal.error();
             }
         });
+    }
+
+    private ModelNode getRunningServersOp(final String host) {
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).add("host", host);
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(CHILD_TYPE).set("server");
+        operation.get(INCLUDE_RUNTIME).set(true);
+        return operation;
+    }
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.PatchingPresenter)
+    @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
+    public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
+
+
+    public interface MyView extends View {
+
+        void setPresenter(PatchManagerPresenter presenter);
+
+        void update(Patches patches);
+    }
+
+
+    private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
+
+        private final Callback<? extends CommonPatchContext, Throwable> contextCallback;
+
+        public GetRunningServersCallback(final Callback<? extends CommonPatchContext, Throwable> contextCallback) {
+            this.contextCallback = contextCallback;
+        }
+
+        @Override
+        public void onSuccess(DMRResponse result) {
+            ModelNode response = result.get();
+            List<String> runningServers = new LinkedList<String>();
+            if (!response.isFailure()) {
+                List<Property> servers = response.get(RESULT).asPropertyList();
+                for (Property server : servers) {
+                    String name = server.getName();
+                    ModelNode instance = server.getValue();
+                    String state = instance.get("server-state").asString();
+                    if ("running".equals(state)) {
+                        runningServers.add(name);
+                    }
+                }
+            }
+            onServers(runningServers);
+        }
+
+        @Override
+        public void onFailure(final Throwable caught) {
+            contextCallback.onFailure(caught);
+        }
+
+        protected abstract void onServers(List<String> runningServers);
     }
 }

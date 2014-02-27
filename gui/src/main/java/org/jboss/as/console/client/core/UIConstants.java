@@ -1108,4 +1108,14 @@ public interface UIConstants extends Constants {
     String patch_manager_desc_community();
 
     String patch_manager_toolstrip_desc();
+
+    String patch_manager_patch_information();
+
+    String patch_manager_applied_at();
+
+    String patch_manager_apply_patch();
+
+    String patch_manager_apply_new_wizard_error();
+
+    String patch_manager_rollback_wizard_error();
 }
