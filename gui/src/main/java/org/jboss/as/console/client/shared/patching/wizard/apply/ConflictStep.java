@@ -50,7 +50,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new HTML(TEMPLATES.successPanel(Console.CONSTANTS.patch_manager_conflict_body())));
+        body.add(new HTML(TEMPLATES.errorPanel(Console.CONSTANTS.patch_manager_conflict_body())));
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
@@ -79,6 +79,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     @Override
     protected void onShow(final ApplyContext context) {
+        wizard.grow();
         errorDetails.setDetails(context.patchFailedDetails);
     }
 }
