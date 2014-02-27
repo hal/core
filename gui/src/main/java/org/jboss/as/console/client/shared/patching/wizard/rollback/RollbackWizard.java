@@ -28,7 +28,7 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
  */
 public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> {
 
-    protected RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context) {
+    public RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context) {
         super(presenter, context);
 
         addStep(CHOOSE_OPTIONS, new ChooseOptionsStep(this));

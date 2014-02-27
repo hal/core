@@ -20,6 +20,9 @@ package org.jboss.as.console.client.shared.patching;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -31,6 +34,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
@@ -39,7 +43,6 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 
 /**
  * @author Harald Pehl
@@ -66,7 +69,8 @@ public class PatchManagerView extends SuspendableViewImpl
         // header
         panel.add(new ContentHeaderLabel("Patch Management"));
         if (productConfig.getProfile() == ProductConfig.Profile.PRODUCT) {
-            panel.add(new ContentDescription(Console.MESSAGES.patch_manager_desc_product(PatchManagerPresenter.CUSTOMER_PORTAL)));
+            panel.add(new ContentDescription(
+                    Console.MESSAGES.patch_manager_desc_product(PatchManagerPresenter.CUSTOMER_PORTAL)));
         } else {
             panel.add(new ContentDescription(Console.CONSTANTS.patch_manager_desc_community()));
         }
@@ -74,13 +78,18 @@ public class PatchManagerView extends SuspendableViewImpl
 
         // latest patch info
         latestContainer = new FlowPanel();
-        latestContainer.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_latest()));
+        latestContainer.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_patch_information()));
         latestForm = new Form<PatchInfo>(PatchInfo.class);
         latestForm.setEnabled(false);
-        TextItem id = new TextItem("id", "ID");
+        TextItem id = new TextItem("id", Console.CONSTANTS.patch_manager_latest());
         TextItem version = new TextItem("version", "Version");
-        TextItem date = new TextItem("appliedAt", Console.CONSTANTS.common_label_date());
-        latestForm.setFields(id, version, date);
+        TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
+        EnumFormItem<PatchType> type = new EnumFormItem<>("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
+        Map<PatchType, String> typeLabels = new HashMap<PatchType, String>();
+        typeLabels.put(PatchType.CUMULATIVE, "Cumulutative");
+        typeLabels.put(PatchType.ONE_OFF, "One-Off");
+        type.setValues(typeLabels);
+        latestForm.setFields(id, version, date, type);
         latestContainer.add(latestForm);
         panel.add(latestContainer);
 
@@ -90,7 +99,7 @@ public class PatchManagerView extends SuspendableViewImpl
         ToolButton apply = new ToolButton(Console.CONSTANTS.patch_manager_apply_new(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchApplyPatchWizard();
+                presenter.launchApplyWizard();
             }
         });
         apply.getElement().setId(asId(PREFIX, getClass(), "_Apply"));
@@ -100,18 +109,7 @@ public class PatchManagerView extends SuspendableViewImpl
             public void onClick(ClickEvent event) {
                 final PatchInfo currentSelection = table.getCurrentSelection();
                 if (currentSelection != null) {
-                    Feedback.confirm(
-                            Console.CONSTANTS.patch_manager_rollback(),
-                            Console.MESSAGES.patch_manager_rollback_body(currentSelection.getId()),
-                            new Feedback.ConfirmationHandler() {
-                                @Override
-                                public void onConfirmation(boolean isConfirmed) {
-                                    if (isConfirmed) {
-                                        presenter.onRollback(currentSelection);
-                                    }
-                                }
-                            }
-                    );
+                    presenter.launchRollbackWizard(currentSelection);
                 }
             }
         };
