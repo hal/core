@@ -236,4 +236,6 @@ public interface UIMessages extends Messages {
     String patch_manager_restart_needed(String serverOrHost);
 
     String patch_manager_error_parse_result(String exception, String payload);
+
+    String patch_manager_rolling_back_body(String id);
 }

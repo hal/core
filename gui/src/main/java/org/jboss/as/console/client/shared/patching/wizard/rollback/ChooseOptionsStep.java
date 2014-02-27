@@ -18,21 +18,43 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.RollbackOptions;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
+import org.jboss.ballroom.client.widgets.forms.Form;
 
 /**
  * @author Harald Pehl
  */
 public class ChooseOptionsStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
-    protected ChooseOptionsStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
-        super(wizard, "");
+    public ChooseOptionsStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
+        super(wizard, Console.CONSTANTS.patch_manager_rollback_options_title());
     }
 
     @Override
     protected IsWidget body(final RollbackContext context) {
-        return null;
+        FlowPanel body = new FlowPanel();
+        body.add(new Label(Console.CONSTANTS.patch_manager_rollback_options_body()));
+
+        final Form<RollbackOptions> form = new Form<RollbackOptions>(RollbackOptions.class);
+        CheckBoxItem resetConfiguration = new CheckBoxItem("resetConfiguration",
+                Console.CONSTANTS.patch_manager_rollback_options_reset_configuration());
+        resetConfiguration.getInputElement().setId(asId(PREFIX, getClass(), "_ResetConfiguration"));
+        CheckBoxItem overrideAll = new CheckBoxItem("overrideAll",
+                Console.CONSTANTS.patch_manager_rollback_options_override_all());
+        overrideAll.getInputElement().setId(asId(PREFIX, getClass(), "_OverrideAll"));
+        form.setFields(resetConfiguration, overrideAll);
+
+        body.add(form);
+
+        return body;
     }
 }

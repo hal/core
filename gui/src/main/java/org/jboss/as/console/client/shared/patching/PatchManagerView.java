@@ -25,6 +25,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -38,6 +39,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -112,6 +114,16 @@ public class PatchManagerView extends SuspendableViewImpl
                 final PatchInfo currentSelection = table.getCurrentSelection();
                 if (currentSelection != null) {
                     presenter.launchRollbackWizard(currentSelection);
+                } else {
+                    // TEST TEST TEST
+                    BeanFactory beanFactory = GWT.create(BeanFactory.class);
+                    final PatchInfo patchInfo = beanFactory.patchInfo().as();
+                    patchInfo.setId("0815");
+                    patchInfo.setAppliedAt("20.05.2013");
+                    patchInfo.setType(PatchType.CUMULATIVE);
+                    patchInfo.setVersion("1.23");
+                    presenter.launchRollbackWizard(patchInfo);
+                    // TEST TEST TEST
                 }
             }
         };

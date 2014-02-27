@@ -39,7 +39,6 @@ public class ApplyContext extends CommonPatchContext {
     FormPanel form;
     Hidden operation;
     String filename;
-    boolean restartToUpdate;
     PatchInfo patchInfo;
     boolean conflict;
     boolean patchFailed;
@@ -54,7 +53,6 @@ public class ApplyContext extends CommonPatchContext {
 
         this.form = null;
         this.operation = null;
-        this.restartToUpdate = true;
         this.patchInfo = null;
         this.conflict = false;
         this.patchFailed = false;

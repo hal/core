@@ -1061,15 +1061,15 @@ public interface UIConstants extends Constants {
 
     String patch_manager_error_title();
 
-    String patch_manager_error_body();
+    String patch_manager_apply_error_body();
 
-    String patch_manager_error_cancel_title();
+    String patch_manager_apply_error_cancel_title();
 
-    String patch_manager_error_cancel_body();
+    String patch_manager_apply_error_cancel_body();
 
-    String patch_manager_error_select_title();
+    String patch_manager_apply_error_select_title();
 
-    String patch_manager_error_select_body();
+    String patch_manager_apply_error_select_body();
 
     String patch_manager_show_details();
 
@@ -1130,4 +1130,30 @@ public interface UIConstants extends Constants {
     String patch_manager_restart_no();
 
     String patch_manager_applied_success();
+
+    String patch_manager_rollback_options_title();
+
+    String patch_manager_rollback_options_body();
+
+    String patch_manager_rollback_options_reset_configuration();
+
+    String patch_manager_rollback_options_override_all();
+
+    String patch_manager_rollback_confirm_title();
+
+    String patch_manager_rollback_confirm_body();
+
+    String patch_manager_rolled_back_success_title();
+
+    String patch_manager_rolled_back_success_body();
+
+    String patch_manager_rollback_error_body();
+
+    String patch_manager_rollback_error_cancel_title();
+
+    String patch_manager_rollback_error_cancel_body();
+
+    String patch_manager_rollback_error_select_title();
+
+    String patch_manager_rollback_error_select_body();
 }
