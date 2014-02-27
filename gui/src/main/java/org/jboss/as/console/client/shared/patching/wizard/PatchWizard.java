@@ -38,15 +38,17 @@ import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
  */
 public abstract class PatchWizard<C, S extends Enum<S>> implements IsWidget, PatchManagerElementId {
 
-    protected final C context;
     protected final PatchManagerPresenter presenter;
+    protected final C context;
+    protected final String title;
     private final LinkedHashMap<S, PatchWizardStep<C, S>> steps;
     protected S state;
     private DeckPanel deck;
 
-    protected PatchWizard(final PatchManagerPresenter presenter, final C context) {
+    protected PatchWizard(final PatchManagerPresenter presenter, final C context, final String title) {
         this.presenter = presenter;
         this.context = context;
+        this.title = title;
         this.steps = new LinkedHashMap<S, PatchWizardStep<C, S>>();
         this.state = initialState();
     }

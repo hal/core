@@ -20,18 +20,41 @@ package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
 import static org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackState.*;
 
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
+import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
+import org.jboss.as.console.client.shared.patching.wizard.StoppingServersStep;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Harald Pehl
  */
 public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> {
 
-    public RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context) {
-        super(presenter, context);
+    public RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context, final String title,
+            final DispatchAsync dispatcher) {
+        super(presenter, context, title);
 
+        addStep(STOP_SERVERS, new StopServersStep<RollbackContext, RollbackState>(this) {
+            @Override
+            protected IsWidget intro(RollbackContext context) {
+                FlowPanel panel = new FlowPanel();
+                panel.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(context.host)));
+                panel.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS
+                        .patch_manager_stop_server_question_for_rollback() + "</h3>"));
+                return panel;
+            }
+        });
+        addStep(STOPPING, new StoppingServersStep<RollbackContext, RollbackState>(this, dispatcher));
+        addStep(STOP_FAILED, new StopServersFailedStep<RollbackContext, RollbackState>(this));
         addStep(CHOOSE_OPTIONS, new ChooseOptionsStep(this));
+        addStep(CONFIRM_ROLLBACK, new ConfirmRollbackStep(this));
         addStep(ROLLING_BACK, new RollingBackStep(this));
         addStep(SUCCESS, new RollbackOkStep(this));
         addStep(ERROR, new RollbackFailedStep(this));
@@ -46,6 +69,9 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
     public void next() {
         switch (state) {
             case CHOOSE_OPTIONS:
+                pushState(CONFIRM_ROLLBACK);
+                break;
+            case CONFIRM_ROLLBACK:
                 pushState(ROLLING_BACK);
                 break;
             case ROLLING_BACK:
