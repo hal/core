@@ -24,7 +24,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 /**
 * @author Harald Pehl
 */
-public interface ActionsTemplate extends SafeHtmlTemplates {
+public interface PatchManagementTemplates extends SafeHtmlTemplates {
 
     @Template("<ul class=\"patch-actions\">" +
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
