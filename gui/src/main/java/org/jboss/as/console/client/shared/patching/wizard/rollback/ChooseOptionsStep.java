@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+import static com.google.gwt.dom.client.Style.Unit.EM;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -35,6 +35,9 @@ import org.jboss.ballroom.client.widgets.forms.Form;
  */
 public class ChooseOptionsStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
+    private CheckBoxItem resetConfiguration;
+    private CheckBoxItem overrideAll;
+
     public ChooseOptionsStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_rollback_options_title());
     }
@@ -43,18 +46,29 @@ public class ChooseOptionsStep extends PatchWizardStep<RollbackContext, Rollback
     protected IsWidget body(final RollbackContext context) {
         FlowPanel body = new FlowPanel();
         body.add(new Label(Console.CONSTANTS.patch_manager_rollback_options_body()));
+        Label resetConfigurationDesc = new Label(Console.CONSTANTS.patch_manager_rollback_options_reset_configuration_desc());
+        resetConfigurationDesc.getElement().getStyle().setMarginTop(1, EM);
+        body.add(resetConfigurationDesc);
+        Label overrideAllDesc = new Label(Console.CONSTANTS.patch_manager_rollback_options_override_all_desc());
+        overrideAllDesc.getElement().getStyle().setMarginTop(1, EM);
+        body.add(overrideAllDesc);
 
         final Form<RollbackOptions> form = new Form<RollbackOptions>(RollbackOptions.class);
-        CheckBoxItem resetConfiguration = new CheckBoxItem("resetConfiguration",
+        resetConfiguration = new CheckBoxItem("resetConfiguration",
                 Console.CONSTANTS.patch_manager_rollback_options_reset_configuration());
-        resetConfiguration.getInputElement().setId(asId(PREFIX, getClass(), "_ResetConfiguration"));
-        CheckBoxItem overrideAll = new CheckBoxItem("overrideAll",
+        overrideAll = new CheckBoxItem("overrideAll",
                 Console.CONSTANTS.patch_manager_rollback_options_override_all());
-        overrideAll.getInputElement().setId(asId(PREFIX, getClass(), "_OverrideAll"));
         form.setFields(resetConfiguration, overrideAll);
 
         body.add(form);
 
         return body;
+    }
+
+    @Override
+    protected void onNext(final RollbackContext context) {
+        context.resetConfiguration = resetConfiguration.getValue();
+        context.overrideAll = overrideAll.getValue();
+        super.onNext(context);
     }
 }

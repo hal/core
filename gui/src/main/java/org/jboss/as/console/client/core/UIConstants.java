@@ -1137,7 +1137,11 @@ public interface UIConstants extends Constants {
 
     String patch_manager_rollback_options_reset_configuration();
 
+    String patch_manager_rollback_options_reset_configuration_desc();
+
     String patch_manager_rollback_options_override_all();
+
+    String patch_manager_rollback_options_override_all_desc();
 
     String patch_manager_rollback_confirm_title();
 

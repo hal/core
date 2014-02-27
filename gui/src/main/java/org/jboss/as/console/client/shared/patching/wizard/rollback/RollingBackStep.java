@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
@@ -48,5 +49,32 @@ public class RollingBackStep extends PatchWizardStep<RollbackContext, RollbackSt
     @Override
     protected void onShow(final RollbackContext context) {
         pending.setTitle(Console.MESSAGES.patch_manager_rolling_back_body(context.patchInfo.getId()));
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (System.currentTimeMillis() % 2 == 0) {
+                    context.rollbackError = false;
+                } else {
+                    context.rollbackError = true;
+                    context.rollbackErrorDetails = "{\n" +
+                            "    \"access\" => {\n" +
+                            "        \"authorization\" => undefined,\n" +
+                            "        \"audit\" => undefined\n" +
+                            "    },\n" +
+                            "    \"ldap-connection\" => undefined,\n" +
+                            "    \"management-interface\" => {\n" +
+                            "        \"native-interface\" => undefined,\n" +
+                            "        \"http-interface\" => undefined\n" +
+                            "    },\n" +
+                            "    \"security-realm\" => {\n" +
+                            "        \"ManagementRealm\" => undefined,\n" +
+                            "        \"ApplicationRealm\" => undefined\n" +
+                            "    }\n" +
+                            "}";
+                }
+                wizard.next();
+                return false;
+            }
+        }, 1000);
     }
 }

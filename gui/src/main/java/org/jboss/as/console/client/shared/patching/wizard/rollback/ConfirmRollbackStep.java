@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import static com.google.gwt.dom.client.Style.Unit.EM;
 import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
 import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
 
@@ -41,6 +42,8 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
  */
 public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
+    private Label resetConfiguration;
+    private Label overrideAll;
     private Form<PatchInfo> form;
 
     public ConfirmRollbackStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
@@ -50,18 +53,27 @@ public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, Rollba
     @Override
     protected IsWidget body(final RollbackContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.CONSTANTS.patch_manager_rollback_confirm_body()));
+        Label confirmLabel = new Label(Console.CONSTANTS.patch_manager_rollback_confirm_body());
+        confirmLabel.getElement().getStyle().setMarginBottom(1, EM);
+        body.add(confirmLabel);
+
+        resetConfiguration = new Label("");
+        body.add(resetConfiguration);
+        overrideAll = new Label("");
+        overrideAll.getElement().getStyle().setMarginBottom(1, EM);
+        body.add(overrideAll);
 
         form = new Form<PatchInfo>(PatchInfo.class);
         form.setEnabled(false);
         TextItem id = new TextItem("id", "ID");
         TextItem version = new TextItem("version", "Version");
+        TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
         Map<PatchType, String> values = new HashMap<PatchType, String>();
         values.put(CUMULATIVE, CUMULATIVE.label());
         values.put(ONE_OFF, ONE_OFF.label());
         EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
         type.setValues(values);
-        form.setFields(id, version, type);
+        form.setFields(id, version, date, type);
         body.add(form);
 
         return body;
@@ -72,5 +84,9 @@ public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, Rollba
         if (context.patchInfo != null) {
             form.edit(context.patchInfo);
         }
+        resetConfiguration.setText(Console.CONSTANTS
+                .patch_manager_rollback_options_reset_configuration() + ": " + (context.resetConfiguration ? "true" : "false"));
+        overrideAll.setText(Console.CONSTANTS
+                .patch_manager_rollback_options_override_all() + ": " + (context.overrideAll ? "true" : "false"));
     }
 }
