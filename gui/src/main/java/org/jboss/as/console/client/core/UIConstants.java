@@ -1120,4 +1120,12 @@ public interface UIConstants extends Constants {
     String patch_manager_stop_server_question_for_apply();
 
     String patch_manager_stop_server_question_for_rollback();
+
+    String patch_manager_servers_shutdown();
+
+    String patch_manager_select_patch_upload();
+
+    String patch_manager_confirm_patch_title();
+
+    String patch_manager_confirm_patch_body();
 }
