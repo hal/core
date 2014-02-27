@@ -168,7 +168,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
                 window.setWidget(new RollbackWizard(PatchManagerPresenter.this, context,
-                        Console.CONSTANTS.patch_manager_rollback()));
+                        Console.CONSTANTS.patch_manager_rollback(), dispatcher));
                 window.setGlassEnabled(true);
                 window.center();
             }

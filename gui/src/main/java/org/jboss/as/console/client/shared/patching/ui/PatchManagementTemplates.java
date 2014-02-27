@@ -36,12 +36,19 @@ public interface PatchManagementTemplates extends SafeHtmlTemplates {
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
             "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div></li>" +
             "</ul>")
-    SafeHtml actions(String firstTitle, String firstBody, String secondTitle, String secondBody);
+    SafeHtml stopServers(String firstTitle, String firstBody, String secondTitle, String secondBody);
 
     // This version takes a SafeHtml instance as 3rd parameter
-    @Template("<ul class=\"apply-patch-actions\">" +
+    @Template("<ul class=\"patch-actions\">" +
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
             "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"apply-patch-conflict-override\"></div></li>" +
             "</ul>")
-    SafeHtml actions(String cancelTitle, String cancelBody, SafeHtml overrideTitle, String overrideBody);
+    SafeHtml patchConflicts(String cancelTitle, String cancelBody, SafeHtml overrideTitle, String overrideBody);
+
+    // This version takes a SafeHtml instance as 3rd parameter
+    @Template("<ul class=\"patch-actions\">" +
+            "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
+            "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"select-different-patch\"></div></li>" +
+            "</ul>")
+    SafeHtml appliedFailed(String cancelTitle, String cancelBody, String overrideTitle, String overrideBody);
 }

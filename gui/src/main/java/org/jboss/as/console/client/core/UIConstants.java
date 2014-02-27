@@ -1130,4 +1130,6 @@ public interface UIConstants extends Constants {
     String patch_manager_restart_no();
 
     String patch_manager_applied_success();
+
+    String patch_manager_browse();
 }
