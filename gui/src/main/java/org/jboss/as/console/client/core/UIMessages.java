@@ -234,6 +234,4 @@ public interface UIMessages extends Messages {
     String patch_manager_applying_patch_body(String filename);
 
     String patch_manager_restart_needed(String serverOrHost);
-
-    SafeHtml patch_manager_applied_success();
 }

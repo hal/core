@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.ui.ActionsTemplate;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
@@ -35,7 +35,7 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
  */
 public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
-    final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
+    final static PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
 
     private ErrorDetails errorDetails;
 
@@ -58,7 +58,7 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
         body.add(errorDetails);
 
         body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
-        HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
+        HTMLPanel actions = new HTMLPanel(TEMPLATES
                 .actions(Console.CONSTANTS.patch_manager_error_cancel_title(),
                         Console.CONSTANTS.patch_manager_error_cancel_body(),
                         Console.CONSTANTS.patch_manager_error_select_title(),

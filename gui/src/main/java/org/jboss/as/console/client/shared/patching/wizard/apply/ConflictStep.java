@@ -28,10 +28,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.ui.ActionsTemplate;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
@@ -40,7 +39,7 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
  */
 public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
-    final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
+    final static PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
 
     private ErrorDetails errorDetails;
 
@@ -49,14 +48,9 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
     }
 
     @Override
-    protected HTML header(final ApplyContext context) {
-        return new HTML("<h3 class=\"error\"><i class\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
-    }
-
-    @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.CONSTANTS.patch_manager_conflict_body()));
+        body.add(new HTML(TEMPLATES.successPanel(Console.CONSTANTS.patch_manager_conflict_body())));
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
@@ -64,7 +58,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
         body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS
                 .patch_manager_possible_actions() + "</h3>"));
-        HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
+        HTMLPanel actions = new HTMLPanel(TEMPLATES
                 .actions(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
                         Console.CONSTANTS.patch_manager_conflict_cancel_body(),
                         Console.MESSAGES.patch_manager_conflict_override_title(),

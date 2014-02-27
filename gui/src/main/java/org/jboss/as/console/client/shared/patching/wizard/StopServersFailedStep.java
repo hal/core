@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.ui.ActionsTemplate;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 
 /**
@@ -33,7 +33,7 @@ import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
  */
 public class StopServersFailedStep<C extends CommonPatchContext, S extends Enum<S>> extends PatchWizardStep<C, S> {
 
-    final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
+    final static PatchManagementTemplates ACTIONS_TEMPLATE = GWT.create(PatchManagementTemplates.class);
 
     private ErrorDetails errorDetails;
     private Label errorText;
