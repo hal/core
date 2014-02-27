@@ -56,7 +56,7 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
         addStep(CHOOSE_OPTIONS, new ChooseOptionsStep(this));
         addStep(CONFIRM_ROLLBACK, new ConfirmRollbackStep(this));
         addStep(ROLLING_BACK, new RollingBackStep(this));
-        addStep(SUCCESS, new RollbackOkStep(this));
+        addStep(SUCCESS, new RollbackOkStep(this, context.standalone ? "server" : "host"));
         addStep(ERROR, new RollbackFailedStep(this));
     }
 
@@ -82,8 +82,12 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
                 }
                 break;
             case SUCCESS:
-                presenter.loadPatches();
                 close();
+                if (context.restartToUpdate) {
+                    presenter.restart();
+                } else {
+                    presenter.loadPatches();
+                }
                 break;
             case ERROR:
                 // next == start again

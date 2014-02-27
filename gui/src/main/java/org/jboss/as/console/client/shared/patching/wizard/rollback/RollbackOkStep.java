@@ -18,7 +18,16 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RadioButton;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
@@ -27,12 +36,42 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
  */
 public class RollbackOkStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
-    protected RollbackOkStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
-        super(wizard, "");
+    static final PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
+    private final String serverOrHost;
+    private RadioButton yes;
+
+    public RollbackOkStep(final PatchWizard<RollbackContext, RollbackState> wizard, String serverOrHost) {
+        super(wizard, Console.CONSTANTS.patch_manager_rolled_back_success_title(),
+                Console.CONSTANTS.common_label_finish());
+        this.serverOrHost = serverOrHost;
     }
 
     @Override
     protected IsWidget body(final RollbackContext context) {
-        return null;
+        FlowPanel body = new FlowPanel();
+
+        body.add(new Label(Console.MESSAGES.patch_manager_restart_needed(serverOrHost)));
+        body.add(new HTML(TEMPLATES.successPanel(Console.CONSTANTS.patch_manager_rolled_back_success_body())));
+
+        body.add(new HTML(
+                "<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_restart_now() + "</h3>"));
+
+        yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
+        yes.getElement().setId(asId(PREFIX, getClass(), "_RestartYes"));
+        yes.addStyleName("patch-radio");
+        yes.setValue(true);
+        RadioButton no = new RadioButton("restart_host", Console.CONSTANTS.patch_manager_restart_no());
+        no.getElement().setId(asId(PREFIX, getClass(), "_RestartNo"));
+        no.addStyleName("patch-radio");
+        body.add(yes);
+        body.add(no);
+
+        return body;
+    }
+
+    @Override
+    protected void onNext(final RollbackContext context) {
+        context.restartToUpdate = yes.getValue();
+        super.onNext(context);
     }
 }

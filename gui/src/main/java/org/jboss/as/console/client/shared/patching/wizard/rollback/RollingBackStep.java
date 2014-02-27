@@ -18,8 +18,10 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
@@ -29,12 +31,22 @@ import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
  */
 public class RollingBackStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
-    protected RollingBackStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
-        super(wizard, "", new WizardButton(false), new WizardButton(Console.CONSTANTS.common_label_cancel()));
+    private Pending pending;
+
+    public RollingBackStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
+        super(wizard, null, new WizardButton(false), new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
     @Override
     protected IsWidget body(final RollbackContext context) {
-        return null;
+        FlowPanel body = new FlowPanel();
+        pending = new Pending("");
+        body.add(pending);
+        return body;
+    }
+
+    @Override
+    protected void onShow(final RollbackContext context) {
+        pending.setTitle(Console.MESSAGES.patch_manager_rolling_back_body(context.patchInfo.getId()));
     }
 }

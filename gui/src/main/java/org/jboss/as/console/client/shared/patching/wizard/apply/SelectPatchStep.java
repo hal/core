@@ -97,7 +97,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected void onShow(final ApplyContext context) {
         if (!context.standalone) {
-            if (context.serversStoppped) {
+            if (context.serversStopped) {
                 info.setText("Host: " + context.host + " (" + Console.CONSTANTS.patch_manager_servers_shutdown() + ")");
             } else {
                 info.setHTML("Host: " + context.host + " (" + Console.MESSAGES

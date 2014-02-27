@@ -73,7 +73,7 @@ public class StoppingServersStep<C extends CommonPatchContext, S extends Enum<S>
         stopServersOp.start(dispatcher, stopServersNode, new TimeoutOperation.Callback() {
             @Override
             public void onSuccess() {
-                context.serversStoppped = true;
+                context.serversStopped = true;
                 wizard.next();
             }
 

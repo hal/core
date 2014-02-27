@@ -39,7 +39,6 @@ import org.jboss.ballroom.client.widgets.common.DefaultButton;
 public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     final static PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
-
     private ErrorDetails errorDetails;
     private DefaultButton selectPatch;
     private SelectPatchHandler selectPatchHandler;
@@ -52,18 +51,19 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new HTML(TEMPLATES.errorPanel(Console.CONSTANTS.patch_manager_error_body())));
+        body.add(new HTML(TEMPLATES.errorPanel(Console.CONSTANTS.patch_manager_apply_error_body())));
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
         body.add(errorDetails);
 
-        body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
+        body.add(new HTML(
+                "<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(TEMPLATES
-                .appliedFailed(Console.CONSTANTS.patch_manager_error_cancel_title(),
-                        Console.CONSTANTS.patch_manager_error_cancel_body(),
-                        Console.CONSTANTS.patch_manager_error_select_title(),
-                        Console.CONSTANTS.patch_manager_error_select_body()));
+                .appliedFailed(Console.CONSTANTS.patch_manager_apply_error_cancel_title(),
+                        Console.CONSTANTS.patch_manager_apply_error_cancel_body(),
+                        Console.CONSTANTS.patch_manager_apply_error_select_title(),
+                        Console.CONSTANTS.patch_manager_apply_error_select_body()));
         selectPatch = new DefaultButton(Console.CONSTANTS.patch_manager_select_patch_title());
         selectPatch.getElement().setAttribute("style", "min-width:60px;");
         selectPatch.addStyleName("primary");
@@ -72,7 +72,6 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
 
         return body;
     }
-
 
     @Override
     protected void onShow(final ApplyContext context) {
@@ -85,14 +84,13 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
         selectPatchHandler.context = context;
     }
 
+
     private class SelectPatchHandler implements ClickHandler {
 
         ApplyContext context;
 
         @Override
         public void onClick(final ClickEvent event) {
-            event.preventDefault();
-            event.stopPropagation();
             onNext(context);
         }
     }
