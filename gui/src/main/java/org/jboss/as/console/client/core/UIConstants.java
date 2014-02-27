@@ -1043,10 +1043,6 @@ public interface UIConstants extends Constants {
 
     String patch_manager_select_patch_body();
 
-    String patch_manager_applying_patch_title();
-
-    String patch_manager_applying_patch_body();
-
     String patch_manager_applied_success_title();
 
     String patch_manager_stopping_servers_body();

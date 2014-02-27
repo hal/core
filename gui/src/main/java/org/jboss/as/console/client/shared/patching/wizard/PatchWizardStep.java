@@ -111,7 +111,13 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
     }
 
     protected IsWidget header(final C context) {
-        return new HTML("<h3>" + wizard.title + ": " + title + "</h3>");
+        StringBuilder header = new StringBuilder();
+        header.append("<h3>").append(wizard.title);
+        if (title != null) {
+            header.append(": ").append(title);
+        }
+        header.append("h3>");
+        return new HTML(header.toString());
     }
 
     protected abstract IsWidget body(final C context);
