@@ -2541,22 +2541,6 @@ hr {
   color: @error-color;
 }
 
-.success-panel {
-  border: 1px solid @success-color;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  padding: 1em;
-}
-
-.error-panel {
-  border: 1px solid @error-color;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  padding: 1em;
-}
-
 .restart-window-content {
   display: flex;
   align-items: center;
@@ -2589,11 +2573,34 @@ ul.patch-actions {
   .title {
     font-weight: bold;
   }
-  #patch-conflict-override {
+  #patch-conflict-override, #select-different-patch {
     margin-top: .5em;
     input[type=checkbox] {
       margin: 0 .5em 0 0;
       padding: 0;
     }
+    button {
+      margin: 0;
+    }
+  }
+  #select-different-patch {
+
   }
 }
+
+.patch-success-panel {
+  border: 1px solid @success-color;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 1em;
+}
+
+.patch-error-panel {
+  border: 1px solid @error-color;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  padding: 1em;
+}
+

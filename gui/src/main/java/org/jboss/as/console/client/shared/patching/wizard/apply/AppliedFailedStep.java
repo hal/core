@@ -19,6 +19,8 @@
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -39,6 +41,8 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     final static PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
 
     private ErrorDetails errorDetails;
+    private DefaultButton selectPatch;
+    private SelectPatchHandler selectPatchHandler;
 
     public AppliedFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_error_title(), new WizardButton(false),
@@ -60,10 +64,10 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
                         Console.CONSTANTS.patch_manager_error_cancel_body(),
                         Console.CONSTANTS.patch_manager_error_select_title(),
                         Console.CONSTANTS.patch_manager_error_select_body()));
-        DefaultButton browse = new DefaultButton(Console.CONSTANTS.patch_manager_browse());
-        browse.getElement().setAttribute("style", "min-width:60px;");
-        browse.addStyleName("primary");
-        actions.add(browse, "select-different-patch");
+        selectPatch = new DefaultButton(Console.CONSTANTS.patch_manager_select_patch_title());
+        selectPatch.getElement().setAttribute("style", "min-width:60px;");
+        selectPatch.addStyleName("primary");
+        actions.add(selectPatch, "select-different-patch");
         body.add(actions);
 
         return body;
@@ -74,5 +78,22 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     protected void onShow(final ApplyContext context) {
         wizard.grow();
         errorDetails.setDetails(context.patchFailedDetails);
+        if (selectPatchHandler == null) {
+            selectPatchHandler = new SelectPatchHandler();
+            selectPatch.addClickHandler(selectPatchHandler);
+        }
+        selectPatchHandler.context = context;
+    }
+
+    private class SelectPatchHandler implements ClickHandler {
+
+        ApplyContext context;
+
+        @Override
+        public void onClick(final ClickEvent event) {
+            event.preventDefault();
+            event.stopPropagation();
+            onNext(context);
+        }
     }
 }

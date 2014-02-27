@@ -64,7 +64,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     static final int NORMAL_WINDOW_HEIGHT = 400;
     static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
-    static final String CUSTOMER_PORTAL = "https://access.redhat.com/home"; // TODO Move this to some kind of link configuration class
+
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
     private final DomainEntityManager domainManager;

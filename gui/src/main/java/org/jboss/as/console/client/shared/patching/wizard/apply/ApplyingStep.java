@@ -18,10 +18,11 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -36,6 +37,7 @@ import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Harald Pehl
@@ -43,7 +45,8 @@ import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
 public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private final PatchManager patchManager;
-    private HandlerRegistration handlerRegistration;
+    private Pending pending;
+    private PatchAppliedHandler patchAppliedHandler;
 
     public ApplyingStep(final PatchWizard<ApplyContext, ApplyState> wizard, PatchManager patchManager) {
         super(wizard, null, new WizardButton(false), new WizardButton(Console.CONSTANTS.common_label_cancel()));
@@ -53,12 +56,31 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Pending(Console.MESSAGES.patch_manager_applying_patch_body(context.filename)));
+        pending = new Pending("");
+        body.add(pending);
         return body;
     }
 
     @Override
     protected void onShow(final ApplyContext context) {
+        pending.setTitle(Console.MESSAGES.patch_manager_applying_patch_body(context.filename));
+
+        ModelNode patchOp = context.patchAddress.clone();
+        patchOp.get(OP).set("patch");
+        patchOp.get("content").add().get("input-stream-index").set(0);
+        if (context.overrideConflict) {
+            patchOp.get("override-all").set(true);
+        }
+        context.operation.setValue(patchOp.toJSONString());
+
+        // only one handler please!
+        if (patchAppliedHandler == null) {
+            patchAppliedHandler = new PatchAppliedHandler();
+            context.form.addSubmitCompleteHandler(patchAppliedHandler);
+        }
+        patchAppliedHandler.context = context;
+        context.form.submit();
+
         // reset old state
         context.restartToUpdate = true;
         context.patchInfo = null;
@@ -66,21 +88,12 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
         context.patchFailed = false;
         context.patchFailedDetails = null;
         context.overrideConflict = false;
-
-        // only one handler please!
-        if (handlerRegistration == null) {
-            handlerRegistration = context.form.addSubmitCompleteHandler(new PatchAppliedHandler(context));
-        }
     }
+
 
     class PatchAppliedHandler implements FormPanel.SubmitCompleteHandler {
 
-        final ApplyContext context;
-
-        PatchAppliedHandler(final ApplyContext context) {
-
-            this.context = context;
-        }
+        ApplyContext context;
 
         @Override
         public void onSubmitComplete(final FormPanel.SubmitCompleteEvent event) {
@@ -96,24 +109,30 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 // this issue still needs more research
                 Log.debug("Failed to strip out HTML.  This should be preferred?");
             }
-            JSONObject response = JSONParser.parseLenient(json).isObject();
-            JSONString outcome = response.get("outcome").isString();
-            if (outcome != null && "success".equalsIgnoreCase(outcome.stringValue())) {
-                patchManager.getPatches(new SimpleCallback<Patches>() {
-                    @Override
-                    public void onSuccess(final Patches result) {
-                        context.patchInfo = result.getLatest();
-                        wizard.next();
-                    }
-                });
-            } else {
-                context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
-                // TODO conflict detection could be improved!?
-                if (context.patchFailedDetails.contains("conflicts")) {
-                    context.conflict = true;
+            try {
+                JSONObject response = JSONParser.parseLenient(json).isObject();
+                JSONString outcome = response.get("outcome").isString();
+                if (outcome != null && "success".equalsIgnoreCase(outcome.stringValue())) {
+                    patchManager.getPatches(new SimpleCallback<Patches>() {
+                        @Override
+                        public void onSuccess(final Patches result) {
+                            context.patchInfo = result.getLatest();
+                            wizard.next();
+                        }
+                    });
                 } else {
-                    context.patchFailed = true;
+                    context.patchFailedDetails = stringify(response.getJavaScriptObject(), 2);
+                    // TODO conflict detection could be improved!?
+                    if (context.patchFailedDetails.contains("conflicts")) {
+                        context.conflict = true;
+                    } else {
+                        context.patchFailed = true;
+                    }
+                    wizard.next();
                 }
+            } catch (Throwable t) {
+                context.patchFailed = true;
+                context.patchFailedDetails = Console.MESSAGES.patch_manager_error_parse_result(t.getMessage(), json);
                 wizard.next();
             }
         }
