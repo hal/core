@@ -28,6 +28,8 @@ import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
+import org.jboss.ballroom.client.widgets.common.DefaultButton;
 
 /**
  * @author Harald Pehl
@@ -39,8 +41,8 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     private ErrorDetails errorDetails;
 
     public AppliedFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_error_title(),
-                Console.CONSTANTS.patch_manager_select_patch_title());
+        super(wizard, Console.CONSTANTS.patch_manager_error_title(), new WizardButton(false),
+                new WizardButton(Console.CONSTANTS.common_label_cancel()));
     }
 
     @Override
@@ -54,10 +56,14 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
 
         body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(TEMPLATES
-                .actions(Console.CONSTANTS.patch_manager_error_cancel_title(),
+                .appliedFailed(Console.CONSTANTS.patch_manager_error_cancel_title(),
                         Console.CONSTANTS.patch_manager_error_cancel_body(),
                         Console.CONSTANTS.patch_manager_error_select_title(),
                         Console.CONSTANTS.patch_manager_error_select_body()));
+        DefaultButton browse = new DefaultButton(Console.CONSTANTS.patch_manager_browse());
+        browse.getElement().setAttribute("style", "min-width:60px;");
+        browse.addStyleName("primary");
+        actions.add(browse, "select-different-patch");
         body.add(actions);
 
         return body;

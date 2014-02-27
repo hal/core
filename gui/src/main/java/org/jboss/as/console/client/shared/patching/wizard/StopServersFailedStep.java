@@ -59,7 +59,7 @@ public class StopServersFailedStep<C extends CommonPatchContext, S extends Enum<
 
         body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS.patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
-                .actions(Console.CONSTANTS.patch_manager_stop_server_error_cancel_title(),
+                .stopServers(Console.CONSTANTS.patch_manager_stop_server_error_cancel_title(),
                         Console.CONSTANTS.patch_manager_stop_server_error_cancel_body(),
                         Console.CONSTANTS.patch_manager_stop_server_error_continue_title(),
                         Console.CONSTANTS.patch_manager_stop_server_error_continue_body()));

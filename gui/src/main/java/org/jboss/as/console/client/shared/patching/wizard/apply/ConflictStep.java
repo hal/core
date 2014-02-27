@@ -59,7 +59,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
         body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS
                 .patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(TEMPLATES
-                .actions(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
+                .patchConflicts(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
                         Console.CONSTANTS.patch_manager_conflict_cancel_body(),
                         Console.MESSAGES.patch_manager_conflict_override_title(),
                         Console.CONSTANTS.patch_manager_conflict_override_body()));
