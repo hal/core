@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.i18n.client.Constants;
-import com.google.gwt.safehtml.shared.SafeHtml;
 
 
 /**
@@ -1128,5 +1127,7 @@ public interface UIConstants extends Constants {
 
     String patch_manager_restart_now();
 
-    SafeHtml patch_manager_restart_no();
+    String patch_manager_restart_no();
+
+    String patch_manager_applied_success();
 }

@@ -25,6 +25,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -34,6 +35,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.PatchType;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -43,6 +45,8 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
  * @author Harald Pehl
  */
 public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
+
+    static final PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
 
     private final String serverOrHost;
     private RadioButton yes;
@@ -58,9 +62,7 @@ public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
         FlowPanel body = new FlowPanel();
 
         body.add(new Label(Console.MESSAGES.patch_manager_restart_needed(serverOrHost)));
-        HTML success = new HTML(Console.MESSAGES.patch_manager_applied_success());
-        success.addStyleName("patch-success");
-        body.add(success);
+        body.add(new HTML(TEMPLATES.successPanel(Console.CONSTANTS.patch_manager_applied_success())));
 
         form = new Form<PatchInfo>(PatchInfo.class);
         form.setEnabled(false);
