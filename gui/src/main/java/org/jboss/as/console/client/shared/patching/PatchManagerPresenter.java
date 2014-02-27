@@ -126,7 +126,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_patch());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, context, dispatcher, patchManager));
+                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, context,
+                        Console.CONSTANTS.patch_manager_apply_patch(), dispatcher, patchManager));
                 window.setGlassEnabled(true);
                 window.center();
             }
@@ -166,7 +167,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_rollback());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.setWidget(new RollbackWizard(PatchManagerPresenter.this, context));
+                window.setWidget(new RollbackWizard(PatchManagerPresenter.this, context,
+                        Console.CONSTANTS.patch_manager_rollback()));
                 window.setGlassEnabled(true);
                 window.center();
             }

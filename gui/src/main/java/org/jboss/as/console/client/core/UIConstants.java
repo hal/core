@@ -1049,8 +1049,6 @@ public interface UIConstants extends Constants {
 
     String patch_manager_applied_success_title();
 
-    String patch_manager_stopping_servers_title();
-
     String patch_manager_stopping_servers_body();
 
     String patch_manager_possible_actions();
@@ -1118,4 +1116,8 @@ public interface UIConstants extends Constants {
     String patch_manager_apply_new_wizard_error();
 
     String patch_manager_rollback_wizard_error();
+
+    String patch_manager_stop_server_question_for_apply();
+
+    String patch_manager_stop_server_question_for_rollback();
 }

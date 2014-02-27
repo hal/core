@@ -20,9 +20,17 @@ package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static org.jboss.as.console.client.shared.patching.wizard.apply.ApplyState.*;
 
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
+import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
+import org.jboss.as.console.client.shared.patching.wizard.StoppingServersStep;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
@@ -30,14 +38,24 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
  */
 public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
 
-    public ApplyWizard(final PatchManagerPresenter presenter, final ApplyContext context,
+    public ApplyWizard(final PatchManagerPresenter presenter, final ApplyContext context, final String title,
             final DispatchAsync dispatcher, final PatchManager patchManager) {
-        super(presenter, context);
+        super(presenter, context, title);
 
-        addStep(STOP_SERVERS, new StopServersBeforeApplyStep(this));
-        addStep(STOPPING, new StoppingServersStep(this, dispatcher));
-        addStep(STOP_FAILED, new StopServersFailedStep(this));
+        addStep(STOP_SERVERS, new StopServersStep<ApplyContext, ApplyState>(this) {
+            @Override
+            protected IsWidget intro(ApplyContext context) {
+                FlowPanel panel = new FlowPanel();
+                panel.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(context.host)));
+                panel.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS
+                        .patch_manager_stop_server_question_for_apply() + "</h3>"));
+                return panel;
+            }
+        });
+        addStep(STOPPING, new StoppingServersStep<ApplyContext, ApplyState>(this, dispatcher));
+        addStep(STOP_FAILED, new StopServersFailedStep<ApplyContext, ApplyState>(this));
         addStep(SELECT_PATCH, new SelectPatchStep(this));
+        addStep(CONFIRM_PATCH, new ConfirmPatchStep(this));
         addStep(APPLYING, new ApplyingStep(this, patchManager));
         addStep(SUCCESS, new AppliedOkStep(this, context.standalone ? "server" : "host"));
         addStep(CONFLICT, new ConflictStep(this));
@@ -69,6 +87,9 @@ public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
                 pushState(SELECT_PATCH);
                 break;
             case SELECT_PATCH:
+                pushState(CONFIRM_PATCH);
+                break;
+            case CONFIRM_PATCH:
                 pushState(APPLYING);
                 break;
             case APPLYING:

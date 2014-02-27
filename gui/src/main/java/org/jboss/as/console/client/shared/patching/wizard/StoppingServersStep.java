@@ -39,7 +39,7 @@ public class StoppingServersStep<C extends CommonPatchContext, S extends Enum<S>
     private final DispatchAsync dispatcher;
 
     public StoppingServersStep(final PatchWizard<C, S> wizard, final DispatchAsync dispatcher) {
-        super(wizard, Console.CONSTANTS.patch_manager_stopping_servers_title(), new WizardButton(false),
+        super(wizard, Console.CONSTANTS.patch_manager_stop_server_title(), new WizardButton(false),
                 new WizardButton(Console.CONSTANTS.common_label_cancel()));
         this.dispatcher = dispatcher;
     }
