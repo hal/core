@@ -43,7 +43,7 @@ public class StopServersFailedStep<C extends CommonPatchContext, S extends Enum<
     }
 
     @Override
-    protected IsWidget header(final C context) {
+    protected HTML header(final C context) {
         return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
     }
 

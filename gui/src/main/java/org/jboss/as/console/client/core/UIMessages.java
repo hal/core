@@ -223,13 +223,7 @@ public interface UIMessages extends Messages {
 
     String patch_manager_applying(String filename);
 
-    String patch_manager_restart_title(String serverOrHost);
-
-    String patch_manager_applied_restart_body(String serverOrHost);
-
     String patch_manager_restart_yes(String serverOrHost);
-
-    String patch_manager_restart_no(String serverOrHost);
 
     SafeHtml patch_manager_conflict_override_title();
 
@@ -238,4 +232,8 @@ public interface UIMessages extends Messages {
     String patch_manager_servers_still_running_warning();
 
     String patch_manager_applying_patch_body(String filename);
+
+    String patch_manager_restart_needed(String serverOrHost);
+
+    SafeHtml patch_manager_applied_success();
 }
