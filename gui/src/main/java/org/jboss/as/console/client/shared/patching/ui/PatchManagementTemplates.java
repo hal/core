@@ -42,7 +42,7 @@ public interface PatchManagementTemplates extends SafeHtmlTemplates {
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
             "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"patch-conflict-override\"></div></li>" +
             "</ul>")
-    SafeHtml patchConflicts(String firstTitle, String firstBody, String secondTitle, String secondBody);
+    SafeHtml patchConflicts(String firstTitle, String firstBody, SafeHtml secondTitle, String secondBody);
 
     @Template("<ul class=\"patch-actions\">" +
             "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
