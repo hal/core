@@ -74,17 +74,17 @@ public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
         form.setFields(id, version, type);
         body.add(form);
 
-        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.MESSAGES
+        body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.MESSAGES
                 .patch_manager_restart_title(serverOrHost) + "</h3>"));
         body.add(new Label(Console.MESSAGES.patch_manager_applied_restart_body(serverOrHost)));
 
         yes = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_yes(serverOrHost));
         yes.getElement().setId(asId(PREFIX, getClass(), "_RestartYes"));
-        yes.addStyleName("apply-patch-radio");
+        yes.addStyleName("patch-radio");
         yes.setValue(true);
         RadioButton no = new RadioButton("restart_host", Console.MESSAGES.patch_manager_restart_no(serverOrHost));
         no.getElement().setId(asId(PREFIX, getClass(), "_RestartNo"));
-        no.addStyleName("apply-patch-radio");
+        no.addStyleName("patch-radio");
         body.add(yes);
         body.add(no);
 

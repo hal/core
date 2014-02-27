@@ -94,8 +94,8 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected void onNext(ApplyContext context) {
         errorMessages.setVisible(false);
-        String filename = upload.getFilename();
-        if (filename == null || filename.length() == 0) {
+        context.filename = upload.getFilename();
+        if (context.filename == null || context.filename.length() == 0) {
             errorMessages.setVisible(true);
         } else {
             super.onNext(context);

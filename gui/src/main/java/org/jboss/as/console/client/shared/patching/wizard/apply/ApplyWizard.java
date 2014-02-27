@@ -34,7 +34,7 @@ public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
             final DispatchAsync dispatcher, final PatchManager patchManager) {
         super(presenter, context);
 
-        addStep(STOP_SERVERS, new StopServersStep(this));
+        addStep(STOP_SERVERS, new StopServersBeforeApplyStep(this));
         addStep(STOPPING, new StoppingServersStep(this, dispatcher));
         addStep(STOP_FAILED, new StopServersFailedStep(this));
         addStep(SELECT_PATCH, new SelectPatchStep(this));
@@ -94,7 +94,7 @@ public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
                 pushState(APPLYING);
                 break;
             case ERROR:
-                // next == select again
+                // next == start over
                 pushState(SELECT_PATCH);
                 break;
         }

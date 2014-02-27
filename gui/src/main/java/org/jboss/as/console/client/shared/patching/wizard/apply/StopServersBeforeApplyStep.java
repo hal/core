@@ -16,23 +16,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard.rollback;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
-import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
 
 /**
  * @author Harald Pehl
  */
-public class ConfirmationStep extends PatchWizardStep<RollbackContext, RollbackState> {
+public class StopServersBeforeApplyStep extends StopServersStep<ApplyContext, ApplyState> {
 
-    protected ConfirmationStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
-        super(wizard, "");
+    protected StopServersBeforeApplyStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+        super(wizard);
     }
 
     @Override
-    protected IsWidget body(final RollbackContext context) {
-        return null;
+    protected IsWidget intro(ApplyContext context) {
+        return new Label(Console.MESSAGES.patch_manager_stop_server_body(context.host));
     }
 }

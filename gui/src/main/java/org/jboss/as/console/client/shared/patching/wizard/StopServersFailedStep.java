@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard.apply;
+package org.jboss.as.console.client.shared.patching.wizard;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -27,30 +27,28 @@ import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.ui.ActionsTemplate;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
-import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
-import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class StopServersFailedStep extends PatchWizardStep<ApplyContext, ApplyState> {
+public class StopServersFailedStep<C extends CommonPatchContext, S extends Enum<S>> extends PatchWizardStep<C, S> {
 
     final static ActionsTemplate ACTIONS_TEMPLATE = GWT.create(ActionsTemplate.class);
 
     private ErrorDetails errorDetails;
     private Label errorText;
 
-    public StopServersFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+    public StopServersFailedStep(final PatchWizard<C, S> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_stop_server_error());
     }
 
     @Override
-    protected IsWidget header(final ApplyContext context) {
+    protected IsWidget header(final C context) {
         return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
     }
 
     @Override
-    protected IsWidget body(final ApplyContext context) {
+    protected IsWidget body(final C context) {
         FlowPanel body = new FlowPanel();
         errorText = new Label();
         body.add(errorText);
@@ -72,7 +70,7 @@ public class StopServersFailedStep extends PatchWizardStep<ApplyContext, ApplySt
 
 
     @Override
-    protected void onShow(final ApplyContext context) {
+    protected void onShow(final C context) {
         errorText.setText(context.stopError);
         boolean details = context.stopErrorDetails != null;
         errorDetails.setVisible(details);
