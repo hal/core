@@ -16,11 +16,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard.rollback;
+package org.jboss.as.console.client.shared.patching.wizard.apply;
+
+import com.google.gwt.user.client.ui.IsWidget;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public enum RollbackState {
-    STOP_SERVERS, STOPPING, STOP_FAILED, CHOOSE_OPTIONS, CONFIRM_ROLLBACK, ROLLING_BACK, SUCCESS, ERROR
+public class ConfirmPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
+
+    protected ConfirmPatchStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+        super(wizard, "");
+    }
+
+    @Override
+    protected IsWidget body(final ApplyContext context) {
+        return null;
+    }
 }

@@ -18,9 +18,21 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
+import com.google.gwt.user.client.ui.IsWidget;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
+import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+
 /**
  * @author Harald Pehl
  */
-public enum RollbackState {
-    STOP_SERVERS, STOPPING, STOP_FAILED, CHOOSE_OPTIONS, CONFIRM_ROLLBACK, ROLLING_BACK, SUCCESS, ERROR
+public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, RollbackState> {
+
+    protected ConfirmRollbackStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
+        super(wizard, "");
+    }
+
+    @Override
+    protected IsWidget body(final RollbackContext context) {
+        return null;
+    }
 }
