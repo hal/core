@@ -32,7 +32,6 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
         super(presenter, context);
 
         addStep(CHOOSE_OPTIONS, new ChooseOptionsStep(this));
-        addStep(CONFIRMATION, new ConfirmationStep(this));
         addStep(ROLLING_BACK, new RollingBackStep(this));
         addStep(SUCCESS, new RollbackOkStep(this));
         addStep(ERROR, new RollbackFailedStep(this));
@@ -47,9 +46,6 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
     public void next() {
         switch (state) {
             case CHOOSE_OPTIONS:
-                pushState(CONFIRMATION);
-                break;
-            case CONFIRMATION:
                 pushState(ROLLING_BACK);
                 break;
             case ROLLING_BACK:

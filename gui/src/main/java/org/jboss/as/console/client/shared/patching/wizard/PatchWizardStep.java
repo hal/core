@@ -69,7 +69,6 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
     public final Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
-        layout.addStyleName("apply-patch-wizard");
 
         layout.add(header(wizard.context));
         layout.add(body(wizard.context));

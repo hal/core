@@ -23,8 +23,6 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -32,6 +30,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.ui.ActionsTemplate;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
@@ -63,7 +62,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 Console.CONSTANTS.patch_manager_hide_details());
         body.add(errorDetails);
 
-        body.add(new HTML("<h3 class=\"apply-patch-followup-header\">" + Console.CONSTANTS
+        body.add(new HTML("<h3 class=\"patch-followup-header\">" + Console.CONSTANTS
                 .patch_manager_possible_actions() + "</h3>"));
         HTMLPanel actions = new HTMLPanel(ACTIONS_TEMPLATE
                 .actions(Console.CONSTANTS.patch_manager_conflict_cancel_title(),
@@ -78,7 +77,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 setEnabled(event.getValue(), true);
             }
         });
-        actions.add(overrideCheck, "apply-patch-conflict-override");
+        actions.add(overrideCheck, "patch-conflict-override");
         body.add(actions);
 
         return body;
@@ -87,15 +86,5 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected void onShow(final ApplyContext context) {
         errorDetails.setDetails(context.patchFailedDetails);
-    }
-
-
-    interface ActionsTemplate extends SafeHtmlTemplates {
-
-        @Template("<ul class=\"apply-patch-actions\">" +
-                "<li><div class=\"title\">{0}</div><div class=\"body\">{1}</div></li>" +
-                "<li><div class=\"title\">{2}</div><div class=\"body\">{3}</div><div id=\"apply-patch-conflict-override\"></div></li>" +
-                "</ul>")
-        SafeHtml actions(String cancelTitle, String cancelBody, SafeHtml overrideTitle, String overrideBody);
     }
 }

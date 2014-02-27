@@ -136,7 +136,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_new());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, dispatcher, patchManager, context));
+                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, context, dispatcher, patchManager));
                 window.setGlassEnabled(true);
                 window.center();
             }
@@ -144,8 +144,9 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
         if (bootstrapContext.isStandalone()) {
             contextCallback
-                    .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), bootstrapContext.getProperty(
-                            BootstrapContext.PATCH_API), patchManager.baseAddress()));
+                    .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
+                            bootstrapContext.getProperty(
+                            BootstrapContext.PATCH_API)));
         } else {
             final String host = domainManager.getSelectedHost();
             ModelNode operation = new ModelNode();
@@ -161,7 +162,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                     if (response.isFailure()) {
                         // no servers
                         contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
-                                bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
+                                patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
                     } else {
                         List<Property> servers = response.get(RESULT).asPropertyList();
                         for (Property server : servers) {
@@ -173,7 +174,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                             }
                         }
                         contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
-                                bootstrapContext.getProperty(BootstrapContext.PATCH_API), patchManager.baseAddress()));
+                                patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
                     }
                 }
 

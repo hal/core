@@ -22,5 +22,5 @@ package org.jboss.as.console.client.shared.patching.wizard.rollback;
  * @author Harald Pehl
  */
 public enum RollbackState {
-    CHOOSE_OPTIONS, CONFIRMATION, ROLLING_BACK, SUCCESS, ERROR
+    STOP_SERVERS, STOPPING, STOP_FAILED, CHOOSE_OPTIONS, ROLLING_BACK, SUCCESS, ERROR
 }

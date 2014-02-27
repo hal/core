@@ -16,33 +16,40 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard.rollback;
+package org.jboss.as.console.client.shared.patching.wizard;
 
 import java.util.List;
 
-import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
 
 /**
- * Simple 'struct' for data exchange between rollback wizard steps.
- *
  * @author Harald Pehl
  */
-public class RollbackContext extends CommonPatchContext {
+public class CommonPatchContext {
 
     // initial data
-    final PatchInfo patchInfo;
+    public final boolean standalone;
+    public final String host;
+    public final List<String> runningServers;
+    public final ModelNode patchAddress;
+
     // process slip
-    boolean overrideAll;
-    boolean resetConfiguration;
-    boolean rollbackError;
-    String rollbackErrorDetails;
+    public boolean stopServers;
+    public boolean stopFailed;
+    public String stopError;
+    public String stopErrorDetails;
 
-    public RollbackContext(final boolean standalone, final String host, final List<String> runningServers,
-            final ModelNode patchAddress, final PatchInfo patchInfo) {
+    public CommonPatchContext(final boolean standalone, final String host, final List<String> runningServers,
+            final ModelNode patchAddress) {
 
-        super(standalone, host, runningServers, patchAddress);
-        this.patchInfo = patchInfo;
+        this.standalone = standalone;
+        this.host = host;
+        this.runningServers = runningServers;
+        this.patchAddress = patchAddress;
+
+        this.stopServers = true;
+        this.stopFailed = false;
+        this.stopError = null;
+        this.stopErrorDetails = null;
     }
 }

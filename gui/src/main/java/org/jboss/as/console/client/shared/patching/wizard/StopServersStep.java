@@ -16,48 +16,46 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching.wizard.apply;
+package org.jboss.as.console.client.shared.patching.wizard;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
-import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
 /**
  * @author Harald Pehl
  */
-public class StopServersStep extends PatchWizardStep<ApplyContext, ApplyState> {
+public abstract class StopServersStep<C extends CommonPatchContext, S extends Enum<S>> extends PatchWizardStep<C, S> {
 
     private RadioButton yes;
-    private RadioButton no;
 
-    public StopServersStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
+    protected StopServersStep(final PatchWizard<C, S> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_stop_server_title());
     }
 
     @Override
-    protected IsWidget body(final ApplyContext context) {
+    protected IsWidget body(final C context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.MESSAGES.patch_manager_stop_server_body(context.host)));
+        body.add(intro(context));
         yes = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_yes());
         yes.getElement().setId(asId(PREFIX, getClass(), "_Yes"));
-        yes.addStyleName("apply-patch-radio");
+        yes.addStyleName("patch-radio");
         yes.setValue(true);
-        no = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_no());
+        RadioButton no = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_no());
         no.getElement().setId(asId(PREFIX, getClass(), "_No"));
-        no.addStyleName("apply-patch-radio");
+        no.addStyleName("patch-radio");
         body.add(yes);
         body.add(no);
         return body;
     }
 
+    protected abstract IsWidget intro(C context);
+
     @Override
-    protected void onNext(ApplyContext context) {
+    protected void onNext(C context) {
         context.stopServers = yes.getValue();
         super.onNext(context);
     }

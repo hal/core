@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.google.gwt.user.client.ui.FormPanel;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
+import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
 
 /**
@@ -29,21 +30,13 @@ import org.jboss.dmr.client.ModelNode;
  *
  * @author Harald Pehl
  */
-public class ApplyContext {
+public class ApplyContext extends CommonPatchContext {
 
     // initial data
-    final boolean standalone;
-    final String host;
-    final List<String> runningServers;
     final String patchUrl;
-    final ModelNode patchAddress;
-
     // process slip
-    boolean stopServers;
-    boolean stopFailed;
-    String stopError;
-    String stopErrorDetails;
     FormPanel form;
+    String filename;
     boolean restartToUpdate;
     PatchInfo patchInfo;
     boolean conflict;
@@ -52,18 +45,11 @@ public class ApplyContext {
     boolean overrideConflict;
 
     public ApplyContext(final boolean standalone, final String host, final List<String> runningServers,
-            final String patchUrl, final ModelNode patchAddress) {
+            final ModelNode patchAddress, final String patchUrl) {
 
-        this.standalone = standalone;
-        this.host = host;
-        this.runningServers = runningServers;
+        super(standalone, host, runningServers, patchAddress);
         this.patchUrl = patchUrl;
-        this.patchAddress = patchAddress;
 
-        this.stopServers = true;
-        this.stopFailed = false;
-        this.stopError = null;
-        this.stopErrorDetails = null;
         this.form = null;
         this.restartToUpdate = true;
         this.patchInfo = null;

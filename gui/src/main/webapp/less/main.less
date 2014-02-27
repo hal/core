@@ -2523,19 +2523,6 @@ hr {
   width: 80%;
 }
 
-.apply-patch-radio {
-  display: block;
-  margin: 1em;
-  input[type=radio] {
-    width: inherit;
-    margin: 0 .5em;
-  }
-}
-
-.apply-patch-followup-header {
-  margin-top: 2em;
-}
-
 .hal-pending {
   margin: 2em 0;
   text-align: center;
@@ -2565,7 +2552,20 @@ hr {
   text-align: center;
 }
 
-ul.apply-patch-actions {
+.patch-radio {
+  display: block;
+  margin: 1em;
+  input[type=radio] {
+    width: inherit;
+    margin: 0 .5em;
+  }
+}
+
+.patch-followup-header {
+  margin-top: 2em;
+}
+
+ul.patch-actions {
   list-style: none;
   li {
     margin-bottom: 1em;
@@ -2573,7 +2573,7 @@ ul.apply-patch-actions {
   .title {
     font-weight: bold;
   }
-  #apply-patch-conflict-override {
+  #patch-conflict-override {
     margin-top: .5em;
     input[type=checkbox] {
       margin: 0 .5em 0 0;
