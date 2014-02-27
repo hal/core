@@ -23,10 +23,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
@@ -40,18 +39,14 @@ public class AppliedFailedStep extends PatchWizardStep<ApplyContext, ApplyState>
     private ErrorDetails errorDetails;
 
     public AppliedFailedStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
-        super(wizard, Console.CONSTANTS.patch_manager_error_title());
-    }
-
-    @Override
-    protected HTML header(final ApplyContext context) {
-        return new HTML("<h3 class=\"error\"><i class=\"icon-exclamation-sign icon-large\"></i> " + title + "</h3>");
+        super(wizard, Console.CONSTANTS.patch_manager_error_title(),
+                Console.CONSTANTS.patch_manager_select_patch_title());
     }
 
     @Override
     protected IsWidget body(final ApplyContext context) {
         FlowPanel body = new FlowPanel();
-        body.add(new Label(Console.CONSTANTS.patch_manager_error_body()));
+        body.add(new HTML(TEMPLATES.errorPanel(Console.CONSTANTS.patch_manager_error_body())));
 
         errorDetails = new ErrorDetails(Console.CONSTANTS.patch_manager_show_details(),
                 Console.CONSTANTS.patch_manager_hide_details());
