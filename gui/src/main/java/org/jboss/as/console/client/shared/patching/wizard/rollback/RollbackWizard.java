@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
@@ -38,7 +39,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> {
 
     public RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context, final String title,
-            final DispatchAsync dispatcher) {
+            final DispatchAsync dispatcher, PatchManager patchManager) {
         super(presenter, context, title);
 
         addStep(STOP_SERVERS, new StopServersStep<RollbackContext, RollbackState>(this) {
@@ -55,7 +56,7 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
         addStep(STOP_FAILED, new StopServersFailedStep<RollbackContext, RollbackState>(this));
         addStep(CHOOSE_OPTIONS, new ChooseOptionsStep(this));
         addStep(CONFIRM_ROLLBACK, new ConfirmRollbackStep(this));
-        addStep(ROLLING_BACK, new RollingBackStep(this));
+        addStep(ROLLING_BACK, new RollingBackStep(this, patchManager));
         addStep(SUCCESS, new RollbackOkStep(this, context.standalone ? "server" : "host"));
         addStep(ERROR, new RollbackFailedStep(this));
     }

@@ -18,10 +18,11 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
-import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
@@ -32,10 +33,12 @@ import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
  */
 public class RollingBackStep extends PatchWizardStep<RollbackContext, RollbackState> {
 
+    private final PatchManager patchManager;
     private Pending pending;
 
-    public RollingBackStep(final PatchWizard<RollbackContext, RollbackState> wizard) {
+    public RollingBackStep(final PatchWizard<RollbackContext, RollbackState> wizard, final PatchManager patchManager) {
         super(wizard, null, new WizardButton(false), new WizardButton(Console.CONSTANTS.common_label_cancel()));
+        this.patchManager = patchManager;
     }
 
     @Override
@@ -49,32 +52,19 @@ public class RollingBackStep extends PatchWizardStep<RollbackContext, RollbackSt
     @Override
     protected void onShow(final RollbackContext context) {
         pending.setTitle(Console.MESSAGES.patch_manager_rolling_back_body(context.patchInfo.getId()));
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+        patchManager.rollback(context.patchInfo, context.resetConfiguration, context.overrideAll, new AsyncCallback<Void>() {
             @Override
-            public boolean execute() {
-                if (System.currentTimeMillis() % 2 == 0) {
-                    context.rollbackError = false;
-                } else {
-                    context.rollbackError = true;
-                    context.rollbackErrorDetails = "{\n" +
-                            "    \"access\" => {\n" +
-                            "        \"authorization\" => undefined,\n" +
-                            "        \"audit\" => undefined\n" +
-                            "    },\n" +
-                            "    \"ldap-connection\" => undefined,\n" +
-                            "    \"management-interface\" => {\n" +
-                            "        \"native-interface\" => undefined,\n" +
-                            "        \"http-interface\" => undefined\n" +
-                            "    },\n" +
-                            "    \"security-realm\" => {\n" +
-                            "        \"ManagementRealm\" => undefined,\n" +
-                            "        \"ApplicationRealm\" => undefined\n" +
-                            "    }\n" +
-                            "}";
-                }
+            public void onFailure(final Throwable caught) {
+                context.rollbackError = true;
+                context.rollbackErrorDetails = caught.getMessage();
                 wizard.next();
-                return false;
             }
-        }, 1000);
+
+            @Override
+            public void onSuccess(final Void result) {
+                context.rollbackError = false;
+                wizard.next();
+            }
+        });
     }
 }
