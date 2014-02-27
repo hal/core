@@ -29,7 +29,7 @@ public interface PatchManagementTemplates extends SafeHtmlTemplates {
     @Template("<div class=\"success-panel\"><i class=\"icon-ok icon-large\"></i> {0}</div>")
     SafeHtml successPanel(String message);
 
-    @Template("<div class=\"success-panel\"><i class=\"icon-exclamation-sign icon-large\"></i> {0}</div>")
+    @Template("<div class=\"error-panel\"><i class=\"icon-exclamation-sign icon-large\"></i> {0}</div>")
     SafeHtml errorPanel(String message);
 
     @Template("<ul class=\"patch-actions\">" +
