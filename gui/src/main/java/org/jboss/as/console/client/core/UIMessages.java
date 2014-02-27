@@ -234,4 +234,6 @@ public interface UIMessages extends Messages {
     SafeHtml patch_manager_conflict_override_title();
 
     SafeHtml patch_manager_desc_product(String customerPortalLink);
+
+    String patch_manager_servers_still_running_warning();
 }

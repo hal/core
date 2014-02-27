@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
@@ -66,10 +67,24 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         label.getElement().getStyle().setMarginBottom(1, Style.Unit.EM);
         panel.add(label);
 
+        if (!context.standalone) {
+            Label info;
+            if (context.serversStoppped) {
+                info = new Label("Host: " + context.host + " (" + Console.MESSAGES
+                        .patch_manager_servers_still_running_warning() + ")");
+            } else {
+                info = new Label("Host: " + context.host + " (" + Console.CONSTANTS.patch_manager_servers_shutdown() + ")");
+            }
+            panel.add(info);
+        }
+
+        FlowPanel uploadPanel = new FlowPanel();
+        uploadPanel.add(new InlineLabel(Console.CONSTANTS.patch_manager_select_patch_upload()));
         upload = new FileUpload();
         upload.setName("patch_file");
         upload.getElement().setId(asId(PREFIX, getClass(), "_Upload"));
-        panel.add(upload);
+        uploadPanel.add(upload);
+        panel.add(uploadPanel);
 
         errorMessages = new HTML("<i class=\"icon-exclamation-sign\"></i> " + Console.CONSTANTS.patch_manager_select_file());
         errorMessages.addStyleName("error");

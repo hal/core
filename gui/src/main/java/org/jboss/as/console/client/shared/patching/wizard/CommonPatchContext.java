@@ -38,6 +38,7 @@ public class CommonPatchContext {
     public boolean stopFailed;
     public String stopError;
     public String stopErrorDetails;
+    public boolean serversStoppped;
 
     public CommonPatchContext(final boolean standalone, final String host, final List<String> runningServers,
             final ModelNode patchAddress) {
@@ -51,5 +52,6 @@ public class CommonPatchContext {
         this.stopFailed = false;
         this.stopError = null;
         this.stopErrorDetails = null;
+        this.serversStoppped = false;
     }
 }
