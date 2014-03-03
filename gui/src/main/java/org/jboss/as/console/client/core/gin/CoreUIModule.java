@@ -49,6 +49,7 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.MainLayoutViewImpl;
 import org.jboss.as.console.client.core.NewTokenFormatter;
+import org.jboss.as.console.client.core.ToplevelTabs;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterImpl;
@@ -114,6 +115,11 @@ import org.jboss.as.console.client.shared.general.PropertiesView;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingView;
 import org.jboss.as.console.client.shared.help.HelpSystem;
+import org.jboss.as.console.client.shared.homepage.HomepageView;
+import org.jboss.as.console.client.shared.homepage.SectionPresenter;
+import org.jboss.as.console.client.shared.homepage.SectionView;
+import org.jboss.as.console.client.shared.homepage.content.ContentBoxRegistry;
+import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
 import org.jboss.as.console.client.shared.patching.PatchManager;
@@ -304,6 +310,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(DomainEntityManager.class).in(Singleton.class);
         bind(PatchManager.class).in(Singleton.class);
+        bind(ToplevelTabs.class).in(Singleton.class);
 
         // sign in
         bindPresenter(SignInPagePresenter.class, SignInPagePresenter.MyView.class,
@@ -314,6 +321,20 @@ public class CoreUIModule extends AbstractPresenterModule {
                 MainLayoutPresenter.MainLayoutView.class,
                 MainLayoutViewImpl.class,
                 MainLayoutPresenter.MainLayoutProxy.class);
+
+        // homepage
+        bind(ContentBoxRegistry.class).in(Singleton.class);
+        bindPresenter(HomepagePresenter.class,
+                HomepagePresenter.MyView.class,
+                HomepageView.class,
+                HomepagePresenter.MyProxy.class);
+
+        // main sections in homepage
+        bindPresenterWidgetFactory(
+                SectionPresenter.Factory.class,
+                SectionPresenter.FactoryImpl.class,
+                SectionPresenter.ViewFactory.class,
+                SectionView.FactoryImpl.class);
 
         // tools
         bindPresenter(ToolsPresenter.class,
