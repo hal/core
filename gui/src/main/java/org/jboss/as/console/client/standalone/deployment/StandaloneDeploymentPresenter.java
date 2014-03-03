@@ -18,6 +18,13 @@
  */
 package org.jboss.as.console.client.standalone.deployment;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -26,6 +33,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
@@ -46,13 +54,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -96,6 +97,15 @@ public class StandaloneDeploymentPresenter
     {
         super.onBind();
         getView().setPresenter(this);
+    }
+
+    @Override
+    public void prepareFromRequest(final PlaceRequest request) {
+        super.prepareFromRequest(request);
+
+        if (Boolean.valueOf(request.getParameter("new", "false"))) {
+            launchNewDeploymentDialoge(null, false);
+        }
     }
 
     @Override

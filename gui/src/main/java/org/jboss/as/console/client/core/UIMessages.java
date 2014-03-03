@@ -238,4 +238,12 @@ public interface UIMessages extends Messages {
     String patch_manager_error_parse_result(String exception, String payload);
 
     String patch_manager_rolling_back_body(String id);
+
+    SafeHtml content_box_create_datasource_body();
+
+    SafeHtml content_box_new_deployment_body();
+
+    SafeHtml content_box_apply_patch_body();
+
+    SafeHtml content_box_role_assignment_body();
 }

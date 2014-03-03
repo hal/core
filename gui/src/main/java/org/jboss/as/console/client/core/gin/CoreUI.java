@@ -73,6 +73,7 @@ import org.jboss.as.console.client.shared.general.PathManagementPresenter;
 import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
+import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -202,6 +203,8 @@ public interface CoreUI {
     ApplicationMetaData getApplicationMetaData();
 
     // ----------------------------------------------------------------------
+    AsyncProvider<HomepagePresenter> getHomepagePresenter();
+
     Provider<SignInPagePresenter> getSignInPagePresenter();
     AsyncProvider<MainLayoutPresenter> getMainLayoutPresenter();
     AsyncProvider<ToolsPresenter> getToolsPresenter();

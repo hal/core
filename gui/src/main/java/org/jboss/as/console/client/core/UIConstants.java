@@ -1160,4 +1160,34 @@ public interface UIConstants extends Constants {
     String patch_manager_rollback_error_select_title();
 
     String patch_manager_rollback_error_select_body();
+
+    String homepage_header_community();
+
+    String homepage_intro_community();
+
+    String homepage_header_product();
+
+    String homepage_intro_product();
+
+    String homepage_sidebar_header();
+
+    String section_configuration_intro();
+
+    String section_runtime_intro();
+
+    String section_domain_intro();
+
+    String section_administration_intro();
+
+    String content_box_create_datasource_title();
+
+    String content_box_new_deployment_title();
+
+    String content_box_new_deployment_link();
+
+    String content_box_apply_patch_title();
+
+    String content_box_role_assignment_title();
+
+    String content_box_role_assignment_link();
 }
