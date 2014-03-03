@@ -24,29 +24,22 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.homepage.content.ContentBox;
 
 /**
- * A simple content box with a header, a static html body an an optional link.
+ * A simple content box with a header, a static html body and a link.
  *
  * @author Harald Pehl
  */
 public class SimpleContentBox implements ContentBox {
 
-    private final String id;
     private final String title;
     private final SafeHtml body;
     private final String linkTarget;
     private final String linkTitle;
 
 
-    public SimpleContentBox(final String id, final String title, final SafeHtml body) {
-        this(id, title, body, null, null);
-    }
+    public SimpleContentBox(final String title, final SafeHtml body, final String linkTitle, final String linkTarget) {
 
-    public SimpleContentBox(final String id, final String title, final SafeHtml body, final String linkTitle,
-            final String linkTarget) {
-        this.id = id;
         this.title = title;
         this.body = body;
         this.linkTitle = linkTitle;
@@ -60,10 +53,5 @@ public class SimpleContentBox implements ContentBox {
         content.add(new HTML(body));
         content.add(new Hyperlink(linkTitle, linkTarget));
         return content;
-    }
-
-    @Override
-    public String getId() {
-        return id;
     }
 }

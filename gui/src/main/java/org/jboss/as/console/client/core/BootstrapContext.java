@@ -139,17 +139,7 @@ public class BootstrapContext implements ApplicationProperties {
     }
 
     public PlaceRequest getDefaultPlace() {
-        PlaceRequest.Builder builder = new PlaceRequest.Builder();
-        if (isStandalone()) {
-            builder.nameToken(NameTokens.StandaloneRuntimePresenter);
-        } else {
-            if (isGroupManagementDisabled()) {
-                // HAL-336: If there are no groups, fallback to profile
-                builder.nameToken(NameTokens.ProfileMgmtPresenter);
-            } else {
-                builder.nameToken(NameTokens.DomainRuntimePresenter);
-            }
-        }
+        PlaceRequest.Builder builder = new PlaceRequest.Builder().nameToken(NameTokens.HomepagePresenter);
         return builder.build();
     }
 

@@ -49,86 +49,97 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     public interface MyProxy extends Proxy<HomepagePresenter>, Place {}
 
 
-    public interface MyView extends View {}
+    public interface MyView extends View {
+
+        void addSection(SectionData section);
+
+        void addSidebarSection(SidebarSectionData sidebarSection);
+    }
 
 
     public static final Object SECTIONS_SLOT = new Object();
-    private final SectionPresenter.Factory sectionFactory;
+    public static final Object SIDEBAR_SECTIONS_SLOT = new Object();
     private final List<SectionData> sections;
+    private final List<SidebarSectionData> sidebarSections;
     private final Header header;
 
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final SectionPresenter.Factory sectionFactory,
-            final BootstrapContext bootstrapContext, final Header header) {
+            final PlaceManager placeManager, final BootstrapContext bootstrapContext, final Header header) {
 
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
-        this.sectionFactory = sectionFactory;
-        this.sections = setupSections(placeManager, bootstrapContext);
+        this.sections = setupSections(placeManager, bootstrapContext.isStandalone());
+        this.sidebarSections = setupSidebarSection(bootstrapContext.isStandalone());
         this.header = header;
     }
 
-    private List<SectionData> setupSections(final PlaceManager placeManager, final BootstrapContext bootstrapContext) {
+    private List<SectionData> setupSections(final PlaceManager placeManager, final boolean standalone) {
         List<SectionData> sections = new LinkedList<SectionData>();
-        sections.add(new SectionData(NameTokens.HomepagePresenter, "Home", true));
-        if (bootstrapContext.isStandalone()) {
+        if (standalone) {
 
             // Configuration
-            SimpleContentBox dsBox = new SimpleContentBox("Standalone.CreateDataSource",
-                    Console.CONSTANTS.content_box_create_datasource_title(),
+            SimpleContentBox dsBox = new SimpleContentBox(Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body(), "Datasources",
                     NameTokens.DataSourcePresenter);
-            sections.add(new SectionData(Console.CONSTANTS.common_label_configuration(),
-                    Console.CONSTANTS.section_configuration_intro(), false, dsBox.getId()));
+            sections.add(new SectionData("Configuration", Console.CONSTANTS.common_label_configuration(),
+                    Console.CONSTANTS.section_configuration_intro(), true, dsBox));
 
             // Runtime
             String token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.StandloneDeployments).with("new", "true").build());
-            SimpleContentBox deployBox = new SimpleContentBox("Standalone.Deploy",
-                    Console.CONSTANTS.content_box_new_deployment_title(),
+                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowserPresenter).with("new", "true")
+                            .build());
+            SimpleContentBox deployBox = new SimpleContentBox(Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body(),
                     Console.CONSTANTS.content_box_new_deployment_link(), token);
-            SimpleContentBox patchBox = new SimpleContentBox("Standalone.Patch",
-                    Console.CONSTANTS.content_box_apply_patch_title(), Console.MESSAGES.content_box_apply_patch_body(),
-                    "Patch Management", NameTokens.PatchingPresenter);
-            sections.add(new SectionData("Runtime", Console.CONSTANTS.section_runtime_intro(), false, deployBox.getId(),
-                    patchBox.getId()));
+            SimpleContentBox patchBox = new SimpleContentBox(Console.CONSTANTS.content_box_apply_patch_title(),
+                    Console.MESSAGES.content_box_apply_patch_body(), "Patch Management", NameTokens.PatchingPresenter);
+            sections.add(
+                    new SectionData("Runtime", "Runtime", Console.CONSTANTS.section_runtime_intro(), false, deployBox,
+                            patchBox));
         } else {
 
             // Configuration
-            sections.add(new SectionData(Console.CONSTANTS.common_label_configuration(),
-                            Console.CONSTANTS.section_configuration_intro(), false));
+            sections.add(new SectionData("Configuration", Console.CONSTANTS.common_label_configuration(),
+                    Console.CONSTANTS.section_configuration_intro(), true));
 
             // Domain
-            sections.add(new SectionData("Domain", Console.CONSTANTS.section_domain_intro(), false));
+            sections.add(new SectionData("Domain", "Domain", Console.CONSTANTS.section_domain_intro(), false));
 
             // Runtime
-            sections.add(new SectionData("Runtime", Console.CONSTANTS.section_runtime_intro(), false));
+            sections.add(new SectionData("Runtime", "Runtime", Console.CONSTANTS.section_runtime_intro(), false));
 
         }
 
         // Administration
-        SimpleContentBox roleAssignmentBox = new SimpleContentBox("Administration.RoleAssignment",
-                Console.CONSTANTS.content_box_role_assignment_title(),
+        SimpleContentBox roleAssignmentBox = new SimpleContentBox(Console.CONSTANTS.content_box_role_assignment_title(),
                 Console.MESSAGES.content_box_role_assignment_body(),
                 Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.RoleAssignmentPresenter);
-        sections.add(new SectionData("Administration", Console.CONSTANTS.section_administration_intro(), false,
-                roleAssignmentBox.getId()));
+        sections.add(
+                new SectionData("Administration", "Administration", Console.CONSTANTS.section_administration_intro(),
+                        false, roleAssignmentBox));
 
+        return sections;
+    }
+
+    private List<SidebarSectionData> setupSidebarSection(final boolean standalone) {
+        List<SidebarSectionData> sections = new LinkedList<SidebarSectionData>();
         return sections;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
-        header.highlight(NameTokens.HomepagePresenter);
         for (SectionData section : sections) {
-            SectionPresenter sectionPresenter = sectionFactory.create(section);
-            sectionPresenter.bind();
-            addToSlot(SECTIONS_SLOT, sectionPresenter);
-            if (section.isOpen()) {
-                sectionPresenter.getView().expand();
-            }
+            getView().addSection(section);
         }
+        for (SidebarSectionData sidebarSection : sidebarSections) {
+            getView().addSidebarSection(sidebarSection);
+        }
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        header.highlight(NameTokens.HomepagePresenter);
     }
 }

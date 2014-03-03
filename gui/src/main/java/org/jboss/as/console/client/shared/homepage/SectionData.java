@@ -27,19 +27,26 @@ import java.util.List;
  * @author Harald Pehl
  */
 public class SectionData {
+    private final String id;
     private final String title;
     private final String intro;
     private boolean open;
-    private final List<String> contentBoxIds;
+    private final List<ContentBox> contentBoxes;
 
-    public SectionData(final String title, final String intro, final boolean open, final String... contentBoxIds) {
+    public SectionData(final String id, final String title, final String intro, final boolean open,
+            final ContentBox... contentBoxes) {
+        this.id = id;
         this.title = title;
         this.intro = intro;
         this.open = open;
-        this.contentBoxIds = new LinkedList<String>();
-        if (contentBoxIds != null) {
-            this.contentBoxIds.addAll(Arrays.asList(contentBoxIds));
+        this.contentBoxes = new LinkedList<ContentBox>();
+        if (contentBoxes != null) {
+            this.contentBoxes.addAll(Arrays.asList(contentBoxes));
         }
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getTitle() {
@@ -54,7 +61,7 @@ public class SectionData {
         return open;
     }
 
-    public List<String> getContentBoxIds() {
-        return contentBoxIds;
+    public List<ContentBox> getContentBoxes() {
+        return contentBoxes;
     }
 }

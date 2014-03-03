@@ -18,12 +18,16 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import com.google.gwt.dom.client.HeadingElement;
-import com.google.gwt.dom.client.ParagraphElement;
-import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
+import static com.google.gwt.dom.client.Style.Unit.PCT;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.ViewImpl;
@@ -35,33 +39,76 @@ import org.jboss.as.console.client.ProductConfig;
  */
 public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
-    interface Binder extends UiBinder<Widget, HomepageView> {}
+    interface Templates extends SafeHtmlTemplates {
+
+        @Template("<header><h1 class=\"homepage-primary-header\">{0}</h1>" +
+                "<p class=\"homepage-lead-paragraph\"/>{1}</p></header>")
+        SafeHtml header(String title, String intro);
+
+        @Template("<h2 class=\"homepage-secondary-header\">{0}</h2>")
+        SafeHtml sidebarHeader(String title);
+    }
 
 
-    @UiField HeadingElement header;
-    @UiField ParagraphElement intro;
-    @UiField FlowPanel sections;
-    @UiField HeadingElement sidebarHeader;
-    @UiField FlowPanel sidebarSections;
+    private static final Templates TEMPLATES = GWT.create(Templates.class);
+    private final ProductConfig productConfig;
+    private FlowPanel sections;
+    private FlowPanel sidebarSections;
 
     @Inject
-    public HomepageView(Binder binder, ProductConfig productConfig) {
-        initWidget(binder.createAndBindUi(this));
-        if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
-            header.setInnerText(Console.CONSTANTS.homepage_header_community());
-            intro.setInnerText(Console.CONSTANTS.homepage_intro_community());
+    public HomepageView(final ProductConfig productConfig) {
+        this.productConfig = productConfig;
+        initWidget(createWidget());
+    }
 
+    private Widget createWidget() {
+
+        FlowPanel main = new FlowPanel();
+        main.addStyleName("homepage-main");
+        if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
+            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_community(),
+                    Console.CONSTANTS.homepage_intro_community())));
         } else {
-            header.setInnerText(Console.CONSTANTS.homepage_header_product());
-            intro.setInnerText(Console.CONSTANTS.homepage_intro_product());
+            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_product(),
+                    Console.CONSTANTS.homepage_intro_product())));
         }
-        sidebarHeader.setInnerText(Console.CONSTANTS.homepage_sidebar_header());
+
+        sections = new FlowPanel();
+        sections.addStyleName("homepage-sections");
+        main.add(sections);
+
+        FlowPanel sidebar = new FlowPanel();
+        sidebar.addStyleName("homepage-sidebar");
+        sidebar.add(new HTML(TEMPLATES.sidebarHeader(Console.CONSTANTS.homepage_sidebar_header())));
+        sidebarSections = new FlowPanel();
+        sidebarSections.addStyleName("homepage-sidebar-sections");
+        sidebar.add(sidebarSections);
+
+        DockLayoutPanel root = new DockLayoutPanel(PCT);
+        ScrollPanel sp = new ScrollPanel(sidebar);
+        root.addEast(sp, 25);
+        sp.getElement().getParentElement().addClassName("homepage-sidebar-root");
+        sp = new ScrollPanel(main);
+        root.add(sp);
+        sp.getElement().getParentElement().addClassName("homepage-main-root");
+        return root;
+    }
+
+    @Override
+    public void addSection(final SectionData section) {
+        sections.add(new SectionPanel(section));
+    }
+
+    @Override
+    public void addSidebarSection(final SidebarSectionData sidebarSection) {
     }
 
     @Override
     public void addToSlot(final Object slot, final IsWidget content) {
         if (slot == HomepagePresenter.SECTIONS_SLOT) {
             sections.add(content);
+        } else if (slot == HomepagePresenter.SIDEBAR_SECTIONS_SLOT) {
+            sidebarSections.add(content);
         } else {
             super.addToSlot(slot, content);
         }

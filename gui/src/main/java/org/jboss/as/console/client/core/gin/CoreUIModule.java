@@ -115,11 +115,8 @@ import org.jboss.as.console.client.shared.general.PropertiesView;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingView;
 import org.jboss.as.console.client.shared.help.HelpSystem;
-import org.jboss.as.console.client.shared.homepage.HomepageView;
-import org.jboss.as.console.client.shared.homepage.SectionPresenter;
-import org.jboss.as.console.client.shared.homepage.SectionView;
-import org.jboss.as.console.client.shared.homepage.content.ContentBoxRegistry;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
+import org.jboss.as.console.client.shared.homepage.HomepageView;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
 import org.jboss.as.console.client.shared.patching.PatchManager;
@@ -323,18 +320,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 MainLayoutPresenter.MainLayoutProxy.class);
 
         // homepage
-        bind(ContentBoxRegistry.class).in(Singleton.class);
         bindPresenter(HomepagePresenter.class,
                 HomepagePresenter.MyView.class,
                 HomepageView.class,
                 HomepagePresenter.MyProxy.class);
-
-        // main sections in homepage
-        bindPresenterWidgetFactory(
-                SectionPresenter.Factory.class,
-                SectionPresenter.FactoryImpl.class,
-                SectionPresenter.ViewFactory.class,
-                SectionView.FactoryImpl.class);
 
         // tools
         bindPresenter(ToolsPresenter.class,
