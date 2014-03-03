@@ -16,32 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.homepage.content;
+package org.jboss.as.console.client.shared.homepage;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gwt.user.client.ui.IsWidget;
 
 /**
- * A registry for {@link ContentBox} instances.
+ * A content box within a section on the homepage.
  *
  * @author Harald Pehl
  */
-public class ContentBoxRegistry {
-
-    private final Map<String, ContentBox> registry;
-
-    public ContentBoxRegistry() {registry = new HashMap<String, ContentBox>();}
-
-    public void register(ContentBox contentBox) throws IllegalAccessException {
-        if (contentBox != null) {
-            if (registry.containsKey(contentBox.getId())) {
-                throw new IllegalAccessException("Content box #" + contentBox.getId() + " already registered!");
-            }
-            registry.put(contentBox.getId(), contentBox);
-        }
-    }
-
-    public ContentBox get(String id) {
-        return registry.get(id);
-    }
+public interface ContentBox extends IsWidget {
 }

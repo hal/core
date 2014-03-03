@@ -16,21 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.homepage.content;
-
-import com.google.gwt.user.client.ui.IsWidget;
+package org.jboss.as.console.client.shared.homepage;
 
 /**
- * A content box within a section on the homepage.
- *
  * @author Harald Pehl
  */
-public interface ContentBox extends IsWidget {
-
-    /**
-     * The unique ID of this content box. This id is registered with the {@link ContentBoxRegistry}
-     *
-     * @return the id
-     */
-    String getId();
+public class SidebarSectionData {
 }

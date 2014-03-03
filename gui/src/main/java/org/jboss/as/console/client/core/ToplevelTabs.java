@@ -63,7 +63,7 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
 
         @Override
         public String toString() {
-            return "SectionConfig{token='" + token + '\'' + '}';
+            return "ToplevelTab{token='" + token + '\'' + '}';
         }
 
         public String getToken() {
@@ -80,30 +80,30 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
     }
 
 
-    private final List<Config> sections;
+    private final List<Config> tabs;
 
     @Inject
     public ToplevelTabs(final BootstrapContext bootstrapContext) {
-        sections = new LinkedList<Config>();
-        sections.add(new Config(NameTokens.HomepagePresenter, "Home", true));
+        tabs = new LinkedList<Config>();
+        tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
-            sections.add(new Config(NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration(), false));
-            sections.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
+            tabs.add(new Config(NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration(), false));
+            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
         } else {
-            sections.add(
+            tabs.add(
                     new Config(NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_configuration(), false));
-            sections.add(new Config(NameTokens.HostMgmtPresenter, "Domain", false));
-            sections.add(new Config(NameTokens.DomainRuntimePresenter, "Runtime", false));
+            tabs.add(new Config(NameTokens.HostMgmtPresenter, "Domain", false));
+            tabs.add(new Config(NameTokens.DomainRuntimePresenter, "Runtime", false));
         }
-        sections.add(new Config(NameTokens.AdministrationPresenter, "Administration", false));
+        tabs.add(new Config(NameTokens.AdministrationPresenter, "Administration", false));
     }
 
     @Override
     public Iterator<Config> iterator() {
-        return sections.iterator();
+        return tabs.iterator();
     }
 
-    public boolean isEmpty() {return sections.isEmpty();}
+    public boolean isEmpty() {return tabs.isEmpty();}
 
-    public boolean add(final Config config) {return sections.add(config);}
+    public boolean add(final Config config) {return tabs.add(config);}
 }
