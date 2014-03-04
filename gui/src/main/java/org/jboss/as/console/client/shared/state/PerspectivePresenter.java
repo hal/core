@@ -74,32 +74,25 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         header.highlight(token);
 
         PlaceRequest currentPlace = placeManager.getCurrentPlaceRequest();
-        if (!hasBeenRevealed) {
-            hasBeenRevealed = true;
-            onFirstReveal(currentPlace);
-        }
 
         if (!token.equals(currentPlace.getNameToken())) {
             // remember for the next time
             lastPlace = currentPlace;
         } else if (lastPlace != null) {
             onLastPlace(lastPlace);
-        } else {
-            onDefaultPlace(placeManager);
+            return; // ugly, but important
+        }
+
+        if (!hasBeenRevealed) {
+            hasBeenRevealed = true;
+            onFirstReveal(currentPlace, placeManager);
         }
     }
 
     /**
-     * Empty - override for one time initialisation
+     * prepare the initial perspective. most often this does at least navigate to a default place.
      */
-    protected void onFirstReveal(final PlaceRequest placeRequest) {
-        // empty
-    }
-
-    /**
-     * Override to forward to the default place
-     */
-    protected abstract void onDefaultPlace(final PlaceManager placeManager);
+    abstract protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager);
 
     /**
      * Forwards to the last place. If you override this method don't forget to call {@code super.onLastPlace()} first.
@@ -114,13 +107,13 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
      */
     @Override
     public void onUnauthorized(final UnauthorizedEvent event) {
-        resetLastPlace();
+       // resetLastPlace();
         setInSlot(contentSlot, unauthorisedPresenter);
     }
 
     /**
-     * Clears the last place and resets the "has-been-revealed" status to false. Thus the next time {@link
-     * #onFirstReveal(com.gwtplatform.mvp.client.proxy.PlaceRequest)} will be called again.
+     * Clears the last place and resets the "has-been-revealed" status to false. Thus the next time
+     * onFirstReveal() will be called again.
      */
     protected void resetLastPlace() {
         hasBeenRevealed = false;

@@ -80,7 +80,8 @@ public class ServerMgmtApplicationPresenter extends
     }
 
     @Override
-    protected void onFirstReveal(final PlaceRequest placeRequest) {
+    protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager) {
+
         subsysStore.loadSubsystems("default", new SimpleCallback<List<SubsystemRecord>>() {
             @Override
             public void onSuccess(List<SubsystemRecord> existingSubsystems) {
@@ -92,15 +93,13 @@ public class ServerMgmtApplicationPresenter extends
 
                 final String[] defaultSubsystem = SubsystemMetaData
                         .getDefaultSubsystem(preference.getNameToken(), existingSubsystems);
+
                 placeManager.revealPlace(new PlaceRequest.Builder().nameToken(defaultSubsystem[1]).build());
+
             }
         });
     }
 
-    @Override
-    protected void onDefaultPlace(final PlaceManager placeManager) {
-        onFirstReveal(preferredPlace());
-    }
 
     @Override
     protected void revealInParent() {

@@ -72,7 +72,7 @@ public class AdministrationPresenter
     }
 
     @Override
-    protected void onDefaultPlace(final PlaceManager placeManager) {
+    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager) {
         placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.RoleAssignmentPresenter).build());
     }
 

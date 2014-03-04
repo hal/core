@@ -94,13 +94,13 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             public void onSuccess(HostList hostList) {
                 clearInitialPlace();
                 getView().updateHosts(hostList);
-                HostMgmtPresenter.super.onReset();
+                HostMgmtPresenter.super.onReset(); // What's this ??
             }
         });
     }
 
     @Override
-    protected void onDefaultPlace(final PlaceManager placeManager) {
+    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager) {
         placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.ServerPresenter).build());
     }
 

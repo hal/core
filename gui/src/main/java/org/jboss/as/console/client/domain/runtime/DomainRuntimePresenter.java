@@ -124,7 +124,7 @@ public class DomainRuntimePresenter
     }
 
     @Override
-    protected void onDefaultPlace(final PlaceManager placeManager) {
+    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager) {
         placeManager
                 .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
     }
