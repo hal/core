@@ -1190,4 +1190,80 @@ public interface UIConstants extends Constants {
     String content_box_role_assignment_title();
 
     String content_box_role_assignment_link();
+
+    String content_box_create_server_group_title();
+
+    String content_box_create_server_group_link();
+
+    String content_box_topology_title();
+
+    String content_box_topology_link();
+
+    String sidebar_general_resources();
+
+    String sidebar_eap_documentation_text();
+
+    String sidebar_eap_documentation_link();
+
+    String sidebar_learn_more_eap_text();
+
+    String sidebar_learn_more_eap_link();
+
+    String sidebar_trouble_ticket_text();
+
+    String sidebar_trouble_ticket_link();
+
+    String sidebar_training_text();
+
+    String sidebar_training_link();
+
+    String sidebar_developer_resources();
+
+    String sidebar_tutorials_link();
+
+    String sidebar_tutorials_text();
+
+    String sidebar_eap_community_link();
+
+    String sidebar_eap_community_text();
+
+    String sidebar_operational_resources();
+
+    String sidebar_eap_configurations_link();
+
+    String sidebar_eap_configurations_text();
+
+    String sidebar_knowledgebase_link();
+
+    String sidebar_knowledgebase_text();
+
+    String sidebar_consulting_link();
+
+    String sidebar_consulting_text();
+
+    String sidebar_wilfdfly_documentation_text();
+
+    String sidebar_admin_guide_text();
+
+    String sidebar_wildfly_issues_text();
+
+    String sidebar_wildfly_news_text();
+
+    String sidebar_get_help();
+
+    String sidebar_irc_text();
+
+    String sidebar_user_forums_text();
+
+    String sidebar_developers_mailing_list_text();
+
+    String sidebar_contribute_resources();
+
+    String sidebar_source_code_text();
+
+    String sidebar_hacking_text();
+
+    String sidebar_extending_text();
+
+    String sidebar_wilfdfly_home_text();
 }

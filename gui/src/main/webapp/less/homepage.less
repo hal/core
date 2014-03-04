@@ -21,6 +21,24 @@
   color: @homepage-text-color;
 }
 
+.homepage-sidebar-section-header {
+  font-family: "Open Sans";
+  font-size: 11px;
+  font-weight: 600;
+  color: @homepage-text-color;
+}
+
+.homepage-link {
+  font-family: "Open Sans";
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 14px;
+  color: @homepage-link-color;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .homepage-main-root {
   border-right: solid 1px #c8c8c8;
 }
@@ -108,13 +126,13 @@
   }
   .panel-body {
     padding: 15px;
-    p, ol, li, a {
+    p, ol, li {
       font-family: "Open Sans";
       font-size: 11px;
       line-height: 18px;
+      color: @homepage-text-color;
     }
     p, ol, li {
-      color: @homepage-text-color;
     }
     p, ol {
       margin: 0 0 10px 0;
@@ -128,12 +146,8 @@
     }
   }
   .panel-link {
-    color: @homepage-link-color;
     a:before {
       content: "> ";
-    }
-    a:hover {
-      text-decoration: underline;
     }
   }
 }
@@ -158,5 +172,32 @@
 }
 
 .homepage-sidebar-sections {
+}
+
+.homepage-sidebar-section {
+
+}
+
+.homepage-sidebar-links {
+  padding: 10px 0 20px;
+  border-bottom: 2px solid #e5e5e5;
+  &:first-child {
+    padding-top: 0;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+  h3 {
+    margin: 0 0 15px;
+  }
+}
+
+.homepage-sidebar-links {
+  a {
+    margin-bottom: 15px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 

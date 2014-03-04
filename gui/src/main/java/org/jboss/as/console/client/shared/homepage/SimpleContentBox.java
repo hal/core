@@ -54,6 +54,7 @@ public class SimpleContentBox extends Composite implements ContentBox {
         String linkId = IdHelper.asId(getClass(), "_" + id);
         HTMLPanel panel = new HTMLPanel(TEMPLATES.contentBox(linkId, title, body));
         Hyperlink hyperlink = new Hyperlink(linkTitle, linkTarget);
+        hyperlink.addStyleName("homepage-link");
         panel.add(hyperlink, linkId);
 
         initWidget(panel);
