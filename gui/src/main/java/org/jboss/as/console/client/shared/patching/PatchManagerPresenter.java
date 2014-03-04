@@ -156,7 +156,11 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInDomain(this);
+        if (bootstrapContext.isStandalone()) {
+            revealStrategy.revealInRuntimeParent(this);
+        } else {
+            revealStrategy.revealInDomain(this);
+        }
     }
 
     public void launchApplyWizard() {
