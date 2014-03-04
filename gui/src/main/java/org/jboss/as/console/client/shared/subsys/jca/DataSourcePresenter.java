@@ -22,12 +22,16 @@ package org.jboss.as.console.client.shared.subsys.jca;
 import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -85,7 +89,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     private ApplicationProperties bootstrap;
     private DefaultWindow propertyWindow;
     private List<DataSource> datasources;
-    private List<JDBCDriver> drivers;
+    private List<JDBCDriver> drivers = Collections.EMPTY_LIST;
     private List<XADataSource> xaDatasources;
 
     @ProxyCodeSplit
@@ -112,8 +116,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
-            DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
-            DispatchAsync dispatcher, BeanFactory beanFactory) {
+                               DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
+                               DispatchAsync dispatcher, BeanFactory beanFactory) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
@@ -152,24 +156,48 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 // reading this kind of information is expensive, so cache the results until the next call to reset()
                 datasources = context.get(LoadDataSourcesFunction.KEY);
                 xaDatasources = context.get(LoadXADataSourcesFunction.KEY);
-                drivers = context.get(LoadDriversFunction.KEY);
 
                 getView().updateDataSources(datasources);
                 getView().updateXADataSources(xaDatasources);
+
                 if (!hasBeenRevealed) {
                     hasBeenRevealed = true;
                 }
+
+                // postpone driver auto detection. can be executed in the background
+
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        loadDrivers();
+                    }
+                });
             }
         };
 
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
                 .waterfall(new FunctionContext(), resetOutcome, new LoadDataSourcesFunction(dataSourceStore),
-                        new LoadXADataSourcesFunction(dataSourceStore), new LoadDriversFunction(driverRegistry));
+                        new LoadXADataSourcesFunction(dataSourceStore));
     }
 
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
+    }
+
+    private void loadDrivers() {
+        // Will start a nested async waterfall
+        driverRegistry.refreshDrivers(new AsyncCallback<List<JDBCDriver>>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.warning("Failed to auto detect JDBC driver: " + caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final List<JDBCDriver> result) {
+                DataSourcePresenter.this.drivers = result;
+            }
+        });
     }
 
     private void loadDataSources() {
@@ -194,36 +222,27 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     }
 
     public void launchNewDatasourceWizard() {
-        if (!drivers.isEmpty()) {
-            window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
-            window.setWidth(480);
-            window.setHeight(450);
-            window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
-                    .asWidget());
-            window.setGlassEnabled(true);
-            window.center();
-        } else {
-            SafeHtmlBuilder html = new SafeHtmlBuilder();
-            html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
-            Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
-        }
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
+        window.setWidth(480);
+        window.setHeight(450);
+        window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
+                .asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+
     }
 
     public void launchNewXADatasourceWizard() {
-        if (!drivers.isEmpty()) {
-            window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
-            window.setWidth(480);
-            window.setHeight(450);
-            window.setWidget(
-                    new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
-                            .asWidget());
-            window.setGlassEnabled(true);
-            window.center();
-        } else {
-            SafeHtmlBuilder html = new SafeHtmlBuilder();
-            html.appendHtmlConstant(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver_desc());
-            Feedback.alert(Console.CONSTANTS.subsys_jca_datasource_error_loadDriver(), html.toSafeHtml());
-        }
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
+        window.setWidth(480);
+        window.setHeight(450);
+        window.setWidget(
+                new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
+                        .asWidget());
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void onCreateDatasource(final DataSource datasource) {
