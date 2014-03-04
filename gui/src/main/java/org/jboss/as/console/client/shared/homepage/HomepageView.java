@@ -23,6 +23,8 @@ import static com.google.gwt.dom.client.Style.Unit.PCT;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.AnchorElement;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
@@ -50,10 +52,10 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
         @Template("<h2 class=\"homepage-secondary-header\">{0}</h2>")
         SafeHtml sidebarHeader(String title);
 
-        @Template("<h3 class\"homepage-sidebar-section-header\">{0}</h3>")
+        @Template("<h3 class=\"homepage-sidebar-section-header\">{0}</h3>")
         SafeHtml sidebarSectionHeader(String title);
 
-        @Template("<a hre=\"{0}\" target=\"_blank\" class=\"homepage-link\">{1}</a>")
+        @Template("<a href=\"{0}\" target=\"_blank\" class=\"homepage-link\">{1}</a>")
         SafeHtml sidebarLink(String link, String text);
     }
 
@@ -116,9 +118,16 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
         links.addStyleName("homepage-sidebar-links");
         sidebarSection.add(links);
         for (Map.Entry<String, String> linkText : section.getLinks().entrySet()) {
-            String link = linkText.getKey();
+            String href = linkText.getKey();
             String text = linkText.getValue();
-            links.add(new HTML(TEMPLATES.sidebarLink(link, text)));
+
+            // No template / new HTML() here. We don't want nested divs. Otherwise :last-child rules won't work!
+            AnchorElement link = Document.get().createAnchorElement();
+            link.setHref(href);
+            link.setTarget("_blank");
+            link.setClassName("homepage-link");
+            link.setInnerText(text);
+            links.getElement().appendChild(link);
         }
         sidebarSections.add(sidebarSection);
     }

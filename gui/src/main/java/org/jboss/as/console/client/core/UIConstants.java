@@ -1247,8 +1247,6 @@ public interface UIConstants extends Constants {
 
     String sidebar_wildfly_issues_text();
 
-    String sidebar_wildfly_news_text();
-
     String sidebar_get_help();
 
     String sidebar_irc_text();
@@ -1266,4 +1264,6 @@ public interface UIConstants extends Constants {
     String sidebar_extending_text();
 
     String sidebar_wilfdfly_home_text();
+
+    String sidebar_model_reference_text();
 }

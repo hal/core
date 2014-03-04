@@ -169,8 +169,8 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                     Console.CONSTANTS.sidebar_wilfdfly_documentation_text());
             general.addLink("https://docs.jboss.org/author/display/WFLY8/Admin+Guide",
                     Console.CONSTANTS.sidebar_admin_guide_text());
+            general.addLink("http://wildscribe.github.io/index.html", Console.CONSTANTS.sidebar_model_reference_text());
             general.addLink("https://issues.jboss.org/browse/WFLY", Console.CONSTANTS.sidebar_wildfly_issues_text());
-            general.addLink("http://wildfly.org/news/", Console.CONSTANTS.sidebar_wildfly_news_text());
             sections.add(general);
 
             SidebarSectionData help = new SidebarSectionData(Console.CONSTANTS.sidebar_get_help());
@@ -208,11 +208,11 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             sections.add(developer);
 
             SidebarSectionData operational = new SidebarSectionData(Console.CONSTANTS.sidebar_operational_resources());
-            developer.addLink(Console.CONSTANTS.sidebar_eap_configurations_link(),
+            operational.addLink(Console.CONSTANTS.sidebar_eap_configurations_link(),
                     Console.CONSTANTS.sidebar_eap_configurations_text());
-            developer.addLink(Console.CONSTANTS.sidebar_knowledgebase_link(),
+            operational.addLink(Console.CONSTANTS.sidebar_knowledgebase_link(),
                     Console.CONSTANTS.sidebar_knowledgebase_text());
-            developer.addLink(Console.CONSTANTS.sidebar_consulting_link(), Console.CONSTANTS.sidebar_consulting_text());
+            operational.addLink(Console.CONSTANTS.sidebar_consulting_link(), Console.CONSTANTS.sidebar_consulting_text());
             sections.add(operational);
         }
         return sections;
