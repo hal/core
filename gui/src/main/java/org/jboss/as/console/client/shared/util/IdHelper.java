@@ -32,6 +32,10 @@ public final class IdHelper {
         return asId(null, clazz, null);
     }
 
+    public static <T> String asId(Class<T> clazz, String suffix) {
+        return asId(null, clazz, suffix);
+    }
+
     public static <T> String asId(String prefix, Class<T> clazz) {
         return asId(prefix, clazz, null);
     }

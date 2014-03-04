@@ -26,4 +26,6 @@ import com.google.gwt.user.client.ui.IsWidget;
  * @author Harald Pehl
  */
 public interface ContentBox extends IsWidget {
+
+    String getId();
 }

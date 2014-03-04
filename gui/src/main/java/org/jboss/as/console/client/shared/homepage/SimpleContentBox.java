@@ -18,40 +18,49 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.shared.util.IdHelper;
 
 /**
  * A simple content box with a header, a static html body and a link.
  *
  * @author Harald Pehl
  */
-public class SimpleContentBox implements ContentBox {
+public class SimpleContentBox extends Composite implements ContentBox {
 
-    private final String title;
-    private final SafeHtml body;
-    private final String linkTarget;
-    private final String linkTitle;
+    interface Templates extends SafeHtmlTemplates {
+
+        @Template("<div class=\"panel\">" +
+                "<div class=\"panel-heading\"><h3 class=\"panel-title\">{1}</h3></div>" +
+                "<div class=\"panel-body\">{2}<div id=\"{0}\" class=\"panel-link\"></div></div>" +
+                "</div>")
+        SafeHtml contentBox(String id, String title, SafeHtml body);
+    }
 
 
-    public SimpleContentBox(final String title, final SafeHtml body, final String linkTitle, final String linkTarget) {
+    private final static Templates TEMPLATES = GWT.create(Templates.class);
+    private final String id;
 
-        this.title = title;
-        this.body = body;
-        this.linkTitle = linkTitle;
-        this.linkTarget = linkTarget;
+
+    public SimpleContentBox(final String id, final String title, final SafeHtml body, final String linkTitle,
+            final String linkTarget) {
+        this.id = id;
+
+        String linkId = IdHelper.asId(getClass(), "_" + id);
+        HTMLPanel panel = new HTMLPanel(TEMPLATES.contentBox(linkId, title, body));
+        Hyperlink hyperlink = new Hyperlink(linkTitle, linkTarget);
+        panel.add(hyperlink, linkId);
+
+        initWidget(panel);
     }
 
     @Override
-    public Widget asWidget() {
-        FlowPanel content = new FlowPanel();
-        content.add(new Label(title));
-        content.add(new HTML(body));
-        content.add(new Hyperlink(linkTitle, linkTarget));
-        return content;
+    public String getId() {
+        return id;
     }
 }
