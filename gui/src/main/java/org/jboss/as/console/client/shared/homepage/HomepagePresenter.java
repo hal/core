@@ -78,7 +78,8 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         if (standalone) {
 
             // Configuration
-            SimpleContentBox dsBox = new SimpleContentBox(Console.CONSTANTS.content_box_create_datasource_title(),
+            SimpleContentBox dsBox = new SimpleContentBox("Datasources",
+                    Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body(), "Datasources",
                     NameTokens.DataSourcePresenter);
             sections.add(new SectionData("Configuration", Console.CONSTANTS.common_label_configuration(),
@@ -88,11 +89,13 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             String token = placeManager.buildHistoryToken(
                     new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowserPresenter).with("new", "true")
                             .build());
-            SimpleContentBox deployBox = new SimpleContentBox(Console.CONSTANTS.content_box_new_deployment_title(),
+            SimpleContentBox deployBox = new SimpleContentBox("NewDeployment",
+                    Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body(),
                     Console.CONSTANTS.content_box_new_deployment_link(), token);
-            SimpleContentBox patchBox = new SimpleContentBox(Console.CONSTANTS.content_box_apply_patch_title(),
-                    Console.MESSAGES.content_box_apply_patch_body(), "Patch Management", NameTokens.PatchingPresenter);
+            SimpleContentBox patchBox = new SimpleContentBox("ApplyPath",
+                    Console.CONSTANTS.content_box_apply_patch_title(), Console.MESSAGES.content_box_apply_patch_body(),
+                    "Patch Management", NameTokens.PatchingPresenter);
             sections.add(
                     new SectionData("Runtime", "Runtime", Console.CONSTANTS.section_runtime_intro(), false, deployBox,
                             patchBox));
@@ -111,7 +114,8 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         }
 
         // Administration
-        SimpleContentBox roleAssignmentBox = new SimpleContentBox(Console.CONSTANTS.content_box_role_assignment_title(),
+        SimpleContentBox roleAssignmentBox = new SimpleContentBox("Administration",
+                Console.CONSTANTS.content_box_role_assignment_title(),
                 Console.MESSAGES.content_box_role_assignment_body(),
                 Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.RoleAssignmentPresenter);
         sections.add(

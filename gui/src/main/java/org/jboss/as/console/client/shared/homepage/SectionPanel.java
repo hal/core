@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
+import java.util.Iterator;
+import java.util.List;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
@@ -56,23 +59,49 @@ public class SectionPanel extends Composite implements OpenHandler<DisclosurePan
 
     public SectionPanel(final SectionData section) {
         dp = new DisclosurePanel();
-        dp.setHeader(new HTML(TEMPLATES.header(IdHelper.asId(section.getId() + "_", getClass()), section.getTitle())));
+        dp.setHeader(new HTML(TEMPLATES.header(IdHelper.asId(getClass(), "_" + section.getId()), section.getTitle())));
         dp.addOpenHandler(this);
         dp.addCloseHandler(this);
         dp.setOpen(section.isOpen());
         FlowPanel sectionBody = new FlowPanel();
         sectionBody.addStyleName("homepage-section-body");
         sectionBody.add(new HTML(TEMPLATES.intro(section.getIntro())));
-        for (ContentBox contentBox : section.getContentBoxes()) {
-            // TODO wrap columns
-            Widget contentBoxWidget = contentBox.asWidget();
-            contentBoxWidget.addStyleName("homepage-content-box");
-            sectionBody.add(contentBox);
+
+        ContentBox[][] table = buildTable(section.getContentBoxes());
+        for (ContentBox[] row : table) {
+            FlowPanel contentBoxes = new FlowPanel();
+            contentBoxes.addStyleName("homepage-content-boxes");
+            sectionBody.add(contentBoxes);
+
+            Widget widget = row[0].asWidget();
+            widget.addStyleName("homepage-content-box");
+            contentBoxes.add(widget);
+            if (row[1] != null) {
+                widget.addStyleName("two-columns"); // first column
+                widget = row[1].asWidget();
+                widget.addStyleName("homepage-content-box"); // second column
+                widget.addStyleName("two-columns");
+                contentBoxes.add(widget);
+            }
         }
         dp.add(sectionBody);
 
         initWidget(dp);
         setStyleName("homepage-section");
+    }
+
+    private ContentBox[][] buildTable(final List<ContentBox> contentBoxes) {
+        int size = contentBoxes.size();
+        int rows = size % 2 == 0 ? size / 2 : size / 2 + 1;
+        ContentBox[][] table = new ContentBox[rows][2];
+        int columnCounter = 0;
+        int rowCounter = -1;
+        for (Iterator<ContentBox> iterator = contentBoxes.iterator(); iterator.hasNext(); columnCounter++) {
+            columnCounter %= 2;
+            if (columnCounter == 0) { rowCounter++; }
+            table[rowCounter][columnCounter] = iterator.next();
+        }
+        return table;
     }
 
     @Override
