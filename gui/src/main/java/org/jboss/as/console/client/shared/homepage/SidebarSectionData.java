@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +30,7 @@ public class SidebarSectionData {
 
     public SidebarSectionData(final String title) {
         this.title = title;
-        this.links = new HashMap<String, String>();
+        this.links = new LinkedHashMap<String, String>();
     }
 
     public SidebarSectionData addLink(String href, String text) {
