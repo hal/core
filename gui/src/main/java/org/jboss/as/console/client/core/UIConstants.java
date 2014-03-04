@@ -1255,15 +1255,9 @@ public interface UIConstants extends Constants {
 
     String sidebar_developers_mailing_list_text();
 
-    String sidebar_contribute_resources();
-
-    String sidebar_source_code_text();
-
-    String sidebar_hacking_text();
-
-    String sidebar_extending_text();
-
     String sidebar_wilfdfly_home_text();
 
     String sidebar_model_reference_text();
+
+    String sidebar_latest_news();
 }

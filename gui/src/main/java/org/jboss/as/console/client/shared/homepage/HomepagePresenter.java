@@ -171,6 +171,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                     Console.CONSTANTS.sidebar_admin_guide_text());
             general.addLink("http://wildscribe.github.io/index.html", Console.CONSTANTS.sidebar_model_reference_text());
             general.addLink("https://issues.jboss.org/browse/WFLY", Console.CONSTANTS.sidebar_wildfly_issues_text());
+            general.addLink("http://wildfly.org/news/", Console.CONSTANTS.sidebar_latest_news());
             sections.add(general);
 
             SidebarSectionData help = new SidebarSectionData(Console.CONSTANTS.sidebar_get_help());
@@ -181,14 +182,6 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             help.addLink("https://lists.jboss.org/mailman/listinfo/wildfly-dev",
                     Console.CONSTANTS.sidebar_developers_mailing_list_text());
             sections.add(help);
-
-            SidebarSectionData contribute = new SidebarSectionData(Console.CONSTANTS.sidebar_contribute_resources());
-            contribute.addLink("https://github.com/wildfly/wildfly", Console.CONSTANTS.sidebar_source_code_text());
-            contribute.addLink("https://community.jboss.org/wiki/HackingOnWildFly",
-                    Console.CONSTANTS.sidebar_hacking_text());
-            contribute.addLink("https://docs.jboss.org/author/display/WFLY8/Extending+WildFly+8",
-                    Console.CONSTANTS.sidebar_extending_text());
-            sections.add(contribute);
 
         } else if (profile == PRODUCT) {
             SidebarSectionData general = new SidebarSectionData(Console.CONSTANTS.sidebar_general_resources());

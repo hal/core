@@ -22,9 +22,11 @@ package org.jboss.as.console.client.domain.groups;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -69,6 +71,10 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 
 /**
  * Maintains a single server group.
@@ -140,12 +146,54 @@ public class ServerGroupPresenter
 
     @Override
     public void prepareFromRequest(PlaceRequest request) {
+        super.prepareFromRequest(request);
 
         final String action = request.getParameter("action", null);
+        if ("new".equals(action)) {
+            if (existingProfiles == null || existingSockets == null) {
+                List<Function<Void>> functions = new LinkedList<Function<Void>>();
+                if (existingProfiles == null) {
+                    functions.add(new Function<Void>() {
+                        @Override
+                        public void execute(final Control<Void> control) {
+                            profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+                                @Override
+                                public void onSuccess(List<ProfileRecord> result) {
+                                    existingProfiles = result;
+                                }
+                            });
+                        }
+                    });
+                }
+                if (existingSockets == null) {
+                    functions.add(new Function<Void>() {
+                        @Override
+                        public void execute(final Control<Void> control) {
+                            serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
+                                @Override
+                                public void onSuccess(List<String> result) {
+                                    existingSockets = result;
+                                }
+                            });
+                        }
+                    });
+                }
+                Outcome<Void> wizardOutcome = new Outcome<Void>() {
+                    @Override
+                    public void onFailure(final Void context) {
+                        Log.error("Cannot launch new server group wizard");
+                    }
 
-        if("new".equals(action))
-        {
-            launchNewGroupDialoge();
+                    @Override
+                    public void onSuccess(final Void context) {
+                        launchNewGroupDialoge();
+                    }
+                };
+                //noinspection unchecked
+                new Async<Void>().parallel(null, wizardOutcome, functions.toArray(new Function[functions.size()]));
+            } else {
+                launchNewGroupDialoge();
+            }
         }
 
         preselection = request.getParameter("group", null);
