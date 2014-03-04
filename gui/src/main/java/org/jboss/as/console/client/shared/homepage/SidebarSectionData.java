@@ -18,8 +18,31 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Harald Pehl
  */
 public class SidebarSectionData {
+    private final String title;
+    private final Map<String,String> links; // key=target, value=text
+
+    public SidebarSectionData(final String title) {
+        this.title = title;
+        this.links = new HashMap<String, String>();
+    }
+
+    public SidebarSectionData addLink(String href, String text) {
+        links.put(href, text);
+        return this;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public Map<String, String> getLinks() {
+        return links;
+    }
 }

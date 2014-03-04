@@ -103,7 +103,8 @@ public class StandaloneDeploymentPresenter
     public void prepareFromRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
 
-        if (Boolean.valueOf(request.getParameter("new", "false"))) {
+        final String action = request.getParameter("action", null);
+        if ("new".equals(action)) {
             launchNewDeploymentDialoge(null, false);
         }
     }

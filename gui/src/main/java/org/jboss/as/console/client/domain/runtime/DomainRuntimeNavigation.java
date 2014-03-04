@@ -56,7 +56,6 @@ class DomainRuntimeNavigation {
 
         LHSTreeSection domainLeaf = new LHSTreeSection("Domain", true);
         domainLeaf.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
-        domainLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
         domainLeaf.addItem(new LHSNavTreeItem("Manage Deployments", NameTokens.DeploymentsPresenter));
 
         domainNavigation.addItem(domainLeaf);

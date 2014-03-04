@@ -63,6 +63,9 @@ class LHSHostsNavigation {
         navigation = new LHSNavTree("hosts");
         navigation.getElement().setAttribute("aria-label", "Profile Tasks");
 
+        LHSTreeSection patchLeaf = new LHSTreeSection("Patching");
+        patchLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
+        navigation.addItem(patchLeaf);
 
         LHSTreeSection serverLeaf = new LHSTreeSection("Server");
         navigation.addItem(serverLeaf);

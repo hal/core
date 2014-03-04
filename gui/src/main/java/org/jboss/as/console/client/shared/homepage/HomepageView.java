@@ -20,6 +20,8 @@ package org.jboss.as.console.client.shared.homepage;
 
 import static com.google.gwt.dom.client.Style.Unit.PCT;
 
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -47,6 +49,12 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
         @Template("<h2 class=\"homepage-secondary-header\">{0}</h2>")
         SafeHtml sidebarHeader(String title);
+
+        @Template("<h3 class\"homepage-sidebar-section-header\">{0}</h3>")
+        SafeHtml sidebarSectionHeader(String title);
+
+        @Template("<a hre=\"{0}\" target=\"_blank\" class=\"homepage-link\">{1}</a>")
+        SafeHtml sidebarLink(String link, String text);
     }
 
 
@@ -100,7 +108,19 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
     }
 
     @Override
-    public void addSidebarSection(final SidebarSectionData sidebarSection) {
+    public void addSidebarSection(final SidebarSectionData section) {
+        FlowPanel sidebarSection = new FlowPanel();
+        sidebarSection.addStyleName("homepage-sidebar-section");
+        sidebarSection.add(new HTML(TEMPLATES.sidebarSectionHeader(section.getTitle())));
+        FlowPanel links = new FlowPanel();
+        links.addStyleName("homepage-sidebar-links");
+        sidebarSection.add(links);
+        for (Map.Entry<String, String> linkText : section.getLinks().entrySet()) {
+            String link = linkText.getKey();
+            String text = linkText.getValue();
+            links.add(new HTML(TEMPLATES.sidebarLink(link, text)));
+        }
+        sidebarSections.add(sidebarSection);
     }
 
     @Override
