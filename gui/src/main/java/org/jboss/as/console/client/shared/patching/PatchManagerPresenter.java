@@ -62,9 +62,57 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
  */
 public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.PatchingPresenter)
+    @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
+    public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
+
+
+    public interface MyView extends View {
+
+        void setPresenter(PatchManagerPresenter presenter);
+
+        void update(Patches patches);
+    }
+
+
+    private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
+
+        private final Callback<? extends CommonPatchContext, Throwable> contextCallback;
+
+        public GetRunningServersCallback(final Callback<? extends CommonPatchContext, Throwable> contextCallback) {
+            this.contextCallback = contextCallback;
+        }
+
+        @Override
+        public void onSuccess(DMRResponse result) {
+            ModelNode response = result.get();
+            List<String> runningServers = new LinkedList<String>();
+            if (!response.isFailure()) {
+                List<Property> servers = response.get(RESULT).asPropertyList();
+                for (Property server : servers) {
+                    String name = server.getName();
+                    ModelNode instance = server.getValue();
+                    String state = instance.get("server-state").asString();
+                    if ("running".equals(state)) {
+                        runningServers.add(name);
+                    }
+                }
+            }
+            onServers(runningServers);
+        }
+
+        @Override
+        public void onFailure(final Throwable caught) {
+            contextCallback.onFailure(caught);
+        }
+
+        protected abstract void onServers(List<String> runningServers);
+    }
+
+
     static final int NORMAL_WINDOW_HEIGHT = 400;
     static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
-
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
     private final DomainEntityManager domainManager;
@@ -108,7 +156,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInRuntimeParent(this);
+        revealStrategy.revealInDomain(this);
     }
 
     public void launchApplyWizard() {
@@ -252,53 +300,5 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         operation.get(CHILD_TYPE).set("server");
         operation.get(INCLUDE_RUNTIME).set(true);
         return operation;
-    }
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.PatchingPresenter)
-    @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
-    public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
-
-
-    public interface MyView extends View {
-
-        void setPresenter(PatchManagerPresenter presenter);
-
-        void update(Patches patches);
-    }
-
-
-    private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
-
-        private final Callback<? extends CommonPatchContext, Throwable> contextCallback;
-
-        public GetRunningServersCallback(final Callback<? extends CommonPatchContext, Throwable> contextCallback) {
-            this.contextCallback = contextCallback;
-        }
-
-        @Override
-        public void onSuccess(DMRResponse result) {
-            ModelNode response = result.get();
-            List<String> runningServers = new LinkedList<String>();
-            if (!response.isFailure()) {
-                List<Property> servers = response.get(RESULT).asPropertyList();
-                for (Property server : servers) {
-                    String name = server.getName();
-                    ModelNode instance = server.getValue();
-                    String state = instance.get("server-state").asString();
-                    if ("running".equals(state)) {
-                        runningServers.add(name);
-                    }
-                }
-            }
-            onServers(runningServers);
-        }
-
-        @Override
-        public void onFailure(final Throwable caught) {
-            contextCallback.onFailure(caught);
-        }
-
-        protected abstract void onServers(List<String> runningServers);
     }
 }
