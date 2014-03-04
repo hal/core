@@ -127,7 +127,7 @@ public class Header implements ValueChangeHandler<String> {
         }
 
         bottom.add(debugTools);
-        bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 500, Style.Unit.PX);
+        bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 550, Style.Unit.PX);
         bottom.setWidgetTopHeight(links, 0, Style.Unit.PX, 44, Style.Unit.PX);
 
         bottom.setWidgetRightWidth(debugTools, 0, Style.Unit.PX, 50, Style.Unit.PX);
