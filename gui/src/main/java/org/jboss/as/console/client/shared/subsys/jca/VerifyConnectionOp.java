@@ -245,7 +245,7 @@ public class VerifyConnectionOp {
                 @Override
                 public void onFailure(final Throwable caught) {
                     control.getContext().push(new VerifyResult(caught));
-                    if (existing) { control.proceed(); } else { control.abort(); }
+                    if (existing) { control.abort(); } else { control.proceed(); }
                 }
 
                 @Override
