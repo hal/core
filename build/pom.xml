@@ -236,8 +236,8 @@
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
                             <module>org.jboss.as.console.composite.App_dev</module>
-                            <style>DETAILED</style>
-                            <enableClosureCompiler>false</enableClosureCompiler>
+                            <!--style>DETAILED</style>
+                            <enableClosureCompiler>false</enableClosureCompiler-->
                         </configuration>
                     </plugin>
                     <plugin>
