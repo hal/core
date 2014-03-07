@@ -73,11 +73,12 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         super.onReset();
         header.highlight(token);
 
-        PlaceRequest currentPlace = placeManager.getCurrentPlaceRequest();
+        PlaceRequest requestedPlace = placeManager.getCurrentPlaceRequest();
+        boolean isChildRequest = !token.equals(requestedPlace.getNameToken());
 
-        if (!token.equals(currentPlace.getNameToken())) {
+        if (isChildRequest) {
             // remember for the next time
-            lastPlace = currentPlace;
+            lastPlace = requestedPlace;
         } else if (lastPlace != null) {
             onLastPlace(lastPlace);
             return; // ugly, but important
@@ -85,14 +86,14 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
 
         if (!hasBeenRevealed) {
             hasBeenRevealed = true;
-            onFirstReveal(currentPlace, placeManager);
+            onFirstReveal(requestedPlace, placeManager, isChildRequest);
         }
     }
 
     /**
      * prepare the initial perspective. most often this does at least navigate to a default place.
      */
-    abstract protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager);
+    abstract protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean isChildRequest);
 
     /**
      * Forwards to the last place. If you override this method don't forget to call {@code super.onLastPlace()} first.
