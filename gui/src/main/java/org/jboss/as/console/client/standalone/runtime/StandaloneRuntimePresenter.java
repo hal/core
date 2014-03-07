@@ -76,8 +76,8 @@ public class StandaloneRuntimePresenter
     }
 
     @Override
-    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean isChildRequest) {
-        if(!isChildRequest)
+    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
+        if(revealDefault)
         {
             placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.StandaloneServerPresenter).build());
         }

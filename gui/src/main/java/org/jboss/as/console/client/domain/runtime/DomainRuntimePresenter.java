@@ -124,11 +124,10 @@ public class DomainRuntimePresenter
     }
 
     @Override
-    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean isChildRequest) {
-        if(!isChildRequest)
+    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
+        if(revealDefault)
         {
-            placeManager
-                    .revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
+            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
         }
     }
 
