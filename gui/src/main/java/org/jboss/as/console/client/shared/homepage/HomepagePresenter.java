@@ -92,7 +92,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
 
             // Runtime
             String token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowserPresenter).with("action", "new")
+                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowserPresenter)
                             .build());
             SimpleContentBox deployBox = new SimpleContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
@@ -121,7 +121,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                     Console.MESSAGES.content_box_apply_patch_body_domain(), "Patch Management",
                     NameTokens.PatchingPresenter);
             String token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.ServerGroupPresenter).with("action", "new")
+                    new PlaceRequest.Builder().nameToken(NameTokens.ServerGroupPresenter)
                             .build());
             SimpleContentBox serverGroupBox = new SimpleContentBox("CreateServerGroup",
                     Console.CONSTANTS.content_box_create_server_group_title(),
@@ -132,7 +132,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
 
             // Runtime
             token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentsPresenter).with("action", "new")
+                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentsPresenter)
                             .build());
             SimpleContentBox deployBox = new SimpleContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
