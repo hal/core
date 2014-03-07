@@ -51,76 +51,6 @@ import org.jboss.gwt.flow.client.Outcome;
  */
 public class VerifyConnectionOp {
 
-    private final DataSourceStore dataSourceStore;
-    private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
-    private final boolean standalone;
-
-    public VerifyConnectionOp(final DataSourceStore dataSourceStore, final DispatchAsync dispatcher,
-            final BeanFactory beanFactory) {
-        this.dataSourceStore = dataSourceStore;
-        this.dispatcher = dispatcher;
-        this.beanFactory = beanFactory;
-        this.standalone = Console.getBootstrapContext().isStandalone();
-    }
-
-    @SuppressWarnings("unchecked")
-    public void execute(final DataSource dataSource, final boolean xa, final boolean existing,
-            final AsyncCallback<VerifyResult> callback) {
-
-        if (existing && !dataSource.isEnabled()) {
-            // Verifying makes only sense for enabled datasources!
-            callback.onSuccess(new VerifyResult(false, Console.CONSTANTS.verify_datasource_disabled()));
-        } else {
-            // Setup a list of functions depending on the operation mode and existence of the datasource
-            List<Function<FunctionContext>> functions = new LinkedList<Function<FunctionContext>>();
-            if (standalone) {
-                if (existing) {
-                    // that's the easiest case - just verify the existing datasource
-                    functions.add(new VerifyStandaloneFunction(dataSource, xa, true));
-                } else {
-                    // create - verify - remove
-                    functions.add(new CreateFunction(dataSource, xa));
-                    functions.add(new EnableFunction(dataSource, xa, false));
-                    functions.add(new VerifyStandaloneFunction(dataSource, xa, false));
-                    functions.add(new RemoveFunction(dataSource, xa));
-                }
-            } else {
-                // in domain mode verifying a datasource requires a running server
-                functions.add(new TopologyFunctions.HostsAndGroups(dispatcher));
-                functions.add(new TopologyFunctions.ServerConfigs(dispatcher, beanFactory));
-                functions.add(new VerifyRunningServer());
-                if (existing) {
-                    functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, true));
-                } else {
-                    // create - verify - remove
-                    functions.add(new CreateFunction(dataSource, xa));
-                    functions.add(new EnableFunction(dataSource, xa, false));
-                    functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, false));
-                    functions.add(new RemoveFunction(dataSource, xa));
-                }
-            }
-
-            Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
-                @Override
-                public void onFailure(final FunctionContext context) {
-                    callback.onSuccess(context.<VerifyResult>pop());
-                }
-
-                @Override
-                public void onSuccess(final FunctionContext context) {
-                    callback.onSuccess(context.<VerifyResult>pop());
-                }
-            };
-
-            new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
-                    .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
-        }
-    }
-
-
-    // ------------------------------------------------------ result class
-
     public static class VerifyResult {
 
         private final boolean successful;
@@ -158,8 +88,6 @@ public class VerifyConnectionOp {
         }
     }
 
-
-    // ------------------------------------------------------ function classes
 
     private class VerifyStandaloneFunction implements Function<FunctionContext> {
 
@@ -202,6 +130,7 @@ public class VerifyConnectionOp {
             });
         }
     }
+
 
     private class VerifyDomainFunction implements Function<FunctionContext> {
 
@@ -271,6 +200,35 @@ public class VerifyConnectionOp {
         }
     }
 
+
+    /**
+     * Remove server instances and hosts which do not belong to the selected profile. Those server instances / hosts
+     * must not be part of the verify operation.
+     */
+    private class FilterCurrentProfile implements Function<FunctionContext> {
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            List<HostInfo> hosts = control.getContext().get(TopologyFunctions.HOSTS_KEY);
+            for (HostInfo host : hosts) {
+                for (Iterator<ServerInstance> iterator = host.getServerInstances().iterator(); iterator.hasNext(); ) {
+                    ServerInstance serverInstance = iterator.next();
+                    if (!profile.equals(serverInstance.getProfile())) {
+                        iterator.remove();
+                    }
+                }
+            }
+            for (Iterator<HostInfo> iterator = hosts.iterator(); iterator.hasNext(); ) {
+                HostInfo host = iterator.next();
+                if (host.getServerInstances().isEmpty()) {
+                    iterator.remove();
+                }
+            }
+            control.proceed();
+        }
+    }
+
+
     private class VerifyRunningServer implements Function<FunctionContext> {
 
         @Override
@@ -295,6 +253,7 @@ public class VerifyConnectionOp {
             }
         }
     }
+
 
     private class CreateFunction implements Function<FunctionContext> {
 
@@ -339,6 +298,7 @@ public class VerifyConnectionOp {
             }
         }
     }
+
 
     private class EnableFunction implements Function<FunctionContext> {
 
@@ -389,6 +349,7 @@ public class VerifyConnectionOp {
         }
     }
 
+
     private class RemoveFunction implements Function<FunctionContext> {
 
         private final DataSource dataSource;
@@ -424,6 +385,77 @@ public class VerifyConnectionOp {
             } else {
                 dataSourceStore.deleteDataSource(dataSource, callback);
             }
+        }
+    }
+
+
+    private final DataSourceStore dataSourceStore;
+    private final DispatchAsync dispatcher;
+    private final BeanFactory beanFactory;
+    private final String profile;
+    private final boolean standalone;
+
+    public VerifyConnectionOp(final DataSourceStore dataSourceStore, final DispatchAsync dispatcher,
+            final BeanFactory beanFactory, final String profile) {
+        this.dataSourceStore = dataSourceStore;
+        this.dispatcher = dispatcher;
+        this.beanFactory = beanFactory;
+        this.profile = profile;
+        this.standalone = Console.getBootstrapContext().isStandalone();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void execute(final DataSource dataSource, final boolean xa, final boolean existing,
+            final AsyncCallback<VerifyResult> callback) {
+
+        if (existing && !dataSource.isEnabled()) {
+            // Verifying makes only sense for enabled datasources!
+            callback.onSuccess(new VerifyResult(false, Console.CONSTANTS.verify_datasource_disabled()));
+        } else {
+            // Setup a list of functions depending on the operation mode and existence of the datasource
+            List<Function<FunctionContext>> functions = new LinkedList<Function<FunctionContext>>();
+            if (standalone) {
+                if (existing) {
+                    // that's the easiest case - just verify the existing datasource
+                    functions.add(new VerifyStandaloneFunction(dataSource, xa, true));
+                } else {
+                    // create - verify - remove
+                    functions.add(new CreateFunction(dataSource, xa));
+                    functions.add(new EnableFunction(dataSource, xa, false));
+                    functions.add(new VerifyStandaloneFunction(dataSource, xa, false));
+                    functions.add(new RemoveFunction(dataSource, xa));
+                }
+            } else {
+                // in domain mode verifying a datasource requires a running server
+                functions.add(new TopologyFunctions.HostsAndGroups(dispatcher));
+                functions.add(new TopologyFunctions.ServerConfigs(dispatcher, beanFactory));
+                functions.add(new FilterCurrentProfile());
+                functions.add(new VerifyRunningServer());
+                if (existing) {
+                    functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, true));
+                } else {
+                    // create - verify - remove
+                    functions.add(new CreateFunction(dataSource, xa));
+                    functions.add(new EnableFunction(dataSource, xa, false));
+                    functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, false));
+                    functions.add(new RemoveFunction(dataSource, xa));
+                }
+            }
+
+            Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
+                @Override
+                public void onFailure(final FunctionContext context) {
+                    callback.onSuccess(context.<VerifyResult>pop());
+                }
+
+                @Override
+                public void onSuccess(final FunctionContext context) {
+                    callback.onSuccess(context.<VerifyResult>pop());
+                }
+            };
+
+            new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
+                    .waterfall(new FunctionContext(), outcome, functions.toArray(new Function[functions.size()]));
         }
     }
 }

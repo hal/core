@@ -26,11 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
@@ -46,6 +44,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
@@ -54,7 +53,6 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDataSourcesFunction;
-import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDriversFunction;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadXADataSourcesFunction;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
@@ -67,7 +65,6 @@ import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
@@ -80,6 +77,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
+    private final CurrentProfileSelection currentProfileSelection;
     private boolean hasBeenRevealed = false;
     private DefaultWindow window;
 
@@ -116,12 +114,13 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
-                               DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
-                               DispatchAsync dispatcher, BeanFactory beanFactory) {
+            DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
+            DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
+        this.currentProfileSelection = currentProfileSelection;
 
         this.dataSourceStore = new DataSourceStoreInterceptor(dataSourceStore);
         this.driverRegistry = driverRegistry.create();
@@ -545,7 +544,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     }
 
     public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing) {
-        VerifyConnectionOp vop = new VerifyConnectionOp(dataSourceStore, dispatcher, beanFactory);
+        VerifyConnectionOp vop = new VerifyConnectionOp(dataSourceStore, dispatcher, beanFactory,
+                currentProfileSelection.getName());
         vop.execute(dataSource, xa, existing, new SimpleCallback<VerifyResult>() {
             @Override
             public void onSuccess(final VerifyResult result) {
