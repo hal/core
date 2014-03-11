@@ -104,7 +104,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
         @Override
         public void onFailure(final Throwable caught) {
-            contextCallback.onFailure(caught);
+            onServers(Collections.<String>emptyList());
         }
 
         protected abstract void onServers(List<String> runningServers);
