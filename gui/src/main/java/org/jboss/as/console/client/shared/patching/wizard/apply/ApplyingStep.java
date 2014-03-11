@@ -20,8 +20,6 @@ package org.jboss.as.console.client.shared.patching.wizard.apply;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -99,15 +97,8 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
         public void onSubmitComplete(final FormPanel.SubmitCompleteEvent event) {
             String html = event.getResults();
             String json = html;
-            try {
-                if (!GWT.isScript()) {
-                    // Formpanel weirdness
-                    json = html.substring(html.indexOf(">") + 1, html.lastIndexOf("<"));
-                }
-            } catch (StringIndexOutOfBoundsException e) {
-                // if I get this exception it means I shouldn't strip out the html
-                // this issue still needs more research
-                Log.debug("Failed to strip out HTML.  This should be preferred?");
+            if (html.indexOf('<') != -1) {
+                json = html.substring(html.indexOf(">") + 1, html.lastIndexOf("<"));
             }
             try {
                 JSONObject response = JSONParser.parseLenient(json).isObject();
