@@ -63,12 +63,29 @@ public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> 
 
     @Override
     protected RollbackState initialState() {
-        return CHOOSE_OPTIONS;
+        return context.runningServers.isEmpty() ? CHOOSE_OPTIONS : STOP_SERVERS;
     }
 
     @Override
     public void next() {
         switch (state) {
+            case STOP_SERVERS:
+                if (context.stopServers) {
+                    pushState(STOPPING);
+                } else {
+                    pushState(CHOOSE_OPTIONS);
+                }
+                break;
+            case STOPPING:
+                if (context.stopFailed) {
+                    pushState(STOP_FAILED);
+                } else {
+                    pushState(CHOOSE_OPTIONS);
+                }
+                break;
+            case STOP_FAILED:
+                pushState(CHOOSE_OPTIONS);
+                break;
             case CHOOSE_OPTIONS:
                 pushState(CONFIRM_ROLLBACK);
                 break;
