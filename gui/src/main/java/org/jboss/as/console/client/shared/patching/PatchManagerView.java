@@ -96,7 +96,6 @@ public class PatchManagerView extends SuspendableViewImpl
         panel.add(latestContainer);
 
         // tools & table
-        table = new PatchInfoTable();
         ToolStrip tools = new ToolStrip();
         ToolButton apply = new ToolButton(Console.CONSTANTS.patch_manager_apply_new(), new ClickHandler() {
             @Override
@@ -122,6 +121,7 @@ public class PatchManagerView extends SuspendableViewImpl
 
         panel.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_recently()));
         panel.add(tools);
+        table = new PatchInfoTable(rollbackButton);
         panel.add(table);
 
         // assemble the panels

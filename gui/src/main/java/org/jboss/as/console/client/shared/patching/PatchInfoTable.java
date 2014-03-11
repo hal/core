@@ -26,10 +26,12 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.ballroom.client.widgets.tools.ToolButton;
 
 /**
  * @author Harald Pehl
@@ -37,8 +39,14 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 public class PatchInfoTable implements IsWidget, PatchManagerElementId {
 
     private static final int PAGE_SIZE = 8;
+    private final ToolButton rollbackButton;
     private ListDataProvider<PatchInfo> dataProvider;
     private SingleSelectionModel<PatchInfo> selectionModel;
+
+    public PatchInfoTable(final ToolButton rollbackButton) {
+
+        this.rollbackButton = rollbackButton;
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -56,6 +64,12 @@ public class PatchInfoTable implements IsWidget, PatchManagerElementId {
         DefaultCellTable<PatchInfo> table = new DefaultCellTable<PatchInfo>(PAGE_SIZE, keyProvider);
         table.getElement().setId(asId(PREFIX, getClass()));
         selectionModel = new SingleSelectionModel(keyProvider);
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(final SelectionChangeEvent event) {
+                rollbackButton.setEnabled(selectionModel.getSelectedObject() != null);
+            }
+        });
         table.setSelectionModel(selectionModel);
         dataProvider = new ListDataProvider<PatchInfo>();
         dataProvider.addDataDisplay(table);
@@ -97,5 +111,6 @@ public class PatchInfoTable implements IsWidget, PatchManagerElementId {
 
     void update(Patches patches) {
         dataProvider.setList(patches.asList());
+        rollbackButton.setEnabled(!patches.isEmpty() && selectionModel.getSelectedObject() != null);
     }
 }
