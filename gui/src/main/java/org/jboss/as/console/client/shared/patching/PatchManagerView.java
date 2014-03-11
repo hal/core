@@ -86,7 +86,7 @@ public class PatchManagerView extends SuspendableViewImpl
         TextItem id = new TextItem("id", Console.CONSTANTS.patch_manager_latest());
         TextItem version = new TextItem("version", "Version");
         TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
-        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
+        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
         Map<PatchType, String> values = new HashMap<PatchType, String>();
         values.put(CUMULATIVE, CUMULATIVE.label());
         values.put(ONE_OFF, ONE_OFF.label());
