@@ -83,7 +83,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ace.version>1.0.0-jboss-1</ace.version>
-        <ballroom.version>2.0.9.Final</ballroom.version>
+        <ballroom.version>2.0.10.Final</ballroom.version>
         <gin.version>2.0.0</gin.version>
         <guice.version>3.0</guice.version>
         <gwt.version>2.5.1</gwt.version>

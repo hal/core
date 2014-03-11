@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.groups;
 
+import java.util.List;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -33,19 +35,18 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.List;
 
 /**
  * Shows an editable view of a single server group.
@@ -84,7 +85,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
             }
         });
 
-        newServerGroupBtn.setOperationAddress("/server-group={addressable.group}", "add");
+        newServerGroupBtn.setOperationAddress("/server-group=*", "add");
 
         newServerGroupBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverGroupsView());
         toolStrip.addToolButtonRight(newServerGroupBtn);
@@ -108,7 +109,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         });
 
         deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverGroupsView());
-        deleteBtn.setOperationAddress("/server-group={addressable.group}", "remove");
+        deleteBtn.setOperationAddress("/server-group={selected.entity}", "remove");
         toolStrip.addToolButtonRight(deleteBtn);
 
 
@@ -121,7 +122,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
             }
         });
 
-        copyBtn.setOperationAddress("/server-group={addressable.group}", "add");
+        copyBtn.setOperationAddress("/server-group={selected.entity}", "add");
         toolStrip.addToolButtonRight(copyBtn);
 
         // ---------------------------------------------
@@ -176,7 +177,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         });
 
         propertyEditor = new PropertyEditor(presenter, true);
-        propertyEditor.setOperationAddress("/server-group={addressable.group}/system-property=*", "add");
+        propertyEditor.setOperationAddress("/server-group={selected.entity}/system-property=*", "add");
 
         // --------------------
 
@@ -198,6 +199,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
                     @Override
                     public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                         ServerGroupRecord group = getSelectionModel().getSelectedObject();
+                        SecurityContextChangedEvent.fire(presenter, "/server-group=*", group.getName());
                         presenter.loadJVMConfiguration(group);
                         presenter.loadProperties(group);
                     }
