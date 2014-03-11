@@ -178,8 +178,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_patch());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.setWidget(new ApplyWizard(PatchManagerPresenter.this, context,
-                        Console.CONSTANTS.patch_manager_apply_patch(), dispatcher, patchManager));
+                window.trapWidget(new ApplyWizard(PatchManagerPresenter.this, context,
+                        Console.CONSTANTS.patch_manager_apply_patch(), dispatcher, patchManager).asWidget());
                 window.setGlassEnabled(true);
                 window.center();
             }
@@ -251,14 +251,14 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void biggerWindow() {
-        if (window != null) {
+        if (window != null && window.isAttached()) {
             window.setHeight(BIGGER_WINDOW_HEIGHT);
             window.center();
         }
     }
 
     public void normalWindow() {
-        if (window != null) {
+        if (window != null && window.isAttached()) {
             window.setHeight(NORMAL_WINDOW_HEIGHT);
             window.center();
         }
