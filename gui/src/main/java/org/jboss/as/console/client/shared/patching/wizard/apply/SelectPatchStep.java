@@ -40,15 +40,12 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
  */
 public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
-    private boolean confirm;
-    private Label intro;
     private HTML info;
     private FileUpload upload;
     private HTML errorMessages;
 
     public SelectPatchStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_select_patch_title());
-        this.confirm = false;
     }
 
     @Override
@@ -65,8 +62,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         panel.add(operation);
         context.operation = operation;
 
-        intro = new Label(Console.CONSTANTS.patch_manager_select_patch_body());
-        panel.add(intro);
+        panel.add(new Label(Console.CONSTANTS.patch_manager_select_patch_body()));
 
         if (!context.standalone) {
             info = new HTML("");
@@ -105,7 +101,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
             }
             info.getElement().getStyle().setMarginTop(2, Style.Unit.EM);
         }
-        switchToSelect();
+        errorMessages.setVisible(false);
     }
 
     @Override
@@ -114,24 +110,8 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         context.filename = upload.getFilename();
         if (context.filename == null || context.filename.length() == 0) {
             errorMessages.setVisible(true);
-        } else if (!confirm) {
-            switchToConfirm();
         } else {
             super.onNext(context);
         }
-    }
-
-    private void switchToSelect() {
-        this.confirm = false;
-        changeTitle(Console.CONSTANTS.patch_manager_select_patch_title());
-        intro.setText(Console.CONSTANTS.patch_manager_select_patch_body());
-        errorMessages.setVisible(false);
-    }
-
-    private void switchToConfirm() {
-        this.confirm = true;
-        changeTitle(Console.CONSTANTS.patch_manager_confirm_patch_title());
-        intro.setText(Console.CONSTANTS.patch_manager_confirm_patch_body());
-        errorMessages.setVisible(false);
     }
 }

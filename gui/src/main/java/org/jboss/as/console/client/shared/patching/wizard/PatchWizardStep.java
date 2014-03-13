@@ -44,7 +44,6 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
 
     protected final PatchWizard<C, S> wizard;
     protected String title;
-    private HTML header;
     private final WizardButton submitButton;
     private final WizardButton cancelButton;
     private DialogueOptions dialogOptions;
@@ -71,8 +70,7 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        header = header(wizard.context);
-        layout.add(header);
+        layout.add(header(wizard.context));
         layout.add(body(wizard.context));
 
         ClickHandler submitHandler = new ClickHandler() {
@@ -116,11 +114,6 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
         return new HTML(buildTitle());
     }
 
-    protected void changeTitle(String title) {
-        this.title = title;
-        header.setHTML(buildTitle());
-    }
-
     private String buildTitle() {
         StringBuilder header = new StringBuilder();
         header.append("<h3>");
@@ -139,6 +132,7 @@ public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget,
         wizard.next();
     }
 
+    @SuppressWarnings("UnusedParameters")
     protected void onCancel(C context) {
         wizard.close();
     }

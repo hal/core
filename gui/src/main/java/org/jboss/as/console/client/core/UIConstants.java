@@ -1119,10 +1119,6 @@ public interface UIConstants extends Constants {
 
     String patch_manager_select_patch_upload();
 
-    String patch_manager_confirm_patch_title();
-
-    String patch_manager_confirm_patch_body();
-
     String patch_manager_update();
 
     String patch_manager_restart_now();
