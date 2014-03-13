@@ -93,6 +93,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                 presenter.launchNewConfigDialoge();
             }
         });
+        addBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverConfigView());
         toolStrip.addToolButtonRight(addBtn);
 
@@ -115,7 +116,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                         });
             }
         });
-
+        deleteBtn.setOperationAddress("/{selected.host}/server-config=*", "remove");
         deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverConfigView());
         toolStrip.addToolButtonRight(deleteBtn);
 
@@ -129,6 +130,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                 presenter.onLaunchCopyWizard(server);
             }
         });
+        copyBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
 
         toolStrip.addToolButtonRight(copyBtn);
         toolStrip.setFilter("/{selected.host}/server-config=*");
@@ -200,6 +202,11 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                 .addDetail("Attributes", details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
+        // 1. Filter must be set *after* jvmEditor.asWidget()
+        // 2. We don't get exceptions for nested resources like "/{selected.host}/server-config=*/jvm=*",
+        // so we use the parent address assuming that the privileges are the same - i.e. if we cannot modify the
+        // server-config, we shouldn't be able to edit the JVM settings either.
+        jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
 
         details.bind(serverConfigTable);

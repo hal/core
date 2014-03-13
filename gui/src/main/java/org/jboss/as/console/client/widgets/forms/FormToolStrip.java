@@ -1,16 +1,16 @@
 package org.jboss.as.console.client.widgets.forms;
 
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.ballroom.client.widgets.forms.FormAdapter;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
 /**
  * @author Heiko Braun
@@ -25,6 +25,7 @@ public class FormToolStrip<T> {
 
     private PreValidation preValidation = null;
     private Set<Command> cancelDelegates = new HashSet<Command>();
+    private ToolStrip toolStrip;
 
     public void addCancelHandler(Command command) {
         cancelDelegates.add(command);
@@ -68,9 +69,13 @@ public class FormToolStrip<T> {
 
     }
 
+    public void setVisible(boolean visible) {
+        toolStrip.setVisible(visible);
+    }
+
     public Widget asWidget() {
 
-        ToolStrip toolStrip = new ToolStrip();
+        toolStrip = new ToolStrip();
 
         for(ToolButton btn : additionalButtons)
             toolStrip.addToolButtonRight(btn);

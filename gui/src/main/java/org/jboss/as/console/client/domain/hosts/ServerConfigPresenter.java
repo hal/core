@@ -566,7 +566,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         hostInfoStore.loadJVMConfiguration(domainManager.getSelectedHost(), server, new SimpleCallback<Jvm>() {
             @Override
             public void onSuccess(Jvm jvm) {
-                getView().setJvm(server.getName(), jvm);
+            getView().setJvm(server.getName(), jvm);
             }
         });
     }
@@ -576,16 +576,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                 .loadProperties(domainManager.getSelectedHost(), server, new SimpleCallback<List<PropertyRecord>>() {
                     @Override
                     public void onSuccess(List<PropertyRecord> properties) {
-                        if (!properties.isEmpty()) {
-                            // Just fire an event for the first property (assuming they all have the same privileges)
-                            SecurityContextChangedEvent.fire(ServerConfigPresenter.this,
-                                    "/{selected.host}/server-config=*/system-property=*", server.getName(),
-                                    properties.get(0).getKey());
-                        } else {
-                            SecurityContextChangedEvent.fire(ServerConfigPresenter.this,
-                                    "/{selected.host}/server-config=*/system-property=*", server.getName());
-                        }
-                        getView().setProperties(server.getName(), properties);
+                    getView().setProperties(server.getName(), properties);
                     }
                 });
     }

@@ -19,7 +19,10 @@
 
 package org.jboss.as.console.client.shared.jvm;
 
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,6 +32,10 @@ import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.HeapBoxItem;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityContextAware;
+import org.jboss.ballroom.client.rbac.SecurityService;
+import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -38,8 +45,6 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
-import java.util.Map;
-
 
 
 /**
@@ -47,6 +52,9 @@ import java.util.Map;
  * @date 4/20/11
  */
 public class JvmEditor {
+
+    static Framework FRAMEWORK = GWT.create(Framework.class);
+    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
     private JvmManagement presenter;
 
@@ -62,20 +70,23 @@ public class JvmEditor {
     private boolean overrideName = true;
     private ToolButton clearBtn;
     private FormItem nameItem;
+    private RootPanel rootPanel;
+    private FormToolStrip<Jvm> toolStrip;
+    private boolean writeGranted;
 
     public JvmEditor(JvmManagement presenter) {
-        this.presenter = presenter;
+        this(presenter, true, false);
     }
 
     public JvmEditor(JvmManagement presenter, boolean overrideName) {
-        this.presenter = presenter;
-        this.overrideName = overrideName;
+        this(presenter, overrideName, false);
     }
 
     public JvmEditor(JvmManagement presenter, boolean overrideName, boolean providesClearOp) {
         this.presenter = presenter;
         this.overrideName = overrideName;
         this.providesClearOp = providesClearOp;
+        this.writeGranted = true;
     }
 
     public void setAddressCallback(FormHelpPanel.AddressCallback addressCallback) {
@@ -84,13 +95,13 @@ public class JvmEditor {
 
 
     public Widget asWidget() {
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("fill-layout-width");
+        rootPanel = new RootPanel();
+        rootPanel.setStyleName("fill-layout-width");
 
         form = new Form<Jvm>(Jvm.class);
         form.setNumColumns(2);
 
-        FormToolStrip<Jvm> toolStrip = new FormToolStrip<Jvm>(
+        toolStrip = new FormToolStrip<Jvm>(
                 form,
                 new FormToolStrip.FormCallback<Jvm>()
                 {
@@ -130,7 +141,7 @@ public class JvmEditor {
         if(providesClearOp)
             toolStrip.addToolButtonRight(clearBtn);
 
-        panel.add(toolStrip.asWidget());
+        rootPanel.add(toolStrip.asWidget());
 
         nameItem = null;
 
@@ -154,15 +165,15 @@ public class JvmEditor {
         if(addressCallback!=null)
         {
             final FormHelpPanel helpPanel = new FormHelpPanel(addressCallback, form);
-            panel.add(helpPanel.asWidget());
+            rootPanel.add(helpPanel.asWidget());
         }
 
         // ---
 
         formWidget = form.asWidget();
-        panel.add(formWidget);
+        rootPanel.add(formWidget);
 
-        return panel;
+        return rootPanel;
     }
 
     private void onSaveJvm() {
@@ -183,21 +194,70 @@ public class JvmEditor {
     public void setSelectedRecord(String reference, Jvm jvm) {
         this.reference = reference;
 
-        hasJvm = jvm!=null;
+        hasJvm = jvm != null;
 
-        clearBtn.setVisible(hasJvm);
+        clearBtn.setVisible(hasJvm && writeGranted);
         nameItem.setEnabled(!hasJvm); // prevent changing the name of existing configurations
 
-        form.setEnabled(false);
+        if (writeGranted) {
+            form.setEnabled(false);
+        }
 
         if(hasJvm)
             form.edit(jvm);
         else
             form.edit(factory.jvm().as());
-
     }
 
     public void clearValues() {
         form.clearValues();
+    }
+
+    public void setSecurityContextFilter(final String resourceAddress) {
+        if (rootPanel != null) {
+            rootPanel.setFilter(resourceAddress);
+        }
+        if (form != null) {
+            form.setSecurityContextFilter(resourceAddress);
+        }
+    }
+
+    private void applySecurity(SecurityContext securityContext) {
+        // TODO Is it safe to save the state of the privilege here and evaluate it in setSelectedRecord()?
+        // Is applySecurity always called first? AFAICT that's the case.
+        writeGranted = securityContext.getWritePriviledge().isGranted();
+    }
+
+    private class RootPanel extends VerticalPanel implements SecurityContextAware {
+
+        private final String id;
+        private String filter;
+
+        private RootPanel() {
+            this.id = Document.get().createUniqueId();
+            getElement().setId(id);
+            SECURITY_SERVICE.registerWidget(id, this);
+        }
+
+        @Override
+        protected void onLoad() {
+            SECURITY_SERVICE.registerWidget(id, this);
+            applySecurity(SECURITY_SERVICE.getSecurityContext());
+        }
+
+        @Override
+        public void setFilter(final String resourceAddress) {
+            this.filter = resourceAddress;
+        }
+
+        @Override
+        public String getFilter() {
+            return filter;
+        }
+
+        @Override
+        public void updateSecurityContext(final SecurityContext securityContext) {
+            applySecurity(securityContext);
+        }
     }
 }

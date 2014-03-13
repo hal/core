@@ -138,12 +138,13 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
                 event.getWildcards());
         String resourceAddress = normalize(addressNode.get(ADDRESS));
-        System.out.println("Receiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+        System.out.println("<SCC>");
+        System.out.println("\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
 
         // look for child context
         SecurityContext context = getSecurityContext();
         if (context.hasChildContext(resourceAddress)) {
-            System.out.println("Found child context for " + resourceAddress);
+            System.out.println("\tFound child context for " + resourceAddress);
             context = context.getChildContext(resourceAddress);
         }
 
@@ -157,10 +158,11 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 update = widget.getFilter().equals(addressTemplate);
             }
             if (update && widget.isAttached()) {
-                System.out.println("Updating widget " + id);
+                System.out.println("\tUpdating widget " + id);
                 widget.updateSecurityContext(context);
             }
         }
+        System.out.println("</SCC>\n\n");
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
