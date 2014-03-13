@@ -43,6 +43,7 @@ import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
@@ -127,9 +128,13 @@ public class PatchManagerView extends SuspendableViewImpl
         // assemble the panels
         panel.setStyleName("rhs-content-panel");
         ScrollPanel scroll = new ScrollPanel(panel);
+        FakeTabPanel titleBar = new FakeTabPanel("Patch Management");
+        titleBar.add(scroll);
         LayoutPanel layout = new LayoutPanel();
+        layout.add(titleBar);
         layout.add(scroll);
-        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
+        layout.setWidgetTopHeight(scroll, 40, Style.Unit.PX, 100, Style.Unit.PCT);
         return layout;
     }
 
