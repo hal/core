@@ -1260,4 +1260,6 @@ public interface UIConstants extends Constants {
     String sidebar_model_reference_text();
 
     String sidebar_latest_news();
+
+    String patch_manager_servers_still_running_warning();
 }

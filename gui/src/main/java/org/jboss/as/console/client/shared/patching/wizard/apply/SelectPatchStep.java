@@ -100,7 +100,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
             if (context.serversStopped) {
                 info.setText("Host: " + context.host + " (" + Console.CONSTANTS.patch_manager_servers_shutdown() + ")");
             } else {
-                info.setHTML("Host: " + context.host + " (" + Console.MESSAGES
+                info.setHTML("Host: " + context.host + " (" + Console.CONSTANTS
                         .patch_manager_servers_still_running_warning() + ")");
             }
             info.getElement().getStyle().setMarginTop(2, Style.Unit.EM);
