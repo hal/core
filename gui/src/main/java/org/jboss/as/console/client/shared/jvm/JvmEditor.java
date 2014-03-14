@@ -22,20 +22,16 @@ package org.jboss.as.console.client.shared.jvm;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.internal.SecurityContextAwareVerticalPanel;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.HeapBoxItem;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityContextAware;
-import org.jboss.ballroom.client.rbac.SecurityService;
-import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -53,9 +49,6 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
  */
 public class JvmEditor {
 
-    static Framework FRAMEWORK = GWT.create(Framework.class);
-    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
-
     private JvmManagement presenter;
 
     private Form<Jvm> form;
@@ -64,14 +57,12 @@ public class JvmEditor {
     private boolean providesClearOp = false;
 
     private String reference;
-    private Widget formWidget;
     private FormHelpPanel.AddressCallback addressCallback;
 
     private boolean overrideName = true;
     private ToolButton clearBtn;
     private FormItem nameItem;
-    private RootPanel rootPanel;
-    private FormToolStrip<Jvm> toolStrip;
+    private SecurityContextAwareVerticalPanel rootPanel;
     private boolean writeGranted;
 
     public JvmEditor(JvmManagement presenter) {
@@ -95,16 +86,23 @@ public class JvmEditor {
 
 
     public Widget asWidget() {
-        rootPanel = new RootPanel();
+        rootPanel = new SecurityContextAwareVerticalPanel() {
+
+            @Override
+            public void updateSecurityContext(final SecurityContext securityContext) {
+                // TODO Is it safe to save the state of the privilege here and evaluate it in setSelectedRecord()?
+                // TODO Is this method always called first? AFAICT that's the case.
+                writeGranted = securityContext.getWritePriviledge().isGranted();
+            }
+        };
         rootPanel.setStyleName("fill-layout-width");
 
         form = new Form<Jvm>(Jvm.class);
         form.setNumColumns(2);
 
-        toolStrip = new FormToolStrip<Jvm>(
+        FormToolStrip<Jvm> toolStrip = new FormToolStrip<Jvm>(
                 form,
-                new FormToolStrip.FormCallback<Jvm>()
-                {
+                new FormToolStrip.FormCallback<Jvm>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
                         onSaveJvm();
@@ -170,7 +168,7 @@ public class JvmEditor {
 
         // ---
 
-        formWidget = form.asWidget();
+        Widget formWidget = form.asWidget();
         rootPanel.add(formWidget);
 
         return rootPanel;
@@ -219,45 +217,6 @@ public class JvmEditor {
         }
         if (form != null) {
             form.setSecurityContextFilter(resourceAddress);
-        }
-    }
-
-    private void applySecurity(SecurityContext securityContext) {
-        // TODO Is it safe to save the state of the privilege here and evaluate it in setSelectedRecord()?
-        // Is applySecurity always called first? AFAICT that's the case.
-        writeGranted = securityContext.getWritePriviledge().isGranted();
-    }
-
-    private class RootPanel extends VerticalPanel implements SecurityContextAware {
-
-        private final String id;
-        private String filter;
-
-        private RootPanel() {
-            this.id = Document.get().createUniqueId();
-            getElement().setId(id);
-            SECURITY_SERVICE.registerWidget(id, this);
-        }
-
-        @Override
-        protected void onLoad() {
-            SECURITY_SERVICE.registerWidget(id, this);
-            applySecurity(SECURITY_SERVICE.getSecurityContext());
-        }
-
-        @Override
-        public void setFilter(final String resourceAddress) {
-            this.filter = resourceAddress;
-        }
-
-        @Override
-        public String getFilter() {
-            return filter;
-        }
-
-        @Override
-        public void updateSecurityContext(final SecurityContext securityContext) {
-            applySecurity(securityContext);
         }
     }
 }
