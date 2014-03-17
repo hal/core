@@ -64,18 +64,6 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String VERSION_INFO_FILENAME = "org.jboss.as.console.client.VersionInfo";
     private static final String VERSION_INFO_TEMPLATE = "VersionInfo.tmpl";
 
-    private static final String MODULE_FILENAME = "App.gwt.xml";
-    private static final String MODULE_DEV_FILENAME = "App_dev.gwt.xml";
-    private static final String MODULE_PRODUCT_FILENAME = "App_RH.gwt.xml";
-    private static final String MODULE_PRODUCT_DEV_FILENAME = "App_RH_dev.gwt.xml";
-
-    private static final String MODULE_TEMPLATE = "App.gwt.xml.tmpl";
-    private static final String MODULE_DEV_TEMPLATE = "App_dev.gwt.xml.tmpl";
-    private static final String MODULE_PRODUCT_TEMPLATE = "App_RH.gwt.xml.tmpl";
-    private static final String MODULE_PRODUCT_DEV_TEMPLATE = "App_RH_dev.gwt.xml.tmpl";
-
-    private static final String MODULE_PACKAGENAME = "org.jboss.as.console.composite";
-
     private Filer filer;
     private ProcessingEnvironment processingEnv;
     private List<String> discoveredExtensions;
@@ -88,6 +76,7 @@ public class SPIProcessor extends AbstractProcessor {
     private List<RuntimeExtensionMetaData> runtimeExtensions;
     private Set<String> modules = new LinkedHashSet<>();
     private Set<String> nameTokens;
+    private List<ModuleConfig> moduleConfigs;
     private Map<String, String> gwtConfigProps;
 
     @Override
@@ -103,6 +92,14 @@ public class SPIProcessor extends AbstractProcessor {
         this.bootstrapOperations= new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
+
+        moduleConfigs = new ArrayList<ModuleConfig>();
+        moduleConfigs.add(new ModuleConfig(filer, "App_Base.gwt.xml.tmpl", "App.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_WF.gwt.xml.tmpl", "App_WF.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_WF_full.gwt.xml.tmpl", "App_WF_full.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_WF_dev.gwt.xml.tmpl", "App_WF_dev.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_RH.gwt.xml.tmpl", "App_RH.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_RH_dev.gwt.xml.tmpl", "App_RH_dev.gwt.xml"));
 
         env.getMessager();
         parseGwtProperties();
@@ -133,7 +130,6 @@ public class SPIProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnv) {
-
 
         if(!roundEnv.processingOver()) {
 
@@ -357,12 +353,12 @@ public class SPIProcessor extends AbstractProcessor {
         writeSubsystemFile();
         writeAccessControlFile();
         writeRuntimeFile();
-        writeModuleFile();
-        writeDevModuleFile();
-        writeProductModuleFile();
-        writeProductDevModuleFile();
         writeProxyConfigurations();
         writeVersionInfo();
+
+        for (ModuleConfig moduleConfig : moduleConfigs) {
+            moduleConfig.writeModuleFile(modules, gwtConfigProps);
+        }
     }
 
     private void writeAccessControlFile() throws Exception {
@@ -435,77 +431,6 @@ public class SPIProcessor extends AbstractProcessor {
         output.flush();
         output.close();
     }
-
-    private void writeModuleFile() {
-        try {
-            Map<String, Object> model = new HashMap<>();
-            model.put("modules", modules);
-            model.put("properties", gwtConfigProps);
-
-            FileObject sourceFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, MODULE_PACKAGENAME,
-                    MODULE_FILENAME);
-            OutputStream output = sourceFile.openOutputStream();
-            new TemplateProcessor().process(MODULE_TEMPLATE, model, output);
-            output.flush();
-            output.close();
-            System.out.println("Written GWT module to " + sourceFile.toUri().toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create file", e);
-        }
-    }
-
-    private void writeDevModuleFile() {
-        try {
-            Map<String, Object> model = new HashMap<>();
-            model.put("modules", modules);
-            model.put("properties", gwtConfigProps);
-
-            FileObject sourceFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, MODULE_PACKAGENAME,
-                    MODULE_DEV_FILENAME);
-            OutputStream output = sourceFile.openOutputStream();
-            new TemplateProcessor().process(MODULE_DEV_TEMPLATE, model, output);
-            output.flush();
-            output.close();
-            System.out.println("Written GWT dev module to " + sourceFile.toUri().toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create file", e);
-        }
-    }
-
-    private void writeProductModuleFile() {
-        try {
-            Map<String, Object> model = new HashMap<>();
-            model.put("modules", modules);
-            model.put("properties", gwtConfigProps);
-
-            FileObject sourceFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, MODULE_PACKAGENAME,
-                    MODULE_PRODUCT_FILENAME);
-            OutputStream output = sourceFile.openOutputStream();
-            new TemplateProcessor().process(MODULE_PRODUCT_TEMPLATE, model, output);
-            output.flush();
-            output.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create file", e);
-        }
-    }
-
-    private void writeProductDevModuleFile() {
-        try {
-            Map<String, Object> model = new HashMap<>();
-            model.put("modules", modules);
-            model.put("properties", gwtConfigProps);
-
-            FileObject sourceFile = filer.createResource(StandardLocation.SOURCE_OUTPUT, MODULE_PACKAGENAME,
-                    MODULE_PRODUCT_DEV_FILENAME);
-            OutputStream output = sourceFile.openOutputStream();
-            new TemplateProcessor().process(MODULE_PRODUCT_DEV_TEMPLATE, model, output);
-            output.flush();
-            output.close();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create file", e);
-        }
-    }
-
 
     private void writeProxyConfigurations() {
         try {

@@ -144,7 +144,7 @@
                     <hostedWebapp>war</hostedWebapp>
                     <localWorkers>4</localWorkers>
                     <compileReport>false</compileReport>
-                    <module>org.jboss.as.console.composite.App</module>
+                    <module>org.jboss.as.console.composite.App_WF</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <enableClosureCompiler>true</enableClosureCompiler>
@@ -235,7 +235,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <module>org.jboss.as.console.composite.App_dev</module>
+                            <module>org.jboss.as.console.composite.App_WF_dev</module>
                             <!--style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler-->
                         </configuration>
@@ -245,6 +245,46 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <!-- Full community profile with all languages and browsers -->
+            <id>full</id>
+            <properties>
+                <env>default</env>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>gwt-maven-plugin</artifactId>
+                        <configuration>
+                            <disableCastChecking>true</disableCastChecking>
+                            <disableClassMetadata>true</disableClassMetadata>
+                            <module>org.jboss.as.console.composite.App_WF_full</module>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-jar-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <classesDirectory>war</classesDirectory>
+                            <excludes>
+                                <exclude>WEB-INF/**</exclude>
+                            </excludes>
+                            <classifier>full-resources</classifier>
                         </configuration>
                     </plugin>
                 </plugins>

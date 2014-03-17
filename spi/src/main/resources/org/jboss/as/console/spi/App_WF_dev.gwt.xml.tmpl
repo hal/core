@@ -21,20 +21,8 @@
 
     <inherits name="org.jboss.as.console.composite.App"/>
 
-    <inherits name="com.google.gwt.debugpanel.DebugPanel_Enabled" />
-
-    <extend-property name="log_level" values="DEBUG"/>
-    <set-property name="log_level" value="DEBUG"/>
-
-    <extend-property name="locale" values="en"/>
-    <set-property-fallback name="locale" value="en"/>
-    <set-property name="locale" value="en"/>
-
-    <!--set-property name="compiler.emulatedStack" value="true" />
-    <set-configuration-property name="compiler.emulatedStack.recordLineNumbers" value="true"/>
-    <set-configuration-property name="compiler.emulatedStack.recordFileNames" value="true"/-->
-
-    <!--set-property name="user.agent" value="gecko1_8"/-->
-    <set-property name="user.agent" value="gecko1_8,safari"/>
+    <#include "includes/community.tmpl">
+    <#include "includes/debug.tmpl">
+    <#include "includes/ua_i18n_dev.tmpl">
 
 </module>

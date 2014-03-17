@@ -19,9 +19,16 @@
 
 <module rename-to="app">
 
-    <inherits name="org.jboss.as.console.composite.App"/>
+    <#list modules as module>
+        <inherits name="${module}"/>
+    </#list>
 
-    <#include "includes/product.tmpl">
-    <#include "includes/ua_i18n_full.tmpl">
+    <!-- these are generated -->
+    <#assign keys = properties?keys>
+    <#list keys as key>
+        <set-configuration-property name="${key}" value="${properties[key]}"/>
+    </#list>
+
+    <source path='client'/>
 
 </module>
