@@ -21,6 +21,7 @@ package org.jboss.as.console.rebind;
 
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gwt.core.ext.BadPropertyValueException;
 import com.google.gwt.core.ext.ConfigurationProperty;
@@ -31,6 +32,8 @@ import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
 import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
+import com.google.gwt.i18n.rebind.LocaleUtils;
+import com.google.gwt.i18n.shared.GwtLocale;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
@@ -107,7 +110,7 @@ public class ProductConfigGenerator extends Generator {
         generateConstructor(sourceWriter);
 
         // Methods
-        generateMethods(sourceWriter, context);
+        generateMethods(logger, sourceWriter, context);
 
         // close generated class
         sourceWriter.outdent();
@@ -126,7 +129,7 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.println("}");
     }
 
-    private void generateMethods(SourceWriter sourceWriter, GeneratorContext context) throws Throwable {
+    private void generateMethods(final TreeLogger logger, SourceWriter sourceWriter, GeneratorContext context) throws Throwable {
         PropertyOracle propertyOracle = context.getPropertyOracle();
 
         // console.profile - mandatory
@@ -184,6 +187,21 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.println("public String getDevHost() { ");
         sourceWriter.indent();
         sourceWriter.println("return \"" + devHost + "\";");
+        sourceWriter.outdent();
+        sourceWriter.println("}");
+
+        // console.dev.host - mandatory
+        LocaleUtils localeUtils = LocaleUtils.getInstance(logger, context.getPropertyOracle(), context);
+        Set<GwtLocale> locales = localeUtils.getAllCompileLocales();
+        sourceWriter.println("public List<String> getLocales() { ");
+        sourceWriter.indent();
+        sourceWriter.println("List<String> locales = new LinkedList<String>();");
+        for (GwtLocale locale : locales) {
+            if (locale.getAsString() != null && locale.getAsString().length() != 0) {
+                sourceWriter.println("locales.add(\"" + locale.getAsString() + "\");");
+            }
+        }
+        sourceWriter.println("return locales;");
         sourceWriter.outdent();
         sourceWriter.println("}");
     }

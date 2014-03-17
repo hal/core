@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.core.settings;
 
+import java.util.List;
+
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -29,6 +31,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -51,7 +54,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     private Form<CommonSettings> form ;
 
     @Inject
-    public SettingsView(EventBus eventBus) {
+    public SettingsView(EventBus eventBus, ProductConfig productConfig) {
         super(eventBus);
 
         window = new DefaultWindow(Console.CONSTANTS.common_label_settings());
@@ -60,16 +63,24 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
 
         form = new Form<CommonSettings>(CommonSettings.class);
 
-        ComboBoxItem localeItem = new ComboBoxItem(Preferences.Key.LOCALE.getToken(), Preferences.Key.LOCALE.getTitle());
-
-        localeItem.setDefaultToFirstOption(true);
-        localeItem.setValueMap(new String[] {"en", "de", "zh_Hans", "pt_BR", "fr", "es", "ja", "ko"});
+        ComboBoxItem localeItem = null;
+        List<String> locales = productConfig.getLocales();
+        if (locales.size() > 1) {
+            localeItem = new ComboBoxItem(Preferences.Key.LOCALE.getToken(),
+                    Preferences.Key.LOCALE.getTitle());
+            localeItem.setDefaultToFirstOption(true);
+            localeItem.setValueMap(locales);
+        }
 
         //CheckBoxItem useCache = new CheckBoxItem(Preferences.Key.USE_CACHE.getToken(), Preferences.Key.USE_CACHE.getTitle());
 
         CheckBoxItem enableAnalytics = new CheckBoxItem(Preferences.Key.ANALYTICS.getToken(), Preferences.Key.ANALYTICS.getTitle());
 
-        form.setFields(localeItem, enableAnalytics);
+        if (localeItem != null) {
+            form.setFields(localeItem, enableAnalytics);
+        } else {
+            form.setFields(enableAnalytics);
+        }
 
         CheckBoxItem enableSecurityContextCache = new CheckBoxItem(Preferences.Key.SECURITY_CONTEXT.getToken(), Preferences.Key.SECURITY_CONTEXT.getTitle());
 
