@@ -94,7 +94,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.nameTokens = new HashSet<>();
 
         moduleConfigs = new ArrayList<ModuleConfig>();
-        moduleConfigs.add(new ModuleConfig(filer, "App_Base.gwt.xml.tmpl", "App.gwt.xml"));
+        moduleConfigs.add(new ModuleConfig(filer, "App_base.gwt.xml.tmpl", "App.gwt.xml"));
         moduleConfigs.add(new ModuleConfig(filer, "App_WF.gwt.xml.tmpl", "App_WF.gwt.xml"));
         moduleConfigs.add(new ModuleConfig(filer, "App_WF_full.gwt.xml.tmpl", "App_WF_full.gwt.xml"));
         moduleConfigs.add(new ModuleConfig(filer, "App_WF_dev.gwt.xml.tmpl", "App_WF_dev.gwt.xml"));
