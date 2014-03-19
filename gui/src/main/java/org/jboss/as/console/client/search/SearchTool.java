@@ -41,7 +41,7 @@ public class SearchTool extends Composite {
 
     public SearchTool(final Harvest harvest, final Index index, PlaceManager placeManager) {
         this.index = index;
-        this.root = new HTML("<i class=\"icon-search icon-large\"></i>");
+        this.root = new HTML("<i class=\"icon-search\"></i>");
         if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
             this.root.setTitle(Console.CONSTANTS.search_tooltip_osx());
         } else {
@@ -80,5 +80,4 @@ public class SearchTool extends Composite {
             popup.showSearchPage();
         }
     }
-
 }
