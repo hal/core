@@ -69,12 +69,9 @@ import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
-import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
-import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.as.console.client.plugins.SearchIndex;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -104,7 +101,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     private LoadSocketBindingsCmd loadSocketCmd;
     private final DomainEntityManager domainManager;
-    private final CoreGUIContext statementContext;
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
@@ -141,8 +138,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     @Inject
     public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostInformationStore hostInfoStore,
             ServerGroupStore serverGroupStore, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
-            BeanFactory factory, PlaceManager placeManager, DomainEntityManager domainManager,
-            CoreGUIContext statementContext) {
+            BeanFactory factory, PlaceManager placeManager, DomainEntityManager domainManager) {
 
         super(eventBus, view, proxy);
 
@@ -153,7 +149,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         this.factory = factory;
         this.placeManager = placeManager;
         this.domainManager = domainManager;
-        this.statementContext = statementContext;
         this.loadSocketCmd = new LoadSocketBindingsCmd(dispatcher, factory, propertyMetaData);
     }
 
