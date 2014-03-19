@@ -80,7 +80,7 @@ public class Harvest {
     public void run(final Handler handler, Progress progress) {
         handler.onStart();
 
-        Set<Function<Void>> functions = new HashSet<Function<Void>>();
+        Set<Function<Object>> functions = new HashSet<Function<Object>>();
         for (final String token : searchIndexRegistry.getTokens(bootstrap.isStandalone())) {
             Set<String> resources = searchIndexRegistry.getResources(token);
             final Set<String> keywords = searchIndexRegistry.getKeywords(token);
@@ -91,7 +91,7 @@ public class Harvest {
                 final ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
                 op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
 
-                Function<Void> f = new Function<Void>() {
+                Function<Object> f = new Function<Object>() {
                     @Override
                     public void execute(final Control control) {
 
@@ -143,14 +143,14 @@ public class Harvest {
         }
 
         //noinspection unchecked
-        new Async<Void>(progress).parallel(null, new Outcome<Void>() {
+        new Async<Object>(progress).parallel(null, new Outcome<Object>() {
             @Override
-            public void onFailure(Void context) {
+            public void onFailure(Object context) {
                 Console.error("Harvest failed");
             }
 
             @Override
-            public void onSuccess(Void context) {
+            public void onSuccess(Object context) {
                 handler.onFinish();
             }
         }, functions.toArray(new Function[functions.size()]));
