@@ -132,7 +132,9 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
 
         SafeHtmlBuilder html = new SafeHtmlBuilder();
         html.appendHtmlConstant("<ul>");
-        html.appendHtmlConstant("<li>").appendEscaped("Locale: The user interface language.");
+        if (localeItem != null) {
+            html.appendHtmlConstant("<li>").appendEscaped("Locale: The user interface language.");
+        }
         html.appendHtmlConstant("<li>").appendEscaped("Analytics: We track browser and operating system information in order to improve the user interface. ");
         html.appendEscaped("You can disable the analytics feature at anytime.");
 
