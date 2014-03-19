@@ -32,7 +32,9 @@ import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.rbac.StandardRole;
+import org.jboss.as.console.client.shared.state.HostList;
 
 /**
  * @author Heiko Braun
@@ -49,10 +51,12 @@ public class BootstrapContext implements ApplicationProperties {
     private boolean hostManagementDisabled;
     private boolean groupManagementDisabled;
     private Set<String> roles;
-    private Set<String> addressableHosts = Collections.EMPTY_SET;
-    private Set<String> addressableGroups = Collections.EMPTY_SET;
+    private HostList initialHosts;
+    private Set<String> addressableHosts = Collections.emptySet();
+    private Set<String> addressableGroups = Collections.emptySet();
     private String runAs;
     private List<ProfileRecord> initialProfiles;
+    private ServerInstance initialServer;
 
     @Inject
     public BootstrapContext(ProductConfig productConfig) {
@@ -286,5 +290,21 @@ public class BootstrapContext implements ApplicationProperties {
 
     public List<ProfileRecord> getInitialProfiles() {
         return initialProfiles;
+    }
+
+    public HostList getInitialHosts() {
+        return initialHosts;
+    }
+
+    public void setInitialHosts(final HostList initialHosts) {
+        this.initialHosts = initialHosts;
+    }
+
+    public void setInitialServer(final ServerInstance initialServer) {
+        this.initialServer = initialServer;
+    }
+
+    public ServerInstance getInitialServer() {
+        return initialServer;
     }
 }
