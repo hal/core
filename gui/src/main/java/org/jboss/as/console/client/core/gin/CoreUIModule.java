@@ -44,6 +44,7 @@ import org.jboss.as.console.client.auth.SignInPageView;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.DefaultPlaceManager;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -290,6 +291,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(NavigationTracker.class).asEagerSingleton();
 
         bind(ModelVersions.class).in(Singleton.class);
+        bind(FeatureSet.class).in(Singleton.class);
 
         // ----------------------------------------------------------------------
 

@@ -35,6 +35,7 @@ import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -180,6 +181,7 @@ public interface CoreUI {
 
     Harvest getHarvest();
     Index getIndex();
+    FeatureSet getFeatureSet();
 
     // ----------------------------------------------------------------------
 

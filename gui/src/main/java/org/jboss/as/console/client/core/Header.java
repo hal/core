@@ -48,7 +48,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.rbac.RBACContextView;
@@ -66,6 +65,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
  */
 public class Header implements ValueChangeHandler<String> {
 
+    private final FeatureSet featureSet;
     private final ToplevelTabs toplevelTabs;
     private final ProductConfig productConfig;
     private final BootstrapContext bootstrap;
@@ -78,9 +78,9 @@ public class Header implements ValueChangeHandler<String> {
     private String currentHighlightedSection = null;
 
     @Inject
-    public Header(final ToplevelTabs toplevelTabs, MessageCenter messageCenter, ProductConfig productConfig,
-            BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index) {
-
+    public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
+            ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index) {
+        this.featureSet = featureSet;
         this.toplevelTabs = toplevelTabs;
         this.messageCenter = messageCenter;
         this.productConfig = productConfig;
@@ -147,8 +147,10 @@ public class Header implements ValueChangeHandler<String> {
         HorizontalPanel tools = new HorizontalPanel();
 
         // global search
-        if (Storage.isLocalStorageSupported()) {
-            tools.add(new SearchTool(harvest, index, placeManager));
+        if (featureSet.isSearchEnabled()) {
+            if (Storage.isLocalStorageSupported()) {
+                tools.add(new SearchTool(harvest, index, placeManager));
+            }
         }
 
         // messages
