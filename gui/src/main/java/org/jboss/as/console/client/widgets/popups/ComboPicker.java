@@ -19,6 +19,10 @@ package org.jboss.as.console.client.widgets.popups;
  * MA  02110-1301, USA.
  */
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -36,16 +40,11 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.ballroom.client.widgets.icons.Icons;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -148,7 +147,7 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         popup.addStyleName("triangle-border");
         popup.addStyleName("top-left");
 
-        popup.setWidget(cellList);
+        popup.setWidget(new ScrollPanel(cellList));
 
         displayed = new Display("");
 
@@ -206,7 +205,8 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         if(isEnabled)
         {
             popup.setWidth((header.getOffsetWidth()+60)+"px");
-            popup.setHeight((cellList.getRowCount()*36)+"px");
+            int height = Math.min(cellList.getRowCount() * 36, 400);
+            popup.setHeight(height + "px");
 
             popup.setPopupPosition(
                     header.getAbsoluteLeft(),
