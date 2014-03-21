@@ -98,6 +98,7 @@ import org.jboss.as.console.client.plugins.SearchIndexRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
+import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
@@ -728,6 +729,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(SearchIndexRegistry.class).to(SearchIndexRegistryImpl.class).in(Singleton.class);
 
         bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
+        bind(PlaceRequestSecurityFramework.class).in(Singleton.class);
 
         /* use this to test against 6.x until the RBAC facilities are available */
         //bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);

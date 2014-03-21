@@ -37,14 +37,14 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
@@ -65,53 +65,39 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
  * @date 5/18/11
  */
 public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
-        implements JvmManagement , HostSelectionChanged.ChangeListener {
-
-    private final PlaceManager placeManager;
-    private DispatchAsync dispatcher;
-    private DefaultWindow propertyWindow;
-    private BeanFactory factory;
-    private ApplicationMetaData propertyMetaData;
-    private DefaultWindow window;
-    private EntityAdapter<Jvm> adapter;
-    private final DomainEntityManager domainManager;
+        implements JvmManagement, HostSelectionChanged.ChangeListener {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostJVMPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
-            "/{selected.host}/jvm=*",
-    })
-    public interface MyProxy extends Proxy<HostJVMPresenter>, Place {
-    }
+    @AccessControl(resources = {"/{selected.host}/jvm=*",})
+    public interface MyProxy extends Proxy<HostJVMPresenter>, Place {}
+
 
     public interface MyView extends View {
+
         void setPresenter(HostJVMPresenter presenter);
+
         void setJvms(List<Jvm> jvms);
     }
 
-    @Inject
-    public HostJVMPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, DispatchAsync dispatcher,
-            BeanFactory factory, DomainEntityManager domainManager,
-            ApplicationMetaData metaData) {
-        super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
+    private final DispatchAsync dispatcher;
+    private final DomainEntityManager domainManager;
+    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
+    private final EntityAdapter<Jvm> adapter;
+    private DefaultWindow window;
+
+    @Inject
+    public HostJVMPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
+            DomainEntityManager domainManager, ApplicationMetaData metaData,
+            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+
+        super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.domainManager = domainManager;
-        this.factory = factory;
-        this.propertyMetaData = metaData;
-
-
-        adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
-    }
-
-    @Override
-    public void onHostSelectionChanged() {
-        if(isVisible())
-            loadJVMConfig();
+        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
+        this.adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
     }
 
     @Override
@@ -119,8 +105,13 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
+    @Override
+    protected void revealInParent() {
+        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+    }
 
     @Override
     protected void onReset() {
@@ -128,9 +119,18 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         loadJVMConfig();
     }
 
+
     @Override
-    protected void revealInParent() {
-        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+    public void onHostSelectionChanged() {
+        if (isVisible()) {
+            placeRequestSecurityFramework.update(this, hostPlaceRequest());
+            loadJVMConfig();
+        }
+    }
+
+    private PlaceRequest hostPlaceRequest() {
+        return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
+                .with("host", domainManager.getSelectedHost()).build();
     }
 
     @Override
@@ -153,12 +153,10 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.addingFailed("JVM Configurations"), response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.addingFailed("JVM Configurations"),
+                            response.getFailureDescription());
+                } else {
                     Console.MESSAGES.added("JVM Configurations");
                 }
 
@@ -184,15 +182,12 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
                 ModelNode response = result.get();
                 List<Jvm> jvms = new ArrayList<Jvm>();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.failed("JVM Configurations"), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     List<Property> payload = response.get(RESULT).asPropertyList();
 
-                    for(Property prop : payload) {
+                    for (Property prop : payload) {
                         String jvmName = prop.getName();
                         ModelNode jvmPropValue = prop.getValue();
                         Jvm jvm = adapter.fromDMR(jvmPropValue);
@@ -211,8 +206,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @Override
     public void onDeleteJvm(String reference, Jvm jvm) {
 
-        if(jvm.getName().equals("default"))
-        {
+        if (jvm.getName().equals("default")) {
             Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"),
                     Console.CONSTANTS.hosts_jvm_err_deleteDefault());
             return;
@@ -229,12 +223,10 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"), response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.deletionFailed("JVM Configurations"),
+                            response.getFailureDescription());
+                } else {
                     Console.info(Console.MESSAGES.deleted("JVM Configuration"));
                 }
 
@@ -260,12 +252,10 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.modificationFailed("JVM Configuration"), response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.modificationFailed("JVM Configuration"),
+                            response.getFailureDescription());
+                } else {
                     Console.info(Console.MESSAGES.modified("JVM Configuration"));
                 }
 
@@ -295,7 +285,6 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     }
 
     public void closeDialogue() {
-        if(window!=null && window.isShowing())
-            window.hide();
+        if (window != null && window.isShowing()) { window.hide(); }
     }
 }

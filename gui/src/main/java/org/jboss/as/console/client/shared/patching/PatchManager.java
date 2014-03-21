@@ -72,7 +72,8 @@ public class PatchManager {
         dispatcher.execute(new DMRAction(comp), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error(Console.CONSTANTS.patch_manager_error(), caught.getMessage());
+                Console.warning(Console.CONSTANTS.patch_manager_error(), caught.getMessage());
+                callback.onSuccess(new Patches());
             }
 
             @Override

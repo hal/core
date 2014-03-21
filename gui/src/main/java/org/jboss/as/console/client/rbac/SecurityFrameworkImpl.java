@@ -133,19 +133,23 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
-        // address resolution
+        SecurityContext context = event.getSecurityContext();
         String addressTemplate = event.getResourceAddress();
-        ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
-                event.getWildcards());
-        String resourceAddress = normalize(addressNode.get(ADDRESS));
-        System.out.println("<SCC>");
-        System.out.println("\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
 
-        // look for child context
-        SecurityContext context = getSecurityContext();
-        if (context.hasChildContext(resourceAddress)) {
-            System.out.println("\tFound child context for " + resourceAddress);
-            context = context.getChildContext(resourceAddress);
+        if (context == null) {
+            // address resolution
+            ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
+                    event.getWildcards());
+            String resourceAddress = normalize(addressNode.get(ADDRESS));
+            System.out.println("<SCC>");
+            System.out.println("\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+
+            // look for child context
+            context = getSecurityContext();
+            if (context.hasChildContext(resourceAddress)) {
+                System.out.println("\tFound child context for " + resourceAddress);
+                context = context.getChildContext(resourceAddress);
+            }
         }
 
         // update widgets (if visible and filter applies)

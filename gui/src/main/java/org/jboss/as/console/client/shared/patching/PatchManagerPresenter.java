@@ -35,11 +35,13 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.patching.ui.RestartModal;
 import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
@@ -48,6 +50,7 @@ import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackContext;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackWizard;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
+import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -60,7 +63,8 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 /**
  * @author Harald Pehl
  */
-public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy> {
+public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy>
+        implements HostSelectionChanged.ChangeListener {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
@@ -118,12 +122,14 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     private final DomainEntityManager domainManager;
     private final BootstrapContext bootstrapContext;
     private final DispatchAsync dispatcher;
+    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow window;
 
     @Inject
     public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            RevealStrategy revealStrategy, PatchManager patchManager, final DomainEntityManager domainManager,
-            BootstrapContext bootstrapContext, DispatchAsync dispatcher) {
+            final RevealStrategy revealStrategy, final PatchManager patchManager,
+            final DomainEntityManager domainManager, final BootstrapContext bootstrapContext,
+            final DispatchAsync dispatcher, final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
@@ -131,18 +137,38 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         this.domainManager = domainManager;
         this.bootstrapContext = bootstrapContext;
         this.dispatcher = dispatcher;
+        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+    }
+
+    @Override
+    protected void revealInParent() {
+        if (bootstrapContext.isStandalone()) {
+            revealStrategy.revealInRuntimeParent(this);
+        } else {
+            revealStrategy.revealInDomain(this);
+        }
     }
 
     @Override
     protected void onReset() {
         super.onReset();
         loadPatches();
+    }
+
+    @Override
+    public void onHostSelectionChanged() {
+        if (isVisible()) {
+            placeRequestSecurityFramework.update(this, hostPlaceRequest());
+            loadPatches();
+        }
     }
 
     public void loadPatches() {
@@ -154,13 +180,9 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         });
     }
 
-    @Override
-    protected void revealInParent() {
-        if (bootstrapContext.isStandalone()) {
-            revealStrategy.revealInRuntimeParent(this);
-        } else {
-            revealStrategy.revealInDomain(this);
-        }
+    private PlaceRequest hostPlaceRequest() {
+        return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
+                .with("host", domainManager.getSelectedHost()).build();
     }
 
     public void launchApplyWizard() {
@@ -189,7 +211,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             contextCallback
                     .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
                             bootstrapContext.getProperty(
-                                    BootstrapContext.PATCH_API)));
+                                    BootstrapContext.PATCH_API)
+                    ));
         } else {
             final String host = domainManager.getSelectedHost();
             dispatcher
@@ -230,7 +253,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
             contextCallback
                     .onSuccess(
                             new RollbackContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
-                                    patchInfo));
+                                    patchInfo)
+                    );
         } else {
             final String host = domainManager.getSelectedHost();
             dispatcher

@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.domain.hosts;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -11,9 +14,6 @@ import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.state.GlobalHostSelection;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -29,24 +29,21 @@ public class HostSelector {
         layout.getElement().setAttribute("title", "Please chose a host");
         layout.setStyleName("fill-layout-width");
         layout.addStyleName("lhs-selector");
-        layout.getElement().setAttribute("style","padding:4px;");
+        layout.getElement().setAttribute("style", "padding:4px;");
 
         hosts = new ComboPicker();
-
         hosts.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(final ValueChangeEvent<String> event) {
-
                 if (!event.getValue().isEmpty()) {
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
-                                    Console.getEventBus().fireEvent(
-                                            new GlobalHostSelection(event.getValue())
-                                    );
+                                    Console.getEventBus().fireEvent(new GlobalHostSelection(event.getValue()));
                                 }
-                            });
+                            }
+                    );
                 }
             }
         });
@@ -64,24 +61,19 @@ public class HostSelector {
         return layout;
     }
 
-    public void setHosts(HostList hostList)
-    {
+    public void setHosts(HostList hostList) {
 
         List<String> hostNames = new ArrayList<String>();
         int selectedIndex = 0;
-        int i=0;
-        for(Host h : hostList.getHosts())
-        {
+        int i = 0;
+        for (Host h : hostList.getHosts()) {
             hostNames.add(h.getName());
-            if(h.getName().equals(hostList.getSelectedHost().getName()))
-                selectedIndex = i;
+            if (h.getName().equals(hostList.getSelectedHost().getName())) { selectedIndex = i; }
             i++;
         }
 
         hosts.clearSelection();
         hosts.setValues(hostNames);
-
         hosts.setItemSelected(selectedIndex, true);
-
     }
 }

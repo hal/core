@@ -104,6 +104,7 @@ public class PatchManagerView extends SuspendableViewImpl
                 presenter.launchApplyWizard();
             }
         });
+        apply.setOperationAddress("/{selected.host}/core-service=patching", "patch");
         apply.getElement().setId(asId(PREFIX, getClass(), "_Apply"));
         tools.addToolButtonRight(apply);
         ClickHandler rollbackHandler = new ClickHandler() {
@@ -116,13 +117,14 @@ public class PatchManagerView extends SuspendableViewImpl
             }
         };
         ToolButton rollbackButton = new ToolButton(Console.CONSTANTS.patch_manager_rollback());
+        rollbackButton.setOperationAddress("/{selected.host}/core-service=patching", "rollback");
         rollbackButton.getElement().setId(asId(PREFIX, getClass(), "_Rollback"));
         rollbackButton.addClickHandler(rollbackHandler);
         tools.addToolButtonRight(rollbackButton);
 
         panel.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_recently()));
         panel.add(tools);
-        table = new PatchInfoTable(rollbackButton);
+        table = new PatchInfoTable();
         panel.add(table);
 
         // assemble the panels
