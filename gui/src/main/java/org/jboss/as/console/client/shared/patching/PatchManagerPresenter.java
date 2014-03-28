@@ -145,7 +145,9 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+        if (!bootstrapContext.isStandalone()) {
+            placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+        }
     }
 
     @Override
