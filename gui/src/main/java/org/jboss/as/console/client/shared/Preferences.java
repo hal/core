@@ -19,9 +19,9 @@
 
 package org.jboss.as.console.client.shared;
 
-import com.google.gwt.user.client.Cookies;
-
 import java.util.Date;
+
+import com.google.gwt.user.client.Cookies;
 
 /**
  * Cookie based workspace preferences
@@ -34,7 +34,7 @@ public class Preferences
     public enum Key {
 
         LOCALE("locale", "Locale", "en"),
-        ANALYTICS("analytics", "Analytics Enabled?", "true"),
+        ANALYTICS("analytics", "Enable Usage Data Collection?", "true"),
         RUN_AS_ROLE("run_as_role", "Run as role", null),
         SECURITY_CONTEXT("securityCache", "Cache Security Context?", "true");
 
