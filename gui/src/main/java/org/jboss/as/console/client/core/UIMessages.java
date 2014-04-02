@@ -256,4 +256,6 @@ public interface UIMessages extends Messages {
     SafeHtml content_box_topology_body();
 
     SafeHtml search_index_pending();
+
+    String patch_manager_restart_verify(String host);
 }

@@ -66,14 +66,13 @@ public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, Rollba
         form = new Form<PatchInfo>(PatchInfo.class);
         form.setEnabled(false);
         TextItem id = new TextItem("id", "ID");
-        TextItem version = new TextItem("version", "Version");
         TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
         Map<PatchType, String> values = new HashMap<PatchType, String>();
         values.put(CUMULATIVE, CUMULATIVE.label());
         values.put(ONE_OFF, ONE_OFF.label());
         EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
         type.setValues(values);
-        form.setFields(id, version, date, type);
+        form.setFields(id, date, type);
         body.add(form);
 
         return body;

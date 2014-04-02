@@ -42,6 +42,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
     final static PatchManagementTemplates TEMPLATES = GWT.create(PatchManagementTemplates.class);
 
     private ErrorDetails errorDetails;
+    private CheckBox overrideCheck;
 
     public ConflictStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
         super(wizard, Console.CONSTANTS.patch_manager_conflict_title());
@@ -63,7 +64,7 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
                         Console.CONSTANTS.patch_manager_conflict_cancel_body(),
                         Console.MESSAGES.patch_manager_conflict_override_title(),
                         Console.CONSTANTS.patch_manager_conflict_override_body()));
-        CheckBox overrideCheck = new CheckBox(Console.CONSTANTS.patch_manager_conflict_override_check());
+        overrideCheck = new CheckBox(Console.CONSTANTS.patch_manager_conflict_override_check());
         overrideCheck.getElement().setId(asId(PREFIX, getClass(), "_Override"));
         overrideCheck.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
             @Override
@@ -81,5 +82,12 @@ public class ConflictStep extends PatchWizardStep<ApplyContext, ApplyState> {
     protected void onShow(final ApplyContext context) {
         wizard.grow();
         errorDetails.setDetails(context.patchFailedDetails);
+    }
+
+    @Override
+    protected void onNext(final ApplyContext context) {
+        context.overrideConflict = overrideCheck.getValue();
+        context.conflict = !overrideCheck.getValue();
+        super.onNext(context);
     }
 }

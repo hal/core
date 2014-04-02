@@ -29,6 +29,7 @@ public class Patches implements Iterable<PatchInfo> {
 
     private final List<PatchInfo> patches;
     private PatchInfo latest;
+    private boolean restartRequired;
 
     public Patches() {
         patches = new LinkedList<PatchInfo>();
@@ -36,10 +37,12 @@ public class Patches implements Iterable<PatchInfo> {
     }
 
     public void setLatest(String id) {
-        for (PatchInfo patch : patches) {
-            if (id.equals(patch.getId())) {
-                latest = patch;
-                break;
+        if (id != null) {
+            for (PatchInfo patch : patches) {
+                if (id.equals(patch.getId())) {
+                    latest = patch;
+                    break;
+                }
             }
         }
     }
@@ -58,4 +61,12 @@ public class Patches implements Iterable<PatchInfo> {
     public boolean isEmpty() {return patches.isEmpty();}
 
     public boolean add(final PatchInfo patchInfo) {return patches.add(patchInfo);}
+
+    public boolean isRestartRequired() {
+        return restartRequired;
+    }
+
+    public void setRestartRequired(final boolean restartRequired) {
+        this.restartRequired = restartRequired;
+    }
 }

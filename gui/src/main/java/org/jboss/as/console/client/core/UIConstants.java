@@ -1264,4 +1264,10 @@ public interface UIConstants extends Constants {
     String search_tooltip_osx();
 
     String search_tooltip_other();
+
+    String common_label_restart();
+
+    String patch_manager_restart_verify();
+
+    String  patch_manager_restart_required();
 }

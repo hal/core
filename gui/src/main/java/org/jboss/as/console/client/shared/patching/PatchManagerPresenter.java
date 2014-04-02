@@ -68,7 +68,8 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
-    @AccessControl(resources = {"/{selected.host}/core-service=patching"}, recursive = false)
+    @AccessControl(resources = {"/{selected.host}", // in order to enable / disable the shutdown operation
+            "/{selected.host}/core-service=patching"}, recursive = false)
     public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
 
 

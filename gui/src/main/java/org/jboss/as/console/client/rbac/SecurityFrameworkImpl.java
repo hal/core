@@ -135,14 +135,15 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
         SecurityContext context = event.getSecurityContext();
         String addressTemplate = event.getResourceAddress();
+        System.out.println("<SCC>");
 
         if (context == null) {
             // address resolution
             ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
                     event.getWildcards());
             String resourceAddress = normalize(addressNode.get(ADDRESS));
-            System.out.println("<SCC>");
-            System.out.println("\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+            System.out.println(
+                    "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
 
             // look for child context
             context = getSecurityContext();
@@ -150,6 +151,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 System.out.println("\tFound child context for " + resourceAddress);
                 context = context.getChildContext(resourceAddress);
             }
+        } else {
+            System.out.println("\tReceiving security context change event for " + context);
         }
 
         // update widgets (if visible and filter applies)
@@ -166,7 +169,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 widget.updateSecurityContext(context);
             }
         }
-        System.out.println("</SCC>\n\n");
+        System.out.println("</SCC>\n");
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
@@ -210,8 +213,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
         for(ResourceRef ref : references)
         {
-
-            ModelNode step = AddressMapping.fromString(ref.address).asResource(filteringStatementContext);
+            ModelNode emptyAddress = new ModelNode().setEmptyList();
+            ModelNode step = AddressMapping.fromString(ref.address).asResource(emptyAddress, filteringStatementContext);
 
             step2address.put("step-" + (steps.size() + 1), ref);   // we need this for later retrieval
 
@@ -290,7 +293,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
                             // break down the address into something we can match against the response
                             final ResourceRef ref = step2address.get(step);
-                            final ModelNode addressNode = AddressMapping.fromString(ref.address).asResource(filteringStatementContext);
+                            ModelNode emptyAddress = new ModelNode().setEmptyList();
+                            final ModelNode addressNode = AddressMapping.fromString(ref.address).asResource(emptyAddress, filteringStatementContext);
                             final List<ModelNode> inquiryAddress = addressNode.get(ADDRESS).asList();
 
                             ModelNode stepResult = overalResult.get(step).get(RESULT);
