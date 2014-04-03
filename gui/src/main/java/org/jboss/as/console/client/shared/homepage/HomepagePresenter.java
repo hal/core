@@ -32,8 +32,6 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
@@ -55,7 +53,9 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
 
     public interface MyView extends View {
 
-        void addSection(SectionData section);
+        void addPerspectiveInfo(SectionInfo sectionInfo);
+
+        void addContentBox(ContentBox contentBox);
 
         void addSidebarSection(SidebarSectionData sidebarSection);
     }
@@ -63,100 +63,88 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
 
     public static final Object SECTIONS_SLOT = new Object();
     public static final Object SIDEBAR_SECTIONS_SLOT = new Object();
-    private final List<SectionData> sections;
+    private final List<SectionInfo> sectionInfos;
+    private final List<ContentBox> contentBoxes;
     private final List<SidebarSectionData> sidebarSections;
     private final Header header;
 
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final BootstrapContext bootstrapContext, final ProductConfig productConfig,
-            final Header header) {
+            final BootstrapContext bootstrapContext, final ProductConfig productConfig, final Header header) {
 
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
-        this.sections = setupSections(placeManager, bootstrapContext.isStandalone());
+        this.sectionInfos = setupSectionInfos(bootstrapContext.isStandalone());
+        this.contentBoxes = setupContentBoxes(bootstrapContext.isStandalone());
         this.sidebarSections = setupSidebarSection(productConfig.getProfile());
         this.header = header;
     }
 
-    private List<SectionData> setupSections(final PlaceManager placeManager, final boolean standalone) {
-        List<SectionData> sections = new LinkedList<SectionData>();
+    private List<SectionInfo> setupSectionInfos(final boolean standalone) {
+        List<SectionInfo> sectionInfos = new LinkedList<SectionInfo>();
+
         if (standalone) {
+            sectionInfos.add(new SectionInfo(NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration(),
+                    Console.CONSTANTS.section_configuration_intro()));
+            sectionInfos.add(new SectionInfo(NameTokens.StandaloneRuntimePresenter, "Runtime",
+                    Console.CONSTANTS.section_runtime_intro()));
+        } else {
+            sectionInfos.add(new SectionInfo(NameTokens.ProfileMgmtPresenter,
+                    Console.CONSTANTS.common_label_configuration(), Console.CONSTANTS.section_configuration_intro()));
+            sectionInfos.add(new SectionInfo(NameTokens.HostMgmtPresenter, "Domain",
+                    Console.CONSTANTS.section_domain_intro()));
+            sectionInfos.add(new SectionInfo(NameTokens.DomainRuntimePresenter, "Runtime",
+                    Console.CONSTANTS.section_runtime_intro()));
+        }
+        sectionInfos.add(new SectionInfo(NameTokens.AdministrationPresenter, "Administration",
+                Console.CONSTANTS.section_administration_intro()));
 
-            // Configuration
-            SimpleContentBox dsBox = new SimpleContentBox("Datasources",
-                    Console.CONSTANTS.content_box_create_datasource_title(),
-                    Console.MESSAGES.content_box_create_datasource_body_standalone(), "Datasources",
-                    NameTokens.DataSourcePresenter);
-            sections.add(new SectionData("Configuration", Console.CONSTANTS.common_label_configuration(),
-                    Console.CONSTANTS.section_configuration_intro(), true, dsBox));
+        return sectionInfos;
+    }
 
-            // Runtime
-            String token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentBrowserPresenter)
-                            .build());
-            SimpleContentBox deployBox = new SimpleContentBox("NewDeployment",
+    private List<ContentBox> setupContentBoxes(final boolean standalone) {
+        List<ContentBox> contentBoxes = new LinkedList<ContentBox>();
+
+        if (standalone) {
+            contentBoxes.add(new SimpleContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body_standalone(),
-                    Console.CONSTANTS.content_box_new_deployment_link(), token);
-            SimpleContentBox patchBox = new SimpleContentBox("ApplyPath",
-                    Console.CONSTANTS.content_box_apply_patch_title(),
-                    Console.MESSAGES.content_box_apply_patch_body_standalone(), "Patch Management",
-                    NameTokens.PatchingPresenter);
-            sections.add(
-                    new SectionData("Runtime", "Runtime", Console.CONSTANTS.section_runtime_intro(), false, deployBox,
-                            patchBox));
-        } else {
-
-            // Configuration
-            SimpleContentBox dsBox = new SimpleContentBox("Datasources",
+                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.DeploymentBrowserPresenter));
+            contentBoxes.add(new SimpleContentBox("Datasources",
                     Console.CONSTANTS.content_box_create_datasource_title(),
-                    Console.MESSAGES.content_box_create_datasource_body_domain(), "Datasources",
-                    NameTokens.DataSourcePresenter);
-            sections.add(new SectionData("Configuration", Console.CONSTANTS.common_label_configuration(),
-                    Console.CONSTANTS.section_configuration_intro(), true, dsBox));
-
-            // Domain
-            SimpleContentBox patchBox = new SimpleContentBox("ApplyPath",
+                    Console.MESSAGES.content_box_create_datasource_body_standalone(),
+                    "Datasources", NameTokens.DataSourcePresenter));
+            contentBoxes.add(new SimpleContentBox("ApplyPath",
                     Console.CONSTANTS.content_box_apply_patch_title(),
-                    Console.MESSAGES.content_box_apply_patch_body_domain(), "Patch Management",
-                    NameTokens.PatchingPresenter);
-            String token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.ServerGroupPresenter)
-                            .build());
-            SimpleContentBox serverGroupBox = new SimpleContentBox("CreateServerGroup",
-                    Console.CONSTANTS.content_box_create_server_group_title(),
-                    Console.MESSAGES.content_box_create_server_group_body(),
-                    Console.CONSTANTS.content_box_create_server_group_link(), token);
-            sections.add(new SectionData("Domain", "Domain", Console.CONSTANTS.section_domain_intro(), false, patchBox,
-                    serverGroupBox));
-
-            // Runtime
-            token = placeManager.buildHistoryToken(
-                    new PlaceRequest.Builder().nameToken(NameTokens.DeploymentsPresenter)
-                            .build());
-            SimpleContentBox deployBox = new SimpleContentBox("NewDeployment",
+                    Console.MESSAGES.content_box_apply_patch_body_standalone(),
+                    "Patch Management", NameTokens.PatchingPresenter));
+        } else {
+            contentBoxes.add(new SimpleContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body_domain(),
-                    Console.CONSTANTS.content_box_new_deployment_link(), token);
-            SimpleContentBox topologyBox = new SimpleContentBox("Topology",
+                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.DeploymentsPresenter));
+            contentBoxes.add(new SimpleContentBox("Datasources",
+                    Console.CONSTANTS.content_box_create_datasource_title(),
+                    Console.MESSAGES.content_box_create_datasource_body_domain(),
+                    "Datasources", NameTokens.DataSourcePresenter));
+            contentBoxes.add(new SimpleContentBox("Topology",
                     Console.CONSTANTS.content_box_topology_title(),
-                    Console.MESSAGES.content_box_topology_body(), Console.CONSTANTS.content_box_topology_link(),
-                    NameTokens.Topology);
-            sections.add(
-                    new SectionData("Runtime", "Runtime", Console.CONSTANTS.section_runtime_intro(), false, deployBox,
-                            topologyBox));
+                    Console.MESSAGES.content_box_topology_body(),
+                    Console.CONSTANTS.content_box_topology_link(), NameTokens.Topology));
+            contentBoxes.add(new SimpleContentBox("CreateServerGroup",
+                    Console.CONSTANTS.content_box_create_server_group_title(),
+                    Console.MESSAGES.content_box_create_server_group_body(),
+                    Console.CONSTANTS.content_box_create_server_group_link(), NameTokens.ServerGroupPresenter));
+            contentBoxes.add(new SimpleContentBox("ApplyPath",
+                    Console.CONSTANTS.content_box_apply_patch_title(),
+                    Console.MESSAGES.content_box_apply_patch_body_domain(),
+                    "Patch Management", NameTokens.PatchingPresenter));
         }
-
-        // Administration
-        SimpleContentBox roleAssignmentBox = new SimpleContentBox("Administration",
+        contentBoxes.add(new SimpleContentBox("Administration",
                 Console.CONSTANTS.content_box_role_assignment_title(),
                 Console.MESSAGES.content_box_role_assignment_body(),
-                Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.RoleAssignmentPresenter);
-        sections.add(
-                new SectionData("Administration", "Administration", Console.CONSTANTS.section_administration_intro(),
-                        false, roleAssignmentBox));
+                Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.RoleAssignmentPresenter));
 
-        return sections;
+        return contentBoxes;
     }
 
     private List<SidebarSectionData> setupSidebarSection(ProductConfig.Profile profile) {
@@ -205,7 +193,8 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                     Console.CONSTANTS.sidebar_eap_configurations_text());
             operational.addLink(Console.CONSTANTS.sidebar_knowledgebase_link(),
                     Console.CONSTANTS.sidebar_knowledgebase_text());
-            operational.addLink(Console.CONSTANTS.sidebar_consulting_link(), Console.CONSTANTS.sidebar_consulting_text());
+            operational
+                    .addLink(Console.CONSTANTS.sidebar_consulting_link(), Console.CONSTANTS.sidebar_consulting_text());
             sections.add(operational);
         }
         return sections;
@@ -214,8 +203,11 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     @Override
     protected void onBind() {
         super.onBind();
-        for (SectionData section : sections) {
-            getView().addSection(section);
+        for (SectionInfo sectionInfo : sectionInfos) {
+            getView().addPerspectiveInfo(sectionInfo);
+        }
+        for (ContentBox contentBox : contentBoxes) {
+            getView().addContentBox(contentBox);
         }
         for (SidebarSectionData sidebarSection : sidebarSections) {
             getView().addSidebarSection(sidebarSection);
