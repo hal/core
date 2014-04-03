@@ -1159,11 +1159,7 @@ public interface UIConstants extends Constants {
 
     String homepage_header_community();
 
-    String homepage_intro_community();
-
     String homepage_header_product();
-
-    String homepage_intro_product();
 
     String homepage_sidebar_header();
 
@@ -1269,5 +1265,9 @@ public interface UIConstants extends Constants {
 
     String patch_manager_restart_verify();
 
-    String  patch_manager_restart_required();
+    String patch_manager_restart_required();
+
+    String homepage_view_and_manage();
+
+    String homepage_common_tasks();
 }

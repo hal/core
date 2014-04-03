@@ -45,24 +45,21 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
     interface Templates extends SafeHtmlTemplates {
 
-        @Template("<header><h1 class=\"homepage-primary-header\">{0}</h1>" +
-                "<p class=\"homepage-lead-paragraph\"/>{1}</p></header>")
-        SafeHtml header(String title, String intro);
+        @Template("<header><h1 class=\"homepage-primary-header\">{0}</h1></header>")
+        SafeHtml header(String title);
 
         @Template("<h2 class=\"homepage-secondary-header\">{0}</h2>")
-        SafeHtml sidebarHeader(String title);
+        SafeHtml secondaryHeader(String title);
 
         @Template("<h3 class=\"homepage-sidebar-section-header\">{0}</h3>")
         SafeHtml sidebarSectionHeader(String title);
-
-        @Template("<a href=\"{0}\" target=\"_blank\" class=\"homepage-link\">{1}</a>")
-        SafeHtml sidebarLink(String link, String text);
     }
 
 
     private static final Templates TEMPLATES = GWT.create(Templates.class);
     private final ProductConfig productConfig;
-    private FlowPanel sections;
+    private FlowPanel sectionsInfos;
+    private FlowPanel contentBoxes;
     private FlowPanel sidebarSections;
 
     @Inject
@@ -76,22 +73,26 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
         FlowPanel main = new FlowPanel();
         main.addStyleName("homepage-main");
         if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
-            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_community(),
-                    Console.CONSTANTS.homepage_intro_community())));
+            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_community())));
         } else {
-            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_product(),
-                    Console.CONSTANTS.homepage_intro_product())));
+            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_product())));
         }
 
-        sections = new FlowPanel();
-        sections.addStyleName("homepage-sections");
-        main.add(sections);
+        main.add(new HTML(TEMPLATES.secondaryHeader(Console.CONSTANTS.homepage_view_and_manage())));
+        sectionsInfos = new FlowPanel();
+        sectionsInfos.addStyleName("homepage-sections");
+        main.add(sectionsInfos);
+
+        main.add(new HTML(TEMPLATES.secondaryHeader(Console.CONSTANTS.homepage_common_tasks())));
+        contentBoxes = new FlowPanel();
+        contentBoxes.addStyleName("homepage-contentBoxes");
+        main.add(contentBoxes);
 
         FlowPanel sidebar = new FlowPanel();
         sidebar.addStyleName("homepage-sidebar");
-        sidebar.add(new HTML(TEMPLATES.sidebarHeader(Console.CONSTANTS.homepage_sidebar_header())));
+        sidebar.add(new HTML(TEMPLATES.secondaryHeader(Console.CONSTANTS.homepage_sidebar_header())));
         sidebarSections = new FlowPanel();
-        sidebarSections.addStyleName("homepage-sidebar-sections");
+        sidebarSections.addStyleName("homepage-sidebar-sectionsInfos");
         sidebar.add(sidebarSections);
 
         DockLayoutPanel root = new DockLayoutPanel(PCT);
@@ -105,8 +106,13 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
     }
 
     @Override
-    public void addSection(final SectionData section) {
-        sections.add(new SectionPanel(section));
+    public void addSectionInfo(final SectionInfo sectionInfo) {
+        sectionsInfos.add(sectionInfo);
+    }
+
+    @Override
+    public void addContentBox(final ContentBox contentBox) {
+        contentBoxes.add(contentBox);
     }
 
     @Override
@@ -134,9 +140,11 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
     @Override
     public void addToSlot(final Object slot, final IsWidget content) {
-        if (slot == HomepagePresenter.SECTIONS_SLOT) {
-            sections.add(content);
-        } else if (slot == HomepagePresenter.SIDEBAR_SECTIONS_SLOT) {
+        if (slot == HomepagePresenter.SECTION_INFO_SLOT) {
+            sectionsInfos.add(content);
+        } else if (slot == HomepagePresenter.CONTENT_BOX_SLOT) {
+            contentBoxes.add(content);
+        } else if (slot == HomepagePresenter.SIDEBAR_SLOT) {
             sidebarSections.add(content);
         } else {
             super.addToSlot(slot, content);

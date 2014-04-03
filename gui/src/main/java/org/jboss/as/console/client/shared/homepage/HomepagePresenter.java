@@ -53,7 +53,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
 
     public interface MyView extends View {
 
-        void addPerspectiveInfo(SectionInfo sectionInfo);
+        void addSectionInfo(SectionInfo sectionInfo);
 
         void addContentBox(ContentBox contentBox);
 
@@ -61,8 +61,9 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     }
 
 
-    public static final Object SECTIONS_SLOT = new Object();
-    public static final Object SIDEBAR_SECTIONS_SLOT = new Object();
+    public static final Object SECTION_INFO_SLOT = new Object();
+    public static final Object CONTENT_BOX_SLOT = new Object();
+    public static final Object SIDEBAR_SLOT = new Object();
     private final List<SectionInfo> sectionInfos;
     private final List<ContentBox> contentBoxes;
     private final List<SidebarSectionData> sidebarSections;
@@ -204,7 +205,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     protected void onBind() {
         super.onBind();
         for (SectionInfo sectionInfo : sectionInfos) {
-            getView().addPerspectiveInfo(sectionInfo);
+            getView().addSectionInfo(sectionInfo);
         }
         for (ContentBox contentBox : contentBoxes) {
             getView().addContentBox(contentBox);
