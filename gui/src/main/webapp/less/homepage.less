@@ -15,23 +15,17 @@
   color: @homepage-text-color;
 }
 
-.homepage-lead-paragraph {
-  font-family: @font-family;
-  font-size: 13px;
-  color: @homepage-text-color;
-}
-
 .homepage-sidebar-section-header {
   font-family: @font-family;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: @homepage-text-color;
 }
 
 .homepage-link {
   font-family: @font-family;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 400;
   line-height: 14px;
   color: @homepage-link-color;
   &:hover {
@@ -45,113 +39,81 @@
 
 .homepage-main {
   padding: 30px 15px 0 20px;
-  header {
-    padding-bottom: 25px;
-    border-bottom: 1px solid #ccc;
-    h1 {
-      margin: 0 0 15px 0;
-      padding: 0;
-    }
-    p {
-      margin: 0;
-    }
+  h1 {
+    margin: 0;
+    padding: 0;
+  }
+  h2 {
+    margin: 20px 0 0 0;
+    padding: 0;
   }
 }
 
-.homepage-sections {
-}
-
-.homepage-section {
+.homepage-info-boxes, .homepage-content-boxes {
   width: 100%;
-  padding: 25px 0;
-  border-bottom: 1px solid #ccc;
-  &:last-child {
-    border-bottom: none;
+  td.column {
+    width: 50%;
+  }
+  td.left {
+    padding-right: 10px;
+  }
+  td.right {
+    padding-left: 10px;
   }
 }
 
-.homepage-section-header {
-  margin: 0;
+.homepage-info-box-header {
+  margin: 10px 0 0 0;
   padding: 0;
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
-.homepage-section-icon {
+.homepage-content-box {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 1px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+  width: 100%;
+  margin: 20px 0;
+}
+
+.homepage-content-box-header {
+  margin: 0;
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  font-family: @font-family;
+  font-size: 13px;
+  font-weight: 700;
+  color: @homepage-text-color;
+}
+
+.homepage-content-box-icon {
+  float: right;
   color: @homepage-link-color;
-  margin-left: 10px;
 }
 
-.homepage-section-body {
-}
-
-.homepage-section-intro {
-  margin: 10px 0 20px 0;
-}
-
-.homepage-content-boxes {
-  margin-bottom: 20px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.homepage-content-box  {
-  .panel {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 1px;
-    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-  }
-  .panel-heading {
-    padding: 10px 15px;
-    color: #333;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-  }
-  .panel-title {
+.homepage-content-box-body {
+  padding: 15px;
+  p, ol, li {
     font-family: @font-family;
-    font-size: 13px;
-    font-weight: 900;
+    font-size: 12px;
+    line-height: 18px;
     color: @homepage-text-color;
-    margin-top: 0;
-    margin-bottom: 0;
   }
-  .panel-body {
-    padding: 15px;
-    p, ol, li {
-      font-family: @font-family;
-      font-size: 11px;
-      line-height: 18px;
-      color: @homepage-text-color;
-    }
-    p, ol {
-      margin: 0 0 10px 0;
-    }
-    .panel-link {
-      a:before {
-        content: "> ";
-      }
-    }
-    &:before {
-      content: " ";
-      display: table;
-    }
-    &:after {
-      clear: both;
-    }
+  p, ol {
+    margin: 0 0 10px 0;
   }
-}
-
-.homepage-content-box.two-columns  {
-  display: inline-block;
-  width: 49%;
-  &:last-child {
-    float: right;
+  a:before {
+    content: "> ";
+  }
+  &:before {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
   }
 }
 

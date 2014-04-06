@@ -23,30 +23,27 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.InlineHyperlink;
 import org.jboss.as.console.client.shared.util.IdHelper;
 
 /**
  * @author Harald Pehl
  */
-public class SectionInfo extends Composite {
+public class InfoBox extends Composite {
 
     interface Templates extends SafeHtmlTemplates {
 
-        @Template("<div class=\"perspectiveInfo\">" +
-                "<h3 class=\"perspectiveInfo-title\"><span id=\"{0}\"></span></h3>" +
-                "<div class=\"perspectiveInfo-body\">{1}</div>" +
-                "</div>")
-        SafeHtml perspectiveInfo(String id, String description);
+        @Template("<h3 id=\"{0}\" class=\"homepage-info-box-header\"></h3><div>{1}</div>")
+        SafeHtml infoBox(String id, String description);
     }
 
 
     private final static Templates TEMPLATES = GWT.create(Templates.class);
 
-    public SectionInfo(final String token, final String title, final String description) {
+    public InfoBox(final String token, final String title, final String description) {
         String linkId = IdHelper.asId(getClass(), "_" + token);
-        HTMLPanel panel = new HTMLPanel(TEMPLATES.perspectiveInfo(linkId, description));
-        Hyperlink hyperlink = new Hyperlink(title, token);
+        HTMLPanel panel = new HTMLPanel(TEMPLATES.infoBox(linkId, description));
+        InlineHyperlink hyperlink = new InlineHyperlink(title, token);
         hyperlink.addStyleName("homepage-link");
         panel.add(hyperlink, linkId);
 

@@ -18,50 +18,31 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class SectionData {
-    private final String id;
+public class SidebarSection {
     private final String title;
-    private final String intro;
-    private boolean open;
-    private final List<ContentBox> contentBoxes;
+    private final Map<String,String> links; // key=target, value=text
 
-    public SectionData(final String id, final String title, final String intro, final boolean open,
-            final ContentBox... contentBoxes) {
-        this.id = id;
+    public SidebarSection(final String title) {
         this.title = title;
-        this.intro = intro;
-        this.open = open;
-        this.contentBoxes = new LinkedList<ContentBox>();
-        if (contentBoxes != null) {
-            this.contentBoxes.addAll(Arrays.asList(contentBoxes));
-        }
+        this.links = new LinkedHashMap<String, String>();
     }
 
-    public String getId() {
-        return id;
+    public SidebarSection addLink(String href, String text) {
+        links.put(href, text);
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getIntro() {
-        return intro;
-    }
-
-    public boolean isOpen() {
-        return open;
-    }
-
-    public List<ContentBox> getContentBoxes() {
-        return contentBoxes;
+    public Map<String, String> getLinks() {
+        return links;
     }
 }
