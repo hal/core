@@ -33,7 +33,8 @@ public class InfoBox extends Composite {
 
     interface Templates extends SafeHtmlTemplates {
 
-        @Template("<h3 id=\"{0}\" class=\"homepage-info-box-header\"></h3><div>{1}</div>")
+        @Template("<h3 id=\"{0}\" class=\"homepage-info-box-header\"></h3>" +
+                "<div class=\"homepage-info-box-body\">{1}</div>")
         SafeHtml infoBox(String id, String description);
     }
 
