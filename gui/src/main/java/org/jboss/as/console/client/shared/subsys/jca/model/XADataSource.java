@@ -60,4 +60,7 @@ public interface XADataSource extends DataSource {
     boolean isEnableInterleave();
     void setEnableInterleave(boolean b);
 
+    @Binding(detypedName = "xa-resource-timeout")
+    int getXaResourceTimeout();
+    void setXaResourceTimeout(int i);
 }

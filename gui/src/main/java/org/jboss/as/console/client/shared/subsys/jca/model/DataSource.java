@@ -145,4 +145,35 @@ public interface DataSource {
     @Binding(skip = true)
     String getTestConnection();
     void setTestConnection(String ignore);
+
+    // --
+
+    @Binding(detypedName = "use-try-lock")
+    long getUseTryLock();
+    void setUseTryLock(long l);
+
+    @Binding(detypedName = "blocking-timeout-wait-millis")
+    long getBlockingTimeoutWaitMillis();
+    void setBlockingTimeoutWaitMillis(long l);
+
+    @Binding(detypedName = "idle-timeout-minutes")
+    long getIdleTimeoutMinutes();
+    void setIdleTimeoutMinutes(long l);
+
+    @Binding(detypedName = "set-tx-query-timeout")
+    boolean isSetTxQueryTimeout();
+    void setSetTxQueryTimeout(boolean b);
+
+    @Binding(detypedName = "query-timeout")
+    long getQueryTimeout();
+    void setQueryTimeout(long l);
+
+    @Binding(detypedName = "allocation-retry")
+    int getAllocationRetry();
+    void setAllocationRetry(int i);
+
+    @Binding(detypedName = "allocation-retry-wait-millis")
+    long getAllocationRetryWaitMillis();
+    void setAllocationRetryWaitMillis(long l);
+
 }
