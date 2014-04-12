@@ -35,6 +35,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
@@ -71,6 +72,7 @@ public class XADataSourceEditor implements PropertyManagement {
     private XADataSourceConnection connectionEditor;
     private DataSourceSecurityEditor securityEditor;
     private DataSourceValidationEditor validationEditor;
+    private DataSourceTimeoutEditor<XADataSource> timeoutEditor;
     private ToolButton disableBtn;
 
     public XADataSourceEditor(DataSourcePresenter presenter) {
@@ -301,6 +303,10 @@ public class XADataSourceEditor implements PropertyManagement {
         validationEditor = new DataSourceValidationEditor(dsCallback);
         validationEditor.getForm().bind(dataSourceTable);
         bottomPanel.add(validationEditor.asWidget(), "Validation");
+
+        timeoutEditor = new DataSourceTimeoutEditor<XADataSource>(xaCallback, true);
+        timeoutEditor.getForm().bind(dataSourceTable);
+        bottomPanel.add(timeoutEditor.asWidget(), "Timeouts");
 
         bottomPanel.selectTab(0);
         vpanel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));

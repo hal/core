@@ -60,6 +60,7 @@ public class DataSourceEditor {
     private FormEditor<DataSource> securityEditor;
     private DataSourceValidationEditor validationEditor;
     private DataSourceConnectionEditor connectionEditor;
+    private DataSourceTimeoutEditor<DataSource> timeoutEditor;
     private ToolButton disableBtn;
 
     public DataSourceEditor(DataSourcePresenter presenter) {
@@ -212,6 +213,12 @@ public class DataSourceEditor {
         validationEditor = new DataSourceValidationEditor(formCallback);
         validationEditor.getForm().bind(dataSourceTable.getCellTable());
         bottomPanel.add(validationEditor.asWidget(), "Validation");
+
+        // ----
+
+        timeoutEditor = new DataSourceTimeoutEditor<DataSource>(formCallback, false);
+        timeoutEditor.getForm().bind(dataSourceTable.getCellTable());
+        bottomPanel.add(timeoutEditor.asWidget(), "Timeouts");
 
         bottomPanel.selectTab(0);
 
