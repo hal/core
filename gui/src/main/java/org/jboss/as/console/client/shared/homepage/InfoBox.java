@@ -44,6 +44,8 @@ public class InfoBox extends Composite {
     public InfoBox(final String token, final String title, final String description) {
         String linkId = IdHelper.asId(getClass(), "_" + token);
         HTMLPanel panel = new HTMLPanel(TEMPLATES.infoBox(linkId, description));
+        panel.getElement().setId(IdHelper.asId(getClass(), "_info-box"));
+        panel.addStyleName("homepage-info-box");
         InlineHyperlink hyperlink = new InlineHyperlink(title, token);
         hyperlink.addStyleName("homepage-link");
         panel.add(hyperlink, linkId);
