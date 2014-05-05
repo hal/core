@@ -1,8 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.jacorb;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.jacorb.model.JacOrbSubsystem;
 import org.jboss.as.console.client.shared.viewframework.AbstractEntityView;
 import org.jboss.as.console.client.shared.viewframework.EmbeddedPropertyView;
@@ -17,10 +20,7 @@ import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 public class JacOrbView extends AbstractEntityView<JacOrbSubsystem> implements JacOrbPresenter.MyView, FrameworkView {
     private final EntityToDmrBridge<JacOrbSubsystem> bridge;
@@ -42,6 +42,18 @@ public class JacOrbView extends AbstractEntityView<JacOrbSubsystem> implements J
         DefaultCellTable<JacOrbSubsystem> table = new DefaultCellTable<JacOrbSubsystem>(5);
         table.setVisible(false);
         return table;
+    }
+
+    @Override
+    public void refresh() {
+        super.refresh();
+        String lastEdited = bridge.getNameOfLastEdited();
+        if (lastEdited != null && entityDetails != null) {
+            JacOrbSubsystem entity = bridge.findEntity(lastEdited);
+            if (entityDetails != null) {
+                entityDetails.updatedEntity(entity);
+            }
+        }
     }
 
     @Override
