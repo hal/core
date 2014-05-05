@@ -3,8 +3,8 @@ package org.jboss.as.console.client.shared.subsys.modcluster;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
-import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -75,16 +75,16 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
 
         networkingForm = new ModclusterForm(presenter);
 
-        NumberBoxItem nodeTimeout = new NumberBoxItem("nodeTimeout", "Node Timeout");
+        NumberBoxItem nodeTimeout = new NumberBoxItem("nodeTimeout", "Node Timeout", true);
         NumberBoxItem socketTimeout = new NumberBoxItem("socketTimeout", "Socket Timeout");
         NumberBoxItem stopContextTimeout = new NumberBoxItem("stopContextTimeout", "Stop Context Timeout");
 
-        NumberBoxItem maxAttemps = new NumberBoxItem("maxAttemps", "Max Attemps");
+        NumberBoxItem maxAttemps = new NumberBoxItem("maxAttemps", "Max Attemps", true);
         CheckBoxItem flushPackets = new CheckBoxItem("flushPackets", "Flush Packets");
-        NumberBoxItem flushWait = new NumberBoxItem("flushWait", "Flush Wait");
+        NumberBoxItem flushWait = new NumberBoxItem("flushWait", "Flush Wait", true);
         NumberBoxItem ping = new NumberBoxItem("ping", "Ping");
-        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout");
-        NumberBoxItem ttl = new NumberBoxItem("ttl", "TTL");
+        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout", true);
+        NumberBoxItem ttl = new NumberBoxItem("ttl", "TTL", true);
 
         networkingForm.setFields(nodeTimeout, socketTimeout, stopContextTimeout, maxAttemps, flushPackets, flushWait, ping, ttl, workerTimeout);
 
