@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import java.util.Map;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -10,22 +12,21 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.layout.FormLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EESubsystem;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
-import org.jboss.as.console.client.layout.FormLayout;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -88,6 +89,9 @@ public class EESubsystemView extends DisposableViewImpl implements EEPresenter.M
         dataProvider = new ListDataProvider<Module>();
         dataProvider.addDataDisplay(moduleList);
         moduleList.setSelectionModel(new SingleSelectionModel());
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(moduleList);
+
 
         TextColumn<Module> name = new TextColumn<Module>() {
             @Override
@@ -145,6 +149,7 @@ public class EESubsystemView extends DisposableViewImpl implements EEPresenter.M
 
         modulePanel.add(moduleTools.asWidget());
         modulePanel.add(moduleList.asWidget());
+        modulePanel.add(pager);
 
         // ----
 
