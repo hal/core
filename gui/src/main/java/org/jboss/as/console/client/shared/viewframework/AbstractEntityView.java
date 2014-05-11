@@ -19,6 +19,10 @@
 
 package org.jboss.as.console.client.shared.viewframework;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -26,6 +30,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
@@ -33,15 +38,10 @@ import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
 
 
 /**
@@ -354,6 +354,9 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         }
 
         entityEditor.updateEntityList(entityBridge.getEntityList(), lastEntityEdited);
+        if (entityDetails != null) {
+            entityDetails.updatedEntity(lastEntityEdited);
+        }
     }
 
     @Override

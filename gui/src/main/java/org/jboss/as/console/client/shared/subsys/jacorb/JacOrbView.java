@@ -45,18 +45,6 @@ public class JacOrbView extends AbstractEntityView<JacOrbSubsystem> implements J
     }
 
     @Override
-    public void refresh() {
-        super.refresh();
-        String lastEdited = bridge.getNameOfLastEdited();
-        if (lastEdited != null && entityDetails != null) {
-            JacOrbSubsystem entity = bridge.findEntity(lastEdited);
-            if (entityDetails != null) {
-                entityDetails.updatedEntity(entity);
-            }
-        }
-    }
-
-    @Override
     protected FormAdapter<JacOrbSubsystem> makeAddEntityForm() {
         return new Form<JacOrbSubsystem>(beanType);
     }
