@@ -89,6 +89,11 @@ public class Harvest {
                 if (resource.startsWith("opt:")) { continue; }
 
                 final ModelNode op = AddressMapping.fromString(resource).asResource(filteringStatementContext);
+                // skip unrecognized addresses
+                if (!op.get(ADDRESS).isDefined()) {
+                    System.out.println("Skipped " + token + " > " + resource + ": No valid address could be resolved: " + op);
+                    continue;
+                }
                 op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
 
                 Function<Object> f = new Function<Object>() {
