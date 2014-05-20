@@ -1,20 +1,27 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.layout.FormLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.shared.help.FormHelpPanel;
+import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.widgets.tables.ColumnSortHandler;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-
-import java.util.Comparator;
-import java.util.List;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -22,18 +29,16 @@ import java.util.List;
  */
 public class WebServiceRuntimeView extends SuspendableViewImpl implements WebServiceRuntimePresenter.MyView {
 
-    private WebServiceRuntimePresenter presenter;
     private ListDataProvider<WebServiceEndpoint> dataProvider;
     private ColumnSortHandler<WebServiceEndpoint> sortHandler;
 
     @Override
     public void setPresenter(WebServiceRuntimePresenter presenter) {
-        this.presenter = presenter;
     }
 
     private DefaultCellTable<WebServiceEndpoint> table;
-    private Form<WebServiceEndpoint> form;
 
+    @SuppressWarnings("unchecked")
     public Widget createWidget() {
 
         table = new DefaultCellTable<WebServiceEndpoint>(10);
@@ -89,11 +94,19 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         table.addColumnSortHandler(sortHandler);
         table.getColumnSortList().push(nameCol); // initial sort is on name
 
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
+
+        VerticalPanel tableLayout = new VerticalPanel();
+        tableLayout.setStyleName("fill-layout-width");
+        tableLayout.add(table);
+        tableLayout.add(pager);
+
         // -----
 
+        final ModelNode helpAddress = RuntimeBaseAddress.get().add("deployment", "*").add("subsystem", "webservices");
 
-        form = new Form<WebServiceEndpoint>(WebServiceEndpoint.class);
-        form.setNumColumns(2);
+        Form<WebServiceEndpoint> basics = new Form<WebServiceEndpoint>(WebServiceEndpoint.class);
 
         TextItem nameItem = new TextItem("name", "Name");
         TextItem contextItem = new TextItem("context", "Context");
@@ -102,19 +115,51 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         TextItem wsdlItem = new TextItem("wsdl", "WSDL Url");
         TextItem dplItem = new TextItem("deployment", "Deployment");
 
-        form.setFields(nameItem, contextItem, classItem, typeItem, wsdlItem, dplItem);
-        form.bind(table);
-        form.setEnabled(false);
+        basics.setFields(nameItem, contextItem, classItem, typeItem, wsdlItem, dplItem);
+        basics.bind(table);
+        basics.setEnabled(false);
 
+        FormLayout basicsLayout = new FormLayout()
+                .setHelp(new FormHelpPanel(new FormHelpPanel.AddressCallback() {
+                            @Override
+                            public ModelNode getAddress() {
+                                return helpAddress;
+                            }
+                        }, basics)
+                )
+                .setForm(basics);
+
+        Form<WebServiceEndpoint> stats = new Form<WebServiceEndpoint>(WebServiceEndpoint.class);
+        NumberBoxItem requestCount = new NumberBoxItem("requestCount", "Requests");
+        NumberBoxItem responseCount = new NumberBoxItem("responseCount", "Responses");
+        NumberBoxItem faultCount = new NumberBoxItem("faultCount", "Faults");
+        NumberBoxItem min = new NumberBoxItem("minProcessingTime", "Min. Processing Time");
+        NumberBoxItem avg = new NumberBoxItem("averageProcessingTime", "Average Processing Time");
+        NumberBoxItem max = new NumberBoxItem("maxProcessingTime", "Max. Processing Time");
+        NumberBoxItem total = new NumberBoxItem("totalProcessingTime", "Total Processing Time");
+        stats.setFields(requestCount, responseCount, faultCount, min, avg, max, total);
+        stats.bind(table);
+        stats.setEnabled(false);
+
+        FormLayout statsLayout = new FormLayout()
+                .setHelp(new FormHelpPanel(new FormHelpPanel.AddressCallback() {
+                            @Override
+                            public ModelNode getAddress() {
+                                return helpAddress;
+                            }
+                        }, stats)
+                )
+                .setForm(stats);
 
         //final StaticHelpPanel helpPanel = new StaticHelpPanel(WebServiceDescriptions.getEndpointDescription());
 
-        MultipleToOneLayout layout = new MultipleToOneLayout()
+        OneToOneLayout layout = new OneToOneLayout()
                 .setTitle("Webservices")
                 .setHeadline("Web Service Endpoints")
-                .setMaster(Console.MESSAGES.available("Web Service Endpoints"), table)
+                .setMaster(Console.MESSAGES.available("Web Service Endpoints"), tableLayout)
                 .setDescription(Console.CONSTANTS.subsys_ws_endpoint_desc())
-                .setDetail(Console.CONSTANTS.common_label_selection(), form.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_attributes(), basicsLayout.build())
+                .addDetail(Console.CONSTANTS.common_label_stats(), statsLayout.build());
 
         return layout.build();
     }

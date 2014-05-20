@@ -1,15 +1,15 @@
 package org.jboss.as.console.client.shared.subsys.ws;
 
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author Heiko Braun
@@ -42,6 +42,13 @@ public class BaseRegistry {
                 endpoint.setType(value.get("type").asString());
                 endpoint.setWsdl(value.get("wsdl-url").asString());
                 endpoint.setDeployment(addressTokens.get(0).getValue().asString());
+                endpoint.setRequestCount(value.get("request-count").asInt(0));
+                endpoint.setResponseCount(value.get("response-count").asInt(0));
+                endpoint.setFaultCount(value.get("fault-count").asInt(0));
+                endpoint.setMinProcessingTime(value.get("min-processing-time").asInt(0));
+                endpoint.setAverageProcessingTime(value.get("average-processing-time").asInt(0));
+                endpoint.setMaxProcessingTime(value.get("max-processing-time").asInt(0));
+                endpoint.setTotalProcessingTime(value.get("total-processing-time").asInt(0));
 
                 endpoints.add(endpoint);
             }

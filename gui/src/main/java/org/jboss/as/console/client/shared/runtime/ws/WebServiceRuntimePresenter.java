@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -18,8 +20,6 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
 import org.jboss.as.console.spi.AccessControl;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun

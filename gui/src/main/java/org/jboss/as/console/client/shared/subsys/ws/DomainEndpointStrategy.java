@@ -1,5 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.ws;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
@@ -10,12 +17,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -59,6 +60,7 @@ public class DomainEndpointStrategy extends BaseRegistry implements EndpointStra
         addr.add("subsystem", "webservices");
         addr.add("endpoint", "*");
         deploymentsOp.get(ADDRESS).set(addr);
+        deploymentsOp.get(INCLUDE_RUNTIME).set(true);
 
         ModelNode subdeploymentOp = new ModelNode();
         subdeploymentOp.get(OP).set(READ_RESOURCE_OPERATION);
@@ -69,6 +71,7 @@ public class DomainEndpointStrategy extends BaseRegistry implements EndpointStra
         addr2.add("subsystem", "webservices");
         addr2.add("endpoint", "*");
         subdeploymentOp.get(ADDRESS).set(addr2);
+        subdeploymentOp.get(INCLUDE_RUNTIME).set(true);
 
         steps.add(deploymentsOp);
         steps.add(subdeploymentOp);

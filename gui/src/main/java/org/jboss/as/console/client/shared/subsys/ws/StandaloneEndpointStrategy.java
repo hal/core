@@ -1,19 +1,20 @@
 package org.jboss.as.console.client.shared.subsys.ws;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
-import org.jboss.dmr.client.ModelNode;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import javax.inject.Inject;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun
@@ -43,6 +44,7 @@ public class StandaloneEndpointStrategy extends BaseRegistry implements Endpoint
         deploymentsOp.get(ADDRESS).add("deployment", "*");
         deploymentsOp.get(ADDRESS).add("subsystem", "webservices");
         deploymentsOp.get(ADDRESS).add("endpoint", "*");
+        deploymentsOp.get(INCLUDE_RUNTIME).set(true);
 
         ModelNode subdeploymentOp = new ModelNode();
         subdeploymentOp.get(OP).set(READ_RESOURCE_OPERATION);
@@ -50,6 +52,7 @@ public class StandaloneEndpointStrategy extends BaseRegistry implements Endpoint
         subdeploymentOp.get(ADDRESS).add("subdeployment", "*");
         subdeploymentOp.get(ADDRESS).add("subsystem", "webservices");
         subdeploymentOp.get(ADDRESS).add("endpoint", "*");
+        subdeploymentOp.get(INCLUDE_RUNTIME).set(true);
 
         steps.add(deploymentsOp);
         steps.add(subdeploymentOp);

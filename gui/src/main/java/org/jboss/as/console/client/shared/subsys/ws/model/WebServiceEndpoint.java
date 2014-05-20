@@ -27,4 +27,32 @@ public interface WebServiceEndpoint {
     @Binding(skip = true)
     String getDeployment();
     void setDeployment(String name);
+
+    @Binding(detypedName = "min-processing-time")
+    Integer getMinProcessingTime();
+    void setMinProcessingTime(Integer minProcessingTime);
+
+    @Binding(detypedName = "average-processing-time")
+    Integer getAverageProcessingTime();
+    void setAverageProcessingTime(Integer averageProcessingTime);
+
+    @Binding(detypedName = "max-processing-time")
+    Integer getMaxProcessingTime();
+    void setMaxProcessingTime(Integer maxProcessingTime);
+
+    @Binding(detypedName = "total-processing-time")
+    Integer getTotalProcessingTime();
+    void setTotalProcessingTime(Integer totalProcessingTime);
+
+    @Binding(detypedName = "fault-count")
+    Integer getFaultCount();
+    void setFaultCount(Integer faultCount);
+
+    @Binding(detypedName = "request-count")
+    Integer getRequestCount();
+    void setRequestCount(Integer requestCount);
+
+    @Binding(detypedName = "response-count")
+    Integer getResponseCount();
+    void setResponseCount(Integer responseCount);
 }

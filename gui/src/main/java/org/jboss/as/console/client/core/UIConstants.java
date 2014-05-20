@@ -1270,4 +1270,6 @@ public interface UIConstants extends Constants {
     String homepage_view_and_manage();
 
     String homepage_common_tasks();
+
+    String common_label_stats();
 }
