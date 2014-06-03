@@ -35,6 +35,7 @@ import org.jboss.as.console.client.widgets.forms.items.JndiNamesItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -115,9 +116,13 @@ public class TopicList {
         table = new EndpointTable();
         endpointProvider = new ListDataProvider<JMSEndpoint>();
         endpointProvider.addDataDisplay(table);
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
 
         layout.add(table);
-        table.getElement().setAttribute("style", "margin-bottom:15px;");
+        layout.add(pager);
+
+        pager.getElement().setAttribute("style", "margin-bottom:15px;");
 
 
         // -----

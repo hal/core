@@ -40,6 +40,7 @@ import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -119,7 +120,12 @@ public class QueueList {
         queueTable.addColumn(jndiColumn, "JNDI");
 
         layout.add(queueTable);
-        queueTable.getElement().setAttribute("style", "margin-bottom:15px;");
+
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(queueTable);
+        layout.add(pager);
+
+        pager.getElement().setAttribute("style", "margin-bottom:15px;");
 
         // ----
 
