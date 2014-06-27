@@ -19,17 +19,19 @@
 
 package org.jboss.as.console.client.shared.jvm;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.util.AddressableModelCmd;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -55,6 +57,18 @@ public class CreateJvmCmd extends AddressableModelCmd implements AsyncCommand<Bo
         operation.get("heap-size").set(jvm.getHeapSize());
         operation.get("max-heap-size").set(jvm.getMaxHeapSize());
         operation.get("debug-enabled").set(jvm.isDebugEnabled());
+        if (jvm.getPermgen() != null && jvm.getPermgen().trim().length() != 0) {
+            operation.get("permgen-size").set(jvm.getPermgen());
+        }
+        if (jvm.getMaxPermgen() != null && jvm.getMaxPermgen().trim().length() != 0) {
+            operation.get("max-permgen-size").set(jvm.getMaxPermgen());
+        }
+        List<String> options = jvm.getOptions();
+        if (options != null && !options.isEmpty()) {
+            for (String option : options) {
+                operation.get("jvm-options").add(option);
+            }
+        }
 
         //operation.get("jvm").set(jvm.getName(), jvmModel);
 

@@ -64,6 +64,7 @@ public class JvmEditor {
     private FormItem nameItem;
     private SecurityContextAwareVerticalPanel rootPanel;
     private boolean writeGranted;
+    private ListItem options;
 
     public JvmEditor(JvmManagement presenter) {
         this(presenter, true, false);
@@ -153,7 +154,7 @@ public class JvmEditor {
         HeapBoxItem maxPermgen = new HeapBoxItem("maxPermgen", "Max Permgen Size", false);
         HeapBoxItem permgen = new HeapBoxItem("permgen", "Permgen Size", false);
 
-        ListItem options = new ListItem("options", "JVM Options");
+        options = new ListItem("options", "JVM Options");
 
         form.setFields(nameItem, heapItem, maxHeapItem, permgen, maxPermgen, options);
         form.setEnabled(false);
@@ -201,10 +202,13 @@ public class JvmEditor {
             form.setEnabled(false);
         }
 
-        if(hasJvm)
+        if(hasJvm) {
             form.edit(jvm);
-        else
+        } else {
             form.edit(factory.jvm().as());
+            // Workaround for multi value field 'options'
+            options.clearValue();
+        }
     }
 
     public void clearValues() {
