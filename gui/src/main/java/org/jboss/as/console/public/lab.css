@@ -30,3 +30,11 @@
     background-color: #ffffff!important;
     z-index: 50;
 }
+
+.gwt-Frame {
+    overflow-x: hidden;
+    overflow-y: auto;
+    color: white;
+    border: 0px none;
+    margin: 0px
+}

@@ -37,4 +37,8 @@ public class FeatureSet {
     public boolean isSearchEnabled() {
         return productConfig.getProfile() == ProductConfig.Profile.COMMUNITY;
     }
+
+    public boolean isCSPEnabled() {
+        return productConfig.getProfile() == ProductConfig.Profile.PRODUCT;
+    }
 }

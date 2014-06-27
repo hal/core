@@ -30,6 +30,7 @@ public interface ApplicationProperties {
     String DEPLOYMENT_API = "add-content";
     String PATCH_API = "management-upload";
     String LOGOUT_API = "logout";
+    String CSP_API = "csp";
 
     void setProperty(String key, String value);
 

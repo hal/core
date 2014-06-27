@@ -50,6 +50,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
+import org.jboss.as.console.client.csp.CustomerSupportLauncher;
 import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
@@ -76,6 +77,7 @@ public class Header implements ValueChangeHandler<String> {
 
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
+    private CustomerSupportLauncher cspLauncher;
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -146,6 +148,18 @@ public class Header implements ValueChangeHandler<String> {
 
         HorizontalPanel tools = new HorizontalPanel();
 
+        // messages
+        MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
+        Widget messageCenter = messageCenterView.asWidget();
+        tools.add(messageCenter);
+
+        // redhat support plugin
+        if (featureSet.isCSPEnabled()) {
+            this.cspLauncher = new CustomerSupportLauncher(bootstrap);
+            tools.add(cspLauncher.asWidget());
+
+        }
+
         // global search
         if (featureSet.isSearchEnabled()) {
             if (Storage.isLocalStorageSupported()) {
@@ -153,10 +167,7 @@ public class Header implements ValueChangeHandler<String> {
             }
         }
 
-        // messages
-        MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
-        Widget messageCenter = messageCenterView.asWidget();
-        tools.add(messageCenter);
+
 
         // user menu
 
