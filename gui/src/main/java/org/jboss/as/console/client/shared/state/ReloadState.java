@@ -1,10 +1,11 @@
 package org.jboss.as.console.client.shared.state;
 
-import org.jboss.as.console.client.Console;
-
-import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.inject.Singleton;
+
+import org.jboss.as.console.client.Console;
 
 /**
  * @author Heiko Braun
@@ -32,13 +33,11 @@ public class ReloadState {
             lastFiredSize = serverStates.size();
 
             StringBuffer sb = new StringBuffer();
-            sb.append("Restart Required");
-            sb.append("<ul>");
+            sb.append("Restart Required\n");
             for(ServerState server : serverStates.values())
             {
-                sb.append("<li>").append(server.getName());
+                sb.append("  - ").append(server.getName()).append("\n");
             }
-            sb.append("</ul>");
 
             // state update, log warning
             Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
