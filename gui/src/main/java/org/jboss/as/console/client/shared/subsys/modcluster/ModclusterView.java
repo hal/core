@@ -83,7 +83,12 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         CheckBoxItem flushPackets = new CheckBoxItem("flushPackets", "Flush Packets");
         NumberBoxItem flushWait = new NumberBoxItem("flushWait", "Flush Wait", true);
         NumberBoxItem ping = new NumberBoxItem("ping", "Ping");
-        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout", true);
+        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout", true) {
+            @Override
+            public boolean validate(final Number value) {
+                return super.validate(value) && value.intValue() >= -1;
+            }
+        };
         NumberBoxItem ttl = new NumberBoxItem("ttl", "TTL", true);
 
         networkingForm.setFields(nodeTimeout, socketTimeout, stopContextTimeout, maxAttemps, flushPackets, flushWait, ping, ttl, workerTimeout);
