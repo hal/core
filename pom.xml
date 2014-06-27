@@ -100,7 +100,7 @@
         <gwt-vis.version>1.1.1</gwt-vis.version>
         <junit.version>4.11</junit.version>
         <protovis.version>0.4.1</protovis.version>
-
+        <csp.plugin.version>1.0.0-SNAPSHOT</csp.plugin.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
     </properties>

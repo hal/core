@@ -91,6 +91,13 @@
                 <version>${ballroom.version}</version>
             </dependency>
 
+          <dependency>
+            <groupId>org.jboss.hal</groupId>
+            <artifactId>redhat-support-plugin</artifactId>
+            <classifier>resources</classifier>
+            <version>${csp.plugin.version}</version>
+          </dependency>
+
             <!-- GWT related -->
             <dependency>
                 <groupId>com.google.gwt</groupId>
