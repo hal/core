@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.messaging.connections;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,12 +24,10 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.AcceptorType;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -58,6 +59,8 @@ public class AcceptorList {
                 return acceptor.getName();
             }
         });
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
 
         provider = new ListDataProvider<Acceptor>();
         provider.addDataDisplay(table);
@@ -124,6 +127,7 @@ public class AcceptorList {
 
         layout.add(tools);
         layout.add(table);
+        layout.add(pager);
 
         acceptorForm.getForm().bind(table);
 
