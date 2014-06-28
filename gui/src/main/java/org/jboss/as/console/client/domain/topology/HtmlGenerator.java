@@ -57,10 +57,12 @@ final class HtmlGenerator {
     static final String DATA_GROUP_NAME = "data-group-name";
     static final String DATA_HOST_NAME = "data-host-name";
     static final String DATA_SERVER_NAME = "data-server-name";
+
     static final String START_SERVER_ID = "start_server_";
     static final String STOP_SERVER_ID = "stop_server_";
     static final String KILL_SERVER_ID = "kill_server_";
     static final String RELOAD_SERVER_ID = "reload_server_";
+
     static final String START_GROUP_ID = "start_group_";
     static final String STOP_GROUP_ID = "stop_group_";
     static final String RESTART_GROUP_ID = "restart_group_";

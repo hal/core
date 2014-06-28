@@ -226,7 +226,8 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
                 Element element = event.getEventTarget().cast();
                 final String id = element.getId();
                 if (id != null) {
-                    if (id.contains("_server_")) {
+                    if (id.startsWith(START_SERVER_ID) || id.startsWith(RELOAD_SERVER_ID) || id.startsWith(
+                            STOP_SERVER_ID) || id.startsWith(KILL_SERVER_ID)) {
                         final String server = element.getAttribute(DATA_SERVER_NAME);
                         final String host = element.getAttribute(DATA_HOST_NAME);
                         final LifecycleOperation op = getLifecycleOperation(id);
@@ -242,12 +243,13 @@ public class TopologyView extends SuspendableViewImpl implements TopologyPresent
                                         }
                                     });
                         }
-                    } else if (id.contains("_group_")) {
+                    } else if (id.startsWith(START_GROUP_ID) || id.startsWith(RESTART_GROUP_ID) || id
+                            .startsWith(STOP_GROUP_ID)) {
                         final String group = element.getAttribute(DATA_GROUP_NAME);
                         final LifecycleOperation op = getLifecycleOperation(id);
                         if (op != null) {
                             Feedback.confirm("Modify Server", "Do really want to " + op.name()
-                                    .toLowerCase() + " all servers in group " + group + "?",
+                                            .toLowerCase() + " all servers in group " + group + "?",
                                     new Feedback.ConfirmationHandler() {
                                         @Override
                                         public void onConfirmation(boolean isConfirmed) {
