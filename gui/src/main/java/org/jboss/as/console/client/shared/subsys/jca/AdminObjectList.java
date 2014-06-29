@@ -24,7 +24,6 @@ import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -112,7 +111,7 @@ public class AdminObjectList implements PropertyManagement {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
                                     if (isConfirmed) {
-                                        presenter.enOrDisbaleAdminObject(currentAdapter, selection);
+                                        presenter.enOrDisbaleAdminObject(selection);
                                     }
                                 }
                             });

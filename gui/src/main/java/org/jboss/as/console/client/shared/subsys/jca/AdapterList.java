@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -14,6 +17,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
@@ -21,7 +25,6 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -34,9 +37,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -98,7 +98,7 @@ public class AdapterList implements PropertyManagement {
                 new ProvidesKey<ResourceAdapter>() {
                     @Override
                     public Object getKey(ResourceAdapter item) {
-                        return item.getArchive();
+                        return item.getName();
                     }
                 });
 
@@ -130,8 +130,8 @@ public class AdapterList implements PropertyManagement {
                     @Override
                     public void execute(ResourceAdapter selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.ResourceAdapterPresenter).with("name", selection.getArchive())
-                        );
+                                new PlaceRequest.Builder().nameToken(NameTokens.ResourceAdapterPresenter)
+                                        .with("name", selection.getName()).build());
                     }
                 })
         ) {

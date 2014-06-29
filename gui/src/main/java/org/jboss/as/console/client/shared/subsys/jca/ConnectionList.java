@@ -109,7 +109,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
                                 @Override
                                 public void onConfirmation(boolean isConfirmed) {
                                     if (isConfirmed) {
-                                        presenter.enOrDisbaleConnection(currentAdapter, selection);
+                                        presenter.enOrDisbaleConnection(selection);
                                     }
                                 }
                             });
@@ -290,7 +290,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
 
     @Override
     public void onResetPoolConfig(String parentName, PoolConfig entity) {
-        presenter.onDeletePoolConfig(getCurrentSelection(), entity);
+        presenter.onDeletePoolConfig(getCurrentSelection());
     }
 
     @Override
