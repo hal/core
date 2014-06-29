@@ -8,6 +8,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.layout.FormLayout;
@@ -41,7 +42,12 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     @SuppressWarnings("unchecked")
     public Widget createWidget() {
 
-        table = new DefaultCellTable<WebServiceEndpoint>(10);
+        table = new DefaultCellTable<WebServiceEndpoint>(10, new ProvidesKey<WebServiceEndpoint>() {
+            @Override
+            public Object getKey(final WebServiceEndpoint item) {
+                return item.getDeployment() + "@" + item.getName() + ":" + item.getClassName();
+            }
+        });
         sortHandler = new ColumnSortHandler<WebServiceEndpoint>();
 
         dataProvider = new ListDataProvider<WebServiceEndpoint>();
@@ -171,7 +177,6 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
         // Make sure the new values are properly sorted
         ColumnSortEvent.fire(table, table.getColumnSortList());
 
-        if (endpoints.size() > 0)
-            table.getSelectionModel().setSelected(endpoints.get(0), true);
+        table.selectDefaultEntity();
     }
 }

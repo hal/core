@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.runtime.web;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.Collections;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -14,10 +19,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
@@ -25,12 +26,11 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.web.LoadConnectorCmd;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author Heiko Braun
@@ -95,7 +95,8 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
 
     public void refresh() {
 
-        getView().setConnectors(Collections.EMPTY_LIST);
+        // TODO Why is the list cleared and re-initialized afterwards?
+        getView().setConnectors(Collections.<HttpConnector>emptyList());
 
         cmd.execute(new LoggingCallback<List<HttpConnector>>() {
 
@@ -109,7 +110,6 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
                 getView().setConnectors(result);
             }
         });
-
     }
 
     private void loadConnectorMetrics() {

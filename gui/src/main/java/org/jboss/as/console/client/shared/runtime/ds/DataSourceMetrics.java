@@ -2,11 +2,21 @@ package org.jboss.as.console.client.shared.runtime.ds;
 
 import java.util.List;
 
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
-import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
@@ -22,20 +32,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 
-import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
-
 /**
  * @author Heiko Braun
  * @date 12/10/11
@@ -44,7 +40,7 @@ public class DataSourceMetrics {
 
 
     private DataSourceMetricPresenter presenter;
-    private CellTable<DataSource> table;
+    private DefaultCellTable<DataSource> table;
     private ListDataProvider<DataSource> dataProvider;
     private Sampler poolSampler;
     private Sampler cacheSampler;
@@ -68,7 +64,12 @@ public class DataSourceMetrics {
 
         // ----
 
-        table = new DefaultCellTable<DataSource>(5);
+        table = new DefaultCellTable<DataSource>(5, new ProvidesKey<DataSource>() {
+            @Override
+            public Object getKey(DataSource item) {
+                return item.getJndiName();
+            }
+        });
         table.setSelectionModel(new SingleSelectionModel<DataSource>());
 
         dataProvider = new ListDataProvider<DataSource>();
@@ -252,9 +253,7 @@ public class DataSourceMetrics {
 
     public void setDataSources(List<DataSource> topics) {
         dataProvider.setList(topics);
-
-        if(!topics.isEmpty())
-            table.getSelectionModel().setSelected(topics.get(0), true);
+        table.selectDefaultEntity();
     }
 
     public void setDSPoolMetric(Metric poolMetric) {

@@ -1,15 +1,19 @@
 package org.jboss.as.console.client.shared.runtime.web;
 
+import java.util.List;
+
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -19,20 +23,17 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
-import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 12/10/11
  */
-public class WebMetricView extends DisposableViewImpl implements WebMetricPresenter.MyView {
+public class WebMetricView extends SuspendableViewImpl implements WebMetricPresenter.MyView {
 
     private WebMetricPresenter presenter;
     private Sampler sampler;
@@ -53,8 +54,14 @@ public class WebMetricView extends DisposableViewImpl implements WebMetricPresen
 
         // ----
 
-        connectorTable = new DefaultCellTable<HttpConnector>(10);
-        connectorTable.setSelectionModel(new SingleSelectionModel<HttpConnector>());
+        ProvidesKey<HttpConnector> providesKey = new ProvidesKey<HttpConnector>() {
+            @Override
+            public Object getKey(final HttpConnector item) {
+                return item.getName() + "_" + item.getProtocol();
+            }
+        };
+        connectorTable = new DefaultCellTable<HttpConnector>(10, providesKey);
+        connectorTable.setSelectionModel(new SingleSelectionModel<HttpConnector>(providesKey));
 
         connectorProvider = new ListDataProvider<HttpConnector>();
         connectorProvider.addDataDisplay(connectorTable);
@@ -159,10 +166,7 @@ public class WebMetricView extends DisposableViewImpl implements WebMetricPresen
 
     @Override
     public void setConnectors(List<HttpConnector> list) {
-
         connectorProvider.setList(list);
-
-        if(!list.isEmpty())
-            connectorTable.getSelectionModel().setSelected(list.get(0), true);
+        connectorTable.selectDefaultEntity();
     }
 }
