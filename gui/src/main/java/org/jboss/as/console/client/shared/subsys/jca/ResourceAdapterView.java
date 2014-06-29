@@ -1,5 +1,7 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import java.util.List;
+
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -8,8 +10,6 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -70,7 +70,7 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
         else{
             for(ResourceAdapter adapter : adapters)
             {
-                if(adapter.getArchive().equals(selectedAdapter))
+                if(adapter.getName().equals(selectedAdapter))
                 {
                     connectionList.setAdapter(adapter);
                     adminObjects.setAdapter(adapter);

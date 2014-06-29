@@ -1,5 +1,13 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -45,17 +53,8 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
 /**
  * @author Heiko Braun
- * @date 7/19/11
  */
 public class ResourceAdapterPresenter
         extends Presenter<ResourceAdapterPresenter.MyView, ResourceAdapterPresenter.MyProxy> {
@@ -130,6 +129,12 @@ public class ResourceAdapterPresenter
         this.selectedAdapter = request.getParameter("name", null);
     }
 
+    @Override
+    protected void onReset() {
+        super.onReset();
+        loadAdapter(true);
+    }
+
     private void loadAdapter(final boolean refreshDetail) {
 
         ModelNode operation = new ModelNode();
@@ -148,11 +153,12 @@ public class ResourceAdapterPresenter
                 List<Property> children = result.get(RESULT).asPropertyList();
                 List<ResourceAdapter> resourceAdapters = new ArrayList<ResourceAdapter>(children.size());
 
-                for(Property child : children)
-                {
+                for (Property child : children) {
                     ModelNode raModel = child.getValue();
 
                     ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
+                    // The unique identifier of a resource adapter is its name (not the archive name)
+                    resourceAdapter.setName(child.getName());
 
                     List<PropertyRecord> props = parseConfigProperties(raModel);
                     resourceAdapter.setProperties(props);
@@ -160,11 +166,9 @@ public class ResourceAdapterPresenter
                     resourceAdapter.setConnectionDefinitions(new ArrayList<ConnectionDefinition>());
 
                     // connection definition
-                    if(raModel.hasDefined("connection-definitions"))
-                    {
+                    if (raModel.hasDefined("connection-definitions")) {
                         List<Property> connections = raModel.get("connection-definitions").asPropertyList();
-                        for(final Property con : connections )
-                        {
+                        for (final Property con : connections) {
                             ModelNode connectionModel = con.getValue();
                             ConnectionDefinition connectionDefinition = connectionAdapter
                                     .with(new KeyAssignment() {
@@ -197,13 +201,11 @@ public class ResourceAdapterPresenter
 
 
                     // admin objects
-                    if(raModel.hasDefined("admin-objects"))
-                    {
+                    if (raModel.hasDefined("admin-objects")) {
                         List<Property> admins = raModel.get("admin-objects").asPropertyList();
                         List<AdminObject> adminEntities = new ArrayList<AdminObject>(admins.size());
 
-                        for(final Property admin : admins)
-                        {
+                        for (final Property admin : admins) {
                             ModelNode adminModel = admin.getValue();
                             AdminObject adminObject = adminAdapter
                                     .with(new KeyAssignment() {
@@ -221,10 +223,8 @@ public class ResourceAdapterPresenter
                         }
 
                         resourceAdapter.setAdminObjects(adminEntities);
-                    }
-                    else
-                    {
-                        resourceAdapter.setAdminObjects(Collections.EMPTY_LIST);
+                    } else {
+                        resourceAdapter.setAdminObjects(Collections.<AdminObject>emptyList());
                     }
 
 
@@ -234,7 +234,7 @@ public class ResourceAdapterPresenter
 
                 getView().setAdapters(resourceAdapters);
 
-                if(refreshDetail)
+                if (refreshDetail)
                     getView().setSelectedAdapter(selectedAdapter);
             }
         });
@@ -242,7 +242,7 @@ public class ResourceAdapterPresenter
 
     private List<PropertyRecord> parseConfigProperties(ModelNode modelNode) {
 
-        List<PropertyRecord> result = null;
+        List<PropertyRecord> result;
         // connection properties
         if(modelNode.hasDefined("config-properties"))
         {
@@ -257,16 +257,10 @@ public class ResourceAdapterPresenter
         }
         else
         {
-            result = Collections.EMPTY_LIST;
+            result = Collections.emptyList();
         }
 
         return result;
-    }
-
-    @Override
-    protected void onReset() {
-        super.onReset();
-        loadAdapter(true);
     }
 
     @Override
@@ -277,7 +271,7 @@ public class ResourceAdapterPresenter
     public void onDelete(final ResourceAdapter ra) {
 
         AddressBinding address = raMetaData.getAddress();
-        ModelNode operation = address.asResource(Baseadress.get(), ra.getArchive());
+        ModelNode operation = address.asResource(Baseadress.get(), ra.getName());
         operation.get(OP).set(REMOVE);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -305,7 +299,7 @@ public class ResourceAdapterPresenter
     public void onSave(final ResourceAdapter ra, Map<String, Object> changedValues) {
 
         AddressBinding address = raMetaData.getAddress();
-        ModelNode addressModel = address.asResource(Baseadress.get(), ra.getArchive());
+        ModelNode addressModel = address.asResource(Baseadress.get(), ra.getName());
         addressModel.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
 
@@ -357,7 +351,7 @@ public class ResourceAdapterPresenter
     public void onCreateAdapter(final ResourceAdapter ra) {
         closeDialoge();
 
-        ModelNode addressModel = raMetaData.getAddress().asResource(Baseadress.get(), ra.getArchive());
+        ModelNode addressModel = raMetaData.getAddress().asResource(Baseadress.get(), ra.getName());
 
         ModelNode operation = adapter.fromEntity(ra);
         operation.get(OP).set(ADD);
@@ -392,7 +386,7 @@ public class ResourceAdapterPresenter
         createProp.get(OP).set(ADD);
         createProp.get(ADDRESS).set(Baseadress.get());
         createProp.get(ADDRESS).add("subsystem","resource-adapters");
-        createProp.get(ADDRESS).add("resource-adapter", ra.getArchive());
+        createProp.get(ADDRESS).add("resource-adapter", ra.getName());
         //createProp.get(ADDRESS).add("connection-definitions", ra.getJndiName());
         createProp.get(ADDRESS).add("config-properties", prop.getKey());
         createProp.get("value").set(prop.getValue());
@@ -425,7 +419,7 @@ public class ResourceAdapterPresenter
         operation.get(OP).set(REMOVE);
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem","resource-adapters");
-        operation.get(ADDRESS).add("resource-adapter", ra.getArchive());
+        operation.get(ADDRESS).add("resource-adapter", ra.getName());
         //operation.get(ADDRESS).add("connection-definitions", ra.getJndiName());
         operation.get(ADDRESS).add("config-properties", prop.getKey());
 
@@ -524,7 +518,7 @@ public class ResourceAdapterPresenter
         });
     }
 
-    public void onDeletePoolConfig(final ConnectionDefinition ra, PoolConfig entity) {
+    public void onDeletePoolConfig(final ConnectionDefinition ra) {
         Map<String, Object> resetValues = new HashMap<String, Object>();
         resetValues.put("minPoolSize", 0);
         resetValues.put("maxPoolSize", 20);
@@ -706,7 +700,7 @@ public class ResourceAdapterPresenter
 
     public void onCreateAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
         ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getArchive());
+                Baseadress.get(), adapter.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(ADD);
@@ -728,7 +722,7 @@ public class ResourceAdapterPresenter
 
     public void onRemoveAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
         ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getArchive());
+                Baseadress.get(), adapter.getName());
 
         operation.get(ADDRESS).add("config-properties", prop.getKey());
         operation.get(OP).set(REMOVE);
@@ -888,7 +882,7 @@ public class ResourceAdapterPresenter
     }
 
     // https://issues.jboss.org/browse/AS7-3259
-    public void enOrDisbaleConnection(ResourceAdapter ra, ConnectionDefinition selection) {
+    public void enOrDisbaleConnection(ConnectionDefinition selection) {
         ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
@@ -911,7 +905,7 @@ public class ResourceAdapterPresenter
         });
     }
 
-    public void enOrDisbaleAdminObject(ResourceAdapter ra, AdminObject selection) {
+    public void enOrDisbaleAdminObject(AdminObject selection) {
         ModelNode operation = adminMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
