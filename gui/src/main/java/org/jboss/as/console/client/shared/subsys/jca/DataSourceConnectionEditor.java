@@ -63,7 +63,7 @@ public class DataSourceConnectionEditor {
                 "TRANSACTION_SERIALIZABLE"
         }
         );
-
+        tx.setRequired(false);
 
 
         form.setNumColumns(2);
