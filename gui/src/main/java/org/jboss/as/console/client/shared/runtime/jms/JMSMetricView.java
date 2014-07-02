@@ -7,6 +7,7 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
 
@@ -58,32 +59,12 @@ public class JMSMetricView extends SuspendableViewImpl implements JMSMetricPrese
     }
 
     @Override
-    public void setQueueInflight(Metric queueInflight) {
-        queueMetrics.setInflight(queueInflight);
+    public void updateQueueMetrics(ModelNode result) {
+        queueMetrics.updateFrom(result);
     }
 
     @Override
-    public void setQueueProcessed(Metric queueProcessed) {
-        queueMetrics.setProcessed(queueProcessed);
-    }
-
-    @Override
-    public void setQueueConsumer(Metric queueConsumer) {
-        queueMetrics.setConsumer(queueConsumer);
-    }
-
-    @Override
-    public void setTopicInflight(Metric topicInflight) {
-        topicMetrics.setInflight(topicInflight);
-    }
-
-    @Override
-    public void setTopicProcessed(Metric topicProcessed) {
-        topicMetrics.setProcessed(topicProcessed);
-    }
-
-    @Override
-    public void setTopicSubscriptions(Metric topicSubscriptions) {
-        topicMetrics.setSubscriptions(topicSubscriptions);
+    public void updateTopicMetrics(ModelNode result) {
+        topicMetrics.updateFrom(result);
     }
 }
