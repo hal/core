@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.shared.deployment;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -161,24 +160,23 @@ public class NewDeploymentWizard  {
 
         rb.setHeader(HEADER_CONTENT_TYPE, APPLICATION_JSON);
 
+        final PopupPanel loading = Feedback.loading(
+                Console.CONSTANTS.common_label_plaseWait(),
+                Console.CONSTANTS.common_label_requestProcessed(), new Feedback.LoadingCallback() {
+                    @Override
+                    public void onCancel() {
+
+                    }
+                });
+
         try {
-
-
-            final PopupPanel loading = Feedback.loading(
-                    Console.CONSTANTS.common_label_plaseWait(),
-                    Console.CONSTANTS.common_label_requestProcessed(), new Feedback.LoadingCallback() {
-                @Override
-                public void onCancel() {
-
-                }
-            });
 
             rb.sendRequest(requestJSO, new RequestCallback(){
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    //System.out.println("response=");
-                    //System.out.println(response.getText());
+
                     if(200 != response.getStatusCode()) {
+                        loading.hide();
                         onDeploymentFailed(deployment, response);
                         return;
                     }
@@ -196,13 +194,13 @@ public class NewDeploymentWizard  {
 
                 @Override
                 public void onError(Request request, Throwable exception) {
+                    loading.hide();
                     Console.error(Console.CONSTANTS.common_error_deploymentFailed() + ": " + exception.getMessage());
-                    Log.error(Console.CONSTANTS.common_error_deploymentFailed() + ": ", exception);
                 }
             });
         } catch (RequestException e) {
+            loading.hide();
             Console.error(Console.CONSTANTS.common_error_deploymentFailed() + ": " + e.getMessage());
-            Log.error(Console.CONSTANTS.common_error_unknownError(), e);
         }
     }
 
