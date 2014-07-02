@@ -68,14 +68,9 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         void setTopics(List<JMSEndpoint> topics);
         void setQueues(List<Queue> queues);
 
+        void updateQueueMetrics(ModelNode result);
 
-        void setQueueInflight(Metric queueInflight);
-        void setQueueProcessed(Metric queueProcessed);
-        void setQueueConsumer(Metric queueConsumer);
-
-        void setTopicInflight(Metric topicInflight);
-        void setTopicProcessed(Metric topicProcessed);
-        void setTopicSubscriptions(Metric topicSubscriptions);
+        void updateTopicMetrics(ModelNode result);
     }
 
     @Inject
@@ -173,28 +168,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                 else
                 {
                     ModelNode result = response.get(RESULT).asObject();
-
-                    long messageCount = result.get("message-count").asLong();
-                    long messagesAdded = result.get("messages-added").asLong();
-                    long delivering = result.get("delivering-count").asLong();
-
-                    Metric queueInflight = new Metric(
-                            messageCount,
-                            delivering
-                    );
-
-                    Metric queueProcessed = new Metric(
-                            messagesAdded,
-                            result.get("scheduled-count").asLong()
-                    );
-
-                    Metric queueConsumer = new Metric(
-                            result.get("consumer-count").asLong()
-                    );
-
-                    getView().setQueueInflight(queueInflight);
-                    getView().setQueueProcessed(queueProcessed);
-                    getView().setQueueConsumer(queueConsumer);
+                    getView().updateQueueMetrics(result);
                 }
             }
         });
@@ -228,31 +202,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                 else
                 {
                     ModelNode result = response.get(RESULT).asObject();
-
-                    long messageCount = result.get("message-count").asLong();
-                    long delivering = result.get("delivering-count").asLong();
-
-                    Metric topicInflight = new Metric(
-                            messageCount,
-                            delivering
-                    );
-
-                    Metric topicProcessed = new Metric(
-                            result.get("messages-added").asLong(),
-                            result.get("durable-message-count").asLong(),
-                            result.get("non-durable-message-count").asLong()
-
-                    );
-
-                    Metric topicSubscriptions = new Metric(
-                            result.get("subscription-count").asLong(),
-                            result.get("durable-subscription-count").asLong(),
-                            result.get("non-durable-subscription-count").asLong()
-                    );
-
-                    getView().setTopicInflight(topicInflight);
-                    getView().setTopicProcessed(topicProcessed);
-                    getView().setTopicSubscriptions(topicSubscriptions);
+                    getView().updateTopicMetrics(result);
                 }
             }
         });
@@ -332,4 +282,5 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         });
 
     }
+
 }

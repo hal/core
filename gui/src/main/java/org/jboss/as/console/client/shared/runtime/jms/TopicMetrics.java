@@ -1,36 +1,30 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
-import java.util.List;
-
 import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.help.HelpSystem;
-import org.jboss.as.console.client.shared.runtime.Metric;
-import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.runtime.Sampler;
-import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
-import org.jboss.as.console.client.shared.runtime.charts.Column;
-import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
-import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
+import org.jboss.as.console.client.rbac.ReadOnlyContext;
 import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -40,11 +34,9 @@ public class TopicMetrics {
 
 
     private JMSMetricPresenter presenter;
-    private CellTable<JMSEndpoint> topicTable;
+    private DefaultCellTable<JMSEndpoint> topicTable;
     private ListDataProvider<JMSEndpoint> dataProvider;
-    private Sampler inflightSampler;
-    private Sampler processedSampler;
-    private Sampler subscriptionSampler;
+    private ModelNodeForm topicForm;
 
     public TopicMetrics(JMSMetricPresenter presenter) {
         this.presenter = presenter;
@@ -61,7 +53,12 @@ public class TopicMetrics {
 
         // ----
 
-        topicTable = new DefaultCellTable<JMSEndpoint>(5);
+        topicTable = new DefaultCellTable<JMSEndpoint>(5, new ProvidesKey<JMSEndpoint>() {
+            @Override
+            public Object getKey(JMSEndpoint jmsEndpoint) {
+                return jmsEndpoint.getName();
+            }
+        });
         topicTable.setSelectionModel(new SingleSelectionModel<JMSEndpoint>());
 
         dataProvider = new ListDataProvider<JMSEndpoint>();
@@ -87,87 +84,6 @@ public class TopicMetrics {
 
             }
         });
-
-        // ----
-
-        NumberColumn inQueue = new NumberColumn("message-count", "Queued");
-        Column[] cols = new Column[] {
-                inQueue.setBaseline(true),
-                new NumberColumn("delivering-count","In Delivery").setComparisonColumn(inQueue),
-        };
-
-        String title = "In-Flight Messages";
-
-        final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
-                address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "messaging");
-                address.get(ModelDescriptionConstants.ADDRESS).add("hornetq-server", "default");
-                address.get(ModelDescriptionConstants.ADDRESS).add("jms-topic", "*");
-                return address;
-            }
-        };
-
-        if(Console.protovisAvailable())
-        {
-            inflightSampler = new BulletGraphView(title, "count")
-                    .setColumns(cols);
-        }
-        else
-        {
-            inflightSampler = new PlainColumnView(title, addressCallback)
-                    .setColumns(cols)
-                    .setWidth(100, Style.Unit.PCT);
-        }
-
-        // ----
-
-
-        NumberColumn processedCol = new NumberColumn("messages-added", "Added");
-        Column[] cols2 = new Column[] {
-                processedCol.setBaseline(true),
-                new NumberColumn("durable-message-count","Durable").setComparisonColumn(processedCol),
-                new NumberColumn("non-durable-message-count","Non-Durable").setComparisonColumn(processedCol)
-        };
-
-        String title2 = "Messages Processed";
-
-        if(Console.protovisAvailable())
-        {
-            processedSampler = new BulletGraphView(title2, "count")
-                    .setColumns(cols2);
-        }
-        else
-        {
-            processedSampler = new PlainColumnView(title2, addressCallback)
-                    .setColumns(cols2)
-                    .setWidth(100, Style.Unit.PCT);
-        }
-
-        // ----
-
-        NumberColumn subscriptionsCols = new NumberColumn("subscription-count", "Subscriptions");
-        Column[] cols3 = new Column[] {
-                subscriptionsCols.setBaseline(true),
-                new NumberColumn("durable-subscription-count","Durable").setComparisonColumn(subscriptionsCols),
-                new NumberColumn("non-durable-subscription-count","Nun-Durable").setComparisonColumn(subscriptionsCols)
-        };
-
-        String title3 = "Subscriptions";
-
-        if(Console.protovisAvailable())
-        {
-            subscriptionSampler = new BulletGraphView(title3, "count")
-                    .setColumns(cols3);
-        }
-        else
-        {
-            subscriptionSampler = new PlainColumnView(title3, addressCallback)
-                    .setColumns(cols3)
-                    .setWidth(100, Style.Unit.PCT);
-        }
 
         // ----
 
@@ -202,10 +118,22 @@ public class TopicMetrics {
         tablePanel.add(pager);
 
 
+        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
+                .setResourceDescription(ModelNode.fromBase64(MessagingResources.queueDescription))
+                .setSecurityContext(new ReadOnlyContext())
+                .setRuntimeOnly();
+
+        ModelNodeFormBuilder.FormAssets assets = builder.build();
+        topicForm = assets.getForm();
+
+        VerticalPanel panel = new VerticalPanel();
+        panel.setStyleName("fill-layout");
+        panel.add(assets.getHelp().asWidget());
+        panel.add(topicForm.asWidget());
+
         VerticalPanel messagePanel = new VerticalPanel();
         messagePanel.setStyleName("fill-layout-width");
-        messagePanel.add(inflightSampler.asWidget());
-        messagePanel.add(processedSampler.asWidget());
+        messagePanel.add(panel);
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle("Topics")
@@ -214,8 +142,7 @@ public class TopicMetrics {
                 .setHeadline("JMS Topic Metrics")
                 .setDescription(Console.CONSTANTS.subsys_messaging_topic_metric_desc())
                 .setMaster("Topic Selection", tablePanel)
-                .addDetail("Messages", messagePanel)
-                .addDetail("Subscriptions", subscriptionSampler.asWidget());
+                .addDetail("Messages", panel);
 
         return layout.build();
     }
@@ -225,27 +152,16 @@ public class TopicMetrics {
     }
 
     public void clearSamples() {
-        inflightSampler.clearSamples();
-        processedSampler.clearSamples();
+        topicForm.clearValues();
 
     }
 
     public void setTopics(List<JMSEndpoint> topics) {
         dataProvider.setList(topics);
-
-        if(!topics.isEmpty())
-            topicTable.getSelectionModel().setSelected(topics.get(0), true);
+        topicTable.selectDefaultEntity();
     }
 
-    public void setInflight(Metric topicInflight) {
-        inflightSampler.addSample(topicInflight);
-    }
-
-    public void setProcessed(Metric topicProcessed) {
-        processedSampler.addSample(topicProcessed);
-    }
-
-    public void setSubscriptions(Metric topicSubscriptions) {
-        subscriptionSampler.addSample(topicSubscriptions);
+    public void updateFrom(ModelNode result) {
+        topicForm.edit(result);
     }
 }
