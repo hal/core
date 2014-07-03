@@ -28,6 +28,7 @@ import com.google.gwt.i18n.client.Constants;
  * @date 5/2/11
  */
 public interface UIConstants extends Constants {
+
     String common_error_contentStillAssignedToGroup();
 
     String common_error_unexpectedHttpResponse();
@@ -1276,4 +1277,10 @@ public interface UIConstants extends Constants {
     String homepage_common_tasks();
 
     String common_label_stats();
+
+    String tx_jacorb_state_dmr_error();
+
+    String tx_jacorb_state_not_present();
+
+    String tx_jacorb_state_wrong_value();
 }

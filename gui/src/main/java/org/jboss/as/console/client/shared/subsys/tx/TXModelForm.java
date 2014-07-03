@@ -1,5 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
+import static com.google.gwt.dom.client.Style.Unit.PX;
+
+import java.util.Map;
+
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -8,9 +13,8 @@ import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.dmr.client.ModelNode;
-
-import java.util.Map;
 
 /**
  * @author Heiko Braun
@@ -22,6 +26,7 @@ public class TXModelForm {
 
     private TransactionPresenter presenter;
     private FormItem[] fields;
+    private Label formValidationError;
 
     public TXModelForm(TransactionPresenter presenter, FormItem... fields) {
         this.presenter = presenter;
@@ -33,7 +38,12 @@ public class TXModelForm {
         layout.setStyleName("fill-layout");
 
 
-        form = new Form<TransactionManager>(TransactionManager.class);
+        form = new Form<TransactionManager>(TransactionManager.class) {
+            @Override
+            public FormValidation validate() {
+                return validateTx(super.validate());
+            }
+        };
         form.setNumColumns(2);
 
         FormToolStrip<TransactionManager> toolstrip =
@@ -45,13 +55,9 @@ public class TXModelForm {
 
                     @Override
                     public void onDelete(TransactionManager entity) {
-
                     }
                 });
         toolstrip.providesDeleteOp(false);
-
-        Widget toolstripWidget = toolstrip.asWidget();
-        layout.add(toolstripWidget);
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override
@@ -61,8 +67,14 @@ public class TXModelForm {
                 return address;
             }
         }, form);
-
         layout.add(helpPanel.asWidget());
+
+        formValidationError = new Label("Form is invalid!");
+        formValidationError.addStyleName("form-error-desc");
+        formValidationError.getElement().getStyle().setLineHeight(9, PX);
+        formValidationError.getElement().getStyle().setMarginBottom(5, PX);
+        formValidationError.setVisible(false);
+        layout.add(formValidationError.asWidget());
 
         form.setFields(fields);
         form.setEnabled(false);
@@ -78,5 +90,13 @@ public class TXModelForm {
 
     public void clearValues() {
         form.clearValues();
+    }
+
+    protected FormValidation validateTx(FormValidation formValidation) {
+        return formValidation;
+    }
+
+    Label getFormValidationError() {
+        return formValidationError;
     }
 }
