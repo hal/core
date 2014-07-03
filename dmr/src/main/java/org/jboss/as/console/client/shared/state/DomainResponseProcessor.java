@@ -30,8 +30,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
 
         parseServerState(response, serverStates);
 
-        //reloadState.propagateChanges();
-
     }
 
     private static boolean parseServerState(ModelNode response, Map<String, ServerState> serverStates) {
@@ -42,9 +40,7 @@ public class DomainResponseProcessor implements ResponseProcessor {
             List<Property> serverGroups = response.get(SERVER_GROUPS).asPropertyList();
             for(Property serverGroup : serverGroups)
             {
-                //System.out.println("\n\n");
                 ModelNode serverGroupValue = serverGroup.getValue();
-                //System.out.println("server-group: "+serverGroup.getName());
 
                 //  -- Server Group --
                 if(serverGroupValue.hasDefined("host"))
@@ -55,7 +51,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
                         // -- Host  --
 
                         ModelNode hostValue = host.getValue();
-                        //System.out.println("host: "+host.getName());
                         parseHost(host.getName(), hostValue, serverStates);
                     }
                 }
@@ -67,7 +62,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
 
     private static void parseHost(final String hostName, ModelNode hostValue, Map<String, ServerState> serverStates) {
 
-        //System.out.println(hostValue);
 
         List<Property> servers = hostValue.asPropertyList();
 
@@ -75,7 +69,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
         {
 
             // -- Server  --
-            //System.out.println("server: "+ server.getName());
 
             ModelNode serverResponse = server.getValue().get(RESPONSE);
 
@@ -91,12 +84,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
 
                         if(RESTART_REQUIRED.equals(headerValue))
                         {
-                            /*reloadState.setRestartRequired(
-                                    "Host: "+hostName+", server: "+server.getName(),
-                                    true
-                            );*/
-
-
                             ServerState state = new ServerState(name);
                             state.setRestartRequired(true);
                             serverStates.put(name, state);
@@ -104,11 +91,6 @@ public class DomainResponseProcessor implements ResponseProcessor {
                         }
                         else if(RELOAD_REQUIRED.equals(headerValue))
                         {
-                            /*reloadState.setReloadRequired(
-                                    "Host: "+hostName+", server: "+server.getName(),
-                                    true
-                            );*/
-
                             ServerState state = new ServerState(name);
                             state.setReloadRequired(true);
                             serverStates.put(name, state);

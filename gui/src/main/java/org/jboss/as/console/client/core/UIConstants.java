@@ -861,9 +861,13 @@ public interface UIConstants extends Constants {
 
     String common_label_active();
 
+    String server_configuration_changed();
+
     String server_instance_reloadRequired();
 
     String server_instance_servers_needRestart();
+
+    String server_instance_servers_needReload();
 
     String subsys_jpa_deployment_desc();
 

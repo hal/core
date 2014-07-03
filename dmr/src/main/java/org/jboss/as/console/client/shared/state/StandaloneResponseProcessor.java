@@ -28,9 +28,7 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
     @Override
     public void process(ModelNode response, Map<String, ServerState> serverStates) {
 
-        boolean staleModel = parseServerState(response, serverStates);
-
-        // if(!staleModel) reloadState.reset();
+        parseServerState(response, serverStates);
 
     }
 
@@ -52,8 +50,6 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
                     {
                         staleModel=true;
 
-                        //reloadState.setRestartRequired(STANDLONE_SERVER, staleModel);
-
                         ServerState state = new ServerState(STANDLONE_SERVER);
                         state.setRestartRequired(true);
                         serverStates.put(STANDLONE_SERVER, state);
@@ -64,7 +60,7 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
                         staleModel=true;
 
                         ServerState state = new ServerState(STANDLONE_SERVER);
-                        state.setRestartRequired(true);
+                        state.setReloadRequired(true);
                         serverStates.put(STANDLONE_SERVER, state);
 
                     }

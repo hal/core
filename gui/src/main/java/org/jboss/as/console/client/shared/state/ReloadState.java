@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.inject.Singleton;
 
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import org.jboss.as.console.client.Console;
 
 /**
@@ -33,14 +34,22 @@ public class ReloadState {
             lastFiredSize = serverStates.size();
 
             StringBuffer sb = new StringBuffer();
-            sb.append("Restart Required\n");
+            ServerState serverState = serverStates.values().iterator().next();
+            String message = serverState.isReloadRequired() ?
+                    Console.CONSTANTS.server_instance_servers_needReload() :
+                    Console.CONSTANTS.server_instance_servers_needRestart();
+
+            sb.append(message).append("\n\n");
+
             for(ServerState server : serverStates.values())
             {
-                sb.append("  - ").append(server.getName()).append("\n");
+                sb.append("  - ");
+                sb.append(server.getName());
+                sb.append("\n");
             }
 
             // state update, log warning
-            Console.warning(Console.CONSTANTS.server_instance_reloadRequired(), sb.toString(), true);
+            Console.warning(Console.CONSTANTS.server_configuration_changed(), sb.toString(), true);
         }
     }
 
