@@ -26,6 +26,7 @@ import java.util.List;
  * @author David Bosschaert
  */
 class JndiEntry {
+    private static final String JAVA_LANG_STRING = "java.lang.String";
     private final String dataType;
     private final String name;
     private String value ="";
@@ -44,7 +45,7 @@ class JndiEntry {
     }
 
     public void setValue(String value) {
-        if (!String.class.getName().equals(dataType)) {
+        if (!JAVA_LANG_STRING.equals(dataType)) {
             // Don't truncate plain String values
             int idx = value.lastIndexOf(".");
 
