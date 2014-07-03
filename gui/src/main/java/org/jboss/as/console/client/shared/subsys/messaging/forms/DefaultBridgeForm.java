@@ -11,6 +11,7 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -25,11 +26,33 @@ import org.jboss.dmr.client.ModelNode;
 public class DefaultBridgeForm {
 
 
-    private Form<Bridge> form = new Form<Bridge>(Bridge.class);
+    private Form<Bridge> form = new Form<Bridge>(Bridge.class) {
+        @Override
+        public FormValidation validate() {
+            FormValidation validation = super.validate();
+
+            if(!discoveryGroup.getValue().equals("") && connectors.getValue().size()>0)
+            {
+                discoveryGroup.setErroneous(true);
+                connectors.setErroneous(true);
+
+                String errMessage = "Discovery group or connectors can be defined, not both";
+                discoveryGroup.setErrMessage(errMessage);
+                connectors.setErrMessage(errMessage);
+
+                validation.addError("discoveryGroup");
+                validation.addError("connectors");
+
+            }
+            return validation;
+        }
+    };
     private FormToolStrip.FormCallback<Bridge> callback;
     private boolean provideTools = true;
     private boolean isCreate = false;
     private MultiWordSuggestOracle oracle;
+    private TextBoxItem discoveryGroup;
+    private ListItem connectors;
 
     public DefaultBridgeForm(FormToolStrip.FormCallback<Bridge> callback) {
         this.callback = callback;
@@ -61,8 +84,8 @@ public class DefaultBridgeForm {
         queueName.setOracle(oracle);
         forward.setOracle(oracle);
 
-        TextBoxItem discoveryGroup = new TextBoxItem("discoveryGroup", "Discovery Group", false);
-        ListItem connectors = new ListItem("staticConnectors", "Static Connectors", false);
+        discoveryGroup = new TextBoxItem("discoveryGroup", "Discovery Group", false);
+        connectors = new ListItem("staticConnectors", "Static Connectors", false);
 
         if(isCreate) {
 

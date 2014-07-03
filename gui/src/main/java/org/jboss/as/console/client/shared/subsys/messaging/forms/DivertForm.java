@@ -53,7 +53,7 @@ public class DivertForm {
         divertFrom.setOracle(oracle);
         divertTo.setOracle(oracle);
 
-        TextAreaItem filter = new TextAreaItem("filter", "Filter");
+        TextAreaItem filter = new TextAreaItem("filter", "Filter", false);
         TextAreaItem transformer = new TextAreaItem("transformerClass", "Transformer Class");
 
         CheckBoxItem exclusive = new CheckBoxItem("exclusive", "Exlusive?");
