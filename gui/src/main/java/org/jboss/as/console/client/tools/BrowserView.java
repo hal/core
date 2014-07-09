@@ -1,14 +1,19 @@
 package org.jboss.as.console.client.tools;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasTreeItems;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -25,11 +30,6 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import javax.inject.Inject;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * @author Heiko Braun
  * @date 6/15/12
@@ -43,7 +43,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     private RawView rawView;
     private Tree tree;
     private DescriptionView descView;
-    private PopupPanel window;
+    private DefaultWindow window;
 
     private NodeHeader nodeHeader;
 
@@ -63,8 +63,13 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
     @Override
     public void center() {
-        //super.center();
-        window.center();
+
+        int width = Window.getClientWidth() - 50;
+        int height = Window.getClientHeight() - 50;
+        window.hide();
+        window.setPopupPosition(25, 25);
+        window.setWidth(width+"px");
+        window.setHeight(height+"px");
     }
 
     @Override
