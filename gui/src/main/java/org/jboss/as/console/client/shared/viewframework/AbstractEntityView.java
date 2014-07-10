@@ -35,6 +35,7 @@ import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -241,7 +242,11 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
 
         DefaultCellTable<T> table = makeEntityTable();
 
-        return new EntityEditor<T>(this, getEntityDisplayName(), window, table, entityDetails, hideButtons);
+        DataProviderFilter.Predicate<T> filterPredicate = makeFilterPredicate();
+        EntityEditor<T> editor = new EntityEditor<T>(this, getEntityDisplayName(), window, table, entityDetails, hideButtons);
+        if(filterPredicate!=null)
+            editor.setFilterPredicate(filterPredicate);
+        return editor;
     }
 
     protected EntityPopupWindow<T> makeAddEntityPopup() {
@@ -252,6 +257,10 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
                 getAddress(),
                 getEntityBridge()
         );
+    }
+
+    protected DataProviderFilter.Predicate<T> makeFilterPredicate() {
+        return null;
     }
 
     /**

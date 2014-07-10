@@ -31,7 +31,9 @@ import com.google.gwt.view.client.RowCountChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -62,6 +64,8 @@ public class EntityEditor<T> implements EntityListView<T> {
     private boolean includeTools = true;
     private FrameworkPresenter presenter;
     private ToolStrip customTools = null;
+    private DataProviderFilter.Predicate<T> filterPredicate;
+    private DataProviderFilter<T> filter;
 
     /**
      * Create a new Entity.
@@ -134,14 +138,20 @@ public class EntityEditor<T> implements EntityListView<T> {
         if(description!=null)
             panel.add(new ContentDescription(description));
 
-        final SingleSelectionModel<T> selectionModel = new SingleSelectionModel<T>();
+
+        SingleSelectionModel<T> selectionModel;
+        if(table.getKeyProvider()!=null)
+            selectionModel = new SingleSelectionModel<T>(table.getKeyProvider());
+        else
+            selectionModel = new SingleSelectionModel<T>();
+
         table.setSelectionModel(selectionModel);
 
         // update the detail upon change
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                T selectedEntity = selectionModel.getSelectedObject();
+                T selectedEntity = ((SingleSelectionModel<T>)table.getSelectionModel()).getSelectedObject();
                 if(selectedEntity!=null)
                     details.updatedEntity(selectedEntity);
             }
@@ -150,13 +160,21 @@ public class EntityEditor<T> implements EntityListView<T> {
         dataProvider = new ListDataProvider<T>();
         dataProvider.addDataDisplay(table);
 
+        // a filter if the predicated was provided by the view implementation
+        if(filterPredicate!=null)
+        {
+            filter = new DataProviderFilter<T>(dataProvider, filterPredicate);
+        }
+
         if(customTools!=null && customTools.hasButtons())
         {
-             panel.add(customTools);
+            if(filter!=null) customTools.addToolWidget(filter.asWidget());
+            panel.add(customTools);
         }
         else if(includeTools)
         {
             toolStrip = createTools();
+            if(filter!=null) toolStrip.addToolWidget(filter.asWidget());
             if(toolStrip.hasButtons())
                 panel.add(toolStrip);
         }
@@ -234,7 +252,7 @@ public class EntityEditor<T> implements EntityListView<T> {
         list.addAll(entityList);
         dataProvider.flush();
         dataProvider.refresh();
-
+        if(filter!=null) filter.reset(true);
 
         if (entityList.isEmpty()) return;
 
@@ -270,5 +288,9 @@ public class EntityEditor<T> implements EntityListView<T> {
 
     public void setTools(ToolStrip toolStrip) {
         this.customTools = toolStrip;
+    }
+
+    public void setFilterPredicate(DataProviderFilter.Predicate<T> filterPredicate) {
+        this.filterPredicate = filterPredicate;
     }
 }

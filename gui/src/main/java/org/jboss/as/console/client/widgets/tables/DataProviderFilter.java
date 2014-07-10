@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <b>Caveat</b>: You need to provide set the data provider list before creating the filter instance.
+ * <b>Caveat</b>: You need to set the data provider list before creating the filter instance.
  *
  * @author Heiko Braun
  * @date 7/31/12
@@ -119,7 +119,7 @@ public class DataProviderFilter<T> {
         panel.add(label);
         panel.add(filter);
 
-        label.getElement().setAttribute("style", "padding-top:8px");
+        label.getElement().setAttribute("style", "padding-top:8px;margin-right:8px");
         return panel;
     }
 

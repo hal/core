@@ -19,7 +19,9 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.Logger;
@@ -87,7 +89,12 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
 
     @Override
     protected DefaultCellTable<Logger> makeEntityTable() {
-        DefaultCellTable<Logger> table = new DefaultCellTable<Logger>(4);
+        DefaultCellTable<Logger> table = new DefaultCellTable<Logger>(8, new ProvidesKey<Logger>() {
+            @Override
+            public Object getKey(Logger item) {
+                return item.getName();
+            }
+        });
 
         table.addColumn(new NameColumn(), NameColumn.LABEL);
 
@@ -100,6 +107,16 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
         table.addColumn(levelColumn, Console.CONSTANTS.subsys_logging_logLevel());
 
         return table;
+    }
+
+    @Override
+    protected DataProviderFilter.Predicate<Logger> makeFilterPredicate() {
+        return new DataProviderFilter.Predicate<Logger>() {
+            @Override
+            public boolean apply(String prefix, Logger candiate) {
+                return candiate.getName().toLowerCase().contains(prefix.toLowerCase());
+            }
+        };
     }
 
     @Override
