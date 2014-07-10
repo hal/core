@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <b>Caveat</b>: You need to set the data provider list before creating the filter instance.
- *
  * @author Heiko Braun
  * @date 7/31/12
  */
@@ -35,7 +33,7 @@ public class DataProviderFilter<T> {
     }
 
     /**
-     *  initialized the filter by calling {@link #snapshot()}
+     *
      * @param delegate
      * @param predicate
      */
@@ -43,8 +41,6 @@ public class DataProviderFilter<T> {
         this.delegate = delegate;
         this.predicate = predicate;
         this.filter = new TextBox();
-
-        snapshot();
     }
 
     private void clearSelection() {
@@ -62,14 +58,12 @@ public class DataProviderFilter<T> {
     }
 
     /**
-     * if {@link #snapshot()} is set, a new backup if the data provider list will be made. <br/>
+     * a new backup if the data provider list will be made. <br/>
      * you need to do it when the data provider gets new records.
      *
-     * @param snapshot  create a snapshot
      */
-    public void reset(boolean snapshot) {
-        if(snapshot)
-            snapshot();
+    public void reset() {
+        snapshot();
 
         // flush
         clearFilter();
@@ -80,9 +74,9 @@ public class DataProviderFilter<T> {
 
     /**
      * creates a backup of the orig data provider values
-     * that a re used to clear the provider when the filter is cleared.
+     * that are used to reset the provider state when the filter is cleared.
      */
-    public void snapshot() {
+    private void snapshot() {
         // backup original
         this.origValues.clear();
         this.origValues.addAll(delegate.getList());
@@ -126,7 +120,7 @@ public class DataProviderFilter<T> {
         return panel;
     }
 
-    public void filterByPrefix(String prefix) {
+    private void filterByPrefix(String prefix) {
 
         clearSelection();
         delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
@@ -151,7 +145,7 @@ public class DataProviderFilter<T> {
 
     }
 
-    public void clearFilter() {
+    private void clearFilter() {
 
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(origValues);

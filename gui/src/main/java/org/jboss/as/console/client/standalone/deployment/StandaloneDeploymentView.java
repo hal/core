@@ -30,6 +30,7 @@ import org.jboss.as.console.client.shared.deployment.DeploymentBrowser;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
 import org.jboss.as.console.client.shared.deployment.DeploymentDataKeyProvider;
+import org.jboss.as.console.client.shared.deployment.DeploymentFilter;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.layout.SimpleLayout;
@@ -65,6 +66,7 @@ public class StandaloneDeploymentView extends SuspendableViewImpl implements Sta
                 keyProvider);
 
         final ToolStrip toolStrip = new ToolStrip();
+
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler()
         {
             @Override
@@ -128,6 +130,9 @@ public class StandaloneDeploymentView extends SuspendableViewImpl implements Sta
                 }));
 
         deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel);
+
+        // hacky: but the nesting/hierarchy prevents a better solution
+        toolStrip.addToolWidget(deploymentBrowser.getFilterWidget().asWidget());
 
         SimpleLayout layout = new SimpleLayout()
                 .setTitle(Console.CONSTANTS.common_label_deployments())

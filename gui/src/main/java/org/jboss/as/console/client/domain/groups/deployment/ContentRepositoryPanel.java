@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
@@ -40,7 +39,6 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.dmr.client.ModelNode;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -249,7 +247,7 @@ public class ContentRepositoryPanel implements IsWidget
         });
         this.deploymentData.setList(_deployments);
         this.deploymentsTable.selectDefaultEntity();
-        this.filter.reset(true);
+        this.filter.reset();
     }
 
     class DeploymentNameColumn extends ShortcutColumn<DeploymentRecord> {

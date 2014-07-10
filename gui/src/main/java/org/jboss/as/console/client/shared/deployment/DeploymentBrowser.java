@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
@@ -73,6 +74,17 @@ public class DeploymentBrowser
         this.selectionModel = selectionModel;
         deploymentTreeModel = new DeploymentTreeModel(this, deploymentStore, this.selectionModel);
         cellBrowser = new DefaultCellBrowser.Builder(deploymentTreeModel, null).build();
+
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                // filter may kick oin and clear the selection
+                if(null==selectionModel.getSelectedObject())
+                {
+                    contextPanel.showWidget(0);
+                }
+            }
+        });
 
         breadcrumb = new DeploymentBreadcrumb();
         breadcrumb.getElement().setAttribute("style", "margin-top:30px;");
@@ -127,6 +139,10 @@ public class DeploymentBrowser
                 new TextBoxItem("context", "Context"),
                 new TextBoxItem("endpointType", "Type"),
                 new TextBoxItem("wsdl", "WSDL"));
+    }
+
+    public DeploymentFilter getFilterWidget() {
+        return deploymentTreeModel.getFilter();
     }
 
     @SuppressWarnings("unchecked")

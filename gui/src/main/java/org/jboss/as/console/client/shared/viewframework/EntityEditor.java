@@ -31,7 +31,6 @@ import com.google.gwt.view.client.RowCountChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
@@ -252,7 +251,7 @@ public class EntityEditor<T> implements EntityListView<T> {
         list.addAll(entityList);
         dataProvider.flush();
         dataProvider.refresh();
-        if(filter!=null) filter.reset(true);
+        if(filter!=null) filter.reset();
 
         if (entityList.isEmpty()) return;
 

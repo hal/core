@@ -45,6 +45,7 @@ public class DeploymentTreeModel implements TreeViewModel
     private final DeploymentNodeInfoFactory nodeInfoFactory;
     private final ListDataProvider<DeploymentRecord> deploymentDataProvider;
     private final DefaultNodeInfo<DeploymentRecord> level0;
+    private final DeploymentFilter filter;
 
 
     public DeploymentTreeModel(final DeploymentBrowser deplymentBrowser, final DeploymentStore deploymentStore,
@@ -54,6 +55,9 @@ public class DeploymentTreeModel implements TreeViewModel
         this.deploymentDataProvider = new ListDataProvider<DeploymentRecord>();
         this.level0 = new DefaultNodeInfo<DeploymentRecord>(deploymentDataProvider, new MainDeploymentCell(deplymentBrowser),
                 selectionModel, null);
+
+        this.filter = new DeploymentFilter(deploymentDataProvider);
+
     }
 
     @Override
@@ -80,8 +84,12 @@ public class DeploymentTreeModel implements TreeViewModel
         deploymentDataProvider.getList().clear();
         deploymentDataProvider.getList().addAll(deployments);
         deploymentDataProvider.refresh();
+        this.filter.reset();
     }
 
+    public DeploymentFilter getFilter() {
+        return filter;
+    }
 
     interface DeploymentTemplates extends SafeHtmlTemplates
     {
