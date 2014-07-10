@@ -139,7 +139,8 @@ public class NewDeploymentWizard  {
         sb.append("[{\"hash\":{");
         sb.append("\"BYTES_VALUE\":\"").append(deployment.getHash()).append("\"");
         sb.append("}}],");
-        sb.append("\"name\":\"").append(deployment.getName()).append("\"");
+        sb.append("\"name\":\"").append(deployment.getName()).append("\",");
+        sb.append("\"runtime-name\":\"").append(deployment.getRuntimeName()).append("\"");
         sb.append("}");
         return sb.toString();
     }
