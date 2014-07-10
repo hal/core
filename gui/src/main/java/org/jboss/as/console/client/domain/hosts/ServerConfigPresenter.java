@@ -356,7 +356,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
-        System.out.println(operation);
+        //System.out.println(operation);
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
 
             @Override
@@ -367,7 +367,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                System.out.println(response);
+                //System.out.println(response);
                 String outcome = response.get(OUTCOME).asString();
 
                 Boolean serverIsRunning = outcome.equals(SUCCESS) ? Boolean.TRUE : Boolean.FALSE; // 1.5.x
