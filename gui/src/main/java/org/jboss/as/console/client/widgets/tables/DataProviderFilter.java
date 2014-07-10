@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.HasData;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.Range;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -27,6 +28,7 @@ public class DataProviderFilter<T> {
     private ArrayList<T> origValues = new ArrayList<T>();
     private Predicate predicate;
     private TextBox filter;
+    private Range origVisibleRange;
 
     public interface Predicate<T> {
         boolean apply(String prefix, T candiate);
@@ -84,6 +86,7 @@ public class DataProviderFilter<T> {
         // backup original
         this.origValues.clear();
         this.origValues.addAll(delegate.getList());
+        origVisibleRange = delegate.getDataDisplays().iterator().next().getVisibleRange();
     }
 
     public Widget asWidget() {
@@ -126,6 +129,7 @@ public class DataProviderFilter<T> {
     public void filterByPrefix(String prefix) {
 
         clearSelection();
+        delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
 
         final List<T> next  = new ArrayList<T>();
         for(T item : origValues)
@@ -137,6 +141,12 @@ public class DataProviderFilter<T> {
 
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(next);
+
+        if(next.size()<origVisibleRange.getLength()) {
+            for (HasData table : delegate.getDataDisplays()) {
+                table.setVisibleRange(0, next.size());
+            }
+        }
         delegate.flush();
 
     }
@@ -145,6 +155,9 @@ public class DataProviderFilter<T> {
 
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(origValues);
+
+        delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
+
         delegate.flush();
 
     }
