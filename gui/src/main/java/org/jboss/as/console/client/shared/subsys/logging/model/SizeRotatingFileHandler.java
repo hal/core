@@ -77,9 +77,9 @@ public interface SizeRotatingFileHandler extends NamedEntity, HasLevel {
     public void setFormatter(String formatter);
     
     @Binding(detypedName="file/relative-to")
-    @FormItem(defaultValue="jboss.server.log.dir",
+    @FormItem(defaultValue=FormItem.NULL,
               localLabel="subsys_logging_fileRelativeTo",
-              required=true,
+              required=false,
               formItemTypeForEdit="TEXT_BOX",
               formItemTypeForAdd="TEXT_BOX")
     public String getFileRelativeTo();
