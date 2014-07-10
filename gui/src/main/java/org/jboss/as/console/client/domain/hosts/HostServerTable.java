@@ -289,10 +289,13 @@ public class HostServerTable {
 
     private void updateDisplay() {
 
-        //String host = clip(getSelectedHost().getName(), clipAt);
+        String host = clip(getSelectedHost().getName(), clipAt);
         String server = clip(getSelectedServer().getName(), clipAt);
 
-        currentDisplayedValue.setHTML("Server:&nbsp;<b>"+server+"</b>");
+        currentDisplayedValue.setHTML(
+                "Host:&nbsp;<b>"+host+"</b><br/>"+
+                "Server:&nbsp;<b>"+server+"</b>"
+        );
     }
 
     public Host getSelectedHost() {
