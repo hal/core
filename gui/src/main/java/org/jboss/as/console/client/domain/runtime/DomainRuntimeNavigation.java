@@ -37,7 +37,8 @@ class DomainRuntimeNavigation {
 
     private ScrollPanel scroll;
     private LHSNavTree navigation;
-    private LHSTreeSection metricLeaf;
+    private LHSNavTree metrics;
+    //private LHSTreeSection metricLeaf;
     private LHSTreeSection runtimeLeaf;
 
     public Widget asWidget()
@@ -73,10 +74,15 @@ class DomainRuntimeNavigation {
         navigation = new LHSNavTree("domain-runtime");
         navigation.getElement().setAttribute("aria-label", "Runtime Tasks");
 
+        metrics = new LHSNavTree("metrics");
+        metrics.addStyleName("server-picker-stack");
+        metrics.getElement().setAttribute("style", "padding: 5px;");
+        metrics.getElement().setAttribute("aria-label", "Runtime Monitoring");
+
         // -------------
 
-        metricLeaf = new LHSTreeSection("Server Status");
-        navigation.addItem(metricLeaf);
+        //metricLeaf = new LHSTreeSection("Server Status");
+        //metrics.addItem(metricLeaf);
 
         LHSNavTreeItem datasources = new LHSNavTreeItem("Datasources", NameTokens.DataSourceMetricPresenter);
         LHSNavTreeItem jmsQueues = new LHSNavTreeItem("JMS Destinations", NameTokens.JmsMetricPresenter);
@@ -131,8 +137,10 @@ class DomainRuntimeNavigation {
         // ----------------------------------------------------
 
         navigation.expandTopLevel();
+        metrics.expandTopLevel();
 
         stack.add(navigation);
+        stack.add(metrics);
 
         layout.add(stack);
 
@@ -149,15 +157,15 @@ class DomainRuntimeNavigation {
 
     public void setSubsystems(List<SubsystemRecord> subsystems) {
 
-        metricLeaf.removeItems();
+        metrics.removeItems();
         runtimeLeaf.removeItems();
 
-        metricLeaf.setVisible(false);
+        metrics.setVisible(false);
         runtimeLeaf.setVisible(false);
 
         if(subsystems.isEmpty()) return;
 
-        metricLeaf.setVisible(true);
+        metrics.setVisible(true);
         runtimeLeaf.setVisible(true);
 
         final GroupItem platformGroup = new GroupItem("Platform");
@@ -165,7 +173,7 @@ class DomainRuntimeNavigation {
         platformGroup.addItem(new LHSNavTreeItem("JVM", NameTokens.HostVMMetricPresenter));
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
 
-        metricLeaf.addItem(platformGroup);
+        metrics.addItem(platformGroup);
         //platformGroup.setState(true);
 
         final GroupItem subsystemGroup = new GroupItem("Subsystems");
@@ -186,7 +194,7 @@ class DomainRuntimeNavigation {
             }
         }
 
-        metricLeaf.addItem(subsystemGroup);
+        metrics.addItem(subsystemGroup);
         subsystemGroup.setState(true);
         platformGroup.setState(true);
 

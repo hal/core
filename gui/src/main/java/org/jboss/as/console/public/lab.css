@@ -38,3 +38,25 @@
     border: 0px none;
     margin: 0px
 }
+
+.server-picker-wrapper {
+    padding:8px;
+}
+
+.server-picker-stack {
+    margin-top:0px!important;
+}
+
+.server-picker-section-header {
+    background: -moz-linear-gradient(center top , #F9F9F9, #EEEEEE) repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-bottom: 1px solid #CFCFCF !important;
+    color: #333333;
+    cursor: pointer;
+    height: 25px;
+    line-height: 12px !important;
+    margin-bottom: 10px;
+    padding-left: 10px!important;
+    padding-top: 12px!important;
+    width: 100%;
+}
+

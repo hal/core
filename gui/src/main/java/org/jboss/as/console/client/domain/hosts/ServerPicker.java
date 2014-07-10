@@ -37,8 +37,7 @@ public class ServerPicker implements HostServerManagement {
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setAttribute("title", "Select Server Instance");
         layout.setStyleName("fill-layout-width");
-        layout.addStyleName("lhs-selector");
-        layout.getElement().setAttribute("style","padding:4px;margin-top:10px");
+        //layout.addStyleName("lhs-selector");
 
         hostServerTable = new HostServerTable(this);
 
@@ -46,8 +45,6 @@ public class ServerPicker implements HostServerManagement {
         hostServerTable.setDescription(Console.CONSTANTS.server_instance_pleaseSelect());
 
         Widget widget = hostServerTable.asWidget();
-        widget.getElement().setAttribute("style", "width:100%;");
-
         layout.add(widget);
 
         return layout;

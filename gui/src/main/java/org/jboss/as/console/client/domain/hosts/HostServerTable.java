@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -264,7 +265,6 @@ public class HostServerTable {
         currentDisplayedValue.getElement().setAttribute("style", "padding-bottom:10px; padding-left:5px");
 
         header = new VerticalPanel();
-        //header.setStyleName("table-picker");
 
         header.getElement().setAttribute("width", "100%");
         header.getElement().setAttribute("cellspacing", "0");
@@ -281,10 +281,22 @@ public class HostServerTable {
         DefaultButton btn = new DefaultButton("Change Server");
         btn.addClickHandler(clickHandler);
         btn.addStyleName("server-picker-btn");
+        //btn.addStyleName("primary");
 
+        HTML title = new HTML("Server Status");
+        title.setStyleName("server-picker-section-header");
+        header.add(title);
         header.add(currentDisplayedValue);
         header.add(btn);
-        return header;
+
+
+        VerticalPanel p = new VerticalPanel();
+        p.setStyleName("fill-layout-width");
+        p.add(title);
+        p.add(header);
+
+        header.getElement().getParentElement().setClassName("server-picker-wrapper");
+        return p;
     }
 
     private void updateDisplay() {
@@ -320,7 +332,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft() - (winWidth - header.getOffsetWidth());
             popup.setPopupPosition(
                     popupLeft-15,
-                    header.getAbsoluteTop()+62
+                    header.getAbsoluteTop()+72
             );
         }
         else
@@ -328,7 +340,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft();
             popup.setPopupPosition(
                     popupLeft,
-                    header.getAbsoluteTop()+62
+                    header.getAbsoluteTop()+72
             );
         }
 
