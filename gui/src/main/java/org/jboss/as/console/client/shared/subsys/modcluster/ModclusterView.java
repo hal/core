@@ -76,8 +76,8 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         networkingForm = new ModclusterForm(presenter);
 
         NumberBoxItem nodeTimeout = new NumberBoxItem("nodeTimeout", "Node Timeout", true);
-        NumberBoxItem socketTimeout = new NumberBoxItem("socketTimeout", "Socket Timeout");
-        NumberBoxItem stopContextTimeout = new NumberBoxItem("stopContextTimeout", "Stop Context Timeout");
+        NumberBoxItem socketTimeout = new UndefinedAwareNumberBoxItem("socketTimeout", "Socket Timeout");
+        NumberBoxItem stopContextTimeout = new UndefinedAwareNumberBoxItem("stopContextTimeout", "Stop Context Timeout");
 
         NumberBoxItem maxAttemps = new NumberBoxItem("maxAttemps", "Max Attemps", true);
         CheckBoxItem flushPackets = new CheckBoxItem("flushPackets", "Flush Packets");
@@ -128,5 +128,22 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
         networkingForm.updateFrom(modcluster);
 
         sslEditor.edit(modcluster.getSSLConfig());
+    }
+
+    static class UndefinedAwareNumberBoxItem extends NumberBoxItem {
+
+        public UndefinedAwareNumberBoxItem(final String name, final String title) {
+            super(name, title);
+        }
+
+        @Override
+        public boolean validate(final Number value) {
+            if (value != null && value.intValue() <= 0) {
+                setUndefined(true);
+                setModified(true);
+                return true;
+            }
+            return super.validate(value);
+        }
     }
 }
