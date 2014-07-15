@@ -49,16 +49,16 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
             final DialogView view,
             final MyProxy proxy,
             final DispatchAsync dispatcher,
-            RevealStrategy revealStrategy)
+            RevealStrategy revealStrategy, CoreGUIContext globalContext)
     {
         super(eventBus, view, proxy);
 
         this.revealStrategy = revealStrategy;
 
-        CoreGUIContext globalContext = new CoreGUIContext(
+        /*CoreGUIContext globalContext = new CoreGUIContext(
                 Console.MODULES.getCurrentSelectedProfile(),
                 Console.MODULES.getCurrentUser() , Console.MODULES.getDomainEntityManager()
-        );
+        );*/
 
         // mbui kernel instance
         this.dialogs = new RemoteRepository();
