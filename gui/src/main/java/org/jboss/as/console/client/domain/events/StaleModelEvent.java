@@ -29,6 +29,7 @@ import com.google.gwt.event.shared.GwtEvent;
  * @author Heiko Braun
  * @date 2/7/11
  */
+@Deprecated
 public class StaleModelEvent extends GwtEvent<StaleModelEvent.StaleModelListener> {
 
     public static final String SERVER_GROUPS = "server-groups";

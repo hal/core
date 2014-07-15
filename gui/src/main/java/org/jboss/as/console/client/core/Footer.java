@@ -39,6 +39,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.v3.stores.DiagnosticsView;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.widgets.InlineLink;
@@ -46,6 +47,7 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.dispatch.Diagnostics;
+import org.jboss.gwt.circuit.Dispatcher;
 
 /**
  * @author Heiko Braun
@@ -55,15 +57,24 @@ public class Footer {
     public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
 
     private final BootstrapContext context;
+    private Widget diagWidget;
+    private DiagnosticsView diag;
     private PlaceManager placeManager;
     private ProductConfig productConfig;
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
 
     @Inject
-    public Footer(PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context) {
+    public Footer(PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context, Dispatcher circuit) {
         this.placeManager = placeManager;
         this.productConfig = prodConfig;
         this.context = context;
+
+        if(!GWT.isScript()) {
+            diag = new DiagnosticsView();
+            diagWidget = diag.asWidget();
+            circuit.addDiagnostics(diag);
+        }
+
     }
 
     public Widget asWidget() {
@@ -141,6 +152,11 @@ public class Footer {
         PROGRESS_ELEMENT.addStyleName("footer");
         layout.add(PROGRESS_ELEMENT);
 
+
+        if(!GWT.isScript()) {
+            layout.add(diagWidget);
+        }
+
         String versionToShow = productConfig.getConsoleVersion();
         if (versionToShow == null) {
             // That's no HAL build - fall back core version
@@ -179,6 +195,13 @@ public class Footer {
 
         layout.setWidgetRightWidth(PROGRESS_ELEMENT, 200, PX, 150, PX);
         layout.setWidgetTopHeight(PROGRESS_ELEMENT, 12, PX, 32, PX);
+
+        if(!GWT.isScript())
+        {
+            layout.setWidgetRightWidth(diagWidget, 400, PX, 300, PX);
+            layout.setWidgetTopHeight(diagWidget, 12, PX, 32, PX);
+
+        }
 
         layout.setWidgetRightWidth(tools, 5, PX, 200, PX);
         layout.setWidgetTopHeight(tools, 10, PX, 32, PX);

@@ -1,16 +1,22 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +52,13 @@ public class ServerStore extends ChangeSupport {
         });
     }
 
+    @Process(actionType = HostSelection.class, dependencies = {HostStore.class})
+    public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
+
+        onRefresh(channel);
+
+    }
+
     @Process(actionType = RefreshServer.class, dependencies = {HostStore.class})
     public void onRefresh(final Dispatcher.Channel channel) {
 
@@ -54,7 +67,7 @@ public class ServerStore extends ChangeSupport {
         hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
             @Override
             public void onSuccess(List<Server> servers) {
-                ServerStore.this.serverModel.put(hostName, servers);
+                serverModel.put(hostName, servers);
                 channel.ack();
                 fireChanged(ServerStore.class);
             }
@@ -67,10 +80,58 @@ public class ServerStore extends ChangeSupport {
 
     }
 
+    @Process(actionType = AddServer.class)
+    public void onAddServer(final Server server, final Dispatcher.Channel channel) {
+
+        hostInfo.createServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+
+                String selectedHost = hostStore.getSelectedHost();
+
+                if(!serverModel.containsKey(selectedHost))
+                    serverModel.put(selectedHost, new ArrayList<Server>());
+                serverModel.get(selectedHost).add(server);
+
+                channel.ack();
+                fireChanged(ServerStore.class);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error("Failed to add server", caught.getMessage());
+                channel.nack(caught);
+            }
+        });
+
+    }
+
+    @Process(actionType = RemoveServer.class)
+    public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
+
+        hostInfo.deleteServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                boolean removed = ServerStore.this.serverModel.get(hostStore.getSelectedHost()).remove(server);
+                if(!removed)
+                    throw new RuntimeException("Failed to remove server");
+
+                channel.ack();
+                fireChanged(ServerStore.class);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                channel.nack(caught);
+            }
+        });
+    }
+
     // data access
 
     public List<Server> getServerModel(String host) {
-        return serverModel.get(host);
+        List<Server> servers = serverModel.get(host);
+        return servers != null ? servers : Collections.<Server>emptyList();
     }
 
     public String getSelectedServer() {
