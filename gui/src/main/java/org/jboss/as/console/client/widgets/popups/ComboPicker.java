@@ -226,7 +226,7 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         return values.get(i);
     }
 
-    public void setItemSelected(int i, boolean isSelected) {
+    public void setItemSelected(int i, boolean isSelected, boolean fireChange) {
 
         String selection = "";
 
@@ -234,15 +234,20 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         {
             selection = values.get(i);
             setDisplayedValue(selection);
-            onSelection(selection);
+            if(fireChange) onSelection(selection);
         }
         else if(!isSelected)
         {
             setDisplayedValue(selection);
-            onSelection(selection);
+            if(fireChange) onSelection(selection);
         }
 
         cellList.getSelectionModel().setSelected(selection, isSelected);
+    }
+
+    public void setItemSelected(int i, boolean isSelected) {
+
+        setItemSelected(i, isSelected, true);
     }
 
     private void setDisplayedValue(String display)

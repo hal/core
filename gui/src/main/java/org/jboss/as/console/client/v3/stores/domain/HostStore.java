@@ -4,6 +4,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.gwt.circuit.ChangeSupport;
@@ -75,6 +76,21 @@ public class HostStore extends ChangeSupport {
                 channel.nack(caught);
             }
         });
+    }
+
+    @Process(actionType = HostSelection.class)
+    public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
+
+        for(Host h : hostModel) {
+            if(h.getName().equals(hostName))
+            {
+                selectedHost = h;
+                break;
+            }
+        }
+
+        channel.ack();
+        fireChanged(HostStore.class);
     }
 
     // data access

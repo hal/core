@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.state.GlobalHostSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
 
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class HostSelector {
                             new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
-                                    Console.getEventBus().fireEvent(new GlobalHostSelection(event.getValue()));
+                                    Console.getCircuit().dispatch(new HostSelection(hosts.getSelectedValue()));
                                 }
                             }
                     );
@@ -73,6 +74,6 @@ public class HostSelector {
 
         hosts.clearSelection();
         hosts.setValues(hostNames);
-        hosts.setItemSelected(selectedIndex, true);
+        hosts.setItemSelected(selectedIndex, true, false);
     }
 }
