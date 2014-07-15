@@ -107,6 +107,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onReset() {
         clearInitialPlace();
         circuit.dispatch(new RefreshHosts());
+        HostMgmtPresenter.super.onReset();
     }
 
     @Override

@@ -97,15 +97,15 @@ public class RepositoryPresenter
     @Inject
     public RepositoryPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            final SampleRepository sampleRepository, final DispatchAsync dispatcher) {
+            final SampleRepository sampleRepository, final DispatchAsync dispatcher, CoreGUIContext globalContext) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
 
-        CoreGUIContext globalContext = new CoreGUIContext(
+        /*CoreGUIContext globalContext = new CoreGUIContext(
                 Console.MODULES.getCurrentSelectedProfile(),
                 Console.MODULES.getCurrentUser(), Console.MODULES.getDomainEntityManager()
-        );
+        );*/
 
 
         DialogRepository adhocRepo = new DialogRepository() {

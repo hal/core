@@ -51,6 +51,7 @@ import org.jboss.as.console.client.core.bootstrap.LoadGoogleViz;
 import org.jboss.as.console.client.core.bootstrap.LoadMainApp;
 import org.jboss.as.console.client.core.bootstrap.RegisterSubsystems;
 import org.jboss.as.console.client.core.bootstrap.ServerStoreInit;
+import org.jboss.as.console.client.core.bootstrap.StoreAdapterInit;
 import org.jboss.as.console.client.core.bootstrap.TrackExecutionMode;
 import org.jboss.as.console.client.core.gin.Composite;
 import org.jboss.as.console.client.core.message.Message;
@@ -193,6 +194,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                         // bootstrap functions
                         // Activate once CORS is supported / Keymaker is in place
                         // new BootstrapServerSetup(),
+                        new StoreAdapterInit(),
                         new LoadGoogleViz(),
                         new ExecutionMode(MODULES.getDispatchAsync()),
                         new TrackExecutionMode(MODULES.getAnalytics()),
