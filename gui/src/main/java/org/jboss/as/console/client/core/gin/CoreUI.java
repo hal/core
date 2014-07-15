@@ -141,11 +141,16 @@ import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.HostStoreAdapter;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
+import org.jboss.gwt.circuit.Dispatcher;
 
 
 /**
@@ -363,4 +368,12 @@ public interface CoreUI {
     UnauthorisedPresenter getUnauthorisedPresenter();
 
     AsyncProvider<DialogPresenter> getDialogPresenter();
+
+    Dispatcher getCircuitDispatcher();
+
+    HostStore getHostStore();
+    HostStoreAdapter getHostStoreAdapter();
+
+    ServerStore getServerStore();
+    ServerStoreAdapter getServerStoreAdapter();
 }

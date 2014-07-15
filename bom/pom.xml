@@ -91,12 +91,53 @@
                 <version>${ballroom.version}</version>
             </dependency>
 
-          <dependency>
-            <groupId>org.jboss.hal</groupId>
-            <artifactId>redhat-support-plugin</artifactId>
-            <classifier>resources</classifier>
-            <version>${csp.plugin.version}</version>
-          </dependency>
+                    <dependency>
+                        <groupId>org.jboss.gwt.circuit</groupId>
+                        <artifactId>circuit-core</artifactId>
+                        <version>${circuit.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jboss.gwt.circuit</groupId>
+                        <artifactId>circuit-core</artifactId>
+                        <classifier>sources</classifier>
+                        <version>${circuit.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jgrapht</groupId>
+                        <artifactId>jgrapht-core</artifactId>
+                        <version>${jgrapht.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jgrapht</groupId>
+                        <artifactId>jgrapht-core</artifactId>
+                        <classifier>sources</classifier>
+                        <version>${jgrapht.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jboss.gwt.circuit</groupId>
+                        <artifactId>circuit-meta</artifactId>
+                        <version>${circuit.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jboss.gwt.circuit</groupId>
+                        <artifactId>circuit-meta</artifactId>
+                        <version>${circuit.version}</version>
+                        <classifier>sources</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jboss.gwt.circuit</groupId>
+                        <artifactId>circuit-processor</artifactId>
+                        <version>${circuit.version}</version>
+                        <scope>provided</scope>
+                    </dependency>
+
+
+            <dependency>
+                <groupId>org.jboss.hal</groupId>
+                <artifactId>redhat-support-plugin</artifactId>
+                <classifier>resources</classifier>
+                <version>${csp.plugin.version}</version>
+            </dependency>
 
             <!-- GWT related -->
             <dependency>

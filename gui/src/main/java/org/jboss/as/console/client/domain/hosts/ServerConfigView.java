@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import java.util.List;
-
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -41,12 +39,13 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -249,9 +248,10 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     }
 
     @Override
-    public void setConfigurations(ServerConfigList serverList) {
+    public void setConfigurations(String selectedHost, List<Server> serverModel) {
+
         serverConfigProvider.getList().clear();
-        serverConfigProvider.getList().addAll(serverList.getServer());
+        serverConfigProvider.getList().addAll(serverModel);
         serverConfigProvider.refresh();
 
         jvmEditor.clearValues();
@@ -260,6 +260,8 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         serverConfigTable.selectDefaultEntity();
 
     }
+
+
 
     @Override
     public void setGroups(List<ServerGroupRecord> result) {

@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.ServerPicker;
+import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
@@ -149,12 +150,6 @@ class DomainRuntimeNavigation {
         return scroll;
     }
 
-    public void setHosts(HostList hosts) {
-
-        serverPicker.setHosts(hosts);
-
-    }
-
     public void setSubsystems(List<SubsystemRecord> subsystems) {
 
         metrics.removeItems();
@@ -207,5 +202,9 @@ class DomainRuntimeNavigation {
 
     public void resetHostSelection() {
         serverPicker.resetHostSelection();
+    }
+
+    public void setHosts(Host selectedHost, List<Host> hostModel) {
+        serverPicker.setHosts(selectedHost, hostModel);
     }
 }

@@ -238,6 +238,10 @@ import org.jboss.as.console.client.tools.ToolsView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.HostStoreAdapter;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.GinExtensionBinding;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -245,6 +249,8 @@ import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 import org.jboss.dmr.client.dispatch.impl.DispatchAsyncImpl;
 import org.jboss.dmr.client.dispatch.impl.HandlerRegistry;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 /**
  * Provides the bindings for the core UI widgets.
@@ -740,6 +746,16 @@ public class CoreUIModule extends AbstractPresenterModule {
                         DialogView.class,
                         DialogViewImpl.class,
                         DialogPresenter.MyProxy.class);
+
+
+        // circuit wiring
+        bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
+
+        bind(HostStore.class).in(Singleton.class);
+        bind(HostStoreAdapter.class).in(Singleton.class);
+
+        bind(ServerStore.class).in(Singleton.class);
+        bind(ServerStoreAdapter.class).in(Singleton.class);
     }
 }
 

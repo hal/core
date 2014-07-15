@@ -87,17 +87,19 @@
 
     <properties>
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
-        <version.maven.processor.plugin>2.2.4</version.maven.processor.plugin>
+        <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
         <ace.version>1.0.0-jboss-1</ace.version>
         <ballroom.version>2.0.14-SNAPSHOT</ballroom.version>
-        <gin.version>2.0.0</gin.version>
+        <circuit.version>0.0.2</circuit.version>
+        <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
-        <gwt.version>2.5.1</gwt.version>
+        <gwt.version>2.6.1</gwt.version>
         <gwtp.version>1.0.1</gwtp.version>
-        <gwt.maven>2.5.1</gwt.maven>
+        <gwt.maven>2.6.1</gwt.maven>
         <gwt-log.version>3.2.1</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
+        <jgrapht.version>0.9.1-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
         <protovis.version>0.4.1</protovis.version>
         <csp.plugin.version>1.0.0-SNAPSHOT</csp.plugin.version>

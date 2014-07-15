@@ -20,9 +20,6 @@
 
 package org.jboss.as.console.client;
 
-import java.util.EnumSet;
-import java.util.Map;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -45,15 +42,15 @@ import org.jboss.as.console.client.core.UIConstants;
 import org.jboss.as.console.client.core.UIDebugConstants;
 import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadGroups;
-import org.jboss.as.console.client.core.bootstrap.EagerLoadHosts;
 import org.jboss.as.console.client.core.bootstrap.EagerLoadProfiles;
-import org.jboss.as.console.client.core.bootstrap.EagerLoadServersOfFirstHost;
 import org.jboss.as.console.client.core.bootstrap.ExecutionMode;
+import org.jboss.as.console.client.core.bootstrap.HostStoreInit;
 import org.jboss.as.console.client.core.bootstrap.InsufficientPrivileges;
 import org.jboss.as.console.client.core.bootstrap.LoadCompatMatrix;
 import org.jboss.as.console.client.core.bootstrap.LoadGoogleViz;
 import org.jboss.as.console.client.core.bootstrap.LoadMainApp;
 import org.jboss.as.console.client.core.bootstrap.RegisterSubsystems;
+import org.jboss.as.console.client.core.bootstrap.ServerStoreInit;
 import org.jboss.as.console.client.core.bootstrap.TrackExecutionMode;
 import org.jboss.as.console.client.core.gin.Composite;
 import org.jboss.as.console.client.core.message.Message;
@@ -62,8 +59,6 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.HelpSystem;
-import org.jboss.as.console.client.shared.state.GlobalHostSelection;
-import org.jboss.as.console.client.shared.state.GlobalServerSelection;
 import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
@@ -72,6 +67,9 @@ import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Main application entry point. Executes several initialisation phases.
@@ -180,15 +178,6 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                         // DMR notifications
                         Notifications.addReloadHandler(Console.this);
 
-                        // try to select a host and server instance (necessary for things like indexing)
-                        if (context.getInitialHosts() != null && context.getInitialHosts().getSelectedHost() != null) {
-                            Console.getEventBus().fireEvent(
-                                    new GlobalHostSelection(context.getInitialHosts().getSelectedHost().getName()));
-                        }
-                        if (context.getInitialServer() != null) {
-                            Console.getEventBus().fireEvent(new GlobalServerSelection(context.getInitialServer()));
-                        }
-
                         new LoadMainApp(
                                 MODULES.getBootstrapContext(),
                                 MODULES.getPlaceManager(),
@@ -210,8 +199,8 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                         new LoadCompatMatrix(MODULES.modelVersions()),
                         new RegisterSubsystems(MODULES.getSubsystemRegistry()),
                         new EagerLoadProfiles(MODULES.getProfileStore(), MODULES.getCurrentSelectedProfile()),
-                        new EagerLoadHosts(MODULES.getDomainEntityManager()),
-                        new EagerLoadServersOfFirstHost(MODULES.getDomainEntityManager()),
+                        new HostStoreInit(MODULES.getHostStore()),
+                        new ServerStoreInit(MODULES.getHostStore(), MODULES.getServerStore()),
                         new EagerLoadGroups(MODULES.getServerGroupStore())
                 );
             }

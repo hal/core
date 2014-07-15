@@ -371,24 +371,23 @@ public class HostServerTable {
         this.serverList.getSelectionModel().setSelected(serverList.getSelectedServer(), true);
     }
 
-    public void setHosts(HostList hosts) {
-
-        ratio.setText("");
-
-        hostPager.setVisible(hosts.getHosts().size()>=5);
-
-        hostProvider.setList(hosts.getHosts());
-
-        hostList.getSelectionModel().setSelected(hosts.getSelectedHost(), true);
-
-    }
-
     /**
      * will reload the server list
      * @param host
      */
     private void selectHost(Host host) {
         hostList.getSelectionModel().setSelected(host, true);
+    }
+
+    public void setHosts(Host selectedHost, List<Host> hostModel) {
+        ratio.setText("");
+
+        hostPager.setVisible(hostModel.size()>=5);
+
+        hostProvider.setList(hostModel);
+
+        hostList.getSelectionModel().setSelected(selectedHost, true);
+
     }
 
     interface Template extends SafeHtmlTemplates {

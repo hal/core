@@ -39,13 +39,20 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -54,9 +61,10 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private final Dispatcher circuit;
 
     private BootstrapContext bootstrap;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -66,37 +74,39 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     public interface MyView extends View {
         void setPresenter(HostMgmtPresenter presenter);
-        void updateHosts(HostList hosts);
+
+        void updateHosts(String selectedHost, List<Host> hostModel);
     }
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            BootstrapContext bootstrap, Header header, DomainEntityManager domainManager,
+            BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
             UnauthorisedPresenter unauthorisedPresenter) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
 
         this.bootstrap = bootstrap;
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
+        this.circuit = circuit;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostModel());
+            }
+        });
     }
 
     @Override
     protected void onReset() {
-        domainManager.getHosts(new SimpleCallback<HostList>() {
-            @Override
-            public void onSuccess(HostList hostList) {
-                clearInitialPlace();
-                getView().updateHosts(hostList);
-                HostMgmtPresenter.super.onReset(); // What's this ??
-            }
-        });
+        clearInitialPlace();
+        circuit.dispatch(new RefreshHosts());
     }
 
     @Override

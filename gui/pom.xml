@@ -68,6 +68,16 @@
             <classifier>sources</classifier>
         </dependency>
 
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-meta</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-processor</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- GWT -->
         <dependency>
             <groupId>com.google.gwt</groupId>
@@ -181,10 +191,11 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <outputDiagnostics>false</outputDiagnostics>
+                            <outputDiagnostics>true</outputDiagnostics>
                             <addCompileSourceRoots>false</addCompileSourceRoots>
                             <appendSourceArtifacts>false</appendSourceArtifacts>
                             <processors>
+                                <processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
