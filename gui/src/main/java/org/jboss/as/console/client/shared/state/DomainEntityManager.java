@@ -21,7 +21,7 @@ import org.jboss.as.console.client.shared.BeanFactory;
 
 /**
  * Domain entity manager corresponds to the picker (host, server) that rely on the host data:
- * The manager loads the data, each pricker provides the selection, which then is retained within this instance.
+ * The manager loads the data, each picker provides the selection, which then is retained within this instance.
  * This way there is a single instance that maintains the global host and server selections.
  *
  * @author Heiko Braun
@@ -261,7 +261,7 @@ public class DomainEntityManager implements
 
     private Server getSelectedServerConfig(List<Server> serverConfigs) {
 
-        if(serverConfigs.isEmpty()) throw new IllegalStateException("No sever configs available!");
+        if(serverConfigs.isEmpty()) throw new IllegalStateException("No server configs available!");
 
         Server matched = null;
 

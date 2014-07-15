@@ -135,15 +135,15 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
         SecurityContext context = event.getSecurityContext();
         String addressTemplate = event.getResourceAddress();
-        System.out.println("<SCC>");
+       // System.out.println("<SCC>");
 
         if (context == null) {
             // address resolution
             ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
                     event.getWildcards());
             String resourceAddress = normalize(addressNode.get(ADDRESS));
-            System.out.println(
-                    "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+           // System.out.println(
+           //         "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
 
             // look for child context
             context = getSecurityContext();
@@ -151,9 +151,9 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 System.out.println("\tFound child context for " + resourceAddress);
                 context = context.getChildContext(resourceAddress);
             }
-        } else {
+        }/* else {
             System.out.println("\tReceiving security context change event for " + context);
-        }
+        }*/
 
         // update widgets (if visible and filter applies)
         for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
@@ -165,11 +165,11 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 update = widget.getFilter().equals(addressTemplate);
             }
             if (update && widget.isAttached()) {
-                System.out.println("\tUpdating widget " + id);
+                //System.out.println("\tUpdating widget " + id);
                 widget.updateSecurityContext(context);
             }
         }
-        System.out.println("</SCC>\n");
+        //System.out.println("</SCC>\n");
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {

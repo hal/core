@@ -361,13 +361,12 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
             @Override
             public void onFailure(Throwable throwable) {
-                performDeleteOperation(server); // TODO: really? Upon failure?
+               Console.error("Failed to delete server", throwable.getMessage());
             }
 
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                //System.out.println(response);
                 String outcome = response.get(OUTCOME).asString();
 
                 Boolean serverIsRunning = outcome.equals(SUCCESS) ? Boolean.TRUE : Boolean.FALSE; // 1.5.x
@@ -377,7 +376,12 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                     serverIsRunning = response.get(RESULT).get("server-state").asString().equalsIgnoreCase("running");
                 }
 
-                if (!serverIsRunning) { performDeleteOperation(server); } else {
+                if (!serverIsRunning)
+                {
+                    performDeleteOperation(server);
+                }
+                else
+                {
                     Console.error(
                             Console.MESSAGES.deletionFailed("Server Configuration"),
                             Console.MESSAGES.server_config_stillRunning(server.getName())
@@ -394,18 +398,21 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         hostInfoStore.deleteServerConfig(domainManager.getSelectedHost(), server, new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.getMessageCenter().notify(
-                        new Message(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName(),
-                                Message.Severity.Error)
-                );
+                Console.error(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName(), caught.getMessage());
             }
 
             @Override
             public void onSuccess(Boolean wasSuccessful) {
                 if (wasSuccessful) {
                     Console.info(Console.MESSAGES.deleted("Server Configuration ") + server.getName());
-
                     loadServerConfigurations();
+
+                    // what if the deleted server was the last selected server?
+                    if(server.getName().equals(domainManager.getSelectedServer()))
+                    {
+                        // TODO
+                    }
+
                 } else {
                     Console.error(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName());
                 }
@@ -624,6 +631,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response = result.get();
+
+                //System.out.println(response);
 
                 if (response.isFailure()) {
                     Console.error("Failed to read server-config: " + original.getName(),
