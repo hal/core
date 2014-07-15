@@ -33,8 +33,6 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
-import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
@@ -49,27 +47,23 @@ import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
 import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
-import org.jboss.as.console.client.shared.state.ServerConfigList;
-import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -77,7 +71,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -284,43 +277,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     public void onSaveChanges(final Server entity, Map<String, Object> changedValues) {
-
-        //System.out.println(changedValues);
-
-        if (changedValues.containsKey("portOffset")) { changedValues.put("socketBinding", entity.getSocketBinding()); }
-
-        if (changedValues.containsKey("socketBinding")) { changedValues.put("portOffset", entity.getPortOffset()); }
-
-        final String name = entity.getName();
-
-        ModelNode proto = new ModelNode();
-        proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        proto.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
-
-        List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
-        ModelNode operation = ModelAdapter.detypedFromChangeset(proto, changedValues, bindings);
-
-        // TODO: https://issues.jboss.org/browse/AS7-3643
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.modificationFailed("Server Configuration ") + name,
-                            response.getFailureDescription());
-
-                } else {
-                    Console.info(Console.MESSAGES.modified("Server Configuration ") + name);
-                }
-
-                loadServerConfigurations();
-            }
-        });
-
+        circuit.dispatch(new UpdateServer(entity, changedValues));
     }
 
 
@@ -566,76 +523,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     public void onSaveCopy(final String targetHost, final Server original, final Server newServer) {
         window.hide();
+        circuit.dispatch(new CopyServer(targetHost, original, newServer));
 
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        operation.get(ADDRESS).add("server-config", original.getName());
-        operation.get(RECURSIVE).set(true);
-
-        dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.error("Failed to read server-config: " + original.getName(), caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-
-                //System.out.println(response);
-
-                if (response.isFailure()) {
-                    Console.error("Failed to read server-config: " + original.getName(),
-                            response.getFailureDescription());
-                } else {
-                    ModelNode model = response.get("result").asObject();
-
-                    // required attribute changes: portOffset & serverGroup
-                    model.get("socket-binding-port-offset").set(newServer.getPortOffset());
-                    model.remove("name");
-
-                    // re-create node
-
-                    ModelNode compositeOp = new ModelNode();
-                    compositeOp.get(OP).set(COMPOSITE);
-                    compositeOp.get(ADDRESS).setEmptyList();
-
-                    List<ModelNode> steps = new ArrayList<ModelNode>();
-
-                    final ModelNode rootResourceOp = new ModelNode();
-                    rootResourceOp.get(OP).set(ADD);
-                    rootResourceOp.get(ADDRESS).add("host", targetHost);
-                    rootResourceOp.get(ADDRESS).add("server-config", newServer.getName());
-
-                    steps.add(rootResourceOp);
-
-                    DMRUtil.copyResourceValues(model, rootResourceOp, steps);
-
-                    compositeOp.get(STEPS).set(steps);
-
-                    dispatcher.execute(new DMRAction(compositeOp), new SimpleCallback<DMRResponse>() {
-                        @Override
-                        public void onSuccess(DMRResponse dmrResponse) {
-                            ModelNode response = dmrResponse.get();
-
-                            if (response.isFailure()) {
-                                Console.error("Failed to copy server-config", response.getFailureDescription());
-                            } else {
-                                Console.info("Successfully copied server-config '" + newServer.getName() + "'");
-                            }
-
-                            loadServerConfigurations();
-
-                        }
-                    });
-
-                }
-
-            }
-
-        });
     }
 }
