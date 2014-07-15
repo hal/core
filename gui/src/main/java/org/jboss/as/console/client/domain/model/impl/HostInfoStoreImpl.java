@@ -303,10 +303,17 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void getServerConfiguration(String host, String server, final AsyncCallback<Server> callback) {
+    public void getServerConfiguration(final String host, final String server, final AsyncCallback<Server> callback) {
 
         if (host==null) throw new RuntimeException("Host parameter is null!");
-        if (NOT_SET.equals(host)) return;
+        if (NOT_SET.equals(host)){
+            callback.onFailure(new RuntimeException("Attempt to load data w/o host chosen"));
+            return;
+        }
+        else if (NOT_SET.equals(server)){
+            callback.onFailure(new RuntimeException("Attempt to load data w/o server chosen"));
+            return;
+        }
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -325,18 +332,24 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response = result.get();
-                ModelNode model = response.get("result").asObject();
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to get server config (host/server):"+host+"/"+server));
+                }
+                else {
+                    ModelNode model = response.get("result").asObject();
 
-                Server server = serverAdapter.fromDMR(model);
-                server.setStarted(model.get("status").asString().equals("STARTED"));
+                    Server server = serverAdapter.fromDMR(model);
+                    server.setStarted(model.get("status").asString().equals("STARTED"));
 
-                callback.onSuccess(server);
+                    callback.onSuccess(server);
+                }
             }
 
         });
     }
 
-    public void getVirtualMachines(String host, final AsyncCallback<List<String>> callback) {
+    public void getVirtualMachines(final String host, final AsyncCallback<List<String>> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
         operation.get(CHILD_TYPE).set("jvm");
@@ -353,14 +366,22 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response = result.get();
-                List<ModelNode> payload = response.get("result").asList();
 
-                List<String> records = new ArrayList<String>(payload.size());
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to load VM's from host :"+host));
+                }
+                else {
+                    List<ModelNode> payload = response.get("result").asList();
 
-                for(ModelNode jvm : payload)
-                    records.add(jvm.asString());
+                    List<String> records = new ArrayList<String>(payload.size());
 
-                callback.onSuccess(records);
+                    for(ModelNode jvm : payload)
+                        records.add(jvm.asString());
+
+                    callback.onSuccess(records);
+                }
+
             }
 
         });
@@ -568,53 +589,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
             }
         });
 
-
-
-        /* ModelNode operation = new ModelNode();
-     operation.get(ADDRESS).setEmptyList();
-     operation.get(OP).set(COMPOSITE);
-
-     List<ModelNode> steps = new ArrayList<ModelNode>();
-
-     // ---  fetch configs
-
-     final ModelNode configOp = new ModelNode();
-     configOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-     configOp.get(CHILD_TYPE).set("server-config");
-     configOp.get(ADDRESS).setEmptyList();
-     configOp.get(ADDRESS).add("host", host);
-     configOp.get(INCLUDE_RUNTIME).set(true);
-
-
-     steps.add(configOp);
-
-     // ---  fetch instance state
-
-     final ModelNode instanceOp = new ModelNode();
-     instanceOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-     instanceOp.get(CHILD_TYPE).set("server");
-     instanceOp.get(ADDRESS).setEmptyList();
-     instanceOp.get(ADDRESS).add("host", host);
-     instanceOp.get(INCLUDE_RUNTIME).set(true);
-
-     steps.add(instanceOp);
-
-     operation.get(STEPS).set(steps);
-
-     System.out.println(operation);
-
-     dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-         @Override
-         public void onSuccess(DMRResponse result) {
-
-             ModelNode response = result.get();
-
-             System.out.println(response);
-         }
-
-     });   */
-
     }
 
 
@@ -711,31 +685,31 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-       public void killServer(final String host, final String configName, boolean destroyIt, final AsyncCallback<Boolean> callback) {
-           final String actualOp = destroyIt ? "destroy" : "kill";
+    public void killServer(final String host, final String configName, boolean destroyIt, final AsyncCallback<Boolean> callback) {
+        final String actualOp = destroyIt ? "destroy" : "kill";
 
-           final ModelNode operation = new ModelNode();
-           operation.get(OP).set(actualOp);
-           operation.get(ADDRESS).add("host", host);
-           operation.get(ADDRESS).add("server-config", configName);
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(actualOp);
+        operation.get(ADDRESS).add("host", host);
+        operation.get(ADDRESS).add("server-config", configName);
 
-           dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-               @Override
-               public void onSuccess(DMRResponse result) {
-                   ModelNode response = result.get();
-                   if (response.isFailure()) {
-                       callback.onSuccess(false);
-                   } else {
-                       callback.onSuccess(true);
-                   }
-               }
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
 
-               @Override
-               public void onFailure(Throwable caught) {
-                   callback.onFailure(caught);
-               }
-           });
-       }
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+        });
+    }
 
 
     @Override
@@ -764,7 +738,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void createServerConfig(String host, Server record, final AsyncCallback<Boolean> callback) {
+    public void createServerConfig(final  String host, final Server record, final AsyncCallback<Boolean> callback) {
         final ModelNode serverConfig = new ModelNode();
         serverConfig.get(OP).set(ModelDescriptionConstants.ADD);
         serverConfig.get(ADDRESS).add("host", host);
@@ -795,10 +769,16 @@ public class HostInfoStoreImpl implements HostInformationStore {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                String outcome = response.get("outcome").asString();
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to create server:"+response.getFailureDescription()));
+                }
+                else {
+                    String outcome = response.get("outcome").asString();
 
-                Boolean wasSuccessful = outcome.equals("success") ? Boolean.TRUE : Boolean.FALSE;
-                callback.onSuccess(wasSuccessful);
+                    Boolean wasSuccessful = outcome.equals("success") ? Boolean.TRUE : Boolean.FALSE;
+                    callback.onSuccess(wasSuccessful);
+                }
             }
         });
     }
@@ -823,7 +803,13 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                callback.onSuccess(response.get(OUTCOME).asString().equals(SUCCESS));
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to save server: "+response.getFailureDescription()));
+                }
+                else {
+                    callback.onSuccess(response.get(OUTCOME).asString().equals(SUCCESS));
+                }
             }
         });
     }
@@ -845,8 +831,16 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                Boolean wasSuccessful = !response.isFailure();
-                callback.onSuccess(wasSuccessful);
+
+                if(response.isFailure())
+                {
+                    callback.onFailure(new RuntimeException("Failed to delete server: "+response.getFailureDescription()));
+                }
+                else
+                {
+                    Boolean wasSuccessful = !response.isFailure();
+                    callback.onSuccess(wasSuccessful);
+                }
             }
         });
     }
@@ -871,8 +865,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
                 }
                 else
                 {
-
-
                     List<Property> jvms = result.get(RESULT).asPropertyList();
                     if(!jvms.isEmpty())
                     {
@@ -906,7 +898,6 @@ public class HostInfoStoreImpl implements HostInformationStore {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
-
 
                 if(result.isFailure())
                 {

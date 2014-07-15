@@ -168,21 +168,21 @@ public class DomainRuntimePresenter
         // clear view
         getView().setSubsystems(Collections.<SubsystemRecord>emptyList());
 
-        Function<FunctionContext> f1 = new Function<FunctionContext>() {
+        final Function<FunctionContext> f1 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
                 hostInfoStore.getServerConfiguration(domainManager.getSelectedHost(), domainManager.getSelectedServer(),
                         new PushFlowCallback<Server>(control));
             }
         };
-        Function<FunctionContext> f2 = new Function<FunctionContext>() {
+        final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
                 final Server server = control.getContext().pop();
                 serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
         };
-        Function<FunctionContext> f3 = new Function<FunctionContext>() {
+        final Function<FunctionContext> f3 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
                 ServerGroupRecord group = control.getContext().pop();
@@ -190,7 +190,7 @@ public class DomainRuntimePresenter
                         new PushFlowCallback<List<SubsystemRecord>>(control));
             }
         };
-        Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
+        final Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
             public void onFailure(final FunctionContext context) {
                 // TODO i18n
@@ -212,6 +212,12 @@ public class DomainRuntimePresenter
         };
 
         // load subsystems for selected server
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome, f1, f2, f3);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome, f1, f2, f3);
+            }
+        });
+
     }
 }
