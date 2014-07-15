@@ -66,6 +66,7 @@ import org.jboss.as.console.client.shared.state.ServerState;
 import org.jboss.as.console.client.widgets.progress.ProgressPolyfill;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
@@ -269,6 +270,10 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     public static EventBus getEventBus() {
         return MODULES.getEventBus();
     }
+
+    public static Dispatcher getCircuit() {
+            return MODULES.getCircuitDispatcher();
+        }
 
     @Deprecated
     public static MessageCenter getMessageCenter() {

@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.GwtEvent;
  * @author Heiko Braun
  * @date 12/10/12
  */
+@Deprecated
 public class HostSelectionChanged extends GwtEvent<HostSelectionChanged.ChangeListener> {
 
     public static final Type TYPE = new Type<ChangeListener>();

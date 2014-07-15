@@ -87,8 +87,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 3/3/11
  */
 public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
-        implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement,
-        HostSelectionChanged.ChangeListener {
+        implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
 
     private final ServerStore serverStore;
     private final Dispatcher circuit;
@@ -164,17 +163,27 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                handleChange();
+            }
+        });
 
         serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                getView().setConfigurations(
-                        hostStore.getSelectedHost(),
-                        serverStore.getServerModel(hostStore.getSelectedHost())
-                );
+                handleChange();
             }
         });
+    }
+
+    private void handleChange() {
+        getView().setConfigurations(
+                hostStore.getSelectedHost(),
+                serverStore.getServerModel(hostStore.getSelectedHost())
+        );
     }
 
     @Override
@@ -194,11 +203,6 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         if (placeManager.getCurrentPlaceRequest().getNameToken().equals(getProxy().getNameToken())) {
             loadSocketBindings();
         }
-    }
-
-    @Override
-    public void onHostSelectionChanged() {
-        onReset();
     }
 
     public void onServerConfigSelectionChanged(final Server server) {
