@@ -14,6 +14,8 @@ import org.jboss.as.console.client.shared.state.GlobalServerSelection;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.shared.state.ServerInstanceList;
 
+import java.util.List;
+
 /**
  * @author Heiko Braun
  * @date 11/4/11
@@ -50,9 +52,6 @@ public class ServerPicker implements HostServerManagement {
         return layout;
     }
 
-    public void setHosts(HostList hosts) {
-        hostServerTable.setHosts(hosts);
-    }
 
     @Override
     public void loadServer(final String selectedHost, final Command... commands) {
@@ -83,5 +82,9 @@ public class ServerPicker implements HostServerManagement {
             }
         });
 
+    }
+
+    public void setHosts(Host selectedHost, List<Host> hostModel) {
+        hostServerTable.setHosts(selectedHost, hostModel);
     }
 }

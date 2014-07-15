@@ -1,17 +1,12 @@
 package org.jboss.as.console.client.tools;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasTreeItems;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -29,6 +24,11 @@ import org.jboss.ballroom.client.widgets.icons.DefaultTreeResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -243,7 +243,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         for(ModelNode child : modelNodes)
         {
-            TreeItem childItem = new TreeItem(child.asString());
+            SafeHtmlBuilder sh = new SafeHtmlBuilder();
+            TreeItem childItem = new TreeItem(sh.appendEscaped(child.asString()).toSafeHtml());
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
         }
@@ -258,7 +259,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         for(ModelNode child : modelNodes)
         {
-            TreeItem childItem = new TreeItem(child.asString());
+            SafeHtmlBuilder sh = new SafeHtmlBuilder();
+            TreeItem childItem = new TreeItem(sh.appendEscaped(child.asString()).toSafeHtml());
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
         }
@@ -346,8 +348,9 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     }
 
     class PlaceholderItem extends TreeItem {
+
         PlaceholderItem() {
-            super("*");
+            super(new SafeHtmlBuilder().appendEscaped("*").toSafeHtml());
         }
     }
 }

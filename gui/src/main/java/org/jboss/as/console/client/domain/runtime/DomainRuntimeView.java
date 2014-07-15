@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
@@ -69,8 +70,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     public void setPresenter(DomainRuntimePresenter presenter) {}
 
     @Override
-    public void setHosts(HostList hosts) {
-        lhsNavigation.setHosts(hosts);
+    public void setHosts(Host selectedHost, List<Host> hostModel) {
+        lhsNavigation.setHosts(selectedHost, hostModel);
     }
 
     @Override

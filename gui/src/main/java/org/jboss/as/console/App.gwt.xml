@@ -36,6 +36,9 @@
 
     <inherits name="edu.ycp.cs.dh.acegwt.AceGWT"/>
 
+    <inherits name="org.jboss.gwt.Circuit"/>
+    <inherits name="org.jboss.gwt.circuit.Meta"/>
+
     <!--
        https://issues.jboss.org/browse/AS7-3977
        inherits name="com.google.gwt.precompress.Precompress"/-->

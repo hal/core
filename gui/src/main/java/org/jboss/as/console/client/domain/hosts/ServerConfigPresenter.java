@@ -19,13 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -62,11 +55,12 @@ import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.spi.AccessControl;
@@ -78,6 +72,15 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -87,6 +90,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement,
         HostSelectionChanged.ChangeListener {
 
+    private final ServerStore serverStore;
+    private final Dispatcher circuit;
     private HostInformationStore hostInfoStore;
     private ServerGroupStore serverGroupStore;
 
@@ -100,7 +105,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     private PlaceManager placeManager;
 
     private LoadSocketBindingsCmd loadSocketCmd;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
 
 
     @ProxyCodeSplit
@@ -127,18 +132,18 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         void setPorts(String socketBinding, Server selectedRecord, List<SocketBinding> result);
 
-        void setConfigurations(ServerConfigList serverList);
-
         void setGroups(List<ServerGroupRecord> result);
 
         void setPreselection(String config);
 
+        void setConfigurations(String selectedHost, List<Server> serverModel);
     }
 
     @Inject
     public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostInformationStore hostInfoStore,
             ServerGroupStore serverGroupStore, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
-            BeanFactory factory, PlaceManager placeManager, DomainEntityManager domainManager) {
+            BeanFactory factory, PlaceManager placeManager, HostStore hostStore, ServerStore serverStore, Dispatcher circuit
+    ) {
 
         super(eventBus, view, proxy);
 
@@ -148,8 +153,10 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         this.propertyMetaData = propertyMetaData;
         this.factory = factory;
         this.placeManager = placeManager;
-        this.domainManager = domainManager;
+        this.serverStore = serverStore;
+        this.hostStore = hostStore;
         this.loadSocketCmd = new LoadSocketBindingsCmd(dispatcher, factory, propertyMetaData);
+        this.circuit = circuit;
     }
 
     @Override
@@ -158,6 +165,16 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
         getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                getView().setConfigurations(
+                        hostStore.getSelectedHost(),
+                        serverStore.getServerModel(hostStore.getSelectedHost())
+                );
+            }
+        });
     }
 
     @Override
@@ -208,18 +225,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     private void loadServerConfigurations() {
-        domainManager.getHosts(new SimpleCallback<HostList>() {
-            @Override
-            public void onSuccess(HostList hostList) {
-                domainManager.getServerConfigurations(hostList.getSelectedHost().getName(),
-                        new SimpleCallback<ServerConfigList>() {
-                            @Override
-                            public void onSuccess(ServerConfigList serverList) {
-                                getView().setConfigurations(serverList);
-                            }
-                        });
-            }
-        });
+        circuit.dispatch(new RefreshServer());
 
         serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
@@ -318,7 +324,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        proto.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        proto.get(ADDRESS).add("host", hostStore.getSelectedHost());
         proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
 
         List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
@@ -351,7 +357,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         // check if instance exist
         ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
         operation.get(ADDRESS).add("server", server.getName());
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -395,7 +401,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     private void performDeleteOperation(final Server server) {
 
-        hostInfoStore.deleteServerConfig(domainManager.getSelectedHost(), server, new AsyncCallback<Boolean>() {
+        hostInfoStore.deleteServerConfig(hostStore.getSelectedHost(), server, new AsyncCallback<Boolean>() {
             @Override
             public void onFailure(Throwable caught) {
                 Console.error(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName(), caught.getMessage());
@@ -408,7 +414,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                     loadServerConfigurations();
 
                     // what if the deleted server was the last selected server?
-                    if(server.getName().equals(domainManager.getSelectedServer()))
+                    if(server.getName().equals(serverStore.getSelectedServer()))
                     {
                         // TODO
                     }
@@ -423,14 +429,14 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     public String getSelectedHost() {
-        return domainManager.getSelectedHost();
+        return hostStore.getSelectedHost();
     }
 
 
     @Override
     public void onCreateJvm(String reference, Jvm jvm) {
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -448,7 +454,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     public void onDeleteJvm(String reference, Jvm jvm) {
 
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -468,7 +474,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         if (changedValues.size() > 0) {
             ModelNode address = new ModelNode();
-            address.add("host", domainManager.getSelectedHost());
+            address.add("host", hostStore.getSelectedHost());
             address.add("server-config", reference);
             address.add(JVM, jvmName);
             final String selectedConfigName = reference;
@@ -490,7 +496,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         }
 
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -508,7 +514,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     public void onDeleteProperty(String reference, final PropertyRecord prop) {
 
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -570,7 +576,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     public void loadJVMConfiguration(final Server server) {
-        hostInfoStore.loadJVMConfiguration(domainManager.getSelectedHost(), server, new SimpleCallback<Jvm>() {
+        hostInfoStore.loadJVMConfiguration(hostStore.getSelectedHost(), server, new SimpleCallback<Jvm>() {
             @Override
             public void onSuccess(Jvm jvm) {
             getView().setJvm(server.getName(), jvm);
@@ -580,7 +586,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     public void loadProperties(final Server server) {
         hostInfoStore
-                .loadProperties(domainManager.getSelectedHost(), server, new SimpleCallback<List<PropertyRecord>>() {
+                .loadProperties(hostStore.getSelectedHost(), server, new SimpleCallback<List<PropertyRecord>>() {
                     @Override
                     public void onSuccess(List<PropertyRecord> properties) {
                     getView().setProperties(server.getName(), properties);
@@ -600,7 +606,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             public void onSuccess(List<Host> result) {
 
                 window.trapWidget(
-                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, domainManager.getSelectedHost())
+                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, hostStore.getSelectedHost())
                                 .asWidget()
                 );
 
@@ -617,7 +623,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
         operation.get(ADDRESS).add("server-config", original.getName());
         operation.get(RECURSIVE).set(true);
 

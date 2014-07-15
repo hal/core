@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.domain.runtime;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
@@ -24,36 +21,42 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostList;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.jboss.gwt.flow.client.PushFlowCallback;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Heiko Braun
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements StaleModelEvent.StaleModelListener, ServerSelectionChanged.ChangeListener,
-        HostSelectionChanged.ChangeListener, UnauthorizedEvent.UnauthorizedHandler {
+        implements StaleModelEvent.StaleModelListener,
+        UnauthorizedEvent.UnauthorizedHandler {
+
+    private final Dispatcher circuit;
+    private final ServerStore serverStore;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
@@ -63,33 +66,37 @@ public class DomainRuntimePresenter
 
     public interface MyView extends View {
         void setPresenter(DomainRuntimePresenter presenter);
-        void setHosts(HostList hosts);
         void setSubsystems(List<SubsystemRecord> result);
+
+        void setHosts(Host selectedHost, List<Host> hostModel);
     }
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
 
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
     private final PlaceManager placeManager;
-    private final HostInformationStore hostInfoStore;
+
     private final SubsystemStore subsysStore;
     private final ServerGroupStore serverGroupStore;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            HostInformationStore hostInfoStore, DomainEntityManager domainManager, SubsystemStore subsysStore,
-            ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
+            HostStore hostStore, SubsystemStore subsysStore,
+            ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
+            Dispatcher circuit, ServerStore serverStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,
                 TYPE_MainContent);
 
         this.placeManager = placeManager;
-        this.hostInfoStore = hostInfoStore;
-        this.domainManager = domainManager;
+
+        this.hostStore = hostStore;
         this.subsysStore = subsysStore;
         this.serverGroupStore = serverGroupStore;
+        this.circuit = circuit;
+        this.serverStore = serverStore;
     }
 
     @Override
@@ -97,9 +104,21 @@ public class DomainRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
 
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
         getEventBus().addHandler(StaleModelEvent.TYPE, this);
+
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                getView().setHosts(hostStore.getSelectedHostInstance(), hostStore.getHostModel());
+            }
+        });
+
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                loadSubsystems();
+            }
+        });
     }
 
     @Override
@@ -115,12 +134,7 @@ public class DomainRuntimePresenter
 
     private void loadHostData() {
         // load host and server data
-        domainManager.getHosts(new SimpleCallback<HostList>() {
-            @Override
-            public void onSuccess(final HostList hosts) {
-                getView().setHosts(hosts);
-            }
-        });
+        circuit.dispatch(new RefreshHosts());
     }
 
     @Override
@@ -136,20 +150,6 @@ public class DomainRuntimePresenter
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        // we can ignore if the server is running, it only requires configuration data
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                loadSubsystems();
-            }
-        });
-    }
-
-    @Override
-    public void onHostSelectionChanged() {
-    }
 
     @Override
     public void onStaleModel(String modelName) {
@@ -168,17 +168,10 @@ public class DomainRuntimePresenter
         // clear view
         getView().setSubsystems(Collections.<SubsystemRecord>emptyList());
 
-        final Function<FunctionContext> f1 = new Function<FunctionContext>() {
-            @Override
-            public void execute(final Control<FunctionContext> control) {
-                hostInfoStore.getServerConfiguration(domainManager.getSelectedHost(), domainManager.getSelectedServer(),
-                        new PushFlowCallback<Server>(control));
-            }
-        };
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final Server server = control.getContext().pop();
+                final Server server = serverStore.getSelectedServerInstance();
                 serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
         };
@@ -215,7 +208,7 @@ public class DomainRuntimePresenter
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome, f1, f2, f3);
+                new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome, f2, f3);
             }
         });
 

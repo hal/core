@@ -62,6 +62,47 @@
             <classifier>sources</classifier>
             <scope>provided</scope>
         </dependency>
+
+                <dependency>
+                    <groupId>org.jboss.gwt.circuit</groupId>
+                    <artifactId>circuit-core</artifactId>
+                    <version>${circuit.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.gwt.circuit</groupId>
+                    <artifactId>circuit-core</artifactId>
+                    <classifier>sources</classifier>
+                    <version>${circuit.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jgrapht</groupId>
+                    <artifactId>jgrapht-core</artifactId>
+                    <version>${jgrapht.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jgrapht</groupId>
+                    <artifactId>jgrapht-core</artifactId>
+                    <classifier>sources</classifier>
+                    <version>${jgrapht.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.gwt.circuit</groupId>
+                    <artifactId>circuit-meta</artifactId>
+                    <version>${circuit.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.gwt.circuit</groupId>
+                    <artifactId>circuit-meta</artifactId>
+                    <version>${circuit.version}</version>
+                    <classifier>sources</classifier>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.gwt.circuit</groupId>
+                    <artifactId>circuit-processor</artifactId>
+                    <version>${circuit.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
         <dependency>
             <groupId>org.jboss.hal</groupId>
             <artifactId>redhat-support-plugin</artifactId>
@@ -156,12 +197,18 @@
                     <extraJvmArgs>-Xmx1024m -DDEBUG -XX:MaxPermSize=512M</extraJvmArgs>
                     <style>OBF</style>
                     <hostedWebapp>war</hostedWebapp>
+                    <sourceLevel>1.7</sourceLevel>
                     <localWorkers>4</localWorkers>
                     <compileReport>false</compileReport>
                     <module>org.jboss.as.console.composite.App_WF</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <enableClosureCompiler>true</enableClosureCompiler>
+                  <!--  <compileSourcesArtifacts>
+                        <artifact>org.jgrapht:jgrapht-core</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-core</artifact>
+                        <artifact>org.jboss.gwt.circuit:circuit-meta</artifact>
+                    </compileSourcesArtifacts>-->
                 </configuration>
                 <executions>
                     <execution>
@@ -187,6 +234,7 @@
                             <appendSourceArtifacts>true</appendSourceArtifacts>
                             <processors>
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
+                                <!--processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor-->
                             </processors>
                             <options>
                                 <!--

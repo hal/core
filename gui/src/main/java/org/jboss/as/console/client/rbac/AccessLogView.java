@@ -2,6 +2,7 @@ package org.jboss.as.console.client.rbac;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -44,11 +45,13 @@ public class AccessLogView {
             String token = keys.next();
             Set<String> addresses = log.getAddresses(token);
 
-            TreeItem parent = tree.addItem(token+" ("+addresses.size()+")");
+            SafeHtmlBuilder sh = new SafeHtmlBuilder();
+            TreeItem parent = tree.addItem(sh.appendEscaped(token+" ("+addresses.size()+")").toSafeHtml());
 
             for(String address : addresses)
             {
-                parent.addItem(address);
+                SafeHtmlBuilder sh2 = new SafeHtmlBuilder();
+                parent.addItem(sh2.appendEscaped(address).toSafeHtml());
             }
         }
     }

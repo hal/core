@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -12,8 +9,10 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.state.GlobalHostSelection;
-import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -61,14 +60,14 @@ public class HostSelector {
         return layout;
     }
 
-    public void setHosts(HostList hostList) {
 
+    public void setHosts(String selectedHost, List<Host> hostModel) {
         List<String> hostNames = new ArrayList<String>();
         int selectedIndex = 0;
         int i = 0;
-        for (Host h : hostList.getHosts()) {
+        for (Host h : hostModel) {
             hostNames.add(h.getName());
-            if (h.getName().equals(hostList.getSelectedHost().getName())) { selectedIndex = i; }
+            if (h.getName().equals(selectedHost)) { selectedIndex = i; }
             i++;
         }
 

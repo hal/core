@@ -57,28 +57,6 @@ public class DomainEntityManager implements
         }
     }
 
-    public class NoServerAvailable extends IllegalStateException {
-        public NoServerAvailable() {
-            super("No server available!");
-        }
-    }
-
-    public void getHosts(final AsyncCallback<HostList> callback) {
-        hostInfo.getHosts(new SimpleCallback<List<Host>>() {
-            @Override
-            public void onSuccess(List<Host> hosts) {
-                Host host = null;
-                try {
-                    host = getSelectedHost(hosts);
-                    callback.onSuccess(new HostList(host, hosts));
-                } catch (RuntimeException e) {
-                    callback.onFailure(e);
-                }
-
-            }
-        });
-    }
-
     public void getServerInstances(String hostName, final AsyncCallback<ServerInstanceList> callback) {
         hostInfo.getServerInstances(hostName, new SimpleCallback<List<ServerInstance>>() {
             @Override
@@ -100,23 +78,6 @@ public class DomainEntityManager implements
         });
     }
 
-    public void getServerConfigurations(String hostName, final AsyncCallback<ServerConfigList> callback) {
-        hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
-            @Override
-            public void onSuccess(List<Server> serverConfigs) {
-
-                if (serverConfigs.isEmpty()) {
-                    // no server at all on this host
-                    Server blank = factory.server().as();
-                    blank.setName(NOT_SET);
-                    callback.onSuccess(new ServerConfigList(blank, Collections.EMPTY_LIST));
-                } else {
-                    Server s = getSelectedServerConfig(serverConfigs);
-                    callback.onSuccess(new ServerConfigList(s, serverConfigs));
-                }
-            }
-        });
-    }
 
     public String getSelectedHost() {
 
@@ -132,14 +93,6 @@ public class DomainEntityManager implements
             Log.warn("server selection is null");//throw new IllegalStateException("server should not be null");
 
         return selectedServer!=null ? selectedServer.getName() : NOT_SET;
-    }
-
-    public ServerSelection getSelectedServerStatus() {
-
-        if(null==selectedServer)
-            return new ServerSelection("n/a", false);
-        else
-            return selectedServer;
     }
 
     @Override

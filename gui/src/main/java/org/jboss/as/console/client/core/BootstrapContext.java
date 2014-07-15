@@ -19,14 +19,6 @@
 
 package org.jboss.as.console.client.core;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
@@ -34,7 +26,13 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.rbac.StandardRole;
-import org.jboss.as.console.client.shared.state.HostList;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -51,7 +49,7 @@ public class BootstrapContext implements ApplicationProperties {
     private boolean hostManagementDisabled;
     private boolean groupManagementDisabled;
     private Set<String> roles;
-    private HostList initialHosts;
+
     private Set<String> addressableHosts = Collections.emptySet();
     private Set<String> addressableGroups = Collections.emptySet();
     private String runAs;
@@ -295,19 +293,4 @@ public class BootstrapContext implements ApplicationProperties {
         return initialProfiles;
     }
 
-    public HostList getInitialHosts() {
-        return initialHosts;
-    }
-
-    public void setInitialHosts(final HostList initialHosts) {
-        this.initialHosts = initialHosts;
-    }
-
-    public void setInitialServer(final ServerInstance initialServer) {
-        this.initialServer = initialServer;
-    }
-
-    public ServerInstance getInitialServer() {
-        return initialServer;
-    }
 }

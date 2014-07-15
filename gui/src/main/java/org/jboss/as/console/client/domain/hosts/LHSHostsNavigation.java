@@ -25,10 +25,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -106,10 +109,8 @@ class LHSHostsNavigation {
         return scroll;
     }
 
-    public void setHosts(HostList hosts) {
-
-        hostSelector.setHosts(hosts);
-
+    public void setHosts(String selectedHost, List<Host> hostModel) {
+        hostSelector.setHosts(selectedHost, hostModel);
         navigation.expandTopLevel();
     }
 }

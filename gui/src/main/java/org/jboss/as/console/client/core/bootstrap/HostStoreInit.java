@@ -1,73 +1,69 @@
 package org.jboss.as.console.client.core.bootstrap;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostList;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 /**
- * The main function of this bootstrap step is to provide a host preselection.
- *
+ * @author Heiko Braun
+ * @date 15/07/14
  */
-public class EagerLoadHosts implements Function<BootstrapContext> {
+public class HostStoreInit implements Function<BootstrapContext> {
+    private final HostStore hostStore;
 
-    private final DomainEntityManager domainManager;
-
-    public EagerLoadHosts(DomainEntityManager domainManager) {
-        this.domainManager = domainManager;
+    public HostStoreInit(HostStore hostStore) {
+        this.hostStore = hostStore;
     }
 
     @Override
     public void execute(final Control<BootstrapContext> control) {
         final BootstrapContext context = control.getContext();
 
-        if(!context.isStandalone())
-        {
-            domainManager.getHosts(new SimpleCallback<HostList>() {
+
+        if (!context.isStandalone()) {
+
+            hostStore.init(new SimpleCallback<List<Host>>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    if(caught instanceof DomainEntityManager.NoHostsAvailable)
-                    {
+                    if (caught instanceof DomainEntityManager.NoHostsAvailable) {
                         // this is expected (host scoped roles)
                         context.setHostManagementDisabled(true);
                         control.proceed();
-                    }
-                    else
-                    {
+                    } else {
                         context.setlastError(caught);
                         control.abort();
                     }
                 }
 
                 @Override
-                public void onSuccess(HostList hostList) {
-                    Log.info("Identified " + hostList.getHosts().size() + " hosts in this domain");
-                    context.setInitialHosts(hostList);
-                    if(hostList.isEmpty()) {
+                public void onSuccess(List<Host> hosts) {
+                    Log.info("Identified " + hosts.size() + " hosts in this domain");
+
+                    if (hosts.isEmpty()) {
                         context.setHostManagementDisabled(true);
                     }
 
-                    Set<String> hosts = new TreeSet<String>();
-                    for(Host host : hostList.getHosts()) hosts.add(host.getName());
-                    control.getContext().setAddressableHosts(hosts);
+                    // TODO (hbraun): cleanup, should be part of HostStore
+                    Set<String> hostNames = new TreeSet<String>();
+                    for (Host host : hosts) hostNames.add(host.getName());
+                    control.getContext().setAddressableHosts(hostNames);
                     control.proceed();
 
                 }
             });
-        }
-        else
-        {
+        } else {
             // standalone
             control.proceed();
         }
     }
-
 }
