@@ -91,7 +91,6 @@ import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.web.WebMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
@@ -123,8 +122,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresen
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
-import org.jboss.as.console.client.shared.subsys.osgi.config.OSGiConfigurationPresenter;
-import org.jboss.as.console.client.shared.subsys.osgi.runtime.OSGiRuntimePresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
@@ -204,8 +201,6 @@ public interface CoreUI {
     Baseadress getBaseadress();
     RuntimeBaseAddress getRuntimeBaseAddress();
 
-    DomainEntityManager getDomainEntityManager();
-
     ModelVersions modelVersions();
 
     // ----------------------------------------------------------------------
@@ -277,8 +272,6 @@ public interface CoreUI {
 
     AsyncProvider<ScannerPresenter> getScannerPresenter();
     AsyncProvider<ConfigAdminPresenter> getConfigAdminPresenter();
-    AsyncProvider<OSGiConfigurationPresenter> getOSGiConfigurationPresenter();
-    AsyncProvider<OSGiRuntimePresenter> getOSGiRuntimePresenter();
     AsyncProvider<SocketBindingPresenter> getSocketBindingPresenter();
 
     // Infinispan

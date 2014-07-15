@@ -18,13 +18,13 @@
  */
 package org.jboss.as.console.client.administration.role.form;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Simple form for POJOs. Expects you to handle the form items on your own.

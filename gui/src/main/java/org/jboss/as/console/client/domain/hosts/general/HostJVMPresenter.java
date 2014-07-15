@@ -19,14 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -47,8 +39,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
@@ -59,13 +50,22 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
  * @date 5/18/11
  */
 public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
-        implements JvmManagement, HostSelectionChanged.ChangeListener {
+        implements JvmManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostJVMPresenter)
@@ -83,19 +83,19 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
 
     private final DispatchAsync dispatcher;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private final EntityAdapter<Jvm> adapter;
     private DefaultWindow window;
 
     @Inject
     public HostJVMPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-            DomainEntityManager domainManager, ApplicationMetaData metaData,
-            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                            HostStore hostStore, ApplicationMetaData metaData,
+                            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
         this.placeRequestSecurityFramework = placeRequestSecurityFramework;
         this.adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
     }
@@ -104,7 +104,15 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if (isVisible()) {
+                    placeRequestSecurityFramework.update(HostJVMPresenter.this, hostPlaceRequest());
+                    loadJVMConfig();
+                }
+            }
+        });
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
@@ -119,18 +127,9 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         loadJVMConfig();
     }
 
-
-    @Override
-    public void onHostSelectionChanged() {
-        if (isVisible()) {
-            placeRequestSecurityFramework.update(this, hostPlaceRequest());
-            loadJVMConfig();
-        }
-    }
-
     private PlaceRequest hostPlaceRequest() {
         return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", domainManager.getSelectedHost()).build();
+                .with("host", hostStore.getSelectedHost()).build();
     }
 
     @Override
@@ -139,7 +138,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         closeDialogue();
 
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add(JVM, jvm.getName());
 
         ModelNode operation = adapter.fromEntity(jvm);
@@ -171,7 +170,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        operation.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
         operation.get(CHILD_TYPE).set(JVM);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -214,7 +213,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(REMOVE);
-        operation.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
         operation.get(ADDRESS).add(JVM, jvm.getName());
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -240,7 +239,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
         ModelNode address = new ModelNode();
         address.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        address.get(ADDRESS).add("host", domainManager.getSelectedHost());
+        address.get(ADDRESS).add("host", hostStore.getSelectedHost());
         address.get(ADDRESS).add(JVM, jvmName);
 
         ModelNode operation = adapter.fromChangeset(changedValues, address);
@@ -277,7 +276,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         });
 
         window.trapWidget(
-                new NewHostJvmWizard(this, domainManager.getSelectedHost()).asWidget()
+                new NewHostJvmWizard(this, hostStore.getSelectedHost()).asWidget()
         );
 
         window.setGlassEnabled(true);

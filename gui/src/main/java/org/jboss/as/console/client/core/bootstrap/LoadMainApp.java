@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.History;
@@ -12,6 +8,10 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Either loads the default place or one specified from external context (URL tokens)

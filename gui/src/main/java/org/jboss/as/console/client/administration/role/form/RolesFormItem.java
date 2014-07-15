@@ -18,11 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.form;
 
-import static com.google.gwt.dom.client.Style.Unit.PX;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
@@ -41,6 +36,11 @@ import org.jboss.as.console.client.administration.role.ui.UIHelper;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.gwt.dom.client.Style.Unit.PX;
 
 /**
  * @author Harald Pehl

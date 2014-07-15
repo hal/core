@@ -35,7 +35,6 @@ import org.jboss.ballroom.client.widgets.forms.StatusItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.Map;

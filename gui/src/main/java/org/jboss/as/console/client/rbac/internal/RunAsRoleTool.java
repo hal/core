@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.rbac.internal;
 
-import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -44,6 +37,13 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import static org.jboss.as.console.client.shared.Preferences.Key.RUN_AS_ROLE;
 
 /**
  * @author Harald Pehl

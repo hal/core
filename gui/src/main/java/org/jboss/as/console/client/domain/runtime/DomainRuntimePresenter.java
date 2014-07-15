@@ -22,9 +22,9 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
@@ -171,7 +171,7 @@ public class DomainRuntimePresenter
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final Server server = serverStore.getSelectedServerInstance();
+                final ServerInstance server = serverStore.getSelectedServerInstance();
                 serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
         };

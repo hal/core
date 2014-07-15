@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -37,6 +30,13 @@ import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 /**
  * @author Harald Pehl

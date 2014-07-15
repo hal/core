@@ -19,9 +19,9 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

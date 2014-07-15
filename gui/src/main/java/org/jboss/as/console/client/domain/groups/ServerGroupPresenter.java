@@ -19,14 +19,6 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -77,6 +69,14 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Maintains a single server group.

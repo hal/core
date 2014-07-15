@@ -18,12 +18,12 @@
  */
 package org.jboss.as.console.client.shared.flow;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
 
 /**
  * General purpose call back for functions inside a flow. Expects a {@link FunctionContext} as context where an error

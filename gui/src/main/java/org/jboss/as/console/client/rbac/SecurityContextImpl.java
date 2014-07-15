@@ -1,13 +1,13 @@
 package org.jboss.as.console.client.rbac;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The security context has access to the authorisation meta data and provides policies to reason over it.

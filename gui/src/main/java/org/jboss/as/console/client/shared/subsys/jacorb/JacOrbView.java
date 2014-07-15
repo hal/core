@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.jacorb;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.jacorb.model.JacOrbSubsystem;
@@ -21,6 +17,10 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 
 public class JacOrbView extends AbstractEntityView<JacOrbSubsystem> implements JacOrbPresenter.MyView, FrameworkView {
     private final EntityToDmrBridge<JacOrbSubsystem> bridge;

@@ -18,9 +18,9 @@
  */
 package org.jboss.as.console.client.administration.audit;
 
-import static com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
-
 import com.google.web.bindery.autobean.shared.Splittable;
+
+import static com.google.web.bindery.autobean.shared.AutoBean.PropertyName;
 
 /**
  * @author Harald Pehl

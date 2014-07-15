@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap;
 
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -21,6 +17,10 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class EagerLoadGroups implements Function<BootstrapContext> {
 

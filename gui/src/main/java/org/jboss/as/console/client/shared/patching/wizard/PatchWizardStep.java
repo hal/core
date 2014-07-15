@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
@@ -33,6 +31,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @param <C> The context

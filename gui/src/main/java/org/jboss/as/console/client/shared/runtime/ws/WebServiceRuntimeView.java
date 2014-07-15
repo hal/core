@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
-import java.util.Comparator;
-import java.util.List;
-
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -23,6 +20,9 @@ import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author Heiko Braun

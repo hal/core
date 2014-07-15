@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Principal;
@@ -35,6 +31,10 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
 * @author Harald Pehl

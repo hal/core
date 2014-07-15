@@ -11,7 +11,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaWorkmanager;
 import org.jboss.as.console.client.shared.subsys.jca.model.WorkmanagerPool;

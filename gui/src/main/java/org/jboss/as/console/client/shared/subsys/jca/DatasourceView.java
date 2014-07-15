@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import java.util.List;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -30,6 +28,8 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

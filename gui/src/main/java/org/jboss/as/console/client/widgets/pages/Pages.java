@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.TabListener;
 import com.google.gwt.user.client.ui.TabListenerCollection;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.mbui.reification.ChoiceStrategy;
 
 import java.util.Iterator;
 

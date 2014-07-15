@@ -1,15 +1,15 @@
 package org.jboss.as.console.client.shared.subsys.ws;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
-
-import java.util.List;
-
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun

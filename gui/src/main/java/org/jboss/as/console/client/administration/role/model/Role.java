@@ -18,13 +18,13 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import com.google.gwt.view.client.ProvidesKey;
+import org.jboss.as.console.client.rbac.StandardRole;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import com.google.gwt.view.client.ProvidesKey;
-import org.jboss.as.console.client.rbac.StandardRole;
 
 /**
  * @author Harald Pehl

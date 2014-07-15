@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.standalone.runtime;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -19,12 +17,14 @@ import org.jboss.as.console.client.shared.jvm.model.CompositeVMMetric;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
 
 /**
  * @author Heiko Braun
@@ -32,7 +32,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
  */
 public class VMMetricsPresenter
         extends Presenter<VMView, VMMetricsPresenter.MyProxy>
-        implements VMMetricsManagement, ServerSelectionChanged.ChangeListener {
+        implements VMMetricsManagement {
 
     private ApplicationMetaData metaData;
     private LoadJVMMetricsCmd loadMetricCmd;
@@ -68,7 +68,12 @@ public class VMMetricsPresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if(isVisible()) refresh();
+            }
+        });
     }
 
     @Override
@@ -133,10 +138,5 @@ public class VMMetricsPresenter
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, StandaloneRuntimePresenter.TYPE_MainContent, this);
-    }
-
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        if(isVisible()) refresh();
     }
 }

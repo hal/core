@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jboss.as.console.client.rbac.StandardRole;
-
 /**
  * Contains the list of standard roles plus the custom defined scoped roles.
  *

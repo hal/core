@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
-import static com.google.gwt.dom.client.Style.Unit.PX;
-
-import java.util.Map;
-
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -15,6 +11,10 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.Map;
+
+import static com.google.gwt.dom.client.Style.Unit.PX;
 
 /**
  * @author Heiko Braun

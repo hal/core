@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
-import static org.jboss.as.console.client.ProductConfig.Profile.PRODUCT;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -39,6 +33,12 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
+import static org.jboss.as.console.client.ProductConfig.Profile.PRODUCT;
 
 /**
  * @author Harald Pehl

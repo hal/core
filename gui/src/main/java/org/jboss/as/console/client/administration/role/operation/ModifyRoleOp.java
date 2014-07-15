@@ -18,9 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -28,6 +25,9 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Harald Pehl

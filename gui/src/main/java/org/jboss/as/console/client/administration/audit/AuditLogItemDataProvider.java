@@ -18,11 +18,6 @@
  */
 package org.jboss.as.console.client.administration.audit;
 
-import static java.lang.Math.min;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.regexp.shared.MatchResult;
 import com.google.gwt.regexp.shared.RegExp;
@@ -35,6 +30,11 @@ import com.google.gwt.view.client.Range;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import org.jboss.as.console.client.shared.BeanFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.Math.min;
 
 /**
  * @author Harald Pehl

@@ -148,7 +148,6 @@ import org.jboss.as.console.client.shared.runtime.web.WebMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.web.WebMetricView;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
@@ -204,10 +203,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnec
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsView;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
-import org.jboss.as.console.client.shared.subsys.osgi.config.OSGiConfigurationPresenter;
-import org.jboss.as.console.client.shared.subsys.osgi.config.OSGiSubsystemView;
-import org.jboss.as.console.client.shared.subsys.osgi.runtime.OSGiRuntimePresenter;
-import org.jboss.as.console.client.shared.subsys.osgi.runtime.OSGiRuntimeView;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsView;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
@@ -321,7 +316,6 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(ApplicationProperties.class).to(BootstrapContext.class).in(Singleton.class);
         bind(ApplicationMetaData.class).in(Singleton.class);
 
-        bind(DomainEntityManager.class).in(Singleton.class);
         bind(PatchManager.class).in(Singleton.class);
         bind(ToplevelTabs.class).in(Singleton.class);
 
@@ -514,16 +508,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ConfigAdminPresenter.MyView.class,
                 ConfigAdminView.class,
                 ConfigAdminPresenter.MyProxy.class);
-
-        bindPresenter(OSGiConfigurationPresenter.class,
-                OSGiConfigurationPresenter.MyView.class,
-                OSGiSubsystemView.class,
-                OSGiConfigurationPresenter.MyProxy.class);
-
-        bindPresenter(OSGiRuntimePresenter.class,
-                OSGiRuntimePresenter.MyView.class,
-                OSGiRuntimeView.class,
-                OSGiRuntimePresenter.MyProxy.class);
 
         // Infinispan
         bindPresenter(CacheContainerPresenter.class,

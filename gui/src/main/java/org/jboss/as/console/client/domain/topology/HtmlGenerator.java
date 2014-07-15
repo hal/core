@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
-import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
-import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -38,6 +31,13 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.icons.Icons;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
+import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
 
 /**
  * Contains most of the html generator code used in {@link TopologyView}. The generated html contains several <a

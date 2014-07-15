@@ -19,13 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.topology.HostInfo;
@@ -41,6 +34,12 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun

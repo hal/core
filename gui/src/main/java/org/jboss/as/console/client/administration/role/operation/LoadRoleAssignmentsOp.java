@@ -18,16 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
-import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
@@ -54,6 +44,16 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Loads scoped roles, reads the role mappings and extract principals. After that loads the

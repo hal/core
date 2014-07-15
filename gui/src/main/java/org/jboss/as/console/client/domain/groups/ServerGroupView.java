@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import java.util.List;
-
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -47,6 +45,8 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * Shows an editable view of a single server group.

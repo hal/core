@@ -2,7 +2,8 @@ package org.jboss.as.console.client.shared.runtime;
 
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.dmr.client.ModelNode;
 
 import javax.inject.Inject;
@@ -21,19 +22,18 @@ public class RuntimeBaseAddress {
         return instance.getAddress();
     }
 
-
-
     public ModelNode getAddress() {
 
-        final DomainEntityManager domainManager = Console.MODULES.getDomainEntityManager();
+        HostStore hostStore = Console.MODULES.getHostStore();
+        ServerStore serverStore = Console.MODULES.getServerStore();
 
         ModelNode baseAddress = new ModelNode();
         baseAddress.setEmptyList();
 
         if(!bootstrap.isStandalone())
         {
-            baseAddress.add("host", domainManager.getSelectedHost());
-            baseAddress.add("server", domainManager.getSelectedServer());
+            baseAddress.add("host", hostStore.getSelectedHost());
+            baseAddress.add("server", serverStore.getSelectedServer());
         }
 
         return baseAddress;

@@ -1,12 +1,12 @@
 package org.jboss.as.console.client.analytics;
 
-import javax.inject.Inject;
-
 import com.google.gwt.core.client.GWT;
 import com.google.inject.Provider;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
+
+import javax.inject.Inject;
 
 /**
  * @author Heiko Braun

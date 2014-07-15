@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicRotatingFileHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
@@ -30,6 +29,7 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * Subview for PeriodicRotatingFileHandler.

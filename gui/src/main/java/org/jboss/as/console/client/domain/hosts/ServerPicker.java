@@ -1,18 +1,14 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.state.GlobalServerSelection;
-import org.jboss.as.console.client.shared.state.HostList;
-import org.jboss.as.console.client.shared.state.ServerInstanceList;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
 
@@ -20,10 +16,13 @@ import java.util.List;
  * @author Heiko Braun
  * @date 11/4/11
  */
-public class ServerPicker implements HostServerManagement {
+public class ServerPicker {
 
+    private final ServerStore serverStore;
+    private final HostStore hostStore;
+    private final Dispatcher circuit;
     private HostServerTable hostServerTable;
-    private LoadServerCmd loadServerCmd;
+
     private Label label;
 
     public void resetHostSelection() {
@@ -31,7 +30,17 @@ public class ServerPicker implements HostServerManagement {
     }
 
     public ServerPicker() {
-        this.loadServerCmd = new LoadServerCmd(Console.MODULES.getDomainEntityManager());
+        this.serverStore  = Console.MODULES.getServerStore();
+        this.hostStore = Console.MODULES.getHostStore();
+        this.circuit = Console.MODULES.getCircuitDispatcher();
+
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                String selectedHost = hostStore.getSelectedHost();
+                hostServerTable.setServer(serverStore.getSelectedServerInstance(), serverStore.getServerInstances(selectedHost));
+            }
+        });
     }
 
     public Widget asWidget() {
@@ -41,7 +50,7 @@ public class ServerPicker implements HostServerManagement {
         layout.setStyleName("fill-layout-width");
         //layout.addStyleName("lhs-selector");
 
-        hostServerTable = new HostServerTable(this);
+        hostServerTable = new HostServerTable();
 
         hostServerTable.setPopupWidth(400);
         hostServerTable.setDescription(Console.CONSTANTS.server_instance_pleaseSelect());
@@ -50,38 +59,6 @@ public class ServerPicker implements HostServerManagement {
         layout.add(widget);
 
         return layout;
-    }
-
-
-    @Override
-    public void loadServer(final String selectedHost, final Command... commands) {
-
-        loadServerCmd.execute(new SimpleCallback<ServerInstanceList>() {
-            @Override
-            public void onSuccess(ServerInstanceList result) {
-
-                hostServerTable.setServer(result);
-
-                // execute post loading commands
-                for(Command c : commands)
-                    c.execute();
-            }
-        });
-    }
-
-    @Override
-    public void onServerSelected(final Host host, final ServerInstance server) {
-
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-
-                Console.getEventBus().fireEvent(
-                        new GlobalServerSelection(server)
-                );
-            }
-        });
-
     }
 
     public void setHosts(Host selectedHost, List<Host> hostModel) {

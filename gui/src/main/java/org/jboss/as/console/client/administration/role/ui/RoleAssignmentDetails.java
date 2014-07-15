@@ -18,14 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.EXCLUDE;
-import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.INCLUDE;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -43,6 +35,14 @@ import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.EXCLUDE;
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.INCLUDE;
 
 /**
  * @author Harald Pehl

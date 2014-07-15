@@ -18,21 +18,21 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -41,15 +41,15 @@ public class PatchManager {
 
     private final DispatchAsync dispatcher;
     private final BootstrapContext bootstrapContext;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
     private final BeanFactory beanFactory;
 
     @Inject
     public PatchManager(final DispatchAsync dispatcher, final BootstrapContext bootstrapContext,
-            final DomainEntityManager domainManager, BeanFactory beanFactory) {
+            final HostStore hostStore, BeanFactory beanFactory) {
         this.dispatcher = dispatcher;
         this.bootstrapContext = bootstrapContext;
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
         this.beanFactory = beanFactory;
     }
 
@@ -164,7 +164,7 @@ public class PatchManager {
     public ModelNode baseAddress() {
         ModelNode node = new ModelNode();
         if (!bootstrapContext.isStandalone()) {
-            node.get(ADDRESS).add("host", domainManager.getSelectedHost());
+            node.get(ADDRESS).add("host", hostStore.getSelectedHost());
         }
         node.get(ADDRESS).add("core-service", "patching");
         return node;

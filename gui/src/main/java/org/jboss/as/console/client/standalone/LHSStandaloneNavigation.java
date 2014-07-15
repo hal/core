@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.standalone;
 
-import java.util.List;
-
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -31,6 +29,8 @@ import org.jboss.as.console.client.shared.subsys.SubsystemTreeBuilder;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
+
+import java.util.List;
 
 /**
  * LHS navigation for standalone server management.

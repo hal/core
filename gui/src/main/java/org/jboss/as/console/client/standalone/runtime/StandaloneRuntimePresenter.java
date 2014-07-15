@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.standalone.runtime;
 
-import java.util.List;
-
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -25,6 +23,8 @@ import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

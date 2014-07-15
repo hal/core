@@ -12,9 +12,7 @@ import org.useware.kernel.model.structure.TemporalOperator;
 import org.useware.kernel.model.structure.Trigger;
 import org.useware.kernel.model.structure.builder.Builder;
 
-import static org.jboss.as.console.mbui.model.StereoTypes.Form;
-import static org.jboss.as.console.mbui.model.StereoTypes.Pages;
-import static org.jboss.as.console.mbui.model.StereoTypes.Toolstrip;
+import static org.jboss.as.console.mbui.model.StereoTypes.*;
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 

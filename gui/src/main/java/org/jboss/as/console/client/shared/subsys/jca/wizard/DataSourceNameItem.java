@@ -18,11 +18,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
-import java.util.List;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+
+import java.util.List;
 
 /**
 * @author Harald Pehl

@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
-import org.jboss.as.console.mbui.model.StereoTypes;
 import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Mapping;
@@ -12,7 +11,6 @@ import org.useware.kernel.model.structure.builder.Builder;
 
 import static org.jboss.as.console.mbui.model.StereoTypes.Form;
 import static org.useware.kernel.model.structure.TemporalOperator.Choice;
-import static org.useware.kernel.model.structure.TemporalOperator.Concurrency;
 
 /**
  * @author Heiko Braun

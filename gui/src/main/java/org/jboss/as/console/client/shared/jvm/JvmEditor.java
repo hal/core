@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.shared.jvm;
 
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -40,6 +38,8 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import java.util.Map;
 
 
 

@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -33,6 +31,8 @@ import org.jboss.as.console.client.shared.patching.ui.ErrorDetails;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

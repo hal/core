@@ -32,16 +32,16 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
-import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 15/10/12
  */
 public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
-        EnvironmentPresenter.MyProxy> implements ServerSelectionChanged.ChangeListener
+        EnvironmentPresenter.MyProxy>
 {
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
@@ -99,7 +99,12 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
     {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if(isVisible()) refresh();
+            }
+        });
     }
 
     @Override
@@ -113,12 +118,6 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
     {
         super.onReset();
         refresh();
-    }
-
-
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        if(isVisible()) refresh();
     }
 
     public void refresh()

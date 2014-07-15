@@ -18,11 +18,11 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
-import java.util.List;
-
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * Simple 'struct' for data exchange between rollback wizard steps.

@@ -108,7 +108,7 @@ public class NewServerConfigWizard {
                     @Override
                     public ModelNode getAddress() {
                         ModelNode address = new ModelNode();
-                        address.add("host", Console.MODULES.getDomainEntityManager().getSelectedHost());
+                        address.add("host", Console.MODULES.getHostStore().getSelectedHost());
                         address.add("server-config", "*");
                         return address;
                     }

@@ -7,7 +7,6 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
-import java.util.Collections;
 import java.util.List;
 
 /**

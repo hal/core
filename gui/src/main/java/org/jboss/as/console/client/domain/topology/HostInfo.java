@@ -1,8 +1,8 @@
 package org.jboss.as.console.client.domain.topology;
 
-import java.util.List;
-
 import org.jboss.as.console.client.domain.model.ServerInstance;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

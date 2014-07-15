@@ -4,7 +4,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -35,7 +34,7 @@ public class HostStoreInit implements Function<BootstrapContext> {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    if (caught instanceof DomainEntityManager.NoHostsAvailable) {
+                    if (caught instanceof HostStore.NoHostsAvailable) {
                         // this is expected (host scoped roles)
                         context.setHostManagementDisabled(true);
                         control.proceed();

@@ -18,9 +18,6 @@
  */
 package org.jboss.as.console.client.rbac;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.event.shared.HasHandlers;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -29,6 +26,9 @@ import com.gwtplatform.mvp.client.proxy.TokenFormatter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Extension to the {@link org.jboss.as.console.client.rbac.SecurityFramework} which binds

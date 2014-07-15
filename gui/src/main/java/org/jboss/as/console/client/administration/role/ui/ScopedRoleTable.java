@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.Collection;
-
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -28,6 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+
+import java.util.Collection;
 
 /**
  * @author Harald Pehl

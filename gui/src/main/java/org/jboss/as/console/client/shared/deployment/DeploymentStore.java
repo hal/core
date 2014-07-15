@@ -19,16 +19,6 @@
 
 package org.jboss.as.console.client.shared.deployment;
 
-import static org.jboss.as.console.client.shared.deployment.model.DeploymentDataType.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
@@ -56,6 +46,15 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static org.jboss.as.console.client.shared.deployment.model.DeploymentDataType.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Responsible for loading deployment data

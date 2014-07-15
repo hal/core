@@ -18,9 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -35,6 +32,9 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Harald Pehl

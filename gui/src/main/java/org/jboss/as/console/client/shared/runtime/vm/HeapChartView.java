@@ -5,10 +5,10 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.Sampler;
+import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
-import org.jboss.as.console.client.shared.runtime.charts.BulletGraphView;
 
 /**
  * @author Heiko Braun

@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-
-import java.util.List;
-
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -47,20 +43,24 @@ import org.jboss.as.console.client.shared.properties.LoadPropertiesCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.List;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
  * @author Heiko Braun
  * @date 5/17/11
  */
 public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.MyView, HostPropertiesPresenter.MyProxy>
-        implements PropertyManagement, HostSelectionChanged.ChangeListener {
+        implements PropertyManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
@@ -78,7 +78,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
 
     private final DispatchAsync dispatcher;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
     private final BeanFactory factory;
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow propertyWindow;
@@ -86,12 +86,12 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
     @Inject
     public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-            BeanFactory factory, DomainEntityManager domainManager,
-            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                                   BeanFactory factory, HostStore hostStore,
+                                   PlaceRequestSecurityFramework placeRequestSecurityFramework) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
         this.factory = factory;
         this.placeRequestSecurityFramework = placeRequestSecurityFramework;
     }
@@ -100,7 +100,15 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if (isVisible()) {
+                    placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
+                    loadProperties();
+                }
+            }
+        });
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
@@ -115,22 +123,14 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
         loadProperties();
     }
 
-    @Override
-    public void onHostSelectionChanged() {
-        if (isVisible()) {
-            placeRequestSecurityFramework.update(this, hostPlaceRequest());
-            loadProperties();
-        }
-    }
-
     private PlaceRequest hostPlaceRequest() {
         return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", domainManager.getSelectedHost()).build();
+                .with("host", hostStore.getSelectedHost()).build();
     }
 
     private void loadProperties() {
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         LoadPropertiesCmd loadPropCmd = new LoadPropertiesCmd(dispatcher, factory, address);
         loadPropCmd.execute(new SimpleCallback<List<PropertyRecord>>() {
             @Override
@@ -171,7 +171,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
         }
 
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("system-property", prop.getKey());
 
         CreatePropertyCmd cmd = new CreatePropertyCmd(dispatcher, factory, address);
@@ -187,7 +187,7 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
     public void onDeleteProperty(final String groupName, final PropertyRecord prop) {
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         address.add("system-property", prop.getKey());
 
         DeletePropertyCmd cmd = new DeletePropertyCmd(dispatcher, factory, address);

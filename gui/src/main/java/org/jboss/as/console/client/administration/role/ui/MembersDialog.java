@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-
-import java.util.List;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -38,6 +34,10 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+
+import java.util.List;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 /**
  * @author Harald Pehl

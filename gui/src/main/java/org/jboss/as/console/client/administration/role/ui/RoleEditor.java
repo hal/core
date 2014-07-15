@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.List;
-
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -28,6 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
+
+import java.util.List;
 
 /**
  * @author Harald Pehl

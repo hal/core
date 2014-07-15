@@ -4,6 +4,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
@@ -11,7 +12,9 @@ import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerInstances;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
@@ -33,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.STEPS;
 
 /**
  * @author Heiko Braun
@@ -44,12 +46,13 @@ public class ServerStore extends ChangeSupport {
 
     private final DispatchAsync dispatcher;
     private final ApplicationMetaData propertyMetaData;
-    private HostInformationStore hostInfo;
-
-    private HostStore hostStore;
+    private final HostInformationStore hostInfo;
+    private final HostStore hostStore;
 
     private Map<String, List<Server>> serverModel = new HashMap<>();
-    private Server selectedServer;
+    private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
+
+    private ServerInstance selectedServerInstance;
 
     @Inject
     public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
@@ -59,16 +62,21 @@ public class ServerStore extends ChangeSupport {
         this.propertyMetaData = propertyMetaData;
     }
 
+    // -----------------------------------------------
+    // init
+
     public void init(final String hostName, final AsyncCallback<List<Server>> callback) {
         hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
             @Override
             public void onSuccess(List<Server> servers) {
-                ServerStore.this.serverModel.put(hostName, servers);
-                selectedServer = servers.get(0);
+                serverModel.put(hostName, servers);
                 callback.onSuccess(servers);
             }
         });
     }
+
+    // -----------------------------------------------
+    // action processing
 
     @Process(actionType = HostSelection.class, dependencies = {HostStore.class})
     public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
@@ -143,6 +151,33 @@ public class ServerStore extends ChangeSupport {
                 channel.nack(caught);
             }
         });
+    }
+
+    @Process(actionType = RefreshServerInstances.class)
+    public void onRefreshServerInstances(final Dispatcher.Channel channel) {
+
+        final String hostName = hostStore.getSelectedHost();
+
+        hostInfo.getServerInstances(hostName, new SimpleCallback<List<ServerInstance>>() {
+            @Override
+            public void onSuccess(List<ServerInstance> servers) {
+                instanceModel.put(hostName, servers);
+
+                channel.ack();
+                fireChanged(ServerStore.class);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                channel.nack(caught);
+            }
+        });
+
+    }
+
+    @Process(actionType = SelectServerInstance.class)
+    public void onSelectedServerInstance(final ServerInstance serverInstance, final Dispatcher.Channel channel) {
+        this.selectedServerInstance = serverInstance;
     }
 
     @Process(actionType = UpdateServer.class)
@@ -269,6 +304,7 @@ public class ServerStore extends ChangeSupport {
 
     }
 
+    // -----------------------------------------------
     // data access
 
     public List<Server> getServerModel(String host) {
@@ -277,10 +313,18 @@ public class ServerStore extends ChangeSupport {
     }
 
     public String getSelectedServer() {
-        return selectedServer.getName();
+        return selectedServerInstance.getName();
     }
 
-    public Server getSelectedServerInstance() {
-        return selectedServer;
+    public List<ServerInstance> getServerInstances(String host) {
+        List<ServerInstance> serverInstances = instanceModel.get(host);
+        return serverInstances != null ? serverInstances :Collections.<ServerInstance>emptyList();
+    }
+
+    public ServerInstance getSelectedServerInstance() {
+        if(null==selectedServerInstance)
+            throw new IllegalStateException("No server instance selected");
+
+        return selectedServerInstance;
     }
 }

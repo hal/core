@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -27,6 +25,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

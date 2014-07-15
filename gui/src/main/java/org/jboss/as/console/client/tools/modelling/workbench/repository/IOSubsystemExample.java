@@ -19,9 +19,9 @@
 package org.jboss.as.console.client.tools.modelling.workbench.repository;
 
 import org.jboss.as.console.mbui.model.StereoTypes;
+import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.Dialog;
 import org.useware.kernel.model.mapping.Mapping;
-import org.jboss.as.console.mbui.model.mapping.DMRMapping;
 import org.useware.kernel.model.structure.Container;
 import org.useware.kernel.model.structure.InteractionUnit;
 import org.useware.kernel.model.structure.QName;
@@ -29,9 +29,8 @@ import org.useware.kernel.model.structure.Select;
 import org.useware.kernel.model.structure.Trigger;
 import org.useware.kernel.model.structure.builder.Builder;
 
-import static org.useware.kernel.model.structure.TemporalOperator.Choice;
-
 import static org.jboss.as.console.mbui.model.StereoTypes.*;
+import static org.useware.kernel.model.structure.TemporalOperator.Choice;
 
 /**
  * @author Heiko Braun

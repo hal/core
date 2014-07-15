@@ -1,12 +1,10 @@
 package org.jboss.as.console.client.shared.state;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.jboss.as.console.client.Console;
 
 import javax.inject.Singleton;
-
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import org.jboss.as.console.client.Console;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Heiko Braun

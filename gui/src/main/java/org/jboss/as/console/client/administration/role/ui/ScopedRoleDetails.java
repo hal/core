@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -39,6 +35,10 @@ import org.jboss.as.console.client.core.EnumLabelLookup;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Harald Pehl

@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.rbac;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 

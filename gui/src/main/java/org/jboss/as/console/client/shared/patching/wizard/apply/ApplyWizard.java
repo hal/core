@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import static org.jboss.as.console.client.shared.patching.wizard.apply.ApplyState.*;
-
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -32,6 +30,8 @@ import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
 import org.jboss.as.console.client.shared.patching.wizard.StoppingServersStep;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import static org.jboss.as.console.client.shared.patching.wizard.apply.ApplyState.*;
 
 /**
  * @author Harald Pehl

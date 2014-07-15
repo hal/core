@@ -18,12 +18,12 @@
  */
 package org.jboss.as.console.client.core;
 
+import com.google.inject.Inject;
+import org.jboss.as.console.client.Console;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
 
 /**
  * Configuration for the top level tabs.

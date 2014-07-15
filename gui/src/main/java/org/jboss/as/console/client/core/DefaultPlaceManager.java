@@ -19,9 +19,6 @@
 
 package org.jboss.as.console.client.core;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -40,6 +37,9 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Heiko Braun

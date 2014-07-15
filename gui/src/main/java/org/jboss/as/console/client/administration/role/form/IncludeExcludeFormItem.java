@@ -18,18 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.form;
 
-import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.*;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -56,6 +44,18 @@ import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.*;
 
 /**
  * Form item for the include and exclude roles of an {@link org.jboss.as.console.client.administration.role.model.RoleAssignment}.

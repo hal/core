@@ -26,11 +26,11 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelDescriptionConstants;
-import org.jboss.dmr.client.ModelNode;
 
 import java.util.ArrayList;
 import java.util.List;

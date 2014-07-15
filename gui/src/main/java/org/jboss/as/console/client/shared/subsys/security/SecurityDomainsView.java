@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.subsys.security;
 
-import java.util.List;
-
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
@@ -51,6 +49,8 @@ import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.List;
 
 /**
  * @author David Bosschaert

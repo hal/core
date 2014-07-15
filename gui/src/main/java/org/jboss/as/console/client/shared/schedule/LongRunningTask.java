@@ -4,8 +4,8 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.dispatch.AsyncCommand;
 
 /**
  * @author Heiko Braun

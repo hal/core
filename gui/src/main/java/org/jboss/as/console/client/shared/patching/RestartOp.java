@@ -18,9 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
-import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.dmr.client.ModelNode;
@@ -29,6 +26,9 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
 
 /**
  * @author Harald Pehl

@@ -18,14 +18,14 @@
  */
 package org.jboss.as.console.client.shared.subsys.jca.functions;
 
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.List;
 
 /**
  * @author Harald Pehl

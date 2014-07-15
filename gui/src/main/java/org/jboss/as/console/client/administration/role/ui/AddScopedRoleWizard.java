@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -37,12 +31,17 @@ import org.jboss.as.console.client.administration.role.form.MultiselectListBoxIt
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
 import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 
 /**
  * @author Harald Pehl

@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
-import java.util.Map;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -27,6 +25,8 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.Map;
 
 /**
  * @author Heiko Braun
