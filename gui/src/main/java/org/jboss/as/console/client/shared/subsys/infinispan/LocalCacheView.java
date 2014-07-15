@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.infinispan;
 
-import javax.inject.Inject;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -33,6 +31,8 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import javax.inject.Inject;
 
 /**
  * Main view class for Infinispan LocalCache Containers.

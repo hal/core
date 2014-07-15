@@ -19,13 +19,13 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.ConsoleHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * Subview for Console Handlers.

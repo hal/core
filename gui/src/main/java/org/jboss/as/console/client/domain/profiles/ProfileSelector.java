@@ -9,7 +9,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
-import org.jboss.ballroom.client.widgets.forms.ComboBox;
 
 import java.util.List;
 

@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.shared.subsys.deploymentscanner;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.model.DeploymentScanner;
 import org.jboss.as.console.client.shared.viewframework.AbstractEntityView;
 import org.jboss.as.console.client.shared.viewframework.Columns.EnabledColumn;
@@ -31,6 +30,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import javax.inject.Inject;
 

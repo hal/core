@@ -1,3 +1,5 @@
+package org.jboss.as.console.client.shared.subsys.configadmin;
+
 /*
  * JBoss, Home of Professional Open Source
  * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
@@ -16,7 +18,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.subsys.osgi.config.wizard;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
@@ -62,28 +63,28 @@ public class NewPropertyWizard {
         form.setFields(nameItem, valueItem);
 
         DialogueOptions options = new DialogueOptions(
-            new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    // save
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        // save
 
-                    // Not using form.getUpdatedEntity() here as this goes through a JSON
-                    // serialization phase which causes issues with multi-line values
-                    PropertyRecord property = factory.property().as();
-                    property.setKey(nameItem.getValue());
-                    property.setValue(valueItem.getValue());
+                        // Not using form.getUpdatedEntity() here as this goes through a JSON
+                        // serialization phase which causes issues with multi-line values
+                        PropertyRecord property = factory.property().as();
+                        property.setKey(nameItem.getValue());
+                        property.setValue(valueItem.getValue());
 
-                    presenter.onCreateProperty(reference, property);
-                    presenter.closePropertyDialoge();
+                        presenter.onCreateProperty(reference, property);
+                        presenter.closePropertyDialoge();
+                    }
+                },
+                new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        // cancel
+                        presenter.closePropertyDialoge();
+                    }
                 }
-            },
-            new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    // cancel
-                    presenter.closePropertyDialoge();
-                }
-            }
         );
 
         panel.add(form.asWidget());

@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
-import static com.google.gwt.user.client.Event.ONLOAD;
-import static org.jboss.as.console.client.core.ApplicationProperties.*;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.http.client.Request;
@@ -17,9 +14,11 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import static com.google.gwt.user.client.Event.ONLOAD;
+import static org.jboss.as.console.client.core.ApplicationProperties.*;
 
 /**
  * Class which connects to a running JBoss management interface or triggers the selection of an arbitrary management

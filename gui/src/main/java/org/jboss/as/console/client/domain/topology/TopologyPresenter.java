@@ -18,18 +18,6 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
-import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
-import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Random;
@@ -65,6 +53,18 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
+import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager {

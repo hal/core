@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.logical.shared.OpenEvent;
@@ -30,6 +28,8 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.widgets.Code;
 import org.jboss.as.console.client.widgets.nav.AriaLink;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

@@ -16,19 +16,19 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.jpa.model.JPADeployment;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +42,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 1/19/12
  */
 public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPAMetricPresenter.MyProxy>
-        implements ServerSelectionChanged.ChangeListener {
+        {
 
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
@@ -96,7 +96,17 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
         super.onBind();
         getView().setPresenter(this);
 
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, JPAMetricPresenter.this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                           @Override
+                           public void execute() {
+                               refresh(true);
+                           }
+                       });
+            }
+        });
 
     }
 
@@ -128,16 +138,6 @@ public class JPAMetricPresenter extends Presenter<JPAMetricPresenter.MyView, JPA
     @Override
     protected void revealInParent() {
         revealStrategy.revealInRuntimeParent(this);
-    }
-
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                refresh(true);
-            }
-        });
     }
 
     public void refresh(final boolean paging) {

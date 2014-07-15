@@ -23,8 +23,8 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 /**
  * @author David Bosschaert

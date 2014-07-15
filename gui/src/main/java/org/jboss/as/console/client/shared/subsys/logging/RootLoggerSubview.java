@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.RootLogger;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
@@ -33,6 +32,7 @@ import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
 import java.util.EnumSet;

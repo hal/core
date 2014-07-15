@@ -19,11 +19,6 @@
 
 package org.jboss.as.console.client.core;
 
-import static com.google.gwt.dom.client.Style.Unit.PX;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -48,6 +43,11 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.dispatch.Diagnostics;
 import org.jboss.gwt.circuit.Dispatcher;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.gwt.dom.client.Style.Unit.PX;
 
 /**
  * @author Heiko Braun

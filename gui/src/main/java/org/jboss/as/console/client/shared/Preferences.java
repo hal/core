@@ -19,9 +19,9 @@
 
 package org.jboss.as.console.client.shared;
 
-import java.util.Date;
-
 import com.google.gwt.user.client.Cookies;
+
+import java.util.Date;
 
 /**
  * Cookie based workspace preferences

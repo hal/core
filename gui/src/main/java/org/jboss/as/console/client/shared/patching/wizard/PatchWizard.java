@@ -18,17 +18,17 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @param <C> The context

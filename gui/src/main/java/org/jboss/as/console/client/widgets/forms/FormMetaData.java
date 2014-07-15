@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.widgets.forms;
 
-import org.jboss.as.console.client.Console;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

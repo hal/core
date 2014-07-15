@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -13,13 +11,16 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -27,7 +28,7 @@ import org.jboss.as.console.spi.AccessControl;
  */
 public class WebServiceRuntimePresenter
         extends Presenter<WebServiceRuntimePresenter.MyView, WebServiceRuntimePresenter.MyProxy>
-        implements ServerSelectionChanged.ChangeListener {
+        {
 
     private EndpointRegistry endpointRegistry;
     private RevealStrategy revealStrategy;
@@ -58,25 +59,25 @@ public class WebServiceRuntimePresenter
     }
 
     @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        if(isVisible())
-        {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    loadEndpoints();
-
-                }
-            });
-
-        }
-    }
-
-    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if(isVisible())
+                {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            loadEndpoints();
+
+                        }
+                    });
+
+                }
+            }
+        });
     }
 
 

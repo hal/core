@@ -3,7 +3,11 @@ package org.jboss.as.console.client.widgets.tables;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This handler is similar to ColumnSortEvent.ListHandler except that it allows the list to be set after construction

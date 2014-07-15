@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap;
 
-import java.util.List;
-
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
@@ -9,6 +7,8 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.List;
 
 /**
  * If links come in from external contexts, the initialization might

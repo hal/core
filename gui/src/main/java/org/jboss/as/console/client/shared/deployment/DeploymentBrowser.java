@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.shared.deployment;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -49,6 +45,10 @@ import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Harald Pehl

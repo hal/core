@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -11,6 +8,9 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PlainFormView;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author Harald Pehl

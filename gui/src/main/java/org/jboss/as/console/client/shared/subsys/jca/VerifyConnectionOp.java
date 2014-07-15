@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
@@ -45,6 +39,12 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl

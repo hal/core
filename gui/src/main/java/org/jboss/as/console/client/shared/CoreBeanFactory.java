@@ -124,10 +124,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.SecurityPattern
 import org.jboss.as.console.client.shared.subsys.messaging.model.Topic;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.SSLConfig;
-import org.jboss.as.console.client.shared.subsys.osgi.config.model.OSGiCapability;
-import org.jboss.as.console.client.shared.subsys.osgi.config.model.OSGiSubsystem;
-import org.jboss.as.console.client.shared.subsys.osgi.runtime.model.OSGiBundle;
-import org.jboss.as.console.client.shared.subsys.osgi.runtime.model.OSGiFramework;
 import org.jboss.as.console.client.shared.subsys.security.model.AuthenticationLoginModule;
 import org.jboss.as.console.client.shared.subsys.security.model.AuthorizationPolicyProvider;
 import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
@@ -240,10 +236,6 @@ public interface CoreBeanFactory {
     AutoBean<WebServiceProvider> WebServiceProvider();
 
     AutoBean<ConfigAdminData> configAdminData();
-    AutoBean<OSGiSubsystem> osgiSubsystem();
-    AutoBean<OSGiCapability> osgiCapability();
-    AutoBean<OSGiFramework> osgiFramework();
-    AutoBean<OSGiBundle> osgiBundle();
 
     AutoBean<HeapMetric> heapMetric();
     AutoBean<ThreadMetric> threadMetric();

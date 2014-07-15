@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -39,6 +37,8 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
 /**
  * @author Harald Pehl

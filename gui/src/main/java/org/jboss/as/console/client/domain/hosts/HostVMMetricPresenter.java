@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
@@ -23,20 +21,22 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
  * @author Heiko Braun
  * @date 10/7/11
  */
 public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresenter.MyProxy>
-        implements VMMetricsManagement, ServerSelectionChanged.ChangeListener {
+        implements VMMetricsManagement {
 
 
     private DispatchAsync dispatcher;
@@ -44,7 +44,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     private BeanFactory factory;
 
     private HostInformationStore hostInfoStore;
-    private final DomainEntityManager domainManager;
+    private final ServerStore serverStore;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
@@ -66,13 +66,13 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     @Inject
     public HostVMMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DomainEntityManager domainManager,
+            ServerStore serverStore,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData metaData, HostInformationStore hostInfoStore
     ) {
         super(eventBus, view, proxy);
 
-        this.domainManager = domainManager;
+        this.serverStore = serverStore;
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.metaData = metaData;
@@ -80,20 +80,22 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     }
 
     @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                if(isVisible()) refresh();
-            }
-        });
-    }
-
-    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                if(isVisible()) refresh();
+                            }
+                        });
+            }
+        });
+
     }
 
     @Override

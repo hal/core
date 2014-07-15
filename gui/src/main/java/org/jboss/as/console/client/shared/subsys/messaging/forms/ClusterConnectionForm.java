@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.messaging.forms;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.FormLayout;
@@ -17,6 +14,9 @@ import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Heiko Braun

@@ -19,13 +19,13 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.ThreadPoolEntity;
 import org.jboss.as.console.client.shared.viewframework.AbstractSingleEntityView;
 import org.jboss.as.console.client.shared.viewframework.FrameworkButton;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.EnumSet;
 import java.util.List;

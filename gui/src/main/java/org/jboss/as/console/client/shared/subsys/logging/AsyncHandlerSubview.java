@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.shared.subsys.logging;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.AsyncHandler;
@@ -35,6 +31,10 @@ import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Subview for Async Handlers.

@@ -1,11 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -31,6 +25,12 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun

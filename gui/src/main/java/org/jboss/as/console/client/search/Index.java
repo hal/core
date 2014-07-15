@@ -18,11 +18,6 @@
  */
 package org.jboss.as.console.client.search;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.JavaScriptException;
 import com.google.gwt.core.client.JavaScriptObject;
@@ -35,6 +30,11 @@ import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanCodex;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import org.jboss.as.console.client.shared.BeanFactory;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An index which builds on <a href="http://lunrjs.com/">http://lunrjs.com/</a>. The index and the related raw

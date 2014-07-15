@@ -1,9 +1,5 @@
 package org.jboss.as.console.client.domain.runtime;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -13,8 +9,10 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+
+import javax.inject.Inject;
+import java.util.List;
 
 /**
  * @author Heiko Braun

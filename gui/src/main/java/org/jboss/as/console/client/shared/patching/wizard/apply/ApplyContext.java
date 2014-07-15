@@ -18,13 +18,13 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import java.util.List;
-
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * Simple 'struct' for data exchange between apply wizard steps.

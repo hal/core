@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -30,6 +28,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

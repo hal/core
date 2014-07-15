@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.shared.jvm;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -32,6 +28,10 @@ import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun

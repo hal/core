@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.shared.subsys.infinispan;
 
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainer;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.DefaultCacheContainer;
 import org.jboss.as.console.client.shared.viewframework.EntityPopupWindow;
@@ -30,6 +29,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
 import java.util.Collection;

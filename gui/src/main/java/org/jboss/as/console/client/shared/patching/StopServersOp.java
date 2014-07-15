@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.dmr.client.ModelNode;
@@ -33,6 +27,12 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl

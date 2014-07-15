@@ -18,12 +18,12 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.RadioButton;
 import org.jboss.as.console.client.Console;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

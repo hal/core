@@ -18,9 +18,6 @@
  */
 package org.jboss.as.console.client.shared.deployment;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -32,6 +29,9 @@ import org.jboss.as.console.client.shared.deployment.model.DeployedServlet;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentData;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystem;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl

@@ -18,10 +18,10 @@
  */
 package org.jboss.as.console.client.search;
 
+import com.google.gwt.user.client.ui.SuggestOracle;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gwt.user.client.ui.SuggestOracle;
 
 /**
  * An suggest oracle which uses the {@link org.jboss.as.console.client.search.Index} for lookup.

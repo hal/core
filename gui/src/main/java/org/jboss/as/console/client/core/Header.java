@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.core;
 
-import java.util.Set;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
@@ -57,6 +55,8 @@ import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import java.util.Set;
 
 /**
  * Top level header, gives access to main applications.

@@ -19,15 +19,15 @@
 package org.jboss.as.console.client.shared.viewframework;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.widgets.deprecated.ListEditorFormItem;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
+import org.jboss.as.console.client.widgets.deprecated.PropertyEditorFormItem;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.as.console.client.widgets.deprecated.ListEditorFormItem;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
-import org.jboss.as.console.client.widgets.deprecated.PropertyEditorFormItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.forms.UnitBoxItem;

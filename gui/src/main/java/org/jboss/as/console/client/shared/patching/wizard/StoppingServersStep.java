@@ -18,11 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
@@ -30,6 +25,11 @@ import org.jboss.as.console.client.shared.patching.StopServersOp;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl

@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -31,6 +29,8 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl

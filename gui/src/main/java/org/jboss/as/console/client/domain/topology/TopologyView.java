@@ -18,15 +18,6 @@
  */
 package org.jboss.as.console.client.domain.topology;
 
-import static com.google.gwt.user.client.Event.ONCLICK;
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static org.jboss.as.console.client.domain.model.impl.LifecycleOperation.*;
-import static org.jboss.as.console.client.domain.topology.HtmlGenerator.*;
-
-import java.util.List;
-import java.util.SortedSet;
-
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -56,6 +47,15 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import java.util.List;
+import java.util.SortedSet;
+
+import static com.google.gwt.user.client.Event.ONCLICK;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static org.jboss.as.console.client.domain.model.impl.LifecycleOperation.*;
+import static org.jboss.as.console.client.domain.topology.HtmlGenerator.*;
 
 /**
  * @author Harald Pehl

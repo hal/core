@@ -1,12 +1,5 @@
 package org.jboss.as.console.client.tools;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import com.google.gwt.debugpanel.client.DebugPanel;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -38,6 +31,13 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun

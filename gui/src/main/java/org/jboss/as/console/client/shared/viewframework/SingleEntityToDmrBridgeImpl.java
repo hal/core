@@ -19,8 +19,6 @@
 package org.jboss.as.console.client.shared.viewframework;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -29,6 +27,8 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
 
 import java.util.Collections;
 import java.util.List;

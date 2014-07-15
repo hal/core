@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState;
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.VALID;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -19,6 +16,9 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState;
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.VALID;
 
 /**
  * @author Heiko Braun

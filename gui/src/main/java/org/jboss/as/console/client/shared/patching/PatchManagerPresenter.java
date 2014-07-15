@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.user.client.Window;
@@ -49,9 +43,8 @@ import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyContext;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackContext;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackWizard;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -59,12 +52,19 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
  */
 public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy>
-        implements HostSelectionChanged.ChangeListener {
+        {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
@@ -120,7 +120,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
     private final BootstrapContext bootstrapContext;
     private final DispatchAsync dispatcher;
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
@@ -129,13 +129,13 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     @Inject
     public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final RevealStrategy revealStrategy, final PatchManager patchManager,
-            final DomainEntityManager domainManager, final BootstrapContext bootstrapContext,
+            final HostStore hostStore, final BootstrapContext bootstrapContext,
             final DispatchAsync dispatcher, final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.patchManager = patchManager;
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
         this.bootstrapContext = bootstrapContext;
         this.dispatcher = dispatcher;
         this.placeRequestSecurityFramework = placeRequestSecurityFramework;
@@ -145,7 +145,15 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if (isVisible()) {
+                    placeRequestSecurityFramework.update(PatchManagerPresenter.this, hostPlaceRequest());
+                    loadPatches();
+                }
+            }
+        });
         if (!bootstrapContext.isStandalone()) {
             placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
         }
@@ -166,14 +174,6 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         loadPatches();
     }
 
-    @Override
-    public void onHostSelectionChanged() {
-        if (isVisible()) {
-            placeRequestSecurityFramework.update(this, hostPlaceRequest());
-            loadPatches();
-        }
-    }
-
     public void loadPatches() {
         patchManager.getPatches(new SimpleCallback<Patches>() {
             @Override
@@ -185,7 +185,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     private PlaceRequest hostPlaceRequest() {
         return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", domainManager.getSelectedHost()).build();
+                .with("host", hostStore.getSelectedHost()).build();
     }
 
     public void launchApplyWizard() {
@@ -217,7 +217,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                                     BootstrapContext.PATCH_API)
                     ));
         } else {
-            final String host = domainManager.getSelectedHost();
+            final String host = hostStore.getSelectedHost();
             dispatcher
                     .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
                         @Override
@@ -259,7 +259,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                                     patchInfo)
                     );
         } else {
-            final String host = domainManager.getSelectedHost();
+            final String host = hostStore.getSelectedHost();
             dispatcher
                     .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
                         @Override
@@ -294,7 +294,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     public void restart() {
         ModelNode restartNode = new ModelNode();
         if (!bootstrapContext.isStandalone()) {
-            restartNode.get(ADDRESS).add("host", domainManager.getSelectedHost());
+            restartNode.get(ADDRESS).add("host", hostStore.getSelectedHost());
         }
         restartNode.get(OP).set(SHUTDOWN);
         restartNode.get("restart").set(true);

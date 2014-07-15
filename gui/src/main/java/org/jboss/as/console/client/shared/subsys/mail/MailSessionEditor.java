@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -29,6 +26,9 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun

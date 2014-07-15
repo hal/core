@@ -18,10 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
-import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -34,6 +30,10 @@ import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+
+import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
+import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

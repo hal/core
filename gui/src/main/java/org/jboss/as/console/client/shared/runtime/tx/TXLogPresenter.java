@@ -12,18 +12,18 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RuntimeExtension;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 11/3/11
  */
 public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresenter.MyProxy>
-        implements ServerSelectionChanged.ChangeListener {
+{
 
     private DispatchAsync dispatcher;
     private EntityAdapter<TXRecord> entityAdapter;
@@ -80,21 +80,21 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
     }
 
     @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                getView().clear();
-                if(isVisible()) refresh();
-            }
-        });
-    }
-
-    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        getView().clear();
+                        if(isVisible()) refresh();
+                    }
+                });
+            }
+        });
     }
 
     @Override

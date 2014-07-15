@@ -19,11 +19,11 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.SizeRotatingFileHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * Subview for SizeRotatingFileHandler.

@@ -23,10 +23,10 @@ import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.Lo
 import org.jboss.as.console.client.shared.viewframework.AbstractEntityView;
 import org.jboss.as.console.client.shared.viewframework.FrameworkButton;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 
 import java.util.EnumSet;
 

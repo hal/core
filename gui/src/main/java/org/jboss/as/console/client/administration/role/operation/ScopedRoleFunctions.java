@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import static java.util.Arrays.asList;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
@@ -35,6 +28,13 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Functions to add, modify and remove scoped roles.

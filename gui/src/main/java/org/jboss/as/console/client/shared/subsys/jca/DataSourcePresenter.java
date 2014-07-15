@@ -19,13 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -68,6 +61,13 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 
 /**
  * @author Heiko Braun

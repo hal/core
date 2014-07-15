@@ -1,10 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Map;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -31,6 +26,11 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+
+import java.util.Map;
+
+import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 
 /**

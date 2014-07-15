@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
-import java.util.List;
-
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -31,6 +29,8 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

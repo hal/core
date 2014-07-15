@@ -19,9 +19,9 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import javax.inject.Inject;
-
 import org.jboss.as.console.client.core.ApplicationProperties;
+
+import javax.inject.Inject;
 
 /**
  * @author Heiko Braun

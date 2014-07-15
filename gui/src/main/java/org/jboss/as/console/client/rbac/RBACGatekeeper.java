@@ -1,14 +1,14 @@
 package org.jboss.as.console.client.rbac;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author Heiko Braun

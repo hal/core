@@ -18,11 +18,10 @@
  */
 package org.jboss.as.console.client.shared.viewframework;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 

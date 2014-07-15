@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
-import java.util.List;
-
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
@@ -28,6 +26,8 @@ import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

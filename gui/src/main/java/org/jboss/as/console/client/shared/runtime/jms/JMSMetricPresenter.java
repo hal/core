@@ -14,21 +14,20 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.messaging.AggregatedJMSModel;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +39,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 12/9/11
  */
 public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy>
-        implements ServerSelectionChanged.ChangeListener {
+        {
 
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
@@ -48,7 +47,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     private BeanFactory factory;
     private LoadJMSCmd loadJMSCmd;
     private Queue selectedQueue;
-    private final DomainEntityManager domainManager;
+    private final ServerStore serverStore;
 
 
     @ProxyCodeSplit
@@ -78,12 +77,12 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
             EventBus eventBus, MyView view, MyProxy proxy,
             DispatchAsync dispatcher,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
-            DomainEntityManager domainManager, BeanFactory factory) {
+            ServerStore serverStore, BeanFactory factory) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
-        this.domainManager = domainManager;
+        this.serverStore = serverStore;
         this.factory = factory;
 
         this.loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
@@ -100,18 +99,6 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         this.selectedQueue = queue;
         if(queue!=null)
             loadQueueMetrics();
-
-    }
-
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                if(isVisible()) refresh();
-            }
-        });
 
     }
 
@@ -212,7 +199,17 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                if(isVisible()) refresh();
+                            }
+                        });
+            }
+        });
     }
 
 

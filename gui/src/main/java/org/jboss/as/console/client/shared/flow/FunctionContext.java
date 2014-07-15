@@ -18,11 +18,11 @@
  */
 package org.jboss.as.console.client.shared.flow;
 
+import org.jboss.dmr.client.dispatch.DispatchError;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
-
-import org.jboss.dmr.client.dispatch.DispatchError;
 
 /**
  * General purpose context to be used for functions inside a flow

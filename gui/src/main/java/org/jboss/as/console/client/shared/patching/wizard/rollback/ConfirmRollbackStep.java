@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
-import static com.google.gwt.dom.client.Style.Unit.EM;
-import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
-import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -36,6 +29,13 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.google.gwt.dom.client.Style.Unit.EM;
+import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
+import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
 
 /**
  * @author Harald Pehl

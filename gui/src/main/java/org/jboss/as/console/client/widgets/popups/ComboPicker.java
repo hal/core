@@ -19,10 +19,6 @@ package org.jboss.as.console.client.widgets.popups;
  * MA  02110-1301, USA.
  */
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -45,6 +41,10 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Heiko Braun

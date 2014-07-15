@@ -1,12 +1,5 @@
 package org.jboss.as.console.client.search;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
@@ -25,6 +18,12 @@ import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 import org.jboss.gwt.flow.client.Progress;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
+
+import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Creates search indexes.

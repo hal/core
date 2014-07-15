@@ -18,14 +18,14 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 
 /**
  * Contains a list of principals stored in the management model.

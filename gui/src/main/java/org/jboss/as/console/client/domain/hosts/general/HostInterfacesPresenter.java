@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-
-import java.util.List;
-
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -41,21 +37,25 @@ import org.jboss.as.console.client.shared.general.InterfaceManagement;
 import org.jboss.as.console.client.shared.general.InterfaceManagementImpl;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
-import org.jboss.as.console.client.shared.state.HostSelectionChanged;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.List;
+
+import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
  * @author Heiko Braun
  * @date 5/18/11
  */
 public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.MyView, HostInterfacesPresenter.MyProxy>
-        implements InterfaceManagement.Callback, HostSelectionChanged.ChangeListener {
+        implements InterfaceManagement.Callback {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostInterfacesPresenter)
@@ -78,17 +78,17 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
     private final ApplicationMetaData metaData;
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private final InterfaceManagement delegate;
-    private final DomainEntityManager domainManager;
+    private final HostStore hostStore;
 
 
     @Inject
-    public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy, DomainEntityManager domainManager,
+    public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostStore hostStore,
             DispatchAsync dispatcher, ApplicationMetaData metaData,
             PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
         super(eventBus, view, proxy);
 
-        this.domainManager = domainManager;
+        this.hostStore = hostStore;
         this.dispatcher = dispatcher;
         this.metaData = metaData;
         this.placeRequestSecurityFramework = placeRequestSecurityFramework;
@@ -103,7 +103,16 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
         super.onBind();
         getView().setPresenter(this);
         getView().setDelegate(this.delegate);
-        getEventBus().addHandler(HostSelectionChanged.TYPE, this);
+
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                if (isVisible()) {
+                    placeRequestSecurityFramework.update(HostInterfacesPresenter.this, hostPlaceRequest());
+                    loadInterfaces();
+                }
+            }
+        });
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
@@ -118,30 +127,22 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
         loadInterfaces();
     }
 
-    @Override
-    public void onHostSelectionChanged() {
-        if (isVisible()) {
-            placeRequestSecurityFramework.update(this, hostPlaceRequest());
-            loadInterfaces();
-        }
-    }
-
     private PlaceRequest hostPlaceRequest() {
         return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", domainManager.getSelectedHost()).build();
+                .with("host", hostStore.getSelectedHost()).build();
     }
 
     @Override
     public ModelNode getBaseAddress() {
         ModelNode address = new ModelNode();
         address.setEmptyList();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
         return address;
     }
 
     public void loadInterfaces() {
         ModelNode address = new ModelNode();
-        address.add("host", domainManager.getSelectedHost());
+        address.add("host", hostStore.getSelectedHost());
 
         LoadInterfacesCmd loadInterfacesCmd = new LoadInterfacesCmd(dispatcher, address, metaData);
         loadInterfacesCmd.execute(new SimpleCallback<List<Interface>>() {

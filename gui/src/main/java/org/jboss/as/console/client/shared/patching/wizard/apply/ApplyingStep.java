@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
-
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -36,6 +34,8 @@ import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
 import org.jboss.dmr.client.ModelNode;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
 
 /**
  * @author Harald Pehl

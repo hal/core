@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import java.util.Map;
-
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -33,6 +31,8 @@ import org.jboss.as.console.client.administration.role.form.ReadOnlyItem;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+
+import java.util.Map;
 
 /**
  * @author Harald Pehl

@@ -23,11 +23,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.util.AddressableModelCmd;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 

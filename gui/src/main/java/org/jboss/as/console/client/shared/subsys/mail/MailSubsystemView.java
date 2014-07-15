@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
-import java.util.List;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -9,6 +7,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

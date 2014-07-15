@@ -8,7 +8,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.shared.state.GlobalHostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
 

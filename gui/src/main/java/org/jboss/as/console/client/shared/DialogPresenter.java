@@ -55,10 +55,6 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
 
         this.revealStrategy = revealStrategy;
 
-        /*CoreGUIContext globalContext = new CoreGUIContext(
-                Console.MODULES.getCurrentSelectedProfile(),
-                Console.MODULES.getCurrentUser() , Console.MODULES.getDomainEntityManager()
-        );*/
 
         // mbui kernel instance
         this.dialogs = new RemoteRepository();

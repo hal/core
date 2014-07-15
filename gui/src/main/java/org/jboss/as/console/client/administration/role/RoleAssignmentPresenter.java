@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
-import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -41,7 +35,6 @@ import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
 import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
@@ -54,11 +47,18 @@ import org.jboss.as.console.client.administration.role.ui.MembersDialog;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Outcome;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
 
 /**
  * There are some constraints when managing role assignments in the console:

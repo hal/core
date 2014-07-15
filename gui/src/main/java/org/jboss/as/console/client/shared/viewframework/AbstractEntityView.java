@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.shared.viewframework;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -43,6 +39,10 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
 
 
 /**

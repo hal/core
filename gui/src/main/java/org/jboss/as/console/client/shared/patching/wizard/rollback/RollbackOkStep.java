@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.rollback;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -30,6 +28,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl

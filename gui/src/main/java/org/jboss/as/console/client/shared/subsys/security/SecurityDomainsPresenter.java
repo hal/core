@@ -33,11 +33,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.as.console.client.shared.util.SimpleDMRResponseHandler;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -47,11 +42,16 @@ import org.jboss.as.console.client.shared.subsys.security.model.AuthorizationPol
 import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
 import org.jboss.as.console.client.shared.subsys.security.model.MappingModule;
 import org.jboss.as.console.client.shared.subsys.security.model.SecurityDomain;
+import org.jboss.as.console.client.shared.util.SimpleDMRResponseHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
 import java.util.List;

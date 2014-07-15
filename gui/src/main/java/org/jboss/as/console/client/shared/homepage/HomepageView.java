@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import static com.google.gwt.dom.client.Style.Unit.PCT;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Document;
@@ -41,6 +35,12 @@ import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.gwt.dom.client.Style.Unit.PCT;
 
 /**
  * @author Harald Pehl

@@ -18,15 +18,15 @@
  */
 package org.jboss.as.console.client.shared.subsys.messaging;
 
-import java.util.Iterator;
-import java.util.List;
-
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.cellview.client.Column;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Harald Pehl

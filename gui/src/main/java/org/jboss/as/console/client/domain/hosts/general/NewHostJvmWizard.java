@@ -19,10 +19,8 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -71,7 +69,7 @@ public class NewHostJvmWizard {
                     @Override
                     public ModelNode getAddress() {
                         ModelNode address = new ModelNode();
-                        address.add("host", Console.MODULES.getDomainEntityManager().getSelectedHost());
+                        address.add("host", Console.MODULES.getHostStore().getSelectedHost());
                         address.add("jvm", "*");
                         return address;
                     }

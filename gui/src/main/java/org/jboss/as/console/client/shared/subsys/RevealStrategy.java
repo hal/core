@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.shared.subsys;
 
-import javax.inject.Inject;
-
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
@@ -30,6 +28,8 @@ import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
+
+import javax.inject.Inject;
 
 /**
  * @author Heiko Braun

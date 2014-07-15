@@ -21,8 +21,6 @@ package org.jboss.as.console.client.shared.subsys.infinispan;
 
 import com.google.gwt.user.cellview.client.TextColumn;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCache;
 import org.jboss.as.console.client.shared.viewframework.AbstractEntityView;
@@ -30,11 +28,13 @@ import org.jboss.as.console.client.shared.viewframework.Columns.NameColumn;
 import org.jboss.as.console.client.shared.viewframework.DmrCallback;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
+import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.as.console.client.widgets.deprecated.ObservableFormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
 
 import java.util.ArrayList;
 import java.util.List;

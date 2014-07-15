@@ -18,10 +18,10 @@
  */
 package org.jboss.as.console.client.search;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import com.allen_sauer.gwt.log.client.Log;
 
 /**
 * @author Harald Pehl

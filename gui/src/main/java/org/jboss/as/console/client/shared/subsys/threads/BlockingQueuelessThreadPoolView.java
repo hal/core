@@ -19,11 +19,11 @@
 package org.jboss.as.console.client.shared.subsys.threads;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.threads.model.BlockingQueuelessThreadPool;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 
 /**

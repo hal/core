@@ -18,11 +18,11 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import org.jboss.dmr.client.ModelNode;
+
 import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
 import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-
-import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Harald Pehl

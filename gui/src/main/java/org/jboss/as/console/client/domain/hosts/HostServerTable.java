@@ -1,8 +1,5 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import java.util.Collections;
-import java.util.List;
-
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -16,7 +13,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -28,14 +24,20 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.shared.state.GlobalHostSelection;
-import org.jboss.as.console.client.shared.state.HostList;
-import org.jboss.as.console.client.shared.state.ServerInstanceList;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A miller column based selection of host/serve combinations
@@ -47,9 +49,11 @@ public class HostServerTable {
 
     private static final int ESCAPE = 27;
     public final static double GOLDEN_RATIO = 1.618;
+    private final Dispatcher circuit;
+    private final HostStore hostStore;
+    private final ServerStore serverStore;
 
     private boolean isRightToLeft = false;
-    private HostServerManagement presenter;
 
     private CellList<Host> hostList;
     private CellList<ServerInstance> serverList;
@@ -73,8 +77,24 @@ public class HostServerTable {
     private SingleSelectionModel<ServerInstance> serverSelectionModel;
 
 
-    public HostServerTable(HostServerManagement presenter) {
-        this.presenter = presenter;
+    public HostServerTable() {
+        this.circuit = Console.MODULES.getCircuitDispatcher();
+        this.hostStore = Console.MODULES.getHostStore();
+        this.serverStore = Console.MODULES.getServerStore();
+
+        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                updateDisplay();
+            }
+        });
+
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                updateDisplay();
+            }
+        });
     }
 
     private static String clip(String value, int clipping)
@@ -107,22 +127,13 @@ public class HostServerTable {
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
-        //layout.addStyleName("tablepicker-popup");
 
         HorizontalPanel tools = new HorizontalPanel();
         tools.setStyleName("fill-layout-width");
         tools.setStyleName("server-picker-header");
         if(description!=null)
             tools.add(new HTML(description));
-        /*InlineLink refresh = new InlineLink(Console.CONSTANTS.common_label_refresh());
-        refresh.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                Console.MODULES.getEventBus().fireEvent(new StaleModelEvent(StaleModelEvent.SERVER_INSTANCES));
-            }
-        });
-        tools.add(refresh);
-        refresh.getElement().getParentElement().setAttribute("style", "vertical-align:right");*/
+
         layout.add(tools);
 
         ratio = new HTML("RATIO HERE");
@@ -166,11 +177,7 @@ public class HostServerTable {
 
                 if(selectedHost!=null)
                 {
-                    Console.MODULES.getEventBus().fireEvent(
-                            new GlobalHostSelection(selectedHost.getName())
-                    );
-
-                    presenter.loadServer(selectedHost.getName());
+                    circuit.dispatch(new HostSelection(selectedHost.getName()));
                 }
             }
         });
@@ -184,8 +191,8 @@ public class HostServerTable {
 
                 if(selectedHost!=null &server!=null)
                 {
-                    presenter.onServerSelected(selectedHost, server);
-                    updateDisplay();
+                    circuit.dispatch(new SelectServerInstance(server));
+
                 }
 
             }
@@ -301,8 +308,8 @@ public class HostServerTable {
 
     private void updateDisplay() {
 
-        String host = clip(getSelectedHost().getName(), clipAt);
-        String server = clip(getSelectedServer().getName(), clipAt);
+        String host = clip(hostStore.getSelectedHost(), clipAt);
+        String server = clip(serverStore.getSelectedServer(), clipAt);
 
         currentDisplayedValue.setHTML(
                 "Host:&nbsp;<b>"+host+"</b><br/>"+
@@ -352,13 +359,8 @@ public class HostServerTable {
         currentDisplayedValue.setText("");
     }
 
-    /**
-     * Display the currently active servers for selection
-     * @param serverList
-     */
-    public void setServer(ServerInstanceList serverList) {
+    public void setServer(ServerInstance selectedServer, List<ServerInstance> server) {
 
-        List<ServerInstance> server = serverList.getServer();
         serverProvider.setList(server);
 
         serverPager.setVisible(server.size() >= 5);
@@ -368,15 +370,7 @@ public class HostServerTable {
             currentDisplayedValue.setText("No Server");
         }
 
-        this.serverList.getSelectionModel().setSelected(serverList.getSelectedServer(), true);
-    }
-
-    /**
-     * will reload the server list
-     * @param host
-     */
-    private void selectHost(Host host) {
-        hostList.getSelectionModel().setSelected(host, true);
+        this.serverList.getSelectionModel().setSelected(selectedServer, true);
     }
 
     public void setHosts(Host selectedHost, List<Host> hostModel) {
@@ -389,6 +383,7 @@ public class HostServerTable {
         hostList.getSelectionModel().setSelected(selectedHost, true);
 
     }
+
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class='server-selection-host'>{0}</div>")

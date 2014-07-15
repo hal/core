@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
-import java.util.List;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
@@ -17,6 +15,8 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+
+import java.util.List;
 
 /**
  * Widget which contains a cell table with the stored servers. There are buttons to add and remove server.

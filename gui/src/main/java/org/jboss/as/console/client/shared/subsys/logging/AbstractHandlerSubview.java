@@ -20,7 +20,6 @@ package org.jboss.as.console.client.shared.subsys.logging;
 
 import com.google.gwt.user.cellview.client.TextColumn;
 import org.jboss.as.console.client.Console;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.HasLevel;
 import org.jboss.as.console.client.shared.viewframework.Columns.NameColumn;
@@ -32,6 +31,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.List;
 

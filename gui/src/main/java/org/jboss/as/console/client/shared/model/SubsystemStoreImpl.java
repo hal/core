@@ -23,10 +23,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.dmr.client.ModelNode;
 
 import java.util.ArrayList;
 import java.util.List;

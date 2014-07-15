@@ -9,23 +9,24 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
-import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
-import org.jboss.as.console.client.shared.state.ServerSelectionChanged;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RuntimeExtension;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -34,7 +35,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 11/3/11
  */
 public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMetricPresenter.MyProxy>
-        implements TXMetricManagement , ServerSelectionChanged.ChangeListener {
+        implements TXMetricManagement {
 
     private DispatchAsync dispatcher;
     private AddressBinding addressBinding;
@@ -73,21 +74,22 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
         this.entityAdapter = new EntityAdapter<TransactionManager>(TransactionManager.class, metaData);
     }
 
-    @Override
-    public void onServerSelectionChanged(boolean isRunning) {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                if(isVisible()) refresh();
-            }
-        });
-    }
 
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(ServerSelectionChanged.TYPE, this);
+        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Class<?> source) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                           @Override
+                           public void execute() {
+                               if(isVisible()) refresh();
+                           }
+                       });
+            }
+        });
     }
 
     @Override

@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.shared.state.HostList;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;

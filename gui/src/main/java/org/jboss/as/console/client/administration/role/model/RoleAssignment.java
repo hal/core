@@ -18,15 +18,13 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import com.google.gwt.view.client.ProvidesKey;
+
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import com.google.gwt.view.client.ProvidesKey;
 
 /**
  * A role assignment as used in the UI. This model differs from the management model.

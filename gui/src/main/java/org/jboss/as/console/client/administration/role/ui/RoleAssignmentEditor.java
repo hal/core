@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.administration.role.ui;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,6 +19,8 @@ import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
 
 /**
  * @author Harald Pehl

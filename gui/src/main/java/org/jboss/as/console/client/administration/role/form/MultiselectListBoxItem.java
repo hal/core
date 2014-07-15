@@ -18,15 +18,15 @@
  */
 package org.jboss.as.console.client.administration.role.form;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Harald Pehl

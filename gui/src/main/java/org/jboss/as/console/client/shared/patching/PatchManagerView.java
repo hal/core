@@ -18,13 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
-import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -39,7 +32,7 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.state.DomainEntityManager;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -49,6 +42,13 @@ import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
+import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl
@@ -64,7 +64,7 @@ public class PatchManagerView extends SuspendableViewImpl
             if (bootstrapContext.isStandalone()) {
                 message = Console.CONSTANTS.patch_manager_restart_verify();
             } else {
-                message = Console.MESSAGES.patch_manager_restart_verify(domainEntityManager.getSelectedHost());
+                message = Console.MESSAGES.patch_manager_restart_verify(hostStore.getSelectedHost());
             }
             Feedback.confirm(Console.CONSTANTS.common_label_restart(), message,
                     new Feedback.ConfirmationHandler() {
@@ -82,7 +82,7 @@ public class PatchManagerView extends SuspendableViewImpl
 
     private final ProductConfig productConfig;
     private final BootstrapContext bootstrapContext;
-    private final DomainEntityManager domainEntityManager;
+    private final HostStore hostStore;
     private PatchManagerPresenter presenter;
     private Form<PatchInfo> latestForm;
     private TextItem id;
@@ -91,10 +91,10 @@ public class PatchManagerView extends SuspendableViewImpl
 
     @Inject
     public PatchManagerView(ProductConfig productConfig, BootstrapContext bootstrapContext,
-            DomainEntityManager domainEntityManager) {
+            HostStore hostStore) {
         this.productConfig = productConfig;
         this.bootstrapContext = bootstrapContext;
-        this.domainEntityManager = domainEntityManager;
+        this.hostStore = hostStore;
     }
 
     @Override

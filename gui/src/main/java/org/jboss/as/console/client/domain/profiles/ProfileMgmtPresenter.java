@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
@@ -49,6 +47,8 @@ import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+
+import java.util.List;
 
 /**
  * @author Heiko Braun

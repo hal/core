@@ -18,9 +18,9 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard;
 
-import java.util.List;
-
 import org.jboss.dmr.client.ModelNode;
+
+import java.util.List;
 
 /**
  * @author Harald Pehl

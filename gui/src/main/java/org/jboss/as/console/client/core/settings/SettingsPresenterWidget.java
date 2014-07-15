@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.core.settings;
 
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
@@ -31,6 +27,9 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.Preferences;
+
+import javax.inject.Inject;
+import java.util.Map;
 
 /**
  * Maintains the settings dialogue

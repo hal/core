@@ -19,9 +19,6 @@
 package org.jboss.as.console.client.shared.subsys.logging;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.CustomHandler;
 import org.jboss.as.console.client.shared.viewframework.EmbeddedPropertyView;
@@ -33,6 +30,9 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
 import java.util.List;

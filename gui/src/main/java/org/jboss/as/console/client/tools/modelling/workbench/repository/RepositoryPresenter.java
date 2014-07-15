@@ -102,12 +102,6 @@ public class RepositoryPresenter
 
         this.dispatcher = dispatcher;
 
-        /*CoreGUIContext globalContext = new CoreGUIContext(
-                Console.MODULES.getCurrentSelectedProfile(),
-                Console.MODULES.getCurrentUser(), Console.MODULES.getDomainEntityManager()
-        );*/
-
-
         DialogRepository adhocRepo = new DialogRepository() {
             @Override
             public void getDialog(String name, AsyncCallback<Dialog> callback) {

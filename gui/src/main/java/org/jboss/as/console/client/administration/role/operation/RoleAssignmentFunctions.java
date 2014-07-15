@@ -18,11 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
@@ -35,6 +30,11 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Functions to check, and add (if not present) a role assignments; supposed to work inside a call to {@link
