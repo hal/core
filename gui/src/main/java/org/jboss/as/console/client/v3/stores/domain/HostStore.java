@@ -3,10 +3,13 @@ package org.jboss.as.console.client.v3.stores.domain;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
@@ -92,6 +95,7 @@ public class HostStore extends ChangeSupport {
         channel.ack();
         fireChanged(HostStore.class);
     }
+
 
     // data access
 

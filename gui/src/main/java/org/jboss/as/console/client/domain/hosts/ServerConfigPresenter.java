@@ -60,7 +60,9 @@ import org.jboss.as.console.client.shared.state.ServerConfigList;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.spi.AccessControl;
@@ -277,43 +279,8 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
         // close popup
         closeDialoge();
-        final String newServerName = newServer.getName();
 
-
-        hostInfoStore.createServerConfig(getSelectedHost(), newServer, new AsyncCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean wasSuccessful) {
-                if (wasSuccessful) {
-
-                    Console.info(Console.MESSAGES.added("Server Configuration ") + newServer.getName());
-
-                    loadServerConfigurations();
-
-                } else {
-                    closeDialoge();
-                    Console.error(Console.MESSAGES.addingFailed("Server Configuration ") + newServer.getName());
-
-                }
-
-                staleModel();
-
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-
-                Console.getMessageCenter().notify(
-                        new Message(Console.MESSAGES.addingFailed("Server Configuration ") + newServer.getName(),
-                                Message.Severity.Error)
-                );
-
-            }
-        });
-
-    }
-
-    private void staleModel() {
-        fireEvent(new StaleModelEvent(StaleModelEvent.SERVER_CONFIGURATIONS));
+        circuit.dispatch(new AddServer(newServer));
     }
 
     public void onSaveChanges(final Server entity, Map<String, Object> changedValues) {
@@ -405,31 +372,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
 
     private void performDeleteOperation(final Server server) {
 
-        hostInfoStore.deleteServerConfig(hostStore.getSelectedHost(), server, new AsyncCallback<Boolean>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.error(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName(), caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(Boolean wasSuccessful) {
-                if (wasSuccessful) {
-                    Console.info(Console.MESSAGES.deleted("Server Configuration ") + server.getName());
-                    loadServerConfigurations();
-
-                    // what if the deleted server was the last selected server?
-                    if(server.getName().equals(serverStore.getSelectedServer()))
-                    {
-                        // TODO
-                    }
-
-                } else {
-                    Console.error(Console.MESSAGES.deletionFailed("Server Configuration ") + server.getName());
-                }
-
-                staleModel();
-            }
-        });
+        circuit.dispatch(new RemoveServer(server));
     }
 
     public String getSelectedHost() {
