@@ -413,7 +413,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                         if(serverConfigs.isEmpty())
                         {
-                            callbackReference.onSuccess(Collections.EMPTY_LIST);
+                            callbackReference.onSuccess(new ArrayList<ServerInstance>());
                             return;
                         }
 
@@ -518,7 +518,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                                         // ---- interfaces
 
-                                        List<Property> interfaces = Collections.EMPTY_LIST;
+                                        List<Property> interfaces = new ArrayList<Property>();
 
                                         if(compositeResponse.hasDefined("step-2"))
                                         {
@@ -537,7 +537,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                         }
 
                                         // ---- socket binding
-                                        List<Property> sockets = Collections.EMPTY_LIST;
+                                        List<Property> sockets = new ArrayList<Property>();
                                         if(compositeResponse.hasDefined("step-3"))
                                         {
                                             sockets = compositeResponse.get("step-3").get(RESULT).asPropertyList();

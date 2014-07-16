@@ -116,7 +116,8 @@ public class DomainRuntimePresenter
         serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                loadSubsystems();
+                if(serverStore.hasSelectedServer())
+                    loadSubsystems();
             }
         });
     }

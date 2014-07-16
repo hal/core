@@ -37,8 +37,13 @@ public class ServerPicker {
         serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                String selectedHost = hostStore.getSelectedHost();
-                hostServerTable.setServer(serverStore.getSelectedServerInstance(), serverStore.getServerInstances(selectedHost));
+
+                if(hostStore.hasSelecteHost()) {
+                    String selectedHost = hostStore.getSelectedHost();
+
+                    hostServerTable.setServer(serverStore.getSelectedServerInstance(), serverStore.getServerInstances(selectedHost));
+                    hostServerTable.updateDisplay(selectedHost, serverStore.getSelectedServer());
+                }
             }
         });
     }

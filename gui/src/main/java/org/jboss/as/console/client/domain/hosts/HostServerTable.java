@@ -20,12 +20,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
@@ -34,8 +33,8 @@ import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,8 +49,8 @@ public class HostServerTable {
     private static final int ESCAPE = 27;
     public final static double GOLDEN_RATIO = 1.618;
     private final Dispatcher circuit;
-    private final HostStore hostStore;
-    private final ServerStore serverStore;
+    //private final HostStore hostStore;
+    //private final ServerStore serverStore;
 
     private boolean isRightToLeft = false;
 
@@ -79,22 +78,6 @@ public class HostServerTable {
 
     public HostServerTable() {
         this.circuit = Console.MODULES.getCircuitDispatcher();
-        this.hostStore = Console.MODULES.getHostStore();
-        this.serverStore = Console.MODULES.getServerStore();
-
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                updateDisplay();
-            }
-        });
-
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                updateDisplay();
-            }
-        });
     }
 
     private static String clip(String value, int clipping)
@@ -140,7 +123,13 @@ public class HostServerTable {
         //layout.add(ratio);
         // --------------
 
-        hostList = new DefaultCellList<Host>(new HostCell());
+        ProvidesKey<Host> hostKey = new ProvidesKey<Host>() {
+            @Override
+            public Object getKey(Host host) {
+                return host.getName();
+            }
+        };
+        hostList = new DefaultCellList<Host>(new HostCell(), hostKey);
         hostList.addStyleName("host-list");
         hostList.setPageSize(6);
         hostSelectionModel = new SingleSelectionModel<Host>();
@@ -148,7 +137,14 @@ public class HostServerTable {
         hostList.addStyleName("fill-layout-width");
         hostList.addStyleName("clip-text") ;
 
-        serverList = new DefaultCellList<ServerInstance>(new ServerCell());
+        ProvidesKey<ServerInstance> serverkey = new ProvidesKey<ServerInstance>() {
+            @Override
+            public Object getKey(ServerInstance server) {
+                return server.getName();
+            }
+        };
+        serverList = new DefaultCellList<ServerInstance>(new ServerCell(), serverkey);
+
         hostList.addStyleName("server-list");
         serverSelectionModel = new SingleSelectionModel<ServerInstance>(new ProvidesKey<ServerInstance>() {
             @Override
@@ -161,8 +157,8 @@ public class HostServerTable {
         serverList.addStyleName("fill-layout-width");
         serverList.addStyleName("clip-text") ;
 
-        hostProvider = new ListDataProvider<Host>();
-        serverProvider = new ListDataProvider<ServerInstance>();
+        hostProvider = new ListDataProvider<Host>(hostKey);
+        serverProvider = new ListDataProvider<ServerInstance>(serverkey);
 
         hostProvider.addDataDisplay(hostList);
         serverProvider.addDataDisplay(serverList);
@@ -171,7 +167,7 @@ public class HostServerTable {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                serverProvider.setList(Collections.EMPTY_LIST);
+                serverProvider.setList(new ArrayList<ServerInstance>());
 
                 Host selectedHost = getSelectedHost();
 
@@ -306,15 +302,22 @@ public class HostServerTable {
         return p;
     }
 
-    private void updateDisplay() {
+    public void clearDisplay() {
+        currentDisplayedValue.setHTML(
+                "Please select server ..."
+        );
+    }
 
-        String host = clip(hostStore.getSelectedHost(), clipAt);
-        String server = clip(serverStore.getSelectedServer(), clipAt);
+    public void updateDisplay(String hostName, String serverName) {
+
+        String host = clip(hostName, clipAt);
+        String server = clip(serverName, clipAt);
 
         currentDisplayedValue.setHTML(
-                "Host:&nbsp;<b>"+host+"</b><br/>"+
-                "Server:&nbsp;<b>"+server+"</b>"
+                "Host:&nbsp;<b>" + host + "</b><br/>" +
+                        "Server:&nbsp;<b>" + server + "</b>"
         );
+
     }
 
     public Host getSelectedHost() {
@@ -370,7 +373,7 @@ public class HostServerTable {
             currentDisplayedValue.setText("No Server");
         }
 
-        this.serverList.getSelectionModel().setSelected(selectedServer, true);
+        serverList.getSelectionModel().setSelected(selectedServer, true);
     }
 
     public void setHosts(Host selectedHost, List<Host> hostModel) {

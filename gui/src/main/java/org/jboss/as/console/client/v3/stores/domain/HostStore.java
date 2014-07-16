@@ -110,6 +110,10 @@ public class HostStore extends ChangeSupport {
         return selectedHost;
     }
 
+    public boolean hasSelecteHost() {
+        return selectedHost!=null;
+    }
+
     public class NoHostsAvailable extends RuntimeException {
 
     }
