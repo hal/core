@@ -38,11 +38,15 @@ public class ServerPicker {
             @Override
             public void onChange(Class<?> source) {
 
-                if(hostStore.hasSelecteHost()) {
+                if(hostStore.hasSelecteHost() && serverStore.hasSelectedServer()) {
                     String selectedHost = hostStore.getSelectedHost();
 
                     hostServerTable.setServer(serverStore.getSelectedServerInstance(), serverStore.getServerInstances(selectedHost));
                     hostServerTable.updateDisplay(selectedHost, serverStore.getSelectedServer());
+                }
+                else if(!serverStore.hasSelectedServer())
+                {
+                    hostServerTable.clearDisplay();
                 }
             }
         });

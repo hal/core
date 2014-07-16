@@ -118,6 +118,8 @@ public class DomainRuntimePresenter
             public void onChange(Class<?> source) {
                 if(serverStore.hasSelectedServer())
                     loadSubsystems();
+                else
+                    getView().setSubsystems(Collections.EMPTY_LIST);
             }
         });
     }
