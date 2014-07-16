@@ -59,6 +59,8 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
+import org.jboss.as.console.client.domain.runtime.DomainRuntimegateKeeper;
+import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
@@ -174,6 +176,7 @@ public interface CoreUI {
     Gatekeeper getRBACGatekeeper();
 
     HostManagementGatekeeper getHostManagementGatekeeper();
+    DomainRuntimegateKeeper getDomainRuntimegateKeeper();
 
     CurrentUser getCurrentUser();
     BootstrapContext getBootstrapContext();
@@ -361,6 +364,8 @@ public interface CoreUI {
     UnauthorisedPresenter getUnauthorisedPresenter();
 
     AsyncProvider<DialogPresenter> getDialogPresenter();
+
+    AsyncProvider<NoServerPresenter> getNoServerPresenter();
 
     Dispatcher getCircuitDispatcher();
 

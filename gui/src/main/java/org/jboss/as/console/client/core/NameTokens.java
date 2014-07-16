@@ -96,6 +96,7 @@ public class NameTokens {
     public static final String UndertowCore = "undertow-core";
     public static final String DialogPresenter = "mbui";
     public static final String DomainPresenter = "domain";
+    public static final String NoServer = "no-server";
 
     public static String getMainLayout() {
         return mainLayout;

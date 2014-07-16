@@ -39,6 +39,7 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -63,6 +64,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private DefaultCellTable<Server> serverConfigTable;
     private ListDataProvider serverConfigProvider;
     private String preselection;
+    private ContentHeaderLabel headline;
 
 
     public ServerConfigView() {
@@ -191,10 +193,11 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
         // --------------------
 
+        headline = new ContentHeaderLabel();
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
-                .setHeadline("Server Configurations")
+                .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
                 .setMaster(Console.MESSAGES.available(Console.CONSTANTS.common_label_serverConfigs()), serverConfigTable)
                 .setMasterTools(toolStrip.asWidget())
@@ -250,6 +253,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     @Override
     public void setConfigurations(String selectedHost, List<Server> serverModel) {
 
+        headline.setText("Server Configurations: Host '"+selectedHost+"'");
         serverConfigProvider.getList().clear();
         serverConfigProvider.getList().addAll(serverModel);
         serverConfigProvider.refresh();
