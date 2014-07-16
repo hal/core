@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.v3.stores.domain;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
@@ -12,7 +13,6 @@ import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerInstances;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
@@ -214,14 +214,7 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean success) {
 
-                String selectedHost = hostStore.getSelectedHost();
-
-                if(!serverModel.containsKey(selectedHost))
-                    serverModel.put(selectedHost, new ArrayList<Server>());
-                serverModel.get(selectedHost).add(server);
-
-                channel.ack();
-                fireChanged(ServerStore.class);
+               onRefresh(channel);
             }
 
             @Override
@@ -239,41 +232,16 @@ public class ServerStore extends ChangeSupport {
         hostInfo.deleteServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
-                boolean removed = ServerStore.this.serverModel.get(hostStore.getSelectedHost()).remove(server);
-                if(!removed)
-                    throw new RuntimeException("Failed to remove server");
 
-                channel.ack();
-                fireChanged(ServerStore.class);
+                onRefresh(channel);
             }
 
             @Override
             public void onFailure(Throwable caught) {
+                Console.error("Failed to remove server", caught.getMessage());
                 channel.nack(caught);
             }
         });
-    }
-
-    @Process(actionType = RefreshServerInstances.class)
-    public void onRefreshServerInstances(final Dispatcher.Channel channel) {
-
-        final String hostName = hostStore.getSelectedHost();
-
-        hostInfo.getServerInstances(hostName, new SimpleCallback<List<ServerInstance>>() {
-            @Override
-            public void onSuccess(List<ServerInstance> servers) {
-                instanceModel.put(hostName, servers);
-
-                channel.ack();
-                fireChanged(ServerStore.class);
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                channel.nack(caught);
-            }
-        });
-
     }
 
     @Process(actionType = SelectServerInstance.class)
@@ -437,4 +405,21 @@ public class ServerStore extends ChangeSupport {
 
         return selectedServerInstance;
     }
+
+    // -----------------------------------------------
+    // utility
+
+    private final static ProvidesKey<Server> SERVER_KEY = new ProvidesKey<Server>() {
+        @Override
+        public Object getKey(Server server) {
+            return server.getName()+"_"+server.getGroup();
+        }
+    };
+
+    private final static ProvidesKey<ServerInstance> SERVER_INSTANCE_KEY = new ProvidesKey<ServerInstance>() {
+        @Override
+        public Object getKey(ServerInstance server) {
+            return server.getName()+"_"+server.getGroup();
+        }
+    };
 }
