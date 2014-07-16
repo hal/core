@@ -27,10 +27,13 @@ import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +42,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
- * @date 15/07/14
+ * @since 15/07/14
  */
 @Store
 public class ServerStore extends ChangeSupport {
@@ -66,11 +69,15 @@ public class ServerStore extends ChangeSupport {
     // init
 
     public void init(final String hostName, final AsyncCallback<List<Server>> callback) {
-        hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
+        synchronizeServerModel(hostName, new AsyncCallback<Boolean>() {
             @Override
-            public void onSuccess(List<Server> servers) {
-                serverModel.put(hostName, servers);
-                callback.onSuccess(servers);
+            public void onFailure(Throwable throwable) {
+                callback.onFailure(throwable);
+            }
+
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                callback.onSuccess(serverModel.get(hostName));
             }
         });
     }
@@ -81,8 +88,23 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = HostSelection.class, dependencies = {HostStore.class})
     public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
 
-        onRefresh(channel);
+        // if the data has not been loaded we force a refresh
+        if(!serverModel.containsKey(hostName))
+            onRefresh(channel);
+        else {
 
+            // if the host changes, we do select another instance by default
+            defaultSelection();
+
+            channel.ack();
+            fireChanged(ServerStore.class);
+        }
+
+    }
+
+    class RefreshValues {
+        List<Server> servers;
+        List<ServerInstance> instances;
     }
 
     @Process(actionType = RefreshServer.class, dependencies = {HostStore.class})
@@ -90,19 +112,98 @@ public class ServerStore extends ChangeSupport {
 
         final String hostName = hostStore.getSelectedHost();
 
-        hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
+        synchronizeServerModel(hostName, new AsyncCallback<Boolean>() {
             @Override
-            public void onSuccess(List<Server> servers) {
-                serverModel.put(hostName, servers);
-                channel.ack();
-                fireChanged(ServerStore.class);
+            public void onFailure(Throwable throwable) {
+                channel.nack(throwable);
             }
 
             @Override
-            public void onFailure(Throwable caught) {
-                channel.nack(caught);
+            public void onSuccess(Boolean aBoolean) {
+                channel.ack();
+                fireChanged(ServerStore.class);
             }
         });
+
+    }
+
+    private void synchronizeServerModel(final String hostName, final AsyncCallback<Boolean> callback) {
+
+        Function<RefreshValues> fetchServers = new Function<RefreshValues>() {
+            @Override
+            public void execute(final Control<RefreshValues> control) {
+                hostInfo.getServerConfigurations(hostName, new SimpleCallback<List<Server>>() {
+                    @Override
+                    public void onSuccess(List<Server> servers) {
+                        control.getContext().servers = servers;
+                        control.proceed();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        control.abort();
+                        Console.error("Failed to load servers", caught.getMessage());
+                    }
+                });
+
+            }
+        };
+
+        Function<RefreshValues> fetchInstances = new Function<RefreshValues>() {
+            @Override
+            public void execute(final Control<RefreshValues> control) {
+                hostInfo.getServerInstances(hostName, new SimpleCallback<List<ServerInstance>>() {
+                    @Override
+                    public void onSuccess(List<ServerInstance> servers) {
+                        control.getContext().instances = servers;
+                        control.proceed();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        control.abort();
+                        Console.error("Failed to load server instances", caught.getMessage());
+                    }
+                });
+
+            }
+        };
+
+        Outcome<RefreshValues> outcome = new Outcome<RefreshValues>() {
+            @Override
+            public void onFailure(RefreshValues context) {
+                callback.onFailure(new RuntimeException("Failed to synchronize server model"));
+            }
+
+            @Override
+            public void onSuccess(RefreshValues context) {
+
+                serverModel.put(hostName, context.servers);
+                instanceModel.put(hostName, context.instances);
+
+                defaultSelection();
+
+                callback.onSuccess(true);
+            }
+        };
+
+        new Async().waterfall(new RefreshValues(), outcome, fetchServers, fetchInstances);
+    }
+
+    private void defaultSelection() {
+
+        List<ServerInstance> instancesOnHost = instanceModel.get(hostStore.getSelectedHost());
+
+        if(instancesOnHost.size()>0)
+        {
+            selectedServerInstance = instancesOnHost.get(0);
+        }
+        else if(instancesOnHost.isEmpty())
+        {
+            // no selection possible
+            selectedServerInstance =null;
+        }
+
 
     }
 
@@ -178,6 +279,8 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = SelectServerInstance.class)
     public void onSelectedServerInstance(final ServerInstance serverInstance, final Dispatcher.Channel channel) {
         this.selectedServerInstance = serverInstance;
+        channel.ack();
+        fireChanged(ServerStore.class);
     }
 
     @Process(actionType = UpdateServer.class)
@@ -309,16 +412,23 @@ public class ServerStore extends ChangeSupport {
 
     public List<Server> getServerModel(String host) {
         List<Server> servers = serverModel.get(host);
-        return servers != null ? servers : Collections.<Server>emptyList();
+        return servers != null ? servers : new ArrayList<Server>();
+    }
+
+    public boolean hasSelectedServer() {
+        return selectedServerInstance!=null;
     }
 
     public String getSelectedServer() {
+        if(null==selectedServerInstance)
+                    throw new IllegalStateException("No server instance selected");
+
         return selectedServerInstance.getName();
     }
 
     public List<ServerInstance> getServerInstances(String host) {
         List<ServerInstance> serverInstances = instanceModel.get(host);
-        return serverInstances != null ? serverInstances :Collections.<ServerInstance>emptyList();
+        return serverInstances != null ? serverInstances : new ArrayList<ServerInstance>();
     }
 
     public ServerInstance getSelectedServerInstance() {
