@@ -49,16 +49,14 @@ public class HostServerTable {
     private static final int ESCAPE = 27;
     public final static double GOLDEN_RATIO = 1.618;
     private final Dispatcher circuit;
-    //private final HostStore hostStore;
-    //private final ServerStore serverStore;
 
     private boolean isRightToLeft = false;
 
     private CellList<Host> hostList;
     private CellList<ServerInstance> serverList;
 
-    private ListDataProvider<Host> hostProvider = new ListDataProvider<Host>();
-    private ListDataProvider<ServerInstance> serverProvider = new ListDataProvider<ServerInstance>();
+    private ListDataProvider<Host> hostProvider;
+    private ListDataProvider<ServerInstance> serverProvider;
 
     private PopupPanel popup;
 
@@ -129,30 +127,29 @@ public class HostServerTable {
                 return host.getName();
             }
         };
-        hostList = new DefaultCellList<Host>(new HostCell(), hostKey);
-        hostList.addStyleName("host-list");
-        hostList.setPageSize(6);
-        hostSelectionModel = new SingleSelectionModel<Host>();
-        hostList.setSelectionModel(hostSelectionModel);
-        hostList.addStyleName("fill-layout-width");
-        hostList.addStyleName("clip-text") ;
 
         ProvidesKey<ServerInstance> serverkey = new ProvidesKey<ServerInstance>() {
             @Override
             public Object getKey(ServerInstance server) {
-                return server.getName();
+                return server.getName()+"_"+server.getGroup();
             }
         };
-        serverList = new DefaultCellList<ServerInstance>(new ServerCell(), serverkey);
 
-        hostList.addStyleName("server-list");
-        serverSelectionModel = new SingleSelectionModel<ServerInstance>(new ProvidesKey<ServerInstance>() {
-            @Override
-            public Object getKey(ServerInstance serverInstance) {
-                return serverInstance.getName();
-            }
-        });
+        hostList = new DefaultCellList<Host>(new HostCell(), hostKey);
+        hostSelectionModel = new SingleSelectionModel<Host>(hostKey);
+        hostList.setSelectionModel(hostSelectionModel);
+
+        hostList.addStyleName("host-list");
+        hostList.setPageSize(6);
+        hostList.addStyleName("fill-layout-width");
+        hostList.addStyleName("clip-text") ;
+
+
+        serverList = new DefaultCellList<ServerInstance>(new ServerCell(), serverkey);
+        serverSelectionModel = new SingleSelectionModel<ServerInstance>(serverkey);
         serverList.setSelectionModel(serverSelectionModel);
+
+        serverList.addStyleName("server-list");
         serverList.setPageSize(6);
         serverList.addStyleName("fill-layout-width");
         serverList.addStyleName("clip-text") ;
@@ -364,26 +361,30 @@ public class HostServerTable {
 
     public void setServer(ServerInstance selectedServer, List<ServerInstance> server) {
 
+        serverSelectionModel.clear();
         serverProvider.setList(server);
-
-        serverPager.setVisible(server.size() >= 5);
+        serverProvider.flush();
 
         if(server.isEmpty())
         {
             currentDisplayedValue.setText("No Server");
         }
 
-        serverList.getSelectionModel().setSelected(selectedServer, true);
+        serverSelectionModel.setSelected(selectedServer, true);
+
+        serverPager.setVisible(server.size() >= 5);
     }
 
     public void setHosts(Host selectedHost, List<Host> hostModel) {
         ratio.setText("");
 
-        hostPager.setVisible(hostModel.size()>=5);
-
+        hostSelectionModel.clear();
         hostProvider.setList(hostModel);
+        hostProvider.flush();
 
-        hostList.getSelectionModel().setSelected(selectedHost, true);
+        hostSelectionModel.setSelected(selectedHost, true);
+
+        hostPager.setVisible(hostModel.size() >= 5);
 
     }
 
