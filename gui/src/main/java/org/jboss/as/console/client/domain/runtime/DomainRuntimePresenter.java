@@ -60,7 +60,7 @@ public class DomainRuntimePresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
-    @UseGatekeeper(HostManagementGatekeeper.class)
+    @UseGatekeeper(DomainRuntimegateKeeper.class)
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
     }
 

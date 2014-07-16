@@ -87,6 +87,9 @@ import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtView;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimeView;
+import org.jboss.as.console.client.domain.runtime.DomainRuntimegateKeeper;
+import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
+import org.jboss.as.console.client.domain.runtime.NoServerView;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyView;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
@@ -310,6 +313,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(Gatekeeper.class).to(RBACGatekeeper.class).in(Singleton.class);
         bind(HostManagementGatekeeper.class).in(Singleton.class);
+        bind(DomainRuntimegateKeeper.class).in(Singleton.class);
 
         bind(CurrentUser.class).in(Singleton.class);
         bind(BootstrapContext.class).in(Singleton.class);
@@ -731,6 +735,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                         DialogViewImpl.class,
                         DialogPresenter.MyProxy.class);
 
+
+        bindPresenter(NoServerPresenter.class,
+                NoServerPresenter.MyView.class,
+                NoServerView.class,
+                NoServerPresenter.MyProxy.class);
 
         // circuit wiring
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
