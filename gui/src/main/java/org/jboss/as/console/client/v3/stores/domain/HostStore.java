@@ -5,6 +5,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -38,6 +39,8 @@ public class HostStore extends ChangeSupport {
     private final DispatchAsync dispatcher;
 
     private String selectedHost;
+    private String selectedServer;
+
     private Topology topology;
 
     @Inject
@@ -62,6 +65,8 @@ public class HostStore extends ChangeSupport {
 
                 // default host selection
                 selectedHost = hostNames.iterator().next();
+
+                defaultServerSelection();
 
                 callback.onSuccess(hostNames);
             }
@@ -235,20 +240,52 @@ public class HostStore extends ChangeSupport {
     @Process(actionType = HostSelection.class)
     public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
 
-        for(String h : topology.getHostNames()) {
-            if(h.equals(hostName))
-            {
-                selectedHost = h;
-                break;
-            }
-        }
+        selectedHost = hostName;
 
+        defaultServerSelection();
+
+        channel.ack();
+        fireChanged(HostStore.class);
+
+    }
+
+    @Process(actionType = SelectServerInstance.class)
+    public void onSelectedServer(final String serverInstance, final Dispatcher.Channel channel) {
+        this.selectedServer = serverInstance;
         channel.ack();
         fireChanged(HostStore.class);
     }
 
+    private void defaultServerSelection() {
 
+        Set<String> instancesOnHost  = topology.getServerNames(selectedHost);
+
+        if(instancesOnHost.size()>0)
+        {
+            selectedServer = instancesOnHost.iterator().next();
+        }
+        else if(instancesOnHost.isEmpty())
+        {
+            // no selection possible
+            selectedServer = null;
+        }
+
+
+    }
+
+    // -----------------------------------------
     // data access
+
+    public boolean hasSelectedServer() {
+        return selectedServer != null;
+    }
+
+    public String getSelectedServer() {
+        if(null== selectedServer)
+            throw new IllegalStateException("No server instance selected");
+
+        return selectedServer;
+    }
 
     public Set<String> getHostNames() {
         return topology.getHostNames();
@@ -258,12 +295,12 @@ public class HostStore extends ChangeSupport {
         return topology;
     }
 
-    public String getSelectedHost() {
-        return selectedHost;
-    }
-
     public boolean hasSelecteHost() {
         return selectedHost!=null;
+    }
+
+    public String getSelectedHost() {
+        return selectedHost;
     }
 
     public class NoHostsAvailable extends RuntimeException {

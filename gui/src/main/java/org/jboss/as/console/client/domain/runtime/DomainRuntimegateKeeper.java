@@ -2,7 +2,7 @@ package org.jboss.as.console.client.domain.runtime;
 
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 
 import javax.inject.Inject;
 
@@ -13,17 +13,17 @@ import javax.inject.Inject;
 public class DomainRuntimegateKeeper implements Gatekeeper {
 
     private final HostManagementGatekeeper hostKeeper;
-    private final ServerStore serverStore;
+    private final HostStore hostStore;
 
     @Inject
-    public DomainRuntimegateKeeper(ServerStore serverStore, HostManagementGatekeeper hostKeeper) {
-        this.serverStore = serverStore;
+    public DomainRuntimegateKeeper(HostStore hostStore, HostManagementGatekeeper hostKeeper) {
+        this.hostStore = hostStore;
         this.hostKeeper = hostKeeper;
     }
 
     @Override
     public boolean canReveal() {
         boolean parentAllows = hostKeeper.canReveal();
-        return parentAllows && serverStore.hasSelectedServer();
+        return parentAllows && hostStore.hasSelectedServer();
     }
 }

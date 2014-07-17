@@ -69,9 +69,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
 
     @Override
-    public void setTopology(String selectedHost, HostStore.Topology topology) {
+    public void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology) {
 
-        lhsNavigation.setTopology(selectedHost, topology);
+        lhsNavigation.setTopology(selectedHost, selectedServer, topology);
     }
 
     @Override

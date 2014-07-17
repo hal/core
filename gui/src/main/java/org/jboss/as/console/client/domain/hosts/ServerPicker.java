@@ -35,7 +35,7 @@ public class ServerPicker {
         return layout;
     }
 
-    public void setTopology(String selectedHost, HostStore.Topology topology) {
-        hostServerTable.setTopology(selectedHost, topology);
+    public void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology) {
+        hostServerTable.setTopology(selectedHost, selectedServer, topology);
     }
 }

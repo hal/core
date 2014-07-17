@@ -64,7 +64,7 @@ public class DomainRuntimePresenter
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
 
-        void setTopology(String selectedHost, HostStore.Topology topology);
+        void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology);
     }
 
     @ContentSlot
@@ -103,14 +103,16 @@ public class DomainRuntimePresenter
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                getView().setTopology(hostStore.getSelectedHost(), hostStore.getTopology());
-            }
-        });
 
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if (serverStore.hasSelectedServer())
+                // TODO (hbraun) : this requires further distinction of action types
+
+                // server picker update
+                if(hostStore.hasSelectedServer()) {
+                    getView().setTopology(hostStore.getSelectedHost(), hostStore.getSelectedServer(), hostStore.getTopology());
+                }
+
+                // subsystem tree update
+                if (hostStore.hasSelectedServer())
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
@@ -122,6 +124,7 @@ public class DomainRuntimePresenter
                     getView().setSubsystems(Collections.EMPTY_LIST);
             }
         });
+
     }
 
     @Override
@@ -157,7 +160,7 @@ public class DomainRuntimePresenter
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final String serverSelection = serverStore.getSelectedServer();
+                final String serverSelection = hostStore.getSelectedServer();
                 ServerInstance server = serverStore.getServerInstance(serverSelection);
                 serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
