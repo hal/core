@@ -11,6 +11,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -70,7 +71,7 @@ public class ServerPicker {
         return layout;
     }
 
-    public void setHosts(Host selectedHost, List<Host> hostModel) {
-        hostServerTable.setHosts(selectedHost, hostModel);
+    public void setHosts(String selectedHost, HostStore.Topology topology) {
+        hostServerTable.setHosts(selectedHost, topology);
     }
 }

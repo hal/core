@@ -9,10 +9,12 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -67,9 +69,11 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     @Override
     public void setPresenter(DomainRuntimePresenter presenter) {}
 
+
     @Override
-    public void setHosts(Host selectedHost, List<Host> hostModel) {
-        lhsNavigation.setHosts(selectedHost, hostModel);
+    public void setHosts(String selectedHost, HostStore.Topology topology) {
+
+        lhsNavigation.setHosts(selectedHost, topology);
     }
 
     @Override

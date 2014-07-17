@@ -20,11 +20,10 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
@@ -35,8 +34,8 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A miller column based selection of host/serve combinations
@@ -52,10 +51,10 @@ public class HostServerTable {
 
     private boolean isRightToLeft = false;
 
-    private CellList<Host> hostList;
+    private CellList<String> hostList;
     private CellList<ServerInstance> serverList;
 
-    private ListDataProvider<Host> hostProvider;
+    private ListDataProvider<String> hostProvider;
     private ListDataProvider<ServerInstance> serverProvider;
 
     private PopupPanel popup;
@@ -70,7 +69,7 @@ public class HostServerTable {
 
     private int clipAt = 20;
 
-    private SingleSelectionModel<Host> hostSelectionModel;
+    private SingleSelectionModel<String> hostSelectionModel;
     private SingleSelectionModel<ServerInstance> serverSelectionModel;
 
 
@@ -121,13 +120,6 @@ public class HostServerTable {
         //layout.add(ratio);
         // --------------
 
-        ProvidesKey<Host> hostKey = new ProvidesKey<Host>() {
-            @Override
-            public Object getKey(Host host) {
-                return host.getName();
-            }
-        };
-
         ProvidesKey<ServerInstance> serverkey = new ProvidesKey<ServerInstance>() {
             @Override
             public Object getKey(ServerInstance server) {
@@ -135,8 +127,9 @@ public class HostServerTable {
             }
         };
 
-        hostList = new DefaultCellList<Host>(new HostCell(), hostKey);
-        hostSelectionModel = new SingleSelectionModel<Host>(hostKey);
+        hostList = new DefaultCellList<String>(new HostCell());
+        hostList.setEmptyListWidget(new HTML("No active servers!"));
+        hostSelectionModel = new SingleSelectionModel<String>();
         hostList.setSelectionModel(hostSelectionModel);
 
         hostList.addStyleName("host-list");
@@ -154,7 +147,7 @@ public class HostServerTable {
         serverList.addStyleName("fill-layout-width");
         serverList.addStyleName("clip-text") ;
 
-        hostProvider = new ListDataProvider<Host>(hostKey);
+        hostProvider = new ListDataProvider<String>();
         serverProvider = new ListDataProvider<ServerInstance>(serverkey);
 
         hostProvider.addDataDisplay(hostList);
@@ -166,11 +159,11 @@ public class HostServerTable {
 
                 serverProvider.setList(new ArrayList<ServerInstance>());
 
-                Host selectedHost = getSelectedHost();
+                String selectedHost = getSelectedHost();
 
                 if(selectedHost!=null)
                 {
-                    circuit.dispatch(new HostSelection(selectedHost.getName()));
+                    circuit.dispatch(new HostSelection(selectedHost));
                 }
             }
         });
@@ -180,7 +173,7 @@ public class HostServerTable {
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 ServerInstance server = getSelectedServer();
-                Host selectedHost = getSelectedHost();
+                String selectedHost = getSelectedHost();
 
                 if(selectedHost!=null &server!=null)
                 {
@@ -317,8 +310,8 @@ public class HostServerTable {
 
     }
 
-    public Host getSelectedHost() {
-        return ((SingleSelectionModel<Host>) hostList.getSelectionModel()).getSelectedObject();
+    public String getSelectedHost() {
+        return ((SingleSelectionModel<String>) hostList.getSelectionModel()).getSelectedObject();
     }
 
     private ServerInstance getSelectedServer() {
@@ -375,16 +368,25 @@ public class HostServerTable {
         serverPager.setVisible(server.size() >= 5);
     }
 
-    public void setHosts(Host selectedHost, List<Host> hostModel) {
+    public void setHosts(String selectedHost, HostStore.Topology topology) {
         ratio.setText("");
 
         hostSelectionModel.clear();
-        hostProvider.setList(hostModel);
+        Set<String> hostNames = topology.getHostNames();
+
+        List<String> hostWithServers = new ArrayList<>();
+        for(String host : hostNames)
+        {
+            if(topology.hasServer(host))
+                hostWithServers.add(host);
+        }
+
+        hostProvider.setList(hostWithServers);
         hostProvider.flush();
 
         hostSelectionModel.setSelected(selectedHost, true);
 
-        hostPager.setVisible(hostModel.size() >= 5);
+        hostPager.setVisible(hostWithServers.size() >= 5);
 
     }
 
@@ -405,15 +407,15 @@ public class HostServerTable {
     private static final Template HOST_TEMPLATE = GWT.create(Template.class);
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
-    public class HostCell extends AbstractCell<Host> {
+    public class HostCell extends AbstractCell<String> {
 
         @Override
         public void render(
                 Context context,
-                Host host,
+                String host,
                 SafeHtmlBuilder safeHtmlBuilder)
         {
-            safeHtmlBuilder.append(HOST_TEMPLATE.message(clip(host.getName(), clipAt)));
+            safeHtmlBuilder.append(HOST_TEMPLATE.message(clip(host, clipAt)));
         }
 
     }

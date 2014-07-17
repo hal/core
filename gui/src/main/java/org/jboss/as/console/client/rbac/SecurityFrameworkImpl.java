@@ -344,6 +344,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                     callback.onSuccess(context);
 
                 } catch (Throwable e) {
+                    e.printStackTrace();
                     callback.onFailure(new RuntimeException("Failed to parse access control meta data: "+ e.getMessage(), e));
                 }
 
