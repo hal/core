@@ -46,6 +46,7 @@ import org.jboss.gwt.flow.client.PushFlowCallback;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -68,7 +69,7 @@ public class DomainRuntimePresenter
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
 
-        void setHosts(Host selectedHost, List<Host> hostModel);
+        void setHosts(String selectedHost, HostStore.Topology topology);
     }
 
     @ContentSlot
@@ -109,7 +110,7 @@ public class DomainRuntimePresenter
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                getView().setHosts(hostStore.getSelectedHostInstance(), hostStore.getHostModel());
+                getView().setHosts(hostStore.getSelectedHost(), hostStore.getTopology());
             }
         });
 

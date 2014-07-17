@@ -7,12 +7,10 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.popups.ComboPicker;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -61,13 +59,12 @@ public class HostSelector {
     }
 
 
-    public void setHosts(String selectedHost, List<Host> hostModel) {
-        List<String> hostNames = new ArrayList<String>();
+    public void setHosts(String selectedHost, Set<String> hostNames) {
+
         int selectedIndex = 0;
         int i = 0;
-        for (Host h : hostModel) {
-            hostNames.add(h.getName());
-            if (h.getName().equals(selectedHost)) { selectedIndex = i; }
+        for (String h : hostNames) {
+            if (h.equals(selectedHost)) { selectedIndex = i; }
             i++;
         }
 

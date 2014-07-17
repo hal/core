@@ -2,15 +2,12 @@ package org.jboss.as.console.client.core.bootstrap;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
-import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * @author Heiko Braun
@@ -30,7 +27,7 @@ public class HostStoreInit implements Function<BootstrapContext> {
 
         if (!context.isStandalone()) {
 
-            hostStore.init(new SimpleCallback<List<Host>>() {
+            hostStore.init(new SimpleCallback<Set<String>>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
@@ -45,7 +42,7 @@ public class HostStoreInit implements Function<BootstrapContext> {
                 }
 
                 @Override
-                public void onSuccess(List<Host> hosts) {
+                public void onSuccess(Set<String> hosts) {
                     Log.info("Identified " + hosts.size() + " hosts in this domain");
 
                     if (hosts.isEmpty()) {
@@ -53,9 +50,7 @@ public class HostStoreInit implements Function<BootstrapContext> {
                     }
 
                     // TODO (hbraun): cleanup, should be part of HostStore
-                    Set<String> hostNames = new TreeSet<String>();
-                    for (Host host : hosts) hostNames.add(host.getName());
-                    control.getContext().setAddressableHosts(hostNames);
+                    control.getContext().setAddressableHosts(hosts);
                     control.proceed();
 
                 }

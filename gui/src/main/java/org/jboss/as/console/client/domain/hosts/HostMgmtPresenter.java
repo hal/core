@@ -50,6 +50,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -72,7 +73,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public interface MyView extends View {
         void setPresenter(HostMgmtPresenter presenter);
 
-        void updateHosts(String selectedHost, List<Host> hostModel);
+        void updateHosts(String selectedHost, Set<String> hostNames);
     }
 
     @Inject
@@ -95,7 +96,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostModel());
+                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
             }
         });
     }

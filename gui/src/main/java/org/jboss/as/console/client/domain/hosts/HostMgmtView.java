@@ -28,6 +28,7 @@ import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -78,9 +79,10 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
         contentCanvas.add(newContent);
     }
 
+
     @Override
-    public void updateHosts(String selectedHost, List<Host> hostModel) {
-        lhsNavigation.setHosts(selectedHost, hostModel);
+    public void updateHosts(String selectedHost, Set<String> hostNames) {
+        lhsNavigation.setHosts(selectedHost, hostNames);
     }
 
 }
