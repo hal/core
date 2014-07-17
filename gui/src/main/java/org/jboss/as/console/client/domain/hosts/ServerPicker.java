@@ -1,17 +1,9 @@
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -19,38 +11,10 @@ import java.util.Set;
  */
 public class ServerPicker {
 
-    private final ServerStore serverStore;
-    private final HostStore hostStore;
-    private final Dispatcher circuit;
     private HostServerTable hostServerTable;
-
-    private Label label;
 
     public void resetHostSelection() {
         hostServerTable.clearSelection();
-    }
-
-    public ServerPicker() {
-        this.serverStore  = Console.MODULES.getServerStore();
-        this.hostStore = Console.MODULES.getHostStore();
-        this.circuit = Console.MODULES.getCircuitDispatcher();
-
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-
-                if(hostStore.hasSelecteHost() && serverStore.hasSelectedServer()) {
-                    String selectedHost = hostStore.getSelectedHost();
-
-                    hostServerTable.setServer(serverStore.getSelectedServerInstance(), serverStore.getServerInstances(selectedHost));
-                    hostServerTable.updateDisplay(selectedHost, serverStore.getSelectedServer());
-                }
-                else if(!serverStore.hasSelectedServer())
-                {
-                    hostServerTable.clearDisplay();
-                }
-            }
-        });
     }
 
     public Widget asWidget() {
@@ -71,7 +35,7 @@ public class ServerPicker {
         return layout;
     }
 
-    public void setHosts(String selectedHost, HostStore.Topology topology) {
-        hostServerTable.setHosts(selectedHost, topology);
+    public void setTopology(String selectedHost, HostStore.Topology topology) {
+        hostServerTable.setTopology(selectedHost, topology);
     }
 }

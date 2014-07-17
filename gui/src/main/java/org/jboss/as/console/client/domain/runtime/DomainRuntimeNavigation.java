@@ -203,7 +203,7 @@ class DomainRuntimeNavigation {
         serverPicker.resetHostSelection();
     }
 
-    public void setHosts(String selectedHost, HostStore.Topology topology) {
-        serverPicker.setHosts(selectedHost, topology);
+    public void setTopology(String selectedHost, HostStore.Topology topology) {
+        serverPicker.setTopology(selectedHost, topology);
     }
 }

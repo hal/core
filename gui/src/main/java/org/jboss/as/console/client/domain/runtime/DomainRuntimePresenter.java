@@ -20,12 +20,9 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.events.StaleModelEvent;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -46,15 +43,13 @@ import org.jboss.gwt.flow.client.PushFlowCallback;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Heiko Braun
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements StaleModelEvent.StaleModelListener,
-        UnauthorizedEvent.UnauthorizedHandler {
+        implements UnauthorizedEvent.UnauthorizedHandler {
 
     private final Dispatcher circuit;
     private final ServerStore serverStore;
@@ -69,7 +64,7 @@ public class DomainRuntimePresenter
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
 
-        void setHosts(String selectedHost, HostStore.Topology topology);
+        void setTopology(String selectedHost, HostStore.Topology topology);
     }
 
     @ContentSlot
@@ -105,19 +100,17 @@ public class DomainRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
 
-        getEventBus().addHandler(StaleModelEvent.TYPE, this);
-
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                getView().setHosts(hostStore.getSelectedHost(), hostStore.getTopology());
+                getView().setTopology(hostStore.getSelectedHost(), hostStore.getTopology());
             }
         });
 
         serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
-                if(serverStore.hasSelectedServer())
+                if (serverStore.hasSelectedServer())
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
@@ -137,15 +130,12 @@ public class DomainRuntimePresenter
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                loadHostData();
+                // load host and server data
+                circuit.dispatch(new RefreshHosts());
             }
         });
     }
 
-    private void loadHostData() {
-        // load host and server data
-        circuit.dispatch(new RefreshHosts());
-    }
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
@@ -160,20 +150,6 @@ public class DomainRuntimePresenter
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
-
-    @Override
-    public void onStaleModel(String modelName) {
-        if (StaleModelEvent.SERVER_INSTANCES.equals(modelName) || StaleModelEvent.SERVER_CONFIGURATIONS
-                .equals(modelName)) {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    loadHostData();
-                }
-            });
-        }
-    }
-
     private void loadSubsystems() {
         // clear view
         getView().setSubsystems(Collections.<SubsystemRecord>emptyList());
@@ -181,7 +157,8 @@ public class DomainRuntimePresenter
         final Function<FunctionContext> f2 = new Function<FunctionContext>() {
             @Override
             public void execute(final Control<FunctionContext> control) {
-                final ServerInstance server = serverStore.getSelectedServerInstance();
+                final String serverSelection = serverStore.getSelectedServer();
+                ServerInstance server = serverStore.getServerInstance(serverSelection);
                 serverGroupStore.loadServerGroup(server.getGroup(), new PushFlowCallback<ServerGroupRecord>(control));
             }
         };

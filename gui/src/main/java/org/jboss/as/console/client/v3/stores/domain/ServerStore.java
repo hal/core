@@ -55,7 +55,7 @@ public class ServerStore extends ChangeSupport {
     private Map<String, List<Server>> serverModel = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
 
-    private ServerInstance selectedServerInstance;
+    private String selectedServerInstance;
 
     @Inject
     public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
@@ -196,7 +196,7 @@ public class ServerStore extends ChangeSupport {
 
         if(instancesOnHost.size()>0)
         {
-            selectedServerInstance = instancesOnHost.get(0);
+            selectedServerInstance = instancesOnHost.get(0).getName();
         }
         else if(instancesOnHost.isEmpty())
         {
@@ -245,7 +245,7 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectServerInstance.class)
-    public void onSelectedServerInstance(final ServerInstance serverInstance, final Dispatcher.Channel channel) {
+    public void onSelectedServerInstance(final String serverInstance, final Dispatcher.Channel channel) {
         this.selectedServerInstance = serverInstance;
         channel.ack();
         fireChanged(ServerStore.class);
@@ -384,26 +384,36 @@ public class ServerStore extends ChangeSupport {
     }
 
     public boolean hasSelectedServer() {
-        return selectedServerInstance!=null;
+        return selectedServerInstance !=null;
     }
 
     public String getSelectedServer() {
-        if(null==selectedServerInstance)
+        if(null== selectedServerInstance)
                     throw new IllegalStateException("No server instance selected");
 
-        return selectedServerInstance.getName();
+        return selectedServerInstance;
+    }
+
+    public ServerInstance getServerInstance(String name) {
+        ServerInstance match = null;
+        for(ServerInstance server : instanceModel.get(hostStore.getSelectedHost()))
+        {
+            if(server.getName().equals(name))
+            {
+                match = server;
+                break;
+            }
+        }
+
+        if(null==match)
+            throw new IllegalArgumentException("No such server instance "+ name);
+
+        return match;
     }
 
     public List<ServerInstance> getServerInstances(String host) {
         List<ServerInstance> serverInstances = instanceModel.get(host);
         return serverInstances != null ? serverInstances : new ArrayList<ServerInstance>();
-    }
-
-    public ServerInstance getSelectedServerInstance() {
-        if(null==selectedServerInstance)
-            throw new IllegalStateException("No server instance selected");
-
-        return selectedServerInstance;
     }
 
     // -----------------------------------------------
