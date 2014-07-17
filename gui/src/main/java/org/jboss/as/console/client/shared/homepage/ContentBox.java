@@ -32,7 +32,9 @@ import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.util.IdHelper;
+import org.jboss.as.console.client.tools.UUID;
 
 /**
  * A content box on the homepage.
@@ -56,7 +58,7 @@ public class ContentBox extends Composite implements OpenHandler<DisclosurePanel
     private final DisclosurePanel dp;
 
     public ContentBox(final String id, final String title, final SafeHtml body, final String linkTitle,
-            final String linkTarget) {
+                      final String linkTarget) {
 
         dp = new DisclosurePanel();
         dp.setHeader(new HTML(TEMPLATES.header(IdHelper.asId(id + "_", getClass(), "_" + "header"), title)));
@@ -75,6 +77,25 @@ public class ContentBox extends Composite implements OpenHandler<DisclosurePanel
         initWidget(dp);
         setStyleName("homepage-content-box");
     }
+
+    public ContentBox(final String id, final String title, final SafeHtml body, Widget widget) {
+
+        dp = new DisclosurePanel();
+        dp.setHeader(new HTML(TEMPLATES.header(IdHelper.asId(id + "_", getClass(), "_" + "header"), title)));
+        dp.addOpenHandler(this);
+        dp.addCloseHandler(this);
+        dp.setOpen(true);
+
+        String linkId = HTMLPanel.createUniqueId();
+        HTMLPanel panel = new HTMLPanel(TEMPLATES.body(body, linkId));
+        panel.addStyleName("homepage-content-box-body");
+        panel.add(widget, linkId);
+        dp.add(panel);
+
+        initWidget(dp);
+        setStyleName("homepage-content-box");
+    }
+
 
     @Override
     public void onOpen(final OpenEvent<DisclosurePanel> event) {

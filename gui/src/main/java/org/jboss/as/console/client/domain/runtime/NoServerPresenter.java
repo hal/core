@@ -17,6 +17,10 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author Heiko Braun
  * @since 16/07/14
@@ -34,6 +38,8 @@ public class NoServerPresenter extends Presenter<NoServerPresenter.MyView, NoSer
 
     public interface MyView extends View {
         void setHostName(String selectedHost);
+
+        void setAvailableHosts(List<String> hostWithServers);
     }
 
     @Inject
@@ -52,7 +58,20 @@ public class NoServerPresenter extends Presenter<NoServerPresenter.MyView, NoSer
     protected void onReset() {
         super.onReset();
         Console.MODULES.getHeader().highlight(NameTokens.DomainRuntimePresenter);
+
+        HostStore.Topology topology = hostStore.getTopology();
+        Set<String> hostNames = topology.getHostNames();
+
+        List<String> hostWithServers = new ArrayList<>();
+        for(String host : hostNames)
+        {
+            if(topology.hasServer(host))
+                hostWithServers.add(host);
+        }
+
+        getView().setAvailableHosts(hostWithServers);
         getView().setHostName(hostStore.getSelectedHost());
+
     }
 
     @Override

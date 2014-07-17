@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -172,13 +173,19 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                 handleChange();
             }
         });
+
     }
 
     private void handleChange() {
-        getView().setConfigurations(
-                hostStore.getSelectedHost(),
-                serverStore.getServerModel(hostStore.getSelectedHost())
-        );
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                getView().setConfigurations(
+                        hostStore.getSelectedHost(),
+                        serverStore.getServerModel(hostStore.getSelectedHost())
+                );
+            }
+        });
     }
 
     @Override
