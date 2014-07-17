@@ -14,7 +14,6 @@ import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
@@ -55,8 +54,6 @@ public class ServerStore extends ChangeSupport {
     private Map<String, List<Server>> serverModel = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
 
-    private String selectedServerInstance;
-
     @Inject
     public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
         this.hostStore = hostStore;
@@ -88,13 +85,10 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = HostSelection.class, dependencies = {HostStore.class})
     public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
 
-        // if the data has not been loaded we force a refresh
+        // load the server data on demand
         if(!serverModel.containsKey(hostName))
             onRefresh(channel);
         else {
-
-            // if the host changes, we do select another instance by default
-            defaultSelection();
 
             channel.ack();
             fireChanged(ServerStore.class);
@@ -181,30 +175,11 @@ public class ServerStore extends ChangeSupport {
                 serverModel.put(hostName, context.servers);
                 instanceModel.put(hostName, context.instances);
 
-                defaultSelection();
-
                 callback.onSuccess(true);
             }
         };
 
         new Async().waterfall(new RefreshValues(), outcome, fetchServers, fetchInstances);
-    }
-
-    private void defaultSelection() {
-
-        List<ServerInstance> instancesOnHost = instanceModel.get(hostStore.getSelectedHost());
-
-        if(instancesOnHost.size()>0)
-        {
-            selectedServerInstance = instancesOnHost.get(0).getName();
-        }
-        else if(instancesOnHost.isEmpty())
-        {
-            // no selection possible
-            selectedServerInstance =null;
-        }
-
-
     }
 
     @Process(actionType = AddServer.class)
@@ -242,13 +217,6 @@ public class ServerStore extends ChangeSupport {
                 channel.nack(caught);
             }
         });
-    }
-
-    @Process(actionType = SelectServerInstance.class)
-    public void onSelectedServerInstance(final String serverInstance, final Dispatcher.Channel channel) {
-        this.selectedServerInstance = serverInstance;
-        channel.ack();
-        fireChanged(ServerStore.class);
     }
 
     @Process(actionType = UpdateServer.class)
@@ -381,17 +349,6 @@ public class ServerStore extends ChangeSupport {
     public List<Server> getServerModel(String host) {
         List<Server> servers = serverModel.get(host);
         return servers != null ? servers : new ArrayList<Server>();
-    }
-
-    public boolean hasSelectedServer() {
-        return selectedServerInstance !=null;
-    }
-
-    public String getSelectedServer() {
-        if(null== selectedServerInstance)
-                    throw new IllegalStateException("No server instance selected");
-
-        return selectedServerInstance;
     }
 
     public ServerInstance getServerInstance(String name) {

@@ -199,11 +199,7 @@ class DomainRuntimeNavigation {
 
     }
 
-    public void resetHostSelection() {
-        serverPicker.resetHostSelection();
-    }
-
-    public void setTopology(String selectedHost, HostStore.Topology topology) {
-        serverPicker.setTopology(selectedHost, topology);
+    public void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology) {
+        serverPicker.setTopology(selectedHost, selectedServer, topology);
     }
 }

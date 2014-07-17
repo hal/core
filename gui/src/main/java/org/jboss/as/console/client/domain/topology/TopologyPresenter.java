@@ -47,9 +47,12 @@ import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.Dispatcher;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
@@ -68,6 +71,8 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager {
+
+    private final org.jboss.gwt.circuit.Dispatcher circuit;
 
     /**
      * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
@@ -112,7 +117,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public TopologyPresenter(final EventBus eventBus, final MyView view,
             final MyProxy proxy, final RevealStrategy revealStrategy, final PlaceManager placeManager,
             final HostInformationStore hostInfoStore, final ServerGroupStore serverGroupStore,
-            final BeanFactory beanFactory, DispatchAsync dispatcher) {
+            final BeanFactory beanFactory, DispatchAsync dispatcher, org.jboss.gwt.circuit.Dispatcher circuit) {
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.placeManager = placeManager;
@@ -120,6 +125,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
         this.hostInfoStore = hostInfoStore;
         this.beanFactory = beanFactory;
         this.dispatcher = dispatcher;
+        this.circuit = circuit;
 
         this.loadExtensionCmd = new LoadExtensionCmd(dispatcher, beanFactory);
         this.serverGroups = new HashMap<String, ServerGroup>();
@@ -193,6 +199,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
         ServerInstanceOp serverInstanceOp = new ServerInstanceOp(op, new TopologyCallback(), dispatcher, hostInfoStore,
                 host, server);
         serverInstanceOp.run();
+
     }
 
     public void onGroupLifecycle(final String group, final LifecycleOperation op) {
@@ -319,23 +326,31 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
         public void onSuccess() {
             Console.info("Operation successful");
             loadTopology();
+            circuit.dispatch(new RefreshHosts());
+            circuit.dispatch(new RefreshServer());
         }
         @Override
         public void onTimeout() {
             Console.warning("Your request timed out.");
             loadTopology();
+            circuit.dispatch(new RefreshHosts());
+            circuit.dispatch(new RefreshServer());
         }
 
         @Override
         public void onAbort() {
             Console.warning("Operation canceled.");
             loadTopology();
+            circuit.dispatch(new RefreshHosts());
+            circuit.dispatch(new RefreshServer());
         }
 
         @Override
         public void onError(final Throwable caught) {
             Console.warning("Operation failed.");
             loadTopology();
+            circuit.dispatch(new RefreshHosts());
+            circuit.dispatch(new RefreshServer());
         }
     }
 }

@@ -149,15 +149,12 @@ public class HostServerTable {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                serverProvider.setList(new ArrayList<String>());
-
                 String selectedHost = getSelectedHost();
 
                 if(selectedHost!=null)
                 {
                     circuit.dispatch(new HostSelection(selectedHost));
                     serverProvider.setList(new ArrayList(topology.getServerNames(selectedHost)));
-
                 }
             }
         });
@@ -172,7 +169,7 @@ public class HostServerTable {
                 if(selectedHost!=null &server!=null)
                 {
                     circuit.dispatch(new SelectServerInstance(server));
-                    updateDisplay(selectedHost, server);
+
                 }
 
             }
@@ -304,7 +301,7 @@ public class HostServerTable {
 
     }
 
-    public String getSelectedHost() {
+    private String getSelectedHost() {
         return ((SingleSelectionModel<String>) hostList.getSelectionModel()).getSelectedObject();
     }
 
@@ -347,13 +344,15 @@ public class HostServerTable {
     }
 
 
-    public void setTopology(String selectedHost, HostStore.Topology topology) {
+    public void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology) {
 
         this.topology = topology;
 
         ratio.setText("");
 
         hostSelectionModel.clear();
+        serverSelectionModel.clear();
+
         Set<String> hostNames = topology.getHostNames();
 
         List<String> hostWithServers = new ArrayList<>();
@@ -366,9 +365,16 @@ public class HostServerTable {
         hostProvider.setList(hostWithServers);
         hostProvider.flush();
 
+        serverProvider.setList(new ArrayList(topology.getServerNames(selectedHost)));
+        serverProvider.flush();
+
         hostSelectionModel.setSelected(selectedHost, true);
+        serverSelectionModel.setSelected(selectedServer, true);
 
         hostPager.setVisible(hostWithServers.size() >= 5);
+        serverPager.setVisible(topology.getServerNames(selectedHost).size()>=5);
+
+        updateDisplay(selectedHost, selectedServer);
     }
 
 

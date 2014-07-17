@@ -108,9 +108,10 @@ public class NoServerView extends SuspendableViewImpl implements NoServerPresent
     @Override
     public void setAvailableHosts(List<String> hostWithServers) {
         choseHost.setVisible(hostWithServers.size()>0);
+
         hosts.clearSelection();
-        hosts.clearValues();
         hosts.setValues(hostWithServers);
+        hosts.setItemSelected(0, true, false);
     }
 
     @Override

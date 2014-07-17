@@ -21,6 +21,7 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
@@ -44,7 +45,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     private BeanFactory factory;
 
     private HostInformationStore hostInfoStore;
-    private final ServerStore serverStore;
+    private final HostStore hostStore;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
@@ -66,13 +67,13 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     @Inject
     public HostVMMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            ServerStore serverStore,
+            HostStore hostStore,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData metaData, HostInformationStore hostInfoStore
     ) {
         super(eventBus, view, proxy);
 
-        this.serverStore = serverStore;
+        this.hostStore = hostStore;
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.metaData = metaData;
@@ -84,7 +85,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
         super.onBind();
         getView().setPresenter(this);
 
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+        hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

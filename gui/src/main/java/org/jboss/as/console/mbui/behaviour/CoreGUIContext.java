@@ -63,7 +63,7 @@ public class CoreGUIContext implements StatementContext {
         else if(isDomainMode() && SELECTED_HOST.equals(key))
             return new String[] {"host", hostStore.getSelectedHost()};
         else if(isDomainMode() && SELECTED_SERVER.equals(key))
-            return new String[] {"server", serverStore.getSelectedServer()};
+            return new String[] {"server", hostStore.getSelectedServer()};
         return null;
     }
 
