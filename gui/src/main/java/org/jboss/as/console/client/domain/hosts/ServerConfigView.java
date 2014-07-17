@@ -39,6 +39,7 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.widgets.tables.IconCell;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -156,14 +157,22 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
         Column<Server, String> startMode = new Column<Server, String>(new TextCell()) {
             @Override
-            public String getValue(Server object) {
-                return String.valueOf(object.isAutoStart());
+            public String getValue(Server server) {
+                return server.isAutoStart() ? "auto" : "on-demand";
+            }
+        };
+
+        Column<Server, String> running = new Column<Server, String>(new IconCell()) {
+            @Override
+            public String getValue(Server server) {
+                return server.isStarted() ? "icon-ok" : "";
             }
         };
 
         serverConfigTable.addColumn(nameColumn, "Configuration Name");
         serverConfigTable.addColumn(groupColumn, Console.CONSTANTS.common_label_serverGroup());
-        serverConfigTable.addColumn(startMode, "Auto Start?");
+        serverConfigTable.addColumn(startMode, "Start Mode");
+        serverConfigTable.addColumn(running, "Running?");
 
 
         // ---------------------
