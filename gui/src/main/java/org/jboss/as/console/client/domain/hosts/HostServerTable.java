@@ -18,11 +18,9 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
@@ -52,10 +50,10 @@ public class HostServerTable {
     private boolean isRightToLeft = false;
 
     private CellList<String> hostList;
-    private CellList<ServerInstance> serverList;
+    private CellList<String> serverList;
 
     private ListDataProvider<String> hostProvider;
-    private ListDataProvider<ServerInstance> serverProvider;
+    private ListDataProvider<String> serverProvider;
 
     private PopupPanel popup;
 
@@ -70,7 +68,8 @@ public class HostServerTable {
     private int clipAt = 20;
 
     private SingleSelectionModel<String> hostSelectionModel;
-    private SingleSelectionModel<ServerInstance> serverSelectionModel;
+    private SingleSelectionModel<String> serverSelectionModel;
+    private HostStore.Topology topology;
 
 
     public HostServerTable() {
@@ -120,13 +119,6 @@ public class HostServerTable {
         //layout.add(ratio);
         // --------------
 
-        ProvidesKey<ServerInstance> serverkey = new ProvidesKey<ServerInstance>() {
-            @Override
-            public Object getKey(ServerInstance server) {
-                return server.getName()+"_"+server.getGroup();
-            }
-        };
-
         hostList = new DefaultCellList<String>(new HostCell());
         hostList.setEmptyListWidget(new HTML("No active servers!"));
         hostSelectionModel = new SingleSelectionModel<String>();
@@ -138,8 +130,8 @@ public class HostServerTable {
         hostList.addStyleName("clip-text") ;
 
 
-        serverList = new DefaultCellList<ServerInstance>(new ServerCell(), serverkey);
-        serverSelectionModel = new SingleSelectionModel<ServerInstance>(serverkey);
+        serverList = new DefaultCellList<String>(new ServerCell());
+        serverSelectionModel = new SingleSelectionModel<String>();
         serverList.setSelectionModel(serverSelectionModel);
 
         serverList.addStyleName("server-list");
@@ -148,7 +140,7 @@ public class HostServerTable {
         serverList.addStyleName("clip-text") ;
 
         hostProvider = new ListDataProvider<String>();
-        serverProvider = new ListDataProvider<ServerInstance>(serverkey);
+        serverProvider = new ListDataProvider<String>();
 
         hostProvider.addDataDisplay(hostList);
         serverProvider.addDataDisplay(serverList);
@@ -157,13 +149,15 @@ public class HostServerTable {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                serverProvider.setList(new ArrayList<ServerInstance>());
+                serverProvider.setList(new ArrayList<String>());
 
                 String selectedHost = getSelectedHost();
 
                 if(selectedHost!=null)
                 {
                     circuit.dispatch(new HostSelection(selectedHost));
+                    serverProvider.setList(new ArrayList(topology.getServerNames(selectedHost)));
+
                 }
             }
         });
@@ -172,13 +166,13 @@ public class HostServerTable {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                ServerInstance server = getSelectedServer();
+                String server = getSelectedServer();
                 String selectedHost = getSelectedHost();
 
                 if(selectedHost!=null &server!=null)
                 {
                     circuit.dispatch(new SelectServerInstance(server));
-
+                    updateDisplay(selectedHost, server);
                 }
 
             }
@@ -314,8 +308,8 @@ public class HostServerTable {
         return ((SingleSelectionModel<String>) hostList.getSelectionModel()).getSelectedObject();
     }
 
-    private ServerInstance getSelectedServer() {
-        return ((SingleSelectionModel<ServerInstance>) serverList.getSelectionModel()).getSelectedObject();
+    private String getSelectedServer() {
+        return ((SingleSelectionModel<String>) serverList.getSelectionModel()).getSelectedObject();
     }
 
     private void openPanel() {
@@ -352,23 +346,11 @@ public class HostServerTable {
         currentDisplayedValue.setText("");
     }
 
-    public void setServer(ServerInstance selectedServer, List<ServerInstance> server) {
 
-        serverSelectionModel.clear();
-        serverProvider.setList(server);
-        serverProvider.flush();
+    public void setTopology(String selectedHost, HostStore.Topology topology) {
 
-        if(server.isEmpty())
-        {
-            currentDisplayedValue.setText("No Server");
-        }
+        this.topology = topology;
 
-        serverSelectionModel.setSelected(selectedServer, true);
-
-        serverPager.setVisible(server.size() >= 5);
-    }
-
-    public void setHosts(String selectedHost, HostStore.Topology topology) {
         ratio.setText("");
 
         hostSelectionModel.clear();
@@ -387,7 +369,6 @@ public class HostServerTable {
         hostSelectionModel.setSelected(selectedHost, true);
 
         hostPager.setVisible(hostWithServers.size() >= 5);
-
     }
 
 
@@ -420,16 +401,16 @@ public class HostServerTable {
 
     }
 
-    public class ServerCell extends AbstractCell<ServerInstance> {
+    public class ServerCell extends AbstractCell<String> {
 
         @Override
         public void render(
                 Context context,
-                ServerInstance server,
+                String server,
                 SafeHtmlBuilder safeHtmlBuilder)
         {
-            String icon = server.isRunning() ? "icon-ok":"icon-ban-circle";
-            String name = clip(server.getName(), clipAt);
+            String icon = "icon-ok"; //server.isRunning() ? "icon-ok":"icon-ban-circle";
+            String name = clip(server, clipAt);
             safeHtmlBuilder.append(SERVER_TEMPLATE.message(name, icon));
         }
 

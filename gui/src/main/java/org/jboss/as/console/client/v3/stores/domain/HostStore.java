@@ -71,6 +71,9 @@ public class HostStore extends ChangeSupport {
     // ------------------------
     //  internal data structures
 
+    /**
+     * A mapping of hosts and _active_ servers
+     */
     public class Topology {
         private Map<String, Set<String>> mapping = new HashMap<>();
 

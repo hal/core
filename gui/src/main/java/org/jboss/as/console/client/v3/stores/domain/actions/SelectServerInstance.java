@@ -1,21 +1,20 @@
 package org.jboss.as.console.client.v3.stores.domain.actions;
 
-import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Heiko Braun
  * @date 15/07/14
  */
-public class SelectServerInstance implements Action<ServerInstance> {
-    private ServerInstance server;
+public class SelectServerInstance implements Action<String> {
+    private String server;
 
-    public SelectServerInstance(ServerInstance server) {
+    public SelectServerInstance(String server) {
         this.server = server;
     }
 
     @Override
-    public ServerInstance getPayload() {
+    public String getPayload() {
         return server;
     }
 }
