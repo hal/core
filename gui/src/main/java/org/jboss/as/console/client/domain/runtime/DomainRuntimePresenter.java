@@ -118,7 +118,13 @@ public class DomainRuntimePresenter
             @Override
             public void onChange(Class<?> source) {
                 if(serverStore.hasSelectedServer())
-                    loadSubsystems();
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            loadSubsystems();
+                        }
+                    });
+
                 else
                     getView().setSubsystems(Collections.EMPTY_LIST);
             }
