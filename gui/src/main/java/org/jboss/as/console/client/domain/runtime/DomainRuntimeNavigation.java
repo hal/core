@@ -52,20 +52,6 @@ class DomainRuntimeNavigation {
 
         // ----------------------------------------------------
 
-        LHSNavTree domainNavigation = new LHSNavTree("domain");
-        domainNavigation.getElement().setAttribute("aria-label", "Domain Tasks");
-
-        LHSTreeSection domainLeaf = new LHSTreeSection("Domain", true);
-        domainLeaf.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
-        domainLeaf.addItem(new LHSNavTreeItem("Manage Deployments", NameTokens.DeploymentsPresenter));
-
-        domainNavigation.addItem(domainLeaf);
-        domainNavigation.expandTopLevel();
-
-        stack.add(domainNavigation);
-
-        // ----------------------------------------------------
-
         serverPicker = new ServerPicker();
         stack.add(serverPicker.asWidget());
 
@@ -130,9 +116,6 @@ class DomainRuntimeNavigation {
 
         runtimeLeaf = new LHSTreeSection("Runtime Operations");
         navigation.addItem(runtimeLeaf);
-
-        LHSNavTreeItem osgi = new LHSNavTreeItem("OSGi", NameTokens.OSGiRuntimePresenter);
-        runtimePredicates.add(new Predicate("osgi", osgi));
 
         // ----------------------------------------------------
 

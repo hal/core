@@ -112,7 +112,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
         if(revealDefault)
         {
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.ServerPresenter).build());
+            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.Topology).build());
         }
     }
 

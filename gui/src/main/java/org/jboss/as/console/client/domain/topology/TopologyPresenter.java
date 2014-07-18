@@ -32,8 +32,10 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
@@ -47,6 +49,7 @@ import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.spi.AccessControl;
@@ -73,6 +76,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
         implements ExtensionManager {
 
     private final org.jboss.gwt.circuit.Dispatcher circuit;
+    private Boolean fillscreen;
 
     /**
      * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
@@ -142,7 +146,13 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInRuntimeParent(this);
+        if(fillscreen==true)
+        {
+            RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+        }
+        else {
+            revealStrategy.revealInDomain(this);
+        }
     }
 
     @Override
@@ -156,6 +166,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public void prepareFromRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
+        fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));
     }
 

@@ -87,11 +87,12 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
         tabs = new LinkedList<Config>();
         tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
-            tabs.add(new Config(NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration(), false));
+            tabs.add(new Config(NameTokens.StandloneDeployments, "Deployments", false));
+            tabs.add(new Config(NameTokens.serverConfig, "Configuration", false));
             tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
         } else {
-            tabs.add(
-                    new Config(NameTokens.ProfileMgmtPresenter, Console.CONSTANTS.common_label_configuration(), false));
+            tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", false));
+            tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "Configuration", false));
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Domain", false));
             tabs.add(new Config(NameTokens.DomainRuntimePresenter, "Runtime", false));
         }
