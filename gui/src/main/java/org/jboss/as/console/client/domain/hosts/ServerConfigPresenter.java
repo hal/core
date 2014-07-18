@@ -160,6 +160,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
 
+        // host selection
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
@@ -167,6 +168,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             }
         });
 
+        // modifications ot the server model
         serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {

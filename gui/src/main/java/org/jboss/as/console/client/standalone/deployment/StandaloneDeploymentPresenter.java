@@ -30,6 +30,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelection;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -116,6 +117,7 @@ public class StandaloneDeploymentPresenter
     protected void onReset()
     {
         super.onReset();
+        Console.MODULES.getHeader().highlight(NameTokens.DeploymentsPresenter);
         loadDeployments();
     }
 
@@ -140,7 +142,7 @@ public class StandaloneDeploymentPresenter
     @Override
     protected void revealInParent()
     {
-        RevealContentEvent.fire(this, StandaloneRuntimePresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override

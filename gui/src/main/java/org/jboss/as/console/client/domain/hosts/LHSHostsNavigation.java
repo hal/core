@@ -56,17 +56,19 @@ class LHSHostsNavigation {
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
 
+        navigation = new LHSNavTree("hosts");
+        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
+
         // --------
+
+        LHSTreeSection domainLeaf = new LHSTreeSection("Domain");
+        domainLeaf.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
+        domainLeaf.addItem(new LHSNavTreeItem("Server Groups", NameTokens.ServerGroupPresenter));
+        navigation.addItem(domainLeaf);
 
         hostSelector = new HostSelector();
         stack.add(hostSelector.asWidget());
 
-        navigation = new LHSNavTree("hosts");
-        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
-
-        LHSTreeSection patchLeaf = new LHSTreeSection("Patching");
-        patchLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
-        navigation.addItem(patchLeaf);
 
         LHSTreeSection serverLeaf = new LHSTreeSection("Server");
         navigation.addItem(serverLeaf);
@@ -78,10 +80,7 @@ class LHSHostsNavigation {
         LHSNavTreeItem properties = new LHSNavTreeItem("Host Properties", "host-properties");
 
         serverLeaf.addItem(serversItem);
-
-
-        LHSNavTreeItem groupItem = new LHSNavTreeItem("Server Groups", NameTokens.ServerGroupPresenter);
-        serverLeaf.addItem(groupItem);
+        serverLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
 
 
         LHSTreeSection hostsLeaf = new LHSTreeSection("Host Settings");

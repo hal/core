@@ -231,6 +231,11 @@ public class HostStore extends ChangeSupport {
 
             @Override
             public void onSuccess(Boolean result) {
+
+                // verify the selected server is still among the list of active servers
+                if(!topology.getServerNames(selectedHost).contains(selectedServer))
+                    selectedServer = null;
+
                 channel.ack();
                 fireChanged(HostStore.class);
             }

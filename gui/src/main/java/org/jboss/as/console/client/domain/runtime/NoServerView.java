@@ -48,6 +48,17 @@ public class NoServerView extends SuspendableViewImpl implements NoServerPresent
         header = new ContentHeaderLabel();
 
 
+        SafeHtmlBuilder startServerDesc = new SafeHtmlBuilder();
+        startServerDesc.appendEscaped("Start a server that can be monitored.").appendHtmlConstant("<p/>");
+
+        ContentBox startServer = new ContentBox(
+                UUID.uuid(), "Start Server",
+                startServerDesc.toSafeHtml(),
+                "Domain Overview", NameTokens.Topology
+        );
+
+        // ----
+
         SafeHtmlBuilder createServerDesc = new SafeHtmlBuilder();
         createServerDesc.appendEscaped("A server configuration does specify the overall configuration of a server. A server configuration can be started and perform work.").appendHtmlConstant("<p/>");
 
@@ -56,6 +67,8 @@ public class NoServerView extends SuspendableViewImpl implements NoServerPresent
                 createServerDesc.toSafeHtml(),
                 "Server Configurations", NameTokens.ServerPresenter
         );
+
+        // -----
 
         SafeHtmlBuilder choseHostDesc = new SafeHtmlBuilder();
         choseHostDesc.appendEscaped("Only active servers can be monitored. Chose another host with active servers.").appendHtmlConstant("<p/>");
@@ -88,18 +101,20 @@ public class NoServerView extends SuspendableViewImpl implements NoServerPresent
         }));
 
         choseHost = new ContentBox(
-                UUID.uuid(), "Chose Host",
+                UUID.uuid(), "Change Host",
                 choseHostDesc.toSafeHtml(),
                 inner
         );
 
+        // -----
 
         SimpleLayout layout = new SimpleLayout()
                 .setHeadlineWidget(header)
                 .setPlain(true)
-                .setDescription("It seems there is no server configured for this host.")
+                .setDescription("You can only monitor active server instances. Either there is no server configured for this host, or no server instance is running.")
+                .addContent("", choseHost)
                 .addContent("", createServer)
-                .addContent("", choseHost);
+                .addContent("", startServer);
 
         return layout.build();
     }
@@ -116,6 +131,6 @@ public class NoServerView extends SuspendableViewImpl implements NoServerPresent
 
     @Override
     public void setHostName(String selectedHost) {
-        header.setText("No server configured for host '"+selectedHost+"'");
+        header.setText("No server running at host '"+selectedHost+"'");
     }
 }

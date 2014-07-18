@@ -60,3 +60,8 @@
     width: 100%;
 }
 
+.header-link-label {
+    padding-left:13px!important;
+    padding-right:13px!important;
+}
+
