@@ -67,14 +67,20 @@
             <artifactId>diagnostics</artifactId>
             <classifier>sources</classifier>
         </dependency>
-
+        <dependency>
+            <groupId>org.jboss.gwt.circuit</groupId>
+            <artifactId>circuit-core</artifactId>
+            <version>0.0.3</version>
+        </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
+            <version>0.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-processor</artifactId>
+            <version>0.0.3</version>
             <scope>provided</scope>
         </dependency>
 
