@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.user.client.ui.DisclosurePanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -27,7 +28,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 import java.util.Set;
 
@@ -45,7 +45,8 @@ class LHSHostsNavigation {
 
     private HostSelector hostSelector;
     private ScrollPanel scroll;
-    private LHSNavTree navigation;
+    private LHSNavTree domainNav;
+    private LHSNavTree hostNav;
 
     public LHSHostsNavigation() {
 
@@ -56,42 +57,55 @@ class LHSHostsNavigation {
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
 
-        navigation = new LHSNavTree("hosts");
-        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
+        domainNav = new LHSNavTree("hosts");
+        domainNav.getElement().setAttribute("aria-label", "Domain Tasks");
+        domainNav.getElement().setAttribute("style", "padding-top:10px; padding-bottom:10px");
+
+        hostNav = new LHSNavTree("hosts");
+        hostNav.getElement().setAttribute("aria-label", "Host Tasks");
+        hostNav.getElement().setAttribute("style", "padding-top:10px; padding-bottom:10px");
 
         // --------
 
-        LHSTreeSection domainLeaf = new LHSTreeSection("Domain");
-        domainLeaf.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
-        domainLeaf.addItem(new LHSNavTreeItem("Server Groups", NameTokens.ServerGroupPresenter));
-        navigation.addItem(domainLeaf);
+        HTML title = new HTML("Domain");
+        title.setStyleName("domain-section-header");
+
+        domainNav.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
+        domainNav.addItem(new LHSNavTreeItem("Server Groups", NameTokens.ServerGroupPresenter));
 
         hostSelector = new HostSelector();
-        stack.add(hostSelector.asWidget());
 
 
-        LHSTreeSection serverLeaf = new LHSTreeSection("Server");
-        navigation.addItem(serverLeaf);
+        // --------
+
 
         LHSNavTreeItem serversItem = new LHSNavTreeItem(Console.CONSTANTS.common_label_serverConfigs(), NameTokens.ServerPresenter);
+        hostNav.addItem(serversItem);
+        hostNav.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
+
+        // --------
+
         //LHSNavTreeItem paths = new LHSNavTreeItem(Console.CONSTANTS.common_label_paths(), "hosts/host-paths");
         LHSNavTreeItem jvms = new LHSNavTreeItem(Console.CONSTANTS.common_label_virtualMachines(), "host-jvms");
         LHSNavTreeItem interfaces = new LHSNavTreeItem(Console.CONSTANTS.common_label_interfaces(), "host-interfaces");
         LHSNavTreeItem properties = new LHSNavTreeItem("Host Properties", "host-properties");
 
-        serverLeaf.addItem(serversItem);
-        serverLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
+
+        hostNav.addItem(jvms);
+        hostNav.addItem(interfaces);
+        hostNav.addItem(properties);
 
 
-        LHSTreeSection hostsLeaf = new LHSTreeSection("Host Settings");
-        navigation.addItem(hostsLeaf);
-        hostsLeaf.addItem(jvms);
-        hostsLeaf.addItem(interfaces);
-        hostsLeaf.addItem(properties);
+        // --------
+        stack.add(title);
+        stack.add(domainNav);
 
+        stack.add(hostSelector.asWidget());
+        stack.add(hostNav);
 
-        stack.add(navigation);
-        navigation.expandTopLevel();
+        domainNav.expandTopLevel();
+        hostNav.expandTopLevel();
+
         // --------
 
 
@@ -108,6 +122,6 @@ class LHSHostsNavigation {
 
     public void setHosts(String selectedHost, Set<String> hostNames) {
         hostSelector.setHosts(selectedHost, hostNames);
-        navigation.expandTopLevel();
+        domainNav.expandTopLevel();
     }
 }
