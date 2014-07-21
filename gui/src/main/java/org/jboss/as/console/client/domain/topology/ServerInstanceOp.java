@@ -80,7 +80,7 @@ public class ServerInstanceOp extends TopologyOp {
                 // not supported for server instances
                 break;
         }
-        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 750);
+        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 5000);
     }
 
     class QueryStatus implements Function<Object> {
