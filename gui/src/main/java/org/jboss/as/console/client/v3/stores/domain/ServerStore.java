@@ -91,7 +91,6 @@ public class ServerStore extends ChangeSupport {
         else {
 
             channel.ack();
-            fireChanged(ServerStore.class);
         }
 
     }
@@ -115,7 +114,6 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean aBoolean) {
                 channel.ack();
-                fireChanged(ServerStore.class);
             }
         });
 

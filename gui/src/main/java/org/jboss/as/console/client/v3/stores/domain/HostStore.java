@@ -217,7 +217,7 @@ public class HostStore extends ChangeSupport {
 
         // b) (optional) refresh hosts before the sever store loads the servers
 
-        channel.ack();
+        channel.ack(false);
     }
 
     @Process(actionType = RefreshHosts.class)
@@ -237,7 +237,6 @@ public class HostStore extends ChangeSupport {
                     selectedServer = null;
 
                 channel.ack();
-                fireChanged(HostStore.class);
             }
         });
     }
@@ -250,7 +249,6 @@ public class HostStore extends ChangeSupport {
         defaultServerSelection();
 
         channel.ack();
-        fireChanged(HostStore.class);
 
     }
 
@@ -258,7 +256,6 @@ public class HostStore extends ChangeSupport {
     public void onSelectedServer(final String serverInstance, final Dispatcher.Channel channel) {
         this.selectedServer = serverInstance;
         channel.ack();
-        fireChanged(HostStore.class);
     }
 
     private void defaultServerSelection() {
