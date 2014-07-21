@@ -16,7 +16,6 @@ import org.jboss.as.console.client.widgets.nav.Predicate;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +35,10 @@ class DomainRuntimeNavigation {
     private List<Predicate> runtimePredicates = new ArrayList<Predicate>();
 
     private ScrollPanel scroll;
-    private LHSNavTree navigation;
+
     private LHSNavTree metrics;
     //private LHSTreeSection metricLeaf;
-    private LHSTreeSection runtimeLeaf;
+    //private LHSTreeSection runtimeLeaf;
 
     public Widget asWidget()
     {
@@ -56,9 +55,6 @@ class DomainRuntimeNavigation {
         stack.add(serverPicker.asWidget());
 
         // ----------------------------------------------------
-
-        navigation = new LHSNavTree("domain-runtime");
-        navigation.getElement().setAttribute("aria-label", "Runtime Tasks");
 
         metrics = new LHSNavTree("metrics");
         metrics.addStyleName("server-picker-stack");
@@ -112,17 +108,11 @@ class DomainRuntimeNavigation {
             }
         }
 
-        // ---
-
-        runtimeLeaf = new LHSTreeSection("Runtime Operations");
-        navigation.addItem(runtimeLeaf);
 
         // ----------------------------------------------------
 
-        navigation.expandTopLevel();
         metrics.expandTopLevel();
 
-        stack.add(navigation);
         stack.add(metrics);
 
         layout.add(stack);
@@ -135,15 +125,12 @@ class DomainRuntimeNavigation {
     public void setSubsystems(List<SubsystemRecord> subsystems) {
 
         metrics.removeItems();
-        runtimeLeaf.removeItems();
 
         metrics.setVisible(false);
-        runtimeLeaf.setVisible(false);
 
         if(subsystems.isEmpty()) return;
 
         metrics.setVisible(true);
-        runtimeLeaf.setVisible(true);
 
         final GroupItem platformGroup = new GroupItem("Platform");
 
@@ -163,22 +150,12 @@ class DomainRuntimeNavigation {
                 if(predicate.matches(subsys.getKey()))
                     subsystemGroup.addItem(predicate.getNavItem());
             }
-
-            for(Predicate predicate : runtimePredicates)
-            {
-                if(predicate.matches(subsys.getKey()))
-                    runtimeLeaf.addItem(predicate.getNavItem());
-            }
         }
 
         metrics.addItem(subsystemGroup);
         subsystemGroup.setState(true);
         platformGroup.setState(true);
 
-        // empty runtime operations
-        runtimeLeaf.setVisible(runtimeLeaf.getChildCount()>0);
-
-        navigation.expandTopLevel();
 
     }
 
