@@ -70,17 +70,17 @@
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-core</artifactId>
-            <version>0.0.3</version>
+            <version>${circuit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
-            <version>0.0.3</version>
+            <version>${circuit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-processor</artifactId>
-            <version>0.0.3</version>
+            <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -197,11 +197,11 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <outputDiagnostics>true</outputDiagnostics>
+                            <outputDiagnostics>false</outputDiagnostics>
                             <addCompileSourceRoots>false</addCompileSourceRoots>
                             <appendSourceArtifacts>false</appendSourceArtifacts>
                             <processors>
-                                <processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>
+                                <!--<processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>-->
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
