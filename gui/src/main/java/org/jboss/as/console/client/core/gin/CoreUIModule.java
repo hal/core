@@ -29,7 +29,7 @@ import com.gwtplatform.mvp.client.gin.AbstractPresenterModule;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.AdministrationView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;

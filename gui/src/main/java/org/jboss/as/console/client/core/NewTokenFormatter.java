@@ -2,9 +2,9 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.http.client.URL;
 import com.google.inject.Inject;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.TokenFormatException;
-import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import com.gwtplatform.mvp.shared.proxy.TokenFormatException;
+import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 
 import java.util.ArrayList;
 import java.util.List;

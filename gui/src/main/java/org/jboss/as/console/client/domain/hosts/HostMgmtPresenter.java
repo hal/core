@@ -30,7 +30,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
@@ -96,7 +96,11 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
+
+                if(!isVisible()) return;
+
                 getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
+
             }
         });
     }

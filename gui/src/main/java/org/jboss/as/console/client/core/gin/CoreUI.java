@@ -26,7 +26,7 @@ import com.gwtplatform.mvp.client.annotations.DefaultGatekeeper;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.TokenFormatter;
+import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;

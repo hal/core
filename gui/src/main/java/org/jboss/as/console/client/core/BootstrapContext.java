@@ -21,7 +21,7 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;

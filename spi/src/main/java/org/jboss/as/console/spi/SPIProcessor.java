@@ -226,7 +226,7 @@ public class SPIProcessor extends AbstractProcessor {
 
                     for (String resourceAddress : accessControl.resources()) {
                         AccessControlMetaData declared = new AccessControlMetaData(
-                                nameToken.value(), resourceAddress
+                                nameToken.value()[0], resourceAddress
                         );
 
                         declared.setRecursive(accessControl.recursive());
@@ -241,7 +241,7 @@ public class SPIProcessor extends AbstractProcessor {
                         }
 
                         BootstrapOperation op = new BootstrapOperation(
-                                nameToken.value(), opString
+                                nameToken.value()[0], opString
                         );
                         bootstrapOperations.add(op);
                     }
@@ -251,7 +251,7 @@ public class SPIProcessor extends AbstractProcessor {
                     Name simpleName = element.getEnclosingElement() != null ? element.getEnclosingElement()
                             .getSimpleName() : element.getSimpleName();
                     System.out.println(
-                            simpleName + "(#" + nameToken.value() + ")" + " is missing @AccessControl annotation!");
+                            simpleName + "(#" + nameToken.value()[0] + ")" + " is missing @AccessControl annotation!");
                 }
             }
         }
@@ -283,7 +283,7 @@ public class SPIProcessor extends AbstractProcessor {
                     }
                     if (include) {
                         // excluded presenters are not part of the metadata!
-                        SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value(), standalone,
+                        SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value()[0], standalone,
                                 domain, accessControl.resources(), keywords);
                         searchIndexDeclarations.add(searchIndexMetaData);
                     }
@@ -306,9 +306,9 @@ public class SPIProcessor extends AbstractProcessor {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
                 RuntimeExtension extension = element.getAnnotation(RuntimeExtension.class);
                 if (nameToken != null) {
-                    System.out.println("Runtime Extension: " + extension.name() + " -> " + nameToken.value());
+                    System.out.println("Runtime Extension: " + extension.name() + " -> " + nameToken.value()[0]);
                     RuntimeExtensionMetaData declared = new RuntimeExtensionMetaData(
-                            extension.name(), nameToken.value(),
+                            extension.name(), nameToken.value()[0],
                             extension.group(), extension.key()
                     );
                     runtimeExtensions.add(declared);
@@ -367,15 +367,15 @@ public class SPIProcessor extends AbstractProcessor {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
                 SubsystemExtension subsystem = element.getAnnotation(SubsystemExtension.class);
                 if (nameToken != null) {
-                    System.out.println("Subsystem: " + subsystem.name() + " -> " + nameToken.value());
+                    System.out.println("Subsystem: " + subsystem.name() + " -> " + (nameToken.value()[0]));
                     SubsystemExtensionMetaData declared = new SubsystemExtensionMetaData(
-                            subsystem.name(), nameToken.value(),
+                            subsystem.name(), nameToken.value()[0],
                             subsystem.group(), subsystem.key()
                     );
 
                     subsystemDeclararions.add(declared);
-                    if (!nameTokens.add(nameToken.value())) {
-                        throw new RuntimeException("Duplicate name token '" + nameToken.value() + "' declared on '"
+                    if (!nameTokens.add(nameToken.value()[0])) {
+                        throw new RuntimeException("Duplicate name token '" + nameToken.value()[0] + "' declared on '"
                                 + element.asType());
                     }
                 }

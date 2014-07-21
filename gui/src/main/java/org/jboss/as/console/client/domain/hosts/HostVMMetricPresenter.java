@@ -23,6 +23,7 @@ import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
@@ -85,7 +86,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
         super.onBind();
         getView().setPresenter(this);
 
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+        hostStore.addChangeHandler(SelectServerInstance.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

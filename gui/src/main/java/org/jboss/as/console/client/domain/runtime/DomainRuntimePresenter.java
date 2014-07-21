@@ -11,7 +11,7 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.PlaceRequest;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
@@ -104,7 +104,7 @@ public class DomainRuntimePresenter
             @Override
             public void onChange(Class<?> source) {
 
-                // TODO (hbraun) : this requires further distinction of action types
+                if(!isVisible()) return;
 
                 // server picker update
                 if(hostStore.hasSelectedServer()) {
