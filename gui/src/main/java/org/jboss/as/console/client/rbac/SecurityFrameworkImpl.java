@@ -188,7 +188,13 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         // @RBACGatekeeper & @AccessControl
         else
         {
-            loadSecurityMetadata(id, requiredResources, recursive, callback);
+            try {
+                loadSecurityMetadata(id, requiredResources, recursive, callback);
+            } catch (Throwable t) {
+                Log.error("Failed to create security context for "+id+ ", fallback to temporary read-only context", t.getMessage());
+                contextMapping.put(id, READ_ONLY);
+                callback.onSuccess(READ_ONLY);
+            }
         }
 
     }
