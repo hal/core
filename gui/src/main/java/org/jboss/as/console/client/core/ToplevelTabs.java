@@ -87,9 +87,9 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
         tabs = new LinkedList<Config>();
         tabs.add(new Config(NameTokens.HomepagePresenter, "<i class='icon-home'></i> Home", true));
         if (bootstrapContext.isStandalone()) {
-            tabs.add(new Config(NameTokens.StandloneDeployments, "Deployments", false));
-            tabs.add(new Config(NameTokens.serverConfig, "Configuration", false));
-            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
+            tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "<i class='icon-suitcase'></i> Deployments", false));
+            tabs.add(new Config(NameTokens.serverConfig, "<i class='icon-gears'></i> Configuration", false));
+            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "<i class='icon-bar-chart'></i> Runtime", false));
         } else {
             tabs.add(new Config(NameTokens.DeploymentsPresenter, "<i class='icon-suitcase'></i> Deployments", false));
             tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "<i class='icon-gears'></i> Configuration", false));

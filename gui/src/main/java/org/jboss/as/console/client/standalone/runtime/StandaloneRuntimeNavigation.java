@@ -58,7 +58,6 @@ public class StandaloneRuntimeNavigation {
         LHSNavTreeItem server = new LHSNavTreeItem("Overview", NameTokens.StandaloneServerPresenter);
 
         serverLeaf.addItem(server);
-        serverLeaf.addItem(new LHSNavTreeItem("Manage Deployments", NameTokens.DeploymentBrowserPresenter));
         serverLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
         navigation.addItem(serverLeaf);
 
