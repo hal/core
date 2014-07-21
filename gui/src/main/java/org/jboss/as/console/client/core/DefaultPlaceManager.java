@@ -125,9 +125,9 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
         Outcome<ContextCreation> outcome = new Outcome<ContextCreation>() {
                     @Override
-                    public void onFailure(ContextCreation context) {
+                    public void onFailure(final ContextCreation context) {
                         unlock();
-                        //noinspection ThrowableResultOfMethodCallIgnored
+                        revealDefaultPlace();
                         Console.error("Failed to create security context", context.getError().getMessage());
                     }
 
