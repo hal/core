@@ -4,12 +4,14 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,7 +26,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private DomainRuntimeNavigation lhsNavigation;
 
     @Inject
-    public DomainRuntimeView() {
+    public DomainRuntimeView(EventBus eventBus) {
         super();
 
         layout = new DefaultSplitLayoutPanel(2);
@@ -38,6 +40,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
         layout.addWest(nav, 217);
         layout.add(contentCanvas);
+
+        eventBus.addHandler(LHSHighlightEvent.TYPE, lhsNavigation);
     }
 
     @Override

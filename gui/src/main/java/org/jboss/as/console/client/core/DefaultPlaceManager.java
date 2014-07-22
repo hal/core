@@ -139,17 +139,19 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                             public void execute() {
                                 final PlaceRequest placeRequest = context.getRequest();
                                 DefaultPlaceManager.super.doRevealPlace(placeRequest, updateBrowserUrl);
-                                StringBuffer nameToken = new StringBuffer(placeRequest.getNameToken());
 
-                                if(!placeRequest.getParameterNames().isEmpty())
-                                {
-                                    nameToken.append(";");
-                                    for(String param : placeRequest.getParameterNames())
-                                    {
-                                        nameToken.append(param).append("=").append(placeRequest.getParameter(param,""));
+                                // we only fire LHS highlight events for real sections not top level categories
+                                if(updateBrowserUrl) {
+                                    StringBuffer nameToken = new StringBuffer(placeRequest.getNameToken());
+
+                                    if (!placeRequest.getParameterNames().isEmpty()) {
+                                        nameToken.append(";");
+                                        for (String param : placeRequest.getParameterNames()) {
+                                            nameToken.append(param).append("=").append(placeRequest.getParameter(param, ""));
+                                        }
                                     }
+                                    eventBus.fireEvent(new LHSHighlightEvent(nameToken.toString()));
                                 }
-                                eventBus.fireEvent(new LHSHighlightEvent(nameToken.toString()));
                             }
                         });
                     }

@@ -226,16 +226,6 @@ public class ServerGroupPresenter
 
         loadServerGroups();
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                getEventBus().fireEvent(
-                        new LHSHighlightEvent(null, Console.CONSTANTS.common_label_serverGroupConfigurations(), "groups")
-
-                );
-            }
-        });
-
     }
 
     private void staleModel() {

@@ -125,9 +125,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
-                    Console.getEventBus().fireEvent(
+                    /*Console.getEventBus().fireEvent(
                             new LHSHighlightEvent(bootstrap.getInitialPlace())
-                    );
+                    );*/
                     bootstrap.setInitialPlace(null);
                 }
             });

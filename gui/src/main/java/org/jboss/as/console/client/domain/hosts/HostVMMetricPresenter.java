@@ -102,6 +102,7 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
 
     @Override
     protected void onReset() {
+        super.onReset();
         refresh();
     }
 

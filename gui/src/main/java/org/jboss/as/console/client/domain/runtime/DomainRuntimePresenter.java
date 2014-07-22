@@ -184,13 +184,6 @@ public class DomainRuntimePresenter
             public void onSuccess(final FunctionContext context) {
                 List<SubsystemRecord> subsystems = context.pop();
                 getView().setSubsystems(subsystems);
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        Console.getEventBus()
-                                .fireEvent(new LHSHighlightEvent(placeManager.getCurrentPlaceRequest().getNameToken()));
-                    }
-                });
             }
         };
 

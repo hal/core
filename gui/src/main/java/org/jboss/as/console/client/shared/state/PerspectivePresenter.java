@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.state;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
@@ -27,6 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 /**
  * Base class for top level presenters like "Configuration", "Server Health" or "Administration". Meets two tasks:
@@ -79,10 +81,18 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         if (isChildRequest) {
             // remember for the next time
             lastPlace = requestedPlace;
-        } else if (lastPlace != null) {
-            onLastPlace(lastPlace);
-            return; // ugly, but important
         }
+        else if (lastPlace != null) {
+            // highlight navigation
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    getEventBus().fireEventFromSource(new LHSHighlightEvent(lastPlace.getNameToken()), this);
+                }
+            });
+            return;
+        }
+
 
         if (!hasBeenRevealed) {
             hasBeenRevealed = true;
@@ -94,13 +104,6 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
      * prepare the initial perspective. most often this does at least navigate to a default place.
      */
     abstract protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault);
-
-    /**
-     * Forwards to the last place. If you override this method don't forget to call {@code super.onLastPlace()} first.
-     */
-    protected void onLastPlace(PlaceRequest lastPlace) {
-        placeManager.revealPlace(lastPlace);
-    }
 
     /**
      * Sets the {@link org.jboss.as.console.client.rbac.UnauthorisedPresenter} in the content slot given as constructor
