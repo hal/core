@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.user.client.Window;
@@ -39,7 +33,9 @@ import com.gwtplatform.mvp.client.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.Updateable;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
@@ -59,29 +55,30 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
 /**
  * @author Harald Pehl
  */
-public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyView, PatchManagerPresenter.MyProxy>
-        {
+public class PatchManagementPresenter extends Presenter<PatchManagementPresenter.MyView, PatchManagementPresenter.MyProxy> {
+
+    public interface MyView extends View, HasPresenter<PatchManagementPresenter>, Updateable<List<Patches>> {
+        void update(List<Patches> patches);
+    }
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
-    @AccessControl(resources = {"/{selected.host}", // in order to enable / disable the shutdown operation
-            "/{selected.host}/core-service=patching"}, recursive = false)
-    public interface MyProxy extends Proxy<PatchManagerPresenter>, Place {}
-
-
-    public interface MyView extends View {
-
-        void setPresenter(PatchManagerPresenter presenter);
-
-        void update(Patches patches);
+    @AccessControl(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
+    public interface MyProxy extends Proxy<PatchManagementPresenter>, Place {
     }
 
 
     private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
-
         @Override
         public void onSuccess(DMRResponse result) {
             ModelNode response = result.get();
@@ -111,6 +108,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     static final int NORMAL_WINDOW_HEIGHT = 400;
     static final int BIGGER_WINDOW_HEIGHT = NORMAL_WINDOW_HEIGHT + 100;
+
     private final RevealStrategy revealStrategy;
     private final PatchManager patchManager;
     private final HostStore hostStore;
@@ -119,11 +117,13 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow window;
 
+
     @Inject
-    public PatchManagerPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final RevealStrategy revealStrategy, final PatchManager patchManager,
-            final HostStore hostStore, final BootstrapContext bootstrapContext,
-            final DispatchAsync dispatcher, final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+    public PatchManagementPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
+                                    final RevealStrategy revealStrategy, final PatchManager patchManager,
+                                    final HostStore hostStore, final BootstrapContext bootstrapContext,
+                                    final DispatchAsync dispatcher,
+                                    PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
@@ -138,18 +138,21 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> source) {
                 if (isVisible()) {
-                    placeRequestSecurityFramework.update(PatchManagerPresenter.this, hostPlaceRequest());
-                    loadPatches();
+                    placeRequestSecurityFramework.update(PatchManagementPresenter.this, hostPlaceRequest());
                 }
             }
         });
-        if (!bootstrapContext.isStandalone()) {
-            placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
-        }
+        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+    }
+
+    private PlaceRequest hostPlaceRequest() {
+        return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
+                .with("host", hostStore.getSelectedHost()).build();
     }
 
     @Override
@@ -164,17 +167,23 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void loadPatches() {
-        patchManager.getPatchesOfSelectedHost(new SimpleCallback<Patches>() {
-            @Override
-            public void onSuccess(final Patches patches) {
-                getView().update(patches);
-            }
-        });
-    }
-
-    private PlaceRequest hostPlaceRequest() {
-        return new PlaceRequest.Builder().nameToken(getProxy().getNameToken())
-                .with("host", hostStore.getSelectedHost()).build();
+        if (bootstrapContext.isStandalone()) {
+            patchManager.getStandalonePatches(new SimpleCallback<Patches>() {
+                @Override
+                public void onSuccess(final Patches patches) {
+                    List<Patches> helper = new LinkedList<>();
+                    helper.add(patches);
+                    getView().update(helper);
+                }
+            });
+        } else {
+            patchManager.getDomainPatches(new SimpleCallback<List<Patches>>() {
+                @Override
+                public void onSuccess(List<Patches> patches) {
+                    getView().update(patches);
+                }
+            });
+        }
     }
 
     public void launchApplyWizard() {
@@ -192,7 +201,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_apply_patch());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.trapWidget(new ApplyWizard(PatchManagerPresenter.this, context,
+                window.trapWidget(new ApplyWizard(PatchManagementPresenter.this, context,
                         Console.CONSTANTS.patch_manager_apply_patch(), dispatcher, patchManager).asWidget());
                 window.setGlassEnabled(true);
                 window.center();
@@ -234,7 +243,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
                 window = new DefaultWindow(Console.CONSTANTS.patch_manager_rollback());
                 window.setWidth(480);
                 window.setHeight(NORMAL_WINDOW_HEIGHT);
-                window.setWidget(new RollbackWizard(PatchManagerPresenter.this, context,
+                window.setWidget(new RollbackWizard(PatchManagementPresenter.this, context,
                         Console.CONSTANTS.patch_manager_rollback(), dispatcher, patchManager));
                 window.setGlassEnabled(true);
                 window.center();

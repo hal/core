@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -29,15 +27,16 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 /**
  * @author Harald Pehl
  */
-public class PatchInfoTable implements IsWidget, PatchManagerElementId {
+public class PatchInfoTable implements IsWidget, PatchManagementElementId {
 
     private static final int PAGE_SIZE = 8;
     private ListDataProvider<PatchInfo> dataProvider;

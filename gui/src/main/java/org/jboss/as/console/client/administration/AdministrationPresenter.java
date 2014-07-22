@@ -51,7 +51,6 @@ public class AdministrationPresenter
     }
 
     public interface MyView extends View {
-        void setPresenter(AdministrationPresenter presenter);
     }
 
     @ContentSlot
@@ -63,12 +62,6 @@ public class AdministrationPresenter
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.AdministrationPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
-    }
-
-    @Override
-    protected void onBind() {
-        super.onBind();
-        getView().setPresenter(this);
     }
 
     @Override

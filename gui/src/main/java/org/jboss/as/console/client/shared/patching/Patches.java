@@ -27,13 +27,21 @@ import java.util.List;
  */
 public class Patches implements Iterable<PatchInfo> {
 
+    public final static String STANDALONE_HOST = "standalone";
+
+    private final String host;
     private final List<PatchInfo> patches;
     private PatchInfo latest;
     private boolean restartRequired;
 
     public Patches() {
-        patches = new LinkedList<PatchInfo>();
-        latest = null;
+        this(STANDALONE_HOST);
+    }
+
+    public Patches(String host) {
+        this.host = host;
+        this.patches = new LinkedList<PatchInfo>();
+        this.latest = null;
     }
 
     public void setLatest(String id) {
@@ -45,6 +53,27 @@ public class Patches implements Iterable<PatchInfo> {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Patches)) return false;
+
+        Patches that = (Patches) o;
+
+        if (!host.equals(that.host)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return host.hashCode();
+    }
+
+    public String getHost() {
+        return host;
     }
 
     public PatchInfo getLatest() {

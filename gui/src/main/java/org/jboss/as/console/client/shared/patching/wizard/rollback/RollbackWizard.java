@@ -23,8 +23,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
-import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
@@ -38,7 +38,7 @@ import static org.jboss.as.console.client.shared.patching.wizard.rollback.Rollba
  */
 public class RollbackWizard extends PatchWizard<RollbackContext, RollbackState> {
 
-    public RollbackWizard(final PatchManagerPresenter presenter, final RollbackContext context, final String title,
+    public RollbackWizard(final PatchManagementPresenter presenter, final RollbackContext context, final String title,
             final DispatchAsync dispatcher, PatchManager patchManager) {
         super(presenter, context, title);
 

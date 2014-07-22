@@ -16,14 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.patching;
+package org.jboss.as.console.client.shared.patching.ui;
 
 /**
  * Contains the ID prefix for the DOM elements used in patching
  *
  * @author Harald Pehl
  */
-public interface PatchManagerElementId {
+public interface PatchManagementElementId {
 
     String PREFIX = "PatchManager_";
 }
