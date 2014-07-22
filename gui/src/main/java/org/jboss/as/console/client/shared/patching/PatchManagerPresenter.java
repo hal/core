@@ -18,6 +18,12 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.user.client.Window;
@@ -38,7 +44,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.patching.ui.RestartModal;
-import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyContext;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyWizard;
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackContext;
@@ -53,12 +58,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.PropagatesChange;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -82,12 +81,6 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
 
     private abstract class GetRunningServersCallback implements AsyncCallback<DMRResponse> {
-
-        private final Callback<? extends CommonPatchContext, Throwable> contextCallback;
-
-        public GetRunningServersCallback(final Callback<? extends CommonPatchContext, Throwable> contextCallback) {
-            this.contextCallback = contextCallback;
-        }
 
         @Override
         public void onSuccess(DMRResponse result) {
@@ -161,11 +154,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
 
     @Override
     protected void revealInParent() {
-        if (bootstrapContext.isStandalone()) {
-            revealStrategy.revealInRuntimeParent(this);
-        } else {
-            revealStrategy.revealInDomain(this);
-        }
+        revealStrategy.revealInAdministration(this);
     }
 
     @Override
@@ -175,7 +164,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void loadPatches() {
-        patchManager.getPatches(new SimpleCallback<Patches>() {
+        patchManager.getPatchesOfSelectedHost(new SimpleCallback<Patches>() {
             @Override
             public void onSuccess(final Patches patches) {
                 getView().update(patches);
@@ -219,7 +208,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         } else {
             final String host = hostStore.getSelectedHost();
             dispatcher
-                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
+                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback() {
                         @Override
                         protected void onServers(final List<String> runningServers) {
                             contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
@@ -261,7 +250,7 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
         } else {
             final String host = hostStore.getSelectedHost();
             dispatcher
-                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback(contextCallback) {
+                    .execute(new DMRAction(getRunningServersOp(host)), new GetRunningServersCallback() {
                         @Override
                         protected void onServers(final List<String> runningServers) {
                             contextCallback.onSuccess(new RollbackContext(false, host, runningServers,

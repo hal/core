@@ -206,7 +206,7 @@
                             <addCompileSourceRoots>false</addCompileSourceRoots>
                             <appendSourceArtifacts>false</appendSourceArtifacts>
                             <processors>
-                                <!--<processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>-->
+                                <processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>
                                 <processor>org.jboss.as.console.spi.SPIProcessor</processor>
                             </processors>
                             <options>
