@@ -103,6 +103,7 @@ import org.jboss.as.console.client.shared.subsys.logging.model.CustomHandler;
 import org.jboss.as.console.client.shared.subsys.logging.model.FileHandler;
 import org.jboss.as.console.client.shared.subsys.logging.model.Logger;
 import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicRotatingFileHandler;
+import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicSizeRotatingFileHandler;
 import org.jboss.as.console.client.shared.subsys.logging.model.RootLogger;
 import org.jboss.as.console.client.shared.subsys.logging.model.SizeRotatingFileHandler;
 import org.jboss.as.console.client.shared.subsys.logging.model.SyslogHandler;
@@ -212,6 +213,7 @@ public interface CoreBeanFactory {
     AutoBean<SyslogHandler> syslogHandler();
     AutoBean<FileHandler> fileHandler();
     AutoBean<PeriodicRotatingFileHandler> periodicRotatingFileHandler();
+    AutoBean<PeriodicSizeRotatingFileHandler> periodicSizeRotatingFileHandler();
     AutoBean<SizeRotatingFileHandler> sizeRotatingFileHandler();
     AutoBean<CustomHandler> customHandler();
 

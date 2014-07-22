@@ -45,6 +45,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
     private SyslogHandlerView syslogHandlerView;
     private FileHandlerSubview fileHandlerSubview;
     private PeriodicRotatingFileHandlerSubview periodicRotatingFileHandlerSubview;
+    private PeriodicSizeRotatingFileHandlerSubview periodicSizeRotatingFileHandlerSubview;
     private SizeRotatingFileHandlerSubview sizeRotatingFileHandlerSubview;
     private AsyncHandlerSubview asyncHandlerSubview;
     private CustomHandlerSubview customHandlerSubview;
@@ -61,6 +62,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         consoleHandlerSubview = new ConsoleHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         fileHandlerSubview = new FileHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         periodicRotatingFileHandlerSubview = new PeriodicRotatingFileHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
+        periodicSizeRotatingFileHandlerSubview = new PeriodicSizeRotatingFileHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         sizeRotatingFileHandlerSubview = new SizeRotatingFileHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         asyncHandlerSubview = new AsyncHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
         customHandlerSubview = new CustomHandlerSubview(applicationMetaData, dispatcher, handlerListManager);
@@ -70,6 +72,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         handlerListManager.addHandlerProducers(consoleHandlerSubview,
                 fileHandlerSubview,
                 periodicRotatingFileHandlerSubview,
+                periodicSizeRotatingFileHandlerSubview,
                 sizeRotatingFileHandlerSubview,
                 asyncHandlerSubview,
                 customHandlerSubview,
@@ -94,6 +97,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_file(), fileHandlerSubview.asWidget());
 
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_periodic(), periodicRotatingFileHandlerSubview.asWidget());
+        handlerPages.addPage(Console.CONSTANTS.subsys_logging_periodicSize(), periodicSizeRotatingFileHandlerSubview.asWidget());
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_size(), sizeRotatingFileHandlerSubview.asWidget());
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_async(), asyncHandlerSubview.asWidget());
         handlerPages.addPage(Console.CONSTANTS.subsys_logging_custom(), customHandlerSubview.asWidget());
@@ -110,6 +114,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
                 loggerSubview,
                 fileHandlerSubview,
                 periodicRotatingFileHandlerSubview,
+                periodicSizeRotatingFileHandlerSubview,
                 sizeRotatingFileHandlerSubview,
                 asyncHandlerSubview,
                 customHandlerSubview,
@@ -127,6 +132,7 @@ public class LoggingView extends SuspendableViewImpl implements LoggingPresenter
         consoleHandlerSubview.initialLoad();
         fileHandlerSubview.initialLoad();
         periodicRotatingFileHandlerSubview.initialLoad();
+        periodicSizeRotatingFileHandlerSubview.initialLoad();
         sizeRotatingFileHandlerSubview.initialLoad();
         asyncHandlerSubview.initialLoad();
         customHandlerSubview.initialLoad();

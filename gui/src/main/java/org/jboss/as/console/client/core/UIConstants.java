@@ -260,6 +260,10 @@ public interface UIConstants extends Constants {
 
     String subsys_logging_periodicRotatingFileHandlers();
 
+    String subsys_logging_periodicSize();
+
+    String subsys_logging_periodicSizeRotatingFileHandlers();
+
     String subsys_logging_size();
 
     String subsys_logging_sizeRotatingFileHandlers();
@@ -709,6 +713,8 @@ public interface UIConstants extends Constants {
     String subsys_logging_fileHandlers_desc();
 
     String subsys_logging_periodicRotatingFileHandlers_desc();
+
+    String subsys_logging_periodicSizeRotatingFileHandlers_desc();
 
     String subsys_logging_sizeRotatingFileHandlers_desc();
 
