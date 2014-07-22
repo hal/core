@@ -44,9 +44,13 @@ class LHSAdministrationNavigation {
 //        LHSNavTreeItem auditLogItem = new LHSNavTreeItem("Audit Log", NameTokens.AuditLogPresenter);
 //        accessLeaf.addItem(auditLogItem);
 
+        LHSTreeSection patchingLeaf = new LHSTreeSection("Patching", true);
+        patchingLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
+
         navigation = new LHSNavTree("administration");
         navigation.getElement().setAttribute("aria-label", "Administration");
         navigation.addItem(accessLeaf);
+        navigation.addItem(patchingLeaf);
         navigation.expandTopLevel();
 
         stack = new VerticalPanel();

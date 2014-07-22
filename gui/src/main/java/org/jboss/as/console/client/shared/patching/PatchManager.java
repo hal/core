@@ -18,6 +18,11 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
@@ -28,11 +33,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -53,7 +53,7 @@ public class PatchManager {
         this.beanFactory = beanFactory;
     }
 
-    public void getPatches(final AsyncCallback<Patches> callback) {
+    public void getPatchesOfSelectedHost(final AsyncCallback<Patches> callback) {
         ModelNode comp = new ModelNode();
         comp.get(ADDRESS).setEmptyList();
         comp.get(OP).set(COMPOSITE);

@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.standalone.runtime;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TreeItem;
@@ -16,9 +19,6 @@ import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 import org.jboss.ballroom.client.layout.LHSTreeSection;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -56,9 +56,7 @@ public class StandaloneRuntimeNavigation {
         TreeItem serverLeaf = new LHSTreeSection("Server", true);
 
         LHSNavTreeItem server = new LHSNavTreeItem("Overview", NameTokens.StandaloneServerPresenter);
-
         serverLeaf.addItem(server);
-        serverLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
         navigation.addItem(serverLeaf);
 
 

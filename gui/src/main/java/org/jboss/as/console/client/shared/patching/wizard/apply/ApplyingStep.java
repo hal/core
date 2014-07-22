@@ -104,7 +104,7 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 JSONObject response = JSONParser.parseLenient(json).isObject();
                 JSONString outcome = response.get("outcome").isString();
                 if (outcome != null && "success".equalsIgnoreCase(outcome.stringValue())) {
-                    patchManager.getPatches(new SimpleCallback<Patches>() {
+                    patchManager.getPatchesOfSelectedHost(new SimpleCallback<Patches>() {
                         @Override
                         public void onSuccess(final Patches result) {
                             context.patchInfo = result.getLatest();

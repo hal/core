@@ -35,11 +35,9 @@ import org.jboss.as.console.client.plugins.BootstrapOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SearchIndexMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
-import org.jboss.gwt.circuit.processor.StoreProcessor;
 
 /**
  * @author Heiko Braun
- * @date 9/13/12
  */
 
 
@@ -78,8 +76,6 @@ public class SPIProcessor extends AbstractProcessor {
     private Set<String> nameTokens;
     private List<ModuleConfig> moduleConfigs;
     private Map<String, String> gwtConfigProps;
-    // TODO (hpehl) Remove dependency once the SPIProcessor is refactored
-    private StoreProcessor storeProcessor;
 
     @Override
     public void init(ProcessingEnvironment env) {
@@ -95,7 +91,6 @@ public class SPIProcessor extends AbstractProcessor {
         this.bootstrapOperations = new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
         this.nameTokens = new HashSet<>();
-        this.storeProcessor = new StoreProcessor();
 
         moduleConfigs = new ArrayList<ModuleConfig>();
         moduleConfigs.add(new ModuleConfig(filer, "App_base.gwt.xml.tmpl", "App.gwt.xml"));
@@ -199,25 +194,10 @@ public class SPIProcessor extends AbstractProcessor {
             for (Element element : elements) {
                 handleRuntimeExtensions(element);
             }
-
-            // TODO (hpehl) Remove hack once the SPIProcessor is refactored
-            try {
-                System.out.println("=================================");
-                System.out.println("Begin Store processing ...");
-                System.out.println("=================================");
-                storeProcessor.processStores(processingEnv, roundEnv);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("Failed to process SPI artifacts");
-            }
         }
 
         if (roundEnv.processingOver()) {
             try {
-                // TODO (hpehl) Remove hack once the SPIProcessor is refactored
-                storeProcessor.writeStores(processingEnv);
-                storeProcessor.storePostProcessing(processingEnv);
-
                 // generate the actual implementation
                 writeFiles();
             } catch (Exception e) {

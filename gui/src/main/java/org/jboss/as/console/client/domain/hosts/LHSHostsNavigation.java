@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import java.util.Set;
+
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -28,8 +30,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-
-import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -81,7 +81,6 @@ class LHSHostsNavigation {
 
         LHSNavTreeItem serversItem = new LHSNavTreeItem(Console.CONSTANTS.common_label_serverConfigs(), NameTokens.ServerPresenter);
         hostNav.addItem(serversItem);
-        hostNav.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
 
         // --------
 
