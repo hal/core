@@ -23,8 +23,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
-import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersFailedStep;
 import org.jboss.as.console.client.shared.patching.wizard.StopServersStep;
@@ -38,7 +38,7 @@ import static org.jboss.as.console.client.shared.patching.wizard.apply.ApplyStat
  */
 public class ApplyWizard extends PatchWizard<ApplyContext, ApplyState> {
 
-    public ApplyWizard(final PatchManagerPresenter presenter, final ApplyContext context, final String title,
+    public ApplyWizard(final PatchManagementPresenter presenter, final ApplyContext context, final String title,
             final DispatchAsync dispatcher, final PatchManager patchManager) {
         super(presenter, context, title);
 

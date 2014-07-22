@@ -23,14 +23,13 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl
  */
-public class Pending extends Composite implements PatchManagerElementId {
+public class Pending extends Composite implements PatchManagementElementId {
 
     private final static Template TEMPLATE = GWT.create(Template.class);
     private HTML html;

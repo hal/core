@@ -21,8 +21,8 @@ package org.jboss.as.console.client.shared.patching.wizard;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
-import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementElementId;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 
 import java.util.Iterator;
@@ -36,16 +36,16 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
  *
  * @author Harald Pehl
  */
-public abstract class PatchWizard<C, S extends Enum<S>> implements IsWidget, PatchManagerElementId {
+public abstract class PatchWizard<C, S extends Enum<S>> implements IsWidget, PatchManagementElementId {
 
-    protected final PatchManagerPresenter presenter;
+    protected final PatchManagementPresenter presenter;
     protected final C context;
     protected final String title;
     private final LinkedHashMap<S, PatchWizardStep<C, S>> steps;
     protected S state;
     private DeckPanel deck;
 
-    protected PatchWizard(final PatchManagerPresenter presenter, final C context, final String title) {
+    protected PatchWizard(final PatchManagementPresenter presenter, final C context, final String title) {
         this.presenter = presenter;
         this.context = context;
         this.title = title;

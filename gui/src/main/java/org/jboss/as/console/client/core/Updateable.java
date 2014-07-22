@@ -19,33 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.patching.ui;
-
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.widgets.pages.PagedView;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+package org.jboss.as.console.client.core;
 
 /**
- * Contains a {@link org.jboss.as.console.client.widgets.pages.PagedView} with all hosts and links to {@link
- * org.jboss.as.console.client.shared.patching.ui.PatchPanel}s
- *
  * @author Harald Pehl
  */
-public class HostsPanel implements IsWidget {
+public interface Updateable<T> {
 
-    private final HostStore hostStore;
-
-    public HostsPanel(final HostStore hostStore) {this.hostStore = hostStore;}
-
-    @Override
-    public Widget asWidget() {
-        PagedView pagedView = new PagedView();
-
-        DefaultCellTable<Host> table = new DefaultCellTable<Host>(8);
-
-        return null;
-    }
+    void update(T update);
 }

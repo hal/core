@@ -34,6 +34,11 @@ import java.util.Map;
  * Extension to the {@link org.jboss.as.console.client.rbac.SecurityFramework} which binds
  * {@link org.jboss.ballroom.client.rbac.SecurityContext}s to parametrized
  * {@link com.gwtplatform.mvp.client.proxy.PlaceRequest}s.
+ * <p/>
+ * This kind of security framework comes into play when the security context does *not* depend solely on the
+ * name token, but on a combination of name token and place request parameter. A typical example is the
+ * {@code HostJVMPresenter} where the security context depends on the selected host. Thus the security context is
+ * bound to {@code #host-jvms;host=slave} (instead of {@code #host-jvms}).
  *
  * @author Harald Pehl
  */
@@ -48,7 +53,7 @@ public class PlaceRequestSecurityFramework {
 
     @Inject
     public PlaceRequestSecurityFramework(final SecurityFramework securityFramework,
-            final AccessControlRegistry accessControlMetaData, final TokenFormatter tokenFormatter) {
+                                         final AccessControlRegistry accessControlMetaData, final TokenFormatter tokenFormatter) {
         this.securityFramework = securityFramework;
         this.accessControlMetaData = accessControlMetaData;
         this.tokenFormatter = tokenFormatter;
@@ -61,7 +66,7 @@ public class PlaceRequestSecurityFramework {
 
     /**
      * Loads a previously created security context from the internal cache or creates a one. In any case the
-     * security context is bound to the given place request and an {@link org.jboss.ballroom.client.rbac.SecurityContextChangedEvent}
+     * security context is bound to the given place request and a {@link org.jboss.ballroom.client.rbac.SecurityContextChangedEvent}
      * is fired.
      *
      * @param eventSource  the source for the {@code SecurityContextChangedEvent}

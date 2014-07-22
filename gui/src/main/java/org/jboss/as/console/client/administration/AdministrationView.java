@@ -22,6 +22,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 
@@ -32,26 +33,20 @@ public class AdministrationView extends SuspendableViewImpl implements Administr
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
-    private LHSAdministrationNavigation lhsNavigation;
-    private AdministrationPresenter presenter;
 
+    @Inject
     public AdministrationView() {
 
         contentCanvas = new LayoutPanel();
         contentCanvas.getElement().setAttribute("role", "main");
 
-        lhsNavigation = new LHSAdministrationNavigation();
+        LHSAdministrationNavigation lhsNavigation = new LHSAdministrationNavigation();
         Widget navigationWidget = lhsNavigation.asWidget();
         navigationWidget.getElement().setAttribute("role", "navigation");
 
         layout = new DefaultSplitLayoutPanel(2);
         layout.addWest(navigationWidget, 217);
         layout.add(contentCanvas);
-    }
-
-    @Override
-    public void setPresenter(final AdministrationPresenter presenter) {
-        this.presenter = presenter;
     }
 
     @Override

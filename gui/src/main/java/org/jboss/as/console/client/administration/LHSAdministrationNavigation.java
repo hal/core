@@ -32,9 +32,6 @@ import org.jboss.ballroom.client.layout.LHSTreeSection;
 class LHSAdministrationNavigation {
 
     private ScrollPanel scroll;
-    private VerticalPanel stack;
-    private VerticalPanel layout;
-    private LHSNavTree navigation;
 
     public LHSAdministrationNavigation() {
 
@@ -47,17 +44,17 @@ class LHSAdministrationNavigation {
         LHSTreeSection patchingLeaf = new LHSTreeSection("Patching", true);
         patchingLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
 
-        navigation = new LHSNavTree("administration");
+        LHSNavTree navigation = new LHSNavTree("administration");
         navigation.getElement().setAttribute("aria-label", "Administration");
         navigation.addItem(accessLeaf);
         navigation.addItem(patchingLeaf);
         navigation.expandTopLevel();
 
-        stack = new VerticalPanel();
+        VerticalPanel stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
         stack.add(navigation);
 
-        layout = new VerticalPanel();
+        VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
         layout.add(stack);
 

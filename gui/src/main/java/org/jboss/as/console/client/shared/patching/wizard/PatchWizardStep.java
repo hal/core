@@ -28,7 +28,7 @@ import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
+import org.jboss.as.console.client.shared.patching.ui.PatchManagementElementId;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
@@ -40,7 +40,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
  *
  * @author Harald Pehl
  */
-public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget, PatchManagerElementId {
+public abstract class PatchWizardStep<C, S extends Enum<S>> implements IsWidget, PatchManagementElementId {
 
     protected final PatchWizard<C, S> wizard;
     protected String title;

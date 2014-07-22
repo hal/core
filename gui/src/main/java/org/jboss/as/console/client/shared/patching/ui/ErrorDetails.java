@@ -25,7 +25,6 @@ import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DisclosurePanel;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 import org.jboss.as.console.client.widgets.Code;
 import org.jboss.as.console.client.widgets.nav.AriaLink;
 
@@ -34,7 +33,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 /**
  * @author Harald Pehl
  */
-public class ErrorDetails extends Composite implements PatchManagerElementId {
+public class ErrorDetails extends Composite implements PatchManagementElementId {
 
     private final Code details;
 

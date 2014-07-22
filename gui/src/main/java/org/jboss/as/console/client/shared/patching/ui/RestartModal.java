@@ -24,14 +24,13 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.patching.PatchManagerElementId;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
  * @author Harald Pehl
  */
-public class RestartModal extends PopupPanel implements PatchManagerElementId {
+public class RestartModal extends PopupPanel implements PatchManagementElementId {
 
     private final DeckLayoutPanel deck;
     private int width, height;

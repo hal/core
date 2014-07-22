@@ -33,12 +33,7 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
-import org.jboss.as.console.client.core.ApplicationProperties;
-import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.FeatureSet;
-import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -82,7 +77,7 @@ import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.as.console.client.shared.patching.PatchManagerPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
@@ -99,11 +94,7 @@ import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresente
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.CacheContainerPresenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.DistributedCachePresenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.InvalidationCachePresenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.LocalCachePresenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.ReplicatedCachePresenter;
+import org.jboss.as.console.client.shared.subsys.infinispan.*;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
@@ -344,7 +335,7 @@ public interface CoreUI {
 
     AsyncProvider<EnvironmentPresenter> EnvironmentPresenter();
 
-    AsyncProvider<PatchManagerPresenter> getPatchManagerProvider();
+    AsyncProvider<PatchManagementPresenter> getPatchManagerProvider();
 
     // Administration
     AsyncProvider<AdministrationPresenter> getAdministrationPresenter();
