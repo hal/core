@@ -90,7 +90,7 @@
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
         <ace.version>1.0.0-jboss-1</ace.version>
-        <ballroom.version>2.0.14-SNAPSHOT</ballroom.version>
+        <ballroom.version>2.1.0-SNAPSHOT</ballroom.version>
         <circuit.version>0.0.5</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
