@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.domain.runtime;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -14,6 +15,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.nav.Predicate;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
@@ -24,7 +26,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 11/2/11
  */
-class DomainRuntimeNavigation {
+class DomainRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandler {
 
     private VerticalPanel stack;
     private VerticalPanel layout;
@@ -37,8 +39,7 @@ class DomainRuntimeNavigation {
     private ScrollPanel scroll;
 
     private LHSNavTree metrics;
-    //private LHSTreeSection metricLeaf;
-    //private LHSTreeSection runtimeLeaf;
+    private LHSHighlightEvent highlightEvent;
 
     public Widget asWidget()
     {
@@ -156,10 +157,25 @@ class DomainRuntimeNavigation {
         subsystemGroup.setState(true);
         platformGroup.setState(true);
 
+        if(highlightEvent!=null)
+        {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    metrics.onSelectedNavTree(highlightEvent);
+                }
+            });
+        }
+
 
     }
 
     public void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology) {
         serverPicker.setTopology(selectedHost, selectedServer, topology);
+    }
+
+    @Override
+    public void onSelectedNavTree(LHSHighlightEvent event) {
+        this.highlightEvent = event;
     }
 }
