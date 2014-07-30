@@ -51,6 +51,11 @@ public class PeriodicSizeRotatingFileHandlerSubview extends AbstractFileHandlerS
     }
 
     @Override
+    public String getManagementModelType() {
+        return "periodic-size-rotating-file-handler";
+    }
+
+    @Override
     protected String provideDescription() {
         return Console.CONSTANTS.subsys_logging_periodicSizeRotatingFileHandlers_desc();
     }

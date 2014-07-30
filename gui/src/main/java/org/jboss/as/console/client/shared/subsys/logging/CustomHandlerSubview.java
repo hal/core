@@ -54,6 +54,11 @@ public class CustomHandlerSubview extends AbstractHandlerSubview<CustomHandler>
     }
 
     @Override
+    public String getManagementModelType() {
+        return "custom-handler";
+    }
+
+    @Override
     protected String provideDescription() {
         return Console.CONSTANTS.subsys_logging_customHandlers_desc();
     }

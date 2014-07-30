@@ -38,7 +38,7 @@ import org.jboss.as.console.spi.AccessControl;
  */
 public class LoggingPresenter extends Presenter<LoggingPresenter.MyView, LoggingPresenter.MyProxy> {
 
-    private RevealStrategy revealStrategy;
+    private final RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Logger)

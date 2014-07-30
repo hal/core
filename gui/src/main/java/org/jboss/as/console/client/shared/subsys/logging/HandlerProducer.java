@@ -30,5 +30,11 @@ import java.util.List;
 public interface HandlerProducer {
 
     List<NamedEntity> getHandlers();
-    
+
+    /**
+     * The handler type as defined in the management model. This is not a complete DMR address,
+     * but just the type of the related model node. For the handler {@code /subsystem=logging/periodic-rotating-file-handler=*},
+     * this method must return {@code periodic-rotating-file-handler}.
+     */
+    String getManagementModelType();
 }

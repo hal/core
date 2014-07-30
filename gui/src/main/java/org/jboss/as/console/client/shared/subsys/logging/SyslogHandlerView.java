@@ -41,6 +41,11 @@ public class SyslogHandlerView extends AbstractHandlerSubview<SyslogHandler> imp
     }
 
     @Override
+    public String getManagementModelType() {
+        return "syslog-handler";
+    }
+
+    @Override
     protected String provideDescription() {
         return "Defines a syslog handler";
     }

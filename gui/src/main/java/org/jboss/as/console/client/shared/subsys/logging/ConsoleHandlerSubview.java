@@ -41,6 +41,11 @@ public class ConsoleHandlerSubview extends AbstractHandlerSubview<ConsoleHandler
     }
 
     @Override
+    public String getManagementModelType() {
+        return "console-handler";
+    }
+
+    @Override
     protected String provideDescription() {
         return Console.CONSTANTS.subsys_logging_consoleHandlers_desc();
     }

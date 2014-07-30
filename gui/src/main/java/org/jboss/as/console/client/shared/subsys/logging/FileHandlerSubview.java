@@ -39,6 +39,11 @@ public class FileHandlerSubview extends AbstractFileHandlerSubview<FileHandler> 
     }
 
     @Override
+    public String getManagementModelType() {
+        return "file-handler";
+    }
+
+    @Override
     protected String getEntityDisplayName() {
         return Console.CONSTANTS.subsys_logging_fileHandlers();
     }

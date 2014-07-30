@@ -56,6 +56,11 @@ public class AsyncHandlerSubview extends AbstractHandlerSubview<AsyncHandler>
     }
 
     @Override
+    public String getManagementModelType() {
+        return "async-handler";
+    }
+
+    @Override
     protected String provideDescription() {
         return Console.CONSTANTS.subsys_logging_asyncHandlers_desc();
     }
