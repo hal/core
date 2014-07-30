@@ -91,7 +91,7 @@
         <maven.min.version>3.1.0</maven.min.version>
         <ace.version>1.0.0-jboss-1</ace.version>
         <ballroom.version>2.1.0-SNAPSHOT</ballroom.version>
-        <circuit.version>0.0.5</circuit.version>
+        <circuit.version>0.0.7</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
         <gwt.version>2.6.1</gwt.version>
@@ -99,7 +99,7 @@
         <gwt.maven>2.6.1</gwt.maven>
         <gwt-log.version>3.2.1</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
-        <jgrapht.version>0.9.1-hal</jgrapht.version>
+        <jgrapht.version>0.9.2-hal</jgrapht.version>
         <junit.version>4.11</junit.version>
         <protovis.version>0.4.1</protovis.version>
         <csp.plugin.version>1.0.0-SNAPSHOT</csp.plugin.version>
