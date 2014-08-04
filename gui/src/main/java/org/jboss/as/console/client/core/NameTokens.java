@@ -46,6 +46,7 @@ public class NameTokens {
     public static final String JndiPresenter = "naming";
     public static final String LocalCachePresenter = "local-cache";
     public static final String Logger = "logging";
+    public static final String LogViewer = "logviewer";
     public static final String LogHandler = "log-handler";
     public static final String ScannerPresenter = "deployment-scanner";
     public static final String MessagingPresenter = "messaging";

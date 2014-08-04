@@ -13,8 +13,8 @@ import org.jboss.gwt.flow.client.Function;
  */
 public class StoreAdapterInit implements Function<BootstrapContext> {
 
-
     public StoreAdapterInit() {
+        Console.MODULES.getLogStoreAdapter();
         Console.MODULES.getHostStoreAdapter();
         Console.MODULES.getServerStoreAdapter();
     }

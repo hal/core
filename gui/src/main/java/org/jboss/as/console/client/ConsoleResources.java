@@ -37,5 +37,11 @@ public interface ConsoleResources extends ClientBundle {
 
     @Source("org/jboss/as/console/public/mousetrap.js")
     TextResource mousetrapJs();
+
+    @Source("org/jboss/as/console/public/ace.js")
+    TextResource aceJs();
+
+    @Source("org/jboss/as/console/public/ace-theme.js")
+    TextResource aceThemeJs();
 }
 

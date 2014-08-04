@@ -96,6 +96,10 @@ import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricView;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricsView;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogStore;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogStoreAdapter;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogViewerPresenter;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogViewerView;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiView;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
@@ -433,6 +437,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LoggingView.class,
                 LoggingPresenter.MyProxy.class);
 
+        bindPresenter(LogViewerPresenter.class,
+                LogViewerPresenter.MyView.class,
+                LogViewerView.class,
+                LogViewerPresenter.MyProxy.class);
+
         bind(HandlerListManager.class).in(Singleton.class);
 
         bindPresenter(ScannerPresenter.class,
@@ -680,6 +689,9 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // circuit wiring
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
+
+        bind(LogStore.class).in(Singleton.class);
+        bind(LogStoreAdapter.class).in(Singleton.class);
 
         bind(HostStore.class).in(Singleton.class);
         bind(HostStoreAdapter.class).in(Singleton.class);

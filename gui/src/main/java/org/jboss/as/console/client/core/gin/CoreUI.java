@@ -84,6 +84,9 @@ import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogStore;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogStoreAdapter;
+import org.jboss.as.console.client.shared.runtime.logviewer.LogViewerPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXMetricPresenter;
@@ -263,6 +266,8 @@ public interface CoreUI {
     AsyncProvider<MsgClusteringPresenter> getMsgClusteringPresenter();
 
     AsyncProvider<LoggingPresenter> getLoggingPresenter();
+    AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
+
     HandlerListManager getHandlerListManager();
 
     AsyncProvider<ScannerPresenter> getScannerPresenter();
@@ -360,6 +365,9 @@ public interface CoreUI {
     AsyncProvider<NoServerPresenter> getNoServerPresenter();
 
     Dispatcher getCircuitDispatcher();
+
+    LogStore getLogStore();
+    LogStoreAdapter getLogStoreAdapter();
 
     HostStore getHostStore();
     HostStoreAdapter getHostStoreAdapter();

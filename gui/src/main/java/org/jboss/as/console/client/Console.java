@@ -108,6 +108,12 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         else
             ConsoleResources.INSTANCE.productStyles().ensureInjected();
 
+        // AceEditor
+        ScriptInjector.fromString(ConsoleResources.INSTANCE.aceJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
+                .inject();
+        ScriptInjector.fromString(ConsoleResources.INSTANCE.aceThemeJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
+                .inject();
+
         // inject pretty print resources
         ConsoleResources.INSTANCE.prettifyCss().ensureInjected();
         ScriptInjector.fromString(ConsoleResources.INSTANCE.prettifyJs().getText()).setWindow(ScriptInjector.TOP_WINDOW)
