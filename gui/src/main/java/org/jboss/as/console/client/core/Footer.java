@@ -82,9 +82,9 @@ public class Footer {
         final PopupPanel toolsPopup = new DefaultPopup(DefaultPopup.Arrow.BOTTOM);
         final List<String[]> toolReference = new ArrayList<String[]>();
 
-        if(context.isSuperUser()) {
-            toolReference.add(new String[]{"Management Model", "browser"});
-        }
+
+        toolReference.add(new String[]{"Management Model", "browser"});
+
 
         toolReference.add(new String[]{"Expression Resolver", "expressions"});
         if (diagnostics.isEnabled()) {

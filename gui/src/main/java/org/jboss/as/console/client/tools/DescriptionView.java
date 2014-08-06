@@ -1,14 +1,19 @@
 package org.jboss.as.console.client.tools;
 
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.as.console.client.shared.util.LRUCache;
 import org.jboss.as.console.client.tools.mapping.DescriptionMapper;
 import org.jboss.as.console.client.tools.mapping.RequestParameter;
 import org.jboss.as.console.client.tools.mapping.ResponseParameter;
+import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
@@ -21,25 +26,14 @@ public class DescriptionView {
 
     private HTML attributes;
     private HTML operations;
-    private HTML children;
+    //private HTML children;
     //private HTML header;
+
+    private LRUCache<String, SafeHtml[]> widgetCache = new LRUCache<String, SafeHtml[]>(10);
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
-        layout.getElement().setAttribute("style", "padding:15px");
-
-        DisclosurePanel attributePanel = new DisclosurePanel("Attributes");
-        attributePanel.setStyleName("fill-layout-width");
-        DisclosurePanel operationsPanel = new DisclosurePanel("Operations");
-        operationsPanel.setStyleName("fill-layout-width");
-        DisclosurePanel childrenPanel = new DisclosurePanel("Children");
-        childrenPanel.setStyleName("fill-layout-width");
-
-
-        /*header = new HTML();
-        header.setStyleName("fill-layout");
-        header.getElement().setAttribute("style", "padding:10px");*/
 
         attributes = new HTML();
         attributes.setStyleName("fill-layout");
@@ -49,145 +43,161 @@ public class DescriptionView {
         operations.setStyleName("fill-layout");
         operations.getElement().setAttribute("style", "padding:10px");
 
-        children = new HTML();
-        children.setStyleName("fill-layout");
-        children.getElement().setAttribute("style", "padding:10px");
+        final ToggleButton toggleAttributes = new ToggleButton("Attributes", "Attributes");
+        final ToggleButton toggleOperations= new ToggleButton("Operations", "Operations");
 
+        toggleAttributes.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                Boolean isDown = event.getValue();
+                toggleOperations.setDown(!isDown);
+                attributes.setVisible(isDown);
+                operations.setVisible(!isDown);
+            }
+        });
 
-        VerticalPanel inner = new VerticalPanel();
-        inner.setStyleName("fill-layout-width");
+        toggleOperations.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Boolean> event) {
+                Boolean isDown = event.getValue();
+                toggleAttributes.setDown(!isDown);
+                operations.setVisible(isDown);
+                attributes.setVisible(!isDown);
+            }
+        });
 
-        attributePanel.add(attributes);
-        operationsPanel.add(operations);
-        childrenPanel.add(children);
+        toggleAttributes.setDown(true);
+        toggleOperations.setDown(false);
+        operations.setVisible(false);
 
-        //inner.add(header);
+        HorizontalPanel tools = new HorizontalPanel();
+        tools.add(toggleAttributes);
+        tools.add(toggleOperations);
+        layout.add(tools);
+        tools.getElement().setAttribute("align", "center");
 
+        layout.add(attributes);
+        layout.add(operations);
 
-        SafeHtmlBuilder helpText = new SafeHtmlBuilder();
-        helpText.appendHtmlConstant("<ul>");
-        helpText.appendHtmlConstant("<li>").appendEscaped("(*): Required attribute");
-        helpText.appendHtmlConstant("<li>").appendEscaped("+expression: Expressions are supported");
-        helpText.appendHtmlConstant("<li>").appendEscaped("runtime: Runtime value");
-        helpText.appendHtmlConstant("</ul>");
-        StaticHelpPanel help = new StaticHelpPanel(helpText.toSafeHtml());
-        inner.add(help.asWidget());
-
-        inner.add(attributePanel);
-        inner.add(operationsPanel);
-        inner.add(childrenPanel);
-
-        attributePanel.setOpen(true);
-
-        layout.add(inner);
         return layout;
     }
 
     public void updateDescription(ModelNode address, ModelNode description)
     {
-        /* SafeHtmlBuilder builder = new SafeHtmlBuilder();
 
-        final List<Property> path = address.asPropertyList();
-        StringBuffer sb = new StringBuffer();
-        for(Property p : path)
+        String cacheKey = AddressUtils.asKey(address, true);
+        if(widgetCache.containsKey(cacheKey))
         {
-            sb.append("/").append(p.getName()).append("=").append(p.getValue().asString());
+            SafeHtml[] panels = widgetCache.get(cacheKey);
+            attributes.setHTML(panels[0]);
+            operations.setHTML(panels[1]);
+        }
+        else
+        {
+            createDescriptionPanel(address, description);
         }
 
-        builder.appendHtmlConstant("<h1 class='doc-address'>")
-                .appendEscaped(sb.toString())
-                .appendHtmlConstant("</h1>");
+    }
 
-        builder.appendHtmlConstant("<p class='content-description'>")
-                .appendEscaped(description.get("description").asString())
-                .appendHtmlConstant("</p>");
-
-        header.setHTML(builder.toSafeHtml());*/
-
-
+    private void createDescriptionPanel(final ModelNode address, ModelNode description) {
         DescriptionMapper mapper = new DescriptionMapper(address, description);
 
+
         mapper.map(new DescriptionMapper.Mapping() {
+
+            int numOps = 0;
+            int numAttributes = 0;
 
             SafeHtmlBuilder attributeBuilder = new SafeHtmlBuilder();
             SafeHtmlBuilder operationsBuilder = new SafeHtmlBuilder();
             SafeHtmlBuilder childrenBuilder = new SafeHtmlBuilder();
 
             @Override
-            public void onAttribute(String name, String description, String type, boolean required, boolean expressions, boolean runtime) {
+            public void onAttribute(
+                    String name, String description, String type,
+                    boolean required, boolean expressions,
+                    boolean runtime, boolean readOnly, String deprecationReason) {
 
                 attributeBuilder.appendHtmlConstant("<tr valign=top>");
                 attributeBuilder.appendHtmlConstant("<td class='doc-attribute'>");
-                attributeBuilder.appendEscaped(name);
+
+                if (deprecationReason != null)
+                    attributeBuilder.appendHtmlConstant("<div style='text-decoration:line-through;font-weight: normal;'>").appendEscaped(name).appendHtmlConstant("</div>");
+                else
+                    attributeBuilder.appendEscaped(name);
+
+                String requiredSuffix = (required && !readOnly) ? " <span style='color:#B8B8B8;font-size:10px'>(required)</span>" : "";
+                attributeBuilder.appendHtmlConstant(requiredSuffix);
                 attributeBuilder.appendHtmlConstant("</td>");
 
                 attributeBuilder.appendHtmlConstant("<td>");
                 attributeBuilder.appendEscaped(type);
-                String requiredSuffix = required ? " (*)" : "";
-                attributeBuilder.appendEscaped(requiredSuffix);
                 attributeBuilder.appendHtmlConstant("</td>");
                 attributeBuilder.appendHtmlConstant("</tr>");
 
-                attributeBuilder.appendHtmlConstant("<tr class='doc-table-description'>");
-                attributeBuilder.appendHtmlConstant("<td width=70%>").appendEscaped(description).appendHtmlConstant("</td>");
-                attributeBuilder.appendHtmlConstant("<td width=30% style='color:#cccccc'>");
-                String expressionSuffix = expressions? " +expression" : "";
-                attributeBuilder.appendEscaped(expressionSuffix);
-                String runtimeSuffix = runtime? " runtime" : "";
-                attributeBuilder.appendEscaped(runtimeSuffix);
+                attributeBuilder.appendHtmlConstant("<tr class='doc-table-description' valign=top>");
+                attributeBuilder.appendHtmlConstant("<td width=60%>");
+
+                if (deprecationReason != null) {
+                    attributeBuilder.appendHtmlConstant("<b>Deprecated: </b>");
+                    attributeBuilder.appendEscaped(deprecationReason);
+                } else {
+                    attributeBuilder.appendEscaped(description);
+                }
+                attributeBuilder.appendHtmlConstant("</td>");
+                attributeBuilder.appendHtmlConstant("<td width=40% style='color:#B8B8B8'>");
+
+                String expressionSuffix = expressions ? " expression<br/>" : "";
+                attributeBuilder.appendHtmlConstant(expressionSuffix);
+
+                String runtimeSuffix = runtime ? " runtime<br/>" : "";
+                attributeBuilder.appendHtmlConstant(runtimeSuffix);
+
+                String readOnlySuffix = readOnly ? " read-only<br/>" : "";
+                attributeBuilder.appendHtmlConstant(readOnlySuffix);
+
                 attributeBuilder.appendHtmlConstant("</td>");
                 attributeBuilder.appendHtmlConstant("</tr>");
+
+                numAttributes++;
 
             }
 
             @Override
-            public void onOperation(String name, String description, List<RequestParameter> parameter, ResponseParameter response) {
+            public void onOperation(
+                    String name, String description,
+                    List<RequestParameter> parameter, ResponseParameter response,
+                    boolean isDefault) {
 
-                operationsBuilder.appendHtmlConstant("<tr valign=top>");
-                operationsBuilder.appendHtmlConstant("<td width=70%>");
+                String css = isDefault ? "doc-table-description muted" : "doc-table-description";
+                operationsBuilder.appendHtmlConstant("<tr valign=top class='" + css + "'>");
+                operationsBuilder.appendHtmlConstant("<td width=60%>");
                 operationsBuilder.appendHtmlConstant("<span class='doc-attribute' style='margin-bottom:10px'>");
                 operationsBuilder.appendEscaped(name).appendHtmlConstant("<br/>");
                 operationsBuilder.appendHtmlConstant("</span>");
                 operationsBuilder.appendEscaped(description);
                 operationsBuilder.appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("<td width=30%>");
+                operationsBuilder.appendHtmlConstant("<td width=40%>");
 
                 // -- inner
 
-                operationsBuilder.appendHtmlConstant("<table border=0>");
-                operationsBuilder.appendHtmlConstant("<tr valign=top>");
-                operationsBuilder.appendHtmlConstant("<td class='doc-attribute'>");
-                operationsBuilder.appendHtmlConstant("Parameter:");
-                operationsBuilder.appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("</tr>");
+                if (parameter.size() > 0)
+                    operationsBuilder.appendHtmlConstant("<b>Input</b>:<br/>");
+
                 // parameters
-                for(RequestParameter param : parameter)
-                {
-                    operationsBuilder.appendHtmlConstant("<tr valign=top>");
-                    operationsBuilder.appendHtmlConstant("<td style='white-space:nowrap'>");
+                for (RequestParameter param : parameter) {
+                    boolean required = param.isRequired();
                     operationsBuilder.appendEscaped(param.getParamName()).appendEscaped(": ");
                     operationsBuilder.appendEscaped(param.getParamType());
-                    String required = param.isRequired() ? " (*)" : "";
-                    operationsBuilder.appendEscaped(required);
-                    operationsBuilder.appendHtmlConstant("</td>");
-                    operationsBuilder.appendHtmlConstant("</tr>");
+                    String requiredSuffix = (required) ? " <span style='color:#B8B8B8;font-size:10px'>(required)</span>" : "";
+                    operationsBuilder.appendHtmlConstant(requiredSuffix);
+                    operationsBuilder.appendHtmlConstant("<br/>");
                 }
 
-                operationsBuilder.appendHtmlConstant("<tr valign=top>");
-                operationsBuilder.appendHtmlConstant("<td class='doc-attribute'>");
-                operationsBuilder.appendHtmlConstant("Response:");
-                operationsBuilder.appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("</tr>");
+                String responseTitle = !"".equals(response.getReplyType()) ? "<br/><b>Output:</b><br/>" : "";
+                operationsBuilder.appendHtmlConstant(responseTitle);
 
-                operationsBuilder.appendHtmlConstant("<tr valign=top>");
-                operationsBuilder.appendHtmlConstant("<td style='white-space:wrap'>");
-                //operationsBuilder.appendEscaped(response.getReplyDesc()).appendEscaped(" ");
                 operationsBuilder.appendEscaped(response.getReplyType());
-                operationsBuilder.appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("</tr>");
-
-
-                operationsBuilder.appendHtmlConstant("</table>");
 
 
                 // -- end inner
@@ -195,12 +205,7 @@ public class DescriptionView {
                 operationsBuilder.appendHtmlConstant("</td>");
                 operationsBuilder.appendHtmlConstant("</tr>");
 
-              /*  operationsBuilder.appendHtmlConstant("<tr class='doc-table-description'>");
-                operationsBuilder.appendHtmlConstant("<td width=70%>").appendEscaped(description).appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("<td width=30%>").appendHtmlConstant("</td>");
-                operationsBuilder.appendHtmlConstant("</tr>");
-                */
-
+                numOps++;
 
             }
 
@@ -222,26 +227,54 @@ public class DescriptionView {
             }
 
             @Override
-            public void onBegin() {
+            public void onBegin(int numAttributes, int numOperations) {
+                attributeBuilder.appendHtmlConstant("<h2 class='homepage-secondary-header' id='attributes.header'>Attributes (" + numAttributes + ")</h2>");
                 attributeBuilder.appendHtmlConstant("<table class='doc-table' cellpadding=5>");
+
+                operationsBuilder.appendHtmlConstant("<h2 class='homepage-secondary-header' id='attributes.header'>Operations (" + numOperations + ")</h2>");
                 operationsBuilder.appendHtmlConstant("<table class='doc-table' cellpadding=5>");
+
                 childrenBuilder.appendHtmlConstant("<table class='doc-table' cellpadding=5>");
             }
 
             @Override
             public void onFinish() {
+
+
+                if (0 == numOps) {
+                    operationsBuilder.appendHtmlConstant("<tr valign=top class='doc-table-description'>");
+                    operationsBuilder.appendHtmlConstant("<td colspan=2 width=100% style='vertical-align:center'>");
+                    operationsBuilder.appendEscaped("No operations found.").appendHtmlConstant("<br/>");
+                    operationsBuilder.appendHtmlConstant("</td>");
+                    operationsBuilder.appendHtmlConstant("</tr>");
+                }
+
+                if (0 == numAttributes) {
+                    attributeBuilder.appendHtmlConstant("<tr valign=top class='doc-table-description'>");
+                    attributeBuilder.appendHtmlConstant("<td colspan=2 width=100% style='vertical-align:center'>");
+                    attributeBuilder.appendEscaped("No attributes found.").appendHtmlConstant("<br/>");
+                    attributeBuilder.appendHtmlConstant("</td>");
+                    attributeBuilder.appendHtmlConstant("</tr>");
+                }
+
+                SafeHtml attPanel = attributeBuilder.toSafeHtml();
+                SafeHtml opPanel = operationsBuilder.toSafeHtml();
+
+                // caching
+                String cacheKey = AddressUtils.asKey(address, true);
+                widgetCache.put(cacheKey, new SafeHtml[] {attPanel, opPanel});
+
                 attributeBuilder.appendHtmlConstant("</table>");
-                attributes.setHTML(attributeBuilder.toSafeHtml());
+                attributes.setHTML(attPanel);
 
                 operationsBuilder.appendHtmlConstant("</table>");
-                operations.setHTML(operationsBuilder.toSafeHtml());
+                operations.setHTML(opPanel);
 
                 childrenBuilder.appendHtmlConstant("</table>");
-                children.setHTML(childrenBuilder.toSafeHtml());
+
 
             }
         });
-
     }
 
     public DescriptionView() {
@@ -251,7 +284,5 @@ public class DescriptionView {
     public void clearDisplay() {
         attributes.setHTML("");
         operations.setHTML("");
-        children.setHTML("");
-        //header.setHTML("");
     }
 }

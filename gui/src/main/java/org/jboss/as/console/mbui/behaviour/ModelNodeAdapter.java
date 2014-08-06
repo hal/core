@@ -34,11 +34,15 @@ public class ModelNodeAdapter {
     {
 
         ModelNode define = new ModelNode();
-        define.get(ADDRESS).set(address.get(ADDRESS));
+
+        ModelNode actualAddress = address.hasDefined(ADDRESS) ? address.get(ADDRESS) : address;
+
+        define.get(ADDRESS).set(actualAddress);
+
         define.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
 
         ModelNode undefine = new ModelNode();
-        undefine.get(ADDRESS).set(address.get(ADDRESS));
+        undefine.get(ADDRESS).set(actualAddress);
         undefine.get(OP).set(UNDEFINE_ATTRIBUTE);
 
         ModelNode operation = new ModelNode();
@@ -119,6 +123,13 @@ public class ModelNodeAdapter {
         else if (Float.class == type)
         {
             nodeToSetValueUpon.set((Float)value);
+        }
+        else if (ArrayList.class == type)
+        {
+            nodeToSetValueUpon.clear();
+            List l = (List)value;
+            for(Object o : l)
+                nodeToSetValueUpon.add(o.toString()); // TODO: type conversion ?
         }
         else
         {

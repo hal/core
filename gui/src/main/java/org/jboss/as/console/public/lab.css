@@ -79,3 +79,107 @@
 }
 
 
+.browser-tree * .gwt-TreeItem {
+    background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
+    border-bottom: 1px solid rgba(0, 0, 0, 0) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0) !important;
+    margin-bottom: 0;
+    padding-right: 10px;
+    padding-left: 4px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.browser-tree  * .gwt-TreeItem:hover {
+    background: none repeat scroll 0 0 #D4EDFA !important;
+    border-color: #B3D3E7 !important;
+    color:#4E5255!important;
+}
+
+.browser-tree * .gwt-TreeItem-selected {
+    background: none repeat scroll 0 0 #477EAF !important;
+    border-color: #0076B7 !important;
+    color: #FFFFFF !important;
+
+}
+
+.browser-tree * .gwt-TreeItem-selected:hover {
+    /*background: none repeat scroll 0 0 #0099D3 !important;*/
+    background: none repeat scroll 0 0 #477EAF !important;
+    border-color: #0076B7 !important;
+    color: #FFFFFF !important;
+}
+
+.split-west * hr {
+    background-color: #DCDCDC;
+    border: 0 none;
+    height: 1px;
+    margin-top: 18px;
+    width: 80%;
+}
+
+.gwt-ToggleButton {
+    display: inherit;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 5px 10px;
+    cursor:pointer;
+    border: 1px solid #ADADAD;
+    color: #333333;
+}
+
+.gwt-ToggleButton-up-disabled, .gwt-ToggleButton-down-disabled {
+    color:#cccccc;
+    text-decoration: line-through;
+    border:1px solid #DCDCDC;
+}
+
+.gwt-ToggleButton-up, .gwt-ToggleButton-up-hovering {
+    background-color: #ffffff;
+}
+
+.gwt-ToggleButton-down, .gwt-ToggleButton-down-hovering {
+    background-color: #EBEBEB;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
+}
+
+.doc-table {
+    border:none!important;
+    margin-left: 0px!important;
+    margin-right: 0px!important;
+    width: 100%!important;
+}
+
+.node-header {
+    color: #4D5258;
+    font-family: "Lucida Sans Unicode","Lucida Grande",sans-serif;
+    font-size: 20px !important;
+    font-weight: 300;
+}
+
+
+.node-header * td {
+    color: #4D5258;
+    font-family: "Lucida Sans Unicode","Lucida Grande",sans-serif;
+    font-size: 20px !important;
+    font-weight: 300;
+}
+
+.node-header-link {
+    color: #477EAF;
+    font-family: "Lucida Sans Unicode","Lucida Grande",sans-serif;
+}
+
+.rhs-content-panel {
+    padding: 15px!important;
+}
+
+.browser-view .form-view-panel, .browser-view .form-edit-panel {
+    background: none!important;
+}
+
+.browser-view-nav {
+    padding:10px;
+    margin-bottom:100px;
+}

@@ -5,8 +5,10 @@ import org.jboss.dmr.client.Property;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -17,134 +19,163 @@ public class DescriptionMapper {
     private ModelNode description;
     private ModelNode address;
 
+    private final static Set<String> DEFAULT_OPS = new HashSet<String>();
+
+    static {
+        DEFAULT_OPS.add("whoami");
+        DEFAULT_OPS.add("read-children-names");
+        DEFAULT_OPS.add("read-operation-description");
+        DEFAULT_OPS.add("read-operation-names");
+        DEFAULT_OPS.add("read-children-types");
+        DEFAULT_OPS.add("read-children-resources");
+        DEFAULT_OPS.add("read-resource-description");
+        DEFAULT_OPS.add("read-resource");
+        DEFAULT_OPS.add("read-resource-description");
+        DEFAULT_OPS.add("read-attribute");
+        DEFAULT_OPS.add("write-attribute");
+        DEFAULT_OPS.add("undefine-attribute");
+    }
+
     public DescriptionMapper(ModelNode address, ModelNode description) {
         this.address = address;
         this.description = description;
     }
 
     public interface Mapping {
-        void onAttribute(String name, String description, String type, boolean required, boolean expressions, boolean runtime);
-        void onOperation(String name, String description, List<RequestParameter> parameter, ResponseParameter response);
-        void onChild(String name, String description);
+        void onAttribute(String name, String description, String type, boolean required, boolean expressions, boolean runtime, boolean readOnly, String deprecationReason);
+        void onOperation(String name, String description, List<RequestParameter> parameter, ResponseParameter response, boolean isDefault);
 
-        void onBegin();
+        void onChild(String name, String description);
+        void onBegin(int numAttributes, int numOperations);
+
         void onFinish();
     }
 
     public void map(Mapping mapping) {
 
-        mapping.onBegin();
+        final List<Property> attributes = description.get("attributes").asPropertyList();
+        final List<Property> operations = description.get("operations").asPropertyList();
 
-        if(description.hasDefined("attributes"))
+        mapping.onBegin(attributes.size(), operations.size());
+
+        // ---
+
+        Collections.sort(attributes, new Comparator<Property>() {
+            @Override
+            public int compare(Property property, Property property1) {
+                return property.getName().compareTo(property1.getName());
+            }
+        });
+
+        if(!attributes.isEmpty())
         {
 
-            final List<Property> properties = description.get("attributes").asPropertyList();
-
-            Collections.sort(properties, new Comparator<Property>() {
-                @Override
-                public int compare(Property property, Property property1) {
-                    return property.getName().compareTo(property1.getName());
-                }
-            });
-
-            if(!properties.isEmpty())
+            for(Property att : attributes)
             {
+                final String name = att.getName();
+                final ModelNode attrValue = att.getValue();
 
-                for(Property att : properties)
-                {
-                    final String name = att.getName();
-                    final String description = att.getValue().get("description").asString();
-                    final String type = att.getValue().get("type").asString();
+                final String description = attrValue.get("description").asString();
+                final String type = attrValue.get("type").asString();
 
-                    final boolean required = att.getValue().hasDefined("required") ?
-                            att.getValue().get("required").asBoolean() : false;
+                final boolean required = attrValue.hasDefined("required") ?
+                        attrValue.get("required").asBoolean() : false;
 
-                    final boolean nillable = att.getValue().hasDefined("nillable") ?
-                            att.getValue().get("nillable").asBoolean() : true;
+                final boolean nillable = attrValue.hasDefined("nillable") ?
+                        attrValue.get("nillable").asBoolean() : true;
 
 
-                    final boolean expressions = att.getValue().hasDefined("expressions-allowed") ?
-                                                att.getValue().get("expressions-allowed").asBoolean() : false;
+                final boolean expressions = attrValue.hasDefined("expressions-allowed") ?
+                        attrValue.get("expressions-allowed").asBoolean() : false;
 
-                    final boolean runtime = att.getValue().hasDefined("storage") ?
-                                                                   att.getValue().get("storage").asString().equals("runtime"): false;
+                final boolean runtime = attrValue.hasDefined("storage") ?
+                        attrValue.get("storage").asString().equals("runtime"): false;
 
-                    mapping.onAttribute(name, description, type, (!nillable||required), expressions,runtime);
-                }
+                final boolean readOnly = attrValue.hasDefined("access-type") ?
+                        attrValue.get("access-type").asString().equals("read-only"): false;
 
+                final String deprecationReason = attrValue.hasDefined("deprecated") ?
+                        attrValue.get("deprecated").get("reason").asString() : null;
+
+                mapping.onAttribute(name, description, type, (!nillable||required), expressions,runtime, readOnly, deprecationReason);
             }
+
         }
 
+        // -----------------
 
-        if(description.hasDefined("operations"))
+
+        Collections.sort(operations, new Comparator<Property>() {
+            @Override
+            public int compare(Property property, Property property1) {
+                return property.getName().compareTo(property1.getName());
+            }
+        });
+
+        if(!operations.isEmpty())
         {
 
-            final List<Property> operations = description.get("operations").asPropertyList();
-
-            if(!operations.isEmpty())
+            for(Property op : operations)
             {
+                final String opName = op.getName();
+                final String opDesc = op.getValue().get("description").asString();
 
-                for(Property op : operations)
+                boolean isDefaultOp = DEFAULT_OPS.contains(opName);
+
+                List<RequestParameter> parameters = new LinkedList<RequestParameter>();
+                ResponseParameter response = null;
+
+                // parameters
+                if(op.getValue().hasDefined("request-properties"))
                 {
-                    final String opName = op.getName();
-                    final String opDesc = op.getValue().get("description").asString();
-
-
-                    List<RequestParameter> parameters = new LinkedList<RequestParameter>();
-                    ResponseParameter response = null;
-
-                    // parameters
-                    if(op.getValue().hasDefined("request-properties"))
+                    for(Property param : op.getValue().get("request-properties").asPropertyList())
                     {
-                        for(Property param : op.getValue().get("request-properties").asPropertyList())
+                        final ModelNode value = param.getValue();
+                        final String paramDesc = value.get("description").asString();
+                        final String paramName = param.getName();
+                        final String paramType = value.get("type").asString();
+                        boolean required = false;
+                        if(value.hasDefined("required"))
                         {
-                            final ModelNode value = param.getValue();
-                            final String paramDesc = value.get("description").asString();
-                            final String paramName = param.getName();
-                            final String paramType = value.get("type").asString();
-                            boolean required = false;
-                            if(value.hasDefined("required"))
-                            {
-                                required = value.get("required").asBoolean();
-                            }
-
-                            parameters.add(
-                                    new RequestParameter(
-                                            paramDesc, paramName, paramType, required
-                                    )
-                            );
+                            required = value.get("required").asBoolean();
                         }
+
+                        parameters.add(
+                                new RequestParameter(
+                                        paramDesc, paramName, paramType, required
+                                )
+                        );
                     }
-
-                    // response
-                    if(op.getValue().hasDefined("reply-properties"))
-                    {
-                        final ModelNode reply = op.getValue().get("reply-properties");
-                        final String replyDesc = reply.get("description").isDefined() ? reply.get("description").asString() : "";
-                        final String replyType = reply.get("type").isDefined() ? reply.get("type").asString() : "";
-
-                        response = new ResponseParameter(replyDesc, replyType);
-                    }
-                    else
-                    {
-                        response = new ResponseParameter("", "");
-                    }
-
-
-                    // sort order
-                    Collections.sort(parameters, new Comparator<RequestParameter>() {
-                        @Override
-                        public int compare(RequestParameter requestParameter, RequestParameter requestParameter1) {
-                            return requestParameter.getParamName().compareTo(requestParameter1.getParamName());
-                        }
-                    });
-
-
-                    mapping.onOperation(opName, opDesc, parameters, response);
                 }
 
+                // response
+                if(op.getValue().hasDefined("reply-properties"))
+                {
+                    final ModelNode reply = op.getValue().get("reply-properties");
+                    final String replyDesc = reply.get("description").isDefined() ? reply.get("description").asString() : "";
+                    final String replyType = reply.get("type").isDefined() ? reply.get("type").asString() : "";
+
+                    response = new ResponseParameter(replyDesc, replyType);
+                }
+                else
+                {
+                    response = new ResponseParameter("", "");
+                }
+
+
+                // sort order
+                Collections.sort(parameters, new Comparator<RequestParameter>() {
+                    @Override
+                    public int compare(RequestParameter requestParameter, RequestParameter requestParameter1) {
+                        return requestParameter.getParamName().compareTo(requestParameter1.getParamName());
+                    }
+                });
+
+                mapping.onOperation(opName, opDesc, parameters, response, isDefaultOp);
             }
+
         }
+
 
         if(description.hasDefined("children"))
         {
@@ -162,6 +193,8 @@ public class DescriptionMapper {
 
             }
         }
+
+
 
         mapping.onFinish();
     }
