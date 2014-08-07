@@ -85,18 +85,18 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
     @Inject
     public ToplevelTabs(final BootstrapContext bootstrapContext) {
         tabs = new LinkedList<Config>();
-        tabs.add(new Config(NameTokens.HomepagePresenter, "<i class='icon-home'></i> Home", true));
+        tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
-            tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "<i class='icon-suitcase'></i> Deployments", false));
-            tabs.add(new Config(NameTokens.serverConfig, "<i class='icon-gears'></i> Configuration", false));
-            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "<i class='icon-bar-chart'></i> Runtime", false));
+            tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "Deployments", false));
+            tabs.add(new Config(NameTokens.serverConfig, "Configuration", false));
+            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
         } else {
-            tabs.add(new Config(NameTokens.DeploymentsPresenter, "<i class='icon-suitcase'></i> Deployments", false));
-            tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "<i class='icon-gears'></i> Configuration", false));
-            tabs.add(new Config(NameTokens.HostMgmtPresenter, "<i class='icon-sitemap'></i> Domain", false));
-            tabs.add(new Config(NameTokens.DomainRuntimePresenter, "<i class='icon-bar-chart'></i> Runtime", false));
+            tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", false));
+            tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "Configuration", false));
+            tabs.add(new Config(NameTokens.HostMgmtPresenter, "Domain", false));
+            tabs.add(new Config(NameTokens.DomainRuntimePresenter, "Runtime", false));
         }
-        tabs.add(new Config(NameTokens.AdministrationPresenter, "<i class='icon-shield'></i> Administration", false));
+        tabs.add(new Config(NameTokens.AdministrationPresenter, "Administration", false));
     }
 
     @Override
