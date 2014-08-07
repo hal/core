@@ -7,6 +7,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -150,8 +151,9 @@ public class HostStore extends ChangeSupport {
 
             ModelNode op = new ModelNode();
             op.get(ADDRESS).add("host", hostName);
-            op.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+            op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
             op.get(CHILD_TYPE).set("server");
+            op.get(INCLUDE_RUNTIME).set(true);
 
             dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                 @Override
@@ -168,11 +170,12 @@ public class HostStore extends ChangeSupport {
                         // can happen when no server instances are running
                         control.proceed();
                     } else {
-                        List<ModelNode> items = response.get(RESULT).asList();
+                        List<Property> servers = response.get(RESULT).asPropertyList();
 
-                        for (ModelNode item : items) {
-                            String serverName = item.asString();
-                            control.getContext().addServer(hostName, serverName);
+                        for(Property server : servers)
+                        {
+                            if(server.getValue().get("server-state").asString().equalsIgnoreCase("running"))
+                                control.getContext().addServer(hostName, server.getName());
                         }
 
                         control.proceed();
