@@ -55,7 +55,7 @@ public class SearchTool extends Composite {
         });
         this.popup = new SearchPopup(harvest, index, placeManager);
 
-        GlobalShortcuts.bind("mod+.", new Command() {
+        GlobalShortcuts.bind("mod+2", new Command() {
             @Override
             public void execute() {
                 showPopup();

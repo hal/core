@@ -23,6 +23,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.layout.client.Layout;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -34,6 +35,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.bootstrap.GlobalShortcuts;
 import org.jboss.as.console.client.v3.stores.DiagnosticsView;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
@@ -84,7 +86,14 @@ public class Footer {
 
 
         toolReference.add(new String[]{"Management Model", "browser"});
-
+        GlobalShortcuts.bind("mod+1", new Command() {
+            @Override
+            public void execute() {
+                placeManager.revealPlace(
+                        new PlaceRequest.Builder().nameToken(NameTokens.ToolsPresenter).with("name", "browser")
+                                .build());
+            }
+        });
 
         toolReference.add(new String[]{"Expression Resolver", "expressions"});
         if (diagnostics.isEnabled()) {
