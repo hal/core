@@ -82,7 +82,7 @@ public class ModelNodeFormBuilder {
     {
 
         // pre-requisite
-        if(!modelDescription.hasDefined("operations"))
+        if(createMode && !modelDescription.hasDefined("operations"))
         {
             throw new IllegalStateException("Operation descriptions not defined");
         }
