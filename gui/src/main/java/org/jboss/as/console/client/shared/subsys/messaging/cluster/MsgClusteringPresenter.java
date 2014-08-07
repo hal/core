@@ -27,6 +27,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvid
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -72,6 +73,9 @@ public class MsgClusteringPresenter
     @AccessControl(resources = {
             "{selected.profile}/subsystem=messaging/hornetq-server=*"
     })
+    @SearchIndex(keywords = {
+               "jms", "messaging", "cluster", "broadcast", "discovery"
+       })
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
     }
 

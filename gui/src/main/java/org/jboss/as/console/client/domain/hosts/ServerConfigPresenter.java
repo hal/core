@@ -63,6 +63,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -110,6 +111,9 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
             "/{selected.host}/server-config=*",
             "opt://{selected.host}/server-config=*/system-property=*"
     }, recursive = false)
+    @SearchIndex(keywords = {
+            "server", "server-config", "jvm", "socket-binding"
+    })
     public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
 
 

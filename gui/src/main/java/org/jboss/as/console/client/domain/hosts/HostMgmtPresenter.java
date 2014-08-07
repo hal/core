@@ -45,6 +45,7 @@ import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -67,6 +68,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
     @UseGatekeeper(HostManagementGatekeeper.class)
+    @SearchIndex(keywords = {
+            "host", "jvm"
+    })
     public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
     }
 

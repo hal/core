@@ -30,6 +30,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
@@ -43,6 +44,9 @@ public class JacOrbPresenter extends Presenter<JacOrbPresenter.MyView, JacOrbPre
     @NameToken(NameTokens.JacOrbPresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=jacorb"
+    })
+    @SearchIndex(keywords = {
+            "corba", "iiop"
     })
     public interface MyProxy extends Proxy<JacOrbPresenter>, Place {
     }

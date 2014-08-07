@@ -57,6 +57,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
@@ -95,6 +96,9 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     @AccessControl(resources = {
             "/{selected.profile}/subsystem=datasources/data-source=*",
             "/{selected.profile}/subsystem=datasources/xa-data-source=*"
+    })
+    @SearchIndex(keywords = {
+            "jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"
     })
     public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
 

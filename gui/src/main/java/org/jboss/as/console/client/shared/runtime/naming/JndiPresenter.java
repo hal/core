@@ -37,6 +37,7 @@ import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -69,6 +70,9 @@ public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter
             },
             recursive = false
     )
+    @SearchIndex(keywords = {
+                "jndi", "lookup", "jndi-tree"
+        })
     public interface MyProxy extends Proxy<JndiPresenter>, Place {
     }
 

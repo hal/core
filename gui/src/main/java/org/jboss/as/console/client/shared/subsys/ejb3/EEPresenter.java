@@ -21,6 +21,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -57,6 +58,9 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
     @AccessControl(resources = {
             "{selected.profile}/subsystem=ee"
     })
+    @SearchIndex(keywords = {
+               "ee", "scheduler", "executor", "context-service", "thread-factory"
+       })
     public interface MyProxy extends Proxy<EEPresenter>, Place {
     }
 

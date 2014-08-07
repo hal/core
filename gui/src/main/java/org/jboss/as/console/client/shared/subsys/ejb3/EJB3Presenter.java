@@ -37,6 +37,7 @@ import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -61,6 +62,9 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                 "{selected.profile}/subsystem=ejb3",
                 "{selected.profile}/subsystem=threads/thread-factory=*"
         })
+    @SearchIndex(keywords = {
+               "ejb3", "cluster", "passivation", "thread-pool", "bean-pool", "timer-service", "remote-service", "iiop"
+       })
     public interface MyProxy extends Proxy<EJB3Presenter>, Place {
     }
 

@@ -19,6 +19,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -46,6 +47,9 @@ public class JpaPresenter extends Presenter<JpaPresenter.MyView, JpaPresenter.My
     @NameToken(NameTokens.JpaPresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=jpa"
+    })
+    @SearchIndex(keywords = {
+            "jpa", "data-source"
     })
     public interface MyProxy extends Proxy<JpaPresenter>, Place {
     }

@@ -23,6 +23,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -57,6 +58,9 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                     "/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"
             }
     )
+    @SearchIndex(keywords = {
+            "jms", "queue", "topic", "size"
+    })
     public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
     }
 

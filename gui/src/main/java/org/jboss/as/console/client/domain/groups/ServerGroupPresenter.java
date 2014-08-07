@@ -59,6 +59,7 @@ import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -109,6 +110,9 @@ public class ServerGroupPresenter
             "/server-group=*",
             "opt://server-group={selected.entity}/system-property=*"
     }, recursive = false)
+    @SearchIndex(keywords = {
+            "group", "server-group", "profile", "socket-binding", "jvm"
+    })
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
     }
 

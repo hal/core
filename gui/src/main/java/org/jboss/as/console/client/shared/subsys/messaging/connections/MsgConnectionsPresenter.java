@@ -36,6 +36,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -86,6 +87,9 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             "{selected.profile}/subsystem=messaging/hornetq-server=*",
             "{selected.profile}/subsystem=messaging/jms-bridge=*"
     })
+    @SearchIndex(keywords = {
+               "jms", "acceptor", "bridge", "connector"
+       })
     public interface MyProxy extends Proxy<MsgConnectionsPresenter>, Place {
     }
 

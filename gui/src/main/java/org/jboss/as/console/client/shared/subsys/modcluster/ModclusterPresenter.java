@@ -23,6 +23,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -59,6 +60,9 @@ public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, M
     @AccessControl(resources = {
                "{selected.profile}/subsystem=modcluster"
        }, recursive = false)
+    @SearchIndex(keywords = {
+            "cluster", "load-balancing", "reverse-proxy"
+    })
     public interface MyProxy extends Proxy<ModclusterPresenter>, Place {
     }
 

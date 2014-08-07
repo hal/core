@@ -34,6 +34,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 
 
 /**
@@ -51,6 +52,9 @@ public class CacheContainerPresenter extends Presenter<CacheContainerPresenter.M
     @AccessControl(resources = {
             "{selected.profile}/subsystem=infinispan"
     })
+    @SearchIndex(keywords = {
+               "cache", "ejb", "hibernate", "web", "transport"
+       })
     public interface MyProxy extends Proxy<CacheContainerPresenter>, Place {
     }
 

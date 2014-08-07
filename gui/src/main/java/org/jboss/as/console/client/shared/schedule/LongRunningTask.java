@@ -8,9 +8,12 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 
 /**
+ * Use Async.flow() instead
+ *
  * @author Heiko Braun
  * @date 12/19/11
  */
+@Deprecated
 public class LongRunningTask {
 
     private AsyncCommand<Boolean> command;

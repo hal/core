@@ -27,6 +27,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -59,6 +60,9 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
             }
     )
+    @SearchIndex(keywords = {
+            "jvm", "memory-usage", "threads"
+    })
     public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {
     }
 

@@ -21,6 +21,7 @@ import org.jboss.as.console.client.shared.subsys.web.LoadConnectorCmd;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -50,6 +51,9 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
     @AccessControl(resources = {
             "/{selected.host}/{selected.server}/subsystem=web"
     }, recursive = false)
+    @SearchIndex(keywords = {
+                "web", "http", "connections"
+        })
     public interface MyProxy extends Proxy<WebMetricPresenter>, Place {
     }
 

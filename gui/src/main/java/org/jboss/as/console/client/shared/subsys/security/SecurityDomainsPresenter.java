@@ -47,6 +47,7 @@ import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -93,6 +94,9 @@ public class SecurityDomainsPresenter
     @AccessControl(resources = {
                 "/{selected.profile}/subsystem=security/security-domain=*"
         })
+    @SearchIndex(keywords = {
+            "security", "security-domain", "vault", "authentication", "authorisation"
+    })
     public interface MyProxy extends Proxy<SecurityDomainsPresenter>, Place {
     }
 
