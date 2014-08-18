@@ -183,3 +183,11 @@
     padding:10px;
     margin-bottom:100px;
 }
+
+.search-result .cellListEvenItem {
+    padding:4px;
+}
+
+.search-result .cellListOddItem {
+    padding:4px;
+}

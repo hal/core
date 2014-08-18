@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.storage.client.Storage;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.ProductConfig;
 
@@ -35,7 +36,7 @@ public class FeatureSet {
     public FeatureSet(final ProductConfig productConfig) {this.productConfig = productConfig;}
 
     public boolean isSearchEnabled() {
-        return productConfig.getProfile() == ProductConfig.Profile.COMMUNITY;
+        return Storage.isLocalStorageSupported();
     }
 
     public boolean isCSPEnabled() {

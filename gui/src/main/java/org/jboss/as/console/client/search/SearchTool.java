@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.search;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
@@ -67,17 +68,22 @@ public class SearchTool extends Composite {
     }
 
     public void showPopup() {
-        int width = 300;
-        int offset = 28;
 
-        popup.setPopupPosition(root.getAbsoluteLeft() - width + root.getOffsetWidth() + offset,
-                root.getAbsoluteTop() + 25);
-        popup.setWidth(width + "px");
+        popup.setWidth(640);
+        popup.setHeight(480);
+        popup.setGlassEnabled(true);
+        popup.center();
 
-        if (index.isEmpty()) {
-            popup.index();
-        } else {
-            popup.showSearchPage();
-        }
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if (index.isEmpty()) {
+                    popup.index();
+                } else {
+                    popup.showSearchPage();
+                }
+            }
+        });
+
     }
 }

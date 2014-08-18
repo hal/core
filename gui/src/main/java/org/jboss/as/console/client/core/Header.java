@@ -162,9 +162,7 @@ public class Header implements ValueChangeHandler<String> {
 
         // global search
         if (featureSet.isSearchEnabled()) {
-            if (Storage.isLocalStorageSupported()) {
-                tools.add(new SearchTool(harvest, index, placeManager));
-            }
+            tools.add(new SearchTool(harvest, index, placeManager));
         }
 
 
