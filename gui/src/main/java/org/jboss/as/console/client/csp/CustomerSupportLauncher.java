@@ -26,18 +26,23 @@ import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 public class CustomerSupportLauncher {
 
-    private final BootstrapContext botstrapContext;
 
-    public CustomerSupportLauncher(BootstrapContext bootstrap) {
-        this.botstrapContext = bootstrap;
+    private final PlaceManager placeManager;
+
+    public CustomerSupportLauncher(PlaceManager placeManager) {
+        this.placeManager = placeManager;
     }
 
     public Widget asWidget() {
@@ -45,14 +50,14 @@ public class CustomerSupportLauncher {
         button.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                openCSPView();
+                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP));
             }
         });
         button.getElement().setAttribute("style", "cursor:pointer");
         return button;
     }
 
-    private void openCSPView() {
+    /*private void openCSPView() {
         final DefaultWindow window = new DefaultWindow("Red Hat Support Network");
 
         //VerticalPanel panel = new VerticalPanel();
@@ -100,5 +105,5 @@ public class CustomerSupportLauncher {
         window.center();
 
 
-    }
+    }    */
 }

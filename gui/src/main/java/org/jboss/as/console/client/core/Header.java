@@ -155,7 +155,7 @@ public class Header implements ValueChangeHandler<String> {
 
         // redhat support plugin
         if (featureSet.isCSPEnabled()) {
-            this.cspLauncher = new CustomerSupportLauncher(bootstrap);
+            this.cspLauncher = new CustomerSupportLauncher(placeManager);
             tools.add(cspLauncher.asWidget());
 
         }
