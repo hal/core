@@ -8,6 +8,8 @@ import org.jboss.gwt.circuit.util.NoopChannel;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.jboss.as.console.client.shared.runtime.logviewer.Position.HEAD;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -38,7 +40,7 @@ public class LogStoreTest {
 
     @Test
     public void readAndStaleLogFiles() {
-        LogState stale = new LogState("stale.log", "");
+        LogState stale = new LogState("stale.log", Arrays.asList(""));
         logStore.states.put(stale.getName(), stale);
 
         dispatcher.push(StaticDmrResponse.ok(logFiles("server.log")));
@@ -65,7 +67,7 @@ public class LogStoreTest {
 
     @Test
     public void reopenLogFile() {
-        LogState view = new LogState("server.log", "line 1");
+        LogState view = new LogState("server.log", Arrays.asList("line 1"));
         view.setAutoRefresh(true);
         logStore.states.put(view.getName(), view);
 
@@ -84,7 +86,7 @@ public class LogStoreTest {
 
     @Test
     public void openNonAutoRefreshLogFile() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         view.setAutoRefresh(false);
         logStore.states.put(view.getName(), view);
 
@@ -97,11 +99,11 @@ public class LogStoreTest {
 
     @Test
     public void closeLogFile() {
-        LogState foo = new LogState("foo.log", "");
+        LogState foo = new LogState("foo.log", Arrays.asList(""));
         logStore.states.put(foo.getName(), foo);
         logStore.activate(foo);
 
-        LogState bar = new LogState("bar.log", "");
+        LogState bar = new LogState("bar.log", Arrays.asList(""));
         logStore.states.put(bar.getName(), bar);
 
         logStore.closeLogFile("bar.log", NoopChannel.INSTANCE);
@@ -115,7 +117,7 @@ public class LogStoreTest {
 
     @Test
     public void closeActiveLogFile() {
-        LogState foo = new LogState("foo.log", "");
+        LogState foo = new LogState("foo.log", Arrays.asList(""));
         logStore.activate(foo);
 
         logStore.closeLogFile("foo.log", NoopChannel.INSTANCE);
@@ -126,7 +128,7 @@ public class LogStoreTest {
 
     @Test
     public void refresh() {
-        LogState view = new LogState("server.log", "line 1");
+        LogState view = new LogState("server.log", Arrays.asList("line 1"));
         view.goTo(HEAD);
         logStore.activate(view);
 
@@ -145,7 +147,7 @@ public class LogStoreTest {
 
     @Test
     public void navigateHead() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         logStore.activate(view);
 
         dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
@@ -162,7 +164,7 @@ public class LogStoreTest {
 
     @Test
     public void navigatePrevious() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         view.goTo(2);
         logStore.pageSize = 1;
         logStore.activate(view);
@@ -181,7 +183,7 @@ public class LogStoreTest {
 
     @Test
     public void navigateNext() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         view.goTo(2);
         logStore.pageSize = 1;
         logStore.activate(view);
@@ -200,7 +202,7 @@ public class LogStoreTest {
 
     @Test
     public void navigateTail() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         logStore.activate(view);
 
         dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
@@ -217,7 +219,7 @@ public class LogStoreTest {
 
     @Test
     public void unfollow() {
-        LogState view = new LogState("server.log", "");
+        LogState view = new LogState("server.log", Arrays.asList(""));
         logStore.activate(view);
 
         logStore.unfollow(NoopChannel.INSTANCE);
