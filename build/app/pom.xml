@@ -31,6 +31,7 @@
                         </goals>
                         <configuration>
                             <sources>
+                                <source>../../ace/src/main/java</source>
                                 <source>../../dmr/src/main/java</source>
                                 <source>../../flow/core/src/main/java</source>
                                 <source>../../gui/src/main/java</source>

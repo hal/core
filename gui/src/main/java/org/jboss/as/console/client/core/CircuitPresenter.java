@@ -23,6 +23,7 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.Proxy;
@@ -39,6 +40,7 @@ import org.jboss.gwt.circuit.PropagatesChange;
 public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_> {
 
     protected final PropagatesChange store;
+    private HandlerRegistration handlerRegistration;
 
     protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy,
                             PropagatesChange store) {
@@ -73,14 +75,22 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
     @Override
     protected void onBind() {
         super.onBind();
-        store.addChangeHandler(new PropagatesChange.Handler() {
+        handlerRegistration = store.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> actionType) {
                 if (isVisible()) {
-                    CircuitPresenter.this.onAction(actionType);
+                    onAction(actionType);
                 }
             }
         });
+    }
+
+    @Override
+    protected void onUnbind() {
+        super.onUnbind();
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+        }
     }
 
     /**

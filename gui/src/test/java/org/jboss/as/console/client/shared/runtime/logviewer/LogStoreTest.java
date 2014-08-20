@@ -8,9 +8,10 @@ import org.jboss.gwt.circuit.util.NoopChannel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-import static org.jboss.as.console.client.shared.runtime.logviewer.Position.HEAD;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,19 +32,19 @@ public class LogStoreTest {
 
     @Test
     public void readLogFiles() {
-        dispatcher.push(StaticDmrResponse.ok(logFiles("server.log", "server.log.2014.-08-01", "server.log.2014.-08-02")));
+        dispatcher.push(StaticDmrResponse.ok(logFileNodes("server.log", "server.log.2014.-08-01", "server.log.2014.-08-02")));
         logStore.readLogFiles(NoopChannel.INSTANCE);
 
-        assertNull(logStore.getActiveState());
+        assertNull(logStore.getActiveLogFile());
         assertEquals(3, logStore.getLogFiles().size());
     }
 
     @Test
-    public void readAndStaleLogFiles() {
-        LogState stale = new LogState("stale.log", Arrays.asList(""));
+    public void readLogFilesAndVerifyStale() {
+        LogFile stale = new LogFile("stale.log", Collections.<String>emptyList());
         logStore.states.put(stale.getName(), stale);
 
-        dispatcher.push(StaticDmrResponse.ok(logFiles("server.log")));
+        dispatcher.push(StaticDmrResponse.ok(logFileNodes("server.log")));
         logStore.readLogFiles(NoopChannel.INSTANCE);
 
         // "stale.log" is no longer in the list of log files and must be stale
@@ -52,181 +53,101 @@ public class LogStoreTest {
 
     @Test
     public void openLogFile() {
-        dispatcher.push(StaticDmrResponse.ok(lines("line 1", "line 2")));
-        logStore.selectLogFile("server.log", NoopChannel.INSTANCE);
+        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        logStore.openLogFile("server.log", NoopChannel.INSTANCE);
 
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertEquals("line 1\nline 2", activeView.getContent());
-        assertTrue(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertTrue(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(0, activeView.getLineNumber());
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertNotNull(activeLogFile);
+        assertEquals("line 0\nline 1", activeLogFile.getContent());
+        assertTrue(activeLogFile.isFollow());
+        assertFalse(activeLogFile.isHead());
+        assertTrue(activeLogFile.isTail());
+        assertFalse(activeLogFile.isStale());
+        assertEquals(0, activeLogFile.getSkipped());
     }
 
     @Test
     public void reopenLogFile() {
-        LogState view = new LogState("server.log", Arrays.asList("line 1"));
-        view.setAutoRefresh(true);
-        logStore.states.put(view.getName(), view);
+        LogFile logFile = new LogFile("server.log", lines(0));
+        logStore.states.put(logFile.getName(), logFile);
 
-        dispatcher.push(StaticDmrResponse.ok(lines("line 2", "line 3")));
-        logStore.selectLogFile("server.log", NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertEquals("line 2\nline 3", activeView.getContent());
-        assertTrue(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertTrue(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(0, activeView.getLineNumber());
+        // Must not dispatch a DMR operation
+        logStore.openLogFile("server.log", NoopChannel.INSTANCE);
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertSame(logFile, activeLogFile);
     }
 
     @Test
-    public void openNonAutoRefreshLogFile() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
-        view.setAutoRefresh(false);
-        logStore.states.put(view.getName(), view);
+    public void selectLogFile() {
+        LogFile logFile = new LogFile("server.log", lines(0));
+        logStore.activate(logFile);
 
         // Must not dispatch a DMR operation
         logStore.selectLogFile("server.log", NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertSame(activeView, view);
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertSame(logFile, activeLogFile);
     }
 
     @Test
     public void closeLogFile() {
-        LogState foo = new LogState("foo.log", Arrays.asList(""));
+        LogFile foo = new LogFile("foo.log", Collections.<String>emptyList());
+        LogFile bar = new LogFile("bar.log", Collections.<String>emptyList());
         logStore.states.put(foo.getName(), foo);
-        logStore.activate(foo);
-
-        LogState bar = new LogState("bar.log", Arrays.asList(""));
         logStore.states.put(bar.getName(), bar);
+        logStore.activate(foo);
 
         logStore.closeLogFile("bar.log", NoopChannel.INSTANCE);
 
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertSame(foo, activeView);
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertNotNull(activeLogFile);
+        assertSame(foo, activeLogFile);
         assertEquals(1, logStore.states.size());
         assertSame(foo, logStore.states.values().iterator().next());
     }
 
     @Test
     public void closeActiveLogFile() {
-        LogState foo = new LogState("foo.log", Arrays.asList(""));
+        LogFile foo = new LogFile("foo.log", Collections.<String>emptyList());
         logStore.activate(foo);
 
         logStore.closeLogFile("foo.log", NoopChannel.INSTANCE);
 
-        assertNull(logStore.getActiveState());
+        assertNull(logStore.getActiveLogFile());
         assertTrue(logStore.states.isEmpty());
     }
 
     @Test
-    public void refresh() {
-        LogState view = new LogState("server.log", Arrays.asList("line 1"));
-        view.goTo(HEAD);
-        logStore.activate(view);
-
-        dispatcher.push(StaticDmrResponse.ok(lines("line 2", "line 3")));
-        logStore.refresh(NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertEquals("line 2\nline 3", activeView.getContent());
-        assertTrue(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertTrue(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(0, activeView.getLineNumber());
-    }
-
-    @Test
     public void navigateHead() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
+        LogFile view = new LogFile("server.log", Collections.<String>emptyList());
         logStore.activate(view);
 
-        dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
+        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
         logStore.navigate(Direction.HEAD, NoopChannel.INSTANCE);
 
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertFalse(activeView.isAutoRefresh());
-        assertTrue(activeView.isHead());
-        assertFalse(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(0, activeView.getLineNumber());
-    }
-
-    @Test
-    public void navigatePrevious() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
-        view.goTo(2);
-        logStore.pageSize = 1;
-        logStore.activate(view);
-
-        dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertFalse(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertFalse(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(3, activeView.getLineNumber());
-    }
-
-    @Test
-    public void navigateNext() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
-        view.goTo(2);
-        logStore.pageSize = 1;
-        logStore.activate(view);
-
-        dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertFalse(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertFalse(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(3, activeView.getLineNumber());
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertNotNull(activeLogFile);
+        assertFalse(activeLogFile.isFollow());
+        assertTrue(activeLogFile.isHead());
+        assertFalse(activeLogFile.isTail());
+        assertFalse(activeLogFile.isStale());
+        assertEquals(0, activeLogFile.getSkipped());
     }
 
     @Test
     public void navigateTail() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
+        LogFile view = new LogFile("server.log", Collections.<String>emptyList());
         logStore.activate(view);
 
-        dispatcher.push(StaticDmrResponse.ok(lines("content", "is", "irrelevant")));
+        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
         logStore.navigate(Direction.TAIL, NoopChannel.INSTANCE);
 
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertTrue(activeView.isAutoRefresh());
-        assertFalse(activeView.isHead());
-        assertTrue(activeView.isTail());
-        assertFalse(activeView.isStale());
-        assertEquals(0, activeView.getLineNumber());
-    }
-
-    @Test
-    public void unfollow() {
-        LogState view = new LogState("server.log", Arrays.asList(""));
-        logStore.activate(view);
-
-        logStore.unfollow(NoopChannel.INSTANCE);
-
-        LogState activeView = logStore.getActiveState();
-        assertNotNull(activeView);
-        assertFalse(activeView.isAutoRefresh());
+        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertNotNull(activeLogFile);
+        assertTrue(activeLogFile.isFollow());
+        assertFalse(activeLogFile.isHead());
+        assertTrue(activeLogFile.isTail());
+        assertFalse(activeLogFile.isStale());
+        assertEquals(0, activeLogFile.getSkipped());
     }
 
     @Test
@@ -235,7 +156,7 @@ public class LogStoreTest {
         assertEquals(42, logStore.pageSize);
     }
 
-    private ModelNode logFiles(String... names) {
+    private ModelNode logFileNodes(String... names) {
         ModelNode payload = new ModelNode();
         for (String name : names) {
             ModelNode logFile = new ModelNode();
@@ -245,11 +166,19 @@ public class LogStoreTest {
         return payload;
     }
 
-    private ModelNode lines(String... lines) {
+    private ModelNode logFileNode(int numberOfLines) {
         ModelNode payload = new ModelNode();
-        for (String line : lines) {
+        for (String line : lines(numberOfLines)) {
             payload.add(line);
         }
         return payload;
+    }
+
+    private List<String> lines(int numberOfLines) {
+        List<String> lines = new LinkedList<>();
+        for (int i = 0; i < numberOfLines; i++) {
+            lines.add("line " + i);
+        }
+        return lines;
     }
 }

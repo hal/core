@@ -32,7 +32,7 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.SelectLogFile;
+import org.jboss.as.console.client.shared.runtime.logviewer.actions.OpenLogFile;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ReadLogFiles;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
@@ -53,9 +53,9 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     public interface MyView extends View {
         void list(List<ModelNode> logFiles);
 
-        void select(LogState logState);
+        void open(LogFile logFile);
 
-        void refresh(LogState logState);
+        void refresh(LogFile logFile);
     }
 
     private final RevealStrategy revealStrategy;
@@ -76,16 +76,16 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
         if (actionType.equals(ReadLogFiles.class)) {
             getView().list(logStore.getLogFiles());
 
-        } else if (actionType.equals(SelectLogFile.class)) {
-            getView().select(logStore.getActiveState());
+        } else if (actionType.equals(OpenLogFile.class)) {
+            getView().open(logStore.getActiveLogFile());
         }
 
         else if (actionType.equals(NavigateInLogFile.class)) {
-            getView().refresh(logStore.getActiveState());
+            getView().refresh(logStore.getActiveLogFile());
         }
 
         else if (actionType.equals(ChangePageSize.class)) {
-            getView().refresh(logStore.getActiveState());
+            getView().refresh(logStore.getActiveLogFile());
         }
     }
 

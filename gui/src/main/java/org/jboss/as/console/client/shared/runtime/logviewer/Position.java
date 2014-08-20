@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.runtime.logviewer;
 
 /**
+ * The current position in a log file
  * @author Harald Pehl
  */
 public enum Position {

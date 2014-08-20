@@ -33,8 +33,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
-import edu.ycp.cs.dh.acegwt.client.ace.AceEditorMode;
-import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLogFile;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -57,17 +55,16 @@ public class LogFilePanel extends Composite {
     private final Dispatcher circuit;
     private final String name;
     private final VerticalPanel panel;
-    private final HTML header;
     private final AceEditor editor;
     private final ToolStrip tools;
     private final HandlerRegistration resizeHandler;
 
-    public LogFilePanel(Dispatcher circuit, final LogState logState) {
+    public LogFilePanel(Dispatcher circuit, final LogFile logFile) {
         this.circuit = circuit;
-        this.name = logState.getName();
+        this.name = logFile.getName();
 
         panel = new VerticalPanel();
-        header = new HTML("<h3>" + logState.getName() + "</h3>");
+        HTML header = new HTML("<h3>" + logFile.getName() + "</h3>");
         panel.add(header);
 
         editor = new AceEditor();
@@ -84,9 +81,9 @@ public class LogFilePanel extends Composite {
                                     editor.setReadOnly(true);
                                     editor.setShowGutter(false);
                                     editor.setShowPrintMargin(false);
-                                    editor.setMode(AceEditorMode.TEXT);
-                                    editor.setTheme(AceEditorTheme.TERMINAL);
-                                    editor.setText(logState.getContent());
+                                    editor.setModeByName("logfile");
+                                    editor.setThemeByName("logfile");
+                                    editor.setText(logFile.getContent());
                                 }
                             }
                     );
@@ -131,8 +128,8 @@ public class LogFilePanel extends Composite {
         setStyleName("rhs-content-panel");
     }
 
-    public void refresh(LogState logState) {
-        editor.setText(logState.getContent());
+    public void refresh(LogFile logFile) {
+        editor.setText(logFile.getContent());
     }
 
     private void onNavigate(Direction direction) {

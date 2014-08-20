@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.runtime.logviewer;
 
 /**
+ * Direction for log file navigation.
  * @author Harald Pehl
  */
 public enum Direction {

@@ -37,13 +37,13 @@ import org.jboss.gwt.circuit.meta.Store;
 import javax.inject.Inject;
 import java.util.*;
 
-import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.HEAD;
-import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.TAIL;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * A store which holds a list of log files for the selected server and manages a list
- * of {@link LogState}s.
+ * of {@link LogFile}s.
+ * <p/>
+ * TODO Implement 'tail -f' using the GWT Scheduler.
  *
  * @author Harald Pehl
  */
@@ -55,6 +55,7 @@ public class LogStore extends ChangeSupport {
     public final static String FILE_SIZE = "file-size";
     public final static String LAST_MODIFIED_DATE = "last-modified-date";
     private final static int PAGE_SIZE = 25;
+    private final static int FOLLOW_INTERVAL = 2000; // ms
 
     private final HostStore hostStore;
     private final DispatchAsync dispatcher;
@@ -75,12 +76,12 @@ public class LogStore extends ChangeSupport {
     /**
      * Open logs with the name of the log file as key and the related state as value.
      */
-    protected final Map<String, LogState> states;
+    protected final Map<String, LogFile> states;
 
     /**
      * The selected log state
      */
-    protected LogState activeState;
+    protected LogFile activeLogFile;
 
     /**
      * The number of lines which is displayed in the log view. Changing this value influences the parameters
@@ -96,7 +97,7 @@ public class LogStore extends ChangeSupport {
 
         this.logFiles = new ArrayList<>();
         this.states = new LinkedHashMap<>();
-        this.activeState = null;
+        this.activeLogFile = null;
         this.pageSize = PAGE_SIZE;
     }
 
@@ -130,7 +131,7 @@ public class LogStore extends ChangeSupport {
                     for (ModelNode logFile : logFiles) {
                         names.add(logFile.get(FILE_NAME).asString());
                     }
-                    for (Map.Entry<String, LogState> entry : states.entrySet()) {
+                    for (Map.Entry<String, LogFile> entry : states.entrySet()) {
                         if (!names.contains(entry.getKey())) {
                             entry.getValue().setStale(true);
                         }
@@ -141,13 +142,13 @@ public class LogStore extends ChangeSupport {
         });
     }
 
-    @Process(actionType = SelectLogFile.class)
-    public void selectLogFile(final String logFile, final Dispatcher.Channel channel) {
-        final LogState logState = states.get(logFile);
-        boolean dmrOp = logState == null || (!logState.isStale() && logState.isAutoRefresh());
-        if (dmrOp) {
+    // TODO Follow by default
+    @Process(actionType = OpenLogFile.class)
+    public void openLogFile(final String name, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(name);
 
-            final ModelNode op = readLogFileOp(logFile);
+        if (logFile == null) {
+            final ModelNode op = readLogFileOp(name);
             op.get("tail").set(true);
             dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                 @Override
@@ -159,109 +160,57 @@ public class LogStore extends ChangeSupport {
                 public void onSuccess(DMRResponse result) {
                     ModelNode response = result.get();
                     if (response.isFailure()) {
-                        channel.nack(new RuntimeException("Failed to select " + logState + " using "  + op + ": " +
+                        channel.nack(new RuntimeException("Failed to open " + name + " using " + op + ": " +
                                 response.getFailureDescription()));
                     } else {
-                        activate(new LogState(logFile, readLines(response.get(RESULT).asList())));
+                        activate(new LogFile(name, readLines(response.get(RESULT).asList())));
                         channel.ack();
                     }
                 }
             });
 
         } else {
-            activate(logState);
-            channel.ack();
-        }
-    }
-
-    @Process(actionType = ActivateLogFile.class)
-    public void activateLogFile(final String logFile, final Dispatcher.Channel channel) {
-        LogState logState = states.get(logFile);
-        if (logState == null) {
-            channel.nack(new IllegalStateException("No log file found for " + logFile));
-        } else {
-            activate(logState);
-            channel.ack();
+            // already open, just select
+            selectLogFile(name, channel);
         }
     }
 
     @Process(actionType = CloseLogFile.class)
-    public void closeLogFile(final String logFile, final Dispatcher.Channel channel) {
-        states.remove(logFile);
-        if (activeState != null && activeState.getName().endsWith(logFile)) {
-            activeState = null;
+    public void closeLogFile(final String name, final Dispatcher.Channel channel) {
+        LogFile removed = states.remove(name);
+        if (removed == activeLogFile) {
+            activeLogFile = null;
         }
         channel.ack();
     }
 
-    @Process(actionType = RefreshLogFile.class)
-    public void refresh(final Dispatcher.Channel channel) {
-        if (activeState == null) {
-            channel.nack(new IllegalStateException("No active log file"));
+    @Process(actionType = SelectLogFile.class)
+    public void selectLogFile(final String name, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(name);
+        if (logFile == null) {
+            channel.nack(new IllegalStateException("Cannot select unknown log file " + name + ". Please open the log file first!"));
             return;
         }
-
-        final ModelNode op = readLogFileOp(activeState.getName());
-        op.get("tail").set(true);
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                channel.nack(caught);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if (response.isFailure()) {
-                    channel.nack(new RuntimeException("Failed to refresh " + activeState + " using " + op + ": " +
-                            response.getFailureDescription()));
-                } else {
-                    activeState.setLines(readLines(response.get(RESULT).asList()));
-                    activeState.goTo(Position.TAIL);
-                    channel.ack();
-                }
-            }
-        });
+        activate(logFile);
+        channel.ack();
     }
 
     @Process(actionType = NavigateInLogFile.class)
     public void navigate(final Direction direction, final Dispatcher.Channel channel) {
-        if (activeState == null) {
-            channel.nack(new IllegalStateException("No active log file"));
+        if (activeLogFile == null) {
+            channel.nack(new IllegalStateException("Unable to navigate: No active log file!"));
             return;
         }
 
-        int lineNumber = 0;
-        final ModelNode op = readLogFileOp(activeState.getName());
-        switch (direction) {
-            case HEAD:
-                op.get("tail").set(false);
-                break;
-            case PREVIOUS:
-                if (activeState.getPosition() == Position.HEAD) {
-                    navigate(HEAD, channel);
-                } else {
-                    lineNumber = activeState.getLineNumber() + pageSize;
-                    op.get("tail").set(true);
-                    op.get("skip").set(lineNumber);
-                }
-                break;
-            case NEXT:
-                if (activeState.getPosition() == Position.TAIL) {
-                    navigate(TAIL, channel);
-                } else {
-                    lineNumber = activeState.getLineNumber() + pageSize;
-                    op.get("tail").set(false);
-                }
-                break;
-            case TAIL:
-                op.get("tail").set(true);
-                break;
-            default:
-                break;
+        final ModelNode op;
+        final int skipped;
+        try {
+            op = prepareNavigation(direction);
+            skipped = op.get("skip").asInt();
+        } catch (IllegalStateException e) {
+            channel.nack(e);
+            return;
         }
-        op.get("skip").set(lineNumber);
-        final int finalLineNumber = lineNumber;
 
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
@@ -273,46 +222,122 @@ public class LogStore extends ChangeSupport {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
                 if (response.isFailure()) {
-                    channel.nack(new RuntimeException("Failed to navigate in " + activeState + " using " + op + ": " +
+                    channel.nack(new RuntimeException("Failed to navigate in " + activeLogFile + " using " + op + ": " +
                             response.getFailureDescription()));
                 } else {
                     List<String> lines = readLines(response.get(RESULT).asList());
-                    if (lines.size() < pageSize) {
-                        // TODO fill empty space with buffered lines
-                    }
-                    if (direction == HEAD) {
-                        activeState.goTo(Position.HEAD);
-                    } else if (direction == TAIL) {
-                        activeState.goTo(Position.TAIL);
-                    } else {
-                        activeState.goTo(finalLineNumber);
-                    }
-                    activeState.setLines(lines);
+                    finishNavigation(direction, skipped, lines);
                     channel.ack();
                 }
             }
         });
     }
 
-    @Process(actionType = UnfollowLogFile.class)
-    public void unfollow(final Dispatcher.Channel channel) {
-        if (activeState != null) {
-            activeState.setAutoRefresh(false);
+    private ModelNode prepareNavigation(Direction direction) {
+        int skip = 0;
+        ModelNode op = readLogFileOp(activeLogFile.getName());
+        switch (direction) {
+            case HEAD:
+                if (activeLogFile.isHead()) {
+                    throw new IllegalStateException(
+                            "Invalid direction " + Direction.HEAD + ": " + activeLogFile + " already at " + Position.HEAD);
+                } else {
+                    op.get("tail").set(false);
+                }
+                break;
+            case PREVIOUS:
+                if (activeLogFile.isHead()) {
+                    throw new IllegalStateException(
+                            "Invalid direction " + Direction.PREVIOUS + ": " + activeLogFile + " already at " + Position.HEAD);
+                } else if (activeLogFile.getLastDirection() == null ||
+                        activeLogFile.getLastDirection() == Direction.PREVIOUS ||
+                        activeLogFile.getLastDirection() == Direction.TAIL) {
+                    skip = activeLogFile.getSkipped() + pageSize;
+                    op.get("tail").set(true);
+                } else if (activeLogFile.getLastDirection() == Direction.NEXT) {
+                    // TODO
+                } else {
+                    throw new IllegalStateException("Invalid combination of last direction " +
+                            activeLogFile.getLastDirection() + " and current direction " + direction +
+                            " for " + activeLogFile);
+                }
+                break;
+            case NEXT:
+                if (activeLogFile.isTail()) {
+                    throw new IllegalStateException(
+                            "Invalid direction " + Direction.TAIL + ": " + activeLogFile + " already at " + Position.TAIL);
+                } else if (activeLogFile.getLastDirection() == null ||
+                        activeLogFile.getLastDirection() == Direction.NEXT ||
+                        activeLogFile.getLastDirection() == Direction.HEAD) {
+                    skip = activeLogFile.getSkipped() + pageSize;
+                    op.get("tail").set(false);
+                } else if (activeLogFile.getLastDirection() == Direction.PREVIOUS) {
+                    // TODO
+                } else {
+                    throw new IllegalStateException("Invalid combination of last direction " +
+                            activeLogFile.getLastDirection() + " and current direction " + direction +
+                            " for " + activeLogFile);
+                }
+                break;
+            case TAIL:
+                if (activeLogFile.isTail()) {
+                    throw new IllegalStateException(
+                            "Invalid direction " + Direction.TAIL + ": " + activeLogFile + " already at " + Position.TAIL);
+                } else {
+                    op.get("tail").set(true);
+                }
+                break;
+            default:
+                break;
         }
-        channel.ack();
+        op.get("skip").set(skip);
+        return op;
+    }
+
+    private void finishNavigation(Direction direction, int skipped, List<String> lines) {
+        int diff = pageSize - lines.size();
+        switch (direction) {
+            case HEAD:
+                activeLogFile.goTo(Position.HEAD);
+                activeLogFile.setLines(lines);
+                break;
+            case PREVIOUS:
+                if (diff > 0) {
+                    List<String> buffer = activeLogFile.getLines(0, diff);
+                    lines.addAll(buffer);
+                    activeLogFile.goTo(Position.HEAD);
+                } else {
+                    activeLogFile.goTo(skipped);
+                }
+                break;
+            case NEXT:
+                if (diff > 0) {
+                    List<String> buffer = activeLogFile.getLines(pageSize - diff, pageSize);
+                    lines.addAll(0, buffer);
+                    activeLogFile.goTo(Position.TAIL);
+                } else {
+                    activeLogFile.goTo(skipped);
+                }
+                break;
+            case TAIL:
+                activeLogFile.goTo(Position.TAIL);
+                break;
+        }
+        activeLogFile.setLines(lines);
+        activeLogFile.setLastDirection(direction);
     }
 
     @Process(actionType = ChangePageSize.class)
     public void changePageSize(final Integer pageSize, final Dispatcher.Channel channel) {
         this.pageSize = pageSize;
-        if (activeState != null) {
-            final ModelNode op = readLogFileOp(activeState.getName());
-            switch (activeState.getPosition()) {
+        if (activeLogFile != null) {
+            final ModelNode op = readLogFileOp(activeLogFile.getName());
+            switch (activeLogFile.getPosition()) {
                 case HEAD:
                     op.get("tail").set(false);
                     break;
                 case LINE_NUMBER:
-                    op.get("skip").set(activeState.getLineNumber());
+                    op.get("skip").set(activeLogFile.getSkipped());
                     break;
                 case TAIL:
                     op.get("tail").set(true);
@@ -330,9 +355,9 @@ public class LogStore extends ChangeSupport {
                     ModelNode response = result.get();
                     if (response.isFailure()) {
                         channel.nack(new RuntimeException("Failed to change page size to " + pageSize +
-                                " for " + activeState + " using " + op + ": " + response.getFailureDescription()));
+                                " for " + activeLogFile + " using " + op + ": " + response.getFailureDescription()));
                     } else {
-                        activeState.setLines(readLines(response.get(RESULT).asList()));
+                        activeLogFile.setLines(readLines(response.get(RESULT).asList()));
                         channel.ack();
                     }
                 }
@@ -343,9 +368,9 @@ public class LogStore extends ChangeSupport {
 
     // ------------------------------------------------------ helper methods
 
-    protected void activate(LogState logState) {
-        states.put(logState.getName(), logState);
-        activeState = logState;
+    protected void activate(LogFile logFile) {
+        states.put(logFile.getName(), logFile);
+        activeLogFile = logFile;
     }
 
     private ModelNode baseAddress() {
@@ -382,7 +407,7 @@ public class LogStore extends ChangeSupport {
         return logFiles;
     }
 
-    public LogState getActiveState() {
-        return activeState;
+    public LogFile getActiveLogFile() {
+        return activeLogFile;
     }
 }

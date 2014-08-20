@@ -2,7 +2,11 @@ package org.jboss.as.console.client.widgets.tabs;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.HasCloseHandlers;
 import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -20,7 +24,7 @@ import java.util.Map;
  *
  * @author Heiko Braun, Harald Pehl
  */
-public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabPanel {
+public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabPanel, HasCloseHandlers<Widget> {
 
     /**
      * The number of simultaneously visible pages. Adding more tabs will show a selector icon.
@@ -111,6 +115,7 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
         }
 
         boolean removed = false;
+        Widget removedWidget = getWidget(index);
         int count = getWidgetCount();
         if (count < PAGE_LIMIT) {
             // no need to take care of any off-page handling
@@ -145,9 +150,7 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
                     selectTab(0, false);
                     tabs.remove(index);
                     removed = super.remove(index);
-                }
-
-                else if (getSelectedIndex() == PAGE_LIMIT - 1) {
+                } else if (getSelectedIndex() == PAGE_LIMIT - 1) {
                     // the last tab is visible while we're removing the page, select the first off page element
                     selectTab(offPageContainer.getText(0).getText());
                     removed = true;
@@ -160,7 +163,15 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
         } else {
             tabs.hideSelector();
         }
+        if (removed && removedWidget != null) {
+            CloseEvent.fire(this, removedWidget);
+        }
         return removed;
+    }
+
+    @Override
+    public HandlerRegistration addCloseHandler(CloseHandler<Widget> handler) {
+        return addHandler(handler, CloseEvent.getType());
     }
 
 
@@ -268,7 +279,6 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
             if (offPageContainer.isEmpty()) {
                 return offPageContainer.asWidget();
             }
-
             int deckIndex = offPageContainer.getSelectedDeck() == -1 ? 0 : offPageContainer.getSelectedDeck();
             return offPageContainer.getDeck(deckIndex);
         }

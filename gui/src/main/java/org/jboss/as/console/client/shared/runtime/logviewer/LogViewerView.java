@@ -32,8 +32,8 @@ import java.util.List;
 public class LogViewerView extends SuspendableViewImpl implements LogViewerPresenter.MyView {
 
     private final Dispatcher circuit;
-    private LogFilesPanel logFiles;
-    private LogTabs logTabs;
+    private LogFileTable logFiles;
+    private LogFileTabs logFileTabs;
 
 
     @Inject
@@ -43,10 +43,10 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
 
     @Override
     public Widget createWidget() {
-        logTabs = new LogTabs(circuit);
-        logFiles = new LogFilesPanel(circuit);
-        logTabs.add(logFiles.asWidget(), "Log Files");
-        return logTabs;
+        logFileTabs = new LogFileTabs(circuit);
+        logFiles = new LogFileTable(circuit);
+        logFileTabs.add(logFiles.asWidget(), "Log Files");
+        return logFileTabs;
     }
 
     @Override
@@ -55,12 +55,12 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
     }
 
     @Override
-    public void select(LogState logState) {
-        logTabs.select(logState);
+    public void open(LogFile logFile) {
+        logFileTabs.open(logFile);
     }
 
     @Override
-    public void refresh(LogState logState) {
-        logTabs.refresh(logState);
+    public void refresh(LogFile logFile) {
+        logFileTabs.refresh(logFile);
     }
 }
