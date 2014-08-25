@@ -27,5 +27,5 @@ import org.jboss.gwt.circuit.util.EmptyAction;
  * Unfollow the active log file
  * @author Harald Pehl
  */
-public class UnfollowLogFile extends EmptyAction {
+public class UnFollowLogFile extends EmptyAction {
 }
