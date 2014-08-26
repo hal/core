@@ -503,15 +503,12 @@ public class XmlHttpProxyServlet extends HttpServlet
             else if(iox instanceof GenericException)
             {
                 GenericException generic = (GenericException)iox;
-                //writer.println(generic.getResponseBody()); TODO
-                //writer.flush();
                 res.setStatus(500);
             }
             else
             {
                 //iox.printStackTrace();
                 getLogger().severe("XmlHttpProxyServlet: caught " + iox);
-
                 res.setStatus(500);
             }
             return;

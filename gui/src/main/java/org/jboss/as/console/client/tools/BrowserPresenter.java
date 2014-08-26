@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.tools;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -172,21 +173,22 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        Console.error("Failed to load child names: "+caught.getMessage());
-                        control.abort();
+                        Log.error("Failed to load child names: " + caught.getMessage());
+
+                        control.getContext().flagSquatting = true;
+                        control.proceed();
                     }
 
                     @Override
                     public void onSuccess(DMRResponse dmrResponse) {
                         ModelNode dmrRsp = dmrResponse.get();
-                        control.getContext().response = dmrRsp;
 
                         // TODO (hbraun): workaround for https://issues.jboss.org/browse/WFLY-3706
                         if(dmrRsp.isFailure() || dmrRsp.get(RESULT).isFailure())
                         {
-                            control.proceed();
-                            //System.out.println("squatting: "+ address);
                             control.getContext().flagSquatting = true;
+                            //System.out.println("squatting: "+ address);
+                            control.proceed();
                         }
                         else
                         {

@@ -20,6 +20,7 @@
 package org.jboss.as.console.server.proxy;
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -269,13 +270,30 @@ public class XmlHttpProxy {
             else
             {
                 // pipe the response directly into the servlet output stream
-                pipeResponsePayload(out, xslInputStream, paramsMap, in, httpclient);
+                //pipeResponsePayload(out, xslInputStream, paramsMap, in, httpclient);
 
                 // and into the exception
                 GenericException ex = new GenericException("Failed to open input stream, status: " + responseCode);
+
+
+                /*try {
+
+                    BufferedInputStream bin = new BufferedInputStream(in);
+                    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+                    int next = bin.read();
+                    while (next > -1) {
+                        bout.write(next);
+                        next = in.read();
+                    }
+
+                    ex.setResponseBody(new String(bout.toByteArray()));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // ignore
+                }
+*/
                 ex.setResponseText(httpclient.getResponseMessage());
-                ByteArrayOutputStream bout = new ByteArrayOutputStream();
-                ex.setResponseBody(new String(bout.toByteArray()));
                 throw ex;
             }
         }
