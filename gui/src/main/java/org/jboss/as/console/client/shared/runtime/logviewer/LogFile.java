@@ -34,26 +34,28 @@ import java.util.List;
  */
 public class LogFile {
 
-    public final static LogFile NULL = new LogFile("n/a", Arrays.asList("n/a"));
+    public final static LogFile NULL = new LogFile("n/a", Arrays.asList("n/a"), 0);
 
     private final String name;
     private final List<String> lines;
+    private int fileSize;
 
     private Position position;
-    private Direction lastDirection;
+    private Position readFrom;
     private int skipped;
     private boolean follow;
     private boolean stale;
 
-    public LogFile(String name, List<String> lines) {
+    public LogFile(String name, List<String> lines, int fileSize) {
         this.name = name;
         this.lines = new ArrayList<>();
         this.lines.addAll(lines);
+        this.fileSize = fileSize;
 
         this.position = Position.TAIL;
-        this.lastDirection = null;
+        this.readFrom = Position.TAIL;
         this.skipped = 0;
-        this.follow = true;
+        this.follow = false;
         this.stale = false;
     }
 
@@ -83,8 +85,8 @@ public class LogFile {
         } else {
             builder.append(skipped);
         }
-        if (lastDirection != null) {
-            builder.append(" >> ").append(lastDirection);
+        if (readFrom != null) {
+            builder.append(", readFrom ").append(readFrom);
         }
         if (follow) {
             builder.append(", follow");
@@ -92,20 +94,26 @@ public class LogFile {
         if (stale) {
             builder.append(", stale");
         }
+        builder.append(", ").append(getLines().size()).append(" / ").append(getNumBytes()).append(" / ").append(fileSize);
         builder.append(")");
         return builder.toString();
     }
 
     void goTo(int line) {
-        this.position = Position.LINE_NUMBER;
-        this.skipped = line;
-        this.follow = false;
+        if (line <= 0) {
+            goTo(readFrom);
+        } else {
+            this.position = Position.LINE_NUMBER;
+            this.skipped = line;
+        }
     }
 
     void goTo(Position position) {
         this.position = position;
         this.skipped = 0;
-        this.follow = position == Position.TAIL;
+        if (position == Position.HEAD || position == Position.TAIL) {
+            this.readFrom = position;
+        }
     }
 
     public String getName() {
@@ -124,12 +132,8 @@ public class LogFile {
         return position == Position.TAIL;
     }
 
-    public Direction getLastDirection() {
-        return lastDirection;
-    }
-
-    public void setLastDirection(Direction lastDirection) {
-        this.lastDirection = lastDirection;
+    public Position getReadFrom() {
+        return readFrom;
     }
 
     public int getSkipped() {
@@ -138,6 +142,10 @@ public class LogFile {
 
     public String getContent() {
         return Joiner.on('\n').join(lines);
+    }
+
+    public int getNumBytes() {
+        return getContent().getBytes().length;
     }
 
     public void setLines(List<String> lines) {
@@ -161,7 +169,7 @@ public class LogFile {
         return follow;
     }
 
-    public void setFollow(boolean follow) {
+    void setFollow(boolean follow) {
         this.follow = follow;
     }
 
@@ -171,5 +179,13 @@ public class LogFile {
 
     public void setStale(boolean stale) {
         this.stale = stale;
+    }
+
+    public int getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
     }
 }

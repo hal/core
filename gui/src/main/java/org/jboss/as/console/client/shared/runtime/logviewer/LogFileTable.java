@@ -173,7 +173,7 @@ public class LogFileTable extends Composite {
                 return node1.get(FILE_SIZE).asInt() - node2.get(FILE_SIZE).asInt();
             }
         });
-        table.addColumn(sizeColumn, "Size (MB)");
+        table.addColumn(sizeColumn, "Size (kb)");
 
         ScrollPanel scroll = new ScrollPanel(panel);
         LayoutPanel layout = new LayoutPanel();

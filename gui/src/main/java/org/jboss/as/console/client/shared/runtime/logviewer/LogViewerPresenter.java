@@ -30,10 +30,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.OpenLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.ReadLogFiles;
+import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
@@ -55,7 +52,9 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
         void open(LogFile logFile);
 
-        void refresh(LogFile logFile);
+        void refresh(LogFile logFile, Class<?> actionType);
+
+        boolean isLogFileSelected();
     }
 
     private final RevealStrategy revealStrategy;
@@ -72,20 +71,24 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     }
 
     @Override
+    protected void onHide() {
+        super.onHide();
+        circuit.dispatch(new PauseFollowLogFile());
+    }
+
+    @Override
     public void onAction(Class<?> actionType) {
         if (actionType.equals(ReadLogFiles.class)) {
             getView().list(logStore.getLogFiles());
 
         } else if (actionType.equals(OpenLogFile.class)) {
             getView().open(logStore.getActiveLogFile());
-        }
 
-        else if (actionType.equals(NavigateInLogFile.class)) {
-            getView().refresh(logStore.getActiveLogFile());
-        }
-
-        else if (actionType.equals(ChangePageSize.class)) {
-            getView().refresh(logStore.getActiveLogFile());
+        } else if (actionType.equals(NavigateInLogFile.class) ||
+                actionType.equals(ChangePageSize.class) ||
+                actionType.equals(FollowLogFile.class) ||
+                actionType.equals(UnFollowLogFile.class)) {
+            getView().refresh(logStore.getActiveLogFile(), actionType);
         }
     }
 
@@ -98,5 +101,8 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     protected void onReset() {
         super.onReset();
         circuit.dispatch(new ReadLogFiles());
+        if (getView().isLogFileSelected() && logStore.getActiveLogFile() != null) {
+            circuit.dispatch(new SelectLogFile(logStore.getActiveLogFile().getName()));
+        }
     }
 }

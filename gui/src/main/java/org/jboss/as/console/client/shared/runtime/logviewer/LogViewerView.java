@@ -60,7 +60,12 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
     }
 
     @Override
-    public void refresh(LogFile logFile) {
-        logFileTabs.refresh(logFile);
+    public void refresh(LogFile logFile, Class<?> actionType) {
+        logFileTabs.refresh(logFile, actionType);
+    }
+
+    @Override
+    public boolean isLogFileSelected() {
+        return logFileTabs.selectedLogFilePanel() != null;
     }
 }

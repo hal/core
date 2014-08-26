@@ -26,6 +26,7 @@ import org.jboss.dmr.client.dispatch.Action;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
 import org.jboss.dmr.client.dispatch.Result;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
 
 import java.util.Stack;
 
@@ -38,6 +39,7 @@ public class StaticDispatcher implements DispatchAsync {
 
     private final Stack<Object> results;
     private Throwable failure;
+    private Action action;
 
     public StaticDispatcher() {
         results = new Stack<>();
@@ -47,6 +49,7 @@ public class StaticDispatcher implements DispatchAsync {
     @Override
     @SuppressWarnings("unchecked")
     public <A extends Action<R>, R extends Result> DispatchRequest execute(A action, AsyncCallback<R> callback) {
+        this.action = action;
         if (failure != null) {
             callback.onFailure(failure);
         } else {
@@ -65,6 +68,13 @@ public class StaticDispatcher implements DispatchAsync {
 
     public <R extends Result> void push(R result) {
         results.push(result);
+    }
+
+    public ModelNode getLastOperation() {
+        if (action instanceof DMRAction) {
+            return ((DMRAction) action).getOperation();
+        }
+        return null;
     }
 
     public void setFailure(Throwable failure) {

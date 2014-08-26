@@ -29,6 +29,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.CloseLogFile;
+import org.jboss.as.console.client.shared.runtime.logviewer.actions.PauseFollowLogFile;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.SelectLogFile;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -47,10 +48,12 @@ public class LogFileTabs extends Composite {
         this.tabLayout.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                LogFilePanel panel = selectedLogFilePanel();
-                if (panel != null) {
-                    circuit.dispatch(new SelectLogFile(panel.getName()));
-                    panel.resizeEditor();
+                LogFilePanel logFilePanel = selectedLogFilePanel();
+                if (logFilePanel != null) {
+                    circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
+                    logFilePanel.onResize();
+                } else {
+                    circuit.dispatch(new PauseFollowLogFile());
                 }
             }
         });
@@ -75,10 +78,10 @@ public class LogFileTabs extends Composite {
         tabLayout.selectTab(logFile.getName());
     }
 
-    public void refresh(LogFile logFile) {
+    public void refresh(LogFile logFile, Class<?> actionType) {
         LogFilePanel logFilePanel = selectedLogFilePanel();
         if (logFilePanel != null) {
-            logFilePanel.refresh(logFile);
+            logFilePanel.refresh(logFile, actionType);
         }
     }
 
@@ -86,7 +89,7 @@ public class LogFileTabs extends Composite {
         tabLayout.add(child, text);
     }
 
-    private LogFilePanel selectedLogFilePanel() {
+    LogFilePanel selectedLogFilePanel() {
         Widget widget = tabLayout.getWidget(tabLayout.getSelectedIndex());
         if (widget instanceof LogFilePanel) {
             return (LogFilePanel) widget;

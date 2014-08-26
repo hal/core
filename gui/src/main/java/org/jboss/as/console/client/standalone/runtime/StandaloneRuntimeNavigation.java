@@ -139,6 +139,7 @@ public class StandaloneRuntimeNavigation {
         final GroupItem platformGroup = new GroupItem("Platform");
         platformGroup.addItem(new LHSNavTreeItem("JVM", NameTokens.VirtualMachine));
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
+        platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogViewer));
 
         metricLeaf.addItem(platformGroup);
 
@@ -159,8 +160,6 @@ public class StandaloneRuntimeNavigation {
         metricLeaf.addItem(subsystemGroup);
         subsystemGroup.setState(true);
         platformGroup.setState(true);
-
-        metricLeaf.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogViewer));
 
         // empty runtime operations
         runtimeLeaf.setVisible(runtimeLeaf.getChildCount()>0);

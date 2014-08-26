@@ -20,7 +20,9 @@
 
 package org.jboss.as.console.client.core.gin;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.RootPresenter;
@@ -704,6 +706,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 CSPView.class,
                 CSPPresenter.MyProxy.class);
 
+    }
+
+    @Provides Scheduler provideScheduler() {
+        return Scheduler.get();
     }
 }
 

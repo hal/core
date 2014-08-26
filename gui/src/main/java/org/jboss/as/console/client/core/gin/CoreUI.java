@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core.gin;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.inject.client.AsyncProvider;
 import com.google.inject.Provider;
 import com.google.web.bindery.event.shared.EventBus;
@@ -183,6 +184,8 @@ public interface CoreUI {
     Harvest getHarvest();
     Index getIndex();
     FeatureSet getFeatureSet();
+
+    Scheduler getScheduler();
 
     // ----------------------------------------------------------------------
 

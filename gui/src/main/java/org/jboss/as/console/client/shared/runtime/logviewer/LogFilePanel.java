@@ -29,16 +29,17 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
+import org.jboss.as.console.client.shared.runtime.logviewer.actions.FollowLogFile;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLogFile;
+import org.jboss.as.console.client.shared.runtime.logviewer.actions.UnFollowLogFile;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static com.google.gwt.dom.client.Style.Unit.PX;
 import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.*;
 
 /**
@@ -56,10 +57,16 @@ public class LogFilePanel extends Composite {
     private final String name;
     private final VerticalPanel panel;
     private final AceEditor editor;
-    private final ToolStrip tools;
+    private final LogFileIndicator indicator;
+    private final Label position;
     private final HandlerRegistration resizeHandler;
+    private final CheckBox follow;
+    private final ToolButton head;
+    private final ToolButton prev;
+    private final ToolButton next;
+    private final ToolButton tail;
 
-    public LogFilePanel(Dispatcher circuit, final LogFile logFile) {
+    public LogFilePanel(final Dispatcher circuit, final LogFile logFile) {
         this.circuit = circuit;
         this.name = logFile.getName();
 
@@ -68,7 +75,6 @@ public class LogFilePanel extends Composite {
         panel.add(header);
 
         editor = new AceEditor();
-        panel.add(editor);
         editor.addAttachHandler(new AttachEvent.Handler() {
             @Override
             public void onAttachOrDetach(AttachEvent event) {
@@ -90,49 +96,87 @@ public class LogFilePanel extends Composite {
                 }
             }
         });
-        resizeHandler = Window.addResizeHandler(new ResizeHandler() {
+        indicator = new LogFileIndicator();
+        HorizontalPanel editorPanel = new HorizontalPanel();
+        editorPanel.setStyleName("fill-layout-width");
+        editorPanel.add(editor);
+        editorPanel.add(indicator);
+        indicator.getElement().getParentElement().getStyle().setWidth(4, PX);
+        indicator.getElement().getParentElement().getStyle().setPaddingLeft(4, PX);
+        panel.add(editorPanel);
+
+        ToolStrip tools = new ToolStrip();
+        follow = new CheckBox("Auto Refresh");
+        follow.addClickHandler(new ClickHandler() {
             @Override
-            public void onResize(ResizeEvent event) {
-                resizeEditor();
+            public void onClick(ClickEvent event) {
+                if (follow.getValue()) {
+                    circuit.dispatch(new FollowLogFile());
+                } else {
+                    circuit.dispatch(new UnFollowLogFile());
+                }
             }
         });
-
-        tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton("Head", new ClickHandler() {
+        tools.addToolWidget(follow);
+        position = new Label();
+        position.getElement().setAttribute("style", "padding-right:15px;padding-top:4px;");
+        tools.addToolWidgetRight(position);
+        head = new ToolButton("Head", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(HEAD);
             }
-        }));
-        tools.addToolButtonRight(new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
+        });
+        tools.addToolButtonRight(head);
+        prev = new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(PREVIOUS);
             }
-        }));
-        tools.addToolButtonRight(new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
+        });
+        tools.addToolButtonRight(prev);
+        next = new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(NEXT);
             }
-        }));
-        tools.addToolButtonRight(new ToolButton("Tail", new ClickHandler() {
+        });
+        tools.addToolButtonRight(next);
+        tail = new ToolButton("Tail", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(TAIL);
             }
-        }));
+        });
+        tools.addToolButtonRight(tail);
         panel.add(tools);
+
+        resizeHandler = Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                LogFilePanel.this.onResize();
+            }
+        });
 
         initWidget(panel);
         setStyleName("rhs-content-panel");
     }
 
-    public void refresh(LogFile logFile) {
+    public void refresh(LogFile logFile, Class<?> actionType) {
         editor.setText(logFile.getContent());
+        indicator.refresh(logFile, actionType);
+        position.setText("Pos. " + (int) Math.floor(indicator.getRatio()) + " %");
+        follow.setValue(logFile.isFollow());
+        head.setEnabled(!logFile.isHead());
+        prev.setEnabled(!logFile.isHead());
+        next.setEnabled(!logFile.isTail());
+        tail.setEnabled(!logFile.isTail());
     }
 
     private void onNavigate(Direction direction) {
+        if (direction == Direction.HEAD || direction == Direction.PREVIOUS) {
+            circuit.dispatch(new UnFollowLogFile());
+        }
         circuit.dispatch(new NavigateInLogFile(direction));
     }
 
@@ -142,7 +186,7 @@ public class LogFilePanel extends Composite {
         resizeHandler.removeHandler();
     }
 
-    public void resizeEditor() {
+    public void onResize() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
