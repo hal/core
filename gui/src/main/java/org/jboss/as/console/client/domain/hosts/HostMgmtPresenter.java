@@ -67,7 +67,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
-    @UseGatekeeper(HostManagementGatekeeper.class)
+    //@UseGatekeeper(HostManagementGatekeeper.class)
     @SearchIndex(keywords = {
             "host", "jvm"
     })

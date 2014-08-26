@@ -44,7 +44,7 @@ public class EagerLoadGroups implements Function<BootstrapContext> {
 
                 @Override
                 public void onSuccess(List<ServerGroupRecord> result) {
-                    if (result.isEmpty()) {
+                    /*if (result.isEmpty()) {
                         final DefaultWindow window = new DefaultWindow(Console.MESSAGES.no_groups_header());
                         window.setWidth(480);
                         window.setHeight(220);
@@ -58,12 +58,12 @@ public class EagerLoadGroups implements Function<BootstrapContext> {
                         }).asWidget());
                         window.setGlassEnabled(true);
                         window.center();
-                    } else {
+                    } else {*/
                         Set<String> groups = new TreeSet<String>();
                         for (ServerGroupRecord group : result) { groups.add(group.getName()); }
                         context.setAdressableGroups(groups);
                         control.proceed();
-                    }
+                    //}
                 }
             });
         } else {
