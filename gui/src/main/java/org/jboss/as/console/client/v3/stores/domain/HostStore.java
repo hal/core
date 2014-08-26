@@ -158,7 +158,7 @@ public class HostStore extends ChangeSupport {
             dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                 @Override
                 public void onFailure(Throwable caught) {
-                    Console.error("Failed to synchronize host model");
+                    Console.error("Failed to synchronize server model");
                     control.abort();
                 }
 
@@ -197,7 +197,7 @@ public class HostStore extends ChangeSupport {
         Outcome<Topology> outcome = new Outcome<Topology>() {
             @Override
             public void onFailure(Topology context) {
-                callback.onFailure(new RuntimeException("Failed to synchronize host model"));
+                callback.onFailure(new RuntimeException("Failed to synchronize server model"));
             }
 
             @Override
