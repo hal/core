@@ -299,7 +299,7 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         // check if instance exist
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        operation.get(ADDRESS).add("server", server.getName());
+        operation.get(ADDRESS).add("server-config", server.getName());
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
@@ -316,11 +316,11 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
                 ModelNode response = result.get();
                 String outcome = response.get(OUTCOME).asString();
 
-                Boolean serverIsRunning = outcome.equals(SUCCESS) ? Boolean.TRUE : Boolean.FALSE; // 1.5.x
+                Boolean serverIsRunning = Boolean.FALSE;
 
                 // 2.0.x
                 if (outcome.equals(SUCCESS)) {
-                    serverIsRunning = response.get(RESULT).get("server-state").asString().equalsIgnoreCase("running");
+                    serverIsRunning = response.get(RESULT).get("status").asString().equalsIgnoreCase("started");
                 }
 
                 if (!serverIsRunning)

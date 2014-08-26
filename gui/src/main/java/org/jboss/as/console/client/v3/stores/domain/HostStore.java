@@ -2,9 +2,12 @@ package org.jboss.as.console.client.v3.stores.domain;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -152,13 +155,13 @@ public class HostStore extends ChangeSupport {
             ModelNode op = new ModelNode();
             op.get(ADDRESS).add("host", hostName);
             op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-            op.get(CHILD_TYPE).set("server");
+            op.get(CHILD_TYPE).set("server-config");
             op.get(INCLUDE_RUNTIME).set(true);
 
             dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                 @Override
                 public void onFailure(Throwable caught) {
-                    Console.error("Failed to synchronize server model");
+                    Console.error("Failed to synchronize server model: "+caught.getMessage());
                     control.abort();
                 }
 
@@ -174,7 +177,7 @@ public class HostStore extends ChangeSupport {
 
                         for(Property server : servers)
                         {
-                            if(server.getValue().get("server-state").asString().equalsIgnoreCase("running"))
+                            if(server.getValue().get("status").asString().equalsIgnoreCase("started"))
                                 control.getContext().addServer(hostName, server.getName());
                         }
 
@@ -197,7 +200,7 @@ public class HostStore extends ChangeSupport {
         Outcome<Topology> outcome = new Outcome<Topology>() {
             @Override
             public void onFailure(Topology context) {
-                callback.onFailure(new RuntimeException("Failed to synchronize server model"));
+                callback.onFailure(new RuntimeException("Store synchronisation error (Check the logs for further details)"));
             }
 
             @Override
@@ -221,6 +224,19 @@ public class HostStore extends ChangeSupport {
         // b) (optional) refresh hosts before the sever store loads the servers
 
         channel.ack(false);
+    }
+
+    @Process(actionType = RemoveServer.class)
+    public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
+        if(server.getName().equals(selectedServer)) {
+            this.selectedServer = null;
+            channel.ack(true);
+        }
+        else
+        {
+            channel.ack();
+        }
+
     }
 
     @Process(actionType = RefreshHosts.class)

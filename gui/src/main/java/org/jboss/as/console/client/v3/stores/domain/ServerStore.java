@@ -199,7 +199,7 @@ public class ServerStore extends ChangeSupport {
 
     }
 
-    @Process(actionType = RemoveServer.class)
+    @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
     public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
 
         hostInfo.deleteServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
