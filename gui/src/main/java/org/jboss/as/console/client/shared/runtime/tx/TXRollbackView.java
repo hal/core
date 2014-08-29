@@ -39,13 +39,13 @@ public class TXRollbackView implements Sampler {
     private Widget displayStrategy() {
 
         Column[] cols = new Column[] {
-                new NumberColumn("number-of-application-rollbacks","Applications"),
-                new NumberColumn("number-of-resource-rollbacks","Resources")
+                new NumberColumn("number-of-application-rollbacks","Application Failures"),
+                new NumberColumn("number-of-resource-rollbacks","Resource Failures")
         };
 
         String title = "Failure Origin";
         if(Console.protovisAvailable()) {
-            sampler = new BulletGraphView(title, "number of failures")
+            sampler = new BulletGraphView(title, "total number")
                     .setColumns(cols);
         }
         else

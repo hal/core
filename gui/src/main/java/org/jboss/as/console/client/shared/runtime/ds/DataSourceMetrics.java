@@ -14,6 +14,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -114,7 +116,7 @@ public class DataSourceMetrics {
 
         // ----
 
-        String title = "Pool Usage";
+        String title = "Connection Pool";
 
         final String subaddress = isXA ? "xa-data-source":"data-source";
         final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
@@ -154,16 +156,16 @@ public class DataSourceMetrics {
         // ----
 
 
-        NumberColumn avail = new NumberColumn("AvailableCount", "Available");
+        NumberColumn avail = new NumberColumn("AvailableCount", "Available Connections");
         Column[] cols = new Column[] {
                 avail.setBaseline(true),
-                new NumberColumn("AvailableCount","Active Count").setComparisonColumn(avail),
+                new NumberColumn("AvailableCount","Active").setComparisonColumn(avail),
                 new NumberColumn("MaxUsedCount","Max Used").setComparisonColumn(avail)
         };
 
         if(Console.protovisAvailable())
         {
-            poolSampler = new BulletGraphView(title, "count")
+            poolSampler = new BulletGraphView(title, "total number")
                     .setColumns(cols);
         }
         else
@@ -189,7 +191,7 @@ public class DataSourceMetrics {
         // ----
 
 
-        String title2 = "Pool Usage";
+        String title2 = "Prepared Statement Cache";
 
         final HelpSystem.AddressCallback addressCallback2 = new HelpSystem.AddressCallback() {
             @Override
@@ -206,16 +208,16 @@ public class DataSourceMetrics {
         // ----
 
 
-        NumberColumn avail2 = new NumberColumn("PreparedStatementCacheCurrentSize", "Current Size");
+        NumberColumn avail2 = new NumberColumn("PreparedStatementCacheAccessCount", "Access Count");
         Column[] cols2 = new Column[] {
                 avail2.setBaseline(true),
                 new NumberColumn("PreparedStatementCacheHitCount","Hit Count").setComparisonColumn(avail2),
-                new NumberColumn("PreparedStatementCacheMissCount","Miss Used").setComparisonColumn(avail2)
+                new NumberColumn("PreparedStatementCacheMissCount","Miss Count").setComparisonColumn(avail2)
         };
 
         if(Console.protovisAvailable())
         {
-            cacheSampler = new BulletGraphView(title2, "count")
+            cacheSampler = new BulletGraphView(title2, "total number")
                     .setColumns(cols2);
         }
         else
@@ -225,18 +227,16 @@ public class DataSourceMetrics {
                     .setWidth(100, Style.Unit.PCT);
         }
 
-        SafeHtml description = new SafeHtmlBuilder().appendHtmlConstant(Console.CONSTANTS.subsys_jca_dataSource_metric_desc()).toSafeHtml();
-        
-        MultipleToOneLayout layout = new MultipleToOneLayout()
-        .setPlain(true)
-        .setTitle(isXA? "XA Data Sources":"Data Sources")
-        .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
-        .setDescription(description)
-        .setTopLevelTools(toolStrip.asWidget())
-        .setMaster("Datasource", table)
-        .setMasterTools(tools)
-        .addDetail("Pool Usage", poolSampler.asWidget())
-        .addDetail("Prepared Statement Cache", cacheSampler.asWidget());
+        SimpleLayout layout = new SimpleLayout()
+                .setPlain(true)
+                .setTitle(isXA? "XA Data Sources":"Data Sources")
+                .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
+                .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
+                .setTopLevelTools(toolStrip.asWidget())
+                .addContent("",tools)
+                .addContent("Datasource", table)
+                .addContent("Pool Usage", poolSampler.asWidget())
+                .addContent("Prepared Statement Cache", cacheSampler.asWidget());
         
         return layout.build();
     }

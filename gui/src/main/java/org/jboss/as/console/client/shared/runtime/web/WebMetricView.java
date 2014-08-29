@@ -97,13 +97,11 @@ public class WebMetricView extends SuspendableViewImpl implements WebMetricPrese
         // ----
 
 
-        NumberColumn requestCount = new NumberColumn("requestCount","Requests");
+        NumberColumn requestCount = new NumberColumn("requestCount","Number of Requests");
 
         Column[] cols = new Column[] {
                 requestCount.setBaseline(true),
-                new NumberColumn("errorCount","Errors").setComparisonColumn(requestCount),
-                new NumberColumn("processingTime","Processing Time"),
-                new NumberColumn("maxTime", "Max Time")
+                new NumberColumn("errorCount","Errors").setComparisonColumn(requestCount)
         };
 
         String title = "Request per Connector";
@@ -122,7 +120,7 @@ public class WebMetricView extends SuspendableViewImpl implements WebMetricPrese
 
         if(Console.protovisAvailable())
         {
-            sampler = new BulletGraphView(title, "count")
+            sampler = new BulletGraphView(title, "total number")
                     .setColumns(cols);
         }
         else

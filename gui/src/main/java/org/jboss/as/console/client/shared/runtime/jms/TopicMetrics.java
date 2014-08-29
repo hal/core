@@ -3,6 +3,8 @@ package org.jboss.as.console.client.shared.runtime.jms;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -10,18 +12,18 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.rbac.ReadOnlyContext;
+import org.jboss.as.console.client.layout.SimpleLayout;
+import org.jboss.as.console.client.shared.runtime.charts.Column;
+import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
-import org.jboss.as.console.mbui.widgets.ModelNodeForm;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -35,7 +37,8 @@ public class TopicMetrics {
     private JMSMetricPresenter presenter;
     private DefaultCellTable<JMSEndpoint> topicTable;
     private ListDataProvider<JMSEndpoint> dataProvider;
-    private ModelNodeForm topicForm;
+    private Column[] columns;
+    private Grid grid;
 
     public TopicMetrics(JMSMetricPresenter presenter) {
         this.presenter = presenter;
@@ -116,32 +119,38 @@ public class TopicMetrics {
         tablePanel.add(topicTable);
         tablePanel.add(pager);
 
+        columns = new Column[] {
+                new NumberColumn("delivering-count", "Delivering Count"),
+                new NumberColumn("durable-message-count","Durable Message Count"),
+                new NumberColumn("durable-subscription-count","Durable Subscription Count"),
+                new NumberColumn("message-count","Message Count"),
+                new NumberColumn("messages-added ","Messages Added"),
+                new NumberColumn("subscription-count","Subscription Count")
 
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setResourceDescription(ModelNode.fromBase64(MessagingResources.queueDescription))
-                .setSecurityContext(new ReadOnlyContext())
-                .setRuntimeOnly();
+        };
 
-        ModelNodeFormBuilder.FormAssets assets = builder.build();
-        topicForm = assets.getForm();
+        grid = new Grid(columns.length, 2);
+        grid.addStyleName("metric-grid");
 
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("fill-layout");
-        panel.add(assets.getHelp().asWidget());
-        panel.add(topicForm.asWidget());
+        // format
+        for (int row = 0; row < columns.length; ++row) {
+            grid.getCellFormatter().addStyleName(row, 0,  "nominal");
+            grid.getCellFormatter().addStyleName(row, 1, "numerical");
+        }
 
-        VerticalPanel messagePanel = new VerticalPanel();
-        messagePanel.setStyleName("fill-layout-width");
-        messagePanel.add(panel);
+        VerticalPanel desc = new VerticalPanel();
+        desc.addStyleName("metric-container");
+        desc.add(new HTML("<h3 class='metric-label'>Topic Metrics</h3>"));
+        desc.add(grid);
 
-        OneToOneLayout layout = new OneToOneLayout()
+        SimpleLayout layout = new SimpleLayout()
                 .setTitle("Topics")
                 .setPlain(true)
                 .setTopLevelTools(toolStrip.asWidget())
                 .setHeadline("JMS Topic Metrics")
                 .setDescription(Console.CONSTANTS.subsys_messaging_topic_metric_desc())
-                .setMaster("Topic Selection", tablePanel)
-                .addDetail("Messages", panel);
+                .addContent("Topic Selection", tablePanel)
+                .addContent("", desc);
 
         return layout.build();
     }
@@ -151,8 +160,11 @@ public class TopicMetrics {
     }
 
     public void clearSamples() {
-        topicForm.clearValues();
-
+        for(int i=0; i<columns.length;i++)
+        {
+            grid.setText(i, 0, columns[i].getLabel());
+            grid.setText(i, 1, "0");
+        }
     }
 
     public void setTopics(List<JMSEndpoint> topics) {
@@ -161,6 +173,18 @@ public class TopicMetrics {
     }
 
     public void updateFrom(ModelNode result) {
-        topicForm.edit(result);
+        List<Property> atts = result.asPropertyList();
+
+        for(int i=0; i<columns.length; i++)
+        {
+            for(Property att : atts)
+            {
+                if(att.getName().equals(columns[i].getDeytpedName()))
+                {
+                    grid.setText(i, 0, columns[i].getLabel());
+                    grid.setText(i, 1, att.getValue().asString());
+                }
+            }
+        }
     }
 }

@@ -191,3 +191,41 @@
 .search-result .cellListOddItem {
     padding:4px;
 }
+
+/* metrics */
+
+.metric-container {
+    width:100%;
+    vertical-align: middle;
+    padding-left:10px;
+    padding-right:10px;
+}
+
+.metric-label {
+    color: #A7ABB4;
+    font-size: 16px;
+    font-weight: 300 !important;
+    border-bottom:1px solid #E9E6E6;
+    margin-bottom: 8px;
+}
+
+.metric-grid {
+    margin-top:5px;
+}
+
+.metric-grid * td {
+    padding-left:4px;
+}
+
+.metric-grid .nominal {
+
+}
+
+.metric-grid .numerical {
+    text-align: right;
+}
+
+.metric-grid .baseline > td {
+    font-weight: BOLD;
+    vertical-align: top;
+}

@@ -26,6 +26,11 @@ public class Metric {
             add(String.valueOf(l));
     }
 
+    public Metric(double... values) {
+        for(double d : values)
+            add(String.valueOf(d));
+    }
+
     public void add(String value)
     {
         values.add(value);

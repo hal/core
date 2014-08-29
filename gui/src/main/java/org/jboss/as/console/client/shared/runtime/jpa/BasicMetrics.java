@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.Sampler;
@@ -81,7 +82,7 @@ public class BasicMetrics {
 
         if(Console.protovisAvailable())
         {
-            txSampler = new BulletGraphView("Transactions", "count").setColumns(cols);
+            txSampler = new BulletGraphView("Transactions", "total number").setColumns(cols);
         }
         else
         {
@@ -103,7 +104,7 @@ public class BasicMetrics {
 
         if(Console.protovisAvailable())
         {
-            queryCacheSampler = new BulletGraphView("Query Cache", "count").setColumns(queryCols);
+            queryCacheSampler = new BulletGraphView("Query Cache", "total number", false).setColumns(queryCols);
         }
         else
         {
@@ -124,7 +125,7 @@ public class BasicMetrics {
 
         if(Console.protovisAvailable())
         {
-            queryExecSampler = new BulletGraphView("Execution", "count").setColumns(queryExecCols);
+            queryExecSampler = new BulletGraphView("Query Execution", "total number", false).setColumns(queryExecCols);
         }
         else
         {
@@ -146,7 +147,7 @@ public class BasicMetrics {
 
         if(Console.protovisAvailable())
         {
-            secondLevelSampler = new BulletGraphView("Second Level Cache", "count").setColumns(secondLevelCols);
+            secondLevelSampler = new BulletGraphView("Second Level Cache", "total number").setColumns(secondLevelCols);
         }
         else
         {
@@ -159,21 +160,20 @@ public class BasicMetrics {
         //  ------
 
 
-        NumberColumn sessionOpenCount = new NumberColumn("session-open-count", "open");
+        NumberColumn sessionOpenCount = new NumberColumn("session-open-count", "Sessions opened");
         Column[] connectionCols = new Column[] {
                 sessionOpenCount.setBaseline(true),
-                new TextColumn("session-close-count","Closed").setComparisonColumn(sessionOpenCount),
-                new NumberColumn("connect-count","Connection Count")
+                new TextColumn("session-close-count","Closed").setComparisonColumn(sessionOpenCount)
 
         };
 
         if(Console.protovisAvailable())
         {
-            connectionSampler = new BulletGraphView("Connections", "count").setColumns(connectionCols);
+            connectionSampler = new BulletGraphView("Sessions", "total number").setColumns(connectionCols);
         }
         else
         {
-            connectionSampler  = new PlainColumnView("Connections", addressCallback)
+            connectionSampler  = new PlainColumnView("Sessions", addressCallback)
                     .setColumns(connectionCols)
                     .setWidth(100, Style.Unit.PCT);
         }
@@ -195,28 +195,33 @@ public class BasicMetrics {
 
         VerticalPanel queryPanel = new VerticalPanel();
         queryPanel.setStyleName("fill-layout-width");
-        queryPanel.add(queryCacheSampler.asWidget());
-        queryPanel.add(queryExecSampler.asWidget());
 
         slowQuery = new HTML();
         slowQuery.setStyleName("help-panel-open");
         slowQuery.getElement().setAttribute("style", "padding:5px");
+
+
+        queryPanel.add(queryExecSampler.asWidget());
         queryPanel.add(slowQuery);
+
+        queryPanel.add(queryCacheSampler.asWidget());
+
+
 
         VerticalPanel secondPanel = new VerticalPanel();
         secondPanel.setStyleName("fill-layout-width");
         secondPanel.add(secondLevelSampler.asWidget());
 
 
-        OneToOneLayout layout = new OneToOneLayout()
+        SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
                 .setTopLevelTools(toolStrip.asWidget())
                 .setHeadlineWidget(title)
                 .setDescription(Console.CONSTANTS.subsys_jpa_basicMetric_desc())
-                .addDetail("Connections", connectionPanel)
-                .addDetail("Transactions", txPanel)
-                .addDetail("Queries", queryPanel)
-                .addDetail("Second Level Cache", secondPanel);
+                .addContent("Sessions", connectionPanel)
+                .addContent("Transactions", txPanel)
+                .addContent("Queries", queryPanel)
+                .addContent("Second Level Cache", secondPanel);
 
 
         return layout.build();

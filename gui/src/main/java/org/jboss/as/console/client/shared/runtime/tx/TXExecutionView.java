@@ -34,7 +34,7 @@ public class TXExecutionView implements Sampler {
     private Widget displayStrategy() {
 
 
-        NumberColumn total = new NumberColumn("number-of-transactions","Total");
+        NumberColumn total = new NumberColumn("number-of-transactions","Number of Transactions");
 
         Column[] cols = new Column[] {
                 total.setBaseline(true),
@@ -45,7 +45,7 @@ public class TXExecutionView implements Sampler {
 
         String title = "Success Ratio";
         if(Console.protovisAvailable()) {
-            sampler = new BulletGraphView(title, "number of transactions")
+            sampler = new BulletGraphView(title, "total number")
                     .setColumns(cols);
         }
         else

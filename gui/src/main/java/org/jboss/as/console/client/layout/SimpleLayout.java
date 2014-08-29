@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.layout;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
@@ -25,7 +27,7 @@ public class SimpleLayout {
 
     private String title = "TITLE";
     private String headline = "HEADLINE";
-    private String description = "DESCRIPTION";
+    private HTML description = new HTML("DESCRIPTION");
 
     private Widget toolStrip = null;
 
@@ -57,8 +59,13 @@ public class SimpleLayout {
         return this;
     }
 
+    @Deprecated
     public SimpleLayout setDescription(String description) {
-        this.description = description;
+        return setDescription(new SafeHtmlBuilder().appendEscaped(description).toSafeHtml());
+    }
+
+    public SimpleLayout setDescription(SafeHtml description) {
+        this.description = new HTML(description);
         return this;
     }
 
@@ -114,7 +121,8 @@ public class SimpleLayout {
             panel.add(headlineWidget);
         }
 
-        panel.add(new ContentDescription(description));
+        description.setStyleName("content-description");
+        panel.add(description);
 
 
         for(NamedWidget item : details)

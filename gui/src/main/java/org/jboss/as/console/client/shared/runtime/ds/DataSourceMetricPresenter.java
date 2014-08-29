@@ -270,7 +270,7 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
                 {
                     ModelNode result = response.get(RESULT).asObject();
 
-                    long size = result.get("PreparedStatementCacheCurrentSize").asLong();
+                    long size = result.get("PreparedStatementCacheAccessCount").asLong();
                     long hit = result.get("PreparedStatementCacheHitCount").asLong();
                     long miss = result.get("PreparedStatementCacheMissCount").asLong();
 

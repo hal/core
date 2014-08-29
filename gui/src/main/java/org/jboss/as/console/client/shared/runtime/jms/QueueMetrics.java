@@ -3,6 +3,8 @@ package org.jboss.as.console.client.shared.runtime.jms;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -10,21 +12,18 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.rbac.ReadOnlyContext;
-import org.jboss.as.console.client.shared.help.HelpSystem;
-import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
+import org.jboss.as.console.client.layout.SimpleLayout;
+import org.jboss.as.console.client.shared.runtime.charts.Column;
+import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
-import org.jboss.as.console.mbui.widgets.ModelNodeForm;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
-import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -38,14 +37,11 @@ public class QueueMetrics {
     private JMSMetricPresenter presenter;
     private DefaultCellTable<Queue> queueTable;
     private ListDataProvider<Queue> dataProvider;
-    private ModelNodeForm queueForm;
+    private Grid grid;
+    private Column[] columns;
 
     public QueueMetrics(JMSMetricPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    public QueueMetrics() {
-
     }
 
     Widget asWidget() {
@@ -91,19 +87,6 @@ public class QueueMetrics {
             }
         });
 
-        // ----
-
-        final HelpSystem.AddressCallback addressCallback = new HelpSystem.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = new ModelNode();
-                address.get(ModelDescriptionConstants.ADDRESS).set(RuntimeBaseAddress.get());
-                address.get(ModelDescriptionConstants.ADDRESS).add("subsystem", "messaging");
-                address.get(ModelDescriptionConstants.ADDRESS).add("hornetq-server", "default");
-                address.get(ModelDescriptionConstants.ADDRESS).add("jms-queue", "*");
-                return address;
-            }
-        };
 
         // -------
 
@@ -135,27 +118,38 @@ public class QueueMetrics {
         tablePanel.add(queueTable);
         tablePanel.add(pager);
 
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setResourceDescription(ModelNode.fromBase64(MessagingResources.queueDescription))
-                .setSecurityContext(new ReadOnlyContext())
-                .setRuntimeOnly();
+        columns = new Column[] {
+                new NumberColumn("consumer-count", "Consumer Count"),
+                new NumberColumn("message-count","Message Count"),
+                new NumberColumn("messages-added","Messages Added"),
+                new NumberColumn("scheduled-count","Scheduled Count")
+        };
 
-        ModelNodeFormBuilder.FormAssets assets = builder.build();
-        queueForm = assets.getForm();
+        grid = new Grid(columns.length, 2);
+        grid.addStyleName("metric-grid");
 
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("fill-layout-width");
-        panel.add(assets.getHelp().asWidget());
-        panel.add(queueForm.asWidget());
+        // format
+        for (int row = 0; row < columns.length; ++row) {
+            grid.getCellFormatter().addStyleName(row, 0,  "nominal");
+            grid.getCellFormatter().addStyleName(row, 1, "numerical");
+        }
 
-        OneToOneLayout layout = new OneToOneLayout()
+        VerticalPanel desc = new VerticalPanel();
+        desc.addStyleName("metric-container");
+        desc.add(new HTML("<h3 class='metric-label'>Queue Metrics</h3>"));
+        desc.add(grid);
+
+        // init
+        clearSamples();
+
+        SimpleLayout layout = new SimpleLayout()
                 .setTitle("Queues")
                 .setPlain(true)
                 .setTopLevelTools(toolStrip.asWidget())
                 .setHeadline("JMS Queue Metrics")
                 .setDescription(Console.CONSTANTS.subsys_messaging_queue_metric_desc())
-                .setMaster("Queue Selection", tablePanel)
-                .addDetail("Messages", panel);
+                .addContent("Queue Selection", tablePanel)
+                .addContent("Metrics", desc);
 
         return layout.build();
     }
@@ -165,7 +159,11 @@ public class QueueMetrics {
     }
 
     public void clearSamples() {
-        queueForm.clearValues();
+        for(int i=0; i<columns.length;i++)
+        {
+            grid.setText(i, 0, columns[i].getLabel());
+            grid.setText(i, 1, "0");
+        }
 
     }
 
@@ -177,6 +175,20 @@ public class QueueMetrics {
 
 
     public void updateFrom(ModelNode result) {
-        queueForm.edit(result);
+
+        List<Property> atts = result.asPropertyList();
+
+        for(int i=0; i<columns.length; i++)
+        {
+            for(Property att : atts)
+            {
+                if(att.getName().equals(columns[i].getDeytpedName()))
+                {
+                    grid.setText(i, 0, columns[i].getLabel());
+                    grid.setText(i, 1, att.getValue().asString());
+                }
+            }
+        }
+
     }
 }

@@ -38,14 +38,13 @@ public class HeapChartView implements Sampler {
         Column maxHeap = new NumberColumn("max","Max").setBaseline(true);
         Column[] heapCols = new Column[] {
                 maxHeap,
-                new NumberColumn("used","Used").setComparisonColumn(maxHeap),
+                new NumberColumn("used","Used"),
                 new NumberColumn("comitted","Committed"),
-                new NumberColumn("init","Init"),
+               // new NumberColumn("init","Init"),
         };
 
         if(Console.protovisAvailable()) {
-            sampler = new BulletGraphView(title, "mb")
-                    .setColumns(heapCols);
+            sampler = new BulletGraphView(title, "Heap in MB", false).setColumns(heapCols);
         }
         else
         {
@@ -80,6 +79,14 @@ public class HeapChartView implements Sampler {
             converted[i] = toMB(Long.valueOf(metric.get(i)).longValue());
         }
         sampler.addSample(new Metric(converted));
+    }
+
+    static long percentage(double total, double actual)
+    {
+        if(total==0 || actual==0)
+            return 0;
+
+        return Math.round((actual/total)*100);
     }
 
     private static long toMB(long value) {

@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.runtime.charts;
 
 import com.google.gwt.core.client.JsArrayNumber;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -37,12 +38,21 @@ public class BulletGraphView implements Sampler {
     private ProtovisWidget graphWidget;
     private HorizontalPanel container;
     private PVPanel vis = null;
+    private Grid grid;
 
+    private boolean embeddedUse = false;
+
+    @Deprecated
     public BulletGraphView(String title, String metricName) {
         this.title = title;
         this.metricName = metricName;
     }
 
+    public BulletGraphView(String title, String metricName, boolean embeddedUse) {
+        this.title = title;
+        this.metricName = metricName;
+        this.embeddedUse = embeddedUse;
+    }
 
     public Sampler setColumns(Column[] columns) {
         this.columns = columns;
@@ -92,20 +102,39 @@ public class BulletGraphView implements Sampler {
     @Override
     public Widget asWidget() {
 
+        VerticalPanel desc = new VerticalPanel();
+        desc.addStyleName("metric-container");
+        if(!embeddedUse)
+            desc.add(new HTML("<h3 class='metric-label'>" + title + "</h3>"));
+
         container = new HorizontalPanel();
         container.setStyleName("fill-layout-width");
         container.addStyleName("metric-panel");
 
-        VerticalPanel desc = new VerticalPanel();
-        desc.add(new HTML("<h3>" + title + "</h3>"));
+
+        grid = new Grid(columns.length, 2);
+        grid.addStyleName("metric-grid");
+
+        // format
+        for (int row = 0; row < columns.length; ++row) {
+            grid.getCellFormatter().addStyleName(row, 0,  "nominal");
+            grid.getCellFormatter().addStyleName(row, 1, "numerical");
+        }
 
         int baselineIndex = getBaseLineIndex();
         if(baselineIndex>=0)
-            desc.add(new HTML("<i>Compared to " + columns[baselineIndex].getLabel() + "</i>"));
+            grid.getRowFormatter().addStyleName(baselineIndex, "baseline");
 
-        container.add(desc);
+        // init
+        for(int i=0; i<columns.length;i++)
+        {
+            grid.setText(i, 0, columns[i].label);
+            grid.setText(i, 1, "0");
+        }
 
-        desc.getElement().getParentElement().setAttribute("width", "20%");
+
+        container.add(grid);
+
         graphWidget = new ProtovisWidget();
         graphWidget.initPVPanel();
         vis = createVisualization();
@@ -121,7 +150,8 @@ public class BulletGraphView implements Sampler {
         graphWidget.getElement().getParentElement().setAttribute("align", "center");
         graphWidget.getElement().getParentElement().setAttribute("width", "80%");
 
-        return container;
+        desc.add(container);
+        return desc;
     }
 
     private void renderDefault(){
@@ -149,6 +179,14 @@ public class BulletGraphView implements Sampler {
             });
         }
 
+
+        for(int i=0; i<columns.length;i++)
+        {
+            grid.setText(i, 0, columns[i].label);
+            grid.setText(i, 1, metric.get(i));
+        }
+
+
     }
 
     private JsArrayGeneric<Bullet> distinctColumnStrategy(Metric metric) {
@@ -173,7 +211,7 @@ public class BulletGraphView implements Sampler {
             }
             else {
                 Double value = Double.valueOf(actualValue);
-                String label = percentage(baseline, value) +"% "+c.getLabel();
+                String label = c.getLabel();//percentage(baseline, value) +"% "+c.getLabel();
 
                 if(c.getComparisonColumn()!=null && baseline<0)
                 {
