@@ -26,6 +26,8 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * A visual indicator for the navigation inside a {@link org.jboss.as.console.client.shared.runtime.logviewer.LogFile}
@@ -68,9 +70,9 @@ public class LogFileIndicator extends Composite {
         } else {
             if (!resized) {
                 consumedSnapshot = bytesConsumed;
-                System.out.println(logFile + "\t consumedSnapshot:           " + consumedSnapshot);
             }
-            if (lastSkipped < logFile.getSkipped()) {
+
+            if (logFile.getSkipped() > lastSkipped) {
                 // skipped increased
                 if (logFile.getReadFrom() == Position.HEAD) {
                     // next
@@ -79,7 +81,8 @@ public class LogFileIndicator extends Composite {
                     // prev
                     bytesConsumed -= logFile.getNumBytes();
                 }
-            } else if (lastSkipped > logFile.getSkipped()) {
+
+            } else if (logFile.getSkipped() < lastSkipped) {
                 // skipped decreased
                 if (logFile.getReadFrom() == Position.HEAD) {
                     // prev
@@ -95,13 +98,12 @@ public class LogFileIndicator extends Composite {
                 } else {
                     bytesConsumed = consumedSnapshot - logFile.getNumBytes();
                 }
-                System.out.println(logFile + "\t bytesConsumed after resize: " + bytesConsumed);
             }
         }
 
-        ratio = (100.0 / bytesPerFile) * bytesConsumed;
-        double indicatorHeight = Math.min(containerHeight, (containerHeight / 100.0) * ratio);
-        indicatorHeight = Math.max(5, indicatorHeight);
+        ratio = min(100.0, (100.0 / bytesPerFile) * bytesConsumed);
+        double indicatorHeight = min(containerHeight, (containerHeight / 100.0) * ratio);
+        indicatorHeight = max(5, indicatorHeight);
         indicator.getElement().getStyle().setHeight(indicatorHeight, PX);
 
         lastSkipped = logFile.getSkipped();

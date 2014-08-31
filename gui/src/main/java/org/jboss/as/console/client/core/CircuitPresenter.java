@@ -30,66 +30,61 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A presenter which registers itself as a {@link org.jboss.gwt.circuit.PropagatesChange.Handler} for the store
- * given as constructor parameter. The registration happens in {@code onBind()} and delegates to
- * {@link #onAction(Class)} only if the presenter is visible.
+ * A presenter which registers a {@link org.jboss.gwt.circuit.PropagatesChange.Handler} for a given store.
+ * The handler delegates to {@link #onAction(Class)} if the presenter is visible. The registered handlers
+ * are removed again in {@link #onUnbind()}.
  *
  * @author Harald Pehl
  */
 public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_> {
 
-    protected final PropagatesChange store;
-    private HandlerRegistration handlerRegistration;
+    private final List<HandlerRegistration> registrations;
 
-    protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy,
-                            PropagatesChange store) {
+    protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy) {
         super(autoBind, eventBus, view, proxy);
-        this.store = store;
+        this.registrations = new ArrayList<>();
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy,
-                            PropagatesChange store) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy) {
         super(eventBus, view, proxy);
-        this.store = store;
+        this.registrations = new ArrayList<>();
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType,
-                            PropagatesChange store) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType) {
         super(eventBus, view, proxy, revealType);
-        this.store = store;
+        this.registrations = new ArrayList<>();
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, GwtEvent.Type<RevealContentHandler<?>> slot,
-                            PropagatesChange store) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, GwtEvent.Type<RevealContentHandler<?>> slot) {
         super(eventBus, view, proxy, slot);
-        this.store = store;
+        this.registrations = new ArrayList<>();
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, GwtEvent.Type<RevealContentHandler<?>> slot,
-                            PropagatesChange store) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, GwtEvent.Type<RevealContentHandler<?>> slot) {
         super(eventBus, view, proxy, revealType, slot);
-        this.store = store;
+        this.registrations = new ArrayList<>();
     }
 
-    @Override
-    protected void onBind() {
-        super.onBind();
-        handlerRegistration = store.addChangeHandler(new PropagatesChange.Handler() {
+    protected void addChangeHandler(PropagatesChange propagatesChange) {
+        registrations.add(propagatesChange.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Class<?> actionType) {
                 if (isVisible()) {
                     onAction(actionType);
                 }
             }
-        });
+        }));
     }
 
     @Override
     protected void onUnbind() {
         super.onUnbind();
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
+        for (HandlerRegistration registration : registrations) {
+            registration.removeHandler();
         }
     }
 

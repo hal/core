@@ -43,8 +43,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * A store which holds a list of log files and manages the state of the active {@link LogFile}.
- * <p/>
- * TODO Implement 'tail -f' using the GWT Scheduler.
  *
  * @author Harald Pehl
  */
@@ -55,13 +53,15 @@ public class LogStore extends ChangeSupport {
     public final static String FILE_NAME = "file-name";
     public final static String FILE_SIZE = "file-size";
     public final static String LAST_MODIFIED_DATE = "last-modified-date";
+
     private final static int PAGE_SIZE = 25;
-    private final static int FOLLOW_INTERVAL = 2000; // ms
+    private final static int FOLLOW_INTERVAL = 1200; // ms
 
     private final HostStore hostStore;
     private final DispatchAsync dispatcher;
     private final Scheduler scheduler;
     private final BootstrapContext bootstrap;
+
 
     // ------------------------------------------------------ state
 
@@ -518,9 +518,7 @@ public class LogStore extends ChangeSupport {
 
         private boolean isValid() {
             LogFile logFile = states.get(name);
-            boolean valid = logFile != null && logFile == activeLogFile && logFile.isFollow() && !pauseFollow;
-            System.out.println("RefreshLogFile(" + logFile + ").valid: " + valid);
-            return valid;
+            return logFile != null && logFile == activeLogFile && logFile.isFollow() && !pauseFollow;
         }
     }
 }

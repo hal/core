@@ -32,6 +32,8 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -60,14 +62,22 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;
     private final LogStore logStore;
+    private final HostStore hostStore;
 
     @Inject
     public LogViewerPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                              Dispatcher circuit, LogStore logStore) {
-        super(eventBus, view, proxy, logStore);
+                              Dispatcher circuit, LogStore logStore, HostStore hostStore) {
+        super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
         this.logStore = logStore;
+        this.hostStore = hostStore;
+    }
+
+    @Override
+    protected void onBind() {
+        addChangeHandler(logStore);
+        addChangeHandler(hostStore);
     }
 
     @Override
@@ -89,6 +99,9 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
                 actionType.equals(FollowLogFile.class) ||
                 actionType.equals(UnFollowLogFile.class)) {
             getView().refresh(logStore.getActiveLogFile(), actionType);
+
+        } else if (actionType.equals(SelectServerInstance.class)) {
+            onReset();
         }
     }
 
