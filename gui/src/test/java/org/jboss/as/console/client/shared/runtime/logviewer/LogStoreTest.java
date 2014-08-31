@@ -43,7 +43,7 @@ public class LogStoreTest {
 
     @Test
     public void readLogFilesAndVerifyStale() {
-        LogFile stale = new LogFile("stale.log", Collections.<String>emptyList());
+        LogFile stale = new LogFile("stale.log", Collections.<String>emptyList(), 0);
         logStore.states.put(stale.getName(), stale);
 
         dispatcher.push(StaticDmrResponse.ok(logFileNodes("server.log")));
@@ -55,7 +55,8 @@ public class LogStoreTest {
 
     @Test
     public void openLogFile() {
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
+        logStore.logFiles.add(logFileNode("server.log"));
         logStore.openLogFile("server.log", NoopChannel.INSTANCE);
 
         assertFalse(logStore.pauseFollow);
@@ -73,7 +74,7 @@ public class LogStoreTest {
 
     @Test
     public void reopenLogFile() {
-        LogFile logFile = new LogFile("server.log", lines(0));
+        LogFile logFile = new LogFile("server.log", lines(0), 0);
         logStore.states.put(logFile.getName(), logFile);
 
         assertFalse(logStore.pauseFollow);
@@ -85,7 +86,7 @@ public class LogStoreTest {
 
     @Test
     public void selectLogFile() {
-        LogFile logFile = new LogFile("server.log", lines(0));
+        LogFile logFile = new LogFile("server.log", lines(0), 0);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
@@ -98,8 +99,8 @@ public class LogStoreTest {
 
     @Test
     public void closeLogFile() {
-        LogFile foo = new LogFile("foo.log", Collections.<String>emptyList());
-        LogFile bar = new LogFile("bar.log", Collections.<String>emptyList());
+        LogFile foo = new LogFile("foo.log", Collections.<String>emptyList(), 0);
+        LogFile bar = new LogFile("bar.log", Collections.<String>emptyList(), 0);
         logStore.states.put(foo.getName(), foo);
         logStore.states.put(bar.getName(), bar);
         logStore.activate(foo);
@@ -116,7 +117,7 @@ public class LogStoreTest {
 
     @Test
     public void closeActiveLogFile() {
-        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList());
+        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
@@ -129,11 +130,11 @@ public class LogStoreTest {
 
     @Test
     public void navigateHead() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.HEAD, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
@@ -157,12 +158,12 @@ public class LogStoreTest {
 
     @Test
     public void navigateTail() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.TAIL, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
@@ -186,12 +187,12 @@ public class LogStoreTest {
 
     @Test
     public void navigatePrev() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logStore.pageSize = 2;
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
@@ -215,17 +216,17 @@ public class LogStoreTest {
 
     @Test
     public void navigatePrevPrevNext() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logStore.pageSize = 2;
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
         // Prev (1)
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // Prev (2)
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1 verify DMR operation
@@ -247,7 +248,7 @@ public class LogStoreTest {
         assertFalse(activeLogFile.isStale());
 
         // Next
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
@@ -271,13 +272,13 @@ public class LogStoreTest {
 
     @Test
     public void navigatePrevHeadNext() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logStore.pageSize = 2;
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
         // Prev
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
@@ -299,7 +300,7 @@ public class LogStoreTest {
         assertFalse(activeLogFile.isStale());
 
         // Head
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.HEAD, NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
@@ -321,7 +322,7 @@ public class LogStoreTest {
         assertFalse(activeLogFile.isStale());
 
         // Next
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
@@ -345,13 +346,13 @@ public class LogStoreTest {
 
     @Test
     public void navigateNext() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
         logStore.pageSize = 2;
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
@@ -375,14 +376,14 @@ public class LogStoreTest {
 
     @Test
     public void navigateNextNextPrev() {
-        LogFile logFile = new LogFile("server.log", lines(2));
+        LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
         logStore.pageSize = 2;
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
         // Next (1)
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
@@ -404,7 +405,7 @@ public class LogStoreTest {
         assertFalse(activeLogFile.isStale());
 
         // Next (2)
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
@@ -426,7 +427,7 @@ public class LogStoreTest {
         assertFalse(activeLogFile.isStale());
 
         // Previous
-        dispatcher.push(StaticDmrResponse.ok(logFileNode(2)));
+        dispatcher.push(StaticDmrResponse.ok(linesNode(2)));
         logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
@@ -456,7 +457,7 @@ public class LogStoreTest {
 
     @Test
     public void follow() {
-        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList());
+        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
 
@@ -470,7 +471,7 @@ public class LogStoreTest {
 
     @Test
     public void pauseFollow() {
-        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList());
+        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logFile.setFollow(true);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
@@ -485,7 +486,7 @@ public class LogStoreTest {
 
     @Test
     public void unFollow() {
-        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList());
+        LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logFile.setFollow(true);
         logStore.states.put(logFile.getName(), logFile);
         logStore.activate(logFile);
@@ -499,21 +500,26 @@ public class LogStoreTest {
     }
 
     private ModelNode logFileNodes(String... names) {
-        ModelNode payload = new ModelNode();
+        ModelNode node = new ModelNode();
         for (String name : names) {
-            ModelNode logFile = new ModelNode();
-            logFile.get("file-name").set(name);
-            payload.add(logFile);
+            node.add(logFileNode(name));
         }
-        return payload;
+        return node;
     }
 
-    private ModelNode logFileNode(int numberOfLines) {
-        ModelNode payload = new ModelNode();
+    private ModelNode logFileNode(String name) {
+        ModelNode node = new ModelNode();
+        node.get("file-name").set(name);
+        node.get("file-size").set(42);
+        return node;
+    }
+
+    private ModelNode linesNode(int numberOfLines) {
+        ModelNode node = new ModelNode();
         for (String line : lines(numberOfLines)) {
-            payload.add(line);
+            node.add(line);
         }
-        return payload;
+        return node;
     }
 
     private List<String> lines(int numberOfLines) {
