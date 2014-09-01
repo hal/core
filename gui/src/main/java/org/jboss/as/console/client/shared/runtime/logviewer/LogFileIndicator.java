@@ -101,9 +101,13 @@ public class LogFileIndicator extends Composite {
             }
         }
 
-        ratio = min(100.0, (100.0 / bytesPerFile) * bytesConsumed);
-        double indicatorHeight = min(containerHeight, (containerHeight / 100.0) * ratio);
+        ratio = (100.0 / bytesPerFile) * bytesConsumed;
+        ratio = max(0.0, ratio);
+        ratio = min(100.0, ratio);
+
+        double indicatorHeight = (containerHeight / 100.0) * ratio;
         indicatorHeight = max(5, indicatorHeight);
+        indicatorHeight = min(containerHeight, indicatorHeight);
         indicator.getElement().getStyle().setHeight(indicatorHeight, PX);
 
         lastSkipped = logFile.getSkipped();

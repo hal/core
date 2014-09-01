@@ -27,7 +27,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -84,12 +83,12 @@ public class LogFileTable extends Composite {
                 ModelNode logFile = selectionModel.getSelectedObject();
                 if (logFile != null) {
                     // TODO Implement download
-                    Window.alert("Download not yet implemented!");
                 }
             }
         });
         download.setEnabled(false);
-        tools.addToolButtonRight(download);
+        // TODO Enable when the server side download is in place
+        // tools.addToolButtonRight(download);
         final ToolButton view = new ToolButton(Console.CONSTANTS.common_label_view(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

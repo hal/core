@@ -23,6 +23,7 @@ package org.jboss.as.console.client.shared.runtime.logviewer;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -35,10 +36,9 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 
-import javax.inject.Inject;
 import java.util.*;
 
-import static com.google.gwt.core.client.Scheduler.RepeatingCommand;
+import static java.lang.Math.max;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -47,7 +47,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  */
 @Store
-@SuppressWarnings("UnusedDeclaration")
 public class LogStore extends ChangeSupport {
 
     public final static String FILE_NAME = "file-name";
@@ -115,9 +114,7 @@ public class LogStore extends ChangeSupport {
 
     @Process(actionType = ReadLogFiles.class)
     public void readLogFiles(final Dispatcher.Channel channel) {
-        final ModelNode op = new ModelNode();
-        op.get(ADDRESS).set(baseAddress());
-        op.get(OP).set("list-log-files");
+        final ModelNode op = listLogFilesOp();
 
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
@@ -158,7 +155,7 @@ public class LogStore extends ChangeSupport {
         if (logFile == null) {
             final ModelNode op = readLogFileOp(name);
             op.get("tail").set(true);
-            dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     channel.nack(caught);
@@ -171,8 +168,8 @@ public class LogStore extends ChangeSupport {
                         channel.nack(new RuntimeException("Failed to open " + name + " using " + op + ": " +
                                 response.getFailureDescription()));
                     } else {
-                        int fileSize = getFileSize(name);
-                        LogFile newLogFile = new LogFile(name, readLines(response.get(RESULT).asList()), fileSize);
+                        ModelNode compResult = response.get(RESULT);
+                        LogFile newLogFile = new LogFile(name, readLines(compResult), readFileSize(name, compResult));
                         newLogFile.setFollow(true);
                         states.put(name, newLogFile);
                         activate(newLogFile);
@@ -186,16 +183,6 @@ public class LogStore extends ChangeSupport {
             activate(logFile);
             channel.ack();
         }
-    }
-
-    private int getFileSize(String name) {
-        for (ModelNode logFile : logFiles) {
-            String fileName = logFile.get(FILE_NAME).asString();
-            if (fileName.equals(name)) {
-                return logFile.get(FILE_SIZE).asInt();
-            }
-        }
-        throw new IllegalStateException("No file size found for " + name);
     }
 
     @Process(actionType = CloseLogFile.class)
@@ -237,7 +224,7 @@ public class LogStore extends ChangeSupport {
             return;
         }
 
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
                 channel.nack(caught);
@@ -250,8 +237,10 @@ public class LogStore extends ChangeSupport {
                     channel.nack(new RuntimeException("Failed to navigate in " + activeLogFile + " using " + op + ": " +
                             response.getFailureDescription()));
                 } else {
-                    List<String> lines = readLines(response.get(RESULT).asList());
-                    finishNavigation(activeLogFile, direction, skipped, lines);
+                    ModelNode compResult = response.get(RESULT);
+                    int fileSize = readFileSize(activeLogFile.getName(), compResult);
+                    List<String> lines = readLines(compResult);
+                    finishNavigation(activeLogFile, direction, skipped, lines, fileSize);
                     channel.ack();
                 }
             }
@@ -315,7 +304,7 @@ public class LogStore extends ChangeSupport {
         return op;
     }
 
-    private void finishNavigation(LogFile logFile, Direction direction, int skipped, List<String> lines) {
+    private void finishNavigation(LogFile logFile, Direction direction, int skipped, List<String> lines, int fileSize) {
         int diff = pageSize - lines.size();
         switch (direction) {
             case HEAD:
@@ -344,6 +333,7 @@ public class LogStore extends ChangeSupport {
                 break;
         }
         logFile.setLines(lines);
+        logFile.setFileSize(fileSize);
     }
 
     @Process(actionType = ChangePageSize.class)
@@ -368,7 +358,7 @@ public class LogStore extends ChangeSupport {
                         break;
                 }
 
-                dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         channel.nack(caught);
@@ -381,7 +371,11 @@ public class LogStore extends ChangeSupport {
                             channel.nack(new RuntimeException("Failed to change page size to " + pageSize +
                                     " for " + activeLogFile + " using " + op + ": " + response.getFailureDescription()));
                         } else {
-                            activeLogFile.setLines(readLines(response.get(RESULT).asList()));
+                            ModelNode compResult = response.get(RESULT);
+                            int fileSize = readFileSize(activeLogFile.getName(), compResult);
+                            List<String> lines = readLines(compResult);
+                            activeLogFile.setFileSize(fileSize);
+                            activeLogFile.setLines(lines);
                             channel.ack();
                         }
                     }
@@ -439,6 +433,9 @@ public class LogStore extends ChangeSupport {
         scheduler.scheduleFixedDelay(new RefreshLogFile(logFile.getName()), FOLLOW_INTERVAL);
     }
 
+
+    // ------------------------------------------------------ model node methods
+
     private ModelNode baseAddress() {
         ModelNode address = new ModelNode();
         if (!bootstrap.isStandalone()) {
@@ -447,6 +444,13 @@ public class LogStore extends ChangeSupport {
         }
         address.add("subsystem", "logging");
         return address;
+    }
+
+    private ModelNode listLogFilesOp() {
+        final ModelNode op = new ModelNode();
+        op.get(ADDRESS).set(baseAddress());
+        op.get(OP).set("list-log-files");
+        return op;
     }
 
     private ModelNode readLogFileOp(String logFile) {
@@ -458,10 +462,50 @@ public class LogStore extends ChangeSupport {
         return op;
     }
 
-    private List<String> readLines(List<ModelNode> lines) {
+    private ModelNode wrapInComposite(ModelNode readLogFileOp) {
+        final ModelNode comp = new ModelNode();
+        comp.get(ADDRESS).setEmptyList();
+        comp.get(OP).set(COMPOSITE);
+
+        List<ModelNode> steps = new LinkedList<>();
+        steps.add(listLogFilesOp());
+        steps.add(readLogFileOp);
+        comp.get(STEPS).set(steps);
+
+        return comp;
+    }
+
+    private int readFileSize(String name, ModelNode compResult) {
+        int size = -1;
+        ModelNode stepResult = compResult.get("step-1");
+        if (stepResult.get(RESULT).isDefined()) {
+            for (ModelNode node : stepResult.get(RESULT).asList()) {
+                if (name.equals(node.get(FILE_NAME).asString())) {
+                    size = node.get(FILE_SIZE).asInt();
+                    break;
+                }
+            }
+        }
+        if (size == -1) {
+            // fall back to previously read nodes
+            for (ModelNode node : logFiles) {
+                if (name.equals(node.get(FILE_NAME).asString())) {
+                    size = node.get(FILE_SIZE).asInt();
+                }
+            }
+
+        }
+        // to prevent ArithmeticExceptions
+        return max(1, size);
+    }
+
+    private List<String> readLines(ModelNode compResult) {
         List<String> extractedLines = new ArrayList<>();
-        for (ModelNode line : lines) {
-            extractedLines.add(line.asString());
+        ModelNode stepResult = compResult.get("step-2");
+        if (stepResult.get(RESULT).isDefined()) {
+            for (ModelNode node : stepResult.get(RESULT).asList()) {
+                extractedLines.add(node.asString());
+            }
         }
         return extractedLines;
     }
@@ -480,7 +524,7 @@ public class LogStore extends ChangeSupport {
 
     // ------------------------------------------------------ polling
 
-    private class RefreshLogFile implements RepeatingCommand {
+    private class RefreshLogFile implements Scheduler.RepeatingCommand {
 
         private final String name;
 
@@ -493,7 +537,7 @@ public class LogStore extends ChangeSupport {
             if (isValid()) {
                 final ModelNode op = readLogFileOp(name);
                 op.get("tail").set(true);
-                dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         // noop
@@ -504,8 +548,12 @@ public class LogStore extends ChangeSupport {
                         ModelNode response = result.get();
                         if (!response.isFailure()) {
                             if (isValid()) {
+                                ModelNode compResult = response.get(RESULT);
+                                int fileSize = readFileSize(name, compResult);
+                                List<String> lines = readLines(compResult);
                                 LogFile logFile = states.get(name);
-                                logFile.setLines(readLines(response.get(RESULT).asList()));
+                                logFile.setFileSize(fileSize);
+                                logFile.setLines(lines);
                                 logFile.goTo(Position.TAIL);
                                 fireChange(new FollowLogFile());
                             }
