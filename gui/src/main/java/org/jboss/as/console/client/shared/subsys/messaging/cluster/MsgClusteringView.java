@@ -12,6 +12,8 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.ClusterConnecti
 import org.jboss.as.console.client.shared.subsys.messaging.model.DiscoveryGroup;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -84,7 +86,7 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
     }
 
     @Override
-    public void setProvider(List<String> provider) {
+    public void setProvider(List<Property> provider) {
         providerList.setProvider(provider);
     }
 

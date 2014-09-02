@@ -9,10 +9,13 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -25,6 +28,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -40,8 +44,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 12/9/11
  */
 public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy>
-        {
+{
 
+    private final PlaceManager placemanager;
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
     private JMSEndpoint selectedTopic;
@@ -49,7 +54,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     private LoadJMSCmd loadJMSCmd;
     private Queue selectedQueue;
     private final ServerStore serverStore;
-
+    private String currentServer;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JmsMetricPresenter)
@@ -74,6 +79,10 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
         void updateQueueMetrics(ModelNode result);
 
         void updateTopicMetrics(ModelNode result);
+
+        void updateProvider(List<Property> provider);
+
+        void setSelectedProvider(String name);
     }
 
     @Inject
@@ -81,16 +90,22 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
             EventBus eventBus, MyView view, MyProxy proxy,
             DispatchAsync dispatcher,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
-            ServerStore serverStore, BeanFactory factory) {
+            ServerStore serverStore, BeanFactory factory, PlaceManager placemanager) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.serverStore = serverStore;
         this.factory = factory;
+        this.placemanager = placemanager;
 
         this.loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
     }
+
+    @Override
+    public void prepareFromRequest(PlaceRequest request) {
+           currentServer = request.getParameter("name", null);
+       }
 
     public void setSelectedTopic(JMSEndpoint topic) {
         this.selectedTopic= topic;
@@ -106,8 +121,34 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
 
     }
 
-    public void refresh() {
+    public void loadProvider() {
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(ADDRESS).set(RuntimeBaseAddress.get());
+        operation.get(ADDRESS).add("subsystem", "messaging");
+        operation.get(CHILD_TYPE).set("hornetq-server");
 
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if(response.isFailure())
+                {
+                    Log.error("Failed to load hornetq server", response.getFailureDescription());
+                    getView().updateProvider(Collections.EMPTY_LIST);
+                }
+                else
+                {
+                    getView().updateProvider(response.get(RESULT).asPropertyList());
+                    getView().setSelectedProvider(currentServer);
+                }
+            }
+        });
+    }
+
+    public void refreshQueuesAndTopics(String selectedProvider) {
 
         getView().clearSamples();
         getView().setTopics(Collections.EMPTY_LIST);
@@ -115,7 +156,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
 
         ModelNode address = RuntimeBaseAddress.get();
         address.add("subsystem", "messaging");
-        address.add("hornetq-server", "default");
+        address.add("hornetq-server", selectedProvider);
 
         loadJMSCmd.execute(address, new LoggingCallback<AggregatedJMSModel>() {
 
@@ -158,8 +199,10 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                 }
                 else
                 {
+                    Console.info("Successfully refreshed metrics for queue "+ selectedQueue.getName());
                     ModelNode result = response.get(RESULT).asObject();
                     getView().updateQueueMetrics(result);
+
                 }
             }
         });
@@ -192,6 +235,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                 }
                 else
                 {
+                    Console.info("Successfully refreshed metrics for topic "+ selectedTopic.getName());
                     ModelNode result = response.get(RESULT).asObject();
                     getView().updateTopicMetrics(result);
                 }
@@ -207,11 +251,11 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
             @Override
             public void onChange(Class<?> source) {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                if(isVisible()) refresh();
-                            }
-                        });
+                    @Override
+                    public void execute() {
+                        if(isVisible()) loadProvider();
+                    }
+                });
             }
         });
     }
@@ -220,7 +264,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     @Override
     protected void onReset() {
         super.onReset();
-        refresh();
+        loadProvider();
     }
 
     @Override
@@ -250,7 +294,7 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                     Console.info("Successfully flushed queue " + queue.getName());
                 }
 
-                refresh();
+                refreshQueuesAndTopics(currentServer);
             }
         });
 
@@ -278,10 +322,15 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
                     Console.info("Successfully flushed topic "+topic.getName());
                 }
 
-                refresh();
+                refreshQueuesAndTopics(currentServer);
             }
         });
 
     }
+
+    public PlaceManager getPlaceManager() {
+        return placemanager;
+    }
+
 
 }

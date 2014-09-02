@@ -54,6 +54,10 @@ import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -74,9 +78,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 5/10/11
  */
-public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter.MyView, MsgDestinationsPresenter.MyProxy> implements CommonMsgPresenter {
+public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter.MyView, MsgDestinationsPresenter.MyProxy>
+        implements CommonMsgPresenter {
 
     private final PlaceManager placeManager;
+    private final CoreGUIContext statementContext;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private MessagingProvider providerEntity;
@@ -115,7 +121,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         void setSecurityConfig(List<SecurityPattern> secPatterns);
         void setAddressingConfig(List<AddressingPattern> addrPatterns);
 
-        void setProvider(List<String> names);
+        void setProvider(List<Property> names);
         void setSelectedProvider(String selectedProvider);
 
         void setDiverts(List<Divert> diverts);
@@ -134,7 +140,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
             BeanFactory factory, RevealStrategy revealStrategy,
-            ApplicationMetaData propertyMetaData) {
+            ApplicationMetaData propertyMetaData, CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -142,6 +148,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         this.factory = factory;
         this.revealStrategy = revealStrategy;
         this.metaData = propertyMetaData;
+        this.statementContext = statementContext;
 
         /* this.queueAdapter = new EntityAdapter<Queue>(
                 Queue.class,
@@ -237,14 +244,14 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
 
     private void loadProvider() {
         new LoadHornetQServersCmd(dispatcher).execute(
-                new AsyncCallback<List<String>>() {
+                new AsyncCallback<List<Property>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Console.error("Failed to load messaging server names", caught.getMessage());
                     }
 
                     @Override
-                    public void onSuccess(List<String> result) {
+                    public void onSuccess(List<Property> result) {
 
                         getView().setProvider(result);
                         getView().setSelectedProvider(currentServer);
@@ -1020,7 +1027,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         loadExistingQueueNames(new AsyncCallback<List<String>> () {
             @Override
             public void onFailure(Throwable throwable) {
-               Console.error("Failed to load queue names", throwable.getMessage());
+                Console.error("Failed to load queue names", throwable.getMessage());
             }
 
             @Override
@@ -1036,7 +1043,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
             }
         });
 
-     }
+    }
 
     public void onCreateCF(final ConnectionFactory entity) {
         window.hide();
@@ -1186,6 +1193,107 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
             }
         });
 
+    }
+
+    @Override
+    public void onAddResource(ResourceAddress address, final ModelNode payload) {
+        // ignore address, currently one use supported only
+        window.hide();
+
+        ModelNode op = address.apply(payload);
+        op.get(OP).set(ADD);
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if(response.isFailure())
+                {
+                    Console.error("Failed to add messaging provider", response.getFailureDescription());
+
+                }
+                else
+                {
+                    Console.info("Added messaging provider "+ payload.get(NAME).asString());
+                    loadProvider();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void launchAddProviderDialog() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Messaging Provider"));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.trapWidget(
+                new AddResourceDialog(
+                        "{selected.profile}/subsystem=messaging/hornetq-server=*",
+                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.MessagingPresenter),
+                        MsgDestinationsPresenter.this
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    @Override
+    public void removeProvider(final String name) {
+        ModelNode op = new ModelNode();
+        op.get(ADDRESS).set(Baseadress.get());
+        op.get(ADDRESS).add("subsystem", "messaging");
+        op.get(ADDRESS).add("hornetq-server", name);
+        op.get(OP).set(REMOVE);
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if(response.isFailure())
+                {
+                    Console.error("Failed to remove messaging provider", response.getFailureDescription());
+
+                }
+                else
+                {
+
+                    if(name.equals(currentServer))
+                        currentServer = null;
+
+                    Console.info("Removed messaging provider "+ name);
+
+                    loadProvider();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onSaveProvider(final String name, Map<String, Object> changeset) {
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+
+        ModelNode address= new ModelNode();
+        address.get(ADDRESS).set(Baseadress.get());
+        address.get(ADDRESS).add("subsystem", "messaging");
+        address.get(ADDRESS).add("hornetq-server", name);
+
+        ModelNode operation = adapter.fromChangeset(changeset, address);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to save provider " + name, response.getFailureDescription());
+                }
+                else {
+                    Console.info("Successfully saved provider " + name);
+                    loadProvider(); // refresh
+                }
+
+            }
+        });
     }
 
 }

@@ -1,8 +1,5 @@
 package org.jboss.as.console.mbui.widgets;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 

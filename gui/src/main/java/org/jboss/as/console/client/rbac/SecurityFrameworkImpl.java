@@ -52,6 +52,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private static final String EXCEPTIONS = "exceptions";
     private static final String ACCESS_CONTROL = "access-control";
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
+    private static final String COMBINED_DESCRIPTIONS = "combined-descriptions";
 
     protected final AccessControlRegistry accessControlMetaData;
     protected final DispatchAsync dispatcher;

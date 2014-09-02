@@ -13,6 +13,8 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.Connector;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorService;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -90,7 +92,7 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
     }
 
     @Override
-    public void setProvider(List<String> provider) {
+    public void setProvider(List<Property> provider) {
         providerList.setProvider(provider);
     }
 

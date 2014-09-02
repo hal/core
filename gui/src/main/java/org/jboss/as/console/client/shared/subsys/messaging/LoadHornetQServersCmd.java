@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -22,7 +23,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 9/20/11
  */
-public class LoadHornetQServersCmd implements AsyncCommand<List<String>> {
+public class LoadHornetQServersCmd implements AsyncCommand<List<Property>> {
 
 
     private DispatchAsync dispatcher;
@@ -32,9 +33,9 @@ public class LoadHornetQServersCmd implements AsyncCommand<List<String>> {
     }
 
     @Override
-    public void execute(final AsyncCallback<List<String>> callback) {
+    public void execute(final AsyncCallback<List<Property>> callback) {
         ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "messaging");
         operation.get(CHILD_TYPE).set("hornetq-server");
@@ -52,13 +53,7 @@ public class LoadHornetQServersCmd implements AsyncCommand<List<String>> {
                 }
                 else
                 {
-                    List<ModelNode> payload = response.get(RESULT).asList();
-                    List<String> serverNames = new ArrayList<String>(payload.size());
-                    for(ModelNode model : payload)
-                    {
-                        serverNames.add(model.asString());
-                    }
-                    callback.onSuccess(serverNames);
+                    callback.onSuccess(response.get(RESULT).asPropertyList());
                 }
 
 

@@ -35,6 +35,9 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvid
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
@@ -88,15 +91,15 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             "{selected.profile}/subsystem=messaging/jms-bridge=*"
     })
     @SearchIndex(keywords = {
-               "jms", "acceptor", "bridge", "connector"
-       })
+            "jms", "acceptor", "bridge", "connector"
+    })
     public interface MyProxy extends Proxy<MsgConnectionsPresenter>, Place {
     }
 
     public interface MyView extends View {
         void setPresenter(MsgConnectionsPresenter presenter);
         void setSelectedProvider(String selectedProvider);
-        void setProvider(List<String> provider);
+        void setProvider(List<Property> provider);
 
         void setGenericAcceptors(List<Acceptor> genericAcceptors);
 
@@ -163,21 +166,20 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
     private void loadProvider() {
         new LoadHornetQServersCmd(dispatcher).execute(
-                new AsyncCallback<List<String>>() {
+                new AsyncCallback<List<Property>>() {
                     @Override
                     public void onFailure(Throwable caught) {
                         Console.error("Failed to load messaging server names", caught.getMessage());
                     }
 
                     @Override
-                    public void onSuccess(List<String> result) {
+                    public void onSuccess(List<Property> result) {
 
                         getView().setProvider(result);
                         getView().setSelectedProvider(currentServer);
                     }
                 }
         );
-
     }
 
     public void loadBridges() {
@@ -1040,4 +1042,103 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     public void closePropertyDialoge() {
         propertyWindow.hide();
     }
+
+    @Override
+    public void onAddResource(ResourceAddress address, final ModelNode payload) {
+        // ignore address, currently one use supported only
+        window.hide();
+
+        ModelNode op = address.apply(payload);
+        op.get(OP).set(ADD);
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to add messaging provider", response.getFailureDescription());
+
+                } else {
+                    Console.info("Added messaging provider " + payload.get(NAME).asString());
+                    loadProvider();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void launchAddProviderDialog() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Messaging Provider"));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.trapWidget(
+                new AddResourceDialog(
+                        "{selected.profile}/subsystem=messaging/hornetq-server=*",
+                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.MsgConnectionsPresenter),
+                        MsgConnectionsPresenter.this
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    @Override
+    public void removeProvider(final String name) {
+        ModelNode op = new ModelNode();
+        op.get(ADDRESS).set(Baseadress.get());
+        op.get(ADDRESS).add("subsystem", "messaging");
+        op.get(ADDRESS).add("hornetq-server", name);
+        op.get(OP).set(REMOVE);
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if(response.isFailure())
+                {
+                    Console.error("Failed to remove messaging provider", response.getFailureDescription());
+
+                }
+                else
+                {
+
+                    if(name.equals(currentServer))
+                        currentServer = null;
+
+                    Console.info("Removed messaging provider "+ name);
+
+                    loadProvider();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onSaveProvider(final String name, Map<String, Object> changeset) {
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+
+        ModelNode address= new ModelNode();
+        address.get(ADDRESS).set(Baseadress.get());
+        address.get(ADDRESS).add("subsystem", "messaging");
+        address.get(ADDRESS).add("hornetq-server", name);
+
+        ModelNode operation = adapter.fromChangeset(changeset, address);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to save provider " + name, response.getFailureDescription());
+                }
+                else {
+                    Console.info("Successfully saved provider " + name);
+                    loadProvider(); // refresh
+                }
+
+            }
+        });
+    }
+
 }

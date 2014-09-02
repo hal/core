@@ -14,10 +14,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.CHILD_TYPE;
  * Represents entity address meta data, that declared using the {@link Address} annotation.<br/>
  * Address declarations may contain wildcards. An AddressBinding supports replacement of
  * wildcards with proper address values when turned into {@link ModelNode} representations.
+ * <p/>
+ * Better use {@link org.jboss.as.console.mbui.model.mapping.AddressMapping} instead
  *
  * @author Heiko Braun
  * @date 9/23/11
  */
+@Deprecated
 public class AddressBinding {
 
     private List<String[]> address = new LinkedList<String[]>();

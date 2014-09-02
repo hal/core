@@ -141,6 +141,7 @@ import org.jboss.as.console.client.v3.stores.domain.HostStoreAdapter;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -379,4 +380,6 @@ public interface CoreUI {
     ServerStoreAdapter getServerStoreAdapter();
 
     AsyncProvider<CSPPresenter> getCSPPresenter();
+
+    CoreGUIContext getCoreGUIContext();
 }

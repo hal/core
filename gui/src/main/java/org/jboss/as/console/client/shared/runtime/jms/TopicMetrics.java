@@ -17,6 +17,7 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -39,6 +40,7 @@ public class TopicMetrics {
     private ListDataProvider<JMSEndpoint> dataProvider;
     private Column[] columns;
     private Grid grid;
+    private ContentHeaderLabel headline;
 
     public TopicMetrics(JMSMetricPresenter presenter) {
         this.presenter = presenter;
@@ -143,11 +145,13 @@ public class TopicMetrics {
         desc.add(new HTML("<h3 class='metric-label'>Topic Metrics</h3>"));
         desc.add(grid);
 
+        headline = new ContentHeaderLabel();
+
         SimpleLayout layout = new SimpleLayout()
                 .setTitle("Topics")
                 .setPlain(true)
                 .setTopLevelTools(toolStrip.asWidget())
-                .setHeadline("JMS Topic Metrics")
+                .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.subsys_messaging_topic_metric_desc())
                 .addContent("Topic Selection", tablePanel)
                 .addContent("", desc);
@@ -186,5 +190,9 @@ public class TopicMetrics {
                 }
             }
         }
+    }
+
+    public void setProviderName(String providerName) {
+        headline.setText("JMS Topic Metrics: Provider '"+providerName+"'");
     }
 }

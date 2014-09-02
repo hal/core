@@ -17,6 +17,7 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.JMSEndpointJndiColumn;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -39,6 +40,7 @@ public class QueueMetrics {
     private ListDataProvider<Queue> dataProvider;
     private Grid grid;
     private Column[] columns;
+    private ContentHeaderLabel headline;
 
     public QueueMetrics(JMSMetricPresenter presenter) {
         this.presenter = presenter;
@@ -142,11 +144,12 @@ public class QueueMetrics {
         // init
         clearSamples();
 
+        headline = new ContentHeaderLabel();
         SimpleLayout layout = new SimpleLayout()
                 .setTitle("Queues")
                 .setPlain(true)
                 .setTopLevelTools(toolStrip.asWidget())
-                .setHeadline("JMS Queue Metrics")
+                .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.subsys_messaging_queue_metric_desc())
                 .addContent("Queue Selection", tablePanel)
                 .addContent("Metrics", desc);
@@ -190,5 +193,9 @@ public class QueueMetrics {
             }
         }
 
+    }
+
+    public void setProviderName(String providerName) {
+        headline.setText("JMS Queue Metrics: Provider '"+providerName+"'");
     }
 }

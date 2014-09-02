@@ -83,37 +83,36 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
         try {
 
             // factories
-            List<Property> factories = response.get("connection-factory").asPropertyList();
+            if(response.hasDefined("connection-factory")) {
+                List<Property> factories = response.get("connection-factory").asPropertyList();
 
-            for(Property factoryProp : factories)
-            {
-                String name = factoryProp.getName();
+                for (Property factoryProp : factories) {
+                    String name = factoryProp.getName();
 
-                ModelNode factoryValue = factoryProp.getValue();
-                String jndi = factoryValue.get("entries").asList().get(0).asString();
+                    ModelNode factoryValue = factoryProp.getValue();
+                    String jndi = factoryValue.get("entries").asList().get(0).asString();
 
-                ConnectionFactory connectionFactory = factoryAdapter.fromDMR(factoryValue);
-                connectionFactory.setName(name);
-                connectionFactory.setJndiName(jndi);
+                    ConnectionFactory connectionFactory = factoryAdapter.fromDMR(factoryValue);
+                    connectionFactory.setName(name);
+                    connectionFactory.setJndiName(jndi);
 
-                if(factoryValue.hasDefined("connector"))
-                {
-                    List<Property> items = factoryValue.get("connector").asPropertyList();
-                    String list = "";
-                    for(Property item : items)
-                        list+= " "+item.getName();
+                    if (factoryValue.hasDefined("connector")) {
+                        List<Property> items = factoryValue.get("connector").asPropertyList();
+                        String list = "";
+                        for (Property item : items)
+                            list += " " + item.getName();
 
-                    connectionFactory.setConnector(list);
+                        connectionFactory.setConnector(list);
+                    }
+
+                    factoryModels.add(connectionFactory);
                 }
 
-                factoryModels.add(connectionFactory);
             }
 
 
-
-
         } catch (Throwable e) {
-            Console.error("Failed to parse response: " + e.getMessage());
+            Console.error("Failed to parse connection factories: " + e.getMessage());
         }
 
         return factoryModels;

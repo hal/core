@@ -34,6 +34,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.shared.subsys.messaging.model.SecurityPattern;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -130,8 +131,9 @@ public class MsgDestinationsView extends SuspendableViewImpl implements MsgDesti
     }
 
     @Override
-    public void setProvider(List<String> result) {
+    public void setProvider(List<Property> result) {
         providerList.setProvider(result);
+
     }
 
 
