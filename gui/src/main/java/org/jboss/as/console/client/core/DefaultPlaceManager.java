@@ -142,7 +142,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
                                 // we only fire LHS highlight events for real sections not top level categories
                                 if(updateBrowserUrl) {
-                                    StringBuffer nameToken = new StringBuffer(placeRequest.getNameToken());
+                                    /*StringBuffer nameToken = new StringBuffer(placeRequest.getNameToken());
 
                                     if (!placeRequest.getParameterNames().isEmpty()) {
                                         nameToken.append(";");
@@ -150,7 +150,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                                             nameToken.append(param).append("=").append(placeRequest.getParameter(param, ""));
                                         }
                                     }
-                                    eventBus.fireEvent(new LHSHighlightEvent(nameToken.toString()));
+                                    eventBus.fireEvent(new LHSHighlightEvent(nameToken.toString()));*/
+                                    eventBus.fireEvent(new LHSHighlightEvent(placeRequest.getNameToken()));
                                 }
                             }
                         });
