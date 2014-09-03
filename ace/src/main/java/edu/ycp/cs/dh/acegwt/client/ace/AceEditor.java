@@ -503,4 +503,22 @@ public class AceEditor extends Composite implements RequiresResize, HasText, Tak
 	private static AceCompletionCallback wrapCompletionCallback(JavaScriptObject jsCallback) {
 		return new AceCompletionCallbackImpl(jsCallback);
 	}
+
+    public native void setVScrollBarVisible(boolean visible) /*-{
+        var vScrollBar = $doc.querySelector(".ace_scrollbar.ace_scrollbar-v");
+        if (vScrollBar != null) {
+            vScrollBar.style.overflowY = visible ? "scroll" : "hidden";
+        }
+    }-*/;
+
+    /**
+     * Sets the placeholder for the search input field
+     * @param label the new label
+     */
+    public native void setSearchPlaceHolder(String label) /*-{
+        var searchBox = $doc.querySelector(".ace_search_field");
+        if (searchBox != null) {
+            searchBox.placeholder = label;
+        }
+    }-*/;
 }

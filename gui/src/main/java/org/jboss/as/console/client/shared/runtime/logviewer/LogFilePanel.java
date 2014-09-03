@@ -65,6 +65,7 @@ public class LogFilePanel extends Composite {
     private final ToolButton prev;
     private final ToolButton next;
     private final ToolButton tail;
+    private int visibleLines;
 
     public LogFilePanel(final Dispatcher circuit, final LogFile logFile) {
         this.circuit = circuit;
@@ -90,6 +91,8 @@ public class LogFilePanel extends Composite {
                                     editor.setModeByName("logfile");
                                     editor.setThemeByName("logfile");
                                     editor.setText(logFile.getContent());
+                                    editor.setSearchPlaceHolder("Find");
+                                    editor.setVScrollBarVisible(false);
                                 }
                             }
                     );
@@ -167,10 +170,17 @@ public class LogFilePanel extends Composite {
         indicator.refresh(logFile, actionType);
         position.setText("Pos. " + (int) Math.floor(indicator.getRatio()) + " %");
         follow.setValue(logFile.isFollow());
-        head.setEnabled(!logFile.isHead());
-        prev.setEnabled(!logFile.isHead());
-        next.setEnabled(!logFile.isTail());
-        tail.setEnabled(!logFile.isTail());
+        if (logFile.getLines().size() < visibleLines) {
+            head.setEnabled(false);
+            prev.setEnabled(false);
+            next.setEnabled(false);
+            tail.setEnabled(false);
+        } else {
+            head.setEnabled(!logFile.isHead());
+            prev.setEnabled(!logFile.isHead());
+            next.setEnabled(!logFile.isTail());
+            tail.setEnabled(!logFile.isTail());
+        }
     }
 
     private void onNavigate(Direction direction) {
@@ -195,8 +205,8 @@ public class LogFilePanel extends Composite {
 
                 if (panelHeight > 0) {
                     editor.setHeight(editorHeight + "px");
-                    int lines = editorHeight / 16; // line-height
-                    circuit.dispatch(new ChangePageSize(lines));
+                    visibleLines = editorHeight / 16;
+                    circuit.dispatch(new ChangePageSize(visibleLines));
                 }
             }
         });

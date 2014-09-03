@@ -495,7 +495,7 @@ public class LogStore extends ChangeSupport {
             }
 
         }
-        // to prevent ArithmeticExceptions
+        // to prevent follow up ArithmeticExceptions like x / size
         return max(1, size);
     }
 
