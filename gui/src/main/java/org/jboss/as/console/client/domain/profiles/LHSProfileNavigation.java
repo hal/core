@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,13 +31,12 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.subsys.SubsystemTreeBuilder;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * LHS domain management navigation.
+ * LHS domain management subsystemTree.
  *
  * @author Heiko Braun
  * @date 2/11/11
@@ -46,9 +47,9 @@ class LHSProfileNavigation {
     private VerticalPanel stack;
 
     private ScrollPanel scroll;
-    private LHSNavTree navigation;
-    private LHSTreeSection subsystemLeaf;
-    private LHSTreeSection commonLeaf;
+    private LHSNavTree subsystemTree;
+    //private LHSTreeSection subsystemLeaf;
+    private LHSNavTree commonTree;
     private ProfileSelector profileSelector;
 
     public LHSProfileNavigation() {
@@ -58,37 +59,60 @@ class LHSProfileNavigation {
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
 
 
         profileSelector = new ProfileSelector();
         Widget selectorWidget = profileSelector.asWidget();
-        stack.add(selectorWidget);
+        selectorWidget.getElement().getStyle().setPadding(10, Style.Unit.PX);
 
-        navigation = new LHSNavTree("profiles");
-        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
+        VerticalPanel header = new VerticalPanel();
 
-        subsystemLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_subsystems());
-        navigation.addItem(subsystemLeaf);
+        header.getElement().setAttribute("width", "100%");
+        header.getElement().setAttribute("cellspacing", "0");
+        header.getElement().setAttribute("cellpadding", "0");
+        header.getElement().setAttribute("border", "0");
+
+        HTML title = new HTML("Subsystems");
+        title.setStyleName("server-picker-section-header");
+
+        VerticalPanel p = new VerticalPanel();
+        p.setStyleName("fill-layout-width");
+        p.add(title);
+        p.add(selectorWidget);
+
+        header.getElement().getParentElement().setClassName("server-picker-wrapper");
+        stack.add(p);
+
+        subsystemTree = new LHSNavTree("profiles");
+        subsystemTree.getElement().setAttribute("style", "padding: 5px;");
+        subsystemTree.getElement().setAttribute("aria-label", "Profile Tasks");
+
+        /*subsystemLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_subsystems());
+        subsystemTree.addItem(subsystemLeaf);*/
 
         // --------
 
-        commonLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_generalConfig());
-        navigation.addItem(commonLeaf);
+        commonTree = new LHSNavTree(Console.CONSTANTS.common_label_generalConfig());
 
         LHSNavTreeItem interfaces = new LHSNavTreeItem(Console.CONSTANTS.common_label_interfaces(), NameTokens.InterfacePresenter);
         LHSNavTreeItem sockets = new LHSNavTreeItem(Console.CONSTANTS.common_label_socketBinding(), NameTokens.SocketBindingPresenter);
         LHSNavTreeItem paths = new LHSNavTreeItem(Console.CONSTANTS.common_label_paths(), NameTokens.PathManagementPresenter);
         LHSNavTreeItem properties = new LHSNavTreeItem(Console.CONSTANTS.common_label_systemProperties(), NameTokens.PropertiesPresenter);
 
+        commonTree.addItem(interfaces);
+        commonTree.addItem(sockets);
+        commonTree.addItem(paths);
+        commonTree.addItem(properties);
 
-        commonLeaf.addItem(interfaces);
-        commonLeaf.addItem(sockets);
-        commonLeaf.addItem(paths);
-        commonLeaf.addItem(properties);
+        commonTree.expandTopLevel();
 
-        navigation.expandTopLevel();
+        stack.add(subsystemTree);
 
-        stack.add(navigation);
+        HTML commonTitle = new HTML("General Configuration");
+        commonTitle.setStyleName("server-picker-section-header");
+        stack.add(commonTitle);
+        stack.add(commonTree);
 
         layout.add(stack);
 
@@ -104,9 +128,9 @@ class LHSProfileNavigation {
 
         //subsystemSection.updateSubsystems(subsystems);
 
-        subsystemLeaf.removeItems();
+        subsystemTree.removeItems();
 
-        SubsystemTreeBuilder.build(subsystemLeaf, subsystems);
+        SubsystemTreeBuilder.build(subsystemTree, subsystems);
     }
 
 

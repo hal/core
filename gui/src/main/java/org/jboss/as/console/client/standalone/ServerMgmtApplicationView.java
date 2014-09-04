@@ -21,13 +21,12 @@ package org.jboss.as.console.client.standalone;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
 import java.util.List;
 
@@ -45,32 +44,23 @@ public class ServerMgmtApplicationView extends ViewImpl
 
     private ServerMgmtApplicationPresenter presenter;
 
-    private SplitLayoutPanel layout;
+    private TwoColumnLayout layout;
     private LayoutPanel contentCanvas;
     private LHSStandaloneNavigation lhsNavigation;
 
     public ServerMgmtApplicationView() {
         super();
 
-        layout = new DefaultSplitLayoutPanel(2);
-
         contentCanvas = new LayoutPanel();
-        contentCanvas.getElement().setAttribute("role", "main");
-        //contentCanvas.getElement().setId("rhs-content-area");
-
         lhsNavigation = new LHSStandaloneNavigation();
 
-        Widget nav = lhsNavigation.asWidget();
-        nav.getElement().setAttribute("role", "navigation");
-
-        layout.addWest(nav, 217);
-        layout.add(contentCanvas);
+        layout = new TwoColumnLayout(lhsNavigation.asWidget(), contentCanvas);
 
     }
 
     @Override
     public Widget asWidget() {
-        return layout;
+        return layout.asWidget();
     }
 
     @Override

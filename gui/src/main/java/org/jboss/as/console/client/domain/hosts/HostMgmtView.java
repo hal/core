@@ -21,13 +21,10 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,19 +35,17 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
 
     private HostMgmtPresenter presenter;
 
-    private SplitLayoutPanel layout;
+    private TwoColumnLayout layout;
     private LayoutPanel contentCanvas;
     private LHSHostsNavigation lhsNavigation;
 
     public HostMgmtView() {
 
-        layout = new DefaultSplitLayoutPanel(2);
 
         contentCanvas = new LayoutPanel();
         lhsNavigation = new LHSHostsNavigation();
 
-        layout.addWest(lhsNavigation.asWidget(), 217);
-        layout.add(contentCanvas);
+        layout = new TwoColumnLayout(lhsNavigation.asWidget(), contentCanvas);
 
     }
 
@@ -61,7 +56,7 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
 
     @Override
     public Widget createWidget() {
-        return layout;
+        return layout.asWidget();
     }
 
     @Override

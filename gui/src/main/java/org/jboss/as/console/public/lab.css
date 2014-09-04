@@ -40,7 +40,7 @@
 }
 
 .server-picker-wrapper {
-    padding:8px;
+    padding:10px;
 }
 
 .server-picker-stack {
@@ -50,14 +50,13 @@
 .server-picker-section-header {
     background: -moz-linear-gradient(center top , #F9F9F9, #EEEEEE) repeat scroll 0 0 rgba(0, 0, 0, 0);
     border-bottom: 1px solid #CFCFCF !important;
-    color: #333333;
+    color: #666666;
     cursor: pointer;
     height: 25px;
     line-height: 12px !important;
     margin-bottom: 10px;
     padding-left: 10px!important;
-    padding-top: 12px!important;
-    width: 100%;
+    padding-top: 14px!important;
 }
 
 .domain-section-header {
@@ -171,9 +170,12 @@
     font-family: "Lucida Sans Unicode","Lucida Grande",sans-serif;
 }
 
+/*
 .rhs-content-panel {
     padding: 15px!important;
+    margin-top: 15px;
 }
+*/
 
 .browser-view .form-view-panel, .browser-view .form-edit-panel {
     background: none!important;
@@ -228,4 +230,17 @@
 .metric-grid .baseline > td {
     font-weight: BOLD;
     vertical-align: top;
+}
+
+.lhs-toggle {
+    font-size: 18px;
+    cursor: pointer;
+    color:#CFCFCF;
+    padding-top:3px;
+    padding-left:5px;
+    z-index:10;
+}
+
+.lhs-toggle:hover {
+    color:#4E5255;
 }

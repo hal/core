@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.administration;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -35,24 +36,37 @@ class LHSAdministrationNavigation {
 
     public LHSAdministrationNavigation() {
 
-        LHSTreeSection accessLeaf = new LHSTreeSection("Access Control", true);
-        LHSNavTreeItem authItem = new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter);
-        accessLeaf.addItem(authItem);
+
+
 //        LHSNavTreeItem auditLogItem = new LHSNavTreeItem("Audit Log", NameTokens.AuditLogPresenter);
 //        accessLeaf.addItem(auditLogItem);
 
-        LHSTreeSection patchingLeaf = new LHSTreeSection("Patching", true);
-        patchingLeaf.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
+        LHSNavTree patchingTree = new LHSNavTree("Patching");
+        patchingTree.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
 
-        LHSNavTree navigation = new LHSNavTree("administration");
-        navigation.getElement().setAttribute("aria-label", "Administration");
-        navigation.addItem(accessLeaf);
-        navigation.addItem(patchingLeaf);
-        navigation.expandTopLevel();
+        LHSNavTree accessTree = new LHSNavTree("administration");
+        accessTree.getElement().setAttribute("aria-label", "Administration");
+        accessTree.expandTopLevel();
+
+        LHSNavTreeItem authItem = new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter);
+        accessTree.addItem(authItem);
 
         VerticalPanel stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
-        stack.add(navigation);
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
+
+        HTML accessTitle = new HTML("Access Control");
+        accessTitle.setStyleName("server-picker-section-header");
+
+        stack.add(accessTitle);
+        stack.add(accessTree);
+
+
+        HTML patchingTitle = new HTML("Patching");
+        patchingTitle.setStyleName("server-picker-section-header");
+
+        stack.add(patchingTitle);
+        stack.add(patchingTree);
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");

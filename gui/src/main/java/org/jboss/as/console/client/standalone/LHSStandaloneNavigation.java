@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.standalone;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -33,7 +34,7 @@ import org.jboss.ballroom.client.layout.LHSTreeSection;
 import java.util.List;
 
 /**
- * LHS navigation for standalone server management.
+ * LHS subsystemTree for standalone server management.
  *
  * @author Heiko Braun
  * @date 2/10/11
@@ -45,8 +46,7 @@ public class LHSStandaloneNavigation {
     private VerticalPanel stack;
 
     private VerticalPanel layout;
-    private LHSNavTree navigation;
-    private LHSTreeSection subsystemLeaf;
+    private LHSNavTree subsystemTree;
 
     public LHSStandaloneNavigation() {
         super();
@@ -56,21 +56,17 @@ public class LHSStandaloneNavigation {
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
 
         // ----------------------------------------------------
 
-
-        navigation = new LHSNavTree("profiles");
-        navigation.getElement().setAttribute("aria-label", "Profile Tasks");
-        //navigation.getElement().setAttribute("aria-controls", "rhs-content-area");
-
-        subsystemLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_subsystems(), true);
-        navigation.addItem(subsystemLeaf);
+        subsystemTree = new LHSNavTree("profiles");
+        subsystemTree.getElement().setAttribute("style", "padding: 5px;");
+        subsystemTree.getElement().setAttribute("aria-label", "Profile Tasks");
 
         // ----------------------------------------------------
 
-        LHSTreeSection commonLeaf = new LHSTreeSection(Console.CONSTANTS.common_label_generalConfig());
-        navigation.addItem(commonLeaf);
+        LHSNavTree commonTree = new LHSNavTree(Console.CONSTANTS.common_label_generalConfig());
 
         LHSNavTreeItem[] commonItems = new LHSNavTreeItem[] {
                 /*new LHSNavTreeItem("Server", NameTokens.StandaloneServerPresenter),*/
@@ -82,15 +78,26 @@ public class LHSStandaloneNavigation {
 
         for(LHSNavTreeItem item : commonItems)
         {
-            commonLeaf.addItem(item);
+            commonTree.addItem(item);
         }
 
 
-        navigation.expandTopLevel();
+        subsystemTree.expandTopLevel();
 
-        stack.add(navigation);
+        HTML title = new HTML("Subsystems");
+        title.setStyleName("server-picker-section-header");
+
+        stack.add(title);
+        stack.add(subsystemTree);
 
         layout.add(stack);
+
+
+        HTML commonTitle = new HTML("General Configuration");
+        commonTitle.setStyleName("server-picker-section-header");
+        stack.add(commonTitle);
+
+        stack.add(commonTree);
 
         scroll = new ScrollPanel(layout);
 
@@ -103,11 +110,11 @@ public class LHSStandaloneNavigation {
 
     public void updateFrom(List<SubsystemRecord> subsystems) {
 
-        subsystemLeaf.removeItems();
+        subsystemTree.removeItems();
 
-        SubsystemTreeBuilder.build(subsystemLeaf, subsystems);
+        SubsystemTreeBuilder.build(subsystemTree, subsystems);
 
-        navigation.expandTopLevel();
+        //subsystemTree.expandTopLevel();
 
     }
 }

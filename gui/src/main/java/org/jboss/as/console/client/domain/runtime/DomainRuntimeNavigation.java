@@ -48,6 +48,7 @@ class DomainRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandl
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
 
 
         // ----------------------------------------------------

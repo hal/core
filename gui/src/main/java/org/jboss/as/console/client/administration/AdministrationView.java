@@ -20,38 +20,30 @@ package org.jboss.as.console.client.administration;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
 /**
  * @author Harald Pehl
  */
 public class AdministrationView extends SuspendableViewImpl implements AdministrationPresenter.MyView {
 
-    private SplitLayoutPanel layout;
+    private TwoColumnLayout layout;
     private LayoutPanel contentCanvas;
 
     @Inject
     public AdministrationView() {
 
         contentCanvas = new LayoutPanel();
-        contentCanvas.getElement().setAttribute("role", "main");
-
         LHSAdministrationNavigation lhsNavigation = new LHSAdministrationNavigation();
-        Widget navigationWidget = lhsNavigation.asWidget();
-        navigationWidget.getElement().setAttribute("role", "navigation");
-
-        layout = new DefaultSplitLayoutPanel(2);
-        layout.addWest(navigationWidget, 217);
-        layout.add(contentCanvas);
+        layout = new TwoColumnLayout(lhsNavigation.asWidget(), contentCanvas.asWidget());
     }
 
     @Override
     public Widget createWidget() {
-        return layout;
+        return layout.asWidget();
     }
 
     @Override

@@ -22,15 +22,16 @@ package org.jboss.as.console.client.shared.subsys;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasTreeItems;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +45,7 @@ import java.util.Map;
  */
 public class SubsystemTreeBuilder {
 
-    public static void build(final LHSTreeSection subsysTree, List<SubsystemRecord> subsystems)
+    public static void build(final HasTreeItems subsysTree, List<SubsystemRecord> subsystems)
     {
 
         SubsystemRegistry registry = Console.getSubsystemRegistry();
@@ -111,13 +112,15 @@ public class SubsystemTreeBuilder {
     }
 
 
-    private static void displaySubsystemHelp(LHSTreeSection subsysTree) {
+    private static void displaySubsystemHelp(HasTreeItems subsysTree) {
         PopupPanel help = new PopupPanel();
         help.setStyleName("help-panel-open");
         help.getElement().setAttribute("style", "padding:15px");
         help.setWidget(new HTML("Mostly likely there is no UI provided to manage a particular subsystem. " +
                 "It might as well be, that the profile doesn't include any subsystems at all."));
-        help.setPopupPosition(subsysTree.getAbsoluteLeft()+50, subsysTree.getAbsoluteTop()+20);
+
+        Widget widget = (Widget) subsysTree;
+        help.setPopupPosition(widget.getAbsoluteLeft()+50, widget.getAbsoluteTop()+20);
         help.setWidth("240px");
         help.setHeight("80px");
         help.setAutoHideEnabled(true);

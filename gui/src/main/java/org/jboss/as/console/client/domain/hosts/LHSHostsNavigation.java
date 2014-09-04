@@ -21,6 +21,7 @@ package org.jboss.as.console.client.domain.hosts;
 
 import java.util.Set;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -56,6 +57,7 @@ class LHSHostsNavigation {
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
 
         domainNav = new LHSNavTree("hosts");
         domainNav.getElement().setAttribute("aria-label", "Domain Tasks");
@@ -68,7 +70,7 @@ class LHSHostsNavigation {
         // --------
 
         HTML title = new HTML("Domain");
-        title.setStyleName("domain-section-header");
+        title.setStyleName("server-picker-section-header");
 
         domainNav.addItem(new LHSNavTreeItem("Overview", NameTokens.Topology));
         domainNav.addItem(new LHSNavTreeItem("Server Groups", NameTokens.ServerGroupPresenter));
@@ -99,7 +101,13 @@ class LHSHostsNavigation {
         stack.add(title);
         stack.add(domainNav);
 
-        stack.add(hostSelector.asWidget());
+        HTML commonTitle = new HTML("Host Configuration");
+        commonTitle.setStyleName("server-picker-section-header");
+        stack.add(commonTitle);
+        Widget hostSelectorWidget = hostSelector.asWidget();
+        hostSelectorWidget.getElement().getStyle().setPadding(10, Style.Unit.PX);
+
+        stack.add(hostSelectorWidget);
         stack.add(hostNav);
 
         domainNav.expandTopLevel();

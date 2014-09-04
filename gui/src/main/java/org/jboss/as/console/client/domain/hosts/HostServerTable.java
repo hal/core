@@ -246,7 +246,7 @@ public class HostServerTable {
         // --------------
 
         currentDisplayedValue = new HTML("&nbsp;");
-        currentDisplayedValue.getElement().setAttribute("style", "padding-bottom:10px; padding-left:5px");
+        currentDisplayedValue.setStyleName("header-label");
 
         header = new VerticalPanel();
 

@@ -21,12 +21,11 @@ package org.jboss.as.console.client.domain.profiles;
 
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
 import java.util.List;
 
@@ -41,25 +40,23 @@ public class ProfileMgmtView extends SuspendableViewImpl
         implements ProfileMgmtPresenter.MyView{
 
     private ProfileMgmtPresenter presenter;
-    private SplitLayoutPanel layout;
+    private TwoColumnLayout layout;
     private LayoutPanel contentCanvas;
     private LHSProfileNavigation lhsNavigation;
 
     public ProfileMgmtView() {
         super();
 
-        layout = new DefaultSplitLayoutPanel(2);
-
         contentCanvas = new LayoutPanel();
         lhsNavigation = new LHSProfileNavigation();
 
-        layout.addWest(lhsNavigation.asWidget(), 217);
-        layout.add(contentCanvas);
+        layout = new TwoColumnLayout(lhsNavigation.asWidget(), contentCanvas);
+
     }
 
     @Override
     public Widget createWidget() {
-        return layout;
+        return layout.asWidget();
     }
 
     @Override

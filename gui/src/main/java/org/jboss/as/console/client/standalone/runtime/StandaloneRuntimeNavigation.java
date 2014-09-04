@@ -1,8 +1,8 @@
 package org.jboss.as.console.client.standalone.runtime;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -15,7 +15,6 @@ import org.jboss.as.console.client.widgets.nav.Predicate;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +32,8 @@ public class StandaloneRuntimeNavigation {
     private List<Predicate> runtimePredicates = new ArrayList<Predicate>();
 
     private ScrollPanel scroll;
-    private LHSNavTree navigation;
-    private LHSTreeSection metricLeaf;
-    private LHSTreeSection runtimeLeaf;
+    private LHSNavTree serverTree;
+    private LHSNavTree runtimeTree;
 
     public Widget asWidget()
     {
@@ -44,26 +42,21 @@ public class StandaloneRuntimeNavigation {
 
         stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
+        stack.getElement().getStyle().setBackgroundColor("#ffffff");
 
         // ----------------------------------------------------
 
 
-        navigation = new LHSNavTree("standalone-runtime");
-        navigation.getElement().setAttribute("aria-label", "Runtime Tasks");
+        serverTree = new LHSNavTree("server-runtime");
+        serverTree.getElement().setAttribute("aria-label", "Runtime Tasks");
 
         // ----------------------------------------------------
-
-        TreeItem serverLeaf = new LHSTreeSection("Server", true);
 
         LHSNavTreeItem server = new LHSNavTreeItem("Overview", NameTokens.StandaloneServerPresenter);
-        serverLeaf.addItem(server);
-        navigation.addItem(serverLeaf);
+        serverTree.addItem(server);
 
 
         // -------------
-
-        metricLeaf = new LHSTreeSection("Status");
-        navigation.addItem(metricLeaf);
 
         LHSNavTreeItem datasources = new LHSNavTreeItem("Datasources", NameTokens.DataSourceMetricPresenter);
         LHSNavTreeItem jmsQueues = new LHSNavTreeItem("JMS Destinations", NameTokens.JmsMetricPresenter);
@@ -109,17 +102,22 @@ public class StandaloneRuntimeNavigation {
 
         // ---
 
-        runtimeLeaf = new LHSTreeSection("Runtime Operations");
-        navigation.addItem(runtimeLeaf);
+        runtimeTree = new LHSNavTree("subsystem-runtime");
 
-        LHSNavTreeItem osgi = new LHSNavTreeItem("OSGi", NameTokens.OSGiRuntimePresenter);
-        runtimePredicates.add(new Predicate("osgi", osgi));
+        serverTree.expandTopLevel();
 
-        // ----------------------------------------------------
+        HTML serverTitle = new HTML("Server");
+        serverTitle.setStyleName("server-picker-section-header");
 
-        navigation.expandTopLevel();
+        stack.add(serverTitle);
+        stack.add(serverTree);
 
-        stack.add(navigation);
+        HTML statusTitle = new HTML("System Status");
+        statusTitle.setStyleName("server-picker-section-header");
+
+        stack.add(statusTitle);
+        stack.add(runtimeTree);
+
         layout.add(stack);
 
         scroll = new ScrollPanel(layout);
@@ -130,9 +128,9 @@ public class StandaloneRuntimeNavigation {
 
 
     public void setSubsystems(List<SubsystemRecord> subsystems) {
-        metricLeaf.removeItems();
-        runtimeLeaf.removeItems();
-        runtimeLeaf.setVisible(true);
+
+        runtimeTree.removeItems();
+        runtimeTree.setVisible(true);
 
         if(subsystems.isEmpty()) return;
 
@@ -141,7 +139,7 @@ public class StandaloneRuntimeNavigation {
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
         platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogViewer));
 
-        metricLeaf.addItem(platformGroup);
+        runtimeTree.addItem(platformGroup);
 
         final GroupItem subsystemGroup = new GroupItem("Subsystems");
         // match subsystems
@@ -153,16 +151,16 @@ public class StandaloneRuntimeNavigation {
 
             for(Predicate predicate : runtimePredicates) {
                 if(predicate.matches(subsys.getKey()))
-                    runtimeLeaf.addItem(predicate.getNavItem());
+                    runtimeTree.addItem(predicate.getNavItem());
             }
         }
 
-        metricLeaf.addItem(subsystemGroup);
+        runtimeTree.addItem(subsystemGroup);
         subsystemGroup.setState(true);
         platformGroup.setState(true);
 
         // empty runtime operations
-        runtimeLeaf.setVisible(runtimeLeaf.getChildCount()>0);
-        navigation.expandTopLevel();
+        runtimeTree.setVisible(runtimeTree.getItemCount()>0);
+        serverTree.expandTopLevel();
     }
 }
