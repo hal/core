@@ -4,8 +4,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -13,8 +12,6 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -55,16 +52,6 @@ public class DataSourceMetrics {
     }
 
     Widget asWidget() {
-        final ToolStrip toolStrip = new ToolStrip();
-        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                presenter.setSelectedDS(getCurrentSelection(), isXA);
-            }
-        }));
-
-        // ----
 
         table = new DefaultCellTable<DataSource>(5, new ProvidesKey<DataSource>() {
             @Override
@@ -112,7 +99,6 @@ public class DataSourceMetrics {
 
                     }
         });
-        table.getElement().setAttribute("style", "margin-top:15px;margin-bottom:0px;");
 
         // ----
 
@@ -165,7 +151,7 @@ public class DataSourceMetrics {
 
         if(Console.protovisAvailable())
         {
-            poolSampler = new BulletGraphView(title, "total number")
+            poolSampler = new BulletGraphView(title, "total number", true)
                     .setColumns(cols);
         }
         else
@@ -227,17 +213,32 @@ public class DataSourceMetrics {
                     .setWidth(100, Style.Unit.PCT);
         }
 
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+        refreshBtn.setStyleName("html-link");
+        refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+        refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.setSelectedDS(getCurrentSelection(), isXA);
+            }
+        });
+
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setTitle(isXA? "XA Data Sources":"Data Sources")
-                .setHeadline(isXA ? "XA Data Source Metrics":"Data Source Metrics")
+                .setTitle(isXA ? "XA Data Sources" : "Data Sources")
+                .setHeadline(isXA ? "XA Data Source Metrics" : "Data Source Metrics")
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
-                .setTopLevelTools(toolStrip.asWidget())
-                .addContent("",tools)
+                .addContent("", tools)
                 .addContent("Datasource", table)
+                .addContent("", refreshBtn)
                 .addContent("Pool Usage", poolSampler.asWidget())
                 .addContent("Prepared Statement Cache", cacheSampler.asWidget());
-        
+
         return layout.build();
     }
 

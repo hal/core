@@ -218,16 +218,26 @@
 .metric-container {
     width:100%;
     vertical-align: middle;
-    padding-left:10px;
-    padding-right:10px;
 }
 
 .metric-label {
-    color: #A7ABB4;
+    color: #333333;
     font-size: 16px;
     font-weight: 300 !important;
-    border-bottom:1px solid #E9E6E6;
+    border-top:1px solid #E9E6E6;
+    padding-top:10px;
     margin-bottom: 8px;
+    line-height: 1.1;
+}
+
+.metric-label-embedded {
+    color: #333333;
+    font-size: 16px;
+    font-weight: 300 !important;
+    border-top:none;
+    padding-top:10px;
+    margin-bottom: 8px;
+    line-height: 1.1;
 }
 
 .metric-grid {
@@ -262,4 +272,8 @@
 
 .lhs-toggle:hover {
     color:#4E5255;
+}
+
+.refresh-link {
+
 }

@@ -49,16 +49,6 @@ public class BasicMetrics {
 
     Widget asWidget() {
 
-        final ToolStrip toolStrip = new ToolStrip();
-        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.loadMetrics(tokens);
-            }
-        }));
-
-        //  ------
-
         NumberColumn txCount = new NumberColumn("completed-transaction-count","Completed");
 
         Column[] cols = new Column[] {
@@ -202,7 +192,7 @@ public class BasicMetrics {
 
 
         queryPanel.add(queryExecSampler.asWidget());
-        queryPanel.add(slowQuery);
+        //queryPanel.add(slowQuery);
 
         queryPanel.add(queryCacheSampler.asWidget());
 
@@ -212,12 +202,26 @@ public class BasicMetrics {
         secondPanel.setStyleName("fill-layout-width");
         secondPanel.add(secondLevelSampler.asWidget());
 
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+               refreshBtn.setStyleName("html-link");
+               refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+               refreshBtn.getElement().getStyle().setTop(-65, Style.Unit.PX);
+               refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+               refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+               refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.loadMetrics(tokens);
+            }
+        });
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
-                .setTopLevelTools(toolStrip.asWidget())
                 .setHeadlineWidget(title)
                 .setDescription(Console.CONSTANTS.subsys_jpa_basicMetric_desc())
+                .addContent("", refreshBtn)
                 .addContent("Sessions", connectionPanel)
                 .addContent("Transactions", txPanel)
                 .addContent("Queries", queryPanel)

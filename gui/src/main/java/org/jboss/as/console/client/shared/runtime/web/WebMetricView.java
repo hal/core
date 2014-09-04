@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -44,14 +45,14 @@ public class WebMetricView extends SuspendableViewImpl implements WebMetricPrese
     public Widget createWidget() {
 
 
-        final ToolStrip toolStrip = new ToolStrip();
+        /*final ToolStrip toolStrip = new ToolStrip();
         toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.setSelectedConnector(getCurrentSelection());
             }
         }));
-
+*/
         // ----
 
         ProvidesKey<HttpConnector> providesKey = new ProvidesKey<HttpConnector>() {
@@ -120,7 +121,7 @@ public class WebMetricView extends SuspendableViewImpl implements WebMetricPrese
 
         if(Console.protovisAvailable())
         {
-            sampler = new BulletGraphView(title, "total number")
+            sampler = new BulletGraphView(title, "total number", true)
                     .setColumns(cols);
         }
         else
@@ -130,14 +131,30 @@ public class WebMetricView extends SuspendableViewImpl implements WebMetricPrese
                     .setWidth(100, Style.Unit.PCT);
         }
 
+
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+        refreshBtn.setStyleName("html-link");
+        refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+        refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.setSelectedConnector(getCurrentSelection());
+            }
+        });
+
         // ----
 
         SimpleLayout layout = new SimpleLayout()
                 .setTitle("Web")
-                .setTopLevelTools(toolStrip.asWidget())
                 .setHeadline("Web Metrics")
                 .setDescription(Console.CONSTANTS.subys_web_metric_desc())
                 .addContent("Connector Selection", connectorTable)
+                .addContent("", refreshBtn)
                 .addContent("Connector Metrics", sampler.asWidget());
 
         return layout.build();

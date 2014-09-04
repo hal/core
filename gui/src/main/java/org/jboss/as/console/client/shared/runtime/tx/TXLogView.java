@@ -154,8 +154,8 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
         });
 
 
-        ToolStrip probe = new ToolStrip();
-        probe.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_probe(), new ClickHandler() {
+
+        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_probe(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 presenter.onProbe(true);
@@ -166,7 +166,6 @@ public class TXLogView extends SuspendableViewImpl implements TXLogPresenter.MyV
                 .setTitle("Transaction Manager")
                 .setHeadline("Transaction Recovery Logs")
                 .setDescription(Console.MESSAGES.transaction_log_description())
-                .setTopLevelTools(probe.asWidget())
                 .setMaster("Transactions", table)
                 .setMasterTools(tools)
                 .addDetail("Log Entry", formPanel.build())

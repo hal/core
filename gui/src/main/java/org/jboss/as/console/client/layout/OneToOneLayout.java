@@ -50,6 +50,7 @@ public class OneToOneLayout {
         return this;
     }
 
+    @Deprecated
     public OneToOneLayout setTopLevelTools(Widget toolstrip)
     {
         this.toolStrip = toolstrip;

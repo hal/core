@@ -104,7 +104,9 @@ public class BulletGraphView implements Sampler {
 
         VerticalPanel desc = new VerticalPanel();
         desc.addStyleName("metric-container");
-        if(!embeddedUse)
+        if(embeddedUse)
+            desc.add(new HTML("<h3 class='metric-label-embedded'>" + title + "</h3>"));
+        else
             desc.add(new HTML("<h3 class='metric-label'>" + title + "</h3>"));
 
         container = new HorizontalPanel();

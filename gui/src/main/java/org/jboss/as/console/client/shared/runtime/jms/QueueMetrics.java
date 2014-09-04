@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
@@ -47,15 +48,7 @@ public class QueueMetrics {
     }
 
     Widget asWidget() {
-        final ToolStrip toolStrip = new ToolStrip();
-        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.setSelectedQueue(getCurrentSelection());
-            }
-        }));
 
-        // ----
 
         queueTable = new DefaultCellTable<Queue>(5, new ProvidesKey<Queue>() {
             @Override
@@ -138,20 +131,36 @@ public class QueueMetrics {
 
         VerticalPanel desc = new VerticalPanel();
         desc.addStyleName("metric-container");
-        desc.add(new HTML("<h3 class='metric-label'>Queue Metrics</h3>"));
+        desc.add(new HTML("<h3 class='metric-label-embedded'>Queue Metrics</h3>"));
         desc.add(grid);
 
         // init
         clearSamples();
 
+
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+               refreshBtn.setStyleName("html-link");
+               refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+               refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
+               refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+               refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+               refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.setSelectedQueue(getCurrentSelection());
+            }
+        });
+
         headline = new ContentHeaderLabel();
         SimpleLayout layout = new SimpleLayout()
                 .setTitle("Queues")
                 .setPlain(true)
-                .setTopLevelTools(toolStrip.asWidget())
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.subsys_messaging_queue_metric_desc())
                 .addContent("Queue Selection", tablePanel)
+                .addContent("", refreshBtn)
                 .addContent("Metrics", desc);
 
         return layout.build();

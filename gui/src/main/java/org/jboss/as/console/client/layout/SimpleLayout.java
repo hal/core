@@ -47,6 +47,7 @@ public class SimpleLayout {
         return this;
     }
 
+    @Deprecated
     public SimpleLayout setTopLevelTools(Widget toolstrip)
     {
         this.toolStrip = toolstrip;

@@ -58,20 +58,12 @@ public class VMMetricsView extends SuspendableViewImpl implements VMMetricsPrese
         FakeTabPanel titleBar = new FakeTabPanel("Virtual Machine Status");
         layout.add(titleBar);
 
-        ToolStrip topLevelTools = new ToolStrip();
-
-        topLevelTools.addToolButtonRight(
-                new ToolButton(Console.CONSTANTS.common_label_refresh(),
-                        new ClickHandler() {
-                            @Override
-                    public void onClick(ClickEvent event) {
-                        presenter.refresh();
-                    }
-                }));
-
-        // -------
-
-        layout.add(topLevelTools);
+        ClickHandler refreshHandler = new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.refresh();
+            }
+        };
 
         // ----
 
@@ -82,46 +74,37 @@ public class VMMetricsView extends SuspendableViewImpl implements VMMetricsPrese
         layout.add(scroll);
 
         layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(topLevelTools, 40, Style.Unit.PX, 30, Style.Unit.PX);
-        layout.setWidgetTopHeight(scroll, 70, Style.Unit.PX, 100, Style.Unit.PCT);
+        layout.setWidgetTopHeight(scroll, 40, Style.Unit.PX, 100, Style.Unit.PCT);
 
         // ------------------------
+
+        osName = new HTML();
+        processors = new HTML();
 
         HorizontalPanel header = new HorizontalPanel();
         header.setStyleName("fill-layout-width");
         vmName = new ContentHeaderLabel("");
         header.add(vmName);
 
-        // -------------------------
 
-        osName = new HTML();
-        processors = new HTML();
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+        refreshBtn.setStyleName("html-link");
+        refreshBtn.addClickHandler(refreshHandler);
 
         osPanel = new VerticalPanel();
-        osPanel.add(osName);
-        osPanel.add(processors);
-
-        // cross references
-        /* HTML jvmConfigLink = new HTML("<a href='javascript:void(0)'>Configure Virtual Machine &rarr;</a>");
-  jvmConfigLink.addClickHandler(new ClickHandler() {
-      @Override
-      public void onClick(ClickEvent event) {
-          Console.getPlaceManager().revealPlace(
-                  new PlaceRequest(NameTokens.HostJVMPresenter)
-          );
-      }
-  });
-  if(hasServerPicker)
-      osPanel.add(jvmConfigLink);  */
-
+        osPanel.add(refreshBtn);
         header.add(osPanel);
+
+        vpanel.add(header);
+        vpanel.add(osName);
+        vpanel.add(processors);
 
         // 50/50
         osPanel.getElement().getParentElement().setAttribute("style", "width:50%; vertical-align:top;padding-right:15px;");
         osPanel.getElement().getParentElement().setAttribute("align", "right");
         vmName.getElement().getParentElement().setAttribute("style", "width:50%; vertical-align:top");
 
-        vpanel.add(header);
+
 
 
         // --

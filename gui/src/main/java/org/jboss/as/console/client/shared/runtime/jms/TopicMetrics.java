@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.runtime.jms;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
@@ -47,15 +48,6 @@ public class TopicMetrics {
     }
 
     Widget asWidget() {
-        final ToolStrip toolStrip = new ToolStrip();
-        toolStrip.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_refresh(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.setSelectedTopic(getCurrentSelection());
-            }
-        }));
-
-        // ----
 
         topicTable = new DefaultCellTable<JMSEndpoint>(5, new ProvidesKey<JMSEndpoint>() {
             @Override
@@ -142,18 +134,34 @@ public class TopicMetrics {
 
         VerticalPanel desc = new VerticalPanel();
         desc.addStyleName("metric-container");
-        desc.add(new HTML("<h3 class='metric-label'>Topic Metrics</h3>"));
+        desc.add(new HTML("<h3 class='metric-label-embedded'>Topic Metrics</h3>"));
         desc.add(grid);
 
         headline = new ContentHeaderLabel();
 
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+                      refreshBtn.setStyleName("html-link");
+                      refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
+                      refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
+                      refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+                      refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+                      refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.setSelectedTopic(getCurrentSelection());
+
+            }
+        });
+
         SimpleLayout layout = new SimpleLayout()
                 .setTitle("Topics")
                 .setPlain(true)
-                .setTopLevelTools(toolStrip.asWidget())
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.subsys_messaging_topic_metric_desc())
                 .addContent("Topic Selection", tablePanel)
+                .addContent("", refreshBtn)
                 .addContent("", desc);
 
         return layout.build();

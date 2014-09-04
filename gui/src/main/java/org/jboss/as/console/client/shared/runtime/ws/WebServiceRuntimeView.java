@@ -1,7 +1,11 @@
 package org.jboss.as.console.client.shared.runtime.ws;
 
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -40,9 +44,11 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
     private ColumnSortHandler<WebServiceEndpoint> sortHandler;
     private Sampler sampler;
     private Column[] columns;
+    private WebServiceRuntimePresenter presenter;
 
     @Override
     public void setPresenter(WebServiceRuntimePresenter presenter) {
+        this.presenter = presenter;
     }
 
     private DefaultCellTable<WebServiceEndpoint> table;
@@ -166,16 +172,37 @@ public class WebServiceRuntimeView extends SuspendableViewImpl implements WebSer
                 new NumberColumn("fault-count","Faults")
         };
 
+
+        HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
+        refreshBtn.setStyleName("html-link");
+        refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
+        refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
+
+        refreshBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                presenter.onReset();
+            }
+        });
+
+
         sampler = new BulletGraphView("Web Service Requests", "total number", true)
-                .setColumns(columns);
+                        .setColumns(columns);
+
+        VerticalPanel p = new VerticalPanel();
+        p.setStyleName("fill-layout-width");
+        p.add(refreshBtn);
+        p.add(sampler.asWidget());
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle("Webservices")
                 .setHeadline("Web Service Endpoints")
                 .setMaster(Console.MESSAGES.available("Web Service Endpoints"), tableLayout)
                 .setDescription(Console.CONSTANTS.subsys_ws_endpoint_desc())
-                .addDetail(Console.CONSTANTS.common_label_attributes(), basicsLayout.build())
-                .addDetail(Console.CONSTANTS.common_label_stats(), sampler.asWidget());
+                .addDetail(Console.CONSTANTS.common_label_stats(), p)
+                .addDetail(Console.CONSTANTS.common_label_attributes(), basicsLayout.build());
+
 
         return layout.build();
     }

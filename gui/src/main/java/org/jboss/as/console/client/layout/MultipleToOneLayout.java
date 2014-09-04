@@ -55,6 +55,7 @@ public class MultipleToOneLayout {
         return this;
     }
 
+    @Deprecated
     public MultipleToOneLayout setTopLevelTools(Widget toolstrip)
     {
         this.toolStrip = toolstrip;
