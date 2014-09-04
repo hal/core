@@ -117,7 +117,7 @@ public class StandaloneDeploymentPresenter
     protected void onReset()
     {
         super.onReset();
-        Console.MODULES.getHeader().highlight(NameTokens.DeploymentsPresenter);
+        Console.MODULES.getHeader().highlight(NameTokens.DeploymentBrowserPresenter);
         loadDeployments();
     }
 
