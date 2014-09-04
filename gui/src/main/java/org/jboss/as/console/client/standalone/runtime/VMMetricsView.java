@@ -91,15 +91,13 @@ public class VMMetricsView extends SuspendableViewImpl implements VMMetricsPrese
 
         osPanel = new VerticalPanel();
         osPanel.add(refreshBtn);
-        osPanel.add(osName);
-        osPanel.add(processors);
-        osPanel.add(uptime);
 
         header.add(osPanel);
 
         vpanel.add(header);
         vpanel.add(osName);
         vpanel.add(processors);
+        vpanel.add(uptime);
 
         // 50/50
         osPanel.getElement().getParentElement().setAttribute("style", "width:50%; vertical-align:top;padding-right:15px;");
