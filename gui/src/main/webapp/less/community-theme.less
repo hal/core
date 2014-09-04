@@ -4,29 +4,29 @@
 @font-family: 'Open Sans', "Lucida Sans Unicode","Lucida Grande",sans-serif;
 @body-font: 12px e("/") 1.4 @font-family;
 
-@header-line-color: #8295bd;
-@header-top-color: #3B4D64;
-@header-bottom-color: #1e1f21;
+@header-line-color: #0099D3;
+@header-top-color: #030303;
+@header-bottom-color: #030303;
 
-@border1-color:#eaf5fb;
+@border1-color:#D4EDFA;
 @border2-color:#cfcfcf;
 @border3-color:#cdcdcd;
 @border4-color:#4b7b9f;
 
 @background1-color:#f9f9f9;
 
-@background-help:#FDFDEF;
-@border-help:#FDFDEF;
+@background-help:#ffffff;
+@border-help:#e7e7e7;
 @seperator-help:#FDFDEF;
 
-@selection1-color:#eaf5fb;
-@selection2-color:#eaf5fb;
+@selection1-color:#D4EDFA;
+@selection2-color:#D4EDFA;
 
 /* primary buttons*/
-@selection3-color:#477EAF;
-@selection4-color:#477EAF;
+@selection3-color:#189AD1;
+@selection4-color:#1998CC;
 
-@link-color:#477EAF;
+@link-color:#0099D3;
 
 @success-color: #090;
 @error-color: #900;
@@ -36,22 +36,23 @@
 
 .headerline {
   background-color: @header-line-color;
-  border-bottom:1px solid @header-line-color;
+  border-bottom:1px solid @header-top-color;
 }
 
 .headertop {
   background-color: @header-top-color;
-  background-image:url(images/community-bg.png);
-  border-bottom:1px solid #404C5C;
+  border-bottom:1px solid #292929;
 }
 
 .headerbottom {
   background-color: @header-bottom-color;
-  border-bottom:1px solid #272a2f;
+  background-image: linear-gradient(to bottom, #1D1D1D 0%, #030303 100%);
+  background-repeat: repeat-x;
+  border-bottom:1px solid #272A2F;
 }
 
 .header-selected {
-  background-color:#303741;
-  border-top:1px solid #566A83;
+  background-color:#303030;
+  border-top:1px solid #696969;
   text-decoration: none!important;
 }

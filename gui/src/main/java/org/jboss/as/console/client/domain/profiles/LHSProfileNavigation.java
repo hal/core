@@ -66,13 +66,6 @@ class LHSProfileNavigation {
         Widget selectorWidget = profileSelector.asWidget();
         selectorWidget.getElement().getStyle().setPadding(10, Style.Unit.PX);
 
-        VerticalPanel header = new VerticalPanel();
-
-        header.getElement().setAttribute("width", "100%");
-        header.getElement().setAttribute("cellspacing", "0");
-        header.getElement().setAttribute("cellpadding", "0");
-        header.getElement().setAttribute("border", "0");
-
         HTML title = new HTML("Subsystems");
         title.setStyleName("server-picker-section-header");
 
@@ -81,7 +74,6 @@ class LHSProfileNavigation {
         p.add(title);
         p.add(selectorWidget);
 
-        header.getElement().getParentElement().setClassName("server-picker-wrapper");
         stack.add(p);
 
         subsystemTree = new LHSNavTree("profiles");
