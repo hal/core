@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
@@ -233,8 +234,9 @@ public class DataSourceEditor {
 
                 final DataSource selection = getCurrentSelection();
                 final boolean nextState = !selection.isEnabled();
-                Feedback.confirm(Console.MESSAGES.modify("datasource"),
-                        Console.MESSAGES.modifyConfirm("Datasource "+selection.getName()),
+                String title = nextState ? Console.MESSAGES.enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
+                String text = nextState ? Console.MESSAGES.enableConfirm("datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("datasource "+selection.getName()) ;
+                Feedback.confirm(title, text,
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {

@@ -35,6 +35,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
@@ -220,7 +221,9 @@ public class XADataSourceEditor implements PropertyManagement {
 
                 final XADataSource selection = getCurrentSelection();
                 final boolean doEnable = !selection.isEnabled();
-                Feedback.confirm(Console.MESSAGES.modify("XA datasource"), Console.MESSAGES.modifyConfirm("XA datasource " + selection.getName()),
+                String title = doEnable ? Console.MESSAGES.enableConfirm("XA datasource") : Console.MESSAGES.disableConfirm("XA datasource");
+                String text = doEnable ? Console.MESSAGES.enableConfirm("XA datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("XA datasource "+selection.getName()) ;
+                Feedback.confirm(title, text,
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
