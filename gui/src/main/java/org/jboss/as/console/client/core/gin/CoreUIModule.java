@@ -114,6 +114,8 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
+import org.jboss.as.console.client.shared.subsys.batch.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
@@ -127,6 +129,8 @@ import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainer
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStoreImpl;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStoreImpl;
+import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
+import org.jboss.as.console.client.shared.subsys.io.IOView;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbView;
 import org.jboss.as.console.client.shared.subsys.jca.*;
@@ -515,6 +519,16 @@ public class CoreUIModule extends AbstractPresenterModule {
                 WebServiceRuntimePresenter.MyView.class,
                 WebServiceRuntimeView.class,
                 WebServiceRuntimePresenter.MyProxy.class);
+
+        bindPresenter(BatchPresenter.class,
+                BatchPresenter.MyView.class,
+                BatchView.class,
+                BatchPresenter.MyProxy.class);
+
+        bindPresenter(IOPresenter.class,
+                IOPresenter.MyView.class,
+                IOView.class,
+                IOPresenter.MyProxy.class);
 
         bind(CacheContainerStore.class).to(CacheContainerStoreImpl.class).in(Singleton.class);
         bind(LocalCacheStore.class).to(LocalCacheStoreImpl.class).in(Singleton.class);

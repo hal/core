@@ -89,7 +89,7 @@ public class SubsystemMetaData {
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
 
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", "threads", Boolean.TRUE));
-        groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.DialogPresenter+";dialog=subsystems_io.xml"));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.IO));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Deployment Scanners", "deployment-scanner"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Remoting", "remoting",Boolean.TRUE));
@@ -105,7 +105,7 @@ public class SubsystemMetaData {
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Weld", "weld",Boolean.TRUE));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JPA", "jpa"));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JacORB", "jacorb"));
-        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batching", "batch", NameTokens.DialogPresenter+";dialog=subsystems_batch.xml"));
+        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batching", "batch", NameTokens.Batch));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));

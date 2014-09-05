@@ -27,6 +27,8 @@ public class NameTokens {
 
     public static final String mainLayout = "main";
 
+    public static final String Batch = "batch";
+    public static final String IO = "io";
     public static final String HomepagePresenter = "home";
     public static final String BoundedQueueThreadPoolPresenter = "threads";
     public static final String ConfigAdminPresenter = "configadmin";

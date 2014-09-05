@@ -95,6 +95,7 @@ import org.jboss.as.console.client.shared.runtime.web.WebMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
@@ -102,6 +103,7 @@ import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.*;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
+import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
@@ -349,6 +351,10 @@ public interface CoreUI {
     AsyncProvider<EnvironmentPresenter> EnvironmentPresenter();
 
     AsyncProvider<PatchManagementPresenter> getPatchManagerProvider();
+
+    AsyncProvider<BatchPresenter> getBatchPresenter();
+
+    AsyncProvider<IOPresenter> getIOPresenter();
 
     // Administration
     AsyncProvider<AdministrationPresenter> getAdministrationPresenter();

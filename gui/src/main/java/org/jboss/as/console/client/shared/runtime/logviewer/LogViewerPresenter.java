@@ -76,6 +76,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @Override
     protected void onBind() {
+        super.onBind();
         addChangeHandler(logStore);
         addChangeHandler(hostStore);
     }
