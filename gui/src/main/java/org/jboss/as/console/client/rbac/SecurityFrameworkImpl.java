@@ -5,8 +5,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -241,13 +243,18 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
         final long s0 = System.currentTimeMillis();
 
+        // TOD: provide proper API
+        final ProgressElement progressElement = Footer.PROGRESS_ELEMENT;
+        progressElement.reset();
+        progressElement.tick();
+
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
             @Override
             public void onFailure(Throwable caught) {
 
                 //callback.onFailure(new RuntimeException("Failed to create security context for "+id, caught));
-
+                progressElement.finish();
                 Log.error("Failed to create security context for "+id+ ", fallback to temporary read-only context", caught.getMessage());
                 contextMapping.put(id, READ_ONLY);
                 callback.onSuccess(READ_ONLY);
@@ -255,6 +262,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
+
 
                 Log.info("Context http (" + id + "): " + (System.currentTimeMillis() - s0) + "ms");
 
@@ -346,9 +354,11 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
                     Log.info("Context parse (" + id + "): " + (System.currentTimeMillis() - s2) + "ms");
 
+                    progressElement.finish();
                     callback.onSuccess(context);
 
                 } catch (Throwable e) {
+                    progressElement.finish();
                     e.printStackTrace();
                     callback.onFailure(new RuntimeException("Failed to parse access control meta data: "+ e.getMessage(), e));
                 }
