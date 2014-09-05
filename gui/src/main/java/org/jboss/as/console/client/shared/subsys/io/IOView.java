@@ -21,15 +21,26 @@
  */
 package org.jboss.as.console.client.shared.subsys.io;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
 /**
  * @author Harald Pehl
  */
 public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
+    private final SecurityFramework securityFramework;
     private IOPresenter presenter;
+
+    @Inject
+    public IOView(SecurityFramework securityFramework) {
+
+        this.securityFramework = securityFramework;
+    }
 
     @Override
     public void setPresenter(IOPresenter presenter) {
@@ -38,6 +49,15 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
     @Override
     public Widget createWidget() {
-        return null;
+        WorkerPanel workerPanel = new WorkerPanel(presenter, securityFramework);
+        BufferPoolPanel bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
+
+        DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabLayoutpanel.addStyleName("default-tabpanel");
+        tabLayoutpanel.add(workerPanel, "Worker");
+        tabLayoutpanel.add(bufferPoolPanel, "Buffer Pool");
+        tabLayoutpanel.selectTab(0);
+
+        return tabLayoutpanel;
     }
 }

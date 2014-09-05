@@ -34,6 +34,8 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import java.util.Map;
+
 /**
  * @author Harald Pehl
  */
@@ -51,8 +53,8 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;
 
-    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                       Dispatcher circuit) {
+    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                       RevealStrategy revealStrategy, Dispatcher circuit) {
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
@@ -77,5 +79,33 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     @Override
     protected void onReset() {
         super.onReset();
+    }
+
+    // ------------------------------------------------------ worker methods
+
+    public void launchAddWorkerDialog() {
+
+    }
+
+    public void saveWorker(String name, Map<String, Object> changedValues) {
+
+    }
+
+    public void removeWorker(String name) {
+
+    }
+
+    // ------------------------------------------------------ buffer pool methods
+
+    public void launchAddBufferPoolDialog() {
+
+    }
+
+    public void saveBufferPool(String name, Map<String, Object> changedValues) {
+
+    }
+
+    public void removeBufferPool(String name) {
+
     }
 }
