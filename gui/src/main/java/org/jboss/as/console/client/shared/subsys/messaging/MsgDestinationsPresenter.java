@@ -1214,6 +1214,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
                 else
                 {
                     Console.info("Added messaging provider "+ payload.get(NAME).asString());
+                    currentServer = null;
                     loadProvider();
                 }
             }

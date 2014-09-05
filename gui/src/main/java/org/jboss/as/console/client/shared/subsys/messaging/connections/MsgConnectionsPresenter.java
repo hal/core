@@ -1059,6 +1059,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
                 } else {
                     Console.info("Added messaging provider " + payload.get(NAME).asString());
+                    currentServer = null;
                     loadProvider();
                 }
             }
