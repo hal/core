@@ -1,10 +1,12 @@
 package org.jboss.as.console.client.standalone.runtime;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -13,6 +15,7 @@ import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.nav.Predicate;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
@@ -23,7 +26,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 11/2/11
  */
-public class StandaloneRuntimeNavigation {
+public class StandaloneRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandler {
 
     private VerticalPanel stack;
     private VerticalPanel layout;
@@ -34,6 +37,7 @@ public class StandaloneRuntimeNavigation {
     private ScrollPanel scroll;
     private LHSNavTree serverTree;
     private LHSNavTree runtimeTree;
+    private LHSHighlightEvent highlightEvent;
 
     public Widget asWidget()
     {
@@ -162,5 +166,20 @@ public class StandaloneRuntimeNavigation {
         // empty runtime operations
         runtimeTree.setVisible(runtimeTree.getItemCount()>0);
         serverTree.expandTopLevel();
+
+        if(highlightEvent!=null)
+        {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    runtimeTree.onSelectedNavTree(highlightEvent);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onSelectedNavTree(LHSHighlightEvent event) {
+        this.highlightEvent = event;
     }
 }
