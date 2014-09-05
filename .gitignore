@@ -9,6 +9,7 @@ gwt-unitCache
 .settings
 .project
 .classpath
+*.*~
 
 build/app/overlays
 build/app/war

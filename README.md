@@ -27,6 +27,7 @@ and verify changes. You can get the OOPHM Plugin, required for attaching your br
 hosted mode execution here: http://gwt.google.com/samples/MissingPlugin/MissingPlugin.html
 
 NOTE: you need to add user with WildFly add-user script.
+NOTE2: firefox on linux should use version 24 or minor, because gwt plugin doesn't work with recent firefox versions.
 
 ## Running in web mode
 

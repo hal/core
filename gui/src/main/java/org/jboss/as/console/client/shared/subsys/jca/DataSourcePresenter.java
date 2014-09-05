@@ -299,8 +299,10 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
+                boolean enabled = entity.isEnabled();
+                String text = enabled ? Console.MESSAGES.successDisabled("Datasource " + entity.getName()) :Console.MESSAGES.successEnabled("Datasource " + entity.getName()) ;
                 if (result.getUnderlying()) {
-                    Console.info(Console.MESSAGES.modified("Datasource ") + entity.getName());
+                    Console.info(text);
                 } else {
                     Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(), result.getResponse().toString());
                 }
@@ -386,9 +388,10 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
-
+                boolean enabled = entity.isEnabled();
+                String text = enabled ? Console.MESSAGES.successDisabled("XA datasource " + entity.getName()) : Console.MESSAGES.successEnabled("XA datasource " + entity.getName()) ;
                 if (result.getUnderlying()) {
-                    Console.info(Console.MESSAGES.modified("Datasource " + entity.getName()));
+                    Console.info(text);
                 } else {
                     Console.error(Console.MESSAGES.modificationFailed("Datasource " + entity.getName()), result.getResponse().toString());
                 }
