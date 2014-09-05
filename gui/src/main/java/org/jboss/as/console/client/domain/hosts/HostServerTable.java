@@ -2,12 +2,14 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -262,9 +264,10 @@ public class HostServerTable {
             }
         };
 
-        DefaultButton btn = new DefaultButton("Change Server");
+        Button btn = new Button("Change Server");
         btn.addClickHandler(clickHandler);
-        btn.addStyleName("server-picker-btn");
+        btn.addStyleName("table-picker");
+        btn.getElement().getStyle().setWidth(100, Style.Unit.PCT);
         //btn.addStyleName("primary");
 
         HTML title = new HTML("Server Status");
@@ -323,7 +326,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft() - (winWidth - header.getOffsetWidth());
             popup.setPopupPosition(
                     popupLeft-15,
-                    header.getAbsoluteTop()+72
+                    header.getAbsoluteTop()+80
             );
         }
         else
@@ -331,7 +334,7 @@ public class HostServerTable {
             int popupLeft = header.getAbsoluteLeft();
             popup.setPopupPosition(
                     popupLeft,
-                    header.getAbsoluteTop()+72
+                    header.getAbsoluteTop()+80
             );
         }
 
