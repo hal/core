@@ -45,22 +45,22 @@ public class WorkerStore extends ChangeSupport {
 
     @Process(actionType = AddWorker.class)
     public void add(ModelNode worker, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = ModifyWorker.class)
     public void modify(ModelNode worker, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = RefreshWorkers.class)
     public void refresh(Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = RemoveWorker.class)
     public void remove(String name, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     public List<Property> getWorkers() {

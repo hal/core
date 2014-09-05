@@ -45,22 +45,22 @@ public class BufferPoolStore extends ChangeSupport {
 
     @Process(actionType = AddBufferPool.class)
     public void add(ModelNode bufferPool, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = ModifyBufferPool.class)
     public void modify(ModelNode bufferPool, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = RefreshBufferPools.class)
     public void refresh(Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     @Process(actionType = RemoveBufferPool.class)
     public void remove(String name, Dispatcher.Channel channel) {
-
+        channel.ack();
     }
 
     public List<Property> getBufferPools() {

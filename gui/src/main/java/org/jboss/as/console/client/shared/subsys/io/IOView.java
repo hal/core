@@ -41,7 +41,6 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     private final SecurityFramework securityFramework;
 
     private IOPresenter presenter;
-    private DefaultTabLayoutPanel tabs;
     private WorkerPanel workerPanel;
     private BufferPoolPanel bufferPoolPanel;
 
@@ -60,23 +59,13 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
         workerPanel = new WorkerPanel(presenter, securityFramework);
         bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
 
-        tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabs.addStyleName("default-tabpanel");
         tabs.add(workerPanel, "Worker");
         tabs.add(bufferPoolPanel, "Buffer Pool");
         tabs.selectTab(0);
 
         return tabs;
-    }
-
-    @Override
-    public boolean isBufferPoolSelected() {
-        return tabs.getSelectedIndex() == 1;
-    }
-
-    @Override
-    public boolean isWorkerSelected() {
-        return tabs.getSelectedIndex() == 0;
     }
 
     @Override
