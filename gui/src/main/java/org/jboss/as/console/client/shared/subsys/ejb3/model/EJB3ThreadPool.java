@@ -28,10 +28,12 @@ import org.jboss.as.console.client.widgets.forms.FormItem;
  *
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  */
+// TODO Should no longer extend UnboundedQueueThreadPool as this AutoBean uses the deprecated
+// address '/subsystem=threads/...'. However this would require rewriting views which use
+// type parameters like <T extends UnboundedQueueThreadPool>
 @Address("/subsystem=ejb3/thread-pool={0}")
 public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
 
-   @Override
    @Binding(detypedName="name", key=true)
    @FormItem(defaultValue="",
              localLabel="common_label_name",
@@ -40,7 +42,6 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
              formItemTypeForAdd="TEXT_BOX",
              order=0)
    public String getName();
-   @Override
    public void setName(String name);
 
    @Binding(detypedName="thread-factory")
@@ -49,9 +50,7 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
             required=false,
             formItemTypeForEdit="COMBO_BOX",
             formItemTypeForAdd="COMBO_BOX")
-   @Override
    String getThreadFactory();
-   @Override
    void setThreadFactory(String threadFactory);
 
    @Binding(detypedName="keepalive-time/time")
@@ -60,9 +59,7 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
             label="Keepalive Timeout",
             formItemTypeForAdd="NUMBER_BOX",
             formItemTypeForEdit="NUMBER_BOX")
-   @Override
    Integer getKeepaliveTimeout();
-   @Override
    void setKeepaliveTimeout(Integer timeout);
 
    @Binding(detypedName="keepalive-time/unit")
@@ -71,9 +68,7 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
             required=true,
             formItemTypeForEdit="TIME_UNITS",
             formItemTypeForAdd="TIME_UNITS")
-   @Override
    String getKeepaliveTimeoutUnit();
-   @Override
    void setKeepaliveTimeoutUnit(String unit);
 
    @Binding(detypedName="max-threads")
@@ -82,9 +77,6 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
             label="Max Threads",
             formItemTypeForAdd="NUMBER_BOX",
             formItemTypeForEdit="NUMBER_BOX")
-   @Override
    Integer getMaxThreads();
-   @Override
    void setMaxThreads(Integer maxThreadsCount);
-
 }
