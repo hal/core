@@ -312,8 +312,9 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     }
 
     public static boolean protovisAvailable() {
-        String userAgent = Window.Navigator.getUserAgent();
-        return !(userAgent.contains("MSIE") || userAgent.contains("msie"));
+        /*String userAgent = Window.Navigator.getUserAgent();
+        return !(userAgent.contains("MSIE") || userAgent.contains("msie"));*/
+        return true;
     }
 
 
