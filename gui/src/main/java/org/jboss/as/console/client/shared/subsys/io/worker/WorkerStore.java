@@ -19,26 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.ChangeSupport;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Harald Pehl
  */
-public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyView {
+@Store
+public class WorkerStore extends ChangeSupport {
 
-    private BatchPresenter presenter;
+    private final List<Property> workers;
 
-    @Override
-    public void setPresenter(BatchPresenter presenter) {
-        this.presenter = presenter;
+    public WorkerStore() {
+        this.workers = new ArrayList<>();
     }
 
-    @Override
-    public Widget createWidget() {
-        return new Label("NYI");
+    @Process(actionType = AddWorker.class)
+    public void add(ModelNode worker, Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = ModifyWorker.class)
+    public void modify(ModelNode worker, Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = RefreshWorkers.class)
+    public void refresh(Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = RemoveWorker.class)
+    public void remove(String name, Dispatcher.Channel channel) {
+
     }
 }

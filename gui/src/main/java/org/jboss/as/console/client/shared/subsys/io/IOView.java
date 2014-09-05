@@ -26,6 +26,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolPanel;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerPanel;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
 /**
@@ -35,10 +37,10 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
     private final SecurityFramework securityFramework;
     private IOPresenter presenter;
+    private DefaultTabLayoutPanel tabs;
 
     @Inject
     public IOView(SecurityFramework securityFramework) {
-
         this.securityFramework = securityFramework;
     }
 
@@ -52,12 +54,22 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
         WorkerPanel workerPanel = new WorkerPanel(presenter, securityFramework);
         BufferPoolPanel bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
 
-        DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
-        tabLayoutpanel.addStyleName("default-tabpanel");
-        tabLayoutpanel.add(workerPanel, "Worker");
-        tabLayoutpanel.add(bufferPoolPanel, "Buffer Pool");
-        tabLayoutpanel.selectTab(0);
+        tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabs.addStyleName("default-tabpanel");
+        tabs.add(workerPanel, "Worker");
+        tabs.add(bufferPoolPanel, "Buffer Pool");
+        tabs.selectTab(0);
 
-        return tabLayoutpanel;
+        return tabs;
+    }
+
+    @Override
+    public boolean isBufferPoolSelected() {
+        return tabs.getSelectedIndex() == 1;
+    }
+
+    @Override
+    public boolean isWorkerSelected() {
+        return tabs.getSelectedIndex() == 0;
     }
 }

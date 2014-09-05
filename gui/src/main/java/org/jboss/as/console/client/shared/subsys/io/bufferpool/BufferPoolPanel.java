@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.io;
+package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -32,6 +32,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
@@ -49,7 +50,7 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class WorkerPanel extends ModelDrivenWidget {
+public class BufferPoolPanel extends ModelDrivenWidget {
 
     private final IOPresenter presenter;
     private final DefaultCellTable<Property> table;
@@ -58,8 +59,8 @@ public class WorkerPanel extends ModelDrivenWidget {
     private final SecurityContext securityContext;
 
     @SuppressWarnings("unchecked")
-    public WorkerPanel(IOPresenter presenter, SecurityFramework securityFramework) {
-        super("{selected.profile}/subsystem=io/worker=*");
+    public BufferPoolPanel(IOPresenter presenter, SecurityFramework securityFramework) {
+        super("{selected.profile}/subsystem=io/buffer-pool=*");
 
         this.presenter = presenter;
         this.table = new DefaultCellTable<>(5);
@@ -80,19 +81,19 @@ public class WorkerPanel extends ModelDrivenWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchAddWorkerDialog();
+                presenter.launchAddBufferPoolDialog();
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Worker"),
-                        Console.MESSAGES.deleteConfirm("Worker '" + selectionModel.getSelectedObject().getName() + "'"),
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Buffer Pool"),
+                        Console.MESSAGES.deleteConfirm("Buffer Pool '" + selectionModel.getSelectedObject().getName() + "'"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
-                                    presenter.removeWorker(selectionModel.getSelectedObject().getName());
+                                    presenter.removeBufferPool(selectionModel.getSelectedObject().getName());
                                 }
                             }
                         });
@@ -116,7 +117,7 @@ public class WorkerPanel extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeSet) {
-                presenter.saveWorker(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
+                presenter.saveBufferPool(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
             }
 
             @Override
@@ -144,10 +145,10 @@ public class WorkerPanel extends ModelDrivenWidget {
 
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
-                .setHeadline("Workers")
-                .setDescription("Please chose a worker from below for specific settings.")
+                .setHeadline("Buffer Pools")
+                .setDescription("Please chose a buffer pool from below for specific settings.")
                 .setMasterTools(tools)
-                .setMaster(Console.MESSAGES.available("Worker"), table)
+                .setMaster(Console.MESSAGES.available("Buffer Pool"), table)
                 .addDetail("Attributes", formPanel);
         return layoutBuilder.build();
     }

@@ -19,26 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyView {
+public class RemoveWorker implements Action<String> {
 
-    private BatchPresenter presenter;
+    private final String name;
 
-    @Override
-    public void setPresenter(BatchPresenter presenter) {
-        this.presenter = presenter;
+    public RemoveWorker(String name) {
+        this.name = name;
     }
 
     @Override
-    public Widget createWidget() {
-        return new Label("NYI");
+    public String getPayload() {
+        return name;
     }
 }

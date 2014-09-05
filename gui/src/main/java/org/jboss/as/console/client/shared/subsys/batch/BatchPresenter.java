@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch;
 
+import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -51,8 +52,9 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;
 
-    public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                          Dispatcher circuit) {
+    @Inject
+    public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                          RevealStrategy revealStrategy, Dispatcher circuit) {
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;

@@ -19,26 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.ChangeSupport;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Harald Pehl
  */
-public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyView {
+@Store
+public class BufferPoolStore extends ChangeSupport {
 
-    private BatchPresenter presenter;
+    private final List<Property> bufferPools;
 
-    @Override
-    public void setPresenter(BatchPresenter presenter) {
-        this.presenter = presenter;
+    public BufferPoolStore() {
+        this.bufferPools = new ArrayList<>();
     }
 
-    @Override
-    public Widget createWidget() {
-        return new Label("NYI");
+    @Process(actionType = AddBufferPool.class)
+    public void add(ModelNode bufferPool, Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = ModifyBufferPool.class)
+    public void modify(ModelNode bufferPool, Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = RefreshBufferPools.class)
+    public void refresh(Dispatcher.Channel channel) {
+
+    }
+
+    @Process(actionType = RemoveBufferPool.class)
+    public void remove(String name, Dispatcher.Channel channel) {
+
     }
 }

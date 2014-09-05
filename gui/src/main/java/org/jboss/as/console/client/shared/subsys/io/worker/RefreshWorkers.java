@@ -19,23 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.io;
+package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import org.jboss.dmr.client.Property;
-import org.jboss.gwt.circuit.meta.Store;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.gwt.circuit.util.EmptyAction;
 
 /**
  * @author Harald Pehl
  */
-@Store
-public class WorkerStore {
-
-    private final List<Property> workers;
-
-    public WorkerStore() {
-        this.workers = new ArrayList<>();
-    }
+public class RefreshWorkers extends EmptyAction{
 }

@@ -19,23 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.io;
+package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import org.jboss.dmr.client.Property;
-import org.jboss.gwt.circuit.meta.Store;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-@Store
-public class BufferPoolStore {
+public class RemoveBufferPool implements Action<String> {
 
-    private final List<Property> bufferPools;
+    private final String name;
 
-    public BufferPoolStore() {
-        this.bufferPools = new ArrayList<>();
+    public RemoveBufferPool(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getPayload() {
+        return name;
     }
 }
