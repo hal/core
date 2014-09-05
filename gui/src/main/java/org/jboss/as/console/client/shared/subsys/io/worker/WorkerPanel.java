@@ -45,6 +45,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -117,7 +118,7 @@ public class WorkerPanel extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeSet) {
-                presenter.saveWorker(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
+                presenter.modifyWorker(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
             }
 
             @Override
@@ -151,5 +152,10 @@ public class WorkerPanel extends ModelDrivenWidget {
                 .setMaster(Console.MESSAGES.available("Worker"), table)
                 .addDetail("Attributes", formPanel);
         return layoutBuilder.build();
+    }
+
+    public void update(List<Property> workers) {
+        dataProvider.setList(workers);
+        table.selectDefaultEntity();
     }
 }

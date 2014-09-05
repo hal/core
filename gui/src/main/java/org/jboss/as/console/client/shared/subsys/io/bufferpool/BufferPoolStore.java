@@ -62,4 +62,8 @@ public class BufferPoolStore extends ChangeSupport {
     public void remove(String name, Dispatcher.Channel channel) {
 
     }
+
+    public List<Property> getBufferPools() {
+        return bufferPools;
+    }
 }

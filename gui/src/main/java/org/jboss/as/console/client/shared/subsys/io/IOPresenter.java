@@ -31,13 +31,20 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
+import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import java.util.List;
 import java.util.Map;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
 /**
  * @author Harald Pehl
@@ -46,7 +53,12 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     public interface MyView extends View, HasPresenter<IOPresenter> {
         boolean isBufferPoolSelected();
+
         boolean isWorkerSelected();
+
+        void updateBufferPools(List<Property> bufferPools);
+
+        void updateWorkers(List<Property> workers);
     }
 
     @ProxyCodeSplit
@@ -54,6 +66,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     @AccessControl(resources = "{selected.profile}/subsystem=io")
     public interface MyProxy extends Proxy<IOPresenter>, Place {
     }
+
 
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;
@@ -84,22 +97,17 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @Override
     protected void onAction(Class<?> actionType) {
-        if (actionType.equals(AddBufferPool.class)) {
+        if (actionType.equals(AddBufferPool.class) ||
+                actionType.equals(ModifyBufferPool.class) ||
+                actionType.equals(RefreshBufferPools.class) ||
+                actionType.equals(RemoveBufferPool.class)) {
+            getView().updateBufferPools(bufferPoolStore.getBufferPools());
 
-        } else if (actionType.equals(ModifyBufferPool.class)) {
-
-        } else if (actionType.equals(RefreshBufferPools.class)) {
-
-        } else if (actionType.equals(RemoveBufferPool.class)) {
-
-        } else if (actionType.equals(AddWorker.class)) {
-
-        } else if (actionType.equals(ModifyWorker.class)) {
-
-        } else if (actionType.equals(RefreshWorkers.class)) {
-
-        } else if (actionType.equals(RemoveWorker.class)) {
-
+        } else if (actionType.equals(AddWorker.class) ||
+                actionType.equals(ModifyWorker.class) ||
+                actionType.equals(RefreshWorkers.class) ||
+                actionType.equals(RemoveWorker.class)) {
+            getView().updateWorkers(workerStore.getWorkers());
         }
     }
 
@@ -124,12 +132,14 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
         System.out.println("Add new worker");
     }
 
-    public void saveWorker(String name, Map<String, Object> changedValues) {
-        System.out.println("Save worker " + name);
+    public void modifyWorker(String name, Map<String, Object> changedValues) {
+        System.out.println("Modify worker " + name);
+        circuit.dispatch(new ModifyWorker(modifyOp("worker", name, changedValues)));
     }
 
     public void removeWorker(String name) {
         System.out.println("Remove worker " + name);
+        circuit.dispatch(new RemoveWorker(name));
     }
 
     // ------------------------------------------------------ buffer pool methods
@@ -138,11 +148,25 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
         System.out.println("Add new buffer pool");
     }
 
-    public void saveBufferPool(String name, Map<String, Object> changedValues) {
-        System.out.println("Save buffer pool " + name);
+    public void modifyBufferPool(String name, Map<String, Object> changedValues) {
+        System.out.println("Modify buffer pool " + name);
+        circuit.dispatch(new ModifyBufferPool(modifyOp("buffer-pool", name, changedValues)));
     }
 
     public void removeBufferPool(String name) {
         System.out.println("Remove buffer pool " + name);
+        circuit.dispatch(new RemoveBufferPool(name));
+    }
+
+
+    // ------------------------------------------------------ helper methods
+
+    private ModelNode modifyOp(String resource, String name, Map<String, Object> changedValues) {
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode address = new ModelNode();
+        address.get(ADDRESS).set(Baseadress.get());
+        address.get(ADDRESS).add("subsystem", "io");
+        address.get(ADDRESS).add(resource, name);
+        return adapter.fromChangeset(changedValues, address);
     }
 }

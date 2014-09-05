@@ -62,4 +62,8 @@ public class WorkerStore extends ChangeSupport {
     public void remove(String name, Dispatcher.Channel channel) {
 
     }
+
+    public List<Property> getWorkers() {
+        return workers;
+    }
 }

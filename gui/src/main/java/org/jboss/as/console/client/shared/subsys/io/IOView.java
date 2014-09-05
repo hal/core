@@ -29,6 +29,9 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolPanel;
 import org.jboss.as.console.client.shared.subsys.io.worker.WorkerPanel;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.dmr.client.Property;
+
+import java.util.List;
 
 /**
  * @author Harald Pehl
@@ -36,8 +39,11 @@ import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
     private final SecurityFramework securityFramework;
+
     private IOPresenter presenter;
     private DefaultTabLayoutPanel tabs;
+    private WorkerPanel workerPanel;
+    private BufferPoolPanel bufferPoolPanel;
 
     @Inject
     public IOView(SecurityFramework securityFramework) {
@@ -51,8 +57,8 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
 
     @Override
     public Widget createWidget() {
-        WorkerPanel workerPanel = new WorkerPanel(presenter, securityFramework);
-        BufferPoolPanel bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
+        workerPanel = new WorkerPanel(presenter, securityFramework);
+        bufferPoolPanel = new BufferPoolPanel(presenter, securityFramework);
 
         tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabs.addStyleName("default-tabpanel");
@@ -71,5 +77,15 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     @Override
     public boolean isWorkerSelected() {
         return tabs.getSelectedIndex() == 0;
+    }
+
+    @Override
+    public void updateBufferPools(List<Property> bufferPools) {
+        bufferPoolPanel.update(bufferPools);
+    }
+
+    @Override
+    public void updateWorkers(List<Property> workers) {
+        workerPanel.update(workers);
     }
 }

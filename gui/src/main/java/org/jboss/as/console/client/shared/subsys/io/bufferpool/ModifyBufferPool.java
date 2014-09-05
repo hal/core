@@ -27,7 +27,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class ModifyBufferPool implements Action {
+public class ModifyBufferPool implements Action<ModelNode> {
 
     private final ModelNode payload;
 

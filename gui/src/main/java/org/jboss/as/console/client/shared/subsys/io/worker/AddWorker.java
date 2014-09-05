@@ -27,7 +27,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class AddWorker implements Action {
+public class AddWorker implements Action<ModelNode> {
 
     private final ModelNode payload;
 
