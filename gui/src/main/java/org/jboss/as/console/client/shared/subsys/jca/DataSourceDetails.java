@@ -81,6 +81,7 @@ public class DataSourceDetails {
         final TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem jndiItem = new JndiNameItem("jndiName", "JNDI");
         StatusItem enabledFlagItem = new StatusItem("enabled", "Is enabled?");
+        CheckBoxItem stats = new CheckBoxItem("statisticsEnabled", "Statistics enabled?");
         TextAreaItem dsClassItem = new TextAreaItem("datasourceClass", "Datasource Class",false);
         TextBoxItem driverItem = new TextBoxItem("driverName", "Driver");
         TextBoxItem driverClassItem = new TextBoxItem("driverClass", "Driver Class");
@@ -88,7 +89,7 @@ public class DataSourceDetails {
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
         NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
 
-        form.setFields(nameItem, jndiItem, enabledFlagItem, dsClassItem, driverItem,driverClassItem, shareStatements, statementCacheSize);
+        form.setFields(nameItem, jndiItem, enabledFlagItem, stats, dsClassItem, driverItem,driverClassItem, shareStatements, statementCacheSize);
 
         form.setEnabled(false); // currently not editable
 

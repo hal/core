@@ -173,7 +173,11 @@ public interface DataSource {
     void setAllocationRetry(int i);
 
     @Binding(detypedName = "allocation-retry-wait-millis")
-    long getAllocationRetryWaitMillis();
-    void setAllocationRetryWaitMillis(long l);
+        long getAllocationRetryWaitMillis();
+        void setAllocationRetryWaitMillis(long l);
+
+    @Binding(detypedName = "statistics-enabled")
+    boolean isStatisticsEnabled();
+    void setStatisticsEnabled(boolean b);
 
 }

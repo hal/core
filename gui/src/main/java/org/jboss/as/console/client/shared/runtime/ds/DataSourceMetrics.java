@@ -86,9 +86,17 @@ public class DataSourceMetrics {
             }
         };
 
+        com.google.gwt.user.cellview.client.Column<DataSource, String> stats = new com.google.gwt.user.cellview.client.Column<DataSource, String>(new TextCell()) {
+            @Override
+            public String getValue(DataSource object) {
+                return String.valueOf(object.isStatisticsEnabled());
+            }
+        };
+
         table.addColumn(nameColumn, "Name");
         table.addColumn(protocolColumn, "JNDI");
         table.addColumn(status, "Enabled?");
+        table.addColumn(stats, "Statistics Enabled?");
 
         table.getSelectionModel().addSelectionChangeHandler(
                 new SelectionChangeEvent.Handler(){
