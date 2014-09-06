@@ -119,6 +119,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
         circuit.dispatch(new RefreshBufferPools());
     }
 
+
     // ------------------------------------------------------ worker methods
 
     public void launchAddWorkerDialog() {
@@ -131,6 +132,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     public void removeWorker(String name) {
         circuit.dispatch(new RemoveWorker(name));
     }
+
 
     // ------------------------------------------------------ buffer pool methods
 

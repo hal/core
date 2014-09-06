@@ -21,141 +21,69 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.shared.subsys.io.IOPanel;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
-import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class BufferPoolPanel extends ModelDrivenWidget {
+public class BufferPoolPanel extends IOPanel {
 
-    private final IOPresenter presenter;
-    private final DefaultCellTable<Property> table;
-    private final ListDataProvider<Property> dataProvider;
-    private final SingleSelectionModel<Property> selectionModel;
-    private final SecurityContext securityContext;
-
-    @SuppressWarnings("unchecked")
     public BufferPoolPanel(IOPresenter presenter, SecurityFramework securityFramework) {
-        super("{selected.profile}/subsystem=io/buffer-pool=*");
-
-        this.presenter = presenter;
-        this.table = new DefaultCellTable<>(5);
-        this.dataProvider = new ListDataProvider<Property>();
-        this.selectionModel = new SingleSelectionModel<Property>();
-        this.securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
-
-        dataProvider.addDataDisplay(table);
-        table.setSelectionModel(selectionModel);
+        super("{selected.profile}/subsystem=io/buffer-pool=*", presenter, securityFramework);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
-
-        // tool strip
-        ToolStrip tools = new ToolStrip();
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchAddBufferPoolDialog();
-            }
-        }));
-        tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Buffer Pool"),
-                        Console.MESSAGES.deleteConfirm("Buffer Pool '" + selectionModel.getSelectedObject().getName() + "'"),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    presenter.removeBufferPool(selectionModel.getSelectedObject().getName());
-                                }
-                            }
-                        });
-            }
-        }));
-
-        // master (table)
-        TextColumn<Property> nameColumn = new TextColumn<Property>() {
-            @Override
-            public String getValue(Property node) {
-                return node.getName();
-            }
-        };
-        table.addColumn(nameColumn, "Name");
-
-        // details (form)
-        final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
-                .setConfigOnly()
-                .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
-        formAssets.getForm().setToolsCallback(new FormCallback() {
-            @Override
-            public void onSave(Map changeSet) {
-                presenter.modifyBufferPool(selectionModel.getSelectedObject().getName(), formAssets.getForm().getChangedValues());
-            }
-
-            @Override
-            public void onCancel(Object entity) {
-                formAssets.getForm().cancel();
-            }
-        });
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                Property worker = selectionModel.getSelectedObject();
-                if (worker != null) {
-                    formAssets.getForm().edit(worker.getValue());
-                } else {
-                    formAssets.getForm().clearValues();
-                }
-            }
-        });
+    public Widget buildWidget(final ResourceAddress address, final ResourceDefinition definition) {
+        ToolStrip tools = buildTools();
+        DefaultCellTable<Property> table = setupTable();
+        Widget formPanel = buildFormPanel(definition);
 
         // putting everything together
-        VerticalPanel formPanel = new VerticalPanel();
-        formPanel.setStyleName("fill-layout-width");
-        formPanel.add(formAssets.getHelp().asWidget());
-        formPanel.add(formAssets.getForm().asWidget());
-
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("Buffer Pools")
-                .setDescription("Please chose a buffer pool from below for specific settings.")
+                .setDescription(SafeHtmlUtils.fromString("Please chose a buffer pool from below for specific settings."))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Buffer Pool"), table)
                 .addDetail("Attributes", formPanel);
         return layoutBuilder.build();
     }
 
-    public void update(List<Property> bufferPools) {
-        dataProvider.setList(bufferPools);
-        table.selectDefaultEntity();
+    @Override
+    protected void onAdd() {
+        presenter.launchAddBufferPoolDialog();
+    }
+
+    @Override
+    protected void onModify(final String name, final Map<String, Object> changedValues) {
+        presenter.modifyBufferPool(name, changedValues);
+    }
+
+    @Override
+    protected void onRemove(final String name) {
+        Feedback.confirm(Console.MESSAGES.deleteTitle("Buffer Pool"),
+                Console.MESSAGES.deleteConfirm("Buffer Pool '" + name + "'"),
+                new Feedback.ConfirmationHandler() {
+                    @Override
+                    public void onConfirmation(boolean isConfirmed) {
+                        if (isConfirmed) {
+                            presenter.removeBufferPool(name);
+                        }
+                    }
+                });
     }
 }
