@@ -82,9 +82,9 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("JAXRS", "jaxrs",Boolean.TRUE));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("mod_cluster", "modcluster", NameTokens.ModclusterPresenter));
 
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow-servlet.xml"));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow-server.xml"));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.DialogPresenter+";dialog=subsystems_undertow.xml"));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.ServletPresenter));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.HttpPresenter));
+        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowPresenter));
 
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
 

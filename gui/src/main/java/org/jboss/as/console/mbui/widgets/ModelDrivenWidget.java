@@ -11,6 +11,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.List;
 
@@ -28,14 +29,13 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     private ResourceAddress address;
     private ResourceDefiniton definition;
 
-    public ModelDrivenWidget(String address) {
-        this.address = new ResourceAddress(address, Console.MODULES.getCoreGUIContext());
+    public ModelDrivenWidget(String address, StatementContext statementContext) {
+        this.address = new ResourceAddress(address, statementContext);
         init();
     }
 
-    public ModelDrivenWidget(ResourceAddress address) {
-        this.address = address;
-        init();
+    public ModelDrivenWidget(String address) {
+        this(address, Console.MODULES.getCoreGUIContext());
     }
 
     private void init() {

@@ -123,6 +123,9 @@ import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
@@ -382,4 +385,8 @@ public interface CoreUI {
     AsyncProvider<CSPPresenter> getCSPPresenter();
 
     CoreGUIContext getCoreGUIContext();
+
+    AsyncProvider<HttpPresenter> getHttpPresenter();
+    AsyncProvider<ServletPresenter> getServletPresenter();
+    AsyncProvider<UndertowPresenter> getUndertowPresenter();
 }

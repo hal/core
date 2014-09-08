@@ -159,6 +159,12 @@ import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPrese
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsView;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowView;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebSubsystemView;
 import org.jboss.as.console.client.shared.subsys.ws.*;
@@ -680,9 +686,9 @@ public class CoreUIModule extends AbstractPresenterModule {
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
 
         bindPresenter(DialogPresenter.class,
-                        DialogView.class,
-                        DialogViewImpl.class,
-                        DialogPresenter.MyProxy.class);
+                DialogView.class,
+                DialogViewImpl.class,
+                DialogPresenter.MyProxy.class);
 
 
         bindPresenter(NoServerPresenter.class,
@@ -708,6 +714,23 @@ public class CoreUIModule extends AbstractPresenterModule {
                 CSPPresenter.MyProxy.class);
 
         bind(CoreGUIContext.class).in(Singleton.class);
+
+        bindPresenter(HttpPresenter.class,
+                HttpPresenter.MyView.class,
+                HttpView.class,
+                HttpPresenter.MyProxy.class);
+
+        bindPresenter(ServletPresenter.class,
+                ServletPresenter.MyView.class,
+                ServletView.class,
+                ServletPresenter.MyProxy.class);
+
+        bindPresenter(UndertowPresenter.class,
+                UndertowPresenter.MyView.class,
+                UndertowView.class,
+                UndertowPresenter.MyProxy.class);
+
+
     }
 
     @Provides Scheduler provideScheduler() {

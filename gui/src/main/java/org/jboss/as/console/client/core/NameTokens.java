@@ -99,6 +99,9 @@ public class NameTokens {
     public static final String DomainPresenter = "domain";
     public static final String NoServer = "no-server";
     public static final String CSP = "csp";
+    public static final String HttpPresenter = "http";
+    public static final String ServletPresenter = "servlet";
+    public static final String  UndertowPresenter = "undertow";
 
     public static String getMainLayout() {
         return mainLayout;

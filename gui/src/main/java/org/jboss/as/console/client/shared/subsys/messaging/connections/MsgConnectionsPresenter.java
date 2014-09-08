@@ -1048,7 +1048,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         // ignore address, currently one use supported only
         window.hide();
 
-        ModelNode op = address.apply(payload);
+        ModelNode op = address.asOperation(payload);
         op.get(OP).set(ADD);
         dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
             @Override

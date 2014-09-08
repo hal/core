@@ -8,15 +8,18 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefiniton;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
+import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.List;
 
@@ -26,7 +29,7 @@ import java.util.List;
  */
 public class AddResourceDialog extends ModelDrivenWidget {
 
-    private final Callback callback;
+    private Callback callback;
     private SecurityContext securityContext;
 
     public interface Callback {
@@ -34,10 +37,14 @@ public class AddResourceDialog extends ModelDrivenWidget {
         public void closeDialogue();
     }
 
-    public AddResourceDialog(String address, SecurityContext securityContext, Callback callback) {
-        super(address);
+    public AddResourceDialog(String address, StatementContext statementContext, SecurityContext securityContext, Callback callback) {
+        super(address, statementContext);
         this.securityContext = securityContext;
         this.callback = callback;
+    }
+
+    public AddResourceDialog(String address, SecurityContext securityContext, Callback callback) {
+        this(address, Console.MODULES.getCoreGUIContext(), securityContext, callback);
     }
 
     @Override
@@ -83,16 +90,18 @@ public class AddResourceDialog extends ModelDrivenWidget {
 
             VerticalPanel layout = new VerticalPanel();
             layout.setStyleName("fill-layout-width");
+            Widget formWidget = form.asWidget();
+            formWidget.getElement().getStyle().setBackgroundColor("#ffffff");
             ModelNode opDescription = definition.get("operations").get("add").get("description");
             ContentDescription text = new ContentDescription(opDescription.asString());
             layout.add(text);
-            layout.add(form.asWidget());
+            layout.add(formWidget);
 
             ScrollPanel scroll = new ScrollPanel(layout);
 
             LayoutPanel content = new LayoutPanel();
             content.addStyleName("fill-layout");
-            content.addStyleName("window-content");
+            //content.addStyleName("window-content"); clashes with TrappedFocusPanel
             content.add(scroll);
             content.add(options);
 
@@ -100,7 +109,7 @@ public class AddResourceDialog extends ModelDrivenWidget {
             content.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 92, Style.Unit.PCT);
             content.setWidgetBottomHeight(options, 0, Style.Unit.PX, 35, Style.Unit.PX);
 
-            return content;//new WindowContentBuilder(layout, options).build();
+            return new TrappedFocusPanel(content);
 
         }
         else

@@ -11,37 +11,67 @@ import java.util.List;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * NOTE: Stores the actual address as DMR property 'address'.
+ *
  * @author Heiko Braun
  * @since 29/08/14
  */
 public class ResourceAddress extends ModelNode {
 
-    private final String addressString ;
     private StatementContext context;
+
     public ResourceAddress(String addressString, StatementContext context) {
 
-        this.addressString = addressString;
         this.context = context;
 
         ModelNode address = AddressMapping.fromString(addressString).asResource(context);
         this.set(address);
     }
 
-    @Override
-    public String toString() {
-        return AddressUtils.toString(this, true);
+    public List<Property> asTokens() {
+        return get(ADDRESS).asPropertyList();
     }
 
-    public ModelNode apply(ModelNode data) {
+    @Override
+    public String toString() {
+        return AddressUtils.toString(this.get(ADDRESS), true);
+    }
 
-        if(!data.hasDefined(NAME))
-            throw new IllegalArgumentException("Attribute 'name' is missing");
+    public ModelNode asOperation(ModelNode data, String name) {
 
-        ModelNode op = AddressMapping.fromString(addressString).asResource(context, data.get(NAME).asString());
+        ModelNode op = asFqAddress(name);
         List<Property> atts = data.asPropertyList();
         for (Property att : atts) {
             op.get(att.getName()).set(att.getValue());
         }
         return op;
+    }
+
+    public ModelNode asOperation(ModelNode data) {
+
+        if(!data.hasDefined(NAME))
+            throw new IllegalArgumentException("Attribute 'name' is missing");
+
+        return asOperation(data, data.get(NAME).asString());
+    }
+
+    public ModelNode asFqAddress(String resourceName)
+    {
+        ModelNode fqAddress = new ModelNode();
+        List<Property> tuples = get(ADDRESS).asPropertyList();
+        for(Property tuple : tuples)
+        {
+            String key = tuple.getName();
+            String value = tuple.getValue().asString();
+
+            fqAddress.get(ADDRESS).add(key, value.equals("*") ? resourceName : value);
+        }
+
+        return fqAddress;
+    }
+
+    public String getResourceType() {
+        List<Property> tokens = asTokens();
+        return tokens.get(tokens.size() - 1).getName();
     }
 }
