@@ -31,9 +31,8 @@ public class CrudOperationDelegate {
     private DefaultWindow window;
 
     public interface Callback {
-        void resourceAdded(ResourceAddress address, String name);
-        void resourceRemoved(ResourceAddress address, String name);
-        void resourceSaved(ResourceAddress address, String name);
+        void onSucces(ResourceAddress address, String name);
+        void onFailure(ResourceAddress address, String name, Throwable t);
     }
 
 
@@ -88,11 +87,14 @@ public class CrudOperationDelegate {
                 String name = payload.get(NAME).asString();
                 if (response.isFailure()) {
                     Console.error("Failed to add resource " + name, response.getFailureDescription());
+                    for (Callback cb : callback) {
+                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                    }
                 } else {
                     Console.info("Added resource " + name);
 
                     for (Callback cb : callback) {
-                        cb.resourceAdded(address, name);
+                        cb.onSucces(address, name);
                     }
                 }
 
@@ -113,14 +115,16 @@ public class CrudOperationDelegate {
                 if(response.isFailure())
                 {
                     Console.error("Failed to remove resource "+name, response.getFailureDescription());
-
+                    for (Callback cb : callback) {
+                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                    }
                 }
                 else
                 {
 
                     Console.info("Removed resource "+ name);
                     for (Callback cb : callback) {
-                        cb.resourceRemoved(address, name);
+                        cb.onSucces(address, name);
                     }
                 }
             }
@@ -141,11 +145,14 @@ public class CrudOperationDelegate {
 
                 if (response.isFailure()) {
                     Console.error("Failed to save " + address.toString(), response.getFailureDescription());
+                    for (Callback cb : callback) {
+                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                    }
                 }
                 else {
                     Console.info("Successfully saved " + address.toString());
                     for (Callback cb : callback) {
-                        cb.resourceSaved(address, name);
+                        cb.onSucces(address, name);
                     }
                 }
 
