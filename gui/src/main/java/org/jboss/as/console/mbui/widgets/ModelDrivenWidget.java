@@ -124,8 +124,4 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     public boolean isInitialised() {
         return getWidget()!=null;
     }
-
-    public ResourceAddress getAddress() {
-        return address;
-    }
 }

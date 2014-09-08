@@ -18,11 +18,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ResourceAddress extends ModelNode {
 
-    private final String addressTemplate;
-
     public ResourceAddress(String addressTemplate, StatementContext context) {
-        this.addressTemplate = addressTemplate;
-
         ModelNode resolved = AddressMapping.fromString(addressTemplate).asResource(context);
         set(resolved); // resolved is a model node which contains ADDRESS
     }
@@ -72,9 +68,5 @@ public class ResourceAddress extends ModelNode {
     public String getResourceType() {
         List<Property> tokens = asTokens();
         return tokens.get(tokens.size() - 1).getName();
-    }
-
-    public String getAddressTemplate() {
-        return addressTemplate;
     }
 }
