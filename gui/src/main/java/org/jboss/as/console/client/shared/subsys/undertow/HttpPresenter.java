@@ -11,6 +11,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -115,7 +116,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         };
 
-        this.operationDelegate = new CrudOperationDelegate(context, dispatcher);
+        this.operationDelegate = new CrudOperationDelegate(Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                context, dispatcher);
     }
 
     @Override

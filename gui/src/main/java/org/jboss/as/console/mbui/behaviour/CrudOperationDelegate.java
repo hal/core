@@ -1,10 +1,10 @@
 package org.jboss.as.console.mbui.behaviour;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -26,6 +26,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class CrudOperationDelegate {
 
+    private final SecurityContext securityContext;
     private final StatementContext statementContext;
     private final DispatchAsync dispatcher;
     private DefaultWindow window;
@@ -36,7 +37,8 @@ public class CrudOperationDelegate {
     }
 
 
-    public CrudOperationDelegate(StatementContext statementContext, DispatchAsync dispatcher) {
+    public CrudOperationDelegate(SecurityContext securityContext, StatementContext statementContext, DispatchAsync dispatcher) {
+        this.securityContext = securityContext;
         this.statementContext = statementContext;
         this.dispatcher = dispatcher;
     }
@@ -54,7 +56,7 @@ public class CrudOperationDelegate {
                 new AddResourceDialog(
                         addressString,
                         statementContext,
-                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                        securityContext,
                         new AddResourceDialog.Callback() {
                             @Override
                             public void onAddResource(ResourceAddress address, ModelNode payload) {
