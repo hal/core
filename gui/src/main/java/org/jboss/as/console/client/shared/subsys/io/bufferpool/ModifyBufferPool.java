@@ -21,22 +21,22 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import org.jboss.dmr.client.ModelNode;
+import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
 import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class ModifyBufferPool implements Action<ModelNode> {
+public class ModifyBufferPool implements Action<ModifyPayload> {
 
-    private final ModelNode payload;
+    private final ModifyPayload payload;
 
-    public ModifyBufferPool(ModelNode payload) {
+    public ModifyBufferPool(ModifyPayload payload) {
         this.payload = payload;
     }
 
     @Override
-    public ModelNode getPayload() {
+    public ModifyPayload getPayload() {
         return payload;
     }
 }

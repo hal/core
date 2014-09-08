@@ -21,8 +21,17 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
@@ -31,37 +40,107 @@ import org.jboss.gwt.circuit.meta.Store;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
 /**
  * @author Harald Pehl
  */
 @Store
 public class WorkerStore extends ChangeSupport {
 
+    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=io/worker=*";
+    private final DispatchAsync dispatcher;
     private final List<Property> workers;
+    private final CrudOperationDelegate operationDelegate;
+    private final CoreGUIContext statementContext;
 
-    public WorkerStore() {
+    @Inject
+    public WorkerStore(DispatchAsync dispatcher, CoreGUIContext statementContext) {
+        this.statementContext = statementContext;
+        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
+        this.dispatcher = dispatcher;
         this.workers = new ArrayList<>();
     }
 
+
+    // ------------------------------------------------------ process methods
+
     @Process(actionType = AddWorker.class)
-    public void add(ModelNode worker, Dispatcher.Channel channel) {
-        channel.ack();
+    public void add(final Dispatcher.Channel channel) {
+        operationDelegate.onLaunchAddResourceDialog(RESOURCE_ADDRESS, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(ResourceAddress address, String name) {
+                refresh(channel);
+            }
+
+            @Override
+            public void onFailure(ResourceAddress address, String name, Throwable t) {
+                channel.nack(t);
+            }
+        });
     }
 
     @Process(actionType = ModifyWorker.class)
-    public void modify(ModelNode worker, Dispatcher.Channel channel) {
-        channel.ack();
+    public void modify(final ModifyPayload modifyPayload, final Dispatcher.Channel channel) {
+        operationDelegate.onSaveResource(RESOURCE_ADDRESS, modifyPayload.getName(), modifyPayload.getChangedValues(),
+                new CrudOperationDelegate.Callback() {
+                    @Override
+                    public void onSuccess(ResourceAddress address, String name) {
+                        refresh(channel);
+                    }
+
+                    @Override
+                    public void onFailure(ResourceAddress address, String name, Throwable t) {
+                        channel.nack(t);
+                    }
+                });
     }
 
     @Process(actionType = RefreshWorkers.class)
-    public void refresh(Dispatcher.Channel channel) {
-        channel.ack();
+    public void refresh(final Dispatcher.Channel channel) {
+        final ResourceAddress op = new ResourceAddress("{selected.profile}/subsystem=io/", statementContext);
+        op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        op.get(CHILD_TYPE).set("worker");
+        op.get(INCLUDE_RUNTIME).set(true);
+
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    channel.nack(new RuntimeException("Failed to read worker using " + op + ": " +
+                            response.getFailureDescription()));
+                } else {
+                    workers.clear();
+                    workers.addAll(response.get(RESULT).asPropertyList());
+                    channel.ack();
+                }
+            }
+        });
     }
 
     @Process(actionType = RemoveWorker.class)
-    public void remove(String name, Dispatcher.Channel channel) {
-        channel.ack();
+    public void remove(final String name, final Dispatcher.Channel channel) {
+        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, name, new CrudOperationDelegate.Callback() {
+            @Override
+            public void onSuccess(ResourceAddress address, String name) {
+                refresh(channel);
+            }
+
+            @Override
+            public void onFailure(ResourceAddress address, String name, Throwable t) {
+                channel.nack(t);
+            }
+        });
     }
+
+
+    // ------------------------------------------------------ state access
 
     public List<Property> getWorkers() {
         return workers;

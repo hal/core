@@ -31,20 +31,15 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
-import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
 /**
  * @author Harald Pehl
@@ -123,10 +118,11 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     // ------------------------------------------------------ worker methods
 
     public void launchAddWorkerDialog() {
+        circuit.dispatch(new AddWorker());
     }
 
     public void modifyWorker(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifyWorker(modifyNode("worker", name, changedValues)));
+        circuit.dispatch(new ModifyWorker(new ModifyPayload(name, changedValues)));
     }
 
     public void removeWorker(String name) {
@@ -140,22 +136,10 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     }
 
     public void modifyBufferPool(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifyBufferPool(modifyNode("buffer-pool", name, changedValues)));
+        circuit.dispatch(new ModifyBufferPool(new ModifyPayload(name, changedValues)));
     }
 
     public void removeBufferPool(String name) {
         circuit.dispatch(new RemoveBufferPool(name));
-    }
-
-
-    // ------------------------------------------------------ helper methods
-
-    private ModelNode modifyNode(String resource, String name, Map<String, Object> changedValues) {
-        final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode address = new ModelNode();
-        address.get(ADDRESS).set(Baseadress.get());
-        address.get(ADDRESS).add("subsystem", "io");
-        address.get(ADDRESS).add(resource, name);
-        return adapter.fromChangeset(changedValues, address);
     }
 }

@@ -21,9 +21,16 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
+import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.io.IOStore;
+import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-import org.jboss.gwt.circuit.ChangeSupport;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
@@ -35,31 +42,54 @@ import java.util.List;
  * @author Harald Pehl
  */
 @Store
-public class BufferPoolStore extends ChangeSupport {
+public class BufferPoolStore extends IOStore {
 
+    private static final String RESOURCE_NAME = "buffer-pool";
+    private final DispatchAsync dispatcher;
     private final List<Property> bufferPools;
 
-    public BufferPoolStore() {
+    @Inject
+    public BufferPoolStore(DispatchAsync dispatcher, Baseadress baseAddress) {
+        super(baseAddress, RESOURCE_NAME);
+        this.dispatcher = dispatcher;
         this.bufferPools = new ArrayList<>();
     }
 
     @Process(actionType = AddBufferPool.class)
-    public void add(ModelNode bufferPool, Dispatcher.Channel channel) {
+    public void add(final ModelNode bufferPool, final Dispatcher.Channel channel) {
         channel.ack();
     }
 
     @Process(actionType = ModifyBufferPool.class)
-    public void modify(ModelNode bufferPool, Dispatcher.Channel channel) {
-        channel.ack();
+    public void modify(final ModifyPayload modifyPayload, final Dispatcher.Channel channel) {
+        final ModelNode op = modifyOp(modifyPayload.getName(), modifyPayload.getChangedValues());
+
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    channel.nack(new RuntimeException("Failed to modify buffer-pool " + modifyPayload.getName() +
+                            " using " + op + ": " + response.getFailureDescription()));
+                } else {
+                    refresh(channel);
+                }
+            }
+        });
     }
 
     @Process(actionType = RefreshBufferPools.class)
-    public void refresh(Dispatcher.Channel channel) {
+    public void refresh(final Dispatcher.Channel channel) {
         channel.ack();
     }
 
     @Process(actionType = RemoveBufferPool.class)
-    public void remove(String name, Dispatcher.Channel channel) {
+    public void remove(final String name, final Dispatcher.Channel channel) {
         channel.ack();
     }
 

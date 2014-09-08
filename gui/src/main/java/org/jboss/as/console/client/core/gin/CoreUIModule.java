@@ -131,6 +131,10 @@ import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStor
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStoreImpl;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOView;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStore;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStoreAdapter;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStore;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbView;
 import org.jboss.as.console.client.shared.subsys.jca.*;
@@ -712,6 +716,12 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // circuit wiring
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
+
+        bind(BufferPoolStore.class).in(Singleton.class);
+        bind(BufferPoolStoreAdapter.class).in(Singleton.class);
+
+        bind(WorkerStore.class).in(Singleton.class);
+        bind(WorkerStoreAdapter.class).in(Singleton.class);
 
         bind(LogStore.class).in(Singleton.class);
         bind(LogStoreAdapter.class).in(Singleton.class);

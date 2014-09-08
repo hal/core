@@ -104,6 +104,10 @@ import org.jboss.as.console.client.shared.subsys.infinispan.*;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStore;
+import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStoreAdapter;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStore;
+import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
@@ -378,6 +382,12 @@ public interface CoreUI {
     AsyncProvider<NoServerPresenter> getNoServerPresenter();
 
     Dispatcher getCircuitDispatcher();
+
+    BufferPoolStore getBufferPoolStore();
+    BufferPoolStoreAdapter getBufferPoolStoreAdapter();
+
+    WorkerStore getWorkerStore();
+    WorkerStoreAdapter getWorkerStoreAdapter();
 
     LogStore getLogStore();
     LogStoreAdapter getLogStoreAdapter();

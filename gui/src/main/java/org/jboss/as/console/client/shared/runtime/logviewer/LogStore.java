@@ -110,7 +110,7 @@ public class LogStore extends ChangeSupport {
     }
 
 
-    // ------------------------------------------------------ action handlers
+    // ------------------------------------------------------ process methods
 
     @Process(actionType = ReadLogFiles.class)
     public void readLogFiles(final Dispatcher.Channel channel) {
