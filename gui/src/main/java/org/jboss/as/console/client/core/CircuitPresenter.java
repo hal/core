@@ -28,7 +28,11 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import org.jboss.as.console.client.Console;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,29 +48,34 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
 
     private final List<HandlerRegistration> registrations;
 
-    protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy) {
+    protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit) {
         super(autoBind, eventBus, view, proxy);
         this.registrations = new ArrayList<>();
+        circuit.addDiagnostics(new ErrorHandler());
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit) {
         super(eventBus, view, proxy);
         this.registrations = new ArrayList<>();
+        circuit.addDiagnostics(new ErrorHandler());
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, Dispatcher circuit) {
         super(eventBus, view, proxy, revealType);
         this.registrations = new ArrayList<>();
+        circuit.addDiagnostics(new ErrorHandler());
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, GwtEvent.Type<RevealContentHandler<?>> slot) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, GwtEvent.Type<RevealContentHandler<?>> slot, Dispatcher circuit) {
         super(eventBus, view, proxy, slot);
         this.registrations = new ArrayList<>();
+        circuit.addDiagnostics(new ErrorHandler());
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, GwtEvent.Type<RevealContentHandler<?>> slot) {
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, GwtEvent.Type<RevealContentHandler<?>> slot, Dispatcher circuit) {
         super(eventBus, view, proxy, revealType, slot);
         this.registrations = new ArrayList<>();
+        circuit.addDiagnostics(new ErrorHandler());
     }
 
     protected void addChangeHandler(PropagatesChange propagatesChange) {
@@ -92,4 +101,47 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected abstract void onAction(Class<?> actionType);
+
+    /**
+     * When this method is called it's guaranteed that the presenter is visible.
+     */
+    protected void onError(Class<?> actionType, Throwable t) {
+        Console.error("Error dispatching " + actionType.getSimpleName(), t.getMessage());
+    }
+
+
+    private class ErrorHandler implements DAGDispatcher.Diagnostics {
+
+        @Override
+        public void onDispatch(Action a) {
+            // noop
+        }
+
+        @Override
+        public void onLock() {
+            // noop
+        }
+
+        @Override
+        public void onExecute(Class<?> s, Action a) {
+            // noop
+        }
+
+        @Override
+        public void onAck(Class<?> s, Action a) {
+            // noop
+        }
+
+        @Override
+        public void onNack(Class<?> s, Action a, Throwable t) {
+            if (isVisible()) {
+                onError(a.getClass(), t);
+            }
+        }
+
+        @Override
+        public void onUnlock() {
+            // noop
+        }
+    }
 }

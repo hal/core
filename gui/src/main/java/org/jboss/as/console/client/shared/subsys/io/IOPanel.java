@@ -148,10 +148,23 @@ public abstract class IOPanel extends ModelDrivenWidget {
     protected abstract void onModify(final String name, final Map<String, Object> changedValues);
 
 
-    // ------------------------------------------------------ update
+    // ------------------------------------------------------ select & update
 
-    public void update(final List<Property> bufferPools) {
-        dataProvider.setList(bufferPools);
-        table.selectDefaultEntity();
+    public void select(@SuppressWarnings("UnusedParameters") String resourceAddress, String key) {
+        for (Property property : dataProvider.getList()) {
+            if (property.getName().equals(key)) {
+                selectionModel.setSelected(property, true);
+                break;
+            }
+        }
+    }
+
+    public void update(final List<Property> models) {
+        dataProvider.setList(models);
+        if (models.isEmpty()) {
+            selectionModel.clear();
+        } else {
+            table.selectDefaultEntity();
+        }
     }
 }

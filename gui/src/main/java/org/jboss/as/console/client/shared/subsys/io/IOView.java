@@ -69,12 +69,33 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     }
 
     @Override
-    public void updateBufferPools(List<Property> bufferPools) {
-        bufferPoolPanel.update(bufferPools);
+    public void select(String resourceAddress, String key) {
+        if (belongsToBufferPool(resourceAddress)) {
+            bufferPoolPanel.select(resourceAddress, key);
+        } else if (belongsToWorker(resourceAddress)) {
+            workerPanel.select(resourceAddress, key);
+        }
     }
 
     @Override
-    public void updateWorkers(List<Property> workers) {
-        workerPanel.update(workers);
+    public void update(String resourceAddress, Property model) {
+        throw new UnsupportedOperationException("Update of single property not supported by " + IOView.class.getName());
+    }
+
+    @Override
+    public void update(String resourceAddress, List<Property> model) {
+        if (belongsToBufferPool(resourceAddress)) {
+            bufferPoolPanel.update(model);
+        } else if (belongsToWorker(resourceAddress)) {
+            workerPanel.update(model);
+        }
+    }
+
+    private boolean belongsToBufferPool(String resourceAddress) {
+        return resourceAddress.startsWith("{selected.profile}/subsystem=io/buffer-pool=");
+    }
+
+    private boolean belongsToWorker(String resourceAddress) {
+        return resourceAddress.startsWith("{selected.profile}/subsystem=io/worker=");
     }
 }

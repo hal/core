@@ -18,23 +18,17 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ResourceAddress extends ModelNode {
 
-    private StatementContext context;
+    private final String addressTemplate;
 
-    public ResourceAddress(String addressString, StatementContext context) {
+    public ResourceAddress(String addressTemplate, StatementContext context) {
+        this.addressTemplate = addressTemplate;
 
-        this.context = context;
-
-        ModelNode address = AddressMapping.fromString(addressString).asResource(context);
-        this.set(address);
+        ModelNode resolved = AddressMapping.fromString(addressTemplate).asResource(context);
+        set(resolved); // resolved is a model node which contains ADDRESS
     }
 
     public List<Property> asTokens() {
         return get(ADDRESS).asPropertyList();
-    }
-
-    @Override
-    public String toString() {
-        return AddressUtils.toString(this.get(ADDRESS), true);
     }
 
     public ModelNode asOperation(ModelNode data, String name) {
@@ -70,8 +64,17 @@ public class ResourceAddress extends ModelNode {
         return fqAddress;
     }
 
+    @Override
+    public String toString() {
+        return AddressUtils.toString(this.get(ADDRESS), true);
+    }
+
     public String getResourceType() {
         List<Property> tokens = asTokens();
         return tokens.get(tokens.size() - 1).getName();
+    }
+
+    public String getAddressTemplate() {
+        return addressTemplate;
     }
 }

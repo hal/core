@@ -60,6 +60,8 @@ public class WorkerPanel extends IOPanel {
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Worker"), table)
                 .addDetail("Attributes", formPanel);
+
+        System.out.println("Finished " + WorkerPanel.class.getSimpleName() + ".buildWidget()");
         return layoutBuilder.build();
     }
 

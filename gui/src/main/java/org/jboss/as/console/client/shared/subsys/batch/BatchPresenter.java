@@ -55,7 +55,7 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     @Inject
     public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                           RevealStrategy revealStrategy, Dispatcher circuit) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
     }

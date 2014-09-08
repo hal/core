@@ -26,7 +26,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     private static final String ACCESS_CONTROL = "access-control";
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
-    private ResourceAddress address;
+    private final ResourceAddress address;
     private ResourceDefinition definition;
     private HTML errorWidget = null;
 
@@ -125,4 +125,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
         return getWidget()!=null;
     }
 
+    public ResourceAddress getAddress() {
+        return address;
+    }
 }

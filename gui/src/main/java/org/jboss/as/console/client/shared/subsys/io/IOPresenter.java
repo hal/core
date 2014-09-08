@@ -35,16 +35,13 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
-import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,10 +49,7 @@ import java.util.Map;
  */
 public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresenter.MyProxy> {
 
-    public interface MyView extends View, HasPresenter<IOPresenter> {
-        void updateBufferPools(List<Property> bufferPools);
-
-        void updateWorkers(List<Property> workers);
+    public interface MyView extends View, AddressableResourceView, HasPresenter<IOPresenter> {
     }
 
     @ProxyCodeSplit
@@ -67,20 +61,21 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     private final RevealStrategy revealStrategy;
     private final SecurityFramework securityFramework;
-    private final CoreGUIContext statementContext;
     private final Dispatcher circuit;
     private final BufferPoolStore bufferPoolStore;
     private final WorkerStore workerStore;
+
     private DefaultWindow window;
+    private AddResourceDialog addWorkerDialog;
+    private AddResourceDialog addBufferPoolDialog;
 
     @Inject
     public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                       SecurityFramework securityFramework, CoreGUIContext statementContext,
-                       Dispatcher circuit, BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
-        super(eventBus, view, proxy);
+                       SecurityFramework securityFramework, Dispatcher circuit,
+                       BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
+        super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.securityFramework = securityFramework;
-        this.statementContext = statementContext;
         this.circuit = circuit;
         this.bufferPoolStore = bufferPoolStore;
         this.workerStore = workerStore;
@@ -99,17 +94,21 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @Override
     protected void onAction(Class<?> actionType) {
-        if (actionType.equals(AddBufferPool.class) ||
-                actionType.equals(ModifyBufferPool.class) ||
-                actionType.equals(RefreshBufferPools.class) ||
-                actionType.equals(RemoveBufferPool.class)) {
-            getView().updateBufferPools(bufferPoolStore.getBufferPools());
+        System.out.println(IOPresenter.class.getSimpleName() + ".onAction(" + actionType.getSimpleName() + ")");
 
-        } else if (actionType.equals(AddWorker.class) ||
-                actionType.equals(ModifyWorker.class) ||
-                actionType.equals(RefreshWorkers.class) ||
-                actionType.equals(RemoveWorker.class)) {
-            getView().updateWorkers(workerStore.getWorkers());
+        if (actionType.equals(AddBufferPool.class) || actionType.equals(ModifyBufferPool.class)) {
+            getView().update("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getBufferPools());
+            getView().select("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getLastModifiedBufferPool());
+
+        } else if (actionType.equals(RefreshBufferPools.class) || actionType.equals(RemoveBufferPool.class)) {
+            getView().update("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getBufferPools());
+
+        } else if (actionType.equals(AddWorker.class) || actionType.equals(ModifyWorker.class)) {
+            getView().update("{selected.profile}/subsystem=io/worker=*", workerStore.getWorkers());
+            getView().select("{selected.profile}/subsystem=io/worker=*", workerStore.getLastModifiedWorker());
+
+        } else if (actionType.equals(RefreshWorkers.class) || actionType.equals(RemoveWorker.class)) {
+            getView().update("{selected.profile}/subsystem=io/worker=*", workerStore.getWorkers());
         }
     }
 
@@ -120,6 +119,8 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @Override
     protected void onReset() {
+        System.out.println(IOPresenter.class.getSimpleName() + ".onReset()");
+
         super.onReset();
         circuit.dispatch(new RefreshWorkers());
         circuit.dispatch(new RefreshBufferPools());
@@ -129,26 +130,30 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     // ------------------------------------------------------ worker methods
 
     public void launchAddWorkerDialog() {
+        if (addWorkerDialog == null) {
+            addWorkerDialog = new AddResourceDialog("{selected.profile}/subsystem=io/worker=*",
+                    workerStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    new AddResourceDialog.Callback() {
+                        @Override
+                        public void onAddResource(ResourceAddress address, ModelNode payload) {
+                            window.hide();
+                            circuit.dispatch(new AddWorker(payload));
+                        }
+
+                        @Override
+                        public void closeDialogue() {
+                            window.hide();
+                        }
+                    }
+            );
+        } else {
+            addWorkerDialog.clearValues();
+        }
+
         window = new DefaultWindow("Worker");
         window.setWidth(480);
         window.setHeight(360);
-        window.setWidget(
-                new AddResourceDialog("{selected.profile}/subsystem=io/worker=*",
-                        statementContext, securityFramework.getSecurityContext(),
-                        new AddResourceDialog.Callback() {
-                            @Override
-                            public void onAddResource(ResourceAddress address, ModelNode payload) {
-                                circuit.dispatch(new AddWorker(payload));
-                            }
-
-                            @Override
-                            public void closeDialogue() {
-                                window.hide();
-                            }
-                        }
-                )
-        );
-
+        window.setWidget(addWorkerDialog);
         window.setGlassEnabled(true);
         window.center();
     }
@@ -165,6 +170,32 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     // ------------------------------------------------------ buffer pool methods
 
     public void launchAddBufferPoolDialog() {
+        if (addBufferPoolDialog == null) {
+            addBufferPoolDialog = new AddResourceDialog("{selected.profile}/subsystem=io/buffer-pool=*",
+                    bufferPoolStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    new AddResourceDialog.Callback() {
+                        @Override
+                        public void onAddResource(ResourceAddress address, ModelNode payload) {
+                            window.hide();
+                            circuit.dispatch(new AddBufferPool(payload));
+                        }
+
+                        @Override
+                        public void closeDialogue() {
+                            window.hide();
+                        }
+                    }
+            );
+        } else {
+            addBufferPoolDialog.clearValues();
+        }
+
+        window = new DefaultWindow("Buffer Pool");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.setWidget(addBufferPoolDialog);
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void modifyBufferPool(String name, Map<String, Object> changedValues) {

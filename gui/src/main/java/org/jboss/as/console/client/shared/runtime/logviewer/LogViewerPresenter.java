@@ -67,7 +67,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     @Inject
     public LogViewerPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
                               Dispatcher circuit, LogStore logStore, HostStore hostStore) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
         this.logStore = logStore;

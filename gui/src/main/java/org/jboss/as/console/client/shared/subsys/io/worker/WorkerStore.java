@@ -36,6 +36,7 @@ import org.jboss.gwt.circuit.ChangeSupport;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,16 +50,18 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class WorkerStore extends ChangeSupport {
 
     private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=io/worker=*";
+
     private final DispatchAsync dispatcher;
-    private final List<Property> workers;
-    private final CrudOperationDelegate operationDelegate;
     private final CoreGUIContext statementContext;
+    private final CrudOperationDelegate operationDelegate;
+    private final List<Property> workers;
+    private String lastModifiedWorker;
 
     @Inject
     public WorkerStore(DispatchAsync dispatcher, CoreGUIContext statementContext) {
+        this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
-        this.dispatcher = dispatcher;
         this.workers = new ArrayList<>();
     }
 
@@ -66,34 +69,16 @@ public class WorkerStore extends ChangeSupport {
     // ------------------------------------------------------ process methods
 
     @Process(actionType = AddWorker.class)
-    public void add(final ModelNode newWorker, final Dispatcher.Channel channel) {
-        operationDelegate.onCreateResource(RESOURCE_ADDRESS, newWorker, new CrudOperationDelegate.Callback() {
-            @Override
-            public void onSuccess(ResourceAddress address, String name) {
-                refresh(channel);
-            }
-
-            @Override
-            public void onFailure(ResourceAddress address, String name, Throwable t) {
-                channel.nack(t);
-            }
-        });
+    public void add(final ModelNode worker, final Dispatcher.Channel channel) {
+        lastModifiedWorker = worker.get(NAME).asString();
+        operationDelegate.onCreateResource(RESOURCE_ADDRESS, worker, new RefreshCallback(channel));
     }
 
     @Process(actionType = ModifyWorker.class)
     public void modify(final ModifyPayload modifyPayload, final Dispatcher.Channel channel) {
+        lastModifiedWorker = modifyPayload.getName();
         operationDelegate.onSaveResource(RESOURCE_ADDRESS, modifyPayload.getName(), modifyPayload.getChangedValues(),
-                new CrudOperationDelegate.Callback() {
-                    @Override
-                    public void onSuccess(ResourceAddress address, String name) {
-                        refresh(channel);
-                    }
-
-                    @Override
-                    public void onFailure(ResourceAddress address, String name, Throwable t) {
-                        channel.nack(t);
-                    }
-                });
+                new RefreshCallback(channel));
     }
 
     @Process(actionType = RefreshWorkers.class)
@@ -113,7 +98,7 @@ public class WorkerStore extends ChangeSupport {
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
                 if (response.isFailure()) {
-                    channel.nack(new RuntimeException("Failed to read worker using " + op + ": " +
+                    channel.nack(new RuntimeException("Failed to read workers using " + op + ": " +
                             response.getFailureDescription()));
                 } else {
                     workers.clear();
@@ -126,17 +111,8 @@ public class WorkerStore extends ChangeSupport {
 
     @Process(actionType = RemoveWorker.class)
     public void remove(final String name, final Dispatcher.Channel channel) {
-        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, name, new CrudOperationDelegate.Callback() {
-            @Override
-            public void onSuccess(ResourceAddress address, String name) {
-                refresh(channel);
-            }
-
-            @Override
-            public void onFailure(ResourceAddress address, String name, Throwable t) {
-                channel.nack(t);
-            }
-        });
+        lastModifiedWorker = null;
+        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, name, new RefreshCallback(channel));
     }
 
 
@@ -144,5 +120,34 @@ public class WorkerStore extends ChangeSupport {
 
     public List<Property> getWorkers() {
         return workers;
+    }
+
+    public String getLastModifiedWorker() {
+        return lastModifiedWorker;
+    }
+
+    public StatementContext getStatementContext() {
+        return statementContext;
+    }
+
+
+    // ------------------------------------------------------ inner classes
+
+    private class RefreshCallback implements CrudOperationDelegate.Callback {
+        private final Dispatcher.Channel channel;
+
+        public RefreshCallback(Dispatcher.Channel channel) {
+            this.channel = channel;
+        }
+
+        @Override
+        public void onSuccess(ResourceAddress address, String name) {
+            refresh(channel);
+        }
+
+        @Override
+        public void onFailure(ResourceAddress address, String name, Throwable t) {
+            channel.nack(t);
+        }
     }
 }

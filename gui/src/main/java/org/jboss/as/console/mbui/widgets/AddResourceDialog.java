@@ -30,6 +30,7 @@ public class AddResourceDialog extends ModelDrivenWidget {
 
     private Callback callback;
     private SecurityContext securityContext;
+    private ModelNodeForm form;
 
     public interface Callback {
         public void onAddResource(ResourceAddress address, ModelNode payload);
@@ -64,7 +65,7 @@ public class AddResourceDialog extends ModelDrivenWidget {
 
         ModelNodeFormBuilder.FormAssets assets = builder.build();
 
-        final ModelNodeForm form = assets.getForm();
+        form = assets.getForm();
         form.setEnabled(true);
 
         if(form.hasWritableAttributes()) {
@@ -115,6 +116,12 @@ public class AddResourceDialog extends ModelDrivenWidget {
         {
             // no writable attributes
             return new HTML("There are no configurable attributes on resources " + address);
+        }
+    }
+
+    public void clearValues() {
+        if (form != null) {
+            form.clearValues();
         }
     }
 }

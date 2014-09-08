@@ -1,7 +1,7 @@
 package org.jboss.as.console.mbui.behaviour;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -23,14 +23,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class CrudOperationDelegate {
 
-    private final StatementContext statementContext;
-    private final DispatchAsync dispatcher;
-
     public interface Callback {
         void onSuccess(ResourceAddress address, String name);
         void onFailure(ResourceAddress address, String name, Throwable t);
     }
 
+
+    private final StatementContext statementContext;
+    private final DispatchAsync dispatcher;
 
     public CrudOperationDelegate(StatementContext statementContext, DispatchAsync dispatcher) {
         this.statementContext = statementContext;
@@ -39,15 +39,22 @@ public class CrudOperationDelegate {
 
     public void onCreateResource(final String addressString, final ModelNode payload, final Callback... callback) {
 
+        final String name = payload.get(NAME).asString();
         final ResourceAddress address = new ResourceAddress(addressString, statementContext);
         ModelNode op = address.asOperation(payload);
         op.get(OP).set(ADD);
 
-        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                for (Callback cb : callback) {
+                    cb.onFailure(address, name, caught);
+                }
+            }
+
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                String name = payload.get(NAME).asString();
                 if (response.isFailure()) {
                     Console.error("Failed to add resource " + name, response.getFailureDescription());
                     for (Callback cb : callback) {
@@ -55,7 +62,6 @@ public class CrudOperationDelegate {
                     }
                 } else {
                     Console.info("Added resource " + name);
-
                     for (Callback cb : callback) {
                         cb.onSuccess(address, name);
                     }
@@ -70,21 +76,24 @@ public class CrudOperationDelegate {
         ModelNode op = address.asFqAddress(name);
         op.get(OP).set(REMOVE);
 
-        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                for (Callback cb : callback) {
+                    cb.onFailure(address, name, caught);
+                }
+            }
+
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if(response.isFailure())
-                {
-                    Console.error("Failed to remove resource "+name, response.getFailureDescription());
+                if (response.isFailure()) {
+                    Console.error("Failed to remove resource " + name, response.getFailureDescription());
                     for (Callback cb : callback) {
-                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name +":"+ response.getFailureDescription()));
+                        cb.onFailure(address, name, new RuntimeException("Failed to add resource " + name + ":" + response.getFailureDescription()));
                     }
-                }
-                else
-                {
-
-                    Console.info("Removed resource "+ name);
+                } else {
+                    Console.info("Removed resource " + name);
                     for (Callback cb : callback) {
                         cb.onSuccess(address, name);
                     }
@@ -93,18 +102,24 @@ public class CrudOperationDelegate {
         });
     }
 
-    public void onSaveResource(final String addressString, final String name, Map<String, Object> changeset, final Callback... callback) {
+    public void onSaveResource(final String addressString, final String name, Map<String, Object> changedValues,
+                               final Callback... callback) {
 
         final ResourceAddress address = new ResourceAddress(addressString, statementContext);
-
         final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode operation = adapter.fromChangeset(changeset, address.asFqAddress(name));
+        ModelNode operation = adapter.fromChangeset(changedValues, address.asFqAddress(name));
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                for (Callback cb : callback) {
+                    cb.onFailure(address, name, caught);
+                }
+            }
+
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
-
                 if (response.isFailure()) {
                     Console.error("Failed to save " + address.toString(), response.getFailureDescription());
                     for (Callback cb : callback) {
@@ -117,7 +132,6 @@ public class CrudOperationDelegate {
                         cb.onSuccess(address, name);
                     }
                 }
-
             }
         });
     }
