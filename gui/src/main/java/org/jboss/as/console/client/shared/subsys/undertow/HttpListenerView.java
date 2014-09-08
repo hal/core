@@ -12,7 +12,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefiniton;
+import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -49,7 +49,7 @@ public class HttpListenerView extends ModelDrivenWidget {
     }
 
     @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefiniton definition) {
+    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {

@@ -6,8 +6,8 @@ import org.jboss.dmr.client.ModelNode;
  * @author Heiko Braun
  * @since 29/08/14
  */
-public class ResourceDefiniton extends ModelNode {
-    public ResourceDefiniton(ModelNode resourceDescription) {
+public class ResourceDefinition extends ModelNode {
+    public ResourceDefinition(ModelNode resourceDescription) {
         this.set(resourceDescription);
     }
 }

@@ -6,7 +6,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefiniton;
+import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -27,7 +27,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
     private ResourceAddress address;
-    private ResourceDefiniton definition;
+    private ResourceDefinition definition;
 
     public ModelDrivenWidget(String address, StatementContext statementContext) {
         this.address = new ResourceAddress(address, statementContext);
@@ -84,7 +84,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
                         }
 
                         // capture payload and construct actual widget
-                        ModelDrivenWidget.this.definition = new ResourceDefiniton(description);
+                        ModelDrivenWidget.this.definition = new ResourceDefinition(description);
                         ensureWidget();
                     }
                 }
@@ -109,7 +109,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
      * @param definition
      * @return the actual widget to be embedded
      */
-    public abstract Widget buildWidget(ResourceAddress address, ResourceDefiniton definition);
+    public abstract Widget buildWidget(ResourceAddress address, ResourceDefinition definition);
 
     public boolean isInitialised() {
         return getWidget()!=null;

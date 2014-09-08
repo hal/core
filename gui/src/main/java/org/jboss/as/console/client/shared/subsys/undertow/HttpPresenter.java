@@ -50,7 +50,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
-        public void onSucces(ResourceAddress address, String name) {
+        public void onSuccess(ResourceAddress address, String name) {
             loadDetails();
         }
 

@@ -31,7 +31,7 @@ public class CrudOperationDelegate {
     private DefaultWindow window;
 
     public interface Callback {
-        void onSucces(ResourceAddress address, String name);
+        void onSuccess(ResourceAddress address, String name);
         void onFailure(ResourceAddress address, String name, Throwable t);
     }
 
@@ -94,7 +94,7 @@ public class CrudOperationDelegate {
                     Console.info("Added resource " + name);
 
                     for (Callback cb : callback) {
-                        cb.onSucces(address, name);
+                        cb.onSuccess(address, name);
                     }
                 }
 
@@ -124,7 +124,7 @@ public class CrudOperationDelegate {
 
                     Console.info("Removed resource "+ name);
                     for (Callback cb : callback) {
-                        cb.onSucces(address, name);
+                        cb.onSuccess(address, name);
                     }
                 }
             }
@@ -152,7 +152,7 @@ public class CrudOperationDelegate {
                 else {
                     Console.info("Successfully saved " + address.toString());
                     for (Callback cb : callback) {
-                        cb.onSucces(address, name);
+                        cb.onSuccess(address, name);
                     }
                 }
 
