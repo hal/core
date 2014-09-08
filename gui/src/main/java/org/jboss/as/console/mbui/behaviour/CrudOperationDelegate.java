@@ -3,8 +3,6 @@ package org.jboss.as.console.mbui.behaviour;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -27,7 +25,6 @@ public class CrudOperationDelegate {
 
     private final StatementContext statementContext;
     private final DispatchAsync dispatcher;
-    private DefaultWindow window;
 
     public interface Callback {
         void onSuccess(ResourceAddress address, String name);
@@ -40,41 +37,7 @@ public class CrudOperationDelegate {
         this.dispatcher = dispatcher;
     }
 
-    public void onLaunchAddResourceDialog(String token, String addressString, final Callback... callback) {
-
-        ResourceAddress address = new ResourceAddress(addressString, statementContext);
-        String type = address.getResourceType();
-
-        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
-        window.setWidth(480);
-        window.setHeight(360);
-
-        window.setWidget(
-                new AddResourceDialog(
-                        addressString,
-                        statementContext,
-                        Console.MODULES.getSecurityFramework().getSecurityContext(token),
-                        new AddResourceDialog.Callback() {
-                            @Override
-                            public void onAddResource(ResourceAddress address, ModelNode payload) {
-                                CrudOperationDelegate.this.createResource(address, payload, callback);
-                            }
-
-                            @Override
-                            public void closeDialogue() {
-                                window.hide();
-                            }
-                        }
-                )
-        );
-
-        window.setGlassEnabled(true);
-        window.center();
-    }
-
-    private void createResource(final ResourceAddress address, final ModelNode payload, final Callback... callback) {
-
-        window.hide();
+    public void onCreateResource(final ResourceAddress address, final ModelNode payload, final Callback... callback) {
 
         ModelNode op = address.asOperation(payload);
         op.get(OP).set(ADD);

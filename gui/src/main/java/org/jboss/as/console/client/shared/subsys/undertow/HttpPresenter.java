@@ -11,6 +11,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -19,14 +20,15 @@ import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
-import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,8 +47,10 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final CrudOperationDelegate operationDelegate;
+    private final FilteringStatementContext statementContext;
 
     private String currentServer;
+    private DefaultWindow window;
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
@@ -95,7 +99,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         this.dispatcher = dispatcher;
 
-        final StatementContext context =  new FilteringStatementContext(
+        this.statementContext =  new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {
                     @Override
@@ -115,7 +119,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         };
 
-        this.operationDelegate = new CrudOperationDelegate(context, dispatcher);
+        this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
 
     @Override
@@ -217,7 +221,35 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     @Override
     public void onLaunchAddResourceDialog(String addressString) {
 
-        operationDelegate.onLaunchAddResourceDialog(NameTokens.HttpPresenter, addressString, defaultOpCallbacks);
+        ResourceAddress address = new ResourceAddress(addressString, statementContext);
+        String type = address.getResourceType();
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.setWidget(
+                new AddResourceDialog(
+                        addressString,
+                        statementContext,
+                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                        new AddResourceDialog.Callback() {
+                            @Override
+                            public void onAddResource(ResourceAddress address, ModelNode payload) {
+                                operationDelegate.onCreateResource(address, payload, defaultOpCallbacks);
+                            }
+
+                            @Override
+                            public void closeDialogue() {
+                                window.hide();
+                            }
+                        }
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+
     }
 
     @Override
@@ -231,4 +263,5 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         operationDelegate.onSaveResource(addressString, name, changeset, defaultOpCallbacks);
     }
+
 }
