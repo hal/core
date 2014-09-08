@@ -35,15 +35,15 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 1/17/12
  */
-public class ServerList extends ModelDrivenWidget {
+public class ContainerList extends ModelDrivenWidget {
 
-    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=undertow/server=*";
-    private HttpPresenter presenter;
+    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=undertow/servlet-container=*";
+    private ServletPresenter presenter;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
     private MessagingProviderEditor providerEditor;
 
-    public ServerList(HttpPresenter presenter) {
+    public ContainerList(ServletPresenter presenter) {
         super(RESOURCE_ADDRESS);
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
@@ -67,7 +67,7 @@ public class ServerList extends ModelDrivenWidget {
                     @Override
                     public void execute(String selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.HttpPresenter).with("name", selection)
+                                new PlaceRequest(presenter.getProxy().getNameToken()).with("name", selection)
                         );
                     }
                 })
@@ -91,8 +91,8 @@ public class ServerList extends ModelDrivenWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("Server"),
-                        Console.MESSAGES.deleteConfirm("Server '" + getCurrentSelection().getName() + "'"),
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Container"),
+                        Console.MESSAGES.deleteConfirm("Container '" + getCurrentSelection().getName() + "'"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
@@ -115,9 +115,8 @@ public class ServerList extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeset) {
-
                 presenter.onSaveResource(
-                   RESOURCE_ADDRESS, getCurrentSelection().getName(), changeset
+                        RESOURCE_ADDRESS, getCurrentSelection().getName(), changeset
                 );
             }
 
@@ -135,10 +134,10 @@ public class ServerList extends ModelDrivenWidget {
         // ----
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
-                .setHeadline("HTTP Server ")
-                .setDescription("Please chose a server from below for further settings.")
+                .setHeadline("Servlet Container")
+                .setDescription("Please chose a container below for further settings.")
                         //.setMasterTools(tools) // TODO: implement add/remove ops
-                .setMaster(Console.MESSAGES.available("HTTP Server "), table)
+                .setMaster(Console.MESSAGES.available("Servlet Container"), table)
                 .addDetail("Attributes", formPanel);
 
 

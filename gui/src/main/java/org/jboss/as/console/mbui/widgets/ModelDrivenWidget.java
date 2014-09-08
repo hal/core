@@ -28,6 +28,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
 
     private ResourceAddress address;
     private ResourceDefinition definition;
+    private HTML errorWidget = null;
 
     public ModelDrivenWidget(String address, StatementContext statementContext) {
         this.address = new ResourceAddress(address, statementContext);
@@ -47,6 +48,14 @@ public abstract class ModelDrivenWidget extends LazyPanel {
 
         Console.MODULES.getDispatchAsync().execute(
                 new DMRAction(op), new SimpleCallback<DMRResponse>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        Console.error("Failed to load resource definition for "+address);
+                        errorWidget = new HTML("<pre class='rhs-content-panel'>Failed to load resource definition for "+address+":\n"+caught.getMessage()+"</pre>");
+                        ensureWidget();
+                    }
+
                     @Override
                     public void onSuccess(DMRResponse dmrResponse) {
 
@@ -56,7 +65,8 @@ public abstract class ModelDrivenWidget extends LazyPanel {
                         if(response.isFailure())
                         {
                             Console.error("Failed to load resource definition for "+address, response.getFailureDescription());
-                            setWidget(new HTML("Failed to load resource definition for "+address));
+                            errorWidget = new HTML("<pre class='rhs-content-panel'>Failed to load resource definition for "+address+":\n"+response.getFailureDescription()+"</pre>");
+                            ensureWidget();
                             return;
                         }
 
@@ -99,7 +109,7 @@ public abstract class ModelDrivenWidget extends LazyPanel {
 
     @Override
     protected Widget createWidget() {
-        return buildWidget(address, definition);
+        return errorWidget!=null ? errorWidget : buildWidget(address, definition);
     }
 
     /**

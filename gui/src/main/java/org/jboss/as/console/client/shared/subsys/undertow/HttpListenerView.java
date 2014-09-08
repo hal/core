@@ -92,7 +92,7 @@ public class HttpListenerView extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter);
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()

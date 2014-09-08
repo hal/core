@@ -55,7 +55,11 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(ResourceAddress address, String name) {
-            loadDetails();
+
+            if(address.getResourceType().equals("server"))
+                loadServer();
+            else
+                loadDetails();
         }
 
         @Override
@@ -236,6 +240,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                         new AddResourceDialog.Callback() {
                             @Override
                             public void onAddResource(ResourceAddress address, ModelNode payload) {
+                                window.hide();
                                 operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
                             }
 

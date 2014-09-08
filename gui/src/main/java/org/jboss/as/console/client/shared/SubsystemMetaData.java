@@ -84,7 +84,7 @@ public class SubsystemMetaData {
 
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlets", "undertow", NameTokens.ServletPresenter));
         groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.HttpPresenter));
-        groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowPresenter));
+        //groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowPresenter));
 
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
 
