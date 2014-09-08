@@ -27,6 +27,7 @@ import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
