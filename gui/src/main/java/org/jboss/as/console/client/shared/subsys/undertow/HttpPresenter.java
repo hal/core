@@ -11,15 +11,14 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -116,8 +115,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         };
 
-        this.operationDelegate = new CrudOperationDelegate(Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
-                context, dispatcher);
+        this.operationDelegate = new CrudOperationDelegate(context, dispatcher);
     }
 
     @Override
@@ -219,7 +217,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     @Override
     public void onLaunchAddResourceDialog(String addressString) {
 
-        operationDelegate.onLaunchAddResourceDialog(addressString, defaultOpCallbacks);
+        operationDelegate.onLaunchAddResourceDialog(NameTokens.HttpPresenter, addressString, defaultOpCallbacks);
     }
 
     @Override

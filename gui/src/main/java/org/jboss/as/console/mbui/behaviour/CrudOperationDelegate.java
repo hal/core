@@ -4,7 +4,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -26,7 +25,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class CrudOperationDelegate {
 
-    private final SecurityContext securityContext;
     private final StatementContext statementContext;
     private final DispatchAsync dispatcher;
     private DefaultWindow window;
@@ -37,13 +35,12 @@ public class CrudOperationDelegate {
     }
 
 
-    public CrudOperationDelegate(SecurityContext securityContext, StatementContext statementContext, DispatchAsync dispatcher) {
-        this.securityContext = securityContext;
+    public CrudOperationDelegate(StatementContext statementContext, DispatchAsync dispatcher) {
         this.statementContext = statementContext;
         this.dispatcher = dispatcher;
     }
 
-    public void onLaunchAddResourceDialog(String addressString, final Callback... callback) {
+    public void onLaunchAddResourceDialog(String token, String addressString, final Callback... callback) {
 
         ResourceAddress address = new ResourceAddress(addressString, statementContext);
         String type = address.getResourceType();
@@ -56,7 +53,7 @@ public class CrudOperationDelegate {
                 new AddResourceDialog(
                         addressString,
                         statementContext,
-                        securityContext,
+                        Console.MODULES.getSecurityFramework().getSecurityContext(token),
                         new AddResourceDialog.Callback() {
                             @Override
                             public void onAddResource(ResourceAddress address, ModelNode payload) {
