@@ -37,8 +37,9 @@ public class CrudOperationDelegate {
         this.dispatcher = dispatcher;
     }
 
-    public void onCreateResource(final ResourceAddress address, final ModelNode payload, final Callback... callback) {
+    public void onCreateResource(final String addressString, final ModelNode payload, final Callback... callback) {
 
+        final ResourceAddress address = new ResourceAddress(addressString, statementContext);
         ModelNode op = address.asOperation(payload);
         op.get(OP).set(ADD);
 
@@ -59,7 +60,6 @@ public class CrudOperationDelegate {
                         cb.onSuccess(address, name);
                     }
                 }
-
             }
         });
     }

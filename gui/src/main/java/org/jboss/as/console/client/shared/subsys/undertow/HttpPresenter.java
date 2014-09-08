@@ -219,7 +219,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     // -----------------------
 
     @Override
-    public void onLaunchAddResourceDialog(String addressString) {
+    public void onLaunchAddResourceDialog(final String addressString) {
 
         ResourceAddress address = new ResourceAddress(addressString, statementContext);
         String type = address.getResourceType();
@@ -236,7 +236,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                         new AddResourceDialog.Callback() {
                             @Override
                             public void onAddResource(ResourceAddress address, ModelNode payload) {
-                                operationDelegate.onCreateResource(address, payload, defaultOpCallbacks);
+                                operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
                             }
 
                             @Override

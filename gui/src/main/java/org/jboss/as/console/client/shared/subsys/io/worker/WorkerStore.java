@@ -23,7 +23,6 @@ package org.jboss.as.console.client.shared.subsys.io.worker;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
@@ -67,8 +66,8 @@ public class WorkerStore extends ChangeSupport {
     // ------------------------------------------------------ process methods
 
     @Process(actionType = AddWorker.class)
-    public void add(final Dispatcher.Channel channel) {
-        operationDelegate.onLaunchAddResourceDialog(NameTokens.IO, RESOURCE_ADDRESS, new CrudOperationDelegate.Callback() {
+    public void add(final ModelNode newWorker, final Dispatcher.Channel channel) {
+        operationDelegate.onCreateResource(RESOURCE_ADDRESS, newWorker, new CrudOperationDelegate.Callback() {
             @Override
             public void onSuccess(ResourceAddress address, String name) {
                 refresh(channel);

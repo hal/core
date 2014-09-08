@@ -21,10 +21,22 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class AddWorker extends EmptyAction {
+public class AddWorker implements Action<ModelNode> {
+
+    private final ModelNode payload;
+
+    public AddWorker(ModelNode payload) {
+        this.payload = payload;
+    }
+
+    @Override
+    public ModelNode getPayload() {
+        return payload;
+    }
 }

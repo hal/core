@@ -31,10 +31,16 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -60,16 +66,21 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
 
     private final RevealStrategy revealStrategy;
+    private final SecurityFramework securityFramework;
+    private final CoreGUIContext statementContext;
     private final Dispatcher circuit;
     private final BufferPoolStore bufferPoolStore;
     private final WorkerStore workerStore;
+    private DefaultWindow window;
 
     @Inject
-    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy,
-                       RevealStrategy revealStrategy, Dispatcher circuit,
-                       BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
+    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
+                       SecurityFramework securityFramework, CoreGUIContext statementContext,
+                       Dispatcher circuit, BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;
+        this.securityFramework = securityFramework;
+        this.statementContext = statementContext;
         this.circuit = circuit;
         this.bufferPoolStore = bufferPoolStore;
         this.workerStore = workerStore;
@@ -118,7 +129,28 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     // ------------------------------------------------------ worker methods
 
     public void launchAddWorkerDialog() {
-        circuit.dispatch(new AddWorker());
+        window = new DefaultWindow("Worker");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.setWidget(
+                new AddResourceDialog("{selected.profile}/subsystem=io/worker=*",
+                        statementContext, securityFramework.getSecurityContext(),
+                        new AddResourceDialog.Callback() {
+                            @Override
+                            public void onAddResource(ResourceAddress address, ModelNode payload) {
+                                circuit.dispatch(new AddWorker(payload));
+                            }
+
+                            @Override
+                            public void closeDialogue() {
+                                window.hide();
+                            }
+                        }
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void modifyWorker(String name, Map<String, Object> changedValues) {
