@@ -89,6 +89,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         void setAjpListener(List<Property> ajpListener);
 
         void setHttpsListener(List<Property> httpsListener);
+
+        void setHosts(List<Property> hosts);
     }
 
     @Inject
@@ -207,6 +209,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                     getView().setHttpListener(failSafeGetCollection(data.get("http-listener")));
                     getView().setAjpListener(failSafeGetCollection(data.get("ajp-listener")));
                     getView().setHttpsListener(failSafeGetCollection(data.get("https-listener")));
+                    getView().setHosts(failSafeGetCollection(data.get("host")));
                 }
 
             }

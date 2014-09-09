@@ -23,6 +23,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     private HttpListenerView httpView;
     private HttpsListenerView httpsView;
     private AJPListenerView ajpView;
+    private HostView hostView;
 
     @Override
     public void setPresenter(HttpPresenter presenter) {
@@ -42,11 +43,13 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
         httpView = new HttpListenerView(presenter);
         httpsView = new HttpsListenerView(presenter);
         ajpView = new AJPListenerView(presenter);
+        hostView = new HostView(presenter);
 
         panel.addPage(Console.CONSTANTS.common_label_back(), serverList.asWidget());
         panel.addPage("HTTP Listener", httpView.asWidget());
         panel.addPage("HTTPS Listener", httpsView.asWidget());
         panel.addPage("AJP Listener", ajpView.asWidget());
+        panel.addPage("Hosts", hostView.asWidget());
 
         // default page
         panel.showPage(0);
@@ -94,5 +97,10 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     @Override
     public void setHttpsListener(List<Property> httpsListener) {
         httpsView.setData(httpsListener);
+    }
+
+    @Override
+    public void setHosts(List<Property> hosts) {
+        hostView.setData(hosts);
     }
 }
