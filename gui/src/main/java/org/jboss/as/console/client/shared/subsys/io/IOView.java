@@ -30,6 +30,7 @@ import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolPanel;
 import org.jboss.as.console.client.shared.subsys.io.worker.WorkerPanel;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -79,7 +80,7 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     }
 
     @Override
-    public void update(ResourceAddress resourceAddress, Property model) {
+    public void update(ResourceAddress resourceAddress, ModelNode model) {
         throw new UnsupportedOperationException("Update of single property not supported by " + IOView.class.getName());
     }
 

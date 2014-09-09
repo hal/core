@@ -21,7 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.gwt.circuit.Action;
 
 /**

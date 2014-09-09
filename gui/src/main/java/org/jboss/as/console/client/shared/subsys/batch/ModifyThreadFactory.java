@@ -19,47 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.io;
+package org.jboss.as.console.client.shared.subsys.batch;
 
-import java.util.Map;
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class ModifyPayload {
-    private final String name;
-    private final Map<String, Object> changedValues;
+public class ModifyThreadFactory implements Action<ModifyPayload> {
 
-    public ModifyPayload(String name, Map<String, Object> changedValues) {
-        this.name = name;
-        this.changedValues = changedValues;
+    private final ModifyPayload payload;
+
+    public ModifyThreadFactory(ModifyPayload payload) {
+        this.payload = payload;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ModifyPayload)) return false;
-
-        ModifyPayload that = (ModifyPayload) o;
-
-        if (!changedValues.equals(that.changedValues)) return false;
-        if (!name.equals(that.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + changedValues.hashCode();
-        return result;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Map<String, Object> getChangedValues() {
-        return changedValues;
+    public ModifyPayload getPayload() {
+        return payload;
     }
 }

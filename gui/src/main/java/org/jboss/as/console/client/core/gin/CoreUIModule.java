@@ -115,6 +115,8 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
+import org.jboss.as.console.client.shared.subsys.batch.BatchStore;
+import org.jboss.as.console.client.shared.subsys.batch.BatchStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.batch.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
@@ -167,12 +169,7 @@ import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPrese
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsView;
-import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
-import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
-import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
-import org.jboss.as.console.client.shared.subsys.undertow.UndertowView;
+import org.jboss.as.console.client.shared.subsys.undertow.*;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebSubsystemView;
 import org.jboss.as.console.client.shared.subsys.ws.*;
@@ -716,6 +713,9 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // circuit wiring
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
+
+        bind(BatchStore.class).in(Singleton.class);
+        bind(BatchStoreAdapter.class).in(Singleton.class);
 
         bind(BufferPoolStore.class).in(Singleton.class);
         bind(BufferPoolStoreAdapter.class).in(Singleton.class);

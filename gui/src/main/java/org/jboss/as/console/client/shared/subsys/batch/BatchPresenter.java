@@ -31,17 +31,25 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddressableResourceView;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.gwt.circuit.Dispatcher;
+
+import java.util.Map;
+
+import static org.jboss.as.console.client.shared.subsys.batch.BatchStore.*;
 
 /**
  * @author Harald Pehl
  */
 public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, BatchPresenter.MyProxy> {
 
-    public interface MyView extends View, HasPresenter<BatchPresenter> {
+    public interface MyView extends View, AddressableResourceView, HasPresenter<BatchPresenter> {
     }
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Batch)
@@ -49,26 +57,73 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     public interface MyProxy extends Proxy<BatchPresenter>, Place {
     }
 
-    private final RevealStrategy revealStrategy;
+
     private final Dispatcher circuit;
+    private final RevealStrategy revealStrategy;
+    private final SecurityFramework securityFramework;
+    private final BatchStore batchStore;
+    private final ResourceAddress subsystemTemplate;
+
+    private final ResourceAddress threadPoolTemplate;
+    private final ResourceAddress jobRepositoryTemplate;
+    private final ResourceAddress threadFactoriesTemplate;
 
     @Inject
-    public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy,
-                          RevealStrategy revealStrategy, Dispatcher circuit) {
+    public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
+                          RevealStrategy revealStrategy, SecurityFramework securityFramework,
+                          BatchStore batchStore) {
         super(eventBus, view, proxy, circuit);
-        this.revealStrategy = revealStrategy;
+
         this.circuit = circuit;
+        this.revealStrategy = revealStrategy;
+        this.securityFramework = securityFramework;
+        this.batchStore = batchStore;
+
+        this.subsystemTemplate = new ResourceAddress(SUBSYSTEM_ADDRESS, batchStore.getStatementContext());
+        this.threadPoolTemplate = new ResourceAddress(THREAD_POOL_ADDRESS, batchStore.getStatementContext());
+        this.jobRepositoryTemplate = new ResourceAddress(JOB_REPOSITORY_ADDRESS, batchStore.getStatementContext());
+        this.threadFactoriesTemplate = new ResourceAddress(THREAD_FACTORIES_ADDRESS, batchStore.getStatementContext());
     }
+
+
+    // ------------------------------------------------------ lifecycle
 
     @Override
     protected void onBind() {
         super.onBind();
+        addChangeHandler(batchStore);
         getView().setPresenter(this);
     }
 
     @Override
     protected void onAction(Class<?> actionType) {
+        if (actionType.equals(InitBatch.class)) {
+            getView().update(subsystemTemplate, batchStore.getSubsystem());
+            getView().update(threadPoolTemplate, batchStore.getThreadPool());
+            getView().update(jobRepositoryTemplate, batchStore.getThreadPool());
+            getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
+        }
 
+        else if (actionType.equals(ModifySubsystem.class)) {
+            getView().update(subsystemTemplate, batchStore.getSubsystem());
+        }
+
+        else if (actionType.equals(ModifyThreadPool.class)) {
+            getView().update(threadPoolTemplate, batchStore.getThreadPool());
+        }
+
+        else if (actionType.equals(ModifyJobRepository.class)) {
+            getView().update(jobRepositoryTemplate, batchStore.getThreadPool());
+        }
+
+        else if (actionType.equals(AddThreadFactory.class) || actionType.equals(ModifyThreadFactory.class)) {
+            getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
+            getView().select(threadFactoriesTemplate, batchStore.getLastModifiedThreadFactory());
+        }
+
+        else if (actionType.equals(RefreshThreadFactories.class) || actionType.equals(RemoveThreadFactory.class)) {
+            getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
+        }
     }
 
     @Override
@@ -79,5 +134,13 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     @Override
     protected void onReset() {
         super.onReset();
+        circuit.dispatch(new InitBatch());
+    }
+
+
+    // ------------------------------------------------------ business methods
+
+    public void modifySubsystem(Map<String, Object> changedValues) {
+        circuit.dispatch(new ModifySubsystem(changedValues));
     }
 }

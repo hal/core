@@ -23,7 +23,7 @@ package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.shared.subsys.io.ModifyPayload;
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;

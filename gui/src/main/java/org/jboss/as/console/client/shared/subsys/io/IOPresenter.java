@@ -35,6 +35,7 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
@@ -60,9 +61,9 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     }
 
 
+    private final Dispatcher circuit;
     private final RevealStrategy revealStrategy;
     private final SecurityFramework securityFramework;
-    private final Dispatcher circuit;
     private final BufferPoolStore bufferPoolStore;
     private final WorkerStore workerStore;
     private final ResourceAddress bufferPoolAddressTemplate;
@@ -73,15 +74,17 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     private AddResourceDialog addBufferPoolDialog;
 
     @Inject
-    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                       SecurityFramework securityFramework, Dispatcher circuit,
+    public IOPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
+                       RevealStrategy revealStrategy, SecurityFramework securityFramework,
                        BufferPoolStore bufferPoolStore, WorkerStore workerStore) {
         super(eventBus, view, proxy, circuit);
+
+        this.circuit = circuit;
         this.revealStrategy = revealStrategy;
         this.securityFramework = securityFramework;
-        this.circuit = circuit;
         this.bufferPoolStore = bufferPoolStore;
         this.workerStore = workerStore;
+
         this.bufferPoolAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/buffer-pool=*",
                 bufferPoolStore.getStatementContext());
         this.workerAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/worker=*",

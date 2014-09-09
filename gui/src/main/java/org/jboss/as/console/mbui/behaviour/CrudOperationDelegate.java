@@ -18,6 +18,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * Use the {@link org.jboss.as.console.mbui.behaviour.CrudOperationDelegate.Callback} for operations that need to happen after the
  * delegate has performed work (i.e. refreshing the views)
  *
+ * TODO Change the signatures to use ResourceAddress
+ * TODO Use a common ResourceAddress as constructor parameter (the statement context is already shared)?
+ *
  * @author Heiko Braun
  * @since 08/09/14
  */

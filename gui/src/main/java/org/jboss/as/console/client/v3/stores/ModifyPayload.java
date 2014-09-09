@@ -19,23 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.mbui.widgets;
+package org.jboss.as.console.client.v3.stores;
 
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
-
-import java.util.List;
+import java.util.Map;
 
 /**
- * A view capable of selecting and updating its state based on an address template and DMR payload.
  * @author Harald Pehl
  */
-public interface AddressableResourceView {
+public class ModifyPayload {
+    private final String name;
+    private final Map<String, Object> changedValues;
 
-    void select(ResourceAddress resourceAddress, String key);
+    public ModifyPayload(String name, Map<String, Object> changedValues) {
+        this.name = name;
+        this.changedValues = changedValues;
+    }
 
-    void update(ResourceAddress resourceAddress, ModelNode model);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModifyPayload)) return false;
 
-    void update(ResourceAddress resourceAddress, List<Property> model);
+        ModifyPayload that = (ModifyPayload) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + changedValues.hashCode();
+        return result;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
+    }
 }

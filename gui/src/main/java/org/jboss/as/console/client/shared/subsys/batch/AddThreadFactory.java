@@ -19,23 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.mbui.widgets;
+package org.jboss.as.console.client.shared.subsys.batch;
 
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
-
-import java.util.List;
+import org.jboss.gwt.circuit.Action;
 
 /**
- * A view capable of selecting and updating its state based on an address template and DMR payload.
  * @author Harald Pehl
  */
-public interface AddressableResourceView {
+public class AddThreadFactory implements Action<ModelNode> {
 
-    void select(ResourceAddress resourceAddress, String key);
+    private final ModelNode payload;
 
-    void update(ResourceAddress resourceAddress, ModelNode model);
+    public AddThreadFactory(ModelNode payload) {
+        this.payload = payload;
+    }
 
-    void update(ResourceAddress resourceAddress, List<Property> model);
+    @Override
+    public ModelNode getPayload() {
+        return payload;
+    }
 }

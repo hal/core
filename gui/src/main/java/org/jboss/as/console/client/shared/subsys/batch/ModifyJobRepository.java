@@ -19,23 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.mbui.widgets;
+package org.jboss.as.console.client.shared.subsys.batch;
 
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
+import org.jboss.gwt.circuit.Action;
 
-import java.util.List;
+import java.util.Map;
 
 /**
- * A view capable of selecting and updating its state based on an address template and DMR payload.
  * @author Harald Pehl
  */
-public interface AddressableResourceView {
+public class ModifyJobRepository implements Action<Map<String, Object>> {
 
-    void select(ResourceAddress resourceAddress, String key);
+    private final Map<String, Object> payload;
 
-    void update(ResourceAddress resourceAddress, ModelNode model);
+    public ModifyJobRepository(Map<String, Object> payload) {
+        this.payload = payload;
+    }
 
-    void update(ResourceAddress resourceAddress, List<Property> model);
+    @Override
+    public Map<String, Object> getPayload() {
+        return payload;
+    }
 }

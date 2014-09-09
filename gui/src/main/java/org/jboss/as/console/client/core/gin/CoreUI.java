@@ -96,6 +96,8 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
+import org.jboss.as.console.client.shared.subsys.batch.BatchStore;
+import org.jboss.as.console.client.shared.subsys.batch.BatchStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
@@ -388,6 +390,9 @@ public interface CoreUI {
 
     WorkerStore getWorkerStore();
     WorkerStoreAdapter getWorkerStoreAdapter();
+
+    BatchStore getBatchStore();
+    BatchStoreAdapter getBatchStoreAdapter();
 
     LogStore getLogStore();
     LogStoreAdapter getLogStoreAdapter();

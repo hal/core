@@ -21,16 +21,35 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch;
 
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+import org.useware.kernel.gui.behaviour.StatementContext;
+
+import java.util.List;
 
 /**
  * @author Harald Pehl
  */
 public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyView {
 
+    private final SecurityFramework securityFramework;
+    private final StatementContext statementContext;
     private BatchPresenter presenter;
+    private SubsystemPanel subsystemPanel;
+
+    @Inject
+    public BatchView(SecurityFramework securityFramework, BatchStore batchStore) {
+        this.securityFramework = securityFramework;
+        this.statementContext = batchStore.getStatementContext();
+    }
 
     @Override
     public void setPresenter(BatchPresenter presenter) {
@@ -39,6 +58,31 @@ public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyV
 
     @Override
     public Widget createWidget() {
-        return new Label("NYI");
+        SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
+        subsystemPanel = new SubsystemPanel(securityContext, presenter);
+
+        DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabs.addStyleName("default-tabpanel");
+        tabs.add(subsystemPanel, "Batch");
+        tabs.selectTab(0);
+
+        return tabs;
+    }
+
+    @Override
+    public void select(ResourceAddress resourceAddress, String key) {
+
+    }
+
+    @Override
+    public void update(ResourceAddress resourceAddress, ModelNode model) {
+        if (resourceAddress.getResourceType().equals("subsystem")) {
+            subsystemPanel.update(model);
+        }
+    }
+
+    @Override
+    public void update(ResourceAddress resourceAddress, List<Property> model) {
+
     }
 }
