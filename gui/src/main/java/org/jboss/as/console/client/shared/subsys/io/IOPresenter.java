@@ -37,6 +37,7 @@ import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.widgets.AddressableResourceView;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -64,6 +65,8 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     private final Dispatcher circuit;
     private final BufferPoolStore bufferPoolStore;
     private final WorkerStore workerStore;
+    private final ResourceAddress bufferPoolAddressTemplate;
+    private final ResourceAddress workerAddressTemplate;
 
     private DefaultWindow window;
     private AddResourceDialog addWorkerDialog;
@@ -79,6 +82,10 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
         this.circuit = circuit;
         this.bufferPoolStore = bufferPoolStore;
         this.workerStore = workerStore;
+        this.bufferPoolAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/buffer-pool=*",
+                bufferPoolStore.getStatementContext());
+        this.workerAddressTemplate = new ResourceAddress("{selected.profile}/subsystem=io/worker=*",
+                workerStore.getStatementContext());
     }
 
 
@@ -94,21 +101,19 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @Override
     protected void onAction(Class<?> actionType) {
-        System.out.println(IOPresenter.class.getSimpleName() + ".onAction(" + actionType.getSimpleName() + ")");
-
         if (actionType.equals(AddBufferPool.class) || actionType.equals(ModifyBufferPool.class)) {
-            getView().update("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getBufferPools());
-            getView().select("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getLastModifiedBufferPool());
+            getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
+            getView().select(bufferPoolAddressTemplate, bufferPoolStore.getLastModifiedBufferPool());
 
         } else if (actionType.equals(RefreshBufferPools.class) || actionType.equals(RemoveBufferPool.class)) {
-            getView().update("{selected.profile}/subsystem=io/buffer-pool=*", bufferPoolStore.getBufferPools());
+            getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
 
         } else if (actionType.equals(AddWorker.class) || actionType.equals(ModifyWorker.class)) {
-            getView().update("{selected.profile}/subsystem=io/worker=*", workerStore.getWorkers());
-            getView().select("{selected.profile}/subsystem=io/worker=*", workerStore.getLastModifiedWorker());
+            getView().update(workerAddressTemplate, workerStore.getWorkers());
+            getView().select(workerAddressTemplate, workerStore.getLastModifiedWorker());
 
         } else if (actionType.equals(RefreshWorkers.class) || actionType.equals(RemoveWorker.class)) {
-            getView().update("{selected.profile}/subsystem=io/worker=*", workerStore.getWorkers());
+            getView().update(workerAddressTemplate, workerStore.getWorkers());
         }
     }
 
@@ -119,8 +124,6 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @Override
     protected void onReset() {
-        System.out.println(IOPresenter.class.getSimpleName() + ".onReset()");
-
         super.onReset();
         circuit.dispatch(new RefreshWorkers());
         circuit.dispatch(new RefreshBufferPools());

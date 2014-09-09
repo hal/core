@@ -19,20 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.io;
+package org.jboss.as.console.mbui.widgets;
 
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
 /**
+ * A view capable of selecting and updating its state based on an address template and DMR payload.
  * @author Harald Pehl
  */
 public interface AddressableResourceView {
 
-    void select(String resourceAddress, String key);
+    void select(ResourceAddress resourceAddress, String key);
 
-    void update(String resourceAddress, Property model);
+    void update(ResourceAddress resourceAddress, Property model);
 
-    void update(String resourceAddress, List<Property> model);
+    void update(ResourceAddress resourceAddress, List<Property> model);
 }

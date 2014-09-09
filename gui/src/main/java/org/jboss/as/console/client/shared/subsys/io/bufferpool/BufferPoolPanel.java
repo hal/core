@@ -60,8 +60,6 @@ public class BufferPoolPanel extends IOPanel {
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Buffer Pool"), table)
                 .addDetail("Attributes", formPanel);
-
-        System.out.println("Finished " + BufferPoolPanel.class.getSimpleName() + ".buildWidget()");
         return layoutBuilder.build();
     }
 

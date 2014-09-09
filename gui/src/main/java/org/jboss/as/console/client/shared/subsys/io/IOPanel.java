@@ -31,6 +31,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -150,7 +151,7 @@ public abstract class IOPanel extends ModelDrivenWidget {
 
     // ------------------------------------------------------ select & update
 
-    public void select(@SuppressWarnings("UnusedParameters") String resourceAddress, String key) {
+    public void select(@SuppressWarnings("UnusedParameters") ResourceAddress resourceAddress, String key) {
         for (Property property : dataProvider.getList()) {
             if (property.getName().equals(key)) {
                 selectionModel.setSelected(property, true);

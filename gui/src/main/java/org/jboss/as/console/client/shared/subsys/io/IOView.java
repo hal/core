@@ -29,6 +29,7 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolPanel;
 import org.jboss.as.console.client.shared.subsys.io.worker.WorkerPanel;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -69,33 +70,25 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     }
 
     @Override
-    public void select(String resourceAddress, String key) {
-        if (belongsToBufferPool(resourceAddress)) {
+    public void select(ResourceAddress resourceAddress, String key) {
+        if (resourceAddress.getResourceType().equals("buffer-pool")) {
             bufferPoolPanel.select(resourceAddress, key);
-        } else if (belongsToWorker(resourceAddress)) {
+        } else if (resourceAddress.getResourceType().equals("worker")) {
             workerPanel.select(resourceAddress, key);
         }
     }
 
     @Override
-    public void update(String resourceAddress, Property model) {
+    public void update(ResourceAddress resourceAddress, Property model) {
         throw new UnsupportedOperationException("Update of single property not supported by " + IOView.class.getName());
     }
 
     @Override
-    public void update(String resourceAddress, List<Property> model) {
-        if (belongsToBufferPool(resourceAddress)) {
+    public void update(ResourceAddress resourceAddress, List<Property> model) {
+        if (resourceAddress.getResourceType().equals("buffer-pool")) {
             bufferPoolPanel.update(model);
-        } else if (belongsToWorker(resourceAddress)) {
+        } else if (resourceAddress.getResourceType().equals("worker")) {
             workerPanel.update(model);
         }
-    }
-
-    private boolean belongsToBufferPool(String resourceAddress) {
-        return resourceAddress.startsWith("{selected.profile}/subsystem=io/buffer-pool=");
-    }
-
-    private boolean belongsToWorker(String resourceAddress) {
-        return resourceAddress.startsWith("{selected.profile}/subsystem=io/worker=");
     }
 }
