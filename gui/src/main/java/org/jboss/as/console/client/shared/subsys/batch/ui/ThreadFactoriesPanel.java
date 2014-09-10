@@ -27,6 +27,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
@@ -49,6 +50,7 @@ import java.util.Map;
  */
 class ThreadFactoriesPanel extends Composite {
 
+    private final ProvidesKey<Property> providesKey;
     private final DefaultCellTable<Property> table;
     private final ListDataProvider<Property> dataProvider;
     private final SingleSelectionModel<Property> selectionModel;
@@ -56,6 +58,7 @@ class ThreadFactoriesPanel extends Composite {
     @SuppressWarnings("unchecked")
     ThreadFactoriesPanel(final StatementContext statementContext, final SecurityContext securityContext,
                          final BatchPresenter presenter) {
+
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
@@ -80,10 +83,16 @@ class ThreadFactoriesPanel extends Composite {
             }
         }));
 
-        table = new DefaultCellTable<>(5);
-        dataProvider = new ListDataProvider<Property>();
+        providesKey = new ProvidesKey<Property>() {
+            @Override
+            public Object getKey(Property item) {
+                return item.getName();
+            }
+        };
+        table = new DefaultCellTable<>(5, providesKey);
+        dataProvider = new ListDataProvider<Property>(providesKey);
         dataProvider.addDataDisplay(table);
-        selectionModel = new SingleSelectionModel<Property>();
+        selectionModel = new SingleSelectionModel<Property>(providesKey);
         table.setSelectionModel(selectionModel);
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
