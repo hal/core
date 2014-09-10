@@ -73,9 +73,9 @@ public class IOView extends SuspendableViewImpl implements IOPresenter.MyView {
     @Override
     public void select(ResourceAddress resourceAddress, String key) {
         if (resourceAddress.getResourceType().equals("buffer-pool")) {
-            bufferPoolPanel.select(resourceAddress, key);
+            bufferPoolPanel.select(key);
         } else if (resourceAddress.getResourceType().equals("worker")) {
-            workerPanel.select(resourceAddress, key);
+            workerPanel.select(key);
         }
     }
 

@@ -19,23 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.store;
 
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class RemoveThreadFactory implements Action<String> {
+public class ModifyThreadFactory implements Action<ModifyPayload> {
 
-    private final String name;
+    private final ModifyPayload payload;
 
-    public RemoveThreadFactory(String name) {
-        this.name = name;
+    public ModifyThreadFactory(ModifyPayload payload) {
+        this.payload = payload;
     }
 
     @Override
-    public String getPayload() {
-        return name;
+    public ModifyPayload getPayload() {
+        return payload;
     }
 }

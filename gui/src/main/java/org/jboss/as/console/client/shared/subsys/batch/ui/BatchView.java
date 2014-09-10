@@ -19,13 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.ui;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
+import org.jboss.as.console.client.shared.subsys.batch.store.BatchStore;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -40,15 +42,18 @@ import java.util.List;
  */
 public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyView {
 
-    private final SecurityFramework securityFramework;
     private final StatementContext statementContext;
+    private final SecurityFramework securityFramework;
+
     private BatchPresenter presenter;
-    private SubsystemPanel subsystemPanel;
+    private BatchPanel batchPanel;
+    private ThreadPoolPanel threadPoolPanel;
+    private ThreadFactoriesPanel threadFactoriesPanel;
 
     @Inject
-    public BatchView(SecurityFramework securityFramework, BatchStore batchStore) {
-        this.securityFramework = securityFramework;
+    public BatchView(BatchStore batchStore, SecurityFramework securityFramework) {
         this.statementContext = batchStore.getStatementContext();
+        this.securityFramework = securityFramework;
     }
 
     @Override
@@ -59,11 +64,15 @@ public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyV
     @Override
     public Widget createWidget() {
         SecurityContext securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
-        subsystemPanel = new SubsystemPanel(securityContext, presenter);
+        batchPanel = new BatchPanel(statementContext, securityContext, presenter);
+        threadPoolPanel = new ThreadPoolPanel(statementContext, securityContext, presenter);
+        threadFactoriesPanel = new ThreadFactoriesPanel(statementContext, securityContext, presenter);
 
         DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabs.addStyleName("default-tabpanel");
-        tabs.add(subsystemPanel, "Batch");
+        tabs.add(batchPanel, "Batch");
+        tabs.add(threadPoolPanel, "Thread Pool");
+        tabs.add(threadFactoriesPanel, "Thread Factories");
         tabs.selectTab(0);
 
         return tabs;
@@ -71,18 +80,26 @@ public class BatchView extends SuspendableViewImpl implements BatchPresenter.MyV
 
     @Override
     public void select(ResourceAddress resourceAddress, String key) {
-
+        if (resourceAddress.getResourceType().equals("thread-factory")) {
+            threadFactoriesPanel.select(key);
+        }
     }
 
     @Override
     public void update(ResourceAddress resourceAddress, ModelNode model) {
         if (resourceAddress.getResourceType().equals("subsystem")) {
-            subsystemPanel.update(model);
+            batchPanel.updateBatch(model);
+        } else if (resourceAddress.getResourceType().equals("job-repository")) {
+            batchPanel.updateJobRepository(model);
+        } else if (resourceAddress.getResourceType().equals("thread-pool")) {
+            threadPoolPanel.update(model);
         }
     }
 
     @Override
     public void update(ResourceAddress resourceAddress, List<Property> model) {
-
+        if (resourceAddress.getResourceType().equals("thread-factory")) {
+            threadFactoriesPanel.update(model);
+        }
     }
 }

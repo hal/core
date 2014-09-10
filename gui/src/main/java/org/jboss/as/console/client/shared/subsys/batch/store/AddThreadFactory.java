@@ -19,25 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.store;
 
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
-
-import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class ModifyThreadPool implements Action<Map<String, Object>> {
+public class AddThreadFactory implements Action<ModelNode> {
 
-    private final Map<String, Object> payload;
+    private final ModelNode payload;
 
-    public ModifyThreadPool(Map<String, Object> payload) {
+    public AddThreadFactory(ModelNode payload) {
         this.payload = payload;
     }
 
     @Override
-    public Map<String, Object> getPayload() {
+    public ModelNode getPayload() {
         return payload;
     }
 }

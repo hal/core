@@ -19,46 +19,52 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.ui;
 
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-class SubsystemPanel extends ModelDrivenWidget {
+abstract class BatchResourceForm extends ModelDrivenWidget {
 
     private final SecurityContext securityContext;
-    private final BatchPresenter presenter;
+    private final String[] fields;
     private ModelNodeFormBuilder.FormAssets formAssets;
 
-    SubsystemPanel(SecurityContext securityContext, BatchPresenter presenter) {
-        super(BatchStore.SUBSYSTEM_ADDRESS);
+    BatchResourceForm(String resourceAddress, StatementContext statementContext, SecurityContext securityContext,
+                      String... fields) {
+        super(resourceAddress, statementContext);
         this.securityContext = securityContext;
-        this.presenter = presenter;
+        this.fields = fields;
     }
 
     @Override
     public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
-        formAssets = new ModelNodeFormBuilder()
+        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext);
+        if (fields != null) {
+            builder.setFields(fields);
+        }
+        formAssets = builder.build();
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeSet) {
-                presenter.modifySubsystem(formAssets.getForm().getChangedValues());
+                BatchResourceForm.this.onSave(formAssets.getForm().getChangedValues());
             }
 
             @Override
@@ -72,15 +78,18 @@ class SubsystemPanel extends ModelDrivenWidget {
         formPanel.add(formAssets.getHelp().asWidget());
         formPanel.add(formAssets.getForm().asWidget());
 
-        OneToOneLayout layoutBuilder = new OneToOneLayout()
-                .setPlain(true)
-                .setHeadline("Batch Subsystem")
-                .setDescription("The configuration of the EE subsystem.")
-                .setMaster("Subsystem Defaults", formPanel);
-        return layoutBuilder.build();
+        return formPanel;
+    }
+
+    ModelNodeForm getForm() {
+        return formAssets.getForm();
     }
 
     void update(ModelNode model) {
-        formAssets.getForm().edit(model);
+        if (formAssets != null && formAssets.getForm() != null) {
+            formAssets.getForm().edit(model);
+        }
     }
+
+    abstract void onSave(Map<String, Object> changedValues);
 }

@@ -27,11 +27,11 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
@@ -53,6 +53,7 @@ public abstract class IOPanel extends ModelDrivenWidget {
     protected final IOPresenter presenter;
     protected final SecurityContext securityContext;
     protected final DefaultCellTable<Property> table;
+    protected final ProvidesKey<Property> providesKey;
     protected final ListDataProvider<Property> dataProvider;
     protected final SingleSelectionModel<Property> selectionModel;
 
@@ -61,9 +62,15 @@ public abstract class IOPanel extends ModelDrivenWidget {
         super(address);
 
         this.presenter = presenter;
-        this.table = new DefaultCellTable<>(5);
-        this.dataProvider = new ListDataProvider<Property>();
-        this.selectionModel = new SingleSelectionModel<Property>();
+        this.providesKey = new ProvidesKey<Property>() {
+            @Override
+            public Object getKey(Property item) {
+                return item.getName();
+            }
+        };
+        this.table = new DefaultCellTable<>(5, providesKey);
+        this.dataProvider = new ListDataProvider<Property>(providesKey);
+        this.selectionModel = new SingleSelectionModel<Property>(providesKey);
         this.securityContext = securityFramework.getSecurityContext(presenter.getProxy().getNameToken());
 
         dataProvider.addDataDisplay(table);
@@ -151,7 +158,7 @@ public abstract class IOPanel extends ModelDrivenWidget {
 
     // ------------------------------------------------------ select & update
 
-    public void select(@SuppressWarnings("UnusedParameters") ResourceAddress resourceAddress, String key) {
+    public void select(String key) {
         for (Property property : dataProvider.getList()) {
             if (property.getName().equals(key)) {
                 selectionModel.setSelected(property, true);

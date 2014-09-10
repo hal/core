@@ -52,6 +52,7 @@ public class LogFilePanel extends Composite {
     private final static int HEADER_HEIGHT = 48;
     private final static int TOOLS_HEIGHT = 32;
     private final static int MARGIN_BOTTOM = 50;
+    private final static String ID_BASE = "log_viewer";
 
     private final Dispatcher circuit;
     private final String name;
@@ -110,6 +111,7 @@ public class LogFilePanel extends Composite {
 
         ToolStrip tools = new ToolStrip();
         follow = new CheckBox("Auto Refresh");
+        follow.getElement().setId("CB_" + ID_BASE + "auto_refresh");
         follow.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -130,6 +132,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(HEAD);
             }
         });
+        head.getElement().setId("BT_" + ID_BASE + "_head");
         tools.addToolButtonRight(head);
         prev = new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
             @Override
@@ -137,6 +140,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(PREVIOUS);
             }
         });
+        prev.getElement().setId("BT_" + ID_BASE + "_prev");
         tools.addToolButtonRight(prev);
         next = new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
             @Override
@@ -144,6 +148,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(NEXT);
             }
         });
+        next.getElement().setId("BT_" + ID_BASE + "_next");
         tools.addToolButtonRight(next);
         tail = new ToolButton("Tail", new ClickHandler() {
             @Override
@@ -151,6 +156,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(TAIL);
             }
         });
+        tail.getElement().setId("BT_" + ID_BASE + "_tail");
         tools.addToolButtonRight(tail);
         panel.add(tools);
 

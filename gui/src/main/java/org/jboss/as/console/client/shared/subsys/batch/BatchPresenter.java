@@ -33,14 +33,19 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.batch.store.*;
+import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Map;
 
-import static org.jboss.as.console.client.shared.subsys.batch.BatchStore.*;
+import static org.jboss.as.console.client.shared.subsys.batch.store.BatchStore.*;
 
 /**
  * @author Harald Pehl
@@ -62,11 +67,14 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     private final RevealStrategy revealStrategy;
     private final SecurityFramework securityFramework;
     private final BatchStore batchStore;
-    private final ResourceAddress subsystemTemplate;
-
+    private final ResourceAddress batchTemplate;
     private final ResourceAddress threadPoolTemplate;
     private final ResourceAddress jobRepositoryTemplate;
     private final ResourceAddress threadFactoriesTemplate;
+
+    private DefaultWindow window;
+    private AddResourceDialog addThreadFactoryDialog;
+
 
     @Inject
     public BatchPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
@@ -79,7 +87,7 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
         this.securityFramework = securityFramework;
         this.batchStore = batchStore;
 
-        this.subsystemTemplate = new ResourceAddress(SUBSYSTEM_ADDRESS, batchStore.getStatementContext());
+        this.batchTemplate = new ResourceAddress(BATCH_ADDRESS, batchStore.getStatementContext());
         this.threadPoolTemplate = new ResourceAddress(THREAD_POOL_ADDRESS, batchStore.getStatementContext());
         this.jobRepositoryTemplate = new ResourceAddress(JOB_REPOSITORY_ADDRESS, batchStore.getStatementContext());
         this.threadFactoriesTemplate = new ResourceAddress(THREAD_FACTORIES_ADDRESS, batchStore.getStatementContext());
@@ -98,14 +106,14 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     @Override
     protected void onAction(Class<?> actionType) {
         if (actionType.equals(InitBatch.class)) {
-            getView().update(subsystemTemplate, batchStore.getSubsystem());
+            getView().update(batchTemplate, batchStore.getBatch());
             getView().update(threadPoolTemplate, batchStore.getThreadPool());
-            getView().update(jobRepositoryTemplate, batchStore.getThreadPool());
+            getView().update(jobRepositoryTemplate, batchStore.getJobRepository());
             getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
         }
 
-        else if (actionType.equals(ModifySubsystem.class)) {
-            getView().update(subsystemTemplate, batchStore.getSubsystem());
+        else if (actionType.equals(ModifyBatch.class)) {
+            getView().update(batchTemplate, batchStore.getBatch());
         }
 
         else if (actionType.equals(ModifyThreadPool.class)) {
@@ -140,7 +148,52 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
 
     // ------------------------------------------------------ business methods
 
-    public void modifySubsystem(Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifySubsystem(changedValues));
+    public void modifyBatch(Map<String, Object> changedValues) {
+        circuit.dispatch(new ModifyBatch(changedValues));
+    }
+
+    public void modifyJobRepository(Map<String, Object> changedValues) {
+        circuit.dispatch(new ModifyJobRepository(changedValues));
+    }
+
+    public void modifyThreadPool(Map<String, Object> changedValues) {
+        circuit.dispatch(new ModifyThreadPool(changedValues));
+    }
+
+    public void launchAddThreadFactory() {
+        if (addThreadFactoryDialog == null) {
+            addThreadFactoryDialog = new AddResourceDialog(BatchStore.THREAD_FACTORIES_ADDRESS,
+                    batchStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    new AddResourceDialog.Callback() {
+                        @Override
+                        public void onAddResource(ResourceAddress address, ModelNode payload) {
+                            window.hide();
+                            circuit.dispatch(new AddThreadFactory(payload));
+                        }
+
+                        @Override
+                        public void closeDialogue() {
+                            window.hide();
+                        }
+                    }
+            );
+        } else {
+            addThreadFactoryDialog.clearValues();
+        }
+
+        window = new DefaultWindow("Worker");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.setWidget(addThreadFactoryDialog);
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void modifyThreadFactory(String name, Map<String, Object> changedValues) {
+        circuit.dispatch(new ModifyThreadFactory(new ModifyPayload(name, changedValues)));
+    }
+
+    public void removeThreadFactory(String name) {
+        circuit.dispatch(new RemoveThreadFactory(name));
     }
 }

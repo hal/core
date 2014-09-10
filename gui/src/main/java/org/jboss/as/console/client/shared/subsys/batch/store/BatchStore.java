@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.store;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -58,7 +58,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 @Store
 public class BatchStore extends ChangeSupport {
 
-    public static final String SUBSYSTEM_ADDRESS = "{selected.profile}/subsystem=batch";
+    public static final String BATCH_ADDRESS = "{selected.profile}/subsystem=batch";
     public static final String THREAD_POOL_ADDRESS = "{selected.profile}/subsystem=batch/thread-pool=batch";
     public static final String JOB_REPOSITORY_ADDRESS = "{selected.profile}/subsystem=batch/job-repository=jdbc";
     public static final String THREAD_FACTORIES_ADDRESS = "{selected.profile}/subsystem=batch/thread-factory=*";
@@ -66,8 +66,7 @@ public class BatchStore extends ChangeSupport {
     private final DispatchAsync dispatcher;
     private final CoreGUIContext statementContext;
     private final CrudOperationDelegate operationDelegate;
-
-    private ModelNode subsystem;
+    private ModelNode batch;
     private ModelNode threadPool;
     private ModelNode jobRepository;
     private final List<Property> threadFactories;
@@ -79,7 +78,7 @@ public class BatchStore extends ChangeSupport {
         this.statementContext = statementContext;
         this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
 
-        this.subsystem = new ModelNode();
+        this.batch = new ModelNode();
         this.threadPool = new ModelNode();
         this.jobRepository = new ModelNode();
         this.threadFactories = new ArrayList<>();
@@ -91,7 +90,7 @@ public class BatchStore extends ChangeSupport {
     @Process(actionType = InitBatch.class)
     public void init(final Dispatcher.Channel channel) {
         List<ModelNode> steps = new ArrayList<>();
-        steps.add(readResourceOp(SUBSYSTEM_ADDRESS));
+        steps.add(readResourceOp(BATCH_ADDRESS));
         steps.add(readResourceOp(THREAD_POOL_ADDRESS));
         steps.add(readResourceOp(JOB_REPOSITORY_ADDRESS));
         steps.add(readThreadFactoriesOp());
@@ -117,7 +116,7 @@ public class BatchStore extends ChangeSupport {
                     ModelNode result = response.get(RESULT);
                     ModelNode stepResult = result.get("step-1");
                     if (stepResult.get(RESULT).isDefined()) {
-                        subsystem = stepResult.get(RESULT);
+                        batch = stepResult.get(RESULT);
                     }
                     stepResult = result.get("step-2");
                     if (stepResult.get(RESULT).isDefined()) {
@@ -138,13 +137,13 @@ public class BatchStore extends ChangeSupport {
         });
     }
 
-    @Process(actionType = ModifySubsystem.class)
-    public void modifySubsystem(final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        operationDelegate.onSaveResource(SUBSYSTEM_ADDRESS, null, changedValues,
-                new ReloadModelNodeCallback(SUBSYSTEM_ADDRESS, channel) {
+    @Process(actionType = ModifyBatch.class)
+    public void modifyBatch(final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
+        operationDelegate.onSaveResource(BATCH_ADDRESS, null, changedValues,
+                new ReloadModelNodeCallback(BATCH_ADDRESS, channel) {
                     @Override
                     protected void onPayload(ModelNode node) {
-                        subsystem = node;
+                        batch = node;
                     }
                 });
     }
@@ -221,11 +220,12 @@ public class BatchStore extends ChangeSupport {
         final ResourceAddress op = new ResourceAddress(addressTemplate, statementContext);
         op.get(OP).set(READ_RESOURCE_OPERATION);
         op.get(INCLUDE_RUNTIME).set(true);
+        op.get("attributes-only").set(true);
         return op;
     }
 
     private ModelNode readThreadFactoriesOp() {
-        final ResourceAddress op = new ResourceAddress(SUBSYSTEM_ADDRESS, statementContext);
+        final ResourceAddress op = new ResourceAddress(BATCH_ADDRESS, statementContext);
         op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         op.get(CHILD_TYPE).set("thread-factory");
         op.get(INCLUDE_RUNTIME).set(true);
@@ -235,8 +235,8 @@ public class BatchStore extends ChangeSupport {
 
     // ------------------------------------------------------ state access
 
-    public ModelNode getSubsystem() {
-        return subsystem;
+    public ModelNode getBatch() {
+        return batch;
     }
 
     public ModelNode getThreadPool() {

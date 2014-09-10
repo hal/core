@@ -19,25 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.subsys.batch;
+package org.jboss.as.console.client.shared.subsys.batch.store;
 
 import org.jboss.gwt.circuit.Action;
-
-import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class ModifySubsystem implements Action<Map<String, Object>> {
+public class RemoveThreadFactory implements Action<String> {
 
-    private final Map<String, Object> payload;
+    private final String name;
 
-    public ModifySubsystem(Map<String, Object> payload) {
-        this.payload = payload;
+    public RemoveThreadFactory(String name) {
+        this.name = name;
     }
 
     @Override
-    public Map<String, Object> getPayload() {
-        return payload;
+    public String getPayload() {
+        return name;
     }
 }
