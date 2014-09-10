@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.shared.subsys.undertow;
+package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -9,7 +9,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
@@ -28,19 +27,23 @@ import java.util.Map;
 
 /**
  * @author Heiko Braun
- * @since 05/09/14
+ * @since 10/09/14
  */
-public class HttpListenerView extends ModelDrivenWidget {
+public class ServiceViewTemplate extends ModelDrivenWidget {
 
-    private static final String BASE_ADDRESS = "{selected.profile}/subsystem=undertow/server={selected.server}/http-listener=*";
+    private final EEPresenter presenter;
 
-    private final HttpPresenter presenter;
+    private final String addressString;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
 
-    public HttpListenerView(HttpPresenter presenter) {
-        super(BASE_ADDRESS);
+    private String title;
+
+    public ServiceViewTemplate(EEPresenter presenter, String title, String addressString) {
+        super(addressString);
+        this.title = title;
         this.presenter = presenter;
+        this.addressString = addressString;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
@@ -48,7 +51,7 @@ public class HttpListenerView extends ModelDrivenWidget {
     }
 
     @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget buildWidget(final ResourceAddress address, ResourceDefinition definition) {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -56,34 +59,26 @@ public class HttpListenerView extends ModelDrivenWidget {
             }
         };
 
-        TextColumn<Property> enabledColumn = new TextColumn<Property>() {
-            @Override
-            public String getValue(Property node) {
-                return String.valueOf(node.getValue().get("enabled").asBoolean());
-            }
-        };
-
         table.addColumn(nameColumn, "Name");
-        table.addColumn(enabledColumn, "Is Enabled?");
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddResourceDialog(BASE_ADDRESS);
+                presenter.onLaunchAddResourceDialog(addressString);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle("HTTP Listener"),
-                        Console.MESSAGES.deleteConfirm("HTTP Listener '" + getCurrentSelection().getName() + "'"),
+                Feedback.confirm(Console.MESSAGES.deleteTitle(title),
+                        Console.MESSAGES.deleteConfirm(title +" "+ getCurrentSelection().getName()),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
                                     presenter.onRemoveResource(
-                                            BASE_ADDRESS, getCurrentSelection().getName()
+                                            addressString, getCurrentSelection().getName()
                                     );
                                 }
                             }
@@ -102,7 +97,7 @@ public class HttpListenerView extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeset) {
-                presenter.onSaveResource(BASE_ADDRESS, getCurrentSelection().getName(), changeset);
+                presenter.onSaveResource(addressString, getCurrentSelection().getName(), changeset);
             }
 
             @Override
@@ -117,12 +112,13 @@ public class HttpListenerView extends ModelDrivenWidget {
         formPanel.add(formAssets.getForm().asWidget());
 
         // ----
+
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
-                .setHeadline("HTTP Listener ")
+                .setHeadline(title)
                 .setDescription("")
                 .setMasterTools(tools)
-                .setMaster(Console.MESSAGES.available("HTTP Listener "), table)
+                .setMaster(Console.MESSAGES.available(title), table)
                 .addDetail("Attributes", formPanel);
 
 
@@ -130,10 +126,10 @@ public class HttpListenerView extends ModelDrivenWidget {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Property server = selectionModel.getSelectedObject();
-                if(server!=null)
+                Property selection = selectionModel.getSelectedObject();
+                if(selection!=null)
                 {
-                    formAssets.getForm().edit(server.getValue());
+                    formAssets.getForm().edit(selection.getValue());
                 }
                 else
                 {

@@ -47,6 +47,8 @@ public class ModelNodeFormBuilder {
     private boolean createMode;
 
     public ModelNodeFormBuilder setSecurityContext(SecurityContext sc) {
+        if(null==sc)
+            throw new IllegalArgumentException("SecurityContext cannot be null!");
         this.securityContext = sc;
         return this;
     }

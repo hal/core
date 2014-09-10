@@ -9,6 +9,7 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -55,7 +56,12 @@ public class NewModuleWizard {
                     public void onClick(ClickEvent event) {
 
                         Module module = form.getUpdatedEntity();
-                        presenter.onAddModule(module);
+
+                        // Workaround the need for having model descriptions here
+                        ModelNode payload = new ModelNode();
+                        payload.get("name").set(module.getName());
+                        payload.get("slot").set(module.getSlot());
+                        presenter.onAddModule(payload);
 
                     }
                 },

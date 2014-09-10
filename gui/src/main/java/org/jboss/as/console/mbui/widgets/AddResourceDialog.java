@@ -17,10 +17,7 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.useware.kernel.gui.behaviour.StatementContext;
-
-import java.util.List;
 
 /**
  * @author Heiko Braun
@@ -49,13 +46,6 @@ public class AddResourceDialog extends ModelDrivenWidget {
 
     @Override
     public Widget buildWidget(final ResourceAddress address, ResourceDefinition definition) {
-
-        List<Property> tuples = address.asPropertyList();
-        String type = "";
-        if(tuples.size()>0)
-        {
-            type = tuples.get(tuples.size()-1).getName();
-        }
 
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setCreateMode(true)

@@ -12,18 +12,19 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.EESubsystem;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
+import org.jboss.as.console.mbui.dmr.ResourceAddress;
+import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -39,19 +40,19 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/28/11
  */
-public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyProxy> {
+public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyProxy>
+        implements DefaultPresenterContract {
 
     private final PlaceManager placeManager;
+    private final CrudOperationDelegate operationDelegate;
 
     private RevealStrategy revealStrategy;
     private ApplicationMetaData metaData;
     private DispatchAsync dispatcher;
-    private EntityAdapter<EESubsystem> adapter;
-    private BeanMetaData beanMetaData;
-    private BeanFactory factory;
-    private DefaultWindow window;
-    private EESubsystem currentEntity;
+    private final CoreGUIContext statementContext;
 
+    private DefaultWindow window;
+    private List<ModelNode> globalModules = new ArrayList<ModelNode>();
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EEPresenter)
@@ -59,34 +60,50 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
             "{selected.profile}/subsystem=ee"
     })
     @SearchIndex(keywords = {
-               "ee", "scheduler", "executor", "context-service", "thread-factory"
-       })
+            "ee", "scheduler", "executor", "context-service", "thread-factory"
+    })
     public interface MyProxy extends Proxy<EEPresenter>, Place {
     }
 
     public interface MyView extends View {
         void setPresenter(EEPresenter presenter);
-        void updateFrom(EESubsystem eeSubsystem);
+        void updateFrom(ModelNode data);
+        void setModules(List<ModelNode> modules);
+        void setContextServices(List<Property> services);
+        void setThreadFactories(List<Property> data);
+        void setExecutor(List<Property> data);
+        void setScheduledExecutor(List<Property> data);
+        void setBindings(ModelNode data);
     }
 
     @Inject
     public EEPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
-            RevealStrategy revealStrategy,
-            ApplicationMetaData metaData, BeanFactory factory
+            RevealStrategy revealStrategy, CoreGUIContext statementContext
     ) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
-        this.metaData = metaData;
         this.dispatcher = dispatcher;
-        this.beanMetaData = metaData.getBeanMetaData(EESubsystem.class);
-        this.adapter = new EntityAdapter<EESubsystem>(EESubsystem.class, metaData);
-        this.factory = factory;
+        this.statementContext = statementContext;
+
+        this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
 
+    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+        @Override
+        public void onSuccess(ResourceAddress address, String name) {
+
+            loadSubsystem();
+        }
+
+        @Override
+        public void onFailure(ResourceAddress address, String name, Throwable t) {
+            // noop
+        }
+    };
     @Override
     protected void onBind() {
         super.onBind();
@@ -100,55 +117,34 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         loadSubsystem();
     }
 
-    public void onAddModule(Module module) {
-        closeDialoge();
+    public void launchNewModuleDialogue() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Module"));
+        window.setWidth(480);
+        window.setHeight(360);
 
-        boolean isAlreadyAssigned = false;
-        List<Module> modules = new ArrayList<Module>();
+        window.trapWidget(
+                new NewModuleWizard(this).asWidget()
+        );
 
-        if(currentEntity.getModules()!=null)
-            modules.addAll(currentEntity.getModules());
-
-        for(Module m : modules)
-        {
-            if(m.getName().equals(module.getName()))
-            {
-                isAlreadyAssigned = true;
-                break;
-            }
-        }
-
-        if(!isAlreadyAssigned)
-        {
-            Module newModule = factory.eeModuleRef().as();
-            newModule.setName(module.getName());
-            newModule.setSlot(module.getSlot());
-
-            modules.add(newModule);
-
-            currentEntity.setModules(modules);
-
-            onPersistModules(currentEntity);
-        }
+        window.setGlassEnabled(true);
+        window.center();
     }
 
-    private void onPersistModules(EESubsystem updatedEntity) {
+    public void onAddModule(ModelNode module) {
+        closeDialoge();
 
+        // TODO: keeping the state in presenter?
+        globalModules.add(module);
+
+        persistsModules(globalModules);
+    }
+
+    private void persistsModules(List<ModelNode> modules) {
         ModelNode operation= new ModelNode();
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "ee");
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
         operation.get(NAME).set("global-modules");
-
-        List<ModelNode> modules = new ArrayList<ModelNode>();
-        for(Module m : updatedEntity.getModules())
-        {
-            ModelNode moduleRef = new ModelNode();
-            moduleRef.get("name").set(m.getName());
-            moduleRef.get("slot").set(m.getSlot());
-
-            modules.add(moduleRef);
-        }
 
         operation.get(VALUE).set(modules);
 
@@ -169,12 +165,14 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
                 loadSubsystem();
             }
         });
-
     }
+
 
     private void loadSubsystem() {
 
-        ModelNode operation = beanMetaData.getAddress().asResource(Baseadress.get());
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "ee");
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(RECURSIVE).set(true);
 
@@ -189,104 +187,102 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
                 }
                 else
                 {
-                    ModelNode payload = response.get(RESULT).asObject();
-                    EESubsystem eeSubsystem = adapter.fromDMR(payload);
+                    ModelNode data = response.get(RESULT).asObject();
 
-                    if(payload.hasDefined("global-modules"))
-                    {
-                        List<ModelNode> modelNodes = payload.get("global-modules").asList();
-                        List<Module> modules = new ArrayList<Module>(modelNodes.size());
-                        for(ModelNode model : modelNodes)
-                        {
-                            Module module = factory.eeModuleRef().as();
-                            module.setName(model.get("name").asString());
-                            module.setSlot(model.get("slot").asString());
-
-                            modules.add(module);
-                        }
-
-                        eeSubsystem.setModules(modules);
-
-                    }
-                    else
-                    {
-                        eeSubsystem.setModules(Collections.EMPTY_LIST);
-                    }
-
-                    EEPresenter.this.currentEntity = eeSubsystem;
-                    getView().updateFrom(eeSubsystem);
+                    globalModules = failSafeGetCollection(data.get("global-modules"));
+                    getView().setModules(globalModules);
+                    getView().setContextServices(failSafeGetProperties(data.get("context-service")));
+                    getView().setExecutor(failSafeGetProperties(data.get("managed-executor-service")));
+                    getView().setScheduledExecutor(failSafeGetProperties(data.get("managed-scheduled-executor-service")));
+                    getView().setThreadFactories(failSafeGetProperties(data.get("managed-thread-factory")));
+                    getView().setBindings(data.get("service").get("default-bindings").asObject());
+                    getView().updateFrom(data);
                 }
             }
         });
     }
 
-    public void launchNewModuleDialogue() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Module"));
-        window.setWidth(480);
-        window.setHeight(360);
+    private static List<ModelNode> failSafeGetCollection(ModelNode item) {
 
-        window.trapWidget(
-                new NewModuleWizard(this).asWidget()
-        );
-
-        window.setGlassEnabled(true);
-        window.center();
+        // the DMR API returns unmodifiable collections
+        List<ModelNode> modules = new ArrayList<>();
+        if(item.isDefined())
+            modules.addAll(item.asList());
+        return modules;
     }
 
-    private void launchDialogue(List<String> names) {
+    private static List<Property> failSafeGetProperties(ModelNode item) {
 
+            if(item.isDefined())
+                return item.asPropertyList();
+            else
+                return Collections.EMPTY_LIST;
     }
-
 
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
 
-    public void onSave(final EESubsystem editedEntity, Map<String, Object> changeset) {
-
-        ModelNode address = new ModelNode();
-        address.get(ADDRESS).set(Baseadress.get());
-        address.get(ADDRESS).add("subsystem", "ee");
-
-        ModelNode operation = adapter.fromChangeset(changeset, address);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
-
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.modificationFailed("EE Subsystem"), response.getFailureDescription());
-                }
-                else
-                {
-                    Console.info(Console.MESSAGES.modified("EE Subsystem"));
-                }
-
-                loadSubsystem();
-            }
-        });
-    }
-
     public void closeDialoge() {
         window.hide();
     }
 
-    public void onRemoveModule(EESubsystem editedEntity, Module module) {
+    public void onRemoveModule(ModelNode module) {
 
-        List<Module> modules = new ArrayList<Module>();
+        List<ModelNode> modules = new ArrayList<ModelNode>();
 
-        for(Module m : editedEntity.getModules())
+        for(ModelNode m : globalModules)
         {
-            if(!m.getName().equals(module.getName()))
+            if(!m.get(NAME).equals(module.get(NAME)))
             {
                 modules.add(m);
             }
         }
 
-        currentEntity.setModules(modules);
-        onPersistModules(currentEntity);
+        persistsModules(modules);
+    }
+
+    @Override
+    public void onLaunchAddResourceDialog(final String addressString) {
+        ResourceAddress address = new ResourceAddress(addressString, statementContext);
+        String type = address.getResourceType();
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.setWidget(
+                new AddResourceDialog(
+                        addressString,
+                        statementContext,
+                        Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                        new AddResourceDialog.Callback() {
+                            @Override
+                            public void onAddResource(ResourceAddress address, ModelNode payload) {
+                                window.hide();
+                                operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
+                            }
+
+                            @Override
+                            public void closeDialogue() {
+                                window.hide();
+                            }
+                        }
+                )
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    @Override
+    public void onRemoveResource(String addressString, String name) {
+        operationDelegate.onRemoveResource(addressString, name, defaultOpCallbacks);
+    }
+
+    @Override
+    public void onSaveResource(String addressString, String name, Map<String, Object> changeset) {
+        operationDelegate.onSaveResource(addressString, name, changeset, defaultOpCallbacks);
     }
 }

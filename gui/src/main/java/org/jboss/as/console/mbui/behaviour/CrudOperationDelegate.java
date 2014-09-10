@@ -110,7 +110,11 @@ public class CrudOperationDelegate {
 
         final ResourceAddress address = new ResourceAddress(addressString, statementContext);
         final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode operation = adapter.fromChangeset(changedValues, address.asFqAddress(name));
+
+        // name can be omitted
+        ModelNode operation = name!=null ?
+                adapter.fromChangeset(changedValues, address.asFqAddress(name)) :
+                adapter.fromChangeset(changedValues, address);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
