@@ -57,8 +57,8 @@ abstract class BatchResourceForm extends ModelDrivenWidget {
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext);
-        if (fields != null) {
-            builder.setFields(fields);
+        if (fields != null && fields.length != 0) {
+            builder = builder.setFields(fields);
         }
         formAssets = builder.build();
         formAssets.getForm().setToolsCallback(new FormCallback() {
