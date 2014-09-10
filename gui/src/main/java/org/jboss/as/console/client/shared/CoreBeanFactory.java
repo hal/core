@@ -65,7 +65,6 @@ import org.jboss.as.console.client.shared.runtime.tx.TXRecord;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.model.DeploymentScanner;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.AsyncService;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.EESubsystem;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3Subsystem;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3ThreadPool;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
@@ -275,7 +274,6 @@ public interface CoreBeanFactory {
     AutoBean<Modcluster> modcluster();
     AutoBean<SSLConfig> SSLConfig();
     AutoBean<JMXSubsystem> jmxSubsystem();
-    AutoBean<EESubsystem> eeSubsystem();
     AutoBean<Module> eeModuleRef();
 
     AutoBean<JcaArchiveValidation> JcaArchiveValidation();
