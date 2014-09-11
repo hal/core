@@ -186,6 +186,7 @@ public class MultipleToOneLayout {
 
         if(detail!=null)
         {
+            detail.widget.getElement().setId("master_detail-detail");
             if(detail.title!=null && !detail.title.isEmpty())
                 panel.add(new ContentGroupLabel(detail.title));
 
@@ -195,6 +196,7 @@ public class MultipleToOneLayout {
         else if(details.size()>0)
         {
             TabPanel tabs = new TabPanel();
+            tabs.getElement().setId("master_detail-detail");
             tabs.setStyleName("default-tabpanel");
             tabs.getElement().setAttribute("style", "margin-top:15px;");
 
