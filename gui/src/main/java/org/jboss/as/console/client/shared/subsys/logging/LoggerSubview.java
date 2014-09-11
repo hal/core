@@ -35,6 +35,7 @@ import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
@@ -79,12 +80,17 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
 
     @Override
     protected FormAdapter<Logger> makeAddEntityForm() {
-        Form<Logger> form = new Form(Logger.class);
+        Form<Logger> form = new Form(Logger.class, "{selected.profile}/subsystem=logging/logger=*");
         form.setNumColumns(1);
         form.setFields(formMetaData.findAttribute("name").getFormItemForAdd(),
                 levelItemForAdd,
                 formMetaData.findAttribute("useParentHandlers").getFormItemForAdd());
         return form;
+    }
+
+    @Override
+    protected FormAdapter<Logger> makeEditEntityDetailsForm() {
+        return super.makeEditEntityDetailsForm("{selected.profile}/subsystem=logging/logger=*");
     }
 
     @Override
@@ -107,6 +113,11 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
         table.addColumn(levelColumn, Console.CONSTANTS.subsys_logging_logLevel());
 
         return table;
+    }
+
+    @Override
+    protected ToolStrip createToolStrip() {
+        return super.createToolStrip("{selected.profile}/subsystem=logging/logger=*");
     }
 
     @Override
