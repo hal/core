@@ -218,6 +218,11 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         return entityEditor.createTools();
     }
 
+
+    protected ToolStrip createToolStrip(String resourceAddress) {
+        return entityEditor.createTools(resourceAddress);
+    }
+
     /**
      * Create the EntityEditor with the following pieces:
      * - A title obtained from getPluralEntityName()
@@ -254,6 +259,17 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         );
     }
 
+<<<<<<< HEAD
+=======
+    protected DataProviderFilter.Predicate<T> makeFilterPredicate() {
+        return null;
+    }
+
+    protected FormAdapter<T> makeEditEntityDetailsForm() {
+        return makeEditEntityDetailsForm(null);
+    }
+
+>>>>>>> 45d25a0... BZ1140285 / HAL-482: Application constraints for logging subsystem
     /**
      * Creates an details for for the Entity.  This method will add all the Entity's Attributes to
      * the form in a 2-column format.  If you desire a different layout or you want to exclude
@@ -261,13 +277,16 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
      *
      * @return The details form.
      */
-    protected FormAdapter<T> makeEditEntityDetailsForm() {
+    protected FormAdapter<T> makeEditEntityDetailsForm(String resourceAddress) {
 
         FormAdapter<T> formAdapter = null;
 
         if (getFormMetaData().hasTabs()) {
 
-            TabbedFormLayoutPanel tabbedPanel = new TabbedFormLayoutPanel(beanType, getFormMetaData(), hideButtons, this);
+            TabbedFormLayoutPanel tabbedPanel = new TabbedFormLayoutPanel(
+                    beanType, getFormMetaData(), resourceAddress,
+                    hideButtons, this
+            );
             tabbedPanel.setAdditionalViews(
                     provideAdditionalTabs(beanType, getFormMetaData(), this)
             );
@@ -275,7 +294,7 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
             formAdapter = tabbedPanel;
 
         } else {
-            formAdapter = makeSimpleForm();
+            formAdapter = makeSimpleForm(resourceAddress);
         }
 
         return formAdapter;
@@ -297,7 +316,11 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         return Collections.EMPTY_LIST;
     }
 
-    private FormAdapter<T> makeSimpleForm() {
+    protected FormAdapter<T> makeSimpleForm() {
+        return makeSimpleForm(null);
+    }
+
+    protected FormAdapter<T> makeSimpleForm(String resourceAddress) {
         Form<T> form = new Form(beanType);
         form.setNumColumns(2);
         FormMetaData attributes = getFormMetaData();

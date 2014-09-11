@@ -177,7 +177,11 @@ public class EntityEditor<T> implements EntityListView<T> {
     }
 
     public ToolStrip createTools() {
-        final ToolStrip toolStrip = new ToolStrip();
+        return createTools(null);
+    }
+
+    public ToolStrip createTools(String resourceAddress) {
+        final ToolStrip toolStrip = new ToolStrip(resourceAddress);
 
         if (!hideButtons.contains(FrameworkButton.ADD)) {
             ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(),

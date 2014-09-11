@@ -34,6 +34,7 @@ import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,12 +78,17 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
 
     @Override
     protected FormAdapter<Logger> makeAddEntityForm() {
-        Form<Logger> form = new Form(Logger.class);
+        Form<Logger> form = new Form(Logger.class, "{selected.profile}/subsystem=logging/logger=*");
         form.setNumColumns(1);
         form.setFields(formMetaData.findAttribute("name").getFormItemForAdd(),
                 levelItemForAdd,
                 formMetaData.findAttribute("useParentHandlers").getFormItemForAdd());
         return form;
+    }
+
+    @Override
+    protected FormAdapter<Logger> makeEditEntityDetailsForm() {
+        return super.makeEditEntityDetailsForm("{selected.profile}/subsystem=logging/logger=*");
     }
 
     @Override
@@ -103,6 +109,24 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
     }
 
     @Override
+<<<<<<< HEAD
+=======
+    protected ToolStrip createToolStrip() {
+        return super.createToolStrip("{selected.profile}/subsystem=logging/logger=*");
+    }
+
+    @Override
+    protected DataProviderFilter.Predicate<Logger> makeFilterPredicate() {
+        return new DataProviderFilter.Predicate<Logger>() {
+            @Override
+            public boolean apply(String prefix, Logger candiate) {
+                return candiate.getName().toLowerCase().contains(prefix.toLowerCase());
+            }
+        };
+    }
+
+    @Override
+>>>>>>> 45d25a0... BZ1140285 / HAL-482: Application constraints for logging subsystem
     protected List<SingleEntityView<Logger>> provideAdditionalTabs(
             Class<?> beanType,
             FormMetaData formMetaData,

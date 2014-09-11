@@ -57,6 +57,7 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
 
     private Class<?> beanType;
     private FormMetaData formMetaData;
+    private String resourceAddress;
     private FormItemObserver[] observers;
     private Map<String, FormAdapter<T>> forms;
     private List<EditListener> listeners = new ArrayList<EditListener>();
@@ -69,12 +70,21 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
     private EntityToDmrBridge bridge;
     private AddressBinding address;
     private List<SingleEntityView<T>> additionalViews = Collections.EMPTY_LIST;
-    private final EnumSet<FrameworkButton> hideButtons;
+    private EnumSet<FrameworkButton> hideButtons;
 
     public TabbedFormLayoutPanel(Class<?> beanType, FormMetaData formMetaData, EnumSet<FrameworkButton> hideButtons,
                                  FormItemObserver... observers) {
+        this(beanType, formMetaData, null, hideButtons, observers);
+    }
+
+    public TabbedFormLayoutPanel(
+            Class<?> beanType, FormMetaData formMetaData, String resourceAddress,
+            EnumSet<FrameworkButton> hideButtons,
+            FormItemObserver... observers)
+    {
         this.beanType = beanType;
         this.formMetaData = formMetaData;
+        this.resourceAddress = resourceAddress;
         this.observers = observers;
         this.tabPanel = new TabPanel();
         this.tabPanel.setStyleName("default-tabpanel");
@@ -173,7 +183,7 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
 
     private FormAdapter<T> makeForm(List<PropertyBinding> bindings) {
 
-        Form<T> form = new Form(beanType);
+        Form<T> form = new Form(beanType, resourceAddress);
 
         if (bindings.size() < 3) {
             form.setNumColumns(1);
