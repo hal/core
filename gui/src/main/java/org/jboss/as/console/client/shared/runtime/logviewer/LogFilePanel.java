@@ -47,12 +47,11 @@ import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.*;
  *
  * @author Harald Pehl
  */
-public class LogFilePanel extends Composite {
+public class LogFilePanel extends Composite implements LogViewerId {
 
-    private final static int HEADER_HEIGHT = 48;
+    private final static int HEADER_HEIGHT = 48 + 27;
     private final static int TOOLS_HEIGHT = 32;
     private final static int MARGIN_BOTTOM = 50;
-    private final static String ID_BASE = "log_viewer";
 
     private final Dispatcher circuit;
     private final String name;
@@ -73,8 +72,10 @@ public class LogFilePanel extends Composite {
         this.name = logFile.getName();
 
         panel = new VerticalPanel();
-        HTML header = new HTML("<h3>" + logFile.getName() + "</h3>");
-        panel.add(header);
+        panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
+        HTML description = new HTML("To search in the currently displayed lines, click in the editor and press &#8984;F.");
+        description.addStyleName("content-description");
+        panel.add(description);
 
         editor = new AceEditor();
         editor.addAttachHandler(new AttachEvent.Handler() {
@@ -111,7 +112,7 @@ public class LogFilePanel extends Composite {
 
         ToolStrip tools = new ToolStrip();
         follow = new CheckBox("Auto Refresh");
-        follow.getElement().setId("CB_" + ID_BASE + "auto_refresh");
+        follow.getElement().setId("CB_" + BASE_ID + "auto_refresh");
         follow.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -132,7 +133,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(HEAD);
             }
         });
-        head.getElement().setId("BT_" + ID_BASE + "_head");
+        head.getElement().setId("BT_" + BASE_ID + "_head");
         tools.addToolButtonRight(head);
         prev = new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
             @Override
@@ -140,7 +141,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(PREVIOUS);
             }
         });
-        prev.getElement().setId("BT_" + ID_BASE + "_prev");
+        prev.getElement().setId("BT_" + BASE_ID + "_prev");
         tools.addToolButtonRight(prev);
         next = new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
             @Override
@@ -148,7 +149,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(NEXT);
             }
         });
-        next.getElement().setId("BT_" + ID_BASE + "_next");
+        next.getElement().setId("BT_" + BASE_ID + "_next");
         tools.addToolButtonRight(next);
         tail = new ToolButton("Tail", new ClickHandler() {
             @Override
@@ -156,7 +157,7 @@ public class LogFilePanel extends Composite {
                 onNavigate(TAIL);
             }
         });
-        tail.getElement().setId("BT_" + ID_BASE + "_tail");
+        tail.getElement().setId("BT_" + BASE_ID + "_tail");
         tools.addToolButtonRight(tail);
         panel.add(tools);
 

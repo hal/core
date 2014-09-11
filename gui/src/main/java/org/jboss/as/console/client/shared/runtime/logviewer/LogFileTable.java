@@ -24,13 +24,12 @@ package org.jboss.as.console.client.shared.runtime.logviewer;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -46,6 +45,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -56,13 +56,14 @@ import static org.jboss.as.console.client.shared.runtime.logviewer.LogStore.*;
 /**
  * @author Harald Pehl
  */
-public class LogFileTable extends Composite {
+public class LogFileTable extends Composite implements LogViewerId {
 
     private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
 
     private final ModelNodeCellTable table;
     private final ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
+    private List<ModelNode> backup;
 
     @SuppressWarnings("unchecked")
     public LogFileTable(final Dispatcher circuit) {
@@ -77,6 +78,28 @@ public class LogFileTable extends Composite {
 
         // toolbar
         ToolStrip tools = new ToolStrip();
+        HTML label = new HTML(Console.CONSTANTS.commom_label_filter()+":&nbsp;");
+        label.getElement().setAttribute("style", "padding-top:8px;");
+        final TextBox filter = new TextBox();
+        filter.getElement().setId("TX_" + BASE_ID + "_filter");
+        filter.setMaxLength(30);
+        filter.setVisibleLength(20);
+        filter.getElement().setAttribute("style", "float:right; width:120px;");
+        filter.addKeyUpHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent keyUpEvent) {
+                String prefix = filter.getText();
+                if (prefix != null && !prefix.equals("")) {
+                    // filter by prefix
+                    filterByPrefix(prefix);
+                } else {
+                    clearFilter();
+                }
+            }
+        });
+        tools.addToolWidget(label);
+        tools.addToolWidget(filter);
+
         final ToolButton download = new ToolButton("Download", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -87,8 +110,10 @@ public class LogFileTable extends Composite {
             }
         });
         download.setEnabled(false);
+        download.getElement().setId("BT_" + BASE_ID + "_download");
         // TODO Enable when the server side download is in place
         // tools.addToolButtonRight(download);
+
         final ToolButton view = new ToolButton(Console.CONSTANTS.common_label_view(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -99,10 +124,12 @@ public class LogFileTable extends Composite {
             }
         });
         view.setEnabled(false);
+        view.getElement().setId("BT_" + BASE_ID + "_view");
         tools.addToolButtonRight(view);
         panel.add(tools);
 
         // table
+        backup = new ArrayList<>();
         ProvidesKey<ModelNode> providesKey = new ProvidesKey<ModelNode>() {
             @Override
             public Object getKey(ModelNode item) {
@@ -183,6 +210,7 @@ public class LogFileTable extends Composite {
     }
 
     public void list(List<ModelNode> files) {
+        backup = files;
         table.setRowCount(files.size(), true);
 
         List<ModelNode> list = dataProvider.getList();
@@ -192,6 +220,23 @@ public class LogFileTable extends Composite {
 
         // Make sure the new values are properly sorted
         ColumnSortEvent.fire(table, table.getColumnSortList());
+    }
+
+    public void filterByPrefix(String prefix) {
+        final List<ModelNode> next = new ArrayList<>();
+        for (ModelNode file : backup) {
+            if (file.get(FILE_NAME).asString().toLowerCase().contains(prefix.toLowerCase()))
+                next.add(file);
+        }
+        List<ModelNode> propList = dataProvider.getList();
+        propList.clear(); // cannot call setList() as that breaks the sort handler
+        propList.addAll(next);
+    }
+
+    public void clearFilter() {
+        List<ModelNode> list = dataProvider.getList();
+        list.clear(); // cannot call setList() as that breaks the sort handler
+        list.addAll(backup);
     }
 
     private static class NameComparator implements Comparator<ModelNode> {
