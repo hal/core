@@ -138,12 +138,12 @@ public class CacheContainerView extends AbstractEntityView<CacheContainer> imple
 
     @Override
     protected EntityEditor<CacheContainer> makeEntityEditor() {
-        EntityDetails<CacheContainer> details = new EntityDetails<CacheContainer>(
+        entityDetails = new EntityDetails<CacheContainer>(
                 this, getEntityDisplayName(),
                 makeEditEntityDetailsForm(),
                 getAddress(),
                 hideButtons);
-        return new EntityEditor<CacheContainer>(this, getEntityDisplayName(), makeAddEntityPopup(), makeEntityTable(), details, hideButtons);
+        return new EntityEditor<CacheContainer>(this, getEntityDisplayName(), makeAddEntityPopup(), makeEntityTable(), entityDetails, hideButtons);
     }
 
     @Override
