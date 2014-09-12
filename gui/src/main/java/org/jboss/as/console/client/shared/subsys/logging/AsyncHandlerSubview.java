@@ -21,11 +21,7 @@ package org.jboss.as.console.client.shared.subsys.logging;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.AsyncHandler;
-import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
-import org.jboss.as.console.client.shared.viewframework.FrameworkPresenter;
-import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-import org.jboss.as.console.client.shared.viewframework.NamedEntity;
-import org.jboss.as.console.client.shared.viewframework.SingleEntityView;
+import org.jboss.as.console.client.shared.viewframework.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -33,7 +29,6 @@ import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,14 +61,23 @@ public class AsyncHandlerSubview extends AbstractHandlerSubview<AsyncHandler>
     }
 
     @Override
-    public List<NamedEntity> getHandlers() {
-        // HAL-313: Async handlers don't provide handlers to subviews - ie no nesting allowed!
-        return Collections.emptyList();
-    }
-
-    @Override
     public void handlersUpdated(List<String> handlerList) {
-        handlerView.getListView().setAvailableChoices(handlerList);
+        // HAL-313: async handlers cannot add other async handlers
+        List<String> withoutAsyncHandler = new ArrayList<>();
+        List<NamedEntity> ownHandlers = getHandlers();
+        for (String handler : handlerList) {
+            boolean nesting = false;
+            for (NamedEntity ownHandler : ownHandlers) {
+                if (ownHandler.getName().equals(handler)) {
+                    nesting = true;
+                    break;
+                }
+            }
+            if (!nesting) {
+                withoutAsyncHandler.add(handler);
+            }
+        }
+        handlerView.getListView().setAvailableChoices(withoutAsyncHandler);
     }
     
     @Override
