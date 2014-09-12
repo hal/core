@@ -441,7 +441,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
         }
 
-        if(server.getDefaultWebModule()!=null)
+        if(server.getDefaultWebModule()!=null && !server.getDefaultWebModule().isEmpty())
             operation.get("default-web-module").set(server.getDefaultWebModule());
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
