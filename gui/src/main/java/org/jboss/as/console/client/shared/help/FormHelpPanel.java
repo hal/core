@@ -130,7 +130,7 @@ public class FormHelpPanel {
                             html.appendHtmlConstant("</td>");
                             html.appendHtmlConstant("<td class='help-field-desc'>");
                             try {
-                                html.appendHtmlConstant(field.getDesc());
+                                html.appendEscaped(field.getDesc());
                             } catch (Throwable e) {
                                 // ignore parse errors
                                 html.appendHtmlConstant("<i>Failed to parse description</i>");
