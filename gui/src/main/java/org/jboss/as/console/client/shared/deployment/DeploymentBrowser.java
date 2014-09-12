@@ -53,8 +53,8 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class DeploymentBrowser
-{
+public class DeploymentBrowser {
+
     private final DeploymentTreeModel deploymentTreeModel;
     private final SingleSelectionModel<DeploymentRecord> selectionModel;
     private final DefaultCellBrowser cellBrowser;
@@ -64,10 +64,9 @@ public class DeploymentBrowser
     private final Map<String, Integer> indexes;
     private DeploymentBrowser.HelpCallback helpCallback;
 
-
     public DeploymentBrowser(final DeploymentStore deploymentStore,
-            final SingleSelectionModel<DeploymentRecord> selectionModel)
-    {
+            final SingleSelectionModel<DeploymentRecord> selectionModel) {
+
         forms = new HashMap<String, Form<DeploymentData>>();
         indexes = new HashMap<String, Integer>();
 
@@ -79,8 +78,7 @@ public class DeploymentBrowser
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 // filter may kick oin and clear the selection
-                if(null==selectionModel.getSelectedObject())
-                {
+                if (null == selectionModel.getSelectedObject()) {
                     contextPanel.showWidget(0);
                 }
             }
@@ -101,8 +99,7 @@ public class DeploymentBrowser
 
         addContext(DeploymentRecord.class, index++,
                 new TextAreaItem("name", "Name"),
-                new TextAreaItem("runtimeName", "Runtime Name")
-                );
+                new TextAreaItem("runtimeName", "Runtime Name"));
 
         addContext(DeploymentEjbSubsystem.class, index++);
 
@@ -133,7 +130,7 @@ public class DeploymentBrowser
                 new TextAreaItem("name", "Name"),
                 new TextBoxItem("servletClass", "Servlet Class"));
 
-        addContext(DeployedEndpoint.class, index++,
+        addContext(DeployedEndpoint.class, index,
                 new TextAreaItem("name", "Name"),
                 new TextBoxItem("classname", "Classname"),
                 new TextBoxItem("context", "Context"),
@@ -146,19 +143,17 @@ public class DeploymentBrowser
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends DeploymentData> void addContext(Class<T> clazz, int index, FormItem... formItems)
-    {
+    private <T extends DeploymentData> void addContext(Class<T> clazz, int index, FormItem... formItems) {
         Widget widget;
 
         String classname = clazz.getName();
-        if (formItems != null && formItems.length > 0)
-        {
+        if (formItems != null && formItems.length > 0) {
             Form<T> form = new Form<T>(clazz);
             form.setEnabled(false);
 
             form.setFields(formItems);
 
-            for(FormItem item : formItems)
+            for (FormItem item : formItems)
                 item.setEnabled(false);
 
             FormHelpPanel helpPanel = new FormHelpPanel(helpCallback, form);
@@ -169,9 +164,8 @@ public class DeploymentBrowser
             wrapper.add(helpPanel.asWidget());
             wrapper.add(form.asWidget());
             widget = wrapper;
-        }
-        else
-        {
+
+        } else {
             widget = new Label("No information available.");
             widget.getElement().addClassName("console-DeploymentBreadcrumb-noinfo");
         }
@@ -186,34 +180,28 @@ public class DeploymentBrowser
      *
      * @param deployments the deployments - can be empty, must not be null
      */
-    public void updateDeployments(List<DeploymentRecord> deployments)
-    {
+    public void updateDeployments(List<DeploymentRecord> deployments) {
         deploymentTreeModel.updateDeployments(deployments);
-        if (deployments.isEmpty())
-        {
+        List<DeploymentRecord> update = deploymentTreeModel.getDeployments();
+        if (update.isEmpty()) {
             breadcrumb.empty();
             contextPanel.showWidget(0);
-        }
-        else
-        {
-            DeploymentRecord firstDeployment = deployments.get(0);
-            selectionModel.setSelected(firstDeployment, true);
-            updateContext(firstDeployment);
+        } else {
+            DeploymentRecord lastDeployment = update.get(update.size() - 1);
+            selectionModel.setSelected(lastDeployment, true);
+            updateContext(lastDeployment);
         }
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends DeploymentData> void updateContext(final T selectedContext)
-    {
+    public <T extends DeploymentData> void updateContext(final T selectedContext) {
         breadcrumb.setDeploymentData(selectedContext);
         AutoBean<T> autoBean = AutoBeanUtils.getAutoBean(selectedContext);
         String classname = autoBean.getType().getName();
         Integer index = indexes.get(classname);
-        if (index != null && index > 0 && index < contextPanel.getWidgetCount())
-        {
+        if (index != null && index > 0 && index < contextPanel.getWidgetCount()) {
             Form<DeploymentData> form = forms.get(classname);
-            if (form != null)
-            {
+            if (form != null) {
                 helpCallback.setSelection(selectedContext);
                 form.edit(selectedContext);
             }
@@ -236,25 +224,21 @@ public class DeploymentBrowser
         return contextPanel;
     }
 
-    class HelpCallback<T extends DeploymentData> implements FormHelpPanel.AddressCallback
-    {
+    class HelpCallback<T extends DeploymentData> implements FormHelpPanel.AddressCallback {
         private T selection;
 
         @Override
-        public ModelNode getAddress()
-        {
+        public ModelNode getAddress() {
             ModelNode address = new ModelNode();
             address.setEmptyList();
-            if (selection != null)
-            {
+            if (selection != null) {
                 address = selection.getAddress();
             }
             return address;
 
         }
 
-        public void setSelection(final T selection)
-        {
+        public void setSelection(final T selection) {
             this.selection = selection;
         }
     }

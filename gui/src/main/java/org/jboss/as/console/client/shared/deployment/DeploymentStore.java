@@ -198,8 +198,6 @@ public class DeploymentStore
 
                     callback.onSuccess(contentRepository);
                 }
-
-
             }
         });
     }

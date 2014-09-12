@@ -37,10 +37,8 @@ import java.util.List;
 
 /**
  * @author Harald Pehl
- * @date 11/23/2012
  */
-public class DeploymentTreeModel implements TreeViewModel
-{
+public class DeploymentTreeModel implements TreeViewModel {
     static final DeploymentTemplates DEPLOYMENT_TEMPLATES = GWT.create(DeploymentTemplates.class);
     private final DeploymentNodeInfoFactory nodeInfoFactory;
     private final ListDataProvider<DeploymentRecord> deploymentDataProvider;
@@ -48,12 +46,11 @@ public class DeploymentTreeModel implements TreeViewModel
     private final DeploymentFilter filter;
 
 
-    public DeploymentTreeModel(final DeploymentBrowser deplymentBrowser, final DeploymentStore deploymentStore,
-            final SingleSelectionModel<DeploymentRecord> selectionModel)
-    {
-        this.nodeInfoFactory = new DeploymentNodeInfoFactory(deplymentBrowser, deploymentStore);
-        this.deploymentDataProvider = new ListDataProvider<DeploymentRecord>();
-        this.level0 = new DefaultNodeInfo<DeploymentRecord>(deploymentDataProvider, new MainDeploymentCell(deplymentBrowser),
+    public DeploymentTreeModel(final DeploymentBrowser deploymentBrowser, final DeploymentStore deploymentStore,
+                               final SingleSelectionModel<DeploymentRecord> selectionModel) {
+        this.nodeInfoFactory = new DeploymentNodeInfoFactory(deploymentBrowser, deploymentStore);
+        this.deploymentDataProvider = new ListDataProvider<DeploymentRecord>(selectionModel.getKeyProvider());
+        this.level0 = new DefaultNodeInfo<DeploymentRecord>(deploymentDataProvider, new MainDeploymentCell(deploymentBrowser),
                 selectionModel, null);
 
         this.filter = new DeploymentFilter(deploymentDataProvider);
@@ -61,70 +58,59 @@ public class DeploymentTreeModel implements TreeViewModel
     }
 
     @Override
-    public <T> NodeInfo<?> getNodeInfo(final T value)
-    {
-        if (value == null)
-        {
+    public <T> NodeInfo<?> getNodeInfo(final T value) {
+        if (value == null) {
             return level0;
-        }
-        else
-        {
+        } else {
             return nodeInfoFactory.nodeInfoFor((DeploymentData) value);
         }
     }
 
     @Override
-    public boolean isLeaf(final Object value)
-    {
+    public boolean isLeaf(final Object value) {
         return value instanceof DeploymentSubsystemElement;
     }
 
-    public void updateDeployments(List<DeploymentRecord> deployments)
-    {
+    public void updateDeployments(List<DeploymentRecord> deployments) {
+        filter.reset();
         deploymentDataProvider.getList().clear();
         deploymentDataProvider.getList().addAll(deployments);
-        deploymentDataProvider.refresh();
-        this.filter.reset();
+    }
+
+    public List<DeploymentRecord> getDeployments() {
+        return deploymentDataProvider.getList();
     }
 
     public DeploymentFilter getFilter() {
         return filter;
     }
 
-    interface DeploymentTemplates extends SafeHtmlTemplates
-    {
+
+    interface DeploymentTemplates extends SafeHtmlTemplates {
         @Template(
                 "<div style=\"padding-right:20px;position:relative;zoom:1;\"><div>{0}</div><div style=\"margin-top:-9px;position:absolute;top:50%;right:0;line-height:0px;\">{1}</div></div>")
         SafeHtml deployment(String deployment, SafeHtml icon);
     }
 
 
-    static class MainDeploymentCell extends DeploymentDataCell<DeploymentRecord>
-    {
-        MainDeploymentCell(final DeploymentBrowser deploymentBrowser)
-        {
+    static class MainDeploymentCell extends DeploymentDataCell<DeploymentRecord> {
+        MainDeploymentCell(final DeploymentBrowser deploymentBrowser) {
             super(deploymentBrowser);
         }
 
         @Override
-        public void render(final Context context, final DeploymentRecord value, final SafeHtmlBuilder sb)
-        {
+        public void render(final Context context, final DeploymentRecord value, final SafeHtmlBuilder sb) {
             ImageResource res;
-            if ("FAILED".equalsIgnoreCase(value.getStatus()))
-            {
+            if ("FAILED".equalsIgnoreCase(value.getStatus())) {
                 res = Icons.INSTANCE.status_warn();
-            }
-            else if (value.isEnabled())
-            {
+            } else if (value.isEnabled()) {
                 res = Icons.INSTANCE.status_good();
-            }
-            else
-            {
+            } else {
                 res = Icons.INSTANCE.status_bad();
             }
             AbstractImagePrototype proto = AbstractImagePrototype.create(res);
             SafeHtml imageHtml = SafeHtmlUtils.fromTrustedString(proto.getHTML());
-            String name = value.getName().length()>30 ? value.getName().substring(0,25)+" ..." : value.getName();
+            String name = value.getName().length() > 30 ? value.getName().substring(0, 25) + " ..." : value.getName();
             sb.append(DEPLOYMENT_TEMPLATES.deployment(name, imageHtml));
         }
     }

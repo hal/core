@@ -28,15 +28,14 @@ import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 /**
+ * @author Harald Pehl
  * @author Heiko Braun
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
- * @date 4/8/11
  */
 public class DeploymentStep2 {
 
@@ -58,15 +57,10 @@ public class DeploymentStep2 {
 
         form = new Form<DeploymentReference>(DeploymentReference.class);
 
-        TextItem hashField = new TextItem("hash", Console.CONSTANTS.common_label_key());
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
-
-        form.setFields(hashField, nameField, runtimeNameField);
-
+        form.setFields(nameField, runtimeNameField);
         layout.add(form.asWidget());
-
-        // -----
 
         ClickHandler cancelHandler = new ClickHandler() {
 
@@ -79,28 +73,28 @@ public class DeploymentStep2 {
 
             @Override
             public void onClick(ClickEvent event) {
-
                 FormValidation validation = form.validate();
                 if (!validation.hasErrors()) {
                     // proceed
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-
                         @Override
                         public void execute() {
-                            wizard.onDeployToGroup(form.getUpdatedEntity());
+                            wizard.upload();
                         }
                     });
-
                 }
             }
         };
 
         DialogueOptions options = new DialogueOptions(submitHandler, cancelHandler);
-
         return new WindowContentBuilder(layout, options).build();
     }
 
     void edit(DeploymentReference ref) {
         form.edit(ref);
+    }
+
+    DeploymentReference getDeploymentReference() {
+        return form.getUpdatedEntity();
     }
 }

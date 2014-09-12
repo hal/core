@@ -23,7 +23,6 @@ import org.jboss.as.console.client.shared.deployment.model.DeploymentData;
 
 /**
 * @author Harald Pehl
-* @date 11/28/2012
 */
 public class DeploymentDataKeyProvider<T extends DeploymentData> implements ProvidesKey<T>
 {
