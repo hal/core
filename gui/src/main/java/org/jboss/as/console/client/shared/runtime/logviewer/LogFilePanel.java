@@ -28,6 +28,7 @@ import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
@@ -39,8 +40,11 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static com.google.gwt.dom.client.Style.Unit.EM;
 import static com.google.gwt.dom.client.Style.Unit.PX;
+import static com.google.gwt.dom.client.Style.VerticalAlign.MIDDLE;
 import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.*;
+import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 
 /**
  * Shows a log file in a read-only ACE editor.
@@ -49,7 +53,7 @@ import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.*;
  */
 public class LogFilePanel extends Composite implements LogViewerId {
 
-    private final static int HEADER_HEIGHT = 48 + 27;
+    private final static int HEADER_HEIGHT = 48 + 35;
     private final static int TOOLS_HEIGHT = 32;
     private final static int MARGIN_BOTTOM = 50;
 
@@ -72,10 +76,9 @@ public class LogFilePanel extends Composite implements LogViewerId {
         this.name = logFile.getName();
 
         panel = new VerticalPanel();
+        panel.setStyleName("rhs-content-panel");
         panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
-        HTML description = new HTML("To search in the currently displayed lines, click in the editor and press &#8984;F.");
-        description.addStyleName("content-description");
-        panel.add(description);
+        panel.add(new SearchBox());
 
         editor = new AceEditor();
         editor.addAttachHandler(new AttachEvent.Handler() {
@@ -93,7 +96,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
                                     editor.setModeByName("logfile");
                                     editor.setThemeByName("logfile");
                                     editor.setText(logFile.getContent());
-                                    editor.setSearchPlaceHolder("Find");
                                     editor.setVScrollBarVisible(false);
                                 }
                             }
@@ -110,9 +112,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
         indicator.getElement().getParentElement().getStyle().setPaddingLeft(4, PX);
         panel.add(editorPanel);
 
-        ToolStrip tools = new ToolStrip();
         follow = new CheckBox("Auto Refresh");
-        follow.getElement().setId("CB_" + BASE_ID + "auto_refresh");
         follow.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -123,43 +123,52 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 }
             }
         });
-        tools.addToolWidget(follow);
+        setId(follow, BASE_ID, "auto_refresh");
+
         position = new Label();
         position.getElement().setAttribute("style", "padding-right:15px;padding-top:4px;");
-        tools.addToolWidgetRight(position);
+        setId(position, BASE_ID, "position");
+
         head = new ToolButton("Head", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(HEAD);
             }
         });
-        head.getElement().setId("BT_" + BASE_ID + "_head");
-        tools.addToolButtonRight(head);
+        setId(head, BASE_ID, "head");
+
         prev = new ToolButton("<i class=\"icon-angle-up\"></i>", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(PREVIOUS);
             }
         });
-        prev.getElement().setId("BT_" + BASE_ID + "_prev");
-        tools.addToolButtonRight(prev);
+        setId(prev, BASE_ID, "prev");
+
         next = new ToolButton("<i class=\"icon-angle-down\"></i>", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(NEXT);
             }
         });
-        next.getElement().setId("BT_" + BASE_ID + "_next");
-        tools.addToolButtonRight(next);
+        setId(next, BASE_ID, "next");
+
         tail = new ToolButton("Tail", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 onNavigate(TAIL);
             }
         });
-        tail.getElement().setId("BT_" + BASE_ID + "_tail");
-        tools.addToolButtonRight(tail);
-        panel.add(tools);
+        setId(tail, BASE_ID, "tail");
+
+        ToolStrip navigationTools = new ToolStrip();
+        navigationTools.addToolWidget(follow);
+        navigationTools.addToolWidgetRight(position);
+        navigationTools.addToolButtonRight(head);
+        navigationTools.addToolButtonRight(prev);
+        navigationTools.addToolButtonRight(next);
+        navigationTools.addToolButtonRight(tail);
+        panel.add(navigationTools);
 
         resizeHandler = Window.addResizeHandler(new ResizeHandler() {
             @Override
@@ -167,7 +176,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 LogFilePanel.this.onResize();
             }
         });
-
         initWidget(panel);
         setStyleName("rhs-content-panel");
     }
@@ -221,5 +229,97 @@ public class LogFilePanel extends Composite implements LogViewerId {
 
     public String getName() {
         return name;
+    }
+
+
+    /**
+     * Simulates AceEditor's build in search box
+     */
+    private class SearchBox extends Composite {
+
+        public SearchBox() {
+
+            // first part: setup the visible widgets
+            final TextBox findTextBox = new TextBox();
+            findTextBox.addStyleName("ace_search_field");
+            findTextBox.getElement().setAttribute("placeholder", "Find");
+            setId(findTextBox, BASE_ID, "find_input");
+
+            ToolButton findButton = new ToolButton("Find", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    editor.search(findTextBox.getValue());
+                }
+            });
+            setId(findButton, BASE_ID, "find");
+
+            Button findPrev = new Button(SafeHtmlUtils.fromSafeConstant("<i class=\"icon-angle-left\"></i>"));
+            findPrev.addStyleName("toolstrip-button");
+            findPrev.getElement().setAttribute("action", "findPrev"); // AceEditor action wiring
+            setId(findPrev, BASE_ID, "prev_match");
+
+            Button findNext = new Button(SafeHtmlUtils.fromSafeConstant("<i class=\"icon-angle-right\"></i>"));
+            findNext.addStyleName("toolstrip-button");
+            findNext.getElement().setAttribute("action", "findNext"); // AceEditor action wiring
+            setId(findNext, BASE_ID, "next_match");
+
+            ToolStrip searchTools = new ToolStrip();
+            searchTools.addToolWidget(findTextBox);
+            searchTools.addToolButton(findButton);
+            searchTools.addToolWidget(findPrev);
+            searchTools.addToolWidget(findNext);
+            findTextBox.getElement().getStyle().setWidth(20, EM);
+            findTextBox.getElement().getStyle().setMarginBottom(0, PX);
+            findTextBox.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findButton.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findPrev.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findNext.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+
+            // next part: rebuild the original search box
+            FlowPanel searchForm = div("ace_search_form", false);
+            searchForm.add(searchTools);
+
+            FlowPanel replaceForm = div("ace_replace_form", true);
+            replaceForm.add(hiddenTextBox("ace_search_field"));
+            replaceForm.add(hiddenButton("replaceAndFindNext", "ace_replacebtn"));
+            replaceForm.add(hiddenButton("replaceAll", "ace_replacebtn"));
+
+            FlowPanel searchOptions = div("ace_search_options", true);
+            searchOptions.add(hiddenButton("toggleRegexpMode", "ace_button"));
+            searchOptions.add(hiddenButton("toggleCaseSensitive", "ace_button"));
+            searchOptions.add(hiddenButton("toggleWholeWords", "ace_button"));
+
+            FlowPanel searchBox = div("ace_search_log_viewer", false);
+            searchBox.add(hiddenButton("close", "ace_searchbtn_close"));
+            searchBox.add(searchForm);
+            searchBox.add(replaceForm);
+            searchBox.add(searchOptions);
+
+            initWidget(searchBox);
+        }
+
+        private FlowPanel div(String styleName, boolean hidden) {
+            FlowPanel div = new FlowPanel();
+            div.setStyleName(styleName);
+            if (hidden) {
+                div.setVisible(false);
+            }
+            return div;
+        }
+
+        private Button hiddenButton(String action, String styleName) {
+            Button button = new Button();
+            button.setStyleName(styleName);
+            button.getElement().setAttribute("action", action);
+            button.setVisible(false);
+            return button;
+        }
+
+        private TextBox hiddenTextBox(String styleName) {
+            TextBox textBox = new TextBox();
+            textBox.setStyleName(styleName);
+            textBox.setVisible(false);
+            return textBox;
+        }
     }
 }

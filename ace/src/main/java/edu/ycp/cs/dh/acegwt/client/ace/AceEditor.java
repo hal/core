@@ -315,6 +315,13 @@ public class AceEditor extends Composite implements RequiresResize, HasText, Tak
 		editor.renderer.setHScrollBarAlwaysVisible(hScrollBarAlwaysVisible);
 	}-*/;
 
+    public native void setVScrollBarVisible(boolean visible) /*-{
+        var vScrollBar = $doc.querySelector(".ace_scrollbar.ace_scrollbar-v");
+        if (vScrollBar != null) {
+            vScrollBar.style.overflowY = visible ? "scroll" : "hidden";
+        }
+    }-*/;
+
 	/**
 	 * Set whether or not the gutter is shown.
 	 *
@@ -504,21 +511,15 @@ public class AceEditor extends Composite implements RequiresResize, HasText, Tak
 		return new AceCompletionCallbackImpl(jsCallback);
 	}
 
-    public native void setVScrollBarVisible(boolean visible) /*-{
-        var vScrollBar = $doc.querySelector(".ace_scrollbar.ace_scrollbar-v");
-        if (vScrollBar != null) {
-            vScrollBar.style.overflowY = visible ? "scroll" : "hidden";
+    public void search(String text) {
+        if (text != null && text.length() != 0) {
+            internalSearch(text);
         }
-    }-*/;
+    }
 
-    /**
-     * Sets the placeholder for the search input field
-     * @param label the new label
-     */
-    public native void setSearchPlaceHolder(String label) /*-{
-        var searchBox = $doc.querySelector(".ace_search_field");
-        if (searchBox != null) {
-            searchBox.placeholder = label;
-        }
+    public native void internalSearch(String text) /*-{
+        var editor = this.@edu.ycp.cs.dh.acegwt.client.ace.AceEditor::editor;
+        var sb = $wnd.ace.require("ace/ext/searchbox");
+        sb.SearchText(editor, text)
     }-*/;
 }

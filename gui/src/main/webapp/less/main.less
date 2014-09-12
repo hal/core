@@ -2662,6 +2662,27 @@ ul.patch-actions {
   background-color: rgb(71, 126, 175);
 }
 
+// adjusted AceEditor style to be used with the LogViewer
 .ace_editor {
   line-height: 16px !important;
+}
+.ace_search_form, .ace_replace_form {
+  border: none !important;
+  float: inherit !important;
+  margin-bottom: 0 !important;
+  overflow: inherit !important;
+}
+.ace_search_form.ace_nomatch, .ace_replace_form.ace_nomatch {
+  outline: none !important;
+}
+.ace_search_field {
+  background-color: inherit !important;
+  border: 1px solid #CCCCCC !important;
+  display: inherit !important;
+  float: inherit !important;
+  height: inherit !important;
+  margin: inherit !important;
+  outline: inherit !important;
+  padding: 4px !important;
+  width: 20em !important;
 }
