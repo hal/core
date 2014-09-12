@@ -26,6 +26,7 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -105,6 +106,12 @@ public class AdapterList implements PropertyManagement {
         dataProvider.addDataDisplay(table);
 
         TextColumn<ResourceAdapter> nameColumn = new TextColumn<ResourceAdapter>() {
+                    @Override
+                    public String getValue(ResourceAdapter record) {
+                        return record.getName();
+                    }
+                };
+        TextColumn<ResourceAdapter> archiveColumn = new TextColumn<ResourceAdapter>() {
             @Override
             public String getValue(ResourceAdapter record) {
                 return record.getArchive();
@@ -134,7 +141,8 @@ public class AdapterList implements PropertyManagement {
             }
         };
 
-        table.addColumn(nameColumn, "Archive");
+        table.addColumn(nameColumn, "Name");
+        table.addColumn(archiveColumn, "Archive");
         table.addColumn(numberConnections, "Connection Def.");
         table.addColumn(option, "Option");
 
@@ -168,14 +176,14 @@ public class AdapterList implements PropertyManagement {
 
         // ----
 
-        TextItem nameItem = new TextItem("archive", "Archive");
-
+        TextItem nameItem = new TextItem("name", "Name");
+        TextBoxItem archiveItem = new TextBoxItem("archive", "Archive");
         ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "TX");
         txItem.setDefaultToFirstOption(true);
         txItem.setValueMap(new String[]{"NoTransaction", "LocalTransaction", "XATransaction"});
 
 
-        form.setFields(nameItem, txItem);
+        form.setFields(nameItem, archiveItem, txItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
