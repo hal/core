@@ -51,21 +51,39 @@ public class ProviderEditor {
 
 
         CheckBoxItem modify = new CheckBoxItem("modifyAddress", "Modify SOAP Address");
-        TextBoxItem wsdlHost = new TextBoxItem("wsdlHost", "WSDL Host", true);
+        TextBoxItem wsdlHost = new TextBoxItem("wsdlHost", "WSDL Host", true) {
+            @Override
+            public boolean validate(String value) {
+                return super.validate(value);
+            }
+        };
+
         NumberBoxItem wsdlPort = new NumberBoxItem("wsdlPort", "WSDL Port", false) {
             {
                 isRequired=false;
             }
+
+            @Override
+            public boolean validate(Number value) {
+                boolean defaultValidation = super.validate(value);
+                return defaultValidation && value.longValue()>0;
+            }
         };
+
         NumberBoxItem wsdlSecurePort = new NumberBoxItem("wsdlSecurePort", "WSDL Secure Port", false) {
             {
                 isRequired=false;
+            }
+
+            @Override
+            public boolean validate(Number value) {
+                boolean defaultValidation = super.validate(value);
+                return defaultValidation && value.longValue()>0;
             }
         };
 
         providerForm.setFields(modify, wsdlHost, wsdlPort, wsdlSecurePort);
         providerForm.setEnabled(false);
-
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback(){
             @Override

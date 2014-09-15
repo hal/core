@@ -153,8 +153,8 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
                 else
                 {
                     Console.info(Console.MESSAGES.modified("Web Service Provider"));
-                    loadProvider();
                 }
+                loadProvider();
             }
         });
     }
