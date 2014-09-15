@@ -214,85 +214,74 @@ public class LogStore extends ChangeSupport {
             return;
         }
 
-        final ModelNode op;
         final int skipped;
-        try {
-            op = prepareNavigation(activeLogFile, direction);
+        final ModelNode op = readLogFileOp(activeLogFile.getName());
+        if (prepareNavigation(activeLogFile, direction, op)) {
             skipped = op.get("skip").asInt();
-        } catch (IllegalStateException e) {
-            channel.nack(e);
-            return;
-        }
-
-        dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                channel.nack(caught);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if (response.isFailure()) {
-                    channel.nack(new RuntimeException("Failed to navigate in " + activeLogFile + " using " + op + ": " +
-                            response.getFailureDescription()));
-                } else {
-                    ModelNode compResult = response.get(RESULT);
-                    int fileSize = readFileSize(activeLogFile.getName(), compResult);
-                    List<String> lines = readLines(compResult);
-                    finishNavigation(activeLogFile, direction, skipped, lines, fileSize);
-                    channel.ack();
+            dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    channel.nack(caught);
                 }
-            }
-        });
+
+                @Override
+                public void onSuccess(DMRResponse result) {
+                    ModelNode response = result.get();
+                    if (response.isFailure()) {
+                        channel.nack(new RuntimeException("Failed to navigate in " + activeLogFile + " using " + op + ": " +
+                                response.getFailureDescription()));
+                    } else {
+                        ModelNode compResult = response.get(RESULT);
+                        int fileSize = readFileSize(activeLogFile.getName(), compResult);
+                        List<String> lines = readLines(compResult);
+                        finishNavigation(activeLogFile, direction, skipped, lines, fileSize);
+                        channel.ack();
+                    }
+                }
+            });
+        } else {
+            // TODO replace with channel.nack(String) after update to latest circuit
+            channel.ack();
+        }
     }
 
-    private ModelNode prepareNavigation(LogFile logFile, Direction direction) {
+    private boolean prepareNavigation(final LogFile logFile, final Direction direction, final ModelNode op) {
         int skip = 0;
-        ModelNode op = readLogFileOp(logFile.getName());
+        boolean validOp = true;
+
         switch (direction) {
             case HEAD:
                 if (logFile.isHead()) {
-                    throw new IllegalStateException(
-                            "Invalid direction " + Direction.HEAD + ": " + logFile + " already at " + Position.HEAD);
+                    validOp = false;
                 } else {
                     op.get("tail").set(false);
                 }
                 break;
             case PREVIOUS:
-                if (logFile.isHead()) {
-                    throw new IllegalStateException(
-                            "Invalid direction " + Direction.PREVIOUS + ": " + logFile + " already at " + Position.HEAD);
-                } else if (logFile.getReadFrom() == Position.HEAD) {
+                if (logFile.getReadFrom() == Position.HEAD) {
                     op.get("tail").set(false);
                     skip = logFile.getSkipped() - pageSize;
                 } else if (logFile.getReadFrom() == Position.TAIL) {
                     op.get("tail").set(true);
                     skip = logFile.getSkipped() + pageSize;
                 } else {
-                    throw new IllegalStateException("Invalid combination of read from " +
-                            logFile.getReadFrom() + " and direction " + direction + " for " + logFile);
+                    validOp = false;
                 }
                 break;
             case NEXT:
-                if (logFile.isTail()) {
-                    throw new IllegalStateException(
-                            "Invalid direction " + Direction.TAIL + ": " + logFile + " already at " + Position.TAIL);
-                } else if (logFile.getReadFrom() == Position.HEAD) {
+                if (logFile.getReadFrom() == Position.HEAD) {
                     op.get("tail").set(false);
                     skip = logFile.getSkipped() + pageSize;
                 } else if (logFile.getReadFrom() == Position.TAIL) {
                     op.get("tail").set(true);
                     skip = logFile.getSkipped() - pageSize;
                 } else {
-                    throw new IllegalStateException("Invalid combination of read from " +
-                            logFile.getReadFrom() + " and current direction " + direction + " for " + logFile);
+                    validOp = false;
                 }
                 break;
             case TAIL:
                 if (logFile.isTail() && !logFile.isFollow()) {
-                    throw new IllegalStateException(
-                            "Invalid direction " + Direction.TAIL + ": " + logFile + " already at " + Position.TAIL);
+                    validOp = false;
                 } else {
                     op.get("tail").set(true);
                 }
@@ -301,7 +290,7 @@ public class LogStore extends ChangeSupport {
                 break;
         }
         op.get("skip").set(skip);
-        return op;
+        return validOp;
     }
 
     private void finishNavigation(LogFile logFile, Direction direction, int skipped, List<String> lines, int fileSize) {
