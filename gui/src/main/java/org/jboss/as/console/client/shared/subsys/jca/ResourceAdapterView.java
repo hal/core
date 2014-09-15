@@ -7,6 +7,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
 import java.util.List;
@@ -32,11 +33,8 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
     @Override
     public Widget createWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
-
-        FakeTabPanel titleBar = new FakeTabPanel("Resource Adapter");
-        layout.add(titleBar);
-
+        DefaultTabLayoutPanel layout  = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        layout.addStyleName("default-tabpanel");
         panel = new PagedView();
 
         this.adapterList = new AdapterList(presenter);
@@ -51,10 +49,7 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
         panel.showPage(0);
 
         Widget panelWidget = panel.asWidget();
-        layout.add(panelWidget);
-
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(panelWidget, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+        layout.add(panelWidget, "Resource Adapter");
 
         return layout;
     }

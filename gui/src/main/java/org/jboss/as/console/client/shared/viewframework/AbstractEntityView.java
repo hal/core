@@ -32,6 +32,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -131,17 +132,14 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
     @Override
     public Widget createWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
-
-        // Top Most Tab
-        FakeTabPanel titleBar = new FakeTabPanel(getEntityDisplayName());
-        layout.add(titleBar);
+        DefaultTabLayoutPanel layout  = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        layout.addStyleName("default-tabpanel");
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("rhs-content-panel");
 
         ScrollPanel scrollPanel = new ScrollPanel(panel);
-        layout.add(scrollPanel);
+        layout.add(scrollPanel, getEntityDisplayName());
 
         entityEditor = makeEntityEditor();
         entityEditor.setDescription(description);
@@ -149,25 +147,6 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
 
         Widget editorWidget = entityEditor.setIncludeTools(false).asWidget();
         panel.add(editorWidget);
-
-        /*ToolStrip tools = createToolStrip();
-
-        if(tools.hasButtons())
-        {
-            layout.add(tools);
-
-            layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(tools, 40, Style.Unit.PX, 30, Style.Unit.PX);
-            layout.setWidgetTopHeight(scrollPanel, 70, Style.Unit.PX, 100, Style.Unit.PCT);
-        }
-        else
-        {
-            layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(scrollPanel, 40, Style.Unit.PX, 100, Style.Unit.PCT);
-        }  */
-
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(scrollPanel, 40, Style.Unit.PX, 100, Style.Unit.PCT);
 
         return layout;
     }

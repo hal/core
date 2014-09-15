@@ -96,6 +96,7 @@ public class MultipleToOneLayout {
         if(!details.isEmpty())
             throw new IllegalStateException("Can either have single OR multiple details, but not both");
         this.detail = new NamedWidget(title, detail);
+
         return this;
     }
 
@@ -113,6 +114,7 @@ public class MultipleToOneLayout {
             throw new IllegalStateException("no master set");
 
         layout  = new LayoutPanel();
+        layout.getElement().setId("LayoutPanel");
         layout.setStyleName("fill-layout");
 
         FakeTabPanel titleBar = null;
@@ -130,6 +132,7 @@ public class MultipleToOneLayout {
         panel.setStyleName("rhs-content-panel");
 
         ScrollPanel scroll = new ScrollPanel(panel);
+        scroll.getElement().setId("ScrollPanel");
         layout.add(scroll);
 
         int offset = isPlain ? 0 : 40;
@@ -142,7 +145,7 @@ public class MultipleToOneLayout {
         }
         else
         {
-             if(!isPlain)layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
+            if(!isPlain)layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
             layout.setWidgetTopHeight(scroll, offset, Style.Unit.PX, 100, Style.Unit.PCT);
         }
 

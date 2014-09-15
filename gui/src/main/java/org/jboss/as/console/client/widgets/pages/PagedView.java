@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -39,16 +40,14 @@ public class PagedView {
 
     public Widget asWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
+        FlowPanel layout = new FlowPanel();
+        layout.getElement().setId("PagedView");
         layout.setStyleName("fill-layout-width");
 
         navigationBar = bar.asWidget();
         navigationBar.addStyleName("paged-view-navigation");
         layout.add(navigationBar);
         layout.add(deck);
-
-        layout.setWidgetTopHeight(navigationBar, 2, Style.Unit.PX, 30, Style.Unit.PX);
-        layout.setWidgetTopHeight(deck, 30, Style.Unit.PX, 100, Style.Unit.PCT);
 
         navigationBar.setVisible(navOnFirstPage);
 

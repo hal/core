@@ -127,9 +127,9 @@ public class EntityEditor<T> implements EntityListView<T> {
 
     public Widget asWidget() {
 
-        VerticalPanel layout = new VerticalPanel();
+        /*VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout"); // FF hack
-
+*/
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("fill-layout-width");
 
@@ -187,10 +187,11 @@ public class EntityEditor<T> implements EntityListView<T> {
 
         panel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_details()));
         panel.add(details.asWidget());
-
+/*
         layout.add(panel);
 
-        return layout;
+        return layout;*/
+        return panel;
     }
 
     public ToolStrip createTools() {

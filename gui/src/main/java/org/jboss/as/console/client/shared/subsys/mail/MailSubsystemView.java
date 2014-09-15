@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
 import java.util.List;
@@ -25,11 +26,8 @@ public class MailSubsystemView extends DisposableViewImpl implements MailPresent
     @Override
     public Widget createWidget() {
 
-
-        LayoutPanel layout = new LayoutPanel();
-
-        FakeTabPanel titleBar = new FakeTabPanel("Mail");
-        layout.add(titleBar);
+        DefaultTabLayoutPanel layout  = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        layout.addStyleName("default-tabpanel");
 
         panel = new PagedView();
 
@@ -47,10 +45,9 @@ public class MailSubsystemView extends DisposableViewImpl implements MailPresent
         panel.showPage(0);
 
         Widget panelWidget = panel.asWidget();
-        layout.add(panelWidget);
+        layout.add(panelWidget, "Mail");
 
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(panelWidget, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+        layout.selectTab(0);
 
         return layout;
     }
