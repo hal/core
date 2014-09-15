@@ -108,6 +108,8 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
 
         });
 
+        cellList.setPageSize(100);
+
         final SingleSelectionModel<String> selectionModel = new SingleSelectionModel<String>();
         cellList.setSelectionModel(selectionModel);
 
