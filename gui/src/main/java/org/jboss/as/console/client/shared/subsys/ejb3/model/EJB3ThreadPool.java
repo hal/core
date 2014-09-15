@@ -44,14 +44,14 @@ public interface EJB3ThreadPool extends UnboundedQueueThreadPool {
    public String getName();
    public void setName(String name);
 
-   @Binding(detypedName="thread-factory")
-   @FormItem(defaultValue="",
-            label="Thread Factory",
-            required=false,
-            formItemTypeForEdit="COMBO_BOX",
-            formItemTypeForAdd="COMBO_BOX")
-   String getThreadFactory();
-   void setThreadFactory(String threadFactory);
+//   @Binding(detypedName="thread-factory")
+//   @FormItem(defaultValue="",
+//            label="Thread Factory",
+//            required=false,
+//            formItemTypeForEdit="COMBO_BOX",
+//            formItemTypeForAdd="COMBO_BOX")
+//   String getThreadFactory();
+//   void setThreadFactory(String threadFactory);
 
    @Binding(detypedName="keepalive-time/time")
    @FormItem(defaultValue="60",
