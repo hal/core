@@ -25,18 +25,36 @@ import org.jboss.as.console.client.shared.subsys.threads.UnboundedQueueThreadPoo
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridgeImpl;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.widgets.forms.BeanMetaData;
+import org.jboss.as.console.client.widgets.forms.FormMetaData;
+import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author David Bosschaert
  */
 public class ThreadPoolsView extends UnboundedQueueThreadPoolView<EJB3ThreadPool> {
     private final EntityToDmrBridgeImpl<EJB3ThreadPool> bridge;
+    private final FormMetaData filteredFormMetaData;
     private EJB3Presenter presenter;
 
     public ThreadPoolsView(ApplicationMetaData propertyMetaData, DispatchAsync dispatcher) {
         super(EJB3ThreadPool.class, propertyMetaData, dispatcher);
         bridge = new EntityToDmrBridgeImpl<EJB3ThreadPool>(propertyMetaData, EJB3ThreadPool.class, this, dispatcher);
+
+        // HAL-477 Exclude attribute "thread-factory"
+        BeanMetaData beanMetaData = propertyMetaData.getBeanMetaData(EJB3ThreadPool.class);
+        List<PropertyBinding> properties = beanMetaData.getProperties();
+        for (Iterator<PropertyBinding> iterator = properties.iterator(); iterator.hasNext(); ) {
+            PropertyBinding property = iterator.next();
+            if ("thread-factory".equals(property.getDetypedName())) {
+                iterator.remove();
+            }
+        }
+        filteredFormMetaData = new FormMetaData(EJB3ThreadPool.class, properties);
     }
 
     @Override
@@ -64,5 +82,11 @@ public class ThreadPoolsView extends UnboundedQueueThreadPoolView<EJB3ThreadPool
 
     public void setPresenter(EJB3Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    protected FormMetaData getFormMetaData() {
+        // HAL-477 Exclude attribute "thread-factory"
+        return filteredFormMetaData;
     }
 }
