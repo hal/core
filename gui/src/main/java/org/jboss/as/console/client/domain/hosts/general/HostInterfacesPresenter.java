@@ -21,14 +21,14 @@ package org.jboss.as.console.client.domain.hosts.general;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -44,7 +44,8 @@ import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
@@ -52,9 +53,8 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
  * @author Heiko Braun
- * @date 5/18/11
  */
-public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.MyView, HostInterfacesPresenter.MyProxy>
+public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPresenter.MyView, HostInterfacesPresenter.MyProxy>
         implements InterfaceManagement.Callback {
 
     @ProxyCodeSplit
@@ -82,11 +82,12 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
 
 
     @Inject
-    public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostStore hostStore,
-            DispatchAsync dispatcher, ApplicationMetaData metaData,
-            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+    public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                                   HostStore hostStore, Dispatcher circuit,
+                                   DispatchAsync dispatcher, ApplicationMetaData metaData,
+                                   PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.hostStore = hostStore;
         this.dispatcher = dispatcher;
@@ -103,17 +104,14 @@ public class HostInterfacesPresenter extends Presenter<HostInterfacesPresenter.M
         super.onBind();
         getView().setPresenter(this);
         getView().setDelegate(this.delegate);
-
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if (isVisible()) {
-                    placeRequestSecurityFramework.update(HostInterfacesPresenter.this, hostPlaceRequest());
-                    loadInterfaces();
-                }
-            }
-        });
+        addChangeHandler(hostStore);
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        placeRequestSecurityFramework.update(HostInterfacesPresenter.this, hostPlaceRequest());
+        loadInterfaces();
     }
 
     @Override

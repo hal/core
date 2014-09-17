@@ -27,16 +27,32 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class AddThreadFactory implements Action<ModelNode> {
+public class AddThreadFactory implements Action {
 
-    private final ModelNode payload;
+    private final ModelNode threadFactory;
 
-    public AddThreadFactory(ModelNode payload) {
-        this.payload = payload;
+    public AddThreadFactory(ModelNode threadFactory) {
+        this.threadFactory = threadFactory;
     }
 
     @Override
-    public ModelNode getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AddThreadFactory)) return false;
+
+        AddThreadFactory that = (AddThreadFactory) o;
+
+        if (!threadFactory.equals(that.threadFactory)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return threadFactory.hashCode();
+    }
+
+    public ModelNode getThreadFactory() {
+        return threadFactory;
     }
 }

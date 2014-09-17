@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
@@ -60,8 +61,8 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
     }
 
     @Override
-    public void refresh(LogFile logFile, Class<?> actionType) {
-        logFileTabs.refresh(logFile, actionType);
+    public void refresh(LogFile logFile, Action action) {
+        logFileTabs.refresh(logFile, action);
     }
 
     @Override

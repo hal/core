@@ -4,7 +4,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -12,13 +11,15 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import java.util.List;
  * @date 1/23/12
  */
 public class WebServiceRuntimePresenter
-        extends Presenter<WebServiceRuntimePresenter.MyView, WebServiceRuntimePresenter.MyProxy>
+        extends CircuitPresenter<WebServiceRuntimePresenter.MyView, WebServiceRuntimePresenter.MyProxy>
         {
 
     private EndpointRegistry endpointRegistry;
@@ -51,8 +52,8 @@ public class WebServiceRuntimePresenter
     public WebServiceRuntimePresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, EndpointRegistry registry,
-            RevealStrategy revealStrategy) {
-        super(eventBus, view, proxy);
+            RevealStrategy revealStrategy, Dispatcher circuit) {
+        super(eventBus, view, proxy, circuit);
 
         this.endpointRegistry = registry;
         this.revealStrategy = revealStrategy;
@@ -62,24 +63,18 @@ public class WebServiceRuntimePresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if(isVisible())
-                {
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            loadEndpoints();
-
-                        }
-                    });
-
-                }
-            }
-        });
+        addChangeHandler(Console.MODULES.getServerStore());
     }
 
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loadEndpoints();
+
+            }
+        });    }
 
     @Override
     protected void onReset() {

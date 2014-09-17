@@ -21,10 +21,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.worker;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class RefreshWorkers extends EmptyAction{
+public class RefreshWorkers implements Action {
 }

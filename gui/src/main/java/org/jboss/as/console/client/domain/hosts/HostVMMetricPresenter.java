@@ -4,12 +4,12 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
@@ -22,15 +22,14 @@ import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
@@ -38,7 +37,7 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  * @author Heiko Braun
  * @date 10/7/11
  */
-public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresenter.MyProxy>
+public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetricPresenter.MyProxy>
         implements VMMetricsManagement {
 
 
@@ -72,11 +71,11 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     @Inject
     public HostVMMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            HostStore hostStore,
+            Dispatcher circuit, HostStore hostStore,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData metaData, HostInformationStore hostInfoStore
     ) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.hostStore = hostStore;
         this.dispatcher = dispatcher;
@@ -89,19 +88,17 @@ public class HostVMMetricPresenter extends Presenter<VMView, HostVMMetricPresent
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        addChangeHandler(hostStore);
+    }
 
-        hostStore.addChangeHandler(SelectServerInstance.class, new PropagatesChange.Handler() {
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onChange(Class<?> source) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                if(isVisible()) refresh();
-                            }
-                        });
+            public void execute() {
+                refresh();
             }
         });
-
     }
 
     @Override

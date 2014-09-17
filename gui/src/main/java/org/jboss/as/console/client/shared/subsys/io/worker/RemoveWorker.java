@@ -26,7 +26,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class RemoveWorker implements Action<String> {
+public class RemoveWorker implements Action {
 
     private final String name;
 
@@ -35,7 +35,23 @@ public class RemoveWorker implements Action<String> {
     }
 
     @Override
-    public String getPayload() {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof RemoveWorker)) return false;
+
+        RemoveWorker that = (RemoveWorker) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
         return name;
     }
 }

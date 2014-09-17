@@ -32,6 +32,7 @@ import org.jboss.as.console.client.shared.runtime.logviewer.actions.CloseLogFile
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.PauseFollowLogFile;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.SelectLogFile;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 /**
@@ -78,10 +79,10 @@ public class LogFileTabs extends Composite {
         tabLayout.selectTab(logFile.getName());
     }
 
-    public void refresh(LogFile logFile, Class<?> actionType) {
+    public void refresh(LogFile logFile, Action action) {
         LogFilePanel logFilePanel = selectedLogFilePanel();
         if (logFilePanel != null) {
-            logFilePanel.refresh(logFile, actionType);
+            logFilePanel.refresh(logFile, action);
         }
     }
 

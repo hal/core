@@ -28,16 +28,32 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class ModifyJobRepository implements Action<Map<String, Object>> {
+public class ModifyJobRepository implements Action {
 
-    private final Map<String, Object> payload;
+    private final Map<String, Object> changedValues;
 
-    public ModifyJobRepository(Map<String, Object> payload) {
-        this.payload = payload;
+    public ModifyJobRepository(Map<String, Object> changedValues) {
+        this.changedValues = changedValues;
     }
 
     @Override
-    public Map<String, Object> getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModifyJobRepository)) return false;
+
+        ModifyJobRepository that = (ModifyJobRepository) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return changedValues.hashCode();
+    }
+
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
     }
 }

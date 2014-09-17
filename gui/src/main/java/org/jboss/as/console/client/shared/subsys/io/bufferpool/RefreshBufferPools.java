@@ -21,10 +21,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class RefreshBufferPools extends EmptyAction{
+public class RefreshBufferPools implements Action {
 }

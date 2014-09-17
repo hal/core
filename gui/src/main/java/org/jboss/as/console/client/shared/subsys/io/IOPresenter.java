@@ -35,13 +35,13 @@ import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.io.bufferpool.*;
 import org.jboss.as.console.client.shared.subsys.io.worker.*;
-import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Map;
@@ -103,19 +103,19 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     }
 
     @Override
-    protected void onAction(Class<?> actionType) {
-        if (actionType.equals(AddBufferPool.class) || actionType.equals(ModifyBufferPool.class)) {
+    protected void onAction(Action action) {
+        if (action instanceof AddBufferPool || action instanceof ModifyBufferPool) {
             getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
             getView().select(bufferPoolAddressTemplate, bufferPoolStore.getLastModifiedBufferPool());
 
-        } else if (actionType.equals(RefreshBufferPools.class) || actionType.equals(RemoveBufferPool.class)) {
+        } else if (action instanceof RefreshBufferPools || action instanceof RemoveBufferPool) {
             getView().update(bufferPoolAddressTemplate, bufferPoolStore.getBufferPools());
 
-        } else if (actionType.equals(AddWorker.class) || actionType.equals(ModifyWorker.class)) {
+        } else if (action instanceof AddWorker || action instanceof ModifyWorker) {
             getView().update(workerAddressTemplate, workerStore.getWorkers());
             getView().select(workerAddressTemplate, workerStore.getLastModifiedWorker());
 
-        } else if (actionType.equals(RefreshWorkers.class) || actionType.equals(RemoveWorker.class)) {
+        } else if (action instanceof RefreshWorkers || action instanceof RemoveWorker) {
             getView().update(workerAddressTemplate, workerStore.getWorkers());
         }
     }
@@ -165,7 +165,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     }
 
     public void modifyWorker(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifyWorker(new ModifyPayload(name, changedValues)));
+        circuit.dispatch(new ModifyWorker(name, changedValues));
     }
 
     public void removeWorker(String name) {
@@ -205,7 +205,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     }
 
     public void modifyBufferPool(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifyBufferPool(new ModifyPayload(name, changedValues)));
+        circuit.dispatch(new ModifyBufferPool(name, changedValues));
     }
 
     public void removeBufferPool(String name) {

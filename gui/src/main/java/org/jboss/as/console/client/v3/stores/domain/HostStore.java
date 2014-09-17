@@ -3,12 +3,7 @@ package org.jboss.as.console.client.v3.stores.domain;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
+import org.jboss.as.console.client.v3.stores.domain.actions.*;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -24,12 +19,7 @@ import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -272,8 +262,8 @@ public class HostStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectServerInstance.class)
-    public void onSelectedServer(final String serverInstance, final Dispatcher.Channel channel) {
-        this.selectedServer = serverInstance;
+    public void onSelectedServer(final String server, final Dispatcher.Channel channel) {
+        this.selectedServer = server;
         channel.ack();
     }
 

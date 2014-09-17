@@ -6,7 +6,7 @@ import org.jboss.gwt.circuit.Action;
  * @author Heiko Braun
  * @date 15/07/14
  */
-public class HostSelection implements Action<String> {
+public class HostSelection implements Action {
 
     private String hostName;
 
@@ -15,7 +15,23 @@ public class HostSelection implements Action<String> {
     }
 
     @Override
-    public String getPayload() {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HostSelection)) return false;
+
+        HostSelection that = (HostSelection) o;
+
+        if (!hostName.equals(that.hostName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return hostName.hashCode();
+    }
+
+    public String getHostName() {
         return hostName;
     }
 }

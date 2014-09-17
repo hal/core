@@ -4,13 +4,13 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -26,7 +26,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +38,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 12/9/11
  */
-public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, WebMetricPresenter.MyProxy>
+public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyView, WebMetricPresenter.MyProxy>
 {
 
     private DispatchAsync dispatcher;
@@ -67,10 +68,10 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
     @Inject
     public WebMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher,
+            DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
             BeanFactory factory) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
@@ -149,21 +150,19 @@ public class WebMetricPresenter extends Presenter<WebMetricPresenter.MyView, Web
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
+        addChangeHandler(Console.MODULES.getServerStore());
+    }
 
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        getView().clearSamples();
-                        if(isVisible()) refresh();
-                    }
-                });
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                getView().clearSamples();
+                refresh();
             }
         });
     }
-
 
     @Override
     protected void onReset() {

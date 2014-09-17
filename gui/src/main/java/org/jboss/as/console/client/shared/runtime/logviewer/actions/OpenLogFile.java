@@ -28,16 +28,32 @@ import org.jboss.gwt.circuit.Action;
  *
  * @author Harald Pehl
  */
-public class OpenLogFile implements Action<String> {
+public class OpenLogFile implements Action {
 
-    private final String logFile;
+    private final String name;
 
-    public OpenLogFile(String logFile) {
-        this.logFile = logFile;
+    public OpenLogFile(String name) {
+        this.name = name;
     }
 
     @Override
-    public String getPayload() {
-        return logFile;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OpenLogFile)) return false;
+
+        OpenLogFile that = (OpenLogFile) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
+        return name;
     }
 }

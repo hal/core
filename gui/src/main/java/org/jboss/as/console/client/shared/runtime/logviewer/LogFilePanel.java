@@ -38,6 +38,7 @@ import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLo
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.UnFollowLogFile;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import static com.google.gwt.dom.client.Style.Unit.EM;
@@ -180,9 +181,9 @@ public class LogFilePanel extends Composite implements LogViewerId {
         setStyleName("rhs-content-panel");
     }
 
-    public void refresh(LogFile logFile, Class<?> actionType) {
+    public void refresh(LogFile logFile, Action action) {
         editor.setText(logFile.getContent());
-        indicator.refresh(logFile, actionType);
+        indicator.refresh(logFile, action);
         position.setText("Pos. " + (int) Math.floor(indicator.getRatio()) + " %");
         follow.setValue(logFile.isFollow());
         if (logFile.getLines().size() < visibleLines) {

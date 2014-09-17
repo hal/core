@@ -24,6 +24,7 @@ package org.jboss.as.console.client.shared.runtime.logviewer;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
+import org.jboss.gwt.circuit.Action;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static java.lang.Math.max;
@@ -57,10 +58,10 @@ public class LogFileIndicator extends Composite {
         indicator.getElement().getStyle().setTop(0, PX);
     }
 
-    public void refresh(LogFile logFile, Class<?> actionType) {
+    public void refresh(LogFile logFile, Action action) {
         int bytesPerFile = logFile.getFileSize();
         int containerHeight = getElement().getParentElement().getClientHeight();
-        boolean resized = lastSkipped == logFile.getSkipped() && actionType == ChangePageSize.class;
+        boolean resized = lastSkipped == logFile.getSkipped() && action instanceof ChangePageSize;
 
         if (logFile.getPosition() == Position.HEAD) {
             bytesConsumed = consumedSnapshot = logFile.getNumBytes();

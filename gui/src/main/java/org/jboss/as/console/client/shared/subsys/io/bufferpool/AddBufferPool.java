@@ -27,16 +27,32 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class AddBufferPool implements Action<ModelNode> {
+public class AddBufferPool implements Action {
 
-    private final ModelNode payload;
+    private final ModelNode bufferPool;
 
-    public AddBufferPool(ModelNode payload) {
-        this.payload = payload;
+    public AddBufferPool(ModelNode bufferPool) {
+        this.bufferPool = bufferPool;
     }
 
     @Override
-    public ModelNode getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AddBufferPool)) return false;
+
+        AddBufferPool that = (AddBufferPool) o;
+
+        if (!bufferPool.equals(that.bufferPool)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return bufferPool.hashCode();
+    }
+
+    public ModelNode getBufferPool() {
+        return bufferPool;
     }
 }

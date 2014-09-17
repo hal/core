@@ -4,7 +4,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -13,6 +12,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -32,7 +32,8 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +44,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 12/9/11
  */
-public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy>
+public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy>
 {
 
     private final PlaceManager placemanager;
@@ -88,10 +89,10 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     @Inject
     public JMSMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher,
+            DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
             ServerStore serverStore, BeanFactory factory, PlaceManager placemanager) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
@@ -247,19 +248,18 @@ public class JMSMetricPresenter extends Presenter<JMSMetricPresenter.MyView, JMS
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
+        addChangeHandler(serverStore);
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onChange(Class<?> source) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        if(isVisible()) loadProvider();
-                    }
-                });
+            public void execute() {
+                loadProvider();
             }
         });
     }
-
 
     @Override
     protected void onReset() {

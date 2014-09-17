@@ -21,11 +21,11 @@
  */
 package org.jboss.as.console.client.shared.runtime.logviewer.actions;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * Unfollow the active log file
  * @author Harald Pehl
  */
-public class UnFollowLogFile extends EmptyAction {
+public class UnFollowLogFile implements Action {
 }

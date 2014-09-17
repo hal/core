@@ -24,18 +24,14 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.HasPresenter;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.Updateable;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
@@ -53,7 +49,8 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -64,7 +61,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Harald Pehl
  */
-public class PatchManagementPresenter extends Presenter<PatchManagementPresenter.MyView, PatchManagementPresenter.MyProxy> {
+public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPresenter.MyView, PatchManagementPresenter.MyProxy> {
 
     public interface MyView extends View, HasPresenter<PatchManagementPresenter>, Updateable<List<Patches>> {
         void update(List<Patches> patches);
@@ -121,11 +118,11 @@ public class PatchManagementPresenter extends Presenter<PatchManagementPresenter
     @Inject
     public PatchManagementPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
                                     final RevealStrategy revealStrategy, final PatchManager patchManager,
-                                    final HostStore hostStore, final BootstrapContext bootstrapContext,
-                                    final DispatchAsync dispatcher,
-                                    PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                                    final Dispatcher circuit,final HostStore hostStore,
+                                    final BootstrapContext bootstrapContext, final DispatchAsync dispatcher,
+                                    final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.patchManager = patchManager;
         this.hostStore = hostStore;
@@ -138,16 +135,13 @@ public class PatchManagementPresenter extends Presenter<PatchManagementPresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if (isVisible()) {
-                    placeRequestSecurityFramework.update(PatchManagementPresenter.this, hostPlaceRequest());
-                }
-            }
-        });
+        addChangeHandler(hostStore);
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        placeRequestSecurityFramework.update(this, hostPlaceRequest());
     }
 
     private PlaceRequest hostPlaceRequest() {

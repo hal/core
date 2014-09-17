@@ -326,7 +326,7 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = ChangePageSize.class)
-    public void changePageSize(final Integer pageSize, final Dispatcher.Channel channel) {
+    public void changePageSize(final int pageSize, final Dispatcher.Channel channel) {
         if (pageSize == this.pageSize) {
             // noop
             channel.ack();

@@ -28,16 +28,32 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class ModifyThreadPool implements Action<Map<String, Object>> {
+public class ModifyThreadPool implements Action {
 
-    private final Map<String, Object> payload;
+    private final Map<String, Object> changedValues;
 
-    public ModifyThreadPool(Map<String, Object> payload) {
-        this.payload = payload;
+    public ModifyThreadPool(Map<String, Object> changedValues) {
+        this.changedValues = changedValues;
     }
 
     @Override
-    public Map<String, Object> getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModifyThreadPool)) return false;
+
+        ModifyThreadPool that = (ModifyThreadPool) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return changedValues.hashCode();
+    }
+
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
     }
 }

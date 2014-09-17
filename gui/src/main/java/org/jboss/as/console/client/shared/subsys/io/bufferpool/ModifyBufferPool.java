@@ -21,22 +21,48 @@
  */
 package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
-import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.gwt.circuit.Action;
+
+import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class ModifyBufferPool implements Action<ModifyPayload> {
+public class ModifyBufferPool implements Action {
 
-    private final ModifyPayload payload;
+    private final String name;
+    private final Map<String, Object> changedValues;
 
-    public ModifyBufferPool(ModifyPayload payload) {
-        this.payload = payload;
+    public ModifyBufferPool(String name, Map<String, Object> changedValues) {
+        this.name = name;
+        this.changedValues = changedValues;
     }
 
     @Override
-    public ModifyPayload getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModifyBufferPool)) return false;
+
+        ModifyBufferPool that = (ModifyBufferPool) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + changedValues.hashCode();
+        return result;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
     }
 }

@@ -28,16 +28,32 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class ModifyBatch implements Action<Map<String, Object>> {
+public class ModifyBatch implements Action {
 
-    private final Map<String, Object> payload;
+    private final Map<String, Object> changedValues;
 
-    public ModifyBatch(Map<String, Object> payload) {
-        this.payload = payload;
+    public ModifyBatch(Map<String, Object> changedValues) {
+        this.changedValues = changedValues;
     }
 
     @Override
-    public Map<String, Object> getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ModifyBatch)) return false;
+
+        ModifyBatch that = (ModifyBatch) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return changedValues.hashCode();
+    }
+
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
     }
 }

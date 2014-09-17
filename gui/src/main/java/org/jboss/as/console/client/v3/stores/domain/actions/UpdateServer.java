@@ -9,9 +9,10 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 15/07/14
  */
-public class UpdateServer implements Action<UpdateServer.Values> {
-    private Server server;
-    private Map<String, Object> changedValues;
+public class UpdateServer implements Action {
+
+    private final Server server;
+    private final Map<String, Object> changedValues;
 
     public UpdateServer(Server server, Map<String, Object> changedValues) {
         this.server = server;
@@ -19,25 +20,30 @@ public class UpdateServer implements Action<UpdateServer.Values> {
     }
 
     @Override
-    public Values getPayload() {
-        return new Values(server, changedValues);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UpdateServer)) return false;
+
+        UpdateServer that = (UpdateServer) o;
+
+        if (!changedValues.equals(that.changedValues)) return false;
+        if (!server.equals(that.server)) return false;
+
+        return true;
     }
 
-    public class Values {
-        private Server server;
-        private Map<String, Object> changedValues;
+    @Override
+    public int hashCode() {
+        int result = server.hashCode();
+        result = 31 * result + changedValues.hashCode();
+        return result;
+    }
 
-        Values(Server server, Map<String, Object> changedValues) {
-            this.server = server;
-            this.changedValues = changedValues;
-        }
+    public Server getServer() {
+        return server;
+    }
 
-        public Server getServer() {
-            return server;
-        }
-
-        public Map<String, Object> getChangedValues() {
-            return changedValues;
-        }
+    public Map<String, Object> getChangedValues() {
+        return changedValues;
     }
 }

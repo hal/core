@@ -72,6 +72,12 @@ public class DiagnosticsView implements DAGDispatcher.Diagnostics, IsWidget {
     }
 
     @Override
+    public void onNack(Class<?> store, Action action, String reason) {
+        nacked++;
+        refresh();
+    }
+
+    @Override
     public void onNack(final Class<?> s, final Action a, final Throwable t) {
         nacked++;
         refresh();

@@ -5,7 +5,7 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.StaticDispatcher;
 import org.jboss.dmr.client.StaticDmrResponse;
-import org.jboss.gwt.circuit.util.NoopChannel;
+import org.jboss.gwt.circuit.NoopChannel;
 import org.junit.Before;
 import org.junit.Test;
 

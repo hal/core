@@ -26,16 +26,32 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class CloseLogFile implements Action<String> {
+public class CloseLogFile implements Action {
 
-    private final String logFile;
+    private final String name;
 
-    public CloseLogFile(String logFile) {
-        this.logFile = logFile;
+    public CloseLogFile(String name) {
+        this.name = name;
     }
 
     @Override
-    public String getPayload() {
-        return logFile;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CloseLogFile)) return false;
+
+        CloseLogFile that = (CloseLogFile) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
+        return name;
     }
 }

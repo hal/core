@@ -27,16 +27,32 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class AddWorker implements Action<ModelNode> {
+public class AddWorker implements Action {
 
-    private final ModelNode payload;
+    private final ModelNode worker;
 
-    public AddWorker(ModelNode payload) {
-        this.payload = payload;
+    public AddWorker(ModelNode worker) {
+        this.worker = worker;
     }
 
     @Override
-    public ModelNode getPayload() {
-        return payload;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AddWorker)) return false;
+
+        AddWorker addWorker = (AddWorker) o;
+
+        if (!worker.equals(addWorker.worker)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return worker.hashCode();
+    }
+
+    public ModelNode getWorker() {
+        return worker;
     }
 }

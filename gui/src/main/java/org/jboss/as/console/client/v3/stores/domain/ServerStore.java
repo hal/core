@@ -218,16 +218,13 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = UpdateServer.class)
-    public void onUpdateServer(final UpdateServer.Values update, final Dispatcher.Channel channel) {
+    public void onUpdateServer(final Server server, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
 
-        final Map<String, Object> changedValues = update.getChangedValues();
-        Server entity = update.getServer();
+        if (changedValues.containsKey("portOffset")) { changedValues.put("socketBinding", server.getSocketBinding()); }
 
-        if (changedValues.containsKey("portOffset")) { changedValues.put("socketBinding", entity.getSocketBinding()); }
+        if (changedValues.containsKey("socketBinding")) { changedValues.put("portOffset", server.getPortOffset()); }
 
-        if (changedValues.containsKey("socketBinding")) { changedValues.put("portOffset", entity.getPortOffset()); }
-
-        final String name = entity.getName();
+        final String name = server.getName();
 
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -264,11 +261,8 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = CopyServer.class)
-    public void onSaveCopy(CopyServer.Values copyValues, final Dispatcher.Channel channel) {
-
-        final Server original = copyValues.getOriginal();
-        final Server newServer = copyValues.getNewServer();
-        final String targetHost = copyValues.getTargetHost();
+    public void onSaveCopy(final String targetHost, final Server original, final Server newServer,
+                           final Dispatcher.Channel channel) {
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);

@@ -5,7 +5,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -13,6 +12,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -31,7 +31,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +44,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 12/19/11
  */
-public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresenter.MyView,
-        DataSourceMetricPresenter.MyProxy>        {
+public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetricPresenter.MyView,
+        DataSourceMetricPresenter.MyProxy> {
 
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
@@ -82,10 +83,10 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
     @Inject
     public DataSourceMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,  DispatchAsync dispatcher,
+            PlaceManager placeManager,  DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy,
             ServerStore serverStore, BeanFactory factory) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.placeManager = placeManager;
 
@@ -137,21 +138,20 @@ public class DataSourceMetricPresenter extends Presenter<DataSourceMetricPresent
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                getView().clearSamples();
+        addChangeHandler(serverStore);
+    }
 
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        if(isVisible()) refreshDatasources();
-                    }
-                });
+    @Override
+    protected void onAction(Action action) {
+        getView().clearSamples();
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if(isVisible()) refreshDatasources();
             }
         });
     }
-
 
     @Override
     protected void onReset() {

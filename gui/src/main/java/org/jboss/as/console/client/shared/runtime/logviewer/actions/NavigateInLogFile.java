@@ -29,7 +29,7 @@ import org.jboss.gwt.circuit.Action;
  *
  * @author Harald Pehl
  */
-public class NavigateInLogFile implements Action<Direction> {
+public class NavigateInLogFile implements Action {
 
     private final Direction direction;
 
@@ -38,7 +38,23 @@ public class NavigateInLogFile implements Action<Direction> {
     }
 
     @Override
-    public Direction getPayload() {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof NavigateInLogFile)) return false;
+
+        NavigateInLogFile that = (NavigateInLogFile) o;
+
+        if (direction != that.direction) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return direction.hashCode();
+    }
+
+    public Direction getDirection() {
         return direction;
     }
 }

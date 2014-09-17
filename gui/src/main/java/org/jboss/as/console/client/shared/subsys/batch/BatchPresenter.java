@@ -34,13 +34,13 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.batch.store.*;
-import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.Map;
@@ -104,32 +104,32 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     }
 
     @Override
-    protected void onAction(Class<?> actionType) {
-        if (actionType.equals(InitBatch.class)) {
+    protected void onAction(Action action) {
+        if (action instanceof InitBatch) {
             getView().update(batchTemplate, batchStore.getBatch());
             getView().update(threadPoolTemplate, batchStore.getThreadPool());
             getView().update(jobRepositoryTemplate, batchStore.getJobRepository());
             getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
         }
 
-        else if (actionType.equals(ModifyBatch.class)) {
+        else if (action instanceof ModifyBatch) {
             getView().update(batchTemplate, batchStore.getBatch());
         }
 
-        else if (actionType.equals(ModifyThreadPool.class)) {
+        else if (action instanceof ModifyThreadPool) {
             getView().update(threadPoolTemplate, batchStore.getThreadPool());
         }
 
-        else if (actionType.equals(ModifyJobRepository.class)) {
+        else if (action instanceof ModifyJobRepository) {
             getView().update(jobRepositoryTemplate, batchStore.getThreadPool());
         }
 
-        else if (actionType.equals(AddThreadFactory.class) || actionType.equals(ModifyThreadFactory.class)) {
+        else if (action instanceof AddThreadFactory || action instanceof ModifyThreadFactory) {
             getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
             getView().select(threadFactoriesTemplate, batchStore.getLastModifiedThreadFactory());
         }
 
-        else if (actionType.equals(RefreshThreadFactories.class) || actionType.equals(RemoveThreadFactory.class)) {
+        else if (action instanceof RefreshThreadFactories || action instanceof RemoveThreadFactory) {
             getView().update(threadFactoriesTemplate, batchStore.getThreadFactories());
         }
     }
@@ -190,7 +190,7 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     }
 
     public void modifyThreadFactory(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new ModifyThreadFactory(new ModifyPayload(name, changedValues)));
+        circuit.dispatch(new ModifyThreadFactory(name, changedValues));
     }
 
     public void removeThreadFactory(String name) {

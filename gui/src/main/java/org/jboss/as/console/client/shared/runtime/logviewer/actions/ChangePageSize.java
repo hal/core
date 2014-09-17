@@ -28,7 +28,7 @@ import org.jboss.gwt.circuit.Action;
  *
  * @author Harald Pehl
  */
-public class ChangePageSize implements Action<Integer> {
+public class ChangePageSize implements Action {
 
     private final int pageSize;
 
@@ -37,7 +37,23 @@ public class ChangePageSize implements Action<Integer> {
     }
 
     @Override
-    public Integer getPayload() {
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ChangePageSize)) return false;
+
+        ChangePageSize that = (ChangePageSize) o;
+
+        if (pageSize != that.pageSize) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return pageSize;
+    }
+
+    public Integer getPageSize() {
         return pageSize;
     }
 }

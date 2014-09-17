@@ -24,32 +24,28 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
-import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
-import org.jboss.as.console.client.shared.properties.LoadPropertiesCmd;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
@@ -59,7 +55,7 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  * @author Heiko Braun
  * @date 5/17/11
  */
-public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.MyView, HostPropertiesPresenter.MyProxy>
+public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPresenter.MyView, HostPropertiesPresenter.MyProxy>
         implements PropertyManagement {
 
     @ProxyCodeSplit
@@ -85,10 +81,10 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
 
 
     @Inject
-    public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-                                   BeanFactory factory, HostStore hostStore,
+    public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
+                                   DispatchAsync dispatcher,BeanFactory factory, HostStore hostStore,
                                    PlaceRequestSecurityFramework placeRequestSecurityFramework) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
@@ -100,16 +96,14 @@ public class HostPropertiesPresenter extends Presenter<HostPropertiesPresenter.M
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if (isVisible()) {
-                    placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
-                    loadProperties();
-                }
-            }
-        });
+        addChangeHandler(hostStore);
         placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
+        loadProperties();
     }
 
     @Override

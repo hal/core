@@ -21,13 +21,13 @@ package org.jboss.as.console.client.shared.runtime.env;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
@@ -41,7 +41,8 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  * @date 15/10/12
  */
-public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
+public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.MyView,
         EnvironmentPresenter.MyProxy>
 {
     @ProxyCodeSplit
@@ -83,11 +84,11 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
 
 
     @Inject
-    public EnvironmentPresenter(final EventBus eventBus, final MyView view,
-                                final MyProxy proxy, final DispatchAsync dispatcher, final BeanFactory factory,
+    public EnvironmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
+                                final DispatchAsync dispatcher, Dispatcher circuit, final BeanFactory factory,
                                 final RevealStrategy revealStrategy, final BootstrapContext bootstrap)
     {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.revealStrategy = revealStrategy;
@@ -99,12 +100,12 @@ public class EnvironmentPresenter extends Presenter<EnvironmentPresenter.MyView,
     {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if(isVisible()) refresh();
-            }
-        });
+        addChangeHandler(Console.MODULES.getServerStore());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        refresh();
     }
 
     @Override

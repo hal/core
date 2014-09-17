@@ -6,10 +6,5 @@ import org.jboss.gwt.circuit.Action;
  * @author Heiko Braun
  * @date 15/07/14
  */
-public class RefreshServer implements Action<Void> {
-
-    @Override
-    public Void getPayload() {
-        return null;
-    }
+public class RefreshServer implements Action {
 }

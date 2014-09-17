@@ -23,7 +23,6 @@ package org.jboss.as.console.client.shared.subsys.batch.store;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
@@ -177,9 +176,9 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyThreadFactory.class)
-    public void modifyThreadFactory(final ModifyPayload modifyPayload, final Dispatcher.Channel channel) {
-        lastModifiedThreadFactory = modifyPayload.getName();
-        operationDelegate.onSaveResource(THREAD_FACTORIES_ADDRESS, modifyPayload.getName(), modifyPayload.getChangedValues(),
+    public void modifyThreadFactory(final String name, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
+        lastModifiedThreadFactory = name;
+        operationDelegate.onSaveResource(THREAD_FACTORIES_ADDRESS, name, changedValues,
                 new RefreshThreadFactoriesCallback(channel));
     }
 

@@ -21,11 +21,11 @@
  */
 package org.jboss.as.console.client.shared.runtime.logviewer.actions;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * Pauses the follow mode without touching the {@link org.jboss.as.console.client.shared.runtime.logviewer.LogFile#isFollow()} flag.
  * @author Harald Pehl
  */
-public class PauseFollowLogFile extends EmptyAction {
+public class PauseFollowLogFile implements Action {
 }

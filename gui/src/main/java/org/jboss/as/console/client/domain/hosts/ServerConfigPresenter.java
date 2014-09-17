@@ -23,43 +23,26 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.*;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
-import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
-import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
-import org.jboss.as.console.client.shared.jvm.Jvm;
-import org.jboss.as.console.client.shared.jvm.JvmManagement;
-import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
-import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
-import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.jvm.*;
+import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
@@ -70,8 +53,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
 import java.util.Map;
@@ -83,7 +66,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 3/3/11
  */
-public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
+public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
 
     private final ServerStore serverStore;
@@ -139,12 +122,13 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
     }
 
     @Inject
-    public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy, HostInformationStore hostInfoStore,
-            ServerGroupStore serverGroupStore, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
-            BeanFactory factory, PlaceManager placeManager, HostStore hostStore, ServerStore serverStore, Dispatcher circuit
-    ) {
+    public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                                 HostInformationStore hostInfoStore, ServerGroupStore serverGroupStore,
+                                 DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
+                                 BeanFactory factory, PlaceManager placeManager, HostStore hostStore,
+                                 ServerStore serverStore, Dispatcher circuit) {
 
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.hostInfoStore = hostInfoStore;
         this.serverGroupStore = serverGroupStore;
@@ -163,23 +147,13 @@ public class ServerConfigPresenter extends Presenter<ServerConfigPresenter.MyVie
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
+        addChangeHandler(hostStore);
+        addChangeHandler(serverStore);
+    }
 
-        // host selection
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                handleChange();
-            }
-        });
-
-        // modifications ot the server model
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                handleChange();
-            }
-        });
-
+    @Override
+    protected void onAction(Action action) {
+        handleChange();
     }
 
     private void handleChange() {

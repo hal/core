@@ -3,13 +3,13 @@ package org.jboss.as.console.client.standalone.runtime;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.LoadJVMMetricsCmd;
@@ -22,7 +22,8 @@ import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
 
@@ -31,7 +32,7 @@ import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
  * @date 9/28/11
  */
 public class VMMetricsPresenter
-        extends Presenter<VMView, VMMetricsPresenter.MyProxy>
+        extends CircuitPresenter<VMView, VMMetricsPresenter.MyProxy>
         implements VMMetricsManagement {
 
     private ApplicationMetaData metaData;
@@ -57,8 +58,8 @@ public class VMMetricsPresenter
     @Inject
     public VMMetricsPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher, BeanFactory factory, ApplicationMetaData propertyMetaData) {
-        super(eventBus, view, proxy);
+            DispatchAsync dispatcher, BeanFactory factory, ApplicationMetaData propertyMetaData, Dispatcher circuit) {
+        super(eventBus, view, proxy, circuit);
 
         this.metaData = propertyMetaData;
         this.loadMetricCmd = new LoadJVMMetricsCmd(dispatcher, factory, new ModelNode(), metaData);
@@ -68,12 +69,12 @@ public class VMMetricsPresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if(isVisible()) refresh();
-            }
-        });
+        addChangeHandler(Console.MODULES.getServerStore());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        refresh();
     }
 
     @Override

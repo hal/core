@@ -21,10 +21,10 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch.store;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * @author Harald Pehl
  */
-public class RefreshThreadFactories extends EmptyAction{
+public class RefreshThreadFactories implements Action {
 }

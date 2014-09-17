@@ -26,16 +26,32 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class SelectLogFile implements Action<String> {
+public class SelectLogFile implements Action {
 
-    private final String logFile;
+    private final String name;
 
-    public SelectLogFile(String logFile) {
-        this.logFile = logFile;
+    public SelectLogFile(String name) {
+        this.name = name;
     }
 
     @Override
-    public String getPayload() {
-        return logFile;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SelectLogFile)) return false;
+
+        SelectLogFile that = (SelectLogFile) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
+        return name;
     }
 }

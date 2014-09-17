@@ -91,7 +91,7 @@
         <maven.min.version>3.1.0</maven.min.version>
         <ace.version>1.0-20140820</ace.version> <!-- Carries the timestamp of the last update against https://github.com/daveho/AceGWT -->
         <ballroom.version>2.1.0-SNAPSHOT</ballroom.version>
-        <circuit.version>0.0.8-SNAPSHOT</circuit.version>
+        <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
         <gwt.version>2.6.1</gwt.version>

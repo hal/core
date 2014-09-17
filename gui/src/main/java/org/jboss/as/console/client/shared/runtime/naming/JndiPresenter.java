@@ -23,13 +23,13 @@ import com.google.gwt.user.cellview.client.CellTree;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -42,7 +42,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -50,7 +51,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 7/20/11
  */
-public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter.MyProxy>
+public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPresenter.MyProxy>
 {
 
     private final PlaceManager placeManager;
@@ -87,10 +88,10 @@ public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter
     public JndiPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, RevealStrategy revealStrategy,
-            DispatchAsync dispatcher, BeanFactory factory,
+            Dispatcher circuit,DispatchAsync dispatcher, BeanFactory factory,
             ServerStore serverStore) {
 
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
@@ -105,16 +106,12 @@ public class JndiPresenter extends Presenter<JndiPresenter.MyView, JndiPresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        serverStore.addChangeHandler(new PropagatesChange.Handler() {
-            @Override
-            public void onChange(Class<?> source) {
-                if(isVisible())
-                {
-                    loadJndiTree();
-                }
-            }
-        });
+        addChangeHandler(serverStore);
+    }
 
+    @Override
+    protected void onAction(Action action) {
+        loadJndiTree();
     }
 
     @Override

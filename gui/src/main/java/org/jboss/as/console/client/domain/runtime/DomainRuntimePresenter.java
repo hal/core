@@ -4,17 +4,14 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.*;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
@@ -32,14 +29,10 @@ import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
-import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
-import org.jboss.gwt.flow.client.Outcome;
-import org.jboss.gwt.flow.client.PushFlowCallback;
+import org.jboss.gwt.flow.client.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +46,7 @@ public class DomainRuntimePresenter
 
     private final Dispatcher circuit;
     private final ServerStore serverStore;
+    private HandlerRegistration handlerRegistration;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
@@ -100,14 +94,14 @@ public class DomainRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
 
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+        handlerRegistration = hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> source) {
+            public void onChange(Action action) {
 
-                if(!isVisible()) return;
+                if (!isVisible()) return;
 
                 // server picker update
-                if(hostStore.hasSelectedServer()) {
+                if (hostStore.hasSelectedServer()) {
                     getView().setTopology(hostStore.getSelectedHost(), hostStore.getSelectedServer(), hostStore.getTopology());
                 }
 
@@ -125,6 +119,14 @@ public class DomainRuntimePresenter
             }
         });
 
+    }
+
+    @Override
+    protected void onUnbind() {
+        super.onUnbind();
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+        }
     }
 
     @Override

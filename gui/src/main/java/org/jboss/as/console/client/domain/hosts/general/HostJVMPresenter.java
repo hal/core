@@ -29,9 +29,9 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
@@ -50,6 +50,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
@@ -106,7 +107,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
         getView().setPresenter(this);
         hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> source) {
+            public void onChange(Action action) {
                 if (isVisible()) {
                     placeRequestSecurityFramework.update(HostJVMPresenter.this, hostPlaceRequest());
                     loadJVMConfig();

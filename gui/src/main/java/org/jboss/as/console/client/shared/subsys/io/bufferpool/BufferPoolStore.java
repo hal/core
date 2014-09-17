@@ -23,7 +23,6 @@ package org.jboss.as.console.client.shared.subsys.io.bufferpool;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.v3.stores.ModifyPayload;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
@@ -40,6 +39,7 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -74,10 +74,9 @@ public class BufferPoolStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyBufferPool.class)
-    public void modify(final ModifyPayload modifyPayload, final Dispatcher.Channel channel) {
-        lastModifiedBufferPool = modifyPayload.getName();
-        operationDelegate.onSaveResource(RESOURCE_ADDRESS, modifyPayload.getName(), modifyPayload.getChangedValues(),
-                new RefreshCallback(channel));
+    public void modify(final String name, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
+        lastModifiedBufferPool = name;
+        operationDelegate.onSaveResource(RESOURCE_ADDRESS, name, changedValues, new RefreshCallback(channel));
     }
 
     @Process(actionType = RefreshBufferPools.class)

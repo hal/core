@@ -23,34 +23,26 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.*;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.Host;
-import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -64,6 +56,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     private BootstrapContext bootstrap;
     private final HostStore hostStore;
+    private HandlerRegistration handlerRegistration;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -97,16 +90,24 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+        handlerRegistration = hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> source) {
+            public void onChange(Action action) {
 
-                if(!isVisible()) return;
+                if (!isVisible()) return;
 
                 getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
 
             }
         });
+    }
+
+    @Override
+    protected void onUnbind() {
+        super.onUnbind();
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+        }
     }
 
     @Override

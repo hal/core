@@ -39,8 +39,8 @@ import java.util.List;
 
 /**
  * A presenter which registers a {@link org.jboss.gwt.circuit.PropagatesChange.Handler} for a given store.
- * The handler delegates to {@link #onAction(Class)} if the presenter is visible. The registered handlers
- * are removed again in {@link #onUnbind()}.
+ * The handler delegates to {@link #onAction(org.jboss.gwt.circuit.Action)} if the presenter is visible.
+ * The registered handlers are removed again in {@link #onUnbind()}.
  *
  * @author Harald Pehl
  */
@@ -81,9 +81,9 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
     protected void addChangeHandler(PropagatesChange propagatesChange) {
         registrations.add(propagatesChange.addChangeHandler(new PropagatesChange.Handler() {
             @Override
-            public void onChange(Class<?> actionType) {
+            public void onChange(Action action) {
                 if (isVisible()) {
-                    onAction(actionType);
+                    onAction(action);
                 }
             }
         }));
@@ -100,13 +100,20 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
     /**
      * When this method is called it's guaranteed that the presenter is visible.
      */
-    protected abstract void onAction(Class<?> actionType);
+    protected abstract void onAction(Action action);
 
     /**
      * When this method is called it's guaranteed that the presenter is visible.
      */
-    protected void onError(Class<?> actionType, Throwable t) {
-        Console.error("Error dispatching " + actionType.getSimpleName(), t.getMessage());
+    protected void onError(Action action, String reason) {
+        Console.error("Error handling " + action, reason);
+    }
+
+    /**
+     * When this method is called it's guaranteed that the presenter is visible.
+     */
+    protected void onError(Action action, Throwable t) {
+        Console.error("Error handling " + action, t.getMessage());
     }
 
 
@@ -133,9 +140,16 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
         }
 
         @Override
-        public void onNack(Class<?> s, Action a, Throwable t) {
+        public void onNack(Class<?> store, Action action, String reason) {
             if (isVisible()) {
-                onError(a.getClass(), t);
+                onError(action, reason);
+            }
+        }
+
+        @Override
+        public void onNack(Class<?> store, Action action, Throwable t) {
+            if (isVisible()) {
+                onError(action, t);
             }
         }
 

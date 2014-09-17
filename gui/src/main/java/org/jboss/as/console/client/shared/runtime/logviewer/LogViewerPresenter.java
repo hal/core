@@ -36,6 +36,7 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
@@ -54,7 +55,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
         void open(LogFile logFile);
 
-        void refresh(LogFile logFile, Class<?> actionType);
+        void refresh(LogFile logFile, Action action);
 
         boolean isLogFileSelected();
     }
@@ -88,20 +89,20 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
     }
 
     @Override
-    public void onAction(Class<?> actionType) {
-        if (actionType.equals(ReadLogFiles.class)) {
+    public void onAction(Action action) {
+        if (action instanceof  ReadLogFiles) {
             getView().list(logStore.getLogFiles());
 
-        } else if (actionType.equals(OpenLogFile.class)) {
+        } else if (action instanceof OpenLogFile) {
             getView().open(logStore.getActiveLogFile());
 
-        } else if (actionType.equals(NavigateInLogFile.class) ||
-                actionType.equals(ChangePageSize.class) ||
-                actionType.equals(FollowLogFile.class) ||
-                actionType.equals(UnFollowLogFile.class)) {
-            getView().refresh(logStore.getActiveLogFile(), actionType);
+        } else if (action instanceof NavigateInLogFile ||
+                action instanceof  ChangePageSize ||
+                action instanceof  FollowLogFile ||
+                action instanceof UnFollowLogFile) {
+            getView().refresh(logStore.getActiveLogFile(), action);
 
-        } else if (actionType.equals(SelectServerInstance.class)) {
+        } else if (action instanceof SelectServerInstance) {
             onReset();
         }
     }

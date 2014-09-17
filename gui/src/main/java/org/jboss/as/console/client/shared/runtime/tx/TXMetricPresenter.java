@@ -4,12 +4,12 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
@@ -27,7 +27,8 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -35,7 +36,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/3/11
  */
-public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMetricPresenter.MyProxy>
+public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView, TXMetricPresenter.MyProxy>
         implements TXMetricManagement {
 
     private DispatchAsync dispatcher;
@@ -67,9 +68,9 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
     @Inject
     public TXMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher,
+            DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
@@ -83,15 +84,15 @@ public class TXMetricPresenter extends Presenter<TXMetricPresenter.MyView, TXMet
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+        addChangeHandler(Console.MODULES.getServerStore());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onChange(Class<?> source) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                           @Override
-                           public void execute() {
-                               if(isVisible()) refresh();
-                           }
-                       });
+            public void execute() {
+                refresh();
             }
         });
     }

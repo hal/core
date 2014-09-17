@@ -3,13 +3,13 @@ package org.jboss.as.console.client.shared.runtime.tx;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -23,7 +23,8 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.circuit.PropagatesChange;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/3/11
  */
-public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresenter.MyProxy>
+public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLogPresenter.MyProxy>
 {
 
     private DispatchAsync dispatcher;
@@ -68,9 +69,9 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
     @Inject
     public TXLogPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            DispatchAsync dispatcher,
+            DispatchAsync dispatcher, Dispatcher circuit,
             ApplicationMetaData metaData, RevealStrategy revealStrategy) {
-        super(eventBus, view, proxy);
+        super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
@@ -83,16 +84,16 @@ public class TXLogPresenter extends Presenter<TXLogPresenter.MyView, TXLogPresen
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        Console.MODULES.getServerStore().addChangeHandler(new PropagatesChange.Handler() {
+        addChangeHandler(Console.MODULES.getServerStore());
+    }
+
+    @Override
+    protected void onAction(Action action) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onChange(Class<?> source) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        getView().clear();
-                        if(isVisible()) refresh();
-                    }
-                });
+            public void execute() {
+                getView().clear();
+                refresh();
             }
         });
     }

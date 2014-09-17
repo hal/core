@@ -21,7 +21,7 @@
  */
 package org.jboss.as.console.client.shared.runtime.logviewer.actions;
 
-import org.jboss.gwt.circuit.util.EmptyAction;
+import org.jboss.gwt.circuit.Action;
 
 /**
  * Read the log files of the selected server (taken
@@ -29,5 +29,5 @@ import org.jboss.gwt.circuit.util.EmptyAction;
  *
  * @author Harald Pehl
  */
-public class ReadLogFiles extends EmptyAction {
+public class ReadLogFiles implements Action {
 }
