@@ -157,7 +157,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.edu.ycp</groupId>
+            <groupId>org.jboss.as</groupId>
             <artifactId>ace-gwt</artifactId>
         </dependency>
 
