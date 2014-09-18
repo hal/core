@@ -31,7 +31,6 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -53,6 +52,7 @@ import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
+import org.jboss.as.console.client.shared.model.PerspectiveStore;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -74,6 +74,7 @@ public class Header implements ValueChangeHandler<String> {
     private final PlaceManager placeManager;
     private final Harvest harvest;
     private final Index index;
+    private final PerspectiveStore perspectiveStore;
 
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
@@ -81,7 +82,8 @@ public class Header implements ValueChangeHandler<String> {
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
-            ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index) {
+            ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index,
+            PerspectiveStore perspectiveStore) {
         this.featureSet = featureSet;
         this.toplevelTabs = toplevelTabs;
         this.messageCenter = messageCenter;
@@ -90,6 +92,7 @@ public class Header implements ValueChangeHandler<String> {
         this.placeManager = placeManager;
         this.harvest = harvest;
         this.index = index;
+        this.perspectiveStore = perspectiveStore;
         History.addValueChangeHandler(this);
     }
 
@@ -335,8 +338,13 @@ public class Header implements ValueChangeHandler<String> {
 
             widget.addClickHandler(new ClickHandler() {
                 @Override
-                public void onClick(ClickEvent event) {placeManager.revealPlace(
-                        new PlaceRequest.Builder().nameToken(tlt.getToken()).build(), tlt.isUpdateToken());
+                public void onClick(ClickEvent event) {
+                    // navigate either child directly or parent if revealed the first time
+                    String token = perspectiveStore.hasChild(tlt.getToken()) ?
+                            perspectiveStore.getChild(tlt.getToken()) : tlt.getToken();
+
+                    placeManager.revealPlace(
+                            new PlaceRequest.Builder().nameToken(token).build(), tlt.isUpdateToken());
                 }
             });
             linksPane.add(widget, id);

@@ -54,7 +54,7 @@ public class ServerMgmtApplicationPresenter extends
 
     @NoGatekeeper
     @ProxyCodeSplit
-    @NameToken(NameTokens.serverConfig)
+    @NameToken(NameTokens.ServerProfile)
     public interface ServerManagementProxy extends ProxyPlace<ServerMgmtApplicationPresenter> {}
 
     public interface ServerManagementView extends View {
@@ -72,7 +72,7 @@ public class ServerMgmtApplicationPresenter extends
             ServerManagementProxy proxy, PlaceManager placeManager, SubsystemLoader subsysStore, Header header,
             UnauthorisedPresenter unauthorisedPresenter) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.serverConfig, unauthorisedPresenter,
+        super(eventBus, view, proxy, placeManager, header, NameTokens.ServerProfile, unauthorisedPresenter,
                 TYPE_MainContent);
 
         this.placeManager = placeManager;
@@ -88,7 +88,7 @@ public class ServerMgmtApplicationPresenter extends
                 getView().updateFrom(existingSubsystems);
 
                 // chose default view if necessary
-                PlaceRequest preference = NameTokens.serverConfig
+                PlaceRequest preference = NameTokens.ServerProfile
                         .equals(placeRequest.getNameToken()) ? preferredPlace() : placeRequest;
 
                 final String[] defaultSubsystem = SubsystemMetaData

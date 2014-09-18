@@ -84,6 +84,8 @@ import org.jboss.as.console.client.shared.general.*;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
+import org.jboss.as.console.client.shared.model.PerspectiveStore;
+import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
@@ -759,7 +761,8 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(SubsystemStore.class).in(Singleton.class);
         bind(SubsystemStoreAdapter.class).in(Singleton.class);
 
-
+        bind(PerspectiveStore.class).in(Singleton.class);
+        bind(PerspectiveStoreAdapter.class).in(Singleton.class);
 
     }
 

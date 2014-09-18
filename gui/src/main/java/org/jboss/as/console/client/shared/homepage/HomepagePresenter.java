@@ -84,7 +84,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         List<InfoBox> infoBoxes = new LinkedList<InfoBox>();
 
         if (standalone) {
-            infoBoxes.add(new InfoBox(NameTokens.serverConfig, Console.CONSTANTS.common_label_configuration(),
+            infoBoxes.add(new InfoBox(NameTokens.ServerProfile, Console.CONSTANTS.common_label_configuration(),
                     Console.CONSTANTS.section_configuration_intro()));
             infoBoxes.add(new InfoBox(NameTokens.StandaloneRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));

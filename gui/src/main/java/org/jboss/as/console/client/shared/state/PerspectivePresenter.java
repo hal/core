@@ -19,16 +19,22 @@
 package org.jboss.as.console.client.shared.state;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.History;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
+import org.jboss.as.console.client.shared.model.SelectPerspective;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.gwt.circuit.Dispatcher;
+
+import java.util.List;
 
 /**
  * Base class for top level presenters like "Configuration", "Server Health" or "Administration". Meets two tasks:
@@ -49,6 +55,7 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
     private final String token;
     private final UnauthorisedPresenter unauthorisedPresenter;
     private final Object contentSlot;
+    private final Dispatcher circuit;
     private PlaceRequest lastPlace;
     private boolean hasBeenRevealed;
 
@@ -62,6 +69,7 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         this.token = token;
         this.unauthorisedPresenter = unauthorisedPresenter;
         this.contentSlot = contentSlot;
+        this.circuit = Console.MODULES.getCircuitDispatcher();
     }
 
     @Override
@@ -76,13 +84,17 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         header.highlight(token);
 
         PlaceRequest requestedPlace = placeManager.getCurrentPlaceRequest();
+
         boolean isChildRequest = !token.equals(requestedPlace.getNameToken());
 
         if (isChildRequest) {
             // remember for the next time
             lastPlace = requestedPlace;
+
+            circuit.dispatch(new SelectPerspective(token, lastPlace.getNameToken()));
         }
         else if (lastPlace != null) {
+
             // highlight navigation
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
@@ -99,6 +111,7 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
             onFirstReveal(requestedPlace, placeManager, !isChildRequest);
         }
     }
+
 
     /**
      * prepare the initial perspective. most often this does at least navigate to a default place.

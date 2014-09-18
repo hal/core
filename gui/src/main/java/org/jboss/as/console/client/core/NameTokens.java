@@ -119,9 +119,9 @@ public class NameTokens {
         return errorPage;
     }
 
-    public static final String serverConfig = "server";
-    public static String getServerConfig() {
-        return serverConfig;
+    public static final String ServerProfile = "profile";
+    public static String getServerProfile() {
+        return ServerProfile;
     }
 
     public static final String StandloneDeployments = "server-deployments";

@@ -78,6 +78,7 @@ import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
+import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
@@ -414,4 +415,6 @@ public interface CoreUI {
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
 
     SubsystemStoreAdapter getSubsystemStoreAdapter();
+
+    PerspectiveStoreAdapter getPerspectiveStoreAdapter();
 }

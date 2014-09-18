@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -87,11 +86,11 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
         tabs = new LinkedList<Config>();
         tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
-            tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "Deployments", false));
-            tabs.add(new Config(NameTokens.serverConfig, "Configuration", false));
+            tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "Deployments", true));
+            tabs.add(new Config(NameTokens.ServerProfile, "Configuration", false));
             tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
         } else {
-            tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", false));
+            tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", true));
             tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "Configuration", false));
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Domain", false));
             tabs.add(new Config(NameTokens.DomainRuntimePresenter, "Runtime", false));

@@ -21,6 +21,7 @@ public class StoreAdapterInit implements Function<BootstrapContext> {
         Console.MODULES.getWorkerStoreAdapter();
         Console.MODULES.getBatchStoreAdapter();
         Console.MODULES.getSubsystemStoreAdapter();
+        Console.MODULES.getPerspectiveStoreAdapter();
     }
 
     @Override
