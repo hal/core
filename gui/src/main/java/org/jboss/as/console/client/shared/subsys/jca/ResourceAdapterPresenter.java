@@ -869,7 +869,7 @@ public class ResourceAdapterPresenter
         ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, entity.getName());
 
-        operation.get(OP).set("flush-all-connection-in-pool");
+        operation.get(OP).set("flush-idle-connection-in-pool");
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 

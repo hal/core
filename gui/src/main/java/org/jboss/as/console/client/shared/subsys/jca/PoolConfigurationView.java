@@ -95,14 +95,14 @@ public class PoolConfigurationView {
 
         // TODO: https://issues.jboss.org/browse/AS7-3254
         if(Console.getBootstrapContext().isStandalone()) {
-            toolStrip.addToolButtonRight(
-                    new ToolButton("Flush", new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            management.onDoFlush(editedName);
-                        }
-                    })
-            );
+            ToolButton flush = new ToolButton("Flush", new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    management.onDoFlush(editedName);
+                }
+            });
+            flush.setTitle("Flush Idle Connections");
+            toolStrip.addToolButtonRight(flush);
         }
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
