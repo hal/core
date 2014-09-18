@@ -261,6 +261,10 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         if("".equals(datasource.getSecurityDomain()))
             datasource.setSecurityDomain(null);
 
+        // HAL-397
+        datasource.setCcm(true);
+        datasource.setJta(true);
+
         dataSourceStore.createDataSource(datasource, new SimpleCallback<ResponseWrapper<Boolean>>() {
 
             @Override
@@ -367,6 +371,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             updatedEntity.setPassword(null);
         if("".equals(updatedEntity.getSecurityDomain()))
             updatedEntity.setSecurityDomain(null);
+
+        updatedEntity.setCcm(true);
 
         dataSourceStore.createXADataSource(updatedEntity, new SimpleCallback<ResponseWrapper<Boolean>>() {
             @Override
