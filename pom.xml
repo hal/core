@@ -90,7 +90,7 @@
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
         <ace.version>1.0-20140820</ace.version> <!-- Carries the timestamp of the last update against https://github.com/daveho/AceGWT -->
-        <ballroom.version>2.1.0-SNAPSHOT</ballroom.version>
+        <ballroom.version>2.1.0.Final</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
