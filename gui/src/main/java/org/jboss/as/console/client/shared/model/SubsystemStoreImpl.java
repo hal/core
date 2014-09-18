@@ -24,12 +24,15 @@ import com.google.inject.Inject;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -37,7 +40,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 3/18/11
  */
-public class SubsystemStoreImpl implements SubsystemStore {
+public class SubsystemStoreImpl implements SubsystemLoader {
 
     private DispatchAsync dispatcher;
     private BeanFactory factory;
@@ -55,17 +58,34 @@ public class SubsystemStoreImpl implements SubsystemStore {
 
         assert profileName!=null && !profileName.equals("") : "Illegal profile name: "+profileName;
 
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
-        operation.get(CHILD_TYPE).set("subsystem");
-        operation.get(ADDRESS).setEmptyList();
+        ModelNode extensionOp = new ModelNode();
+        extensionOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        extensionOp.get(CHILD_TYPE).set("extension");
+        extensionOp.get(RECURSIVE).set(true);
+        extensionOp.get(ADDRESS).setEmptyList();
+
+        ModelNode subsysOp = new ModelNode();
+        subsysOp.get(OP).set(READ_CHILDREN_NAMES_OPERATION);
+        subsysOp.get(CHILD_TYPE).set("subsystem");
+        subsysOp.get(ADDRESS).setEmptyList();
 
         if(bootstrap.getProperty(ApplicationProperties.STANDALONE).equals("false"))
         {
-            operation.get(ADDRESS).add("profile", profileName);
+            subsysOp.get(ADDRESS).add("profile", profileName);
         }
 
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+
+        ModelNode composite = new ModelNode();
+        composite.get(OP).set(COMPOSITE);
+        composite.get(ADDRESS).setEmptyList();
+
+        List<ModelNode> steps = new ArrayList<>();
+        steps.add(extensionOp);
+        steps.add(subsysOp);
+
+        composite.get(STEPS).set(steps);
+
+        dispatcher.execute(new DMRAction(composite), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
                 callback.onFailure(caught);
@@ -83,17 +103,44 @@ public class SubsystemStoreImpl implements SubsystemStore {
                 }
                 else
                 {
-                    List<ModelNode> payload = response.get("result").asList();
+                    Map<String, int[]> extensionMap = new HashMap<String, int[]>();
 
-                    List<SubsystemRecord> records = new ArrayList<SubsystemRecord>(payload.size());
-                    for(int i=0; i<payload.size(); i++)
+                    ModelNode extensionResult = response.get(RESULT).get("step-1").get(RESULT);
+
+                    List<Property> extensions = extensionResult.asPropertyList();
+                    for (Property extension : extensions) {
+                        List<Property> subsystems = extension.getValue().get("subsystem").asPropertyList();
+                        for (Property subsystem : subsystems) {
+                            String subsystemName = subsystem.getName();
+                            ModelNode value = subsystem.getValue();
+                            int major = value.get("management-major-version").asInt();
+                            int minor = value.get("management-minor-version").asInt();
+                            int micro = value.get("management-micro-version").asInt();
+
+                            extensionMap.put(subsystemName, new int[] {major, minor, micro});
+                        }
+                    }
+
+                    ModelNode subsystemResult = response.get(RESULT).get("step-2").get(RESULT);
+                    List<ModelNode> subsystems = subsystemResult.asList();
+                    List<SubsystemRecord> records = new ArrayList<SubsystemRecord>(subsystems.size());
+                    for(int i=0; i<subsystems.size(); i++)
                     {
+                        ModelNode model = subsystems.get(i);
+                        String subsystemName = model.asString();
+                        int[] version = extensionMap.get(subsystemName);
+
                         SubsystemRecord record = factory.subsystem().as();
-                        record.setKey(payload.get(i).asString());
+                        record.setKey(subsystemName);
+                        record.setMajor(version[0]);
+                        record.setMinor(version[1]);
+                        record.setMicro(version[2]);
                         records.add(record);
                     }
 
                     callback.onSuccess(records);
+
+
                 }
             }
         });

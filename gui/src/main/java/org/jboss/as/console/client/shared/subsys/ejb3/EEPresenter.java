@@ -74,6 +74,7 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         void setExecutor(List<Property> data);
         void setScheduledExecutor(List<Property> data);
         void setBindings(ModelNode data);
+        boolean isLegacyView();
     }
 
     @Inject
@@ -88,7 +89,6 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
-
         this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
 
@@ -191,12 +191,15 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
 
                     globalModules = failSafeGetCollection(data.get("global-modules"));
                     getView().setModules(globalModules);
-                    getView().setContextServices(failSafeGetProperties(data.get("context-service")));
-                    getView().setExecutor(failSafeGetProperties(data.get("managed-executor-service")));
-                    getView().setScheduledExecutor(failSafeGetProperties(data.get("managed-scheduled-executor-service")));
-                    getView().setThreadFactories(failSafeGetProperties(data.get("managed-thread-factory")));
-                    getView().setBindings(data.get("service").get("default-bindings").asObject());
                     getView().updateFrom(data);
+
+                    if(!getView().isLegacyView()) {
+                        getView().setContextServices(failSafeGetProperties(data.get("context-service")));
+                        getView().setExecutor(failSafeGetProperties(data.get("managed-executor-service")));
+                        getView().setScheduledExecutor(failSafeGetProperties(data.get("managed-scheduled-executor-service")));
+                        getView().setThreadFactories(failSafeGetProperties(data.get("managed-thread-factory")));
+                        getView().setBindings(data.get("service").get("default-bindings").asObject());
+                    }
                 }
             }
         });

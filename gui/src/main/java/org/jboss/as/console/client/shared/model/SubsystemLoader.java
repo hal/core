@@ -19,21 +19,20 @@
 
 package org.jboss.as.console.client.shared.model;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.List;
+
 /**
  * @author Heiko Braun
- * @date 2/11/11
+ * @date 2/15/11
  */
-public interface SubsystemRecord {
+public interface SubsystemLoader {
 
-    String getKey();
-    void setKey(String title);
-
-    Integer getMajor();
-    void setMajor(Integer i);
-
-    Integer getMinor();
-    void setMinor(Integer i);
-
-    Integer getMicro();
-    void setMicro(Integer i);
+    /**
+     * load subsystems for specific profile
+     * @param profileName
+     * @return
+     */
+    void loadSubsystems(String profileName, AsyncCallback<List<SubsystemRecord>> callback);
 }

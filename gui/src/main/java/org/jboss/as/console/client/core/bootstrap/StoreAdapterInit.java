@@ -20,6 +20,7 @@ public class StoreAdapterInit implements Function<BootstrapContext> {
         Console.MODULES.getBufferPoolStoreAdapter();
         Console.MODULES.getWorkerStoreAdapter();
         Console.MODULES.getBatchStoreAdapter();
+        Console.MODULES.getSubsystemStoreAdapter();
     }
 
     @Override

@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
@@ -23,13 +25,13 @@ public class EESubsystemView extends SuspendableViewImpl implements EEPresenter.
     private EEServicesView servicesView;
     private BindingsView bindingsView;
 
+    ProductConfig productConfig = GWT.create(ProductConfig.class);
+
     @Override
     public Widget createWidget() {
 
         moduleView = new EEModulesView(presenter);
         attributesView = new EEGlobalAttributesView(presenter);
-        bindingsView = new BindingsView(presenter);
-        servicesView = new EEServicesView(presenter);
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
@@ -39,15 +41,30 @@ public class EESubsystemView extends SuspendableViewImpl implements EEPresenter.
                 .setHeadline("Global EE Settings")
                 .setDescription(Console.CONSTANTS.subsys_ee_desc())
                 .addDetail("Deployments", attributesView.asWidget())
-                .addDetail("Default Bindings", bindingsView.asWidget())
                 .addDetail("Global Modules", moduleView.asWidget());
 
+        if(!isLegacyView()) {
+            bindingsView = new BindingsView(presenter);
+            layout.addDetail("Default Bindings", bindingsView.asWidget());
+        }
+
         tabLayoutpanel.add(layout.build(), "EE Subsystem", true);
-        tabLayoutpanel.add(servicesView.asWidget(), "Services", true);
+
+        if(!isLegacyView()) {
+            servicesView = new EEServicesView(presenter);
+            tabLayoutpanel.add(servicesView.asWidget(), "Services", true);
+        }
 
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;
+    }
+
+    // see  https://issues.jboss.org/browse/HAL-491
+    // This can be removed as soon as the EE subsystem is uptodate in both branches
+    public boolean isLegacyView() {
+        return !productConfig.getProfile().equals(ProductConfig.Profile.COMMUNITY)
+                || productConfig.getProductName().equals("EAP");
     }
 
     @Override

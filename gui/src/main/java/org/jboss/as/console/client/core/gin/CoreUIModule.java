@@ -84,7 +84,9 @@ import org.jboss.as.console.client.shared.general.*;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
+import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
+import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
@@ -392,7 +394,7 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ServerGroupPresenter.MyProxy.class);
 
         bind(ProfileStore.class).to(ProfileStoreImpl.class).in(Singleton.class);
-        bind(SubsystemStore.class).to(SubsystemStoreImpl.class).in(Singleton.class);
+        bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);
         bind(ServerGroupStore.class).to(ServerGroupStoreImpl.class).in(Singleton.class);
         bind(HostInformationStore.class).to(HostInfoStoreImpl.class).in(Singleton.class);
 
@@ -753,6 +755,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 UndertowPresenter.MyView.class,
                 UndertowView.class,
                 UndertowPresenter.MyProxy.class);
+
+        bind(SubsystemStore.class).in(Singleton.class);
+        bind(SubsystemStoreAdapter.class).in(Singleton.class);
+
 
 
     }

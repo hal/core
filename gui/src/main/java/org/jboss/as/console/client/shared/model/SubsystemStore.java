@@ -1,38 +1,70 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
- * as indicated by the @author tags. All rights reserved.
- * See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU Lesser General Public License, v. 2.1.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public License,
- * v.2.1 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA  02110-1301, USA.
- */
-
 package org.jboss.as.console.client.shared.model;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.gwt.circuit.ChangeSupport;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.meta.Process;
+import org.jboss.gwt.circuit.meta.Store;
 
+import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Heiko Braun
- * @date 2/15/11
+ * @since 18/09/14
  */
-public interface SubsystemStore {
 
-    /**
-     * load subsystems for specific profile
-     * @param profileName
-     * @return
-     */
-    void loadSubsystems(String profileName, AsyncCallback<List<SubsystemRecord>> callback);
+@Store
+public class SubsystemStore extends ChangeSupport {
+
+    private final SubsystemLoader subsystemLoader;
+
+    private Map<String, List<SubsystemRecord>> profileMap = new HashMap<>();
+
+    @Inject
+    public SubsystemStore(SubsystemLoader subsystemLoader) {
+        this.subsystemLoader = subsystemLoader;
+    }
+
+    @Process(actionType = LoadProfile.class)
+    public void onLoadProfile(final String profile, final Dispatcher.Channel channel) {
+
+
+        if(profileMap.containsKey(profile))
+        {
+            // return cached data
+            channel.ack();
+        }
+        else {
+
+            // load data and cache
+            subsystemLoader.loadSubsystems(profile, new AsyncCallback<List<SubsystemRecord>>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    channel.nack(caught);
+                }
+
+                @Override
+                public void onSuccess(List<SubsystemRecord> result) {
+                    profileMap.put(profile, result);
+                    channel.ack(true);
+                }
+            });
+        }
+    }
+
+    // -----------------------------------------
+    // data access
+
+    public List<SubsystemRecord> getSubsystems(String profile) {
+
+        List<SubsystemRecord> subsystemRecords = profileMap.get(profile);
+
+        if(null==subsystemRecords)
+            throw new IllegalArgumentException("No subsystems for profile "+profile);
+
+        return subsystemRecords;
+    }
 }

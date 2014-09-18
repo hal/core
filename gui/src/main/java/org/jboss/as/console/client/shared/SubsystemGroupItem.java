@@ -19,9 +19,6 @@
 
 package org.jboss.as.console.client.shared;
 
-import com.google.gwt.resources.client.ImageResource;
-import org.jboss.ballroom.client.widgets.icons.Icons;
-
 /**
  * @author Heiko Braun
  * @author David Bosschaert
@@ -30,41 +27,32 @@ import org.jboss.ballroom.client.widgets.icons.Icons;
 public class SubsystemGroupItem {
 
     private String name;
-    private ImageResource icon;
     private String key;
     private String presenter;
+    private final int major;
+    private final int minor;
+    private final int micro;
     private boolean disabled = false;
 
-    public SubsystemGroupItem(String name, String key, boolean disabled) {
-        this(name, Icons.INSTANCE.noIcon(), key);
-        this.disabled = disabled;
-    }
-
     public SubsystemGroupItem(String name, String key) {
-        this(name, Icons.INSTANCE.noIcon(), key);
+        this(name, key, key.toLowerCase().replace(" ", "_"));
     }
 
     public SubsystemGroupItem(String name, String key, String presenter) {
-        this(name, Icons.INSTANCE.noIcon(), key, presenter);
+        this(name, key, presenter, 0, 0, 0);
     }
 
-    public SubsystemGroupItem(String name, ImageResource icon, String key) {
-        this(name, icon, key, key.toLowerCase().replace(" ", "_"));
-    }
-
-    public SubsystemGroupItem(String name, ImageResource icon, String key, String presenter) {
+    public SubsystemGroupItem(String name, String key, String presenter, int major, int minor, int micro) {
         this.name = name;
-        this.icon = icon;
         this.key = key;
         this.presenter = presenter;
+        this.major = major;
+        this.minor = minor;
+        this.micro = micro;
     }
 
     public String getName() {
         return name;
-    }
-
-    public ImageResource getIcon() {
-        return icon;
     }
 
     public String getKey() {
@@ -77,5 +65,17 @@ public class SubsystemGroupItem {
 
     public boolean isDisabled() {
         return disabled;
+    }
+
+    public int getMajor() {
+        return major;
+    }
+
+    public int getMinor() {
+        return minor;
+    }
+
+    public int getMicro() {
+        return micro;
     }
 }

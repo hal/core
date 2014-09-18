@@ -20,8 +20,8 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
+import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 
 import java.util.List;
@@ -45,11 +45,11 @@ public class StandaloneRuntimePresenter
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
-    private final SubsystemStore subsysStore;
+    private final SubsystemLoader subsysStore;
 
     @Inject
     public StandaloneRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            SubsystemStore subsysStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
+            SubsystemLoader subsysStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneRuntimePresenter, unauthorisedPresenter,
                 TYPE_MainContent);

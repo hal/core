@@ -23,8 +23,8 @@ import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
+import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
@@ -68,12 +68,12 @@ public class DomainRuntimePresenter
     private final HostStore hostStore;
     private final PlaceManager placeManager;
 
-    private final SubsystemStore subsysStore;
+    private final SubsystemLoader subsysStore;
     private final ServerGroupStore serverGroupStore;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            HostStore hostStore, SubsystemStore subsysStore,
+            HostStore hostStore, SubsystemLoader subsysStore,
             ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
             Dispatcher circuit, ServerStore serverStore) {
 

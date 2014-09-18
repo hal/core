@@ -78,7 +78,9 @@ import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
+import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
+import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
@@ -256,7 +258,7 @@ public interface CoreUI {
     AsyncProvider<ServerGroupPresenter> getServerGroupsPresenter();
 
     ProfileStore getProfileStore();
-    SubsystemStore getSubsystemStore();
+    SubsystemLoader getSubsystemStore();
     ServerGroupStore getServerGroupStore();
     HostInformationStore getHostInfoStore();
 
@@ -410,4 +412,6 @@ public interface CoreUI {
     AsyncProvider<HttpPresenter> getHttpPresenter();
     AsyncProvider<ServletPresenter> getServletPresenter();
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
+
+    SubsystemStoreAdapter getSubsystemStoreAdapter();
 }

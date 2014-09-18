@@ -85,11 +85,19 @@ public class SubsystemTreeBuilder {
 
                         final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
                         link.setKey(candidate.getKey());
+                        link.getElement().setAttribute("title", candidate.getName()+" "+
+                                actual.getMajor()+"."+
+                                actual.getMinor()+"."+
+                                actual.getMicro());
 
-                        groupTreeItem.addItem(link);
+                        if(compatibleVersion(actual, candidate)) {
+                            groupTreeItem.addItem(link);
+                        }
+
                     }
                 }
             }
+
 
             // skip empty groups
             if(groupTreeItem.getChildCount()>0)
@@ -111,6 +119,12 @@ public class SubsystemTreeBuilder {
         }
     }
 
+    private static boolean compatibleVersion(SubsystemRecord actual, SubsystemExtensionMetaData candidate) {
+        Float f1 = Float.valueOf(actual.getMajor()+"."+actual.getMinor()+actual.getMicro());
+        Float f2 = Float.valueOf(candidate.getMajor()+"."+candidate.getMinor()+candidate.getMicro());
+        return f1>=f2;
+    }
+
 
     private static void displaySubsystemHelp(HasTreeItems subsysTree) {
         PopupPanel help = new PopupPanel();
@@ -127,4 +141,5 @@ public class SubsystemTreeBuilder {
         help.show();
 
     }
+
 }

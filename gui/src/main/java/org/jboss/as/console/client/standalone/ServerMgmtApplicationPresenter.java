@@ -38,8 +38,8 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
+import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 
 import java.util.List;
@@ -65,11 +65,11 @@ public class ServerMgmtApplicationPresenter extends
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
     private PlaceManager placeManager;
-    private SubsystemStore subsysStore;
+    private SubsystemLoader subsysStore;
 
     @Inject
     public ServerMgmtApplicationPresenter(EventBus eventBus, ServerManagementView view,
-            ServerManagementProxy proxy, PlaceManager placeManager, SubsystemStore subsysStore, Header header,
+            ServerManagementProxy proxy, PlaceManager placeManager, SubsystemLoader subsysStore, Header header,
             UnauthorisedPresenter unauthorisedPresenter) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.serverConfig, unauthorisedPresenter,

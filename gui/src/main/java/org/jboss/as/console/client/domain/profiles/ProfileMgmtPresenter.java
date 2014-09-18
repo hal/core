@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
@@ -30,10 +29,10 @@ import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -44,9 +43,13 @@ import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
+import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.gwt.circuit.Action;
+import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
 
@@ -76,11 +79,12 @@ public class ProfileMgmtPresenter
     private final PlaceManager placeManager;
     private ProfileStore profileStore;
     private CurrentProfileSelection profileSelection;
+    private final Dispatcher circuit;
 
     @Inject
     public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
-            Header header, UnauthorisedPresenter unauthorisedPresenter) {
+            Header header, UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.ProfileMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -89,12 +93,24 @@ public class ProfileMgmtPresenter
         this.profileStore = profileStore;
         this.subsysStore = subsysStore;
         this.profileSelection = currentProfileSelection;
+        this.circuit = circuit;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
+        subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Action action) {
+                List<SubsystemRecord> subsystems = subsysStore.getSubsystems(profileSelection.getName());
+                getView().setSubsystems(subsystems);
+
+                // prefer to reveal the last place, if exists in selected profile
+                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
+                revealDefaultSubsystem(preference, subsystems);
+            }
+        });
     }
 
     @Override
@@ -105,21 +121,11 @@ public class ProfileMgmtPresenter
                 loadProfiles();
             }
         });
-        if(revealDefault)
-        {
-            subsysStore.loadSubsystems(profileSelection.getName(), new SimpleCallback<List<SubsystemRecord>>() {
-                @Override
-                public void onSuccess(List<SubsystemRecord> existingSubsystems) {
-                    revealDefaultSubsystem(preferredPlace(), existingSubsystems);
-                }
-            });
-        }
     }
 
     private void revealDefaultSubsystem(PlaceRequest preference, List<SubsystemRecord> existingSubsystems) {
         final String[] defaultSubsystem = SubsystemMetaData
                 .getDefaultSubsystem(preference.getNameToken(), existingSubsystems);
-        Log.debug("reveal default subsystem : pref " + preference + "; chosen " + defaultSubsystem[1]);
         placeManager.revealPlace(new PlaceRequest.Builder().nameToken(defaultSubsystem[1]).build());
     }
 
@@ -155,9 +161,10 @@ public class ProfileMgmtPresenter
         assert profileName!=null && !profileName.equals("") : "illegal profile name: "+profileName;
         if(!isVisible()) return;
 
-        Log.debug("onProfileSelection: "+profileName + "/ "+placeManager.getCurrentPlaceRequest().getNameToken());
         profileSelection.setName(profileName);
-        subsysStore.loadSubsystems(profileName, new SimpleCallback<List<SubsystemRecord>>() {
+
+        circuit.dispatch(new LoadProfile(profileName));
+        /*subsysStore.loadSubsystems(profileName, new SimpleCallback<List<SubsystemRecord>>() {
             @Override
             public void onSuccess(List<SubsystemRecord> result) {
                 getView().setSubsystems(result);
@@ -166,7 +173,7 @@ public class ProfileMgmtPresenter
                 PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
                 revealDefaultSubsystem(preference, result);
             }
-        });
+        });*/
     }
 
     private PlaceRequest preferredPlace() {
