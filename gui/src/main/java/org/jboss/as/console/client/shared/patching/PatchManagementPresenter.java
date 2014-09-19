@@ -118,7 +118,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     @Inject
     public PatchManagementPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
                                     final RevealStrategy revealStrategy, final PatchManager patchManager,
-                                    final Dispatcher circuit,final HostStore hostStore,
+                                    final Dispatcher circuit, final HostStore hostStore,
                                     final BootstrapContext bootstrapContext, final DispatchAsync dispatcher,
                                     final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
 
@@ -204,10 +204,8 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
 
         if (bootstrapContext.isStandalone()) {
             contextCallback
-                    .onSuccess(new ApplyContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
-                            bootstrapContext.getProperty(
-                                    BootstrapContext.PATCH_API)
-                    ));
+                    .onSuccess(new ApplyContext(true, Patches.STANDALONE_HOST, Collections.<String>emptyList(),
+                            patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
         } else {
             final String host = hostStore.getSelectedHost();
             dispatcher
@@ -246,10 +244,8 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
 
         if (bootstrapContext.isStandalone()) {
             contextCallback
-                    .onSuccess(
-                            new RollbackContext(true, null, Collections.<String>emptyList(), patchManager.baseAddress(),
-                                    patchInfo)
-                    );
+                    .onSuccess(new RollbackContext(true, Patches.STANDALONE_HOST, Collections.<String>emptyList(),
+                            patchManager.baseAddress(), patchInfo));
         } else {
             final String host = hostStore.getSelectedHost();
             dispatcher
