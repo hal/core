@@ -2,6 +2,9 @@ package org.jboss.as.console.client.shared.runtime.charts;
 
 import com.google.gwt.core.client.JsArrayNumber;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -35,7 +38,6 @@ public class BulletGraphView implements Sampler {
     private Column[] columns;
     private int ROW_OFFSET = 1;
 
-    private ProtovisWidget graphWidget;
     private HorizontalPanel container;
     private PVPanel vis = null;
     private Grid grid;
@@ -137,9 +139,9 @@ public class BulletGraphView implements Sampler {
 
         container.add(grid);
 
-        graphWidget = new ProtovisWidget();
+        ProtovisWidget graphWidget = new ProtovisWidget();
         graphWidget.initPVPanel();
-        vis = createVisualization();
+        vis = createVisualization(graphWidget);
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
@@ -153,6 +155,7 @@ public class BulletGraphView implements Sampler {
         graphWidget.getElement().getParentElement().setAttribute("width", "80%");
 
         desc.add(container);
+
         return desc;
     }
 
@@ -276,16 +279,21 @@ public class BulletGraphView implements Sampler {
 
     /* bullet graph specs */
 
-    private PVPanel createVisualization() {
+    private PVPanel createVisualization(final ProtovisWidget graphWidget) {
 
-        PVPanel vis = graphWidget.getPVPanel().width(400).height(30)
-                .margin(20).left(120).top(new JsDoubleFunction() {
-                    public double f(JsArgs args) {
-                        PVMark _this = args.getThis();
-                        return 10 + _this.index() * 60;
-                    }
-                });
-
+        final PVPanel vis = graphWidget.getPVPanel()
+                .width(400)
+                .height(30)
+                .margin(20)
+                .left(100)  // translate(_,y)
+                .top(
+                        new JsDoubleFunction() {
+                            public double f(JsArgs args) {
+                                PVMark _this = args.getThis();
+                                return 10 + _this.index() * 60; // translate(x,_)
+                            }
+                        }
+                );
 
         PVBulletLayout bullet = vis.add(PV.Layout.Bullet()).orient(LEFT)
                 .ranges(new JsFunction<JsArrayNumber>() {
@@ -306,14 +314,33 @@ public class BulletGraphView implements Sampler {
                 });
 
 
+        // workaround for right hand side labels
+        graphWidget.addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent event) {
+                Element svg = graphWidget.getElement().getFirstChildElement();
+                if(svg!=null)
+                {
+                    svg.setAttribute("overflow", "visible");
+                }
 
-        bullet.range().add(PV.Bar).fillStyle("#CFCFCF");
+            }
+        });
+
+        bullet.strokeStyle("#CFCFCF");
+        bullet.lineWidth(0.9);
+
+        bullet.range().add(PV.Bar).fillStyle("#ffffff");
         bullet.measure().add(PV.Bar).fillStyle("#666666");
 
         bullet.marker().add(PV.Dot).shape(PVShape.TRIANGLE).fillStyle("white");
-        bullet.tick().add(PV.Rule).anchor(BOTTOM).add(PV.Label)
+        bullet.tick().add(PV.Rule)
+                .strokeStyle("#CFCFCF")
+                .anchor(BOTTOM)
+                .add(PV.Label)
                 .text(bullet.x().tickFormat());
 
+        // title
         bullet.anchor(LEFT).add(PV.Label).font("12px sans-serif")
                 .textAlign(RIGHT).textBaseline(BOTTOM)
                 .text(new JsStringFunction() {
@@ -323,6 +350,7 @@ public class BulletGraphView implements Sampler {
                     }
                 });
 
+        // subtitle
         bullet.anchor(LEFT).add(PV.Label).textStyle("#616161").textAlign(RIGHT)
                 .textBaseline(TOP).text(new JsStringFunction() {
             public String f(JsArgs args) {
@@ -330,6 +358,21 @@ public class BulletGraphView implements Sampler {
                 return d.subtitle;
             }
         });
+
+        // scale
+        bullet.anchor(RIGHT)
+                .add(PV.Label)
+                .textStyle("#616161")
+                .textAlign(LEFT)
+                .textBaseline(MIDDLE)
+                .text(new JsStringFunction() {
+                    public String f(JsArgs args) {
+                        Bullet d = args.getObject(0);
+                        double measures = d.measures[0];
+                        return measures > 0.00 ? String.valueOf(Double.valueOf(d.ranges[0]).longValue()) : "";
+                    }
+                });
+
 
         return vis;
     }
