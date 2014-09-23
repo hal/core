@@ -144,7 +144,7 @@ public class RoleAssignmentPresenter
                         Log.error(details, context.getError());
                         if (context.isForbidden()) {
                             message = Console.CONSTANTS.unauthorized();
-                            details = Console.CONSTANTS.unauthorized_desc();
+                            details = Console.CONSTANTS.forbidden_desc();
                         }
                     }
                     Console.error(message, details);
