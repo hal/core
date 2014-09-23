@@ -37,14 +37,15 @@ public class CSPView extends SuspendableViewImpl implements CSPPresenter.MyView 
 
     @Override
     public Widget createWidget() {
-        tabs = new TabLayoutPanel(40, Style.Unit.PX);
+        String cspUrl = bootstrapContext.getProperty(ApplicationProperties.CSP_API);
+        /*tabs = new TabLayoutPanel(40, Style.Unit.PX);
         tabs.setStyleName("default-tabpanel");
 
-        String cspUrl = bootstrapContext.getProperty(ApplicationProperties.CSP_API);
+
         searchFrame = new Frame(cspUrl + "/search.html");
         searchFrame.getElement().setAttribute("style", "margin-top:10px");
         searchFrame.setWidth("100%");
-        searchFrame.setHeight("100%");
+        searchFrame.setHeight("100%");*/
 
         /*searchFrame.addLoadHandler(new LoadHandler() {
             @Override
@@ -53,17 +54,17 @@ public class CSPView extends SuspendableViewImpl implements CSPPresenter.MyView 
             }
         });*/
 
-        supportFrame = new Frame(cspUrl + "/support.html");
+        supportFrame = new Frame(cspUrl + "/customer.html");
         supportFrame.getElement().setAttribute("style", "margin-top:10px");
         supportFrame.setWidth("100%");
         supportFrame.setHeight("100%");
 
 
-        tabs.add(searchFrame, "Knowledge Base");
+        /*tabs.add(searchFrame, "Knowledge Base");
         tabs.add(supportFrame, "Support Tickets");
-        tabs.selectTab(0);
+        tabs.selectTab(0);*/
 
-        return tabs;
+        return supportFrame;
     }
 
 
