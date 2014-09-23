@@ -22,7 +22,10 @@ public class TwoColumnLayout {
         this.westPanel = west;
 
         westPanel.getElement().setAttribute("role", "navigation");
+        westPanel.getElement().setId("content-west");
         centerPanel.getElement().setAttribute("role", "main");
+        centerPanel.getElement().setId("content-center");
+
     }
 
     public Widget asWidget() {
