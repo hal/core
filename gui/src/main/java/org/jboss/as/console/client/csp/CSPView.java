@@ -4,6 +4,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -64,7 +65,12 @@ public class CSPView extends SuspendableViewImpl implements CSPPresenter.MyView 
         tabs.add(supportFrame, "Support Tickets");
         tabs.selectTab(0);*/
 
-        return supportFrame;
+        LayoutPanel layout = new LayoutPanel();
+        layout.setStyleName("fill-layout");
+        layout.add(supportFrame);
+        layout.setWidgetTopHeight(supportFrame, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+        layout.setWidgetLeftWidth(supportFrame, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+        return layout;
     }
 
 
