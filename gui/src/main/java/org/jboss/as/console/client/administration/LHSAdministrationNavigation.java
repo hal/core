@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.ballroom.client.layout.LHSNavTree;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.layout.LHSTreeSection;
 
 /**
  * @author Harald Pehl
@@ -35,43 +34,39 @@ class LHSAdministrationNavigation {
     private ScrollPanel scroll;
 
     public LHSAdministrationNavigation() {
-
-
-
 //        LHSNavTreeItem auditLogItem = new LHSNavTreeItem("Audit Log", NameTokens.AuditLogPresenter);
 //        accessLeaf.addItem(auditLogItem);
 
-        LHSNavTree patchingTree = new LHSNavTree("Patching");
+        // access control
+        HTML accessControlLabel = new HTML("Access Control");
+        accessControlLabel.setStyleName("server-picker-section-header");
+
+        LHSNavTree accessControlTree = new LHSNavTree("access-control");
+        accessControlTree.getElement().setAttribute("aria-label", "Access Control");
+        accessControlTree.expandTopLevel();
+        accessControlTree.addItem(new LHSNavTreeItem("Authorization", NameTokens.AuthorizationPresenter));
+        accessControlTree.addItem(new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter));
+
+        // patching
+        HTML patchingLabel = new HTML("Patching");
+        patchingLabel.setStyleName("server-picker-section-header");
+
+        LHSNavTree patchingTree = new LHSNavTree("patching");
+        patchingTree.getElement().setAttribute("aria-label", "Patching");
         patchingTree.addItem(new LHSNavTreeItem("Patch Management", NameTokens.PatchingPresenter));
 
-        LHSNavTree accessTree = new LHSNavTree("administration");
-        accessTree.getElement().setAttribute("aria-label", "Administration");
-        accessTree.expandTopLevel();
-
-        LHSNavTreeItem authItem = new LHSNavTreeItem("Role Assignment", NameTokens.RoleAssignmentPresenter);
-        accessTree.addItem(authItem);
-
+        // put together
         VerticalPanel stack = new VerticalPanel();
         stack.setStyleName("fill-layout-width");
         stack.getElement().getStyle().setBackgroundColor("#ffffff");
-
-        HTML accessTitle = new HTML("Access Control");
-        accessTitle.setStyleName("server-picker-section-header");
-
-        stack.add(accessTitle);
-        stack.add(accessTree);
-
-
-        HTML patchingTitle = new HTML("Patching");
-        patchingTitle.setStyleName("server-picker-section-header");
-
-        stack.add(patchingTitle);
+        stack.add(accessControlLabel);
+        stack.add(accessControlTree);
+        stack.add(patchingLabel);
         stack.add(patchingTree);
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
         layout.add(stack);
-
         scroll = new ScrollPanel(layout);
     }
 

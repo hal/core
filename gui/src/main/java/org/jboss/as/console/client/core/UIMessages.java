@@ -205,8 +205,6 @@ public interface UIMessages extends Messages {
 
     String administration_members(String name);
 
-    SafeHtml access_control_provider();
-
     String deployment_assign_help();
 
     String no_groups_header();
@@ -258,4 +256,8 @@ public interface UIMessages extends Messages {
     SafeHtml search_index_pending();
 
     String patch_manager_restart_verify(String host);
+
+    SafeHtml administration_authorization_desc();
+
+    SafeHtml no_admin_roles();
 }

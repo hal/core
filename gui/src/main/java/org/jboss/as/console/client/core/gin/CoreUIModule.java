@@ -36,6 +36,8 @@ import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.AdministrationView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogView;
+import org.jboss.as.console.client.administration.authorization.AuthorizationPresenter;
+import org.jboss.as.console.client.administration.authorization.AuthorizationView;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.ui.RoleAssignementView;
 import org.jboss.as.console.client.analytics.AnalyticsProvider;
@@ -84,12 +86,7 @@ import org.jboss.as.console.client.shared.general.*;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
-import org.jboss.as.console.client.shared.model.PerspectiveStore;
-import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
-import org.jboss.as.console.client.shared.model.SubsystemLoader;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
-import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
+import org.jboss.as.console.client.shared.model.*;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementView;
@@ -671,6 +668,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 AdministrationPresenter.MyView.class,
                 AdministrationView.class,
                 AdministrationPresenter.MyProxy.class);
+        bindPresenter(AuthorizationPresenter.class,
+                AuthorizationPresenter.MyView.class,
+                AuthorizationView.class,
+                AuthorizationPresenter.MyProxy.class);
         bindPresenter(RoleAssignmentPresenter.class,
                 RoleAssignmentPresenter.MyView.class,
                 RoleAssignementView.class,

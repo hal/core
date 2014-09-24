@@ -30,6 +30,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
+import org.jboss.as.console.client.administration.authorization.AuthorizationPresenter;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
@@ -80,7 +81,6 @@ import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
@@ -367,6 +367,7 @@ public interface CoreUI {
 
     // Administration
     AsyncProvider<AdministrationPresenter> getAdministrationPresenter();
+    AsyncProvider<AuthorizationPresenter> getAuthorizationPresenter();
     AsyncProvider<RoleAssignmentPresenter> getRoleAssignmentPresenter();
     AsyncProvider<AuditLogPresenter> getAuditLogPresenter();
 

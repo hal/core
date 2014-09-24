@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.layout;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -25,7 +27,7 @@ public class OneToOneLayout {
 
     private String title = "TITLE";
     private String headline = "HEADLINE";
-    private String description = "DESCRIPTION";
+    private SafeHtml description = null;
 
     private Widget toolStrip = null;
 
@@ -85,7 +87,13 @@ public class OneToOneLayout {
         return this;
     }
 
+    @Deprecated
     public OneToOneLayout setDescription(String description) {
+        this.description = new SafeHtmlBuilder().appendHtmlConstant(description).toSafeHtml();
+        return this;
+    }
+
+    public OneToOneLayout setDescription(SafeHtml description) {
         this.description = description;
         return this;
     }
@@ -142,7 +150,10 @@ public class OneToOneLayout {
             panel.add(headlineWidget);
         }
 
-        panel.add(new ContentDescription(description));
+        if(null==description)
+            panel.add(new ContentDescription("DESCRIPTION"));
+        else
+            panel.add(new ContentDescription(description.asString()));
 
         if(master!=null)
         {

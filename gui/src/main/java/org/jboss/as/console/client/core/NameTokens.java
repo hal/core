@@ -202,6 +202,11 @@ public class NameTokens {
         return AdministrationPresenter;
     }
 
+    public static final String AuthorizationPresenter = "authorization";
+    public static String getAuthorizationPresenter() {
+        return AuthorizationPresenter;
+    }
+
     public static final String RoleAssignmentPresenter = "role-assignment";
     public static String getRoleAssignmentPresenter() {
         return RoleAssignmentPresenter;

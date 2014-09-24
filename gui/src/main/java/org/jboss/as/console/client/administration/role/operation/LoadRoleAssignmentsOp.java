@@ -68,7 +68,6 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
     public final static String ROLES = "LoadRoleAssignmentsOp.roles";
     public final static String HOSTS = "LoadRoleAssignmentsOp.hosts";
     public final static String SERVER_GROUPS = "LoadRoleAssignmentsOp.serverGroups";
-    public final static String ACCESS_CONTROL_PROVIDER = "LoadRoleAssignmentsOp.accessControlProvider";
     private final RoleAssignmentPresenter presenter;
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
@@ -132,14 +131,6 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
             mappingOp.get("recursive-depth").set("2");
             steps.add(mappingOp);
 
-            if (!presenter.isInitialized()) {
-                ModelNode accessControlProviderOp = new ModelNode();
-                accessControlProviderOp.get(ADDRESS).add("core-service", "management").add("access", "authorization");
-                accessControlProviderOp.get(OP).set(READ_ATTRIBUTE_OPERATION);
-                accessControlProviderOp.get(NAME).set("provider");
-                steps.add(accessControlProviderOp);
-            }
-
             operation.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
                 @Override
@@ -187,16 +178,6 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
                         // All entities are read - now transform the role assignments from the management model to
                         // role assignments used in the UI
                         assignments.toUI(principals);
-
-                        if (!presenter.isInitialized()) {
-                            String provider = "undefined";
-                            String step = presenter.isStandalone() ? "step-3" : "step-5";
-                            ModelNode providerNode = stepsResult.get(step);
-                            if (!providerNode.isFailure()) {
-                                provider = providerNode.get(RESULT).asString();
-                            }
-                            control.getContext().set(ACCESS_CONTROL_PROVIDER, provider);
-                        }
 
                         control.getContext().set(PRINCIPALS, principals);
                         control.getContext().set(ASSIGNMENTS, assignments);

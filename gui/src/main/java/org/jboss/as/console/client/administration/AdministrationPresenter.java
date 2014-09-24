@@ -26,12 +26,8 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.*;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -58,7 +54,7 @@ public class AdministrationPresenter
 
     @Inject
     public AdministrationPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final Header header, UnauthorisedPresenter unauthorisedPresenter) {
+                                   final PlaceManager placeManager, final Header header, UnauthorisedPresenter unauthorisedPresenter) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.AdministrationPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -66,9 +62,8 @@ public class AdministrationPresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        if(revealDefault)
-        {
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.RoleAssignmentPresenter).build());
+        if (revealDefault) {
+            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.AuthorizationPresenter).build());
         }
     }
 

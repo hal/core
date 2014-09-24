@@ -29,18 +29,8 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
-import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
-import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
-import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
-import org.jboss.as.console.client.administration.role.operation.ShowMembersOperation;
-import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
+import org.jboss.as.console.client.administration.role.model.*;
+import org.jboss.as.console.client.administration.role.operation.*;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
@@ -69,6 +59,8 @@ import static org.jboss.as.console.client.administration.role.operation.Manageme
  * <p>Role assignment which do not met these constraints, won't be visible in the conole and have to be
  * managed using other tools (e.g. the CLI)</p>
  *
+ * TODO Move all code which acts on "/core-service=management/access=authorization" in a common store
+ *
  * @author Harald Pehl
  */
 public class RoleAssignmentPresenter
@@ -79,13 +71,13 @@ public class RoleAssignmentPresenter
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final ManagementOperation<FunctionContext> loadRoleAssignmentsOp;
-    private boolean initialized;
     private DefaultWindow window;
     private Principals principals;
     private RoleAssignments assignments;
     private Roles roles;
     private List<String> hosts;
     private List<String> serverGroups;
+
 
     // ------------------------------------------------------ presenter lifecycle
 
@@ -107,8 +99,6 @@ public class RoleAssignmentPresenter
         this.roles = new Roles();
         this.hosts = new ArrayList<String>();
         this.serverGroups = new ArrayList<String>();
-
-        this.initialized = false;
     }
 
     @Override
@@ -161,20 +151,11 @@ public class RoleAssignmentPresenter
                     hosts = context.get(LoadRoleAssignmentsOp.HOSTS);
                     serverGroups = context.get(LoadRoleAssignmentsOp.SERVER_GROUPS);
                     getView().update(principals, assignments, roles, hosts, serverGroups);
-
-                    // show warning about simple access control provider (if not already done)
-                    if (!initialized) {
-                        String acp = context.get(LoadRoleAssignmentsOp.ACCESS_CONTROL_PROVIDER);
-                        if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
-                            openWindow("Access Control Provider", 480, 220,
-                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
-                        }
-                    }
-                    initialized = true;
                 }
             });
         }
     }
+
 
     // ------------------------------------------------------ callback methods triggered by the view
 
@@ -315,15 +296,13 @@ public class RoleAssignmentPresenter
         }
     }
 
-    // ------------------------------------------------------ properties
 
-    public boolean isInitialized() {
-        return initialized;
-    }
+    // ------------------------------------------------------ properties
 
     public boolean isStandalone() {
         return standalone;
     }
+
 
     // ------------------------------------------------------ inner classes
 
