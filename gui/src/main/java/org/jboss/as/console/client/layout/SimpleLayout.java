@@ -134,7 +134,7 @@ public class SimpleLayout {
             item.widget.getElement().addClassName("fill-layout-width");
         }
 
-        layout.getElement().setAttribute("style", "border:1px solid red");
+        //layout.getElement().setAttribute("style", "border:1px solid red");
         return layout;
     }
 
