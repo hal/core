@@ -56,6 +56,7 @@ public class ServicesView extends SuspendableViewImpl {
 
         TabPanel bottomPanel = new TabPanel();
         bottomPanel.setStyleName("default-tabpanel");
+        bottomPanel.getElement().setId("master_detail-detail");
 
         bottomPanel.add(timerServiceView.asWidget(), timerServiceView.getEntityDisplayName());
         bottomPanel.add(asyncServiceView.asWidget(), asyncServiceView.getEntityDisplayName());

@@ -1,21 +1,15 @@
 package org.jboss.as.console.client.shared.subsys.tx;
 
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
-import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
-import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 
 import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState;
 import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.VALID;
@@ -40,22 +34,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
     @Override
     public Widget createWidget() {
-        LayoutPanel layout = new LayoutPanel();
 
-        FakeTabPanel titleBar = new FakeTabPanel("Transactions");
-        layout.add(titleBar);
-
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("rhs-content-panel");
-
-        ScrollPanel scroll = new ScrollPanel(panel);
-        layout.add(scroll);
-
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(scroll, 40, Style.Unit.PX, 100, Style.Unit.PCT);
-
-        panel.add(new ContentHeaderLabel("Transaction Manager"));
-        panel.add(new ContentDescription(Console.CONSTANTS.subys_tx_desc()));
 
         // -----
 
@@ -137,9 +116,13 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
         tabs.selectTab(0);
 
-        panel.add(tabs);
+        SimpleLayout layout = new SimpleLayout()
+                .setTitle("Transactions")
+                .setHeadline("Transaction Manager")
+                .setDescription(Console.CONSTANTS.subys_tx_desc())
+                .addContent("", tabs);
 
-        return layout;
+        return layout.build();
     }
 
     @Override

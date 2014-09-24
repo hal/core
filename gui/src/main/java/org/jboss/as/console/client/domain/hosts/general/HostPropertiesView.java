@@ -19,15 +19,12 @@
 
 package org.jboss.as.console.client.domain.hosts.general;
 
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.ballroom.client.layout.RHSContentPanel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 
 import java.util.List;
 
@@ -43,15 +40,15 @@ public class HostPropertiesView extends DisposableViewImpl implements HostProper
     @Override
     public Widget createWidget() {
 
-        LayoutPanel layout = new RHSContentPanel("Host Properties");
-        layout.add(new ContentHeaderLabel("Host Property Declarations"));
-
-        layout.add(new ContentDescription(Console.CONSTANTS.host_properties_desc()));
+        SimpleLayout layout = new SimpleLayout()
+                        .setTitle("Host Properties")
+                        .setHeadline("Host Property Declarations")
+                        .setDescription(Console.CONSTANTS.host_properties_desc());
 
         propertyEditor = new PropertyEditor(presenter, true);
-        layout.add(propertyEditor.asWidget());
+        layout.addContent("", propertyEditor.asWidget());
 
-        return layout;
+        return layout.build();
     }
 
     @Override

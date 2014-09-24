@@ -20,36 +20,28 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.cell.client.ImageResourceCell;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
-import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.ContentGroupLabel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.icons.Icons;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -81,7 +73,6 @@ public class XADataSourceEditor implements PropertyManagement {
 
     public Widget asWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
 
         ToolStrip topLevelTools = new ToolStrip();
         ToolButton commonLabelAddBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
@@ -121,21 +112,7 @@ public class XADataSourceEditor implements PropertyManagement {
         deleteBtn.addClickHandler(clickHandler);
         topLevelTools.addToolButtonRight(deleteBtn);
 
-        // ----
-
-        VerticalPanel vpanel = new VerticalPanel();
-        vpanel.setStyleName("rhs-content-panel");
-
-        ScrollPanel scroll = new ScrollPanel(vpanel);
-        layout.add(scroll);
-
-        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
-
         // ---
-
-        vpanel.add(new ContentHeaderLabel("JDBC XA Datasources"));
-
-        vpanel.add(new ContentDescription(Console.CONSTANTS.subsys_jca_xadataSources_desc()));
 
         dataSourceTable = new DefaultCellTable<XADataSource>(8,
                 new ProvidesKey<XADataSource>() {
@@ -183,14 +160,6 @@ public class XADataSourceEditor implements PropertyManagement {
         dataSourceTable.addColumn(nameColumn, "Name");
         dataSourceTable.addColumn(jndiNameColumn, "JNDI");
         dataSourceTable.addColumn(statusColumn, "Enabled?");
-
-        vpanel.add(new ContentGroupLabel(Console.MESSAGES.available("XA Datasources")));
-        vpanel.add(topLevelTools.asWidget());
-        vpanel.add(dataSourceTable);
-
-        DefaultPager pager = new DefaultPager();
-        pager.setDisplay(dataSourceTable);
-        vpanel.add(pager);
 
         // -----------
         details = new XADataSourceDetails(presenter);
@@ -311,9 +280,22 @@ public class XADataSourceEditor implements PropertyManagement {
         bottomPanel.add(timeoutEditor.asWidget(), "Timeouts");
 
         bottomPanel.selectTab(0);
-        vpanel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
-        vpanel.add(bottomPanel);
-        return layout;
+
+        MultipleToOneLayout builder = new MultipleToOneLayout()
+                     .setPlain(true)
+                     .setHeadline("JDBC XA Datasources")
+                     .setDescription(Console.CONSTANTS.subsys_jca_xadataSources_desc())
+                     .setMasterTools(topLevelTools.asWidget())
+                     .setMaster("Available Datasources", dataSourceTable)
+                     .addDetail("Attributes", details.asWidget())
+                     .addDetail("Connection", connectionEditor.asWidget())
+                     .addDetail("Pool", poolConfig.asWidget())
+                     .addDetail("Security", securityEditor.asWidget())
+                     .addDetail("Properties", propertyEditor.asWidget())
+                     .addDetail("Validation", validationEditor.asWidget())
+                     .addDetail("Timeouts", timeoutEditor.asWidget());
+
+        return builder.build();
     }
 
 

@@ -187,6 +187,7 @@ public class OneToOneLayout {
 
         }
 
+        layout.getElement().setAttribute("style", "border:1px solid red");
         return layout;
     }
 

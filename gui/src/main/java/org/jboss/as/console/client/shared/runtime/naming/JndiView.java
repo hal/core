@@ -27,8 +27,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
-import org.jboss.ballroom.client.layout.RHSContentPanel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
+import org.jboss.as.console.client.layout.SimpleLayout;
 
 /**
  * @author Heiko Braun
@@ -47,19 +46,21 @@ public class JndiView extends DisposableViewImpl implements JndiPresenter.MyView
 
     @Override
     public Widget createWidget() {
-        RHSContentPanel layout = new RHSContentPanel(Console.CONSTANTS.subsys_naming_jndiView());
+
+        SimpleLayout layout = new SimpleLayout()
+                               .setTitle(Console.CONSTANTS.subsys_naming_jndiView())
+                               .setHeadline(Console.CONSTANTS.subsys_naming_jndiBindings());
+
         container = new VerticalPanel();
         container.setStyleName("fill-layout");
 
-        layout.add(new ContentHeaderLabel(Console.CONSTANTS.subsys_naming_jndiBindings()));
-
         uriLabel = new HTML(SELECTED_URI_PREFIX, true);
-        layout.add(uriLabel);
+        layout.addContent("", uriLabel);
         uriLabel.getElement().setAttribute("style", "margin-bottom:10px");
 
-        layout.add(container);
+        layout.addContent("", container);
 
-        return layout;
+        return layout.build();
     }
 
     @Override

@@ -27,7 +27,7 @@ public class SimpleLayout {
 
     private String title = "TITLE";
     private String headline = "HEADLINE";
-    private HTML description = new HTML("DESCRIPTION");
+    private HTML description = null;
 
     private Widget toolStrip = null;
 
@@ -122,8 +122,10 @@ public class SimpleLayout {
             panel.add(headlineWidget);
         }
 
-        description.setStyleName("content-description");
-        panel.add(description);
+        if(description!=null) {
+            description.setStyleName("content-description");
+            panel.add(description);
+        }
 
 
         for(NamedWidget item : details)
@@ -131,6 +133,8 @@ public class SimpleLayout {
             panel.add(item.widget);
             item.widget.getElement().addClassName("fill-layout-width");
         }
+
+        layout.getElement().setAttribute("style", "border:1px solid red");
         return layout;
     }
 

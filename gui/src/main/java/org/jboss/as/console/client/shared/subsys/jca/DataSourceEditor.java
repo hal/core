@@ -19,26 +19,18 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
-import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.forms.FormEditor;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.ContentGroupLabel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
@@ -63,6 +55,7 @@ public class DataSourceEditor {
     private DataSourceConnectionEditor connectionEditor;
     private DataSourceTimeoutEditor<DataSource> timeoutEditor;
     private ToolButton disableBtn;
+    private Widget dataSourceTableWidget;
 
     public DataSourceEditor(DataSourcePresenter presenter) {
         this.presenter = presenter;
@@ -70,7 +63,6 @@ public class DataSourceEditor {
 
     public Widget asWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
 
         ToolStrip topLevelTools = new ToolStrip();
         topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
@@ -107,28 +99,11 @@ public class DataSourceEditor {
         deleteBtn.addClickHandler(clickHandler);
         topLevelTools.addToolButtonRight(deleteBtn);
 
-        // ----
-
-        VerticalPanel vpanel = new VerticalPanel();
-        vpanel.setStyleName("rhs-content-panel");
-
-        ScrollPanel scroll = new ScrollPanel(vpanel);
-        layout.add(scroll);
-
-        layout.setWidgetTopHeight(scroll, 0, Style.Unit.PX, 100, Style.Unit.PCT);
 
         // ---
 
-        vpanel.add(new ContentHeaderLabel("JDBC Datasources"));
-        vpanel.add(new ContentDescription(Console.CONSTANTS.subsys_jca_dataSources_desc()));
-
         dataSourceTable = new DatasourceTable();
-
-
-        vpanel.add(new ContentGroupLabel(Console.MESSAGES.available("Datasources")));
-        vpanel.add(topLevelTools.asWidget());
-        vpanel.add(dataSourceTable.asWidget());
-
+        dataSourceTableWidget = dataSourceTable.asWidget();
 
         // -----------
         details = new DataSourceDetails(presenter);
@@ -141,18 +116,17 @@ public class DataSourceEditor {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 DataSource selectedObject = ((SingleSelectionModel<DataSource>) dataSourceTable.getCellTable().getSelectionModel()).getSelectedObject();
-                presenter.loadPoolConfig(false, selectedObject.getName());
-                presenter.onLoadConnectionProperties(selectedObject.getName());
+                if(selectedObject!=null) {
+                    presenter.loadPoolConfig(false, selectedObject.getName());
+                    presenter.onLoadConnectionProperties(selectedObject.getName());
+                }
 
             }
         });
 
         // -----------------
 
-        TabPanel bottomPanel = new TabPanel();
-        bottomPanel.setStyleName("default-tabpanel");
 
-        bottomPanel.add(details.asWidget(), "Attributes");
 
         // -----------------
 
@@ -170,17 +144,12 @@ public class DataSourceEditor {
         };
 
         connectionEditor = new DataSourceConnectionEditor(presenter, formCallback);
-        connectionEditor.getForm().bind(dataSourceTable.getCellTable());
-        bottomPanel.add(connectionEditor.asWidget(), "Connection");
 
         securityEditor = new DataSourceSecurityEditor(formCallback);
-        securityEditor.getForm().bind(dataSourceTable.getCellTable());
-        bottomPanel.add(securityEditor.asWidget(), "Security");
 
         // -----------------
 
         connectionProps = new ConnectionProperties(presenter);
-        bottomPanel.add(connectionProps.asWidget(), "Properties");
 
         // -----------------
 
@@ -205,27 +174,14 @@ public class DataSourceEditor {
         });
 
 
-        bottomPanel.add(poolConfig.asWidget(), "Pool");
-        poolConfig.getForm().bind(dataSourceTable.getCellTable());
-
 
         // ----
 
         validationEditor = new DataSourceValidationEditor(formCallback);
-        validationEditor.getForm().bind(dataSourceTable.getCellTable());
-        bottomPanel.add(validationEditor.asWidget(), "Validation");
 
         // ----
 
         timeoutEditor = new DataSourceTimeoutEditor<DataSource>(formCallback, false);
-        timeoutEditor.getForm().bind(dataSourceTable.getCellTable());
-        bottomPanel.add(timeoutEditor.asWidget(), "Timeouts");
-
-        bottomPanel.selectTab(0);
-
-        // -----------------
-
-        vpanel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
 
         // --
         ClickHandler disableHandler = new ClickHandler() {
@@ -259,8 +215,11 @@ public class DataSourceEditor {
                 new SelectionChangeEvent.Handler() {
                     @Override
                     public void onSelectionChange(SelectionChangeEvent event) {
-                        String nextState = getCurrentSelection().isEnabled() ? Console.CONSTANTS.common_label_disable():Console.CONSTANTS.common_label_enable();
-                        disableBtn.setText(nextState);
+                        DataSource selection = getCurrentSelection();
+                        if(selection!=null) {
+                            String nextState = selection.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
+                            disableBtn.setText(nextState);
+                        }
                     }
                 }) ;
 
@@ -270,9 +229,28 @@ public class DataSourceEditor {
 
         // --
 
-        vpanel.add(bottomPanel);
 
-        return layout;
+        MultipleToOneLayout builder = new MultipleToOneLayout()
+                .setPlain(true)
+                .setHeadline("JDBC Datasources")
+                .setDescription(Console.CONSTANTS.subsys_jca_dataSources_desc())
+                .setMasterTools(topLevelTools.asWidget())
+                .setMaster("Available Datasources", dataSourceTable.getCellTable())
+                .addDetail("Attributes", details.asWidget())
+                .addDetail("Connection", connectionEditor.asWidget())
+                .addDetail("Pool", poolConfig.asWidget())
+                .addDetail("Security", securityEditor.asWidget())
+                .addDetail("Properties", connectionProps.asWidget())
+                .addDetail("Validation", validationEditor.asWidget())
+                .addDetail("Timeouts", timeoutEditor.asWidget());
+
+        connectionEditor.getForm().bind(dataSourceTable.getCellTable());
+        securityEditor.getForm().bind(dataSourceTable.getCellTable());
+        poolConfig.getForm().bind(dataSourceTable.getCellTable());
+        validationEditor.getForm().bind(dataSourceTable.getCellTable());
+        timeoutEditor.getForm().bind(dataSourceTable.getCellTable());
+
+        return builder.build();
     }
 
 

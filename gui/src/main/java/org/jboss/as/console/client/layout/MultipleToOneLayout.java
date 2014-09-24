@@ -217,6 +217,7 @@ public class MultipleToOneLayout {
 
         }
 
+        layout.getElement().setAttribute("style", "border:1px solid red");
         return layout;
     }
 

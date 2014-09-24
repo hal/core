@@ -19,15 +19,12 @@
 
 package org.jboss.as.console.client.shared.general;
 
-import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.ballroom.client.layout.RHSContentPanel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 
 import java.util.List;
 
@@ -43,10 +40,11 @@ public class PropertiesView extends DisposableViewImpl implements PropertiesPres
     @Override
     public Widget createWidget() {
 
-        LayoutPanel layout = new RHSContentPanel("System Properties");
-        layout.add(new ContentHeaderLabel("System Properties"));
+        SimpleLayout layout = new SimpleLayout()
+                .setTitle("System Properties")
+                .setHeadline("System Properties")
+                .setDescription(Console.CONSTANTS.properties_global_desc());
 
-        layout.add(new ContentDescription(Console.CONSTANTS.properties_global_desc()));
 
         propertyEditor = new PropertyEditor(presenter, Console.getBootstrapContext().isStandalone())
         {
@@ -55,9 +53,9 @@ public class PropertiesView extends DisposableViewImpl implements PropertiesPres
             }
         };
 
-        layout.add(propertyEditor.asWidget());
+        layout.addContent("", propertyEditor.asWidget());
 
-        return layout;
+        return layout.build();
     }
 
     @Override

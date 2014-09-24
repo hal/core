@@ -1,26 +1,21 @@
 package org.jboss.as.console.client.shared.general;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.validation.ValidationResult;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.ContentGroupLabel;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
@@ -28,7 +23,6 @@ import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -61,10 +55,9 @@ public class InterfaceEditor {
     }
 
     public Widget asWidget() {
-        LayoutPanel layout = new LayoutPanel();
 
-        FakeTabPanel titleBar = new FakeTabPanel(title);
-        layout.add(titleBar);
+        MultipleToOneLayout layout = new MultipleToOneLayout()
+                .setTitle(title);
 
         form = new Form<Interface>(Interface.class);
 
@@ -100,18 +93,11 @@ public class InterfaceEditor {
         removeBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_remove_interfaceEditor());
         topLevelTools.addToolButtonRight(removeBtn);
 
-
-
-        // -----------
-        VerticalPanel panel = new VerticalPanel();
-        panel.setStyleName("rhs-content-panel");
-
-        panel.add(new ContentHeaderLabel("Network Interfaces"));
+        layout.setHeadline("Network Interfaces");
 
         if(description!=null) {
-            panel.add(new ContentDescription(description));
+            layout.setDescription(description);
         }
-        panel.add(new ContentGroupLabel(Console.MESSAGES.available("Interfaces")));
 
         table = new DefaultCellTable<Interface>(8, new ProvidesKey<Interface>() {
             @Override
@@ -132,11 +118,8 @@ public class InterfaceEditor {
 
         table.addColumn(nameColumn, "Name");
 
-        panel.add(topLevelTools);
-        panel.add(table);
-
-
-        panel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_selection()));
+        layout.setMasterTools(topLevelTools);
+        layout.setMaster("", table);
 
         form.setNumColumns(2);
 
@@ -245,6 +228,9 @@ public class InterfaceEditor {
             }
         }, form);
 
+        VerticalPanel panel = new VerticalPanel();
+        panel.setStyleName("fill-layout-width");
+
         panel.add(toolstrip.asWidget());
         panel.add(helpPanel.asWidget());
         panel.add(errorMessages);
@@ -259,14 +245,8 @@ public class InterfaceEditor {
             }
         });
 
-
-        ScrollPanel scroll = new ScrollPanel(panel);
-        layout.add(scroll);
-
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(scroll, 40, Style.Unit.PX, 100, Style.Unit.PCT);
-
-        return layout;
+        layout.setDetail("", panel);
+        return layout.build();
     }
 
     public void setInterfaces(List<Interface> interfaces) {

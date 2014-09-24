@@ -42,12 +42,8 @@ public class DatasourceTable {
     private DefaultCellTable<DataSource> dataSourceTable;
     private ListDataProvider<DataSource> dataProvider;
 
-    Widget asWidget() {
-
-        VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("fill-layout-width");
-
-        dataSourceTable = new DefaultCellTable<DataSource>(
+    public DatasourceTable() {
+        this.dataSourceTable = new DefaultCellTable<DataSource>(
                 PAGE_SIZE,
                 new ProvidesKey<DataSource>() {
                     @Override
@@ -55,6 +51,13 @@ public class DatasourceTable {
                         return item.getJndiName();
                     }
                 });
+
+    }
+
+    Widget asWidget() {
+
+        VerticalPanel layout = new VerticalPanel();
+        layout.setStyleName("fill-layout-width");
 
         dataProvider = new ListDataProvider<DataSource>();
         dataProvider.addDataDisplay(dataSourceTable);
