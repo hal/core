@@ -54,7 +54,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
  */
 public class LogFilePanel extends Composite implements LogViewerId {
 
-    private final static int HEADER_HEIGHT = 48 + 35;
+    private final static int HEADER_HEIGHT = 48; // no search + 35;
     private final static int TOOLS_HEIGHT = 32;
     private final static int MARGIN_BOTTOM = 50;
 
@@ -79,7 +79,9 @@ public class LogFilePanel extends Composite implements LogViewerId {
         panel = new VerticalPanel();
         panel.setStyleName("rhs-content-panel");
         panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
-        panel.add(new SearchBox());
+        // No search box: The search works only inside the currently displayed lines not over the whole
+        // log file. It's better to disable search than having a search which is ambiguous to the user.
+//        panel.add(new SearchBox());
 
         editor = new AceEditor();
         editor.addAttachHandler(new AttachEvent.Handler() {
