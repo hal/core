@@ -25,7 +25,7 @@
     <description>HAL Core Console :: Parent Aggregator</description>
     <groupId>org.jboss.as</groupId>
     <artifactId>jboss-as-console-parent</artifactId>
-    <version>2.4.1-SNAPSHOT</version>
+    <version>2.4.1.Final</version>
     <packaging>pom</packaging>
 
     <parent>
@@ -89,7 +89,6 @@
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
-        <ace.version>1.0-20140820</ace.version> <!-- Carries the timestamp of the last update against https://github.com/daveho/AceGWT -->
         <ballroom.version>2.1.0.Final</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>

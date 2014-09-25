@@ -4,7 +4,7 @@
     <artifactId>jboss-as-console-bom</artifactId>
     <name>HAL Core Console :: BOM</name>
     <packaging>pom</packaging>
-    <version>2.4.1-SNAPSHOT</version>
+    <version>2.4.1.Final</version>
     <description>
         AS 7 console "bill of materials" which can be imported by any project
         providing extensions to the console. It provides dependency management for the developer APIs and SPIs.
@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.4.1.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -87,6 +87,17 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>ace-gwt</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>ace-gwt</artifactId>
+                <classifier>sources</classifier>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.jboss.ballroom</groupId>
                 <artifactId>widgets</artifactId>
                 <version>${ballroom.version}</version>
@@ -97,48 +108,45 @@
                 <classifier>sources</classifier>
                 <version>${ballroom.version}</version>
             </dependency>
-
-                    <dependency>
-                        <groupId>org.jboss.gwt.circuit</groupId>
-                        <artifactId>circuit-core</artifactId>
-                        <version>${circuit.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jboss.gwt.circuit</groupId>
-                        <artifactId>circuit-core</artifactId>
-                        <classifier>sources</classifier>
-                        <version>${circuit.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jgrapht</groupId>
-                        <artifactId>jgrapht-core</artifactId>
-                        <version>${jgrapht.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jgrapht</groupId>
-                        <artifactId>jgrapht-core</artifactId>
-                        <classifier>sources</classifier>
-                        <version>${jgrapht.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jboss.gwt.circuit</groupId>
-                        <artifactId>circuit-meta</artifactId>
-                        <version>${circuit.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jboss.gwt.circuit</groupId>
-                        <artifactId>circuit-meta</artifactId>
-                        <version>${circuit.version}</version>
-                        <classifier>sources</classifier>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jboss.gwt.circuit</groupId>
-                        <artifactId>circuit-processor</artifactId>
-                        <version>${circuit.version}</version>
-                        <scope>provided</scope>
-                    </dependency>
-
-
+            <dependency>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-core</artifactId>
+                <version>${circuit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-core</artifactId>
+                <classifier>sources</classifier>
+                <version>${circuit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <version>${jgrapht.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jgrapht</groupId>
+                <artifactId>jgrapht-core</artifactId>
+                <classifier>sources</classifier>
+                <version>${jgrapht.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-meta</artifactId>
+                <version>${circuit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-meta</artifactId>
+                <version>${circuit.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.gwt.circuit</groupId>
+                <artifactId>circuit-processor</artifactId>
+                <version>${circuit.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.jboss.hal</groupId>
                 <artifactId>redhat-support-plugin</artifactId>
@@ -217,11 +225,6 @@
                 <groupId>com.google.gwt.inject</groupId>
                 <artifactId>gin</artifactId>
                 <version>${gin.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.as</groupId>
-                <artifactId>ace-gwt</artifactId>
-                <version>${ace.version}</version>
             </dependency>
 
             <!-- Test -->

@@ -5,12 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <name>HAL Core Console :: AceGWT Clone</name>
     <artifactId>ace-gwt</artifactId>
-    <version>1.0-20140820</version>
 
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.4.1.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
