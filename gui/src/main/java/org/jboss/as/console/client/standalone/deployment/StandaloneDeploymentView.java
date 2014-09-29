@@ -24,7 +24,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
+
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.deployment.DeploymentBrowser;
@@ -46,6 +48,10 @@ import java.util.List;
  */
 public class StandaloneDeploymentView extends SuspendableViewImpl implements StandaloneDeploymentPresenter.MyView
 {
+
+    @Inject
+    private FeatureSet featureSet;
+
     private DeploymentStore deploymentStore;
     private StandaloneDeploymentPresenter presenter;
     private DeploymentBrowser deploymentBrowser;
@@ -128,7 +134,7 @@ public class StandaloneDeploymentView extends SuspendableViewImpl implements Sta
                     }
                 }));
 
-        deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel);
+        deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel, featureSet);
 
         // hacky: but the nesting/hierarchy prevents a better solution
         toolStrip.addToolWidget(deploymentBrowser.getFilterWidget().asWidget());

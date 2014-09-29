@@ -21,6 +21,8 @@ package org.jboss.as.console.client.domain.groups.deployment;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
@@ -33,6 +35,10 @@ import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
  */
 public class DomainDeploymentView extends SuspendableViewImpl implements DomainDeploymentPresenter.MyView
 {
+
+    @Inject
+    private FeatureSet featureSet;
+
     private final DeploymentStore deploymentStore;
     private final HostInformationStore hostInfoStore;
     private ContentRepositoryPanel contentRepositoryPanel;
@@ -60,7 +66,7 @@ public class DomainDeploymentView extends SuspendableViewImpl implements DomainD
     {
         // As long as the presenter is application scoped, this should only be called once
         this.contentRepositoryPanel = new ContentRepositoryPanel(presenter);
-        this.serverGroupDeploymentPanel = new ServerGroupDeploymentPanel(presenter, deploymentStore, hostInfoStore);
+        this.serverGroupDeploymentPanel = new ServerGroupDeploymentPanel(presenter, deploymentStore, hostInfoStore, featureSet);
     }
 
     @Override

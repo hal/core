@@ -24,8 +24,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
+
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEjb;
 import org.jboss.as.console.client.shared.deployment.model.DeployedEndpoint;
 import org.jboss.as.console.client.shared.deployment.model.DeployedPersistenceUnit;
@@ -65,7 +68,7 @@ public class DeploymentBrowser {
     private DeploymentBrowser.HelpCallback helpCallback;
 
     public DeploymentBrowser(final DeploymentStore deploymentStore,
-            final SingleSelectionModel<DeploymentRecord> selectionModel) {
+            final SingleSelectionModel<DeploymentRecord> selectionModel, final FeatureSet featureSet) {
 
         forms = new HashMap<String, Form<DeploymentData>>();
         indexes = new HashMap<String, Integer>();
@@ -97,9 +100,19 @@ public class DeploymentBrowser {
         this.contextPanel.add(noInfo);
         index++;
 
-        addContext(DeploymentRecord.class, index++,
-                new TextAreaItem("name", "Name"),
-                new TextAreaItem("runtimeName", "Runtime Name"));
+        // TODO: currently EAP doesn't support enabled/disabled attributes.
+        // if EAP the enabled/disabled attributes are not present.
+        if (featureSet.hasDeploymentEnabledAttrs()) {
+            addContext(DeploymentRecord.class, index++,
+                    new TextAreaItem("name", "Name"),
+                    new TextAreaItem("runtimeName", "Runtime Name"),
+                    new TextAreaItem("enabledTimestamp", "Last enabled timestamp"),
+                    new TextAreaItem("disabledTimestamp", "Last disabled timestamp"));
+        } else {
+            addContext(DeploymentRecord.class, index++,
+                    new TextAreaItem("name", "Name"),
+                    new TextAreaItem("runtimeName", "Runtime Name"));
+        }
 
         addContext(DeploymentEjbSubsystem.class, index++);
 

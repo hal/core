@@ -28,7 +28,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
+
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.layout.SimpleLayout;
@@ -56,14 +58,16 @@ public class ServerGroupDeploymentPanel implements IsWidget
     private ServerGroupDeploymentBrowser groupDeploymentBrowser;
     private ContentRepository contentRepository;
     private SingleSelectionModel<ServerGroupRecord> selectionModel;
+    private FeatureSet featureSet;
 
 
     public ServerGroupDeploymentPanel(DomainDeploymentPresenter presenter, DeploymentStore deploymentStore,
-            HostInformationStore hostInfoStore)
+            HostInformationStore hostInfoStore, FeatureSet featureSet)
     {
         this.presenter = presenter;
         this.deploymentStore = deploymentStore;
         this.hostInfoStore = hostInfoStore;
+        this.featureSet = featureSet;
         this.widget = initUI();
     }
 
@@ -141,7 +145,7 @@ public class ServerGroupDeploymentPanel implements IsWidget
                 .setDescription(Console.MESSAGES.pleaseChoseanItem())
                 .addContent(Console.MESSAGES.available("Groups"), wrapper);
 
-        groupDeploymentBrowser = new ServerGroupDeploymentBrowser(presenter, deploymentStore, hostInfoStore);
+        groupDeploymentBrowser = new ServerGroupDeploymentBrowser(presenter, deploymentStore, hostInfoStore, featureSet);
         pagedView.addPage(Console.CONSTANTS.common_label_back(), overviewPanel.build());
         pagedView.addPage("Group Deployments", groupDeploymentBrowser.asWidget());
         pagedView.showPage(0);

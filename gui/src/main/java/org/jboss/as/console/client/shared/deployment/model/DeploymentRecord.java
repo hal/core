@@ -87,4 +87,13 @@ public interface DeploymentRecord extends DeploymentData
     @Binding(skip = true)
     ServerInstance getServer();
     void setServer(ServerInstance server);
+
+    @Binding(detypedName = "enabled-timestamp")
+    String getEnabledTimestamp();
+    void setEnabledTimestamp(String timeStr);
+
+    @Binding(detypedName = "disabled-timestamp")
+    String getDisabledTimestamp();
+    void setDisabledTimestamp(String timeStr);
+
 }

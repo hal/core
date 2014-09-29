@@ -22,7 +22,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.inject.Inject;
+
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.FeatureSet;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -46,6 +49,7 @@ import java.util.List;
  */
 public class ServerGroupDeploymentBrowser
 {
+
     private final DomainDeploymentPresenter presenter;
     private final DeploymentStore deploymentStore;
     private final HostInformationStore hostInfoStore;
@@ -53,14 +57,16 @@ public class ServerGroupDeploymentBrowser
     private ContentDescription description;
     private ServerGroupRecord currentServerGroup;
     private DeploymentBrowser deploymentBrowser;
+    private FeatureSet featureSet;
 
 
     public ServerGroupDeploymentBrowser(final DomainDeploymentPresenter presenter,
-            final DeploymentStore deploymentStore, final HostInformationStore hostInfoStore)
+            final DeploymentStore deploymentStore, final HostInformationStore hostInfoStore, final FeatureSet featureSet)
     {
         this.presenter = presenter;
         this.deploymentStore = deploymentStore;
         this.hostInfoStore = hostInfoStore;
+        this.featureSet = featureSet;
     }
 
     Widget asWidget()
@@ -110,7 +116,7 @@ public class ServerGroupDeploymentBrowser
                     }
                 }));
 
-        deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel);
+        deploymentBrowser = new DeploymentBrowser(deploymentStore, selectionModel, featureSet);
 
         header = new ContentHeaderLabel();
         description = new ContentDescription(Console.MESSAGES.deployments_for_group());
