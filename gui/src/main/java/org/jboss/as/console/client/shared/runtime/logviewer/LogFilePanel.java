@@ -63,7 +63,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
     private final VerticalPanel panel;
     private final AceEditor editor;
     private final LogFileIndicator indicator;
-    private final Label position;
     private final HandlerRegistration resizeHandler;
     private final CheckBox follow;
     private final ToolButton head;
@@ -79,7 +78,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
         panel = new VerticalPanel();
         panel.setStyleName("rhs-content-panel");
         panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
-        // No search box: The search works only inside the currently displayed lines not over the whole
+        // No search box: The search works only inside the currently displayed lines, not over the whole
         // log file. It's better to disable search than having a search which is ambiguous to the user.
 //        panel.add(new SearchBox());
 
@@ -99,6 +98,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                                     editor.setModeByName("logfile");
                                     editor.setThemeByName("logfile");
                                     editor.setText(logFile.getContent());
+                                    editor.setFontSize("11px");
                                     editor.setVScrollBarVisible(false);
                                 }
                             }
@@ -109,10 +109,10 @@ public class LogFilePanel extends Composite implements LogViewerId {
         indicator = new LogFileIndicator();
         HorizontalPanel editorPanel = new HorizontalPanel();
         editorPanel.setStyleName("fill-layout-width");
-        editorPanel.add(editor);
         editorPanel.add(indicator);
-        indicator.getElement().getParentElement().getStyle().setWidth(4, PX);
-        indicator.getElement().getParentElement().getStyle().setPaddingLeft(4, PX);
+        editorPanel.add(editor);
+        indicator.getElement().getParentElement().getStyle().setWidth(15, PX);
+        indicator.getElement().getParentElement().getStyle().setBackgroundColor("#030303");
         panel.add(editorPanel);
 
         follow = new CheckBox("Auto Refresh");
@@ -126,11 +126,8 @@ public class LogFilePanel extends Composite implements LogViewerId {
                 }
             }
         });
+        follow.getElement().getStyle().setMarginLeft(1, EM);
         setId(follow, BASE_ID, "auto_refresh");
-
-        position = new Label();
-        position.getElement().setAttribute("style", "padding-right:15px;padding-top:4px;");
-        setId(position, BASE_ID, "position");
 
         head = new ToolButton("Head", new ClickHandler() {
             @Override
@@ -165,12 +162,11 @@ public class LogFilePanel extends Composite implements LogViewerId {
         setId(tail, BASE_ID, "tail");
 
         ToolStrip navigationTools = new ToolStrip();
+        navigationTools.addToolButton(head);
+        navigationTools.addToolButton(prev);
+        navigationTools.addToolButton(next);
+        navigationTools.addToolButton(tail);
         navigationTools.addToolWidget(follow);
-        navigationTools.addToolWidgetRight(position);
-        navigationTools.addToolButtonRight(head);
-        navigationTools.addToolButtonRight(prev);
-        navigationTools.addToolButtonRight(next);
-        navigationTools.addToolButtonRight(tail);
         panel.add(navigationTools);
 
         resizeHandler = Window.addResizeHandler(new ResizeHandler() {
@@ -186,7 +182,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
     public void refresh(LogFile logFile, Action action) {
         editor.setText(logFile.getContent());
         indicator.refresh(logFile, action);
-        position.setText("Pos. " + (int) Math.floor(indicator.getRatio()) + " %");
         follow.setValue(logFile.isFollow());
         if (logFile.getLines().size() < visibleLines) {
             head.setEnabled(false);
@@ -223,7 +218,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
 
                 if (panelHeight > 0) {
                     editor.setHeight(editorHeight + "px");
-                    visibleLines = editorHeight / 16;
+                    visibleLines = editorHeight / 17;
                     circuit.dispatch(new ChangePageSize(visibleLines));
                 }
             }
@@ -238,6 +233,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
     /**
      * Simulates AceEditor's build in search box
      */
+    @SuppressWarnings("UnusedDeclaration")
     private class SearchBox extends Composite {
 
         public SearchBox() {

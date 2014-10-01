@@ -11,7 +11,7 @@ width: 1px;\
 background: #1a1a1a\
 }\
 .ace-logfile {\
-background-color: #000000;\
+background-color: #030303;\
 color: #DEDEDE\
 }\
 .ace-logfile .ace_cursor {\
@@ -39,7 +39,7 @@ margin: -1px 0 0 -1px;\
 background: rgba(255, 235, 0, 0.1);\
 }\
 .ace-logfile .ace_marker-layer .ace_active-line {\
-background: #2A2A2A\
+background: #030303\
 }\
 .ace-logfile .ace_gutter-active-line {\
 background-color: #2A2A2A\

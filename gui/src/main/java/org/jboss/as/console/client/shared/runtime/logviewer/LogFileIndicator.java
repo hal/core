@@ -44,7 +44,6 @@ public class LogFileIndicator extends Composite {
     private int bytesConsumed;
     private int consumedSnapshot;
     private int lastSkipped;
-    private double ratio;
 
     public LogFileIndicator() {
         FlowPanel container = new FlowPanel();
@@ -102,9 +101,10 @@ public class LogFileIndicator extends Composite {
             }
         }
 
-        ratio = (100.0 / bytesPerFile) * bytesConsumed;
+        double ratio = (100.0 / bytesPerFile) * bytesConsumed;
         ratio = max(0.0, ratio);
         ratio = min(100.0, ratio);
+        getElement().getParentElement().setTitle("Position " + ratio + "%");
 
         double indicatorHeight = (containerHeight / 100.0) * ratio;
         indicatorHeight = max(5, indicatorHeight);
@@ -112,9 +112,5 @@ public class LogFileIndicator extends Composite {
         indicator.getElement().getStyle().setHeight(indicatorHeight, PX);
 
         lastSkipped = logFile.getSkipped();
-    }
-
-    public double getRatio() {
-        return ratio;
     }
 }
