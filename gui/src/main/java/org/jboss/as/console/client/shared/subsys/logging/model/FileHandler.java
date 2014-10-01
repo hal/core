@@ -79,7 +79,7 @@ public interface FileHandler extends NamedEntity, HasLevel {
     @Binding(detypedName="file/relative-to")
     @FormItem(defaultValue="jboss.server.log.dir",
               localLabel="subsys_logging_fileRelativeTo",
-              required=true,
+              required=false,
               formItemTypeForEdit="TEXT_BOX",
               formItemTypeForAdd="TEXT_BOX")
     public String getFileRelativeTo();

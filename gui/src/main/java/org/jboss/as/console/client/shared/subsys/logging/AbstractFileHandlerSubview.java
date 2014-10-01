@@ -22,8 +22,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormAdapter;
+import org.jboss.ballroom.client.widgets.forms.*;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
@@ -46,13 +45,24 @@ public abstract class AbstractFileHandlerSubview<T> extends AbstractHandlerSubvi
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected FormAdapter<T> makeAddEntityForm() {
         Form<T> form = new Form(type);
         form.setNumColumns(1);
-        form.setFields(formMetaData.findAttribute("name").getFormItemForAdd(), 
-                       levelItemForAdd,
-                       formMetaData.findAttribute("filePath").getFormItemForAdd(),
-                       formMetaData.findAttribute("fileRelativeTo").getFormItemForAdd());
+        form.setFields(formMetaData.findAttribute("name").getFormItemForAdd(),  levelItemForAdd,
+                formMetaData.findAttribute("filePath").getFormItemForAdd(),
+                formMetaData.findAttribute("fileRelativeTo").getFormItemForAdd());
+        form.addFormValidator(new VerifyRelativeFilePath());
         return form;
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected FormAdapter<T> makeEditEntityDetailsForm(String resourceAddress) {
+        FormAdapter form = super.makeEditEntityDetailsForm(resourceAddress);
+        form.addFormValidator(new VerifyRelativeFilePath());
+        return form;
+    }
+
+
 }

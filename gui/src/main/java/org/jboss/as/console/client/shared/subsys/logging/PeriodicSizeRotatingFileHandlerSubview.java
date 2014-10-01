@@ -75,6 +75,7 @@ public class PeriodicSizeRotatingFileHandlerSubview extends AbstractFileHandlerS
                 formMetaData.findAttribute("fileRelativeTo").getFormItemForAdd(),
                 formMetaData.findAttribute("maxBackupIndex").getFormItemForAdd(),
                 new FormItem[] {suffixAdd});
+        form.addFormValidator(new VerifyRelativeFilePath());
         return form;
     }
 
@@ -105,6 +106,7 @@ public class PeriodicSizeRotatingFileHandlerSubview extends AbstractFileHandlerS
             }
             form.setFieldsInGroup(subgroup, groupItems);
         }
+        form.addFormValidator(new VerifyRelativeFilePath());
 
         return form;
     }
