@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.subsys.logging;
 
 import com.google.gwt.user.cellview.client.TextColumn;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingLevelProducer.LogLevelConsumer;
 import org.jboss.as.console.client.shared.subsys.logging.model.Logger;
@@ -109,8 +110,6 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
     }
 
     @Override
-<<<<<<< HEAD
-=======
     protected ToolStrip createToolStrip() {
         return super.createToolStrip("{selected.profile}/subsystem=logging/logger=*");
     }
@@ -126,7 +125,6 @@ public class LoggerSubview extends AbstractLoggingSubview<Logger>
     }
 
     @Override
->>>>>>> 45d25a0... BZ1140285 / HAL-482: Application constraints for logging subsystem
     protected List<SingleEntityView<Logger>> provideAdditionalTabs(
             Class<?> beanType,
             FormMetaData formMetaData,

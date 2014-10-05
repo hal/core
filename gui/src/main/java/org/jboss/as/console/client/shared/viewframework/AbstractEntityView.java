@@ -35,6 +35,7 @@ import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.FormMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
@@ -259,8 +260,6 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         );
     }
 
-<<<<<<< HEAD
-=======
     protected DataProviderFilter.Predicate<T> makeFilterPredicate() {
         return null;
     }
@@ -269,7 +268,6 @@ public abstract class AbstractEntityView<T> extends SuspendableViewImpl
         return makeEditEntityDetailsForm(null);
     }
 
->>>>>>> 45d25a0... BZ1140285 / HAL-482: Application constraints for logging subsystem
     /**
      * Creates an details for for the Entity.  This method will add all the Entity's Attributes to
      * the form in a 2-column format.  If you desire a different layout or you want to exclude
