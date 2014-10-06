@@ -51,7 +51,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
+import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
 import static org.jboss.as.console.client.shared.runtime.logviewer.LogStore.*;
+import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 
 /**
  * @author Harald Pehl
@@ -61,6 +63,7 @@ public class LogFileTable extends Composite implements LogViewerId {
     private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
 
     private final ModelNodeCellTable table;
+    private final TextColumn<ModelNode> nameColumn;
     private final ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
     private List<ModelNode> backup;
@@ -81,7 +84,6 @@ public class LogFileTable extends Composite implements LogViewerId {
         HTML label = new HTML(Console.CONSTANTS.commom_label_filter()+":&nbsp;");
         label.getElement().setAttribute("style", "padding-top:8px;");
         final TextBox filter = new TextBox();
-        filter.getElement().setId("TX_" + BASE_ID + "_filter");
         filter.setMaxLength(30);
         filter.setVisibleLength(20);
         filter.getElement().setAttribute("style", "float:right; width:120px;");
@@ -97,6 +99,7 @@ public class LogFileTable extends Composite implements LogViewerId {
                 }
             }
         });
+        setId(filter, BASE_ID, "filter");
         tools.addToolWidget(label);
         tools.addToolWidget(filter);
 
@@ -110,9 +113,9 @@ public class LogFileTable extends Composite implements LogViewerId {
             }
         });
         download.setEnabled(false);
-        download.getElement().setId("BT_" + BASE_ID + "_download");
+        setId(download, BASE_ID, "download");
         // TODO Enable when the server side download is in place
-        // tools.addToolButtonRight(download);
+        tools.addToolButtonRight(download);
 
         final ToolButton view = new ToolButton(Console.CONSTANTS.common_label_view(), new ClickHandler() {
             @Override
@@ -124,7 +127,7 @@ public class LogFileTable extends Composite implements LogViewerId {
             }
         });
         view.setEnabled(false);
-        view.getElement().setId("BT_" + BASE_ID + "_view");
+        setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
         panel.add(tools);
 
@@ -158,7 +161,7 @@ public class LogFileTable extends Composite implements LogViewerId {
         panel.add(pager);
 
         // column: name
-        TextColumn<ModelNode> nameColumn = new TextColumn<ModelNode>() {
+        nameColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
                 return node.get(FILE_NAME).asString();
@@ -193,6 +196,7 @@ public class LogFileTable extends Composite implements LogViewerId {
             }
         };
         sizeColumn.setSortable(true);
+        sizeColumn.setHorizontalAlignment(ALIGN_RIGHT);
         sortHandler.setComparator(sizeColumn, new Comparator<ModelNode>() {
             @Override
             public int compare(ModelNode node1, ModelNode node2) {
@@ -219,6 +223,7 @@ public class LogFileTable extends Composite implements LogViewerId {
         list.addAll(files);
 
         // Make sure the new values are properly sorted
+        table.getColumnSortList().push(nameColumn);
         ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 
