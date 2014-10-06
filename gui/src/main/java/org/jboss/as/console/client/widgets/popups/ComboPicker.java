@@ -124,7 +124,7 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
             }
         });
 
-        final String panelId = "popup_"+ HTMLPanel.createUniqueId();
+        final String panelId = "combopicker_popup";
         popup = new PopupPanel(true, true) {
 
             @Override

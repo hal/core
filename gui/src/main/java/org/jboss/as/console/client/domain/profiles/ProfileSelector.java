@@ -25,6 +25,7 @@ public class ProfileSelector {
 
 
         VerticalPanel layout = new VerticalPanel();
+        layout.getElement().setId("profile_selection");
         layout.getElement().setAttribute("title", "Please chose a configuration profile");
         layout.setStyleName("fill-layout-width");
         layout.addStyleName("lhs-selector");
