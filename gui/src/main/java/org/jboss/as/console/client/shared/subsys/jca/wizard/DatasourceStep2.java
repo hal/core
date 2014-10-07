@@ -92,7 +92,9 @@ public class DatasourceStep2 {
         };
 
         table.addColumn(nameColumn, "Name");
-        table.addColumn(moduleColumn, "Module");
+        if(!isStandalone) {
+            table.addColumn(moduleColumn, "Module");
+        }
 
         selectionModel = new SingleSelectionModel<JDBCDriver>();
         table.setSelectionModel(selectionModel);
