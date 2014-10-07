@@ -72,8 +72,7 @@ public class DatasourceStep2 {
         desc.getElement().setAttribute("style", "padding-bottom:10px;");
 
         layout.add(desc);
-        layout.add(new ContentDescription("Select one of the deployed JDBC driver."));
-
+        layout.add(new ContentDescription("Select one of the installed JDBC driver. Don't see your driver? Please make sure it's deployed as a module and properly registered."));
 
         // ---
 
@@ -85,18 +84,15 @@ public class DatasourceStep2 {
                 return record.getName();
             }
         };
-
-        TextColumn<JDBCDriver> groupColumn = new TextColumn<JDBCDriver>() {
+        TextColumn<JDBCDriver> moduleColumn = new TextColumn<JDBCDriver>() {
             @Override
             public String getValue(JDBCDriver record) {
-                return record.getGroup();
+                return record.getDriverModuleName();
             }
         };
 
         table.addColumn(nameColumn, "Name");
-
-        if(!isStandalone)
-            table.addColumn(groupColumn, "Server Group");
+        table.addColumn(moduleColumn, "Module");
 
         selectionModel = new SingleSelectionModel<JDBCDriver>();
         table.setSelectionModel(selectionModel);

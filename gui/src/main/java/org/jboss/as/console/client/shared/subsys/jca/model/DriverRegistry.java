@@ -34,8 +34,13 @@ public class DriverRegistry {
     public DriverRegistry(
             ApplicationProperties bootstrap,
             DomainDriverStrategy domainStrategy,
-            StandaloneDriverStrategy standaloneStrategy) {
-        this.chosenStrategy = bootstrap.isStandalone() ? standaloneStrategy : domainStrategy;
+            StandaloneDriverStrategy standaloneStrategy,
+            ModulesDriverStrategy modulesStrategy) {
+//        this.chosenStrategy = bootstrap.isStandalone() ? standaloneStrategy : domainStrategy;
+        // HAL-483: ":installed-drivers-list" used in DomainDriverStrategy
+        // does not scale for big domains. In order to have consistent behaviour,
+        // ModulesDriverStrategy is used for both standalone and domain
+        this.chosenStrategy = modulesStrategy;
     }
 
     public DriverStrategy create() {

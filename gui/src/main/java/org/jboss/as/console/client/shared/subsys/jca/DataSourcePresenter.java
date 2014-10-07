@@ -168,7 +168,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 }
 
                 // postpone driver auto detection. can be executed in the background
-
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {

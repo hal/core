@@ -51,6 +51,10 @@ public interface JDBCDriver {
     String getXaDataSourceClass();
     void setXaDataSourceClass(String dataSourceClass);
 
+    @Binding(detypedName = "driver-module-name")
+    String getDriverModuleName();
+    void setDriverModuleName(String dataSourceClass);
+
     @Binding(detypedName = "none", skip = true)
     String getGroup();
     void setGroup(String group);
