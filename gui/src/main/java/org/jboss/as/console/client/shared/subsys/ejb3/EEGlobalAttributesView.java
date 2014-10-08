@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
@@ -30,10 +31,19 @@ public class EEGlobalAttributesView extends ModelDrivenWidget {
         this.presenter = presenter;
     }
 
-    public void setData(ModelNode data) {
-        if(form!=null)
+    public void setData(final ModelNode data) {
+        if(form!=null) {
             form.edit(data);
-        // else replay
+        }
+        else {
+            Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                @Override
+                public boolean execute() {
+                    form.edit(data);
+                    return false;
+                }
+            }, 250);
+        }
     }
 
     @Override
