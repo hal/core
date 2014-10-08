@@ -132,7 +132,7 @@ color: #FFBC11;\
 color: inherit;\
 }\
 .ace-logfile .ace_level.ace_debug {\
-color: #666666;\
+color: #999999;\
 }\
 .ace-logfile .ace_exception {\
 color: #FFBC11;\

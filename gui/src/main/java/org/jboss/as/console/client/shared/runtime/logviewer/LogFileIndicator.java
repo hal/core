@@ -29,6 +29,7 @@ import org.jboss.gwt.circuit.Action;
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 /**
  * A visual indicator for the navigation inside a {@link org.jboss.as.console.client.shared.runtime.logviewer.LogFile}
@@ -101,10 +102,10 @@ public class LogFileIndicator extends Composite {
             }
         }
 
-        double ratio = (100.0 / bytesPerFile) * bytesConsumed;
+        double ratio = (100.0d / bytesPerFile) * bytesConsumed;
         ratio = max(0.0, ratio);
         ratio = min(100.0, ratio);
-        getElement().getParentElement().setTitle("Position " + ratio + "%");
+        getElement().getParentElement().setTitle("Position " + round(ratio) + "%");
 
         double indicatorHeight = (containerHeight / 100.0) * ratio;
         indicatorHeight = max(5, indicatorHeight);
