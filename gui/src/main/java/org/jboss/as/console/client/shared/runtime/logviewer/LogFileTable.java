@@ -113,6 +113,7 @@ public class LogFileTable extends Composite implements LogViewerId {
             }
         });
         download.setEnabled(false);
+        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(download, BASE_ID, "download");
         // TODO Enable when the server side download is in place
         tools.addToolButtonRight(download);
@@ -127,6 +128,7 @@ public class LogFileTable extends Composite implements LogViewerId {
             }
         });
         view.setEnabled(false);
+        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
         panel.add(tools);
