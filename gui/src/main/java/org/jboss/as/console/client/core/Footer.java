@@ -91,7 +91,7 @@ public class Footer {
             public void execute() {
                 placeManager.revealPlace(
                         new PlaceRequest.Builder().nameToken(NameTokens.ToolsPresenter).with("name", "browser")
-                                .build());
+                                .build(), false);
             }
         });
 
@@ -119,7 +119,7 @@ public class Footer {
                     toolsPopup.hide();
                     placeManager.revealPlace(
                             new PlaceRequest.Builder().nameToken(NameTokens.ToolsPresenter).with("name", tool[1])
-                                    .build());
+                                    .build(),false);
                 }
             });
             toolsList.add(browser);
@@ -148,7 +148,7 @@ public class Footer {
             @Override
             public void onClick(ClickEvent event) {
                 placeManager.revealPlace(
-                        new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build()
+                        new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build(), false
                 );
             }
         });

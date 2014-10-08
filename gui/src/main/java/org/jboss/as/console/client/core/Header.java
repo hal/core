@@ -266,7 +266,7 @@ public class Header implements ValueChangeHandler<String> {
                     menuPopup.hide();
 
                     placeManager.revealPlace(
-                            new PlaceRequest(NameTokens.ToolsPresenter).with("name", "run-as-role")
+                            new PlaceRequest(NameTokens.ToolsPresenter).with("name", "run-as-role"), false
                     );
 
 
