@@ -20,6 +20,9 @@ public interface ResourceAdapter {
     String getArchive();
     void setArchive(String archive);
 
+    String getModule();
+    void setModule(String module);
+
     @Binding(detypedName = "transaction-support")
     String getTransactionSupport();
     void setTransactionSupport(String txSupport);

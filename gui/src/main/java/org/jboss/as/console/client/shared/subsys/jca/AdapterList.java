@@ -76,7 +76,7 @@ public class AdapterList implements PropertyManagement {
 
                 Feedback.confirm(
                         Console.MESSAGES.deleteTitle("Resource Adapter"),
-                        Console.MESSAGES.deleteConfirm("Resource Adapter " + selection.getArchive()),
+                        Console.MESSAGES.deleteConfirm("Resource Adapter " + selection.getName()),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
@@ -111,12 +111,6 @@ public class AdapterList implements PropertyManagement {
                         return record.getName();
                     }
                 };
-        TextColumn<ResourceAdapter> archiveColumn = new TextColumn<ResourceAdapter>() {
-            @Override
-            public String getValue(ResourceAdapter record) {
-                return record.getArchive();
-            }
-        };
 
         TextColumn<ResourceAdapter> numberConnections = new TextColumn<ResourceAdapter>() {
             @Override
@@ -142,7 +136,6 @@ public class AdapterList implements PropertyManagement {
         };
 
         table.addColumn(nameColumn, "Name");
-        table.addColumn(archiveColumn, "Archive");
         table.addColumn(numberConnections, "Connection Def.");
         table.addColumn(option, "Option");
 
@@ -178,12 +171,13 @@ public class AdapterList implements PropertyManagement {
 
         TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem archiveItem = new TextBoxItem("archive", "Archive");
+        TextBoxItem moduleItem = new TextBoxItem("module", "Module");
         ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "TX");
         txItem.setDefaultToFirstOption(true);
         txItem.setValueMap(new String[]{"NoTransaction", "LocalTransaction", "XATransaction"});
 
 
-        form.setFields(nameItem, archiveItem, txItem);
+        form.setFields(nameItem, archiveItem, moduleItem, txItem);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
