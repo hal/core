@@ -46,7 +46,7 @@ class Tab extends Composite {
     private final TabLabel label;
     private OffPageSelector selector;
 
-    Tab(final DefaultTabLayoutPanel tabLayout, final String text, final int index) {
+    Tab(final DefaultTabLayoutPanel tabLayout, final String text, final int index, final boolean truncate) {
         this.tabLayout = tabLayout;
         this.index = index;
         this.lastTab = index == PAGE_LIMIT - 1;
@@ -54,14 +54,14 @@ class Tab extends Composite {
         Widget content;
         if (index == 0) {
             // first tab: under no circumstances closable
-            label = new TabLabel(Document.get().createDivElement(), text);
+            label = new TabLabel(Document.get().createDivElement(), text, truncate);
             content = label;
 
         } else if (lastTab) {
             // last tab: contains close icon (in case closable == true) and hidden selector icon
             if (tabLayout.isCloseable()) {
                 FlowPanel panel = new FlowPanel();
-                label = new TabLabel(Document.get().createSpanElement(), text);
+                label = new TabLabel(Document.get().createSpanElement(), text, truncate);
                 selector = new OffPageSelector(tabLayout);
                 selector.setVisible(false); // will be displayed when the first off page is added
                 panel.add(label);
@@ -69,21 +69,21 @@ class Tab extends Composite {
                 panel.add(selector);
                 content = panel;
             } else {
-                label = new TabLabel(Document.get().createDivElement(), text);
+                label = new TabLabel(Document.get().createDivElement(), text, truncate);
                 content = label;
             }
 
         } else {
             // 'middle' tabs contains close icons (if closable == true)
             if (tabLayout.isCloseable()) {
-                label = new TabLabel(Document.get().createSpanElement(), text);
+                label = new TabLabel(Document.get().createSpanElement(), text, truncate);
                 FlowPanel panel = new FlowPanel();
                 panel.add(label);
                 CloseIcon closeIcon = new CloseIcon();
                 panel.add(closeIcon);
                 content = panel;
             } else {
-                label = new TabLabel(Document.get().createDivElement(), text);
+                label = new TabLabel(Document.get().createDivElement(), text, truncate);
                 content = label;
             }
         }
@@ -119,8 +119,11 @@ class Tab extends Composite {
 
     class TabLabel extends Label {
 
-        TabLabel(final Element element, final String text) {
+        private final boolean truncate;
+
+        TabLabel(final Element element, final String text, boolean truncate) {
             super(element);
+            this.truncate = truncate;
 
             setText(text);
             sinkEvents(Event.ONKEYDOWN);
@@ -131,8 +134,12 @@ class Tab extends Composite {
 
         @Override
         public void setText(final String text) {
-            super.setText(abbreviateMiddle(text));
-            setTitle(text);
+            if (truncate) {
+                super.setText(abbreviateMiddle(text));
+                setTitle(text);
+            } else {
+                super.setText(text);
+            }
         }
 
         @Override

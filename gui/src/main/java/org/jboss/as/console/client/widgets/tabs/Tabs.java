@@ -27,15 +27,17 @@ import java.util.Stack;
 class Tabs implements Iterable<Tab> {
 
     private final DefaultTabLayoutPanel tabLayout;
+    private final boolean truncateTitles;
     private final Stack<Tab> tabs;
 
-    Tabs(DefaultTabLayoutPanel tabLayout) {
+    Tabs(DefaultTabLayoutPanel tabLayout, boolean truncateTitles) {
         this.tabLayout = tabLayout;
+        this.truncateTitles = truncateTitles;
         this.tabs = new Stack<>();
     }
 
     Tab add(String text, int index) {
-        Tab t = new Tab(tabLayout, text, index);
+        Tab t = new Tab(tabLayout, text, index, truncateTitles);
         tabs.push(t);
         return t;
     }

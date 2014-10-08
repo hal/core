@@ -53,14 +53,14 @@ public class DefaultTabLayoutPanel extends TabLayoutPanel implements OffPageTabP
 
 
     public DefaultTabLayoutPanel(double barHeight, Style.Unit barUnit) {
-        this(barHeight, barUnit, false);
+        this(barHeight, barUnit, false, false);
     }
 
-    public DefaultTabLayoutPanel(double barHeight, Style.Unit barUnit, boolean closeable) {
+    public DefaultTabLayoutPanel(double barHeight, Style.Unit barUnit, boolean truncateTitles, boolean closeable) {
         super(barHeight, barUnit);
 
         this.closeable = closeable;
-        this.tabs = new Tabs(this);
+        this.tabs = new Tabs(this, truncateTitles);
         this.offPageContainer = new OffPageContainer();
         this.prevSelectedIndex = -1;
 

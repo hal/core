@@ -45,7 +45,7 @@ public class LogFileTabs extends Composite {
 
     public LogFileTabs(final Dispatcher circuit) {
         this.circuit = circuit;
-        this.tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true);
+        this.tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
         this.tabLayout.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
