@@ -286,9 +286,9 @@ public class ResourceAdapterPresenter
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
                 if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.deleted("Resource Adapter "+ra.getArchive()));
+                    Console.info(Console.MESSAGES.deleted("Resource Adapter "+ra.getName()));
                 else
-                    Console.error(Console.MESSAGES.deletionFailed("Resource Adapter "+ra.getArchive()), result.toString());
+                    Console.error(Console.MESSAGES.deletionFailed("Resource Adapter "+ra.getName()), result.toString());
 
                 loadAdapter(false);
             }
@@ -320,9 +320,9 @@ public class ResourceAdapterPresenter
                 boolean success = response.get(OUTCOME).asString().equals(SUCCESS);
 
                 if(success)
-                    Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getArchive()));
+                    Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getName()));
                 else
-                    Console.error(Console.MESSAGES.saveFailed("Resource Adapter " + ra.getArchive()),
+                    Console.error(Console.MESSAGES.saveFailed("Resource Adapter " + ra.getName()),
                             response.getFailureDescription());
 
                 loadAdapter(false);
@@ -337,7 +337,7 @@ public class ResourceAdapterPresenter
         window.setHeight(360);
 
         window.trapWidget(
-                new NewAdapterWizard(this).asWidget()
+                new NewAdapterWizard(this, factory.resourceAdapter().as()).asWidget()
         );
 
         window.setGlassEnabled(true);
@@ -357,6 +357,10 @@ public class ResourceAdapterPresenter
         operation.get(OP).set(ADD);
         operation.get(ADDRESS).set(addressModel.get(ADDRESS).asObject());
 
+        operation.remove("name"); // work around
+
+        System.out.println(operation);
+
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
             @Override
@@ -369,9 +373,9 @@ public class ResourceAdapterPresenter
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
                 if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getArchive()));
+                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getName()));
                 else
-                    Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getArchive()), result.toString());
+                    Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), result.toString());
 
                 loadAdapter(false);
             }

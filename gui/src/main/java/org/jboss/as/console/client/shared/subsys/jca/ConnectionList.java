@@ -237,7 +237,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
     public void setAdapter(ResourceAdapter adapter) {
         this.currentAdapter = adapter;
 
-        headline.setText("Resource Adapter: "+adapter.getArchive());
+        headline.setText("Resource Adapter: "+adapter.getName());
 
         // some subviews require manual cleanup
         connectionProperties.clearProperties();
