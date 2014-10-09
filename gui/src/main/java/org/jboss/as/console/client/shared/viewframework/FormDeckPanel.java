@@ -27,6 +27,7 @@ import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.stack.NamedDeckPanel;
 
 import java.util.ArrayList;
@@ -70,6 +71,14 @@ public class FormDeckPanel<T> extends NamedDeckPanel implements FormAdapter<T> {
             add(entry.getKey(), entry.getValue().asWidget());
         }
     }
+
+    @Override
+    public void addFormValidator(FormValidator formValidator) {
+        for (FormAdapter<T> form : forms.values()) {
+            form.addFormValidator(formValidator);
+        }
+    }
+
     
     public FormAdapter<T> getVisibleForm() {
         return forms.get(visibleWidgetName());
