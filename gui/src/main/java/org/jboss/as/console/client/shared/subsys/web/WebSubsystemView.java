@@ -22,101 +22,44 @@ package org.jboss.as.console.client.shared.subsys.web;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
-import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
-import org.jboss.as.console.client.shared.subsys.web.model.JSPContainerConfiguration;
 import org.jboss.as.console.client.shared.subsys.web.model.VirtualServer;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Heiko Braun
- * @date 5/11/11
  */
-public class WebSubsystemView extends DisposableViewImpl implements WebPresenter.MyView{
+public class WebSubsystemView extends DisposableViewImpl implements WebPresenter.MyView {
 
     private WebPresenter presenter;
-    private Form<JSPContainerConfiguration> form;
-
+    private ModelDrivenPanel globalsPanel;
+    private ModelDrivenPanel jspPanel;
     private ConnectorList connectorList;
     private VirtualServerList serverList;
 
     @Override
     public Widget createWidget() {
 
-        form = new Form(JSPContainerConfiguration.class);
-        form.setNumColumns(2);
-
-        FormToolStrip toolStrip = new FormToolStrip<JSPContainerConfiguration>(
-                form,
-                new FormToolStrip.FormCallback<JSPContainerConfiguration>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveJSPConfig(changeset);
-                    }
-
-                    @Override
-                    public void onDelete(JSPContainerConfiguration entity) {
-
-                    }
-                }
-        );
-
-        toolStrip.providesDeleteOp(false);
-
-        // ----
-
-        CheckBoxItem disabled= new CheckBoxItem("disabled", "Disabled?");
-        CheckBoxItem development= new CheckBoxItem("development", "Development?");
-        TextBoxItem instanceId = new TextBoxItem("instanceId", "Instance ID", false);
-
-        CheckBoxItem keepGenerated= new CheckBoxItem("keepGenerated", "Keep Generated?");
-        NumberBoxItem checkInterval = new NumberBoxItem("checkInterval", "Check Interval");
-        CheckBoxItem sourceFragment= new CheckBoxItem("displaySource", "Display Source?");
-
-
-        form.setFields(disabled, development, instanceId);
-        form.setFieldsInGroup(Console.CONSTANTS.common_label_advanced(), new DisclosureGroupRenderer(), keepGenerated, checkInterval, sourceFragment);
-
-
-        FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
-            @Override
-            public ModelNode getAddress() {
-                ModelNode address = Baseadress.get();
-                address.add("subsystem", "web");
-                address.add("configuration", "jsp-configuration");
-                return address;
-            }
-        },form);
-
-        form.setEnabled(false); // TODO:
-
-        // ----
-
+        globalsPanel = new ModelDrivenPanel("{selected.profile}/subsystem=web", presenter);
+        jspPanel = new ModelDrivenPanel("{selected.profile}/subsystem=web/configuration=jsp-configuration", presenter,
+                "check-interval",
+                "development",
+                "disabled",
+                "keep-generated",
+                "display-source-fragment",
+                "x-powered-by");
         connectorList = new ConnectorList(presenter);
         serverList = new VirtualServerList(presenter);
-
-        FormLayout formlayout = new FormLayout()
-                .setForm(form)
-                .setHelp(helpPanel)
-                .setTools(toolStrip);
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle("Servlet")
                 .setHeadline("Servlet/HTTP Configuration")
                 .setDescription(Console.CONSTANTS.subsys_web_desc())
-                .addDetail("Common", formlayout.build())
+                .addDetail("Global", globalsPanel)
+                .addDetail("JSP", jspPanel)
                 .addDetail("Connectors", connectorList.asWidget())
                 .addDetail("Virtual Servers", serverList.asWidget());
 
@@ -126,6 +69,16 @@ public class WebSubsystemView extends DisposableViewImpl implements WebPresenter
     @Override
     public void setPresenter(WebPresenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void updateGlobals(ModelNode globals) {
+        globalsPanel.setData(globals);
+    }
+
+    @Override
+    public void updateJsp(ModelNode jsp) {
+        jspPanel.setData(jsp);
     }
 
     @Override
@@ -148,15 +101,8 @@ public class WebSubsystemView extends DisposableViewImpl implements WebPresenter
         serverList.setEnabled(b);
     }
 
-    @Override
-    public void setJSPConfig(JSPContainerConfiguration jspConfig) {
-        form.edit(jspConfig);
-    }
-
 	@Override
-	public void setSocketBindigs(List<String> socketBindings) {
+	public void setSocketBindings(List<String> socketBindings) {
         connectorList.setSocketBindigs(socketBindings);
-		
 	}
-
 }
