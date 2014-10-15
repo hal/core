@@ -275,3 +275,26 @@
 .refresh-link {
 
 }
+
+.top-level-tools td {
+    border-left: 1px solid #53565B;
+    padding-left:2px;
+    padding-right:2px;
+}
+
+.top-level-menu .menu-item {
+    line-height: 22px;
+    padding-left: 5px;
+    cursor: pointer;
+}
+
+.top-level-menu .menu-item:hover {
+    background-color: #C7E5F0;
+    border-bottom: 1px solid #4DB9E7;
+    border-top: 1px solid #4DB9E7;
+}
+
+.notification-center td {
+    border:none!important;
+}
+

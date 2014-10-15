@@ -20,15 +20,13 @@ import javax.inject.Inject;
  */
 public class CSPView extends SuspendableViewImpl implements CSPPresenter.MyView {
 
-    private final BootstrapContext bootstrapContext;
     private CSPPresenter presenter;
-    private TabLayoutPanel tabs;
     private Frame supportFrame;
-    private Frame searchFrame;
+    private String cspUrl;
 
     @Inject
     public CSPView(BootstrapContext bootstrapContext) {
-        this.bootstrapContext = bootstrapContext;
+        cspUrl = bootstrapContext.getProperty(ApplicationProperties.CSP_API);
     }
 
     @Override
@@ -37,33 +35,30 @@ public class CSPView extends SuspendableViewImpl implements CSPPresenter.MyView 
     }
 
     @Override
+    public void setRef(String angularRef) {
+
+        if(angularRef.equals("search"))
+        {
+            supportFrame.setUrl(cspUrl + "/customer.html#search");
+        }
+        else if(angularRef.equals("open"))
+        {
+            supportFrame.setUrl(cspUrl + "/customer.html#case/new");
+        }
+        else if(angularRef.equals("modify"))
+        {
+            supportFrame.setUrl(cspUrl + "/customer.html#case/list");
+        }
+
+    }
+
+    @Override
     public Widget createWidget() {
-        String cspUrl = bootstrapContext.getProperty(ApplicationProperties.CSP_API);
-        /*tabs = new TabLayoutPanel(40, Style.Unit.PX);
-        tabs.setStyleName("default-tabpanel");
-
-
-        searchFrame = new Frame(cspUrl + "/search.html");
-        searchFrame.getElement().setAttribute("style", "margin-top:10px");
-        searchFrame.setWidth("100%");
-        searchFrame.setHeight("100%");*/
-
-        /*searchFrame.addLoadHandler(new LoadHandler() {
-            @Override
-            public void onLoad(LoadEvent loadEvent) {
-                forceResize();
-            }
-        });*/
 
         supportFrame = new Frame(cspUrl + "/customer.html");
         supportFrame.getElement().setAttribute("style", "margin-top:10px");
         supportFrame.setWidth("100%");
         supportFrame.setHeight("100%");
-
-
-        /*tabs.add(searchFrame, "Knowledge Base");
-        tabs.add(supportFrame, "Support Tickets");
-        tabs.selectTab(0);*/
 
         LayoutPanel layout = new LayoutPanel();
         layout.setStyleName("fill-layout");

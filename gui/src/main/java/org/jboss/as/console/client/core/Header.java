@@ -150,11 +150,13 @@ public class Header implements ValueChangeHandler<String> {
 
 
         HorizontalPanel tools = new HorizontalPanel();
+        tools.setStyleName("top-level-tools");
 
         // messages
         MessageCenterView messageCenterView = new MessageCenterView(messageCenter);
         Widget messageCenter = messageCenterView.asWidget();
         tools.add(messageCenter);
+        messageCenter.getElement().getParentElement().addClassName("first");
 
         // redhat support plugin
         if (featureSet.isCSPEnabled()) {
@@ -183,15 +185,15 @@ public class Header implements ValueChangeHandler<String> {
         sb.appendHtmlConstant("<div>");
 
         // current user
-        String userHtml = "<i style='color:#cecece' class='icon-user'></i>&nbsp;"+bootstrap.getPrincipal();
+        String userHtml = "<i style='color:#cecece' class='icon-user'></i>&nbsp;"+bootstrap.getPrincipal()+"&nbsp;<i style='color:#cecece' class='icon-angle-down'></i>";
 
         SafeHtml principal = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'>"+userHtml+"</div>").toSafeHtml();
         final HTML userButton = new HTML(principal);
         userButton.getElement().setAttribute("style", "cursor:pointer");
         tools.add(userButton);
 
-        final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.TOP);
-
+        final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.NONE);
+        menuPopup.setAutoHideEnabled(true);
         ClickHandler clickHandler = new ClickHandler() {
             public void onClick(ClickEvent event) {
 
@@ -199,7 +201,7 @@ public class Header implements ValueChangeHandler<String> {
                 int height = 50;
 
                 menuPopup.setPopupPosition(
-                        userButton.getAbsoluteLeft() - (width+2- userButton.getOffsetWidth()) ,
+                        userButton.getAbsoluteLeft() ,
                         userButton.getAbsoluteTop() + 25
                 );
 
@@ -211,8 +213,8 @@ public class Header implements ValueChangeHandler<String> {
         };
 
         userButton.addClickHandler(clickHandler);
-        HTML logoutHtml = new HTML("<i class='icon-signout'></i>&nbsp;" + Console.CONSTANTS.common_label_logout());
-        logoutHtml.getElement().setAttribute("style", "cursor:pointer;padding-top:3px");
+        HTML logoutHtml = new HTML(Console.CONSTANTS.common_label_logout());
+        logoutHtml.setStyleName("menu-item");
         logoutHtml.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -234,11 +236,10 @@ public class Header implements ValueChangeHandler<String> {
             }
         });
 
-        logoutHtml.addStyleName("html-link");
 
         VerticalPanel usermenu = new VerticalPanel();
         usermenu.setStyleName("fill-layout-width");
-        usermenu.addStyleName("user-menu");
+        usermenu.addStyleName("top-level-menu");
 
         usermenu.add(new HTML("Roles:"));
         usermenu.add(new HTML(sb.toSafeHtml()));
@@ -248,10 +249,10 @@ public class Header implements ValueChangeHandler<String> {
         {
             usermenu.add(new HTML("<hr/>"));
             HTML runAsBtn = new HTML();
-            runAsBtn.addStyleName("html-link");
+            runAsBtn.addStyleName("menu-item");
 
             SafeHtmlBuilder runAsRole = new SafeHtmlBuilder();
-            runAsRole.appendHtmlConstant("<i class='icon-flag'></i>&nbsp;").appendEscaped("Run as");
+            runAsRole.appendEscaped("Run as");
             if (bootstrap.getRunAs()!=null) {
                 runAsRole.appendHtmlConstant("&nbsp;").appendEscaped(bootstrap.getRunAs());
             } else {
@@ -275,7 +276,6 @@ public class Header implements ValueChangeHandler<String> {
             usermenu.add(runAsBtn);
         }
 
-        usermenu.add(new HTML("<hr/>"));
         usermenu.add(logoutHtml);
         menuPopup.setWidget(usermenu);
 

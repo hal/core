@@ -77,9 +77,10 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
         public MessageListPopup()
         {
-            super(Arrow.TOP);
+            super(Arrow.NONE);
 
             this.sinkEvents(Event.MOUSEEVENTS);
+            setAutoHideEnabled(true);
 
             SafeHtmlBuilder emptyMessage = new SafeHtmlBuilder();
             emptyMessage.appendHtmlConstant("<div style='padding:10px'>");
@@ -268,7 +269,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
                 int height = numMessages*35;
 
                 messagePopup.setPopupPosition(
-                        messageButton.getAbsoluteLeft() - (width+10- messageButton.getOffsetWidth()) ,
+                        messageButton.getAbsoluteLeft(),// - (width+10- messageButton.getOffsetWidth()) ,
                         messageButton.getAbsoluteTop() + 25
                 );
 

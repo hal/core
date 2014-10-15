@@ -62,6 +62,11 @@ public class DefaultPopup extends PopupPanel {
                 hide();
             }
         });
+
+
+        setAutoHideEnabled(true);
+        setAutoHideOnHistoryEventsEnabled(true);
+
     }
 
     @Override

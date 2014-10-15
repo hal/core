@@ -20,21 +20,13 @@ package org.jboss.as.console.client.csp;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.LoadEvent;
-import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.user.client.ui.Frame;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ApplicationProperties;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.ballroom.client.widgets.window.DialogueOptions;
-import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
+import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 
 public class CustomerSupportLauncher {
 
@@ -46,14 +38,71 @@ public class CustomerSupportLauncher {
     }
 
     public Widget asWidget() {
-        HTML button = new HTML("<div class='header-textlink'><i style='color:#cecece' class='icon-comment-alt'></i>&nbsp;Support</div>");
-        button.addClickHandler(new ClickHandler() {
+        final HTML button = new HTML("<div class='header-textlink'>Red Hat Access &nbsp;<i style='color:#cecece' class='icon-angle-down'></i></div>");
+        button.getElement().setAttribute("style", "cursor:pointer");
+
+        final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.NONE);
+        menuPopup.setAutoHideEnabled(true);
+        ClickHandler clickHandler = new ClickHandler() {
+            public void onClick(ClickEvent event) {
+
+                int width = 160;
+                int height = 70;
+
+                menuPopup.setPopupPosition(
+                        button.getAbsoluteLeft(),
+                        button.getAbsoluteTop() + 25
+                );
+
+                menuPopup.show();
+
+                menuPopup.setWidth(width+"px");
+                menuPopup.setHeight(height+"px");
+            }
+        };
+
+        button.addClickHandler(clickHandler);
+
+        VerticalPanel supportMenu = new VerticalPanel();
+        supportMenu.setStyleName("fill-layout-width");
+        supportMenu.addStyleName("top-level-menu");
+
+        HTML searchLink = new HTML("Search Customer Portal");
+        searchLink.addStyleName("menu-item");
+        searchLink.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(ClickEvent clickEvent) {
-                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP));
+            public void onClick(ClickEvent event) {
+                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "search"));
+                menuPopup.hide();
             }
         });
-        button.getElement().setAttribute("style", "cursor:pointer");
+
+        HTML openCaseLink = new HTML("Open Case");
+        openCaseLink.addStyleName("menu-item");
+        openCaseLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "open"));
+                menuPopup.hide();
+            }
+        });
+
+        HTML modifyCaseLink = new HTML("Modify Case");
+        modifyCaseLink.addStyleName("menu-item");
+        modifyCaseLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "modify"));
+                menuPopup.hide();
+            }
+        });
+
+        supportMenu.add(searchLink);
+        supportMenu.add(openCaseLink);
+        supportMenu.add(modifyCaseLink);
+
+        menuPopup.setWidget(supportMenu);
+
         return button;
     }
 
