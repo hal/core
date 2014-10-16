@@ -83,7 +83,7 @@ abstract class BatchResourceForm extends ModelDrivenWidget {
     }
 
     ModelNodeForm getForm() {
-        return formAssets.getForm();
+        return formAssets == null ? null : formAssets.getForm();
     }
 
     void update(final ModelNode model) {
