@@ -41,4 +41,7 @@ public interface DeploymentReference {
     String getGroup();
     void setGroup(String group);
 
+    @Binding(skip = true)
+    boolean isEnableAfterDeployment();
+    void setEnableAfterDeployment(boolean enableAfterDeployment);
 }

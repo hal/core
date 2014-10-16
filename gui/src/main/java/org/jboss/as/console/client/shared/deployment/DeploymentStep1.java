@@ -21,10 +21,13 @@ package org.jboss.as.console.client.shared.deployment;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -98,6 +101,7 @@ public class DeploymentStep1 implements IsWidget {
 
             String unmanagedText = "<h3>" + Console.CONSTANTS.common_label_step() + "1/1: Specify Deployment</h3>";
             unmanagedPanel.add(new HTML(unmanagedText));
+            unmanagedPanel.add(new StaticHelpPanel(unmanagedHelp()).asWidget());
 
             unmanagedForm = new Form<>(DeploymentRecord.class);
             TextAreaItem path = new TextAreaItem("path", "Path");
@@ -112,7 +116,12 @@ public class DeploymentStep1 implements IsWidget {
             };
             CheckBoxItem archive = new CheckBoxItem("archive", "Is Archive?");
             archive.setValue(true);
-            unmanagedForm.setFields(path, relativeTo, archive, name, runtimeName);
+            CheckBoxItem enabled = new CheckBoxItem("enabled", "Enable");
+            if (Console.getBootstrapContext().isStandalone()) {
+                unmanagedForm.setFields(path, relativeTo, archive, name, runtimeName, enabled);
+            } else {
+                unmanagedForm.setFields(path, relativeTo, archive, name, runtimeName);
+            }
             unmanagedPanel.add(unmanagedForm.asWidget());
             tabs.add(unmanagedPanel, "Unmanaged");
         }
@@ -157,5 +166,31 @@ public class DeploymentStep1 implements IsWidget {
 
     FormPanel getManagedForm() {
         return managedForm;
+    }
+
+    private SafeHtml unmanagedHelp() {
+        // TODO I18n or take from DMR
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
+        addHelpTextRow(builder, "Path:", "Path (relative or absolute) to unmanaged content that is part of the deployment.");
+        addHelpTextRow(builder, "Relative To:", "Name of a system path to which the value of the 'path' is relative. If not set, the 'path' is considered to be absolute.");
+        addHelpTextRow(builder, "Is Archive?:", "Flag indicating whether unmanaged content is a zip archive (true) or exploded (false).");
+        addHelpTextRow(builder, "Name:", "Unique identifier of the deployment. Must be unique across all deployments.");
+        addHelpTextRow(builder, "Runtime Name:", "Name by which the deployment should be known within a server's runtime. This would be equivalent to the file name of a deployment file, and would form the basis for such things as default Java Enterprise Edition application and module names. This would typically be the same as 'name', but in some cases users may wish to have two deployments with the same 'runtime-name' (e.g. two versions of \\\"foo.war\\\") both available in the deployment content repository, in which case the deployments would need to have distinct 'name' values but would have the same 'runtime-name'.");
+        if (Console.getBootstrapContext().isStandalone()) {
+            addHelpTextRow(builder, "Enable:", "Boolean indicating whether the deployment should be enabled after deployment.");
+        }
+        return builder.toSafeHtml();
+    }
+
+    private void addHelpTextRow(SafeHtmlBuilder builder, String name, String desc) {
+        builder.appendHtmlConstant("<tr class='help-field-row'>");
+        builder.appendHtmlConstant("<td class='help-field-name'>");
+        builder.appendEscaped(name);
+        builder.appendHtmlConstant("</td>");
+        builder.appendHtmlConstant("<td class='help-field-desc'>");
+        builder.appendEscaped(desc);
+        builder.appendHtmlConstant("</td>");
+        builder.appendHtmlConstant("</tr>");
     }
 }

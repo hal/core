@@ -25,21 +25,16 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
-import org.jboss.as.console.client.shared.deployment.DeployCommandExecutor;
-import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
-import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
-import org.jboss.as.console.client.shared.deployment.DeploymentStore;
-import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
+import org.jboss.as.console.client.shared.deployment.*;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.spi.AccessControl;
@@ -52,11 +47,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -377,7 +368,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     {
         window = new DefaultWindow(title);
         window.setWidth(480);
-        window.setHeight(450);
+        window.setHeight(480);
         window.trapWidget(
                 new NewDeploymentWizard(this, window, isUpdate, record).asWidget());
         window.setGlassEnabled(true);
@@ -430,8 +421,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     }
 
 
-    public void onCreateUnmanaged(final DeploymentRecord entity)
-    {
+    public void onCreateUnmanaged(final DeploymentRecord entity) {
         window.hide();
 
         ModelNode operation = new ModelNode();
@@ -439,28 +429,24 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
         operation.get(ADDRESS).add("deployment", entity.getName());
         operation.get("name").set(entity.getName());
         operation.get("runtime-name").set(entity.getRuntimeName());
+        operation.get("enabled").set(entity.isEnabled());
         List<ModelNode> content = new ArrayList<ModelNode>(1);
         ModelNode path = new ModelNode();
         path.get("path").set(entity.getPath());
         path.get("archive").set(entity.isArchive());
-        if (entity.getRelativeTo() != null && !entity.getRelativeTo().equals(""))
-        { path.get("relative-to").set(entity.getRelativeTo()); }
-
+        if (entity.getRelativeTo() != null && !entity.getRelativeTo().equals("")) {
+            path.get("relative-to").set(entity.getRelativeTo());
+        }
         content.add(path);
         operation.get("content").set(content);
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
-        {
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse dmrResponse)
-            {
+            public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
-                if (response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error("Failed to create unmanaged content", response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Console.info(Console.MESSAGES.added("Deployment " + entity.getName()));
                 }
                 refreshDeployments();

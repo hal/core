@@ -95,5 +95,4 @@ public interface DeploymentRecord extends DeploymentData
     @Binding(detypedName = "disabled-timestamp")
     String getDisabledTimestamp();
     void setDisabledTimestamp(String timeStr);
-
 }
