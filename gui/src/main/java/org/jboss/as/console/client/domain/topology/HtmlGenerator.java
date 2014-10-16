@@ -144,7 +144,7 @@ final class HtmlGenerator {
         appendHtmlConstant("<td class='cellTableCell domainOverviewCell " + group.cssClassname + "_light" +
                 "' title='" + tooltip + "'>");
 
-        startLine().appendIcon(icon, "Server running?").appendEscaped(server.getName()).endLine();
+        startLine().appendIcon(icon, tooltip).appendEscaped(server.getName()).endLine();
         if (server.getSocketBindings().size() > 0) {
             Set<String> sockets = server.getSocketBindings().keySet();
             String first = sockets.iterator().next();
