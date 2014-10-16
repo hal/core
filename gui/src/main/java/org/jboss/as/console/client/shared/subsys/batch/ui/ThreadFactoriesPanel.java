@@ -111,11 +111,13 @@ class ThreadFactoriesPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Property worker = selectionModel.getSelectedObject();
-                if (worker != null) {
-                    details.getForm().edit(worker.getValue());
-                } else {
-                    details.getForm().clearValues();
+                if (details.getForm() != null) {
+                    Property worker = selectionModel.getSelectedObject();
+                    if (worker != null) {
+                        details.getForm().edit(worker.getValue());
+                    } else {
+                        details.getForm().clearValues();
+                    }
                 }
             }
         });

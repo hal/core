@@ -180,6 +180,12 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                         // DMR notifications
                         Notifications.addReloadHandler(Console.this);
 
+                        StringBuilder title = new StringBuilder();
+                        title.append(context.getProductName()).append(" Management");
+                        if (context.getServerName() != null) {
+                            title.append(" | ").append(context.getServerName());
+                        }
+                        Window.setTitle(title.toString());
                         new LoadMainApp(
                                 MODULES.getBootstrapContext(),
                                 MODULES.getPlaceManager(),

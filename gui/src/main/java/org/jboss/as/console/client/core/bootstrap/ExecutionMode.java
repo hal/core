@@ -103,6 +103,13 @@ public class ExecutionMode implements Function<BootstrapContext> {
         step.get("verbose").set(true);
         steps.add(step);
 
+        // server name (to be used in browser's title - HAL-503)
+        step = new ModelNode();
+        step.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        step.get(NAME).set("name");
+        step.get(ADDRESS).setEmptyList();
+        steps.add(step);
+
         operation.get(STEPS).set(steps);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
@@ -169,6 +176,11 @@ public class ExecutionMode implements Function<BootstrapContext> {
                         context.setRunAs(runAsRole);
                     }
                     Preferences.clear(Preferences.Key.RUN_AS_ROLE);
+
+                    ModelNode serverName = response.get(RESULT).get("step-7");
+                    if (serverName.get(RESULT).isDefined()) {
+                        context.setServerName(serverName.get(RESULT).asString());
+                    }
 
                     control.proceed();
                 }

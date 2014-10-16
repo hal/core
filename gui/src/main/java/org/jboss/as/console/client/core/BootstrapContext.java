@@ -43,6 +43,7 @@ public class BootstrapContext implements ApplicationProperties {
     private Map<String,String> ctx = new HashMap<String,String>();
     private String initialPlace = null;
     private Throwable lastError;
+    private String serverName;
     private String productName;
     private String productVersion;
     private String principal;
@@ -65,22 +66,22 @@ public class BootstrapContext implements ApplicationProperties {
 
         String devHost = productConfig.getDevHost();
 
-        String domainApi = GWT.isScript() ? getBaseUrl()+"management" : "http://"+devHost+":8888/app/proxy";
+        String domainApi = GWT.isScript() ? getBaseUrl() + "management" : "http://" + devHost + ":8888/app/proxy";
         setProperty(DOMAIN_API, domainApi);
 
-        String deploymentApi = GWT.isScript() ? getBaseUrl()+"management/add-content" : "http://"+devHost+":8888/app/upload";
+        String deploymentApi = GWT.isScript() ? getBaseUrl() + "management/add-content" : "http://" + devHost + ":8888/app/upload";
         setProperty(DEPLOYMENT_API, deploymentApi);
 
-        String patchApi = GWT.isScript() ? getBaseUrl()+"management-upload" : "http://"+devHost+":8888/app/patch";
+        String patchApi = GWT.isScript() ? getBaseUrl() + "management-upload" : "http://" + devHost + ":8888/app/patch";
         setProperty(PATCH_API, patchApi);
 
-        String logoutApi = GWT.isScript() ? getBaseUrl()+"logout" : "http://"+devHost+":8888/app/logout";
+        String logoutApi = GWT.isScript() ? getBaseUrl() + "logout" : "http://" + devHost + ":8888/app/logout";
         setProperty(LOGOUT_API, logoutApi);
 
-        String cspApi = GWT.isScript() ? getBaseUrl()+"console/csp" : getBaseUrl()+"csp";
+        String cspApi = GWT.isScript() ? getBaseUrl() + "console/csp" : getBaseUrl() + "csp";
         setProperty(CSP_API, cspApi);
 
-        System.out.println("Domain API Endpoint: "+domainApi);
+        System.out.println("Domain API Endpoint: " + domainApi);
     }
 
     private String getBaseUrl() {
@@ -293,4 +294,11 @@ public class BootstrapContext implements ApplicationProperties {
         return initialProfiles;
     }
 
+    public String getServerName() {
+        return serverName;
+    }
+
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
+    }
 }

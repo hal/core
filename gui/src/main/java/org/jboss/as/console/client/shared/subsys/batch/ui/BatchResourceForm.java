@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.batch.ui;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
@@ -85,9 +86,17 @@ abstract class BatchResourceForm extends ModelDrivenWidget {
         return formAssets.getForm();
     }
 
-    void update(ModelNode model) {
+    void update(final ModelNode model) {
         if (formAssets != null && formAssets.getForm() != null) {
             formAssets.getForm().edit(model);
+        } else {
+            Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                @Override
+                public boolean execute() {
+                    formAssets.getForm().edit(model);
+                    return false;
+                }
+            }, 500);
         }
     }
 
