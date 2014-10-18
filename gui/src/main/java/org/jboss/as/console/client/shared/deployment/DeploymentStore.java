@@ -217,6 +217,7 @@ public class DeploymentStore
         operation.get(ADDRESS).set(addressFor(server));
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(CHILD_TYPE).set("deployment");
+        operation.get(INCLUDE_RUNTIME).set(true);
         loadDeployments(server, operation, null, callback);
     }
 
