@@ -88,8 +88,8 @@ public class DeploymentTreeModel implements TreeViewModel {
 
     interface DeploymentTemplates extends SafeHtmlTemplates {
         @Template(
-                "<div style=\"padding-right:20px;position:relative;zoom:1;\"><div>{0}</div><div style=\"margin-top:-9px;position:absolute;top:50%;right:0;line-height:0px;\">{1}</div></div>")
-        SafeHtml deployment(String deployment, SafeHtml icon);
+                "<div title=\"{2}\" style=\"padding-right:20px;position:relative;zoom:1;\"><div>{0}</div><div title=\"{2}\" style=\"margin-top:-9px;position:absolute;top:50%;right:0;line-height:0px;\">{1}</div></div>")
+        SafeHtml deployment(String deployment, SafeHtml icon, String title);
     }
 
 
@@ -101,17 +101,21 @@ public class DeploymentTreeModel implements TreeViewModel {
         @Override
         public void render(final Context context, final DeploymentRecord value, final SafeHtmlBuilder sb) {
             ImageResource res;
+            String name = value.getName().length() > 30 ? value.getName().substring(0, 25) + " ..." : value.getName();
+            String iconTitle = name;
             if ("FAILED".equalsIgnoreCase(value.getStatus())) {
                 res = Icons.INSTANCE.status_warn();
+                iconTitle += " failed to start, check log for details.";
             } else if (value.isEnabled()) {
                 res = Icons.INSTANCE.status_good();
+                iconTitle += " is started.";
             } else {
                 res = Icons.INSTANCE.status_bad();
+                iconTitle += " is disabled.";
             }
             AbstractImagePrototype proto = AbstractImagePrototype.create(res);
             SafeHtml imageHtml = SafeHtmlUtils.fromTrustedString(proto.getHTML());
-            String name = value.getName().length() > 30 ? value.getName().substring(0, 25) + " ..." : value.getName();
-            sb.append(DEPLOYMENT_TEMPLATES.deployment(name, imageHtml));
+            sb.append(DEPLOYMENT_TEMPLATES.deployment(name, imageHtml, iconTitle));
         }
     }
 }
