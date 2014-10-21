@@ -187,7 +187,7 @@ public class EntityEditor<T> implements EntityListView<T> {
 
         panel.add(new ContentGroupLabel(Console.CONSTANTS.common_label_details()));
         Widget detailWidget = details.asWidget();
-        detailWidget.getElement().setId("master_detail-detail");
+        detailWidget.getElement().addClassName("master_detail-detail");
         panel.add(detailWidget);
 /*
         layout.add(panel);

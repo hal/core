@@ -159,7 +159,7 @@ public class OneToOneLayout {
 
         if(detail!=null)
         {
-            detail.widget.getElement().setId("master_detail-detail");
+            detail.widget.getElement().addClassName("master_detail-detail");
             if(detail.title!=null && !detail.title.isEmpty())
                 panel.add(new ContentGroupLabel(detail.title));
             panel.add(detail.widget);
@@ -169,8 +169,8 @@ public class OneToOneLayout {
         else if(details.size()>0)
         {
             TabPanel tabs = new TabPanel();
-            tabs.getElement().setId("master_detail-detail");
             tabs.setStyleName("default-tabpanel");
+            tabs.getElement().addClassName("master_detail-detail");
             tabs.getElement().setAttribute("style", "margin-top:15px;");
 
             for(NamedWidget item : details)
