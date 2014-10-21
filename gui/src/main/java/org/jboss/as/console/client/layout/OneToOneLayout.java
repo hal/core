@@ -170,7 +170,7 @@ public class OneToOneLayout {
         {
             TabPanel tabs = new TabPanel();
             tabs.setStyleName("default-tabpanel");
-            tabs.getElement().addClassName("master_detail-detail");
+            tabs.addStyleName("master_detail-detail");
             tabs.getElement().setAttribute("style", "margin-top:15px;");
 
             for(NamedWidget item : details)

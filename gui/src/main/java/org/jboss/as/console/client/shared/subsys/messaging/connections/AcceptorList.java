@@ -134,6 +134,7 @@ public class AcceptorList {
 
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
+        tabs.addStyleName("master_detail-detail");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
 
         tabs.add(acceptorForm.asWidget(), "Details");

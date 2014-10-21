@@ -215,6 +215,7 @@ public abstract class AbstractDomainDetailEditor <T extends GenericSecurityDomai
 
         TabPanel bottomTabs = new TabPanel();
         bottomTabs.setStyleName("default-tabpanel");
+        bottomTabs.addStyleName("master_detail-detail");
         bottomTabs.add(wizard.asWidget(), "Attributes");
         bottomTabs.add(propertyEditor.asWidget(), "Module Options");
 

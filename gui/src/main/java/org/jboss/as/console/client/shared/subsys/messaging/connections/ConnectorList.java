@@ -134,6 +134,7 @@ public class ConnectorList {
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
+        tabs.addStyleName("master_detail-detail");
 
         tabs.add(ConnectorForm.asWidget(), "Details");
         tabs.add(properties.asWidget(), "Properties");

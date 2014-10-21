@@ -72,6 +72,7 @@ public class JMSEditor {
 
         TabPanel bottomLayout = new TabPanel();
         bottomLayout.addStyleName("default-tabpanel");
+        bottomLayout.addStyleName("master_detail-detail");
 
         queueList = new QueueList(presenter);
         bottomLayout.add(queueList.asWidget(),"Queues");

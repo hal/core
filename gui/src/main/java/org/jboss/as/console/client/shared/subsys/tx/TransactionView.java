@@ -107,6 +107,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
+        tabs.addStyleName("master_detail-detail");
         tabs.getElement().setAttribute("style", "margin-top:15px;");
 
         tabs.add(defaultForm.asWidget(), "Common");

@@ -134,6 +134,7 @@ public class AuditLogView extends SuspendableViewImpl implements AuditLogPresent
         // form tabs
         TabPanel forms = new TabPanel();
         forms.setStyleName("default-tabpanel");
+        forms.addStyleName("master_detail-detail");
         forms.add(basicsPanel, Console.CONSTANTS.common_label_attributes());
         forms.add(operationsPanel, Console.CONSTANTS.common_label_operations());
         forms.selectTab(0);

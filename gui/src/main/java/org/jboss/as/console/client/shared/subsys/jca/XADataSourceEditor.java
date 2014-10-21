@@ -213,6 +213,7 @@ public class XADataSourceEditor implements PropertyManagement {
 
         TabPanel bottomPanel = new TabPanel();
         bottomPanel.setStyleName("default-tabpanel");
+        bottomPanel.addStyleName("master_detail-detail");
         bottomPanel.add(details.asWidget(), "Attributes");
         details.getForm().bind(dataSourceTable);
 

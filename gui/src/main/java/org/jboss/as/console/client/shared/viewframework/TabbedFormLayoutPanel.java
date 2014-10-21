@@ -82,6 +82,7 @@ public class TabbedFormLayoutPanel<T> implements FormAdapter<T>, SingleEntityVie
         this.observers = observers;
         this.tabPanel = new TabPanel();
         this.tabPanel.setStyleName("default-tabpanel");
+        this.tabPanel.addStyleName("master_detail-detail");
         this.forms = makeForms();
         this.hideButtons = hideButtons;
     }
