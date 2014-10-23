@@ -54,4 +54,38 @@ public class MetaDataAdapter {
         }
         return readonlyJavaNames;
     }
+
+    public Set<String> getFilteredJavaNames(Class<?> type, SecurityContext securityContext) {
+        final Set<String> readonlyJavaNames = new HashSet<String>();
+        try {
+            BeanMetaData beanMetaData = metaData.getBeanMetaData(type);
+            for(PropertyBinding propBinding : beanMetaData.getProperties())
+            {
+                boolean writepriv = securityContext.getAttributeWritePriviledge(propBinding.getDetypedName()).isGranted();
+                boolean readpriv = securityContext.getAttributeReadPriviledge(propBinding.getDetypedName()).isGranted();
+                if(!writepriv && !readpriv && !propBinding.isKey()) // HAL-202: exclude keys
+                    readonlyJavaNames.add(propBinding.getJavaName());
+            }
+        } catch (Exception e) {
+            Log.warn("No meta data for "+type);
+        }
+        return readonlyJavaNames;
+    }
+
+    public Set<String> getFilteredJavaNames(Class<?> type, String resourceAddress, SecurityContext securityContext) {
+            final Set<String> readonlyJavaNames = new HashSet<String>();
+            try {
+                BeanMetaData beanMetaData = metaData.getBeanMetaData(type);
+                for(PropertyBinding propBinding : beanMetaData.getProperties())
+                {
+                    boolean writepriv = securityContext.getAttributeWritePriviledge(resourceAddress, propBinding.getDetypedName()).isGranted();
+                    boolean readpriv = securityContext.getAttributeReadPriviledge(resourceAddress, propBinding.getDetypedName()).isGranted();
+                    if(!writepriv && !readpriv && !propBinding.isKey()) // HAL-202: exclude keys
+                        readonlyJavaNames.add(propBinding.getJavaName());
+                }
+            } catch (Exception e) {
+                Log.warn("No meta data for "+type);
+            }
+            return readonlyJavaNames;
+        }
 }

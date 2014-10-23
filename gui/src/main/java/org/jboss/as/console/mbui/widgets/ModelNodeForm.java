@@ -175,6 +175,20 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         return readOnly;
     }
 
+    @Override
+    public Set<String> getFilteredNames() {
+        Set<String> filtered = new HashSet<String>();
+        for(String item : getFormItemNames())
+        {
+            boolean writePriv = securityContext.getAttributeWritePriviledge(item).isGranted();
+            boolean readPriv = securityContext.getAttributeReadPriviledge(item).isGranted();
+            if(!writePriv && !readPriv)
+                filtered.add(item);
+        }
+        return filtered;
+    }
+
+
     public static Object downCast(ModelNode value)
     {
         Object result = null;
@@ -433,9 +447,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         return hasWritableAttributes;
     }
 
-    interface FormItemVisitor {
-        void visit(FormItem item);
-    }
+interface FormItemVisitor {
+    void visit(FormItem item);
+}
 
 
     // ---- deprecated, blow up -----

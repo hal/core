@@ -71,8 +71,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Inject
     public SecurityFrameworkImpl(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
-            CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus,
-            CoreGUIContext coreGUIContext) {
+                                 CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus,
+                                 CoreGUIContext coreGUIContext) {
 
         this.accessControlMetaData = accessControlMetaData;
         this.dispatcher = dispatcher;
@@ -137,15 +137,15 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
         SecurityContext context = event.getSecurityContext();
         String addressTemplate = event.getResourceAddress();
-       // System.out.println("<SCC>");
+        // System.out.println("<SCC>");
 
         if (context == null) {
             // address resolution
             ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
                     event.getWildcards());
             String resourceAddress = normalize(addressNode.get(ADDRESS));
-           // System.out.println(
-           //         "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+            // System.out.println(
+            //         "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
 
             // look for child context
             context = getSecurityContext();
@@ -412,7 +412,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     private static void parseAccessControlMetaData(final ResourceRef ref, SecurityContextImpl context,
-            ModelNode payload) {
+                                                   ModelNode payload) {
 
         ModelNode accessControl = payload.get(ACCESS_CONTROL);
         if (accessControl.isDefined() && accessControl.hasDefined(DEFAULT)) {
@@ -517,6 +517,26 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     @Override
+    public Set<String> getFilteredJavaNames(Class<?> type, String resourceAddress, SecurityContext securityContext) {
+        // Fallback
+        if(type == Object.class || type == null)
+            return Collections.emptySet();
+
+        return new MetaDataAdapter(Console.MODULES.getApplicationMetaData())
+                .getFilteredJavaNames(type, resourceAddress, securityContext);
+    }
+
+    @Override
+    public Set<String> getFilteredJavaNames(Class<?> type, SecurityContext securityContext) {
+        // Fallback
+        if(type == Object.class || type == null)
+            return Collections.emptySet();
+
+        return new MetaDataAdapter(Console.MODULES.getApplicationMetaData())
+                .getFilteredJavaNames(type,  securityContext);
+    }
+
+    @Override
     public Set<String> getReadOnlyDMRNames(String resourceAddress, List<String> formItemNames, SecurityContext securityContext) {
 
         // TODO: at some point this should refer to the actual resource address
@@ -524,6 +544,21 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         for(String item : formItemNames)
         {
             if(!securityContext.getAttributeWritePriviledge(item).isGranted())
+                readOnly.add(item);
+        }
+        return readOnly;
+    }
+
+    @Override
+    public Set<String> getFilteredDMRNames(String resourceAddress, List<String> formItemNames, SecurityContext securityContext) {
+       // TODO: at some point this should refer to the actual resource address
+        Set<String> readOnly = new HashSet<String>();
+        for(String item : formItemNames)
+        {
+            boolean writepriv = securityContext.getAttributeWritePriviledge(item).isGranted();
+            boolean readpriv = securityContext.getAttributeReadPriviledge(item).isGranted();
+
+            if(!writepriv && !readpriv)
                 readOnly.add(item);
         }
         return readOnly;

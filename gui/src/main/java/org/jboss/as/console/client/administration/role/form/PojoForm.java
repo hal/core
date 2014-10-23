@@ -105,4 +105,9 @@ public class PojoForm<T> extends AbstractForm<T> {
     public Set<String> getReadOnlyNames() {
         return Collections.emptySet();
     }
+
+    @Override
+    public Set<String> getFilteredNames() {
+        return Collections.emptySet();
+    }
 }

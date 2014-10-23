@@ -34,6 +34,16 @@ public class NoGatekeeperContext implements SecurityContext {
     }
 
     @Override
+    public AuthorisationDecision getAttributeReadPriviledge(String attributeName) {
+        return GRANTED;
+    }
+
+    @Override
+    public AuthorisationDecision getAttributeReadPriviledge(String resourceAddress, String attributeName) {
+        return GRANTED;
+    }
+
+    @Override
     public void seal() {
 
     }

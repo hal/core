@@ -151,6 +151,16 @@ public class SecurityContextImpl implements SecurityContext {
     }
 
     @Override
+    public AuthorisationDecision getAttributeReadPriviledge(final String name) {
+        return checkPriviledge(new Priviledge() {
+             @Override
+             public boolean isGranted(Constraints c) {
+                 return c.isAttributeRead(name);
+             }
+         }, true);
+    }
+
+    @Override
     public AuthorisationDecision getAttributeWritePriviledge(String resourceAddress, String attributeName) {
 
         Constraints constraints = getConstraints(resourceAddress, true);
@@ -160,6 +170,17 @@ public class SecurityContextImpl implements SecurityContext {
             throw new RuntimeException("No such attribute: "+ attributeName);
 
         return new AuthorisationDecision(attributePerm.isWrite());
+    }
+
+    @Override
+    public AuthorisationDecision getAttributeReadPriviledge(String resourceAddress, String attributeName) {
+        Constraints constraints = getConstraints(resourceAddress, true);
+        Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
+
+        if(null==attributePerm)
+            throw new RuntimeException("No such attribute: "+ attributeName);
+
+        return new AuthorisationDecision(attributePerm.isRead());
     }
 
     private Constraints getConstraints(String resourceAddress, boolean includeOptional) {
@@ -251,6 +272,7 @@ public class SecurityContextImpl implements SecurityContext {
             return new AuthorisationDecision(constraints.isWriteResource());
         }
 
+
         @Override
         public AuthorisationDecision getWritePrivilege(final String resourceAddress) {
             return getWritePriviledge();
@@ -267,6 +289,18 @@ public class SecurityContextImpl implements SecurityContext {
         public AuthorisationDecision getAttributeWritePriviledge(final String resourceAddress,
                 final String attributeName) {
             return getAttributeWritePriviledge(attributeName);
+        }
+
+        @Override
+        public AuthorisationDecision getAttributeReadPriviledge(String attributeName) {
+            Constraints.AttributePerm attributePerm = constraints.attributePermissions.get(attributeName);
+            if (attributePerm == null) { throw new RuntimeException("No such attribute: " + attributeName); }
+            return new AuthorisationDecision(attributePerm.isRead());
+        }
+
+        @Override
+        public AuthorisationDecision getAttributeReadPriviledge(String resourceAddress, String attributeName) {
+            return getAttributeReadPriviledge(attributeName);
         }
 
         @Override
