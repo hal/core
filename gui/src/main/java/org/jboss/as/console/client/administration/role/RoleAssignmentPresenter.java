@@ -374,7 +374,7 @@ public class RoleAssignmentPresenter
 
         public void onFailure(final FunctionContext context) {
             if (context.isForbidden()) {
-                Console.error(failureMessage, Console.CONSTANTS.unauthorized_desc());
+                Console.error(failureMessage, Console.CONSTANTS.forbidden_desc());
             } else {
                 //noinspection ThrowableResultOfMethodCallIgnored
                 String details = context.getError() != null ? context.getError().getMessage() : null;
