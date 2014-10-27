@@ -7,10 +7,13 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PlainFormView;
+import org.jboss.ballroom.client.widgets.forms.RenderMetaData;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author Harald Pehl
@@ -39,9 +42,11 @@ public class ProductConfigPanel implements IsWidget {
         profile.setUndefined(false);
 
         PlainFormView view = new PlainFormView(new ArrayList<FormItem>(
-                Arrays.asList(consoleVersion, coreVersion, productName, productVersion, profile)));
+                asList(consoleVersion, coreVersion, productName, productVersion, profile)));
         view.setNumColumns(1);
-        Widget content = view.asWidget(null);
+        RenderMetaData metaData = new RenderMetaData();
+        metaData.setFilteredFields(Collections.<String>emptySet());
+        Widget content = view.asWidget(metaData);
         view.refresh(true); // to fill the CellTable
 
         VerticalPanel layout = new VerticalPanel();
