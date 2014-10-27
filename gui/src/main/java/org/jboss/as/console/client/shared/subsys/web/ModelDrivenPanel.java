@@ -44,22 +44,30 @@ class ModelDrivenPanel extends ModelDrivenWidget {
     private final WebPresenter presenter;
     private final String[] attributes;
     private ModelNodeForm form;
+    private int uninitializedCounter;
 
     ModelDrivenPanel(String address, WebPresenter presenter, String... attributes) {
         super(address);
         this.presenter = presenter;
         this.attributes = attributes;
+        this.uninitializedCounter = 0;
     }
 
     void setData(final ModelNode data) {
         if (form != null) {
             form.edit(data);
+            uninitializedCounter = 0;
         } else {
             Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
                 @Override
                 public boolean execute() {
-                    form.edit(data);
-                    return false;
+                    if (form != null) {
+                        form.edit(data);
+                        uninitializedCounter = 0;
+                    } else {
+                        uninitializedCounter++;
+                    }
+                    return form == null && uninitializedCounter < 10;
                 }
             }, 500);
         }
@@ -79,14 +87,14 @@ class ModelDrivenPanel extends ModelDrivenWidget {
         final ModelNodeFormBuilder.FormAssets formAssets = builder.build();
 
         form = formAssets.getForm();
-        form.setToolsCallback(new FormCallback() {
+        form.setToolsCallback(new FormCallback<Map<String, Object>>() {
             @Override
-            public void onSave(Map changedValues) {
-                presenter.onSaveResource(address.asString(), null, changedValues);
+            public void onSave(Map<String, Object>  changedValues) {
+                presenter.onSaveResource(address.toString(), null, changedValues);
             }
 
             @Override
-            public void onCancel(Object entity) {
+            public void onCancel(Map<String, Object>  changedValues) {
                 form.cancel();
             }
         });

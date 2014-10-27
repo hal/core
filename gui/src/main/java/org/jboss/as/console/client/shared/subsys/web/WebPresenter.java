@@ -65,6 +65,7 @@ import java.util.Map;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * @author Harald Pehl
  * @author Heiko Braun
  * @author Pavel Slegr
  * @date 5/11/11
@@ -237,7 +238,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
                 virtualServers = servers;
                 getView().setVirtualServers(servers);
-
             }
         });
 
@@ -263,7 +263,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
         });
     }
 
-
     private void setConnectors(List<HttpConnector> connectors) {
         this.connectors = connectors;
     }
@@ -271,7 +270,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
     private void setSocketBindings(List<String> bindings) {
         this.socketsBindingList = bindings;
     }
-
 
     public void onEditConnector() {
         getView().enableEditConnector(true);
@@ -402,7 +400,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                         loadConnectors();
                     }
                 });
-
             }
         });
     }
@@ -449,7 +446,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
             }
         });
-
     }
 
     public void onSaveVirtualServer(final String name, Map<String, Object> changedValues) {
@@ -477,7 +473,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
             protoType.get(VALUE).set(list);
 
             operation.get(STEPS).add(protoType);
-
         }
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -528,7 +523,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
             }
         });
-
     }
 
     public void launchVirtualServerDialogue() {
@@ -542,7 +536,6 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
         window.setGlassEnabled(true);
         window.center();
-
     }
 
     public void onSaveJSPConfig(Map<String, Object> changeset) {
@@ -588,17 +581,13 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
             }
         });
-
-
     }
-
 
     public void closeDialogue() {
         window.hide();
     }
 
-
-    public void onSaveResource(String resourceAddress, String name, Map changedValues) {
+    public void onSaveResource(String resourceAddress, String name, Map<String,Object> changedValues) {
         // used for both the global attributes and the JSP related attributes
         operationDelegate.onSaveResource(resourceAddress, name, changedValues, operationCallback);
     }
