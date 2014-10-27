@@ -19,13 +19,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Follow the active log file.
+ * Open a new unmanaged log file
+ *
  * @author Harald Pehl
  */
-public class FollowLogFile implements Action {
+public class OpenLogFile implements Action {
+
+    private final String name;
+
+    public OpenLogFile(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OpenLogFile)) return false;
+
+        OpenLogFile that = (OpenLogFile) o;
+
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
+        return name;
+    }
 }

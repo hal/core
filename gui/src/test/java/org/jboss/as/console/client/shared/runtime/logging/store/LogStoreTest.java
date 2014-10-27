@@ -1,7 +1,9 @@
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.StaticDispatcher;
 import org.jboss.dmr.client.StaticDmrResponse;

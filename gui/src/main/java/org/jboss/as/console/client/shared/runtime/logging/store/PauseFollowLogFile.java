@@ -19,15 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Read the log files of the selected server (taken
- * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServer()})
- *
+ * Pauses the follow mode without touching the {@link LogFile#isFollow()} flag.
  * @author Harald Pehl
  */
-public class ReadLogFiles implements Action {
+public class PauseFollowLogFile implements Action {
 }

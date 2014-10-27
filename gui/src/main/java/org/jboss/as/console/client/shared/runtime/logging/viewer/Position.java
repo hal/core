@@ -19,13 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
-
-import org.jboss.gwt.circuit.Action;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 /**
- * Pauses the follow mode without touching the {@link org.jboss.as.console.client.shared.runtime.logviewer.LogFile#isFollow()} flag.
+ * The current position in a log file
  * @author Harald Pehl
  */
-public class PauseFollowLogFile implements Action {
+public enum Position {
+    HEAD, LINE_NUMBER, TAIL
 }

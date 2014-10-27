@@ -19,16 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.common.base.Joiner;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Holds the state of an opened log file in the context of the {@link LogStore}.
+ * Holds the state of an opened log file in the context of the {@link org.jboss.as.console.client.shared.runtime.logging.store.LogStore}.
  *
  * @author Harald Pehl
  */

@@ -19,12 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.store;
+
+import org.jboss.gwt.circuit.Action;
 
 /**
- * The current position in a log file
+ * Read the log files of the selected server (taken
+ * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServer()})
+ *
  * @author Harald Pehl
  */
-public enum Position {
-    HEAD, LINE_NUMBER, TAIL
+public class ReadLogFiles implements Action {
 }

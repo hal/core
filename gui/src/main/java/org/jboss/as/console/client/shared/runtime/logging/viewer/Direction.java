@@ -19,12 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 /**
+ * Direction for log file navigation.
  * @author Harald Pehl
  */
-public interface LogViewerId {
-
-    String BASE_ID = "log_viewer";
+public enum Direction {
+    HEAD, PREVIOUS, NEXT, TAIL
 }

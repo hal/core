@@ -19,11 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
+import org.jboss.as.console.client.shared.runtime.logging.store.ChangePageSize;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.gwt.circuit.Action;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
@@ -32,7 +33,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 
 /**
- * A visual indicator for the navigation inside a {@link org.jboss.as.console.client.shared.runtime.logviewer.LogFile}
+ * A visual indicator for the navigation inside a {@link org.jboss.as.console.client.shared.runtime.logging.store.LogFile}
  *
  * @author Harald Pehl
  */

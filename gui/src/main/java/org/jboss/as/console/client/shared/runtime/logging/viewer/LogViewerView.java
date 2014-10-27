@@ -19,11 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -35,6 +36,7 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
     private final Dispatcher circuit;
     private LogFileTable logFiles;
     private LogFileTabs logFileTabs;
+    private LogViewerPresenter presenter;
 
 
     @Inject

@@ -19,13 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -91,7 +92,7 @@ public class LogStore extends ChangeSupport {
     protected int pageSize;
 
     /**
-     * Flag to pause the {@link org.jboss.as.console.client.shared.runtime.logviewer.LogStore.RefreshLogFile} command
+     * Flag to pause the {@link LogStore.RefreshLogFile} command
      * when the related log view is no longer visible.
      */
     protected boolean pauseFollow;

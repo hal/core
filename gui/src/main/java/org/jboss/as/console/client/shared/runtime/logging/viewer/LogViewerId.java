@@ -19,39 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
-
-import org.jboss.gwt.circuit.Action;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 /**
  * @author Harald Pehl
  */
-public class CloseLogFile implements Action {
+public interface LogViewerId {
 
-    private final String name;
-
-    public CloseLogFile(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CloseLogFile)) return false;
-
-        CloseLogFile that = (CloseLogFile) o;
-
-        if (!name.equals(that.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    public String getName() {
-        return name;
-    }
+    String BASE_ID = "log_viewer";
 }

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.files;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -35,7 +35,8 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.OpenLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
+import org.jboss.as.console.client.shared.runtime.logging.store.OpenLogFile;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeCellTable;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -52,13 +53,13 @@ import java.util.List;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
-import static org.jboss.as.console.client.shared.runtime.logviewer.LogStore.*;
+import static org.jboss.as.console.client.shared.runtime.logging.store.LogStore.*;
 import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 
 /**
  * @author Harald Pehl
  */
-public class LogFileTable extends Composite implements LogViewerId {
+public class LogFileTable extends Composite implements LogFileId {
 
     private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
 
@@ -69,7 +70,7 @@ public class LogFileTable extends Composite implements LogViewerId {
     private List<ModelNode> backup;
 
     @SuppressWarnings("unchecked")
-    public LogFileTable(final Dispatcher circuit) {
+    public LogFileTable(final Dispatcher circuit, final LogFilePresenter presenter) {
 
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("rhs-content-panel");
@@ -108,14 +109,13 @@ public class LogFileTable extends Composite implements LogViewerId {
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
                 if (logFile != null) {
-                    // TODO Implement download
+                    presenter.download(logFile);
                 }
             }
         });
         download.setEnabled(false);
         download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
         setId(download, BASE_ID, "download");
-        // TODO Enable when the server side download is in place
         tools.addToolButtonRight(download);
 
         final ToolButton view = new ToolButton(Console.CONSTANTS.common_label_view(), new ClickHandler() {
@@ -229,7 +229,7 @@ public class LogFileTable extends Composite implements LogViewerId {
         ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 
-    public void filterByPrefix(String prefix) {
+    private void filterByPrefix(String prefix) {
         final List<ModelNode> next = new ArrayList<>();
         for (ModelNode file : backup) {
             if (file.get(FILE_NAME).asString().toLowerCase().contains(prefix.toLowerCase()))
@@ -240,11 +240,12 @@ public class LogFileTable extends Composite implements LogViewerId {
         propList.addAll(next);
     }
 
-    public void clearFilter() {
+    private void clearFilter() {
         List<ModelNode> list = dataProvider.getList();
         list.clear(); // cannot call setList() as that breaks the sort handler
         list.addAll(backup);
     }
+
 
     private static class NameComparator implements Comparator<ModelNode> {
         @Override

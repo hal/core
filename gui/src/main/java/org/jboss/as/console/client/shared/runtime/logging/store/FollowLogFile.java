@@ -19,41 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Action to change the page size of the {@link org.jboss.as.console.client.shared.runtime.logviewer.LogStore}
- *
+ * Follow the active log file.
  * @author Harald Pehl
  */
-public class ChangePageSize implements Action {
-
-    private final int pageSize;
-
-    public ChangePageSize(int pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ChangePageSize)) return false;
-
-        ChangePageSize that = (ChangePageSize) o;
-
-        if (pageSize != that.pageSize) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return pageSize;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
+public class FollowLogFile implements Action {
 }
