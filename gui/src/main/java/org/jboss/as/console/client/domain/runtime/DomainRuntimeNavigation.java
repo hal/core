@@ -138,7 +138,7 @@ class DomainRuntimeNavigation implements LHSHighlightEvent.NavItemSelectionHandl
 
         platformGroup.addItem(new LHSNavTreeItem("JVM", NameTokens.HostVMMetricPresenter));
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
-        platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogViewer));
+        platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogFiles));
 
         metrics.addItem(platformGroup);
         //platformGroup.setState(true);

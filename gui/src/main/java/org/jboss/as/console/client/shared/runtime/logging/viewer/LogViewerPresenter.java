@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -30,7 +30,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
+import org.jboss.as.console.client.shared.runtime.logging.store.*;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
@@ -52,11 +52,8 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     public interface MyView extends View {
         void list(List<ModelNode> logFiles);
-
         void open(LogFile logFile);
-
         void refresh(LogFile logFile, Action action);
-
         boolean isLogFileSelected();
     }
 
@@ -90,14 +87,14 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @Override
     public void onAction(Action action) {
-        if (action instanceof  ReadLogFiles) {
+        if (action instanceof ReadLogFiles) {
             getView().list(logStore.getLogFiles());
 
         } else if (action instanceof OpenLogFile) {
             getView().open(logStore.getActiveLogFile());
 
         } else if (action instanceof NavigateInLogFile ||
-                action instanceof  ChangePageSize ||
+                action instanceof ChangePageSize ||
                 action instanceof  FollowLogFile ||
                 action instanceof UnFollowLogFile) {
             getView().refresh(logStore.getActiveLogFile(), action);

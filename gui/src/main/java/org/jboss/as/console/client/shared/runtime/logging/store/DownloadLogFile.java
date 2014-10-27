@@ -19,13 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Follow the active log file.
  * @author Harald Pehl
  */
-public class FollowLogFile implements Action {
+public class DownloadLogFile implements Action {
+
+    private final String name;
+
+    public DownloadLogFile(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DownloadLogFile)) return false;
+
+        DownloadLogFile that = (DownloadLogFile) o;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public String getName() {
+        return name;
+    }
 }

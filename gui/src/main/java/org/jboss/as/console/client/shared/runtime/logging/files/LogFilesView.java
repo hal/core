@@ -19,35 +19,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.files;
 
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
-public class LogViewerView extends SuspendableViewImpl implements LogViewerPresenter.MyView {
+public class LogFilesView extends SuspendableViewImpl implements LogFilesPresenter.MyView {
 
     private final Dispatcher circuit;
-    private LogFileTable logFiles;
-    private LogFileTabs logFileTabs;
+    private LogFilesTable logFiles;
+    private LogFilesTabs logFilesTabs;
+    private LogFilesPresenter presenter;
 
 
     @Inject
-    public LogViewerView(Dispatcher circuit) {
+    public LogFilesView(Dispatcher circuit) {
         this.circuit = circuit;
     }
 
     @Override
+    public void setPresenter(LogFilesPresenter presenter) {
+        this.presenter = presenter;
+    }
+
+    @Override
     public Widget createWidget() {
-        logFileTabs = new LogFileTabs(circuit);
-        logFiles = new LogFileTable(circuit);
-        logFileTabs.add(logFiles.asWidget(), "Log Files");
-        return logFileTabs;
+        logFilesTabs = new LogFilesTabs(circuit);
+        logFiles = new LogFilesTable(circuit, presenter);
+        logFilesTabs.add(logFiles.asWidget(), "Log Files");
+        return logFilesTabs;
     }
 
     @Override
@@ -57,16 +63,16 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
 
     @Override
     public void open(LogFile logFile) {
-        logFileTabs.open(logFile);
+        logFilesTabs.open(logFile);
     }
 
     @Override
-    public void refresh(LogFile logFile, Action action) {
-        logFileTabs.refresh(logFile, action);
+    public void refresh(LogFile logFile) {
+        logFilesTabs.refresh(logFile);
     }
 
     @Override
     public boolean isLogFileSelected() {
-        return logFileTabs.selectedLogFilePanel() != null;
+        return logFilesTabs.selectedLogFilePanel() != null;
     }
 }

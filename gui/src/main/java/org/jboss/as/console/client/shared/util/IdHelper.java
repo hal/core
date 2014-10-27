@@ -38,6 +38,7 @@ public final class IdHelper {
         RADIO_BUTTON("radio"),
         CHECK_BOX("check"),
         BUTTON("button"),
+        WINDOW("window"),
         UNKNOWN("any");
 
         private final String type;

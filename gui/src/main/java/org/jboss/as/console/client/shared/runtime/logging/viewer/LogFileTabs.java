@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
@@ -28,9 +28,10 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.CloseLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.PauseFollowLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.SelectLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.CloseLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.PauseFollowLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.SelectLogFile;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;

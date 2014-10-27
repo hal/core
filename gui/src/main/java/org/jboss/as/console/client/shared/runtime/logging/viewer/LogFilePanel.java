@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -32,10 +32,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.ChangePageSize;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.FollowLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.NavigateInLogFile;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.UnFollowLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.*;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.gwt.circuit.Action;
@@ -44,7 +41,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 import static com.google.gwt.dom.client.Style.Unit.EM;
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.dom.client.Style.VerticalAlign.MIDDLE;
-import static org.jboss.as.console.client.shared.runtime.logviewer.Direction.*;
+import static org.jboss.as.console.client.shared.runtime.logging.viewer.Direction.*;
 import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 
 /**

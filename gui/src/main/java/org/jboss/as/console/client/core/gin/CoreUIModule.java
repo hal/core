@@ -84,12 +84,7 @@ import org.jboss.as.console.client.shared.general.*;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
-import org.jboss.as.console.client.shared.model.PerspectiveStore;
-import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
-import org.jboss.as.console.client.shared.model.SubsystemLoader;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
-import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
+import org.jboss.as.console.client.shared.model.*;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementView;
@@ -102,10 +97,10 @@ import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricView;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricsView;
-import org.jboss.as.console.client.shared.runtime.logviewer.LogStore;
-import org.jboss.as.console.client.shared.runtime.logviewer.LogStoreAdapter;
-import org.jboss.as.console.client.shared.runtime.logviewer.LogViewerPresenter;
-import org.jboss.as.console.client.shared.runtime.logviewer.LogViewerView;
+import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesPresenter;
+import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesView;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStoreAdapter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiView;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
@@ -455,10 +450,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LoggingView.class,
                 LoggingPresenter.MyProxy.class);
 
-        bindPresenter(LogViewerPresenter.class,
-                LogViewerPresenter.MyView.class,
-                LogViewerView.class,
-                LogViewerPresenter.MyProxy.class);
+        bindPresenter(LogFilesPresenter.class,
+                LogFilesPresenter.MyView.class,
+                LogFilesView.class,
+                LogFilesPresenter.MyProxy.class);
 
         bind(HandlerListManager.class).in(Singleton.class);
 
