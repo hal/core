@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.files;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -35,7 +35,8 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.OpenLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.DownloadLogFile;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeCellTable;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -52,15 +53,15 @@ import java.util.List;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.client.ui.HasHorizontalAlignment.ALIGN_RIGHT;
-import static org.jboss.as.console.client.shared.runtime.logviewer.LogStore.*;
+import static org.jboss.as.console.client.shared.runtime.logging.store.LogStore.*;
 import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 
 /**
  * @author Harald Pehl
  */
-public class LogFileTable extends Composite implements LogViewerId {
+public class LogFilesTable extends Composite implements LogFilesId {
 
-    private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
+    private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("0.00");
 
     private final ModelNodeCellTable table;
     private final TextColumn<ModelNode> nameColumn;
@@ -69,7 +70,7 @@ public class LogFileTable extends Composite implements LogViewerId {
     private List<ModelNode> backup;
 
     @SuppressWarnings("unchecked")
-    public LogFileTable(final Dispatcher circuit) {
+    public LogFilesTable(final Dispatcher circuit, final LogFilesPresenter presenter) {
 
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("rhs-content-panel");
@@ -108,14 +109,14 @@ public class LogFileTable extends Composite implements LogViewerId {
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
                 if (logFile != null) {
-                    // TODO Implement download
+                    circuit.dispatch(new DownloadLogFile(logFile.get(FILE_NAME).asString()));
                 }
             }
         });
         download.setEnabled(false);
-        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        // actually the attribute 'stream' is relevant for download, however we need to pass an operation here
+        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(download, BASE_ID, "download");
-        // TODO Enable when the server side download is in place
         tools.addToolButtonRight(download);
 
         final ToolButton view = new ToolButton(Console.CONSTANTS.common_label_view(), new ClickHandler() {
@@ -123,12 +124,14 @@ public class LogFileTable extends Composite implements LogViewerId {
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
                 if (logFile != null) {
-                    circuit.dispatch(new OpenLogFile(logFile.get(FILE_NAME).asString()));
+                    String name = logFile.get(FILE_NAME).asString();
+                    int fileSize = logFile.get(FILE_SIZE).asInt();
+                    presenter.onStreamLogFile(name, fileSize);
                 }
             }
         });
         view.setEnabled(false);
-        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
         panel.add(tools);
@@ -177,14 +180,14 @@ public class LogFileTable extends Composite implements LogViewerId {
         TextColumn<ModelNode> lastModifiedColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get(LAST_MODIFIED_DATE).asString();
+                return node.get(LAST_MODIFIED_TIMESTAMP).asString();
             }
         };
         lastModifiedColumn.setSortable(true);
         sortHandler.setComparator(lastModifiedColumn, new Comparator<ModelNode>() {
             @Override
             public int compare(ModelNode node1, ModelNode node2) {
-                return node1.get(LAST_MODIFIED_DATE).asString().compareTo(node2.get(LAST_MODIFIED_DATE).asString());
+                return node1.get(LAST_MODIFIED_TIMESTAMP).asString().compareTo(node2.get(LAST_MODIFIED_TIMESTAMP).asString());
             }
         });
         table.addColumn(lastModifiedColumn, "Date - Time (UTC)");
@@ -193,7 +196,7 @@ public class LogFileTable extends Composite implements LogViewerId {
         TextColumn<ModelNode> sizeColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                double size = node.get(LogStore.FILE_SIZE).asLong() / 1024.0;
+                double size = node.get(LogStore.FILE_SIZE).asLong() / 1048576.0;
                 return SIZE_FORMAT.format(size);
             }
         };
@@ -205,7 +208,7 @@ public class LogFileTable extends Composite implements LogViewerId {
                 return node1.get(FILE_SIZE).asInt() - node2.get(FILE_SIZE).asInt();
             }
         });
-        table.addColumn(sizeColumn, "Size (kb)");
+        table.addColumn(sizeColumn, "Size (MB)");
 
         ScrollPanel scroll = new ScrollPanel(panel);
         LayoutPanel layout = new LayoutPanel();
@@ -229,7 +232,7 @@ public class LogFileTable extends Composite implements LogViewerId {
         ColumnSortEvent.fire(table, table.getColumnSortList());
     }
 
-    public void filterByPrefix(String prefix) {
+    private void filterByPrefix(String prefix) {
         final List<ModelNode> next = new ArrayList<>();
         for (ModelNode file : backup) {
             if (file.get(FILE_NAME).asString().toLowerCase().contains(prefix.toLowerCase()))
@@ -240,11 +243,12 @@ public class LogFileTable extends Composite implements LogViewerId {
         propList.addAll(next);
     }
 
-    public void clearFilter() {
+    private void clearFilter() {
         List<ModelNode> list = dataProvider.getList();
         list.clear(); // cannot call setList() as that breaks the sort handler
         list.addAll(backup);
     }
+
 
     private static class NameComparator implements Comparator<ModelNode> {
         @Override

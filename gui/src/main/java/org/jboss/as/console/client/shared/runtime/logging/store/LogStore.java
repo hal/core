@@ -19,15 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.shared.runtime.logviewer.actions.*;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -38,6 +43,7 @@ import org.jboss.gwt.circuit.meta.Store;
 
 import java.util.*;
 
+import static com.google.gwt.http.client.URL.encode;
 import static java.lang.Math.max;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -51,7 +57,8 @@ public class LogStore extends ChangeSupport {
 
     public final static String FILE_NAME = "file-name";
     public final static String FILE_SIZE = "file-size";
-    public final static String LAST_MODIFIED_DATE = "last-modified-date";
+    public final static String LAST_MODIFIED_TIME = "last-modified-time";
+    public final static String LAST_MODIFIED_TIMESTAMP = "last-modified-timestamp";
 
     private final static int PAGE_SIZE = 25;
     private final static int FOLLOW_INTERVAL = 1200; // ms
@@ -80,9 +87,14 @@ public class LogStore extends ChangeSupport {
     protected final Map<String, LogFile> states;
 
     /**
-     * The selected log state
+     * The selected log file
      */
     protected LogFile activeLogFile;
+
+    /**
+     * Pending streaming request.
+     */
+    protected PendingStreamingRequest pendingStreamingRequest;
 
     /**
      * The number of lines which is displayed in the log view. Changing this value influences the parameters
@@ -91,7 +103,7 @@ public class LogStore extends ChangeSupport {
     protected int pageSize;
 
     /**
-     * Flag to pause the {@link org.jboss.as.console.client.shared.runtime.logviewer.LogStore.RefreshLogFile} command
+     * Flag to pause the {@link LogStore.RefreshLogFile} command
      * when the related log view is no longer visible.
      */
     protected boolean pauseFollow;
@@ -106,6 +118,7 @@ public class LogStore extends ChangeSupport {
         this.logFiles = new ArrayList<>();
         this.states = new LinkedHashMap<>();
         this.activeLogFile = null;
+        this.pendingStreamingRequest = null;
         this.pageSize = PAGE_SIZE;
     }
 
@@ -130,7 +143,12 @@ public class LogStore extends ChangeSupport {
                             ": " + response.getFailureDescription()));
                 } else {
                     logFiles.clear();
-                    logFiles.addAll(response.get(RESULT).asList());
+                    List<Property> properties = response.get(RESULT).asPropertyList();
+                    for (Property property : properties) {
+                        ModelNode node = property.getValue();
+                        node.get(FILE_NAME).set(property.getName());
+                        logFiles.add(node);
+                    }
 
                     // mark outdated log views as stale
                     Set<String> names = new HashSet<String>();
@@ -183,6 +201,53 @@ public class LogStore extends ChangeSupport {
             activate(logFile);
             channel.ack();
         }
+    }
+
+    @Process(actionType = StreamLogFile.class)
+    public void streamLogFile(final String name, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(name);
+
+        if (logFile == null) {
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
+            requestBuilder.setHeader("Accept", "text/plain");
+            requestBuilder.setHeader("Content-Type", "text/plain");
+            try {
+                // store the request in order to cancel it later
+                pendingStreamingRequest = new PendingStreamingRequest(name, requestBuilder.sendRequest(null, new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        if (response.getStatusCode() >= 400) {
+                            channel.nack(new IllegalStateException("Failed to stream log file " + name + ": " +
+                                    response.getStatusCode() + " - " + response.getStatusText()));
+                        } else {
+                            LogFile newLogFile = new LogFile(name, response.getText());
+                            newLogFile.setFollow(false);
+                            states.put(name, newLogFile);
+                            activate(newLogFile);
+                            channel.ack();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        channel.nack(exception);
+                    }
+                }), channel);
+            } catch (RequestException e) {
+                channel.nack(e);
+            }
+
+        } else {
+            // already streamed, just activate
+            activate(logFile);
+            channel.ack();
+        }
+    }
+
+    @Process(actionType = DownloadLogFile.class)
+    public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
+        Window.open(streamUrl(name), "", "");
+        channel.ack();
     }
 
     @Process(actionType = CloseLogFile.class)
@@ -422,6 +487,16 @@ public class LogStore extends ChangeSupport {
         scheduler.scheduleFixedDelay(new RefreshLogFile(logFile.getName()), FOLLOW_INTERVAL);
     }
 
+    private String streamUrl(final String name) {
+        StringBuilder url = new StringBuilder();
+        url.append(bootstrap.getProperty(ApplicationProperties.DOMAIN_API)).append("/");
+        for (Property segment : baseAddress().asPropertyList()) {
+            url.append(segment.getName()).append("/").append(segment.getValue().asString()).append("/");
+        }
+        url.append("log-file/").append(name).append("?operation=attribute&name=stream&useStreamAsResponse");
+        return url.toString();
+    }
+
 
     // ------------------------------------------------------ model node methods
 
@@ -438,15 +513,17 @@ public class LogStore extends ChangeSupport {
     private ModelNode listLogFilesOp() {
         final ModelNode op = new ModelNode();
         op.get(ADDRESS).set(baseAddress());
-        op.get(OP).set("list-log-files");
+        op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        op.get(CHILD_TYPE).set("log-file");
+        op.get(INCLUDE_RUNTIME).set(true);
         return op;
     }
 
     private ModelNode readLogFileOp(String logFile) {
         final ModelNode op = new ModelNode();
         op.get(ADDRESS).set(baseAddress());
+        op.get(ADDRESS).add("log-file", logFile);
         op.get(OP).set("read-log-file");
-        op.get(NAME).set(logFile);
         op.get("lines").set(pageSize);
         return op;
     }
@@ -468,9 +545,9 @@ public class LogStore extends ChangeSupport {
         int size = -1;
         ModelNode stepResult = compResult.get("step-1");
         if (stepResult.get(RESULT).isDefined()) {
-            for (ModelNode node : stepResult.get(RESULT).asList()) {
-                if (name.equals(node.get(FILE_NAME).asString())) {
-                    size = node.get(FILE_SIZE).asInt();
+            for (Property property : stepResult.get(RESULT).asPropertyList()) {
+                if (name.equals(property.getName())) {
+                    size = property.getValue().get(FILE_SIZE).asInt();
                     break;
                 }
             }
@@ -508,6 +585,29 @@ public class LogStore extends ChangeSupport {
 
     public LogFile getActiveLogFile() {
         return activeLogFile;
+    }
+
+    public PendingStreamingRequest getPendingStreamingRequest() {
+        return pendingStreamingRequest;
+    }
+
+    public static final class PendingStreamingRequest {
+        private final String logFile;
+        private final Request request;
+        private final Dispatcher.Channel channel;
+
+        private PendingStreamingRequest(final String logFile, final Request request, final Dispatcher.Channel channel) {
+            this.logFile = logFile;
+            this.request = request;
+            this.channel = channel;
+        }
+
+        public void cancel() {
+            if (request != null && request.isPending() && channel != null) {
+                request.cancel();
+                channel.nack("Download of " + logFile + " canceled");
+            }
+        }
     }
 
 

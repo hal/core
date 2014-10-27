@@ -38,11 +38,11 @@ define("ace/mode/logfile_highlight_rules", ["require", "exports", "module", "ace
                 // exceptions
                 {
                     token: "exception",
-                    regex: "\\w*Exception:"
+                    regex: "\\w*Exception"
                 },
                 {
                     token: "exception",
-                    regex: "\\w*Error:"
+                    regex: "\\w*Error"
                 }
             ]
         };

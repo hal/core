@@ -19,42 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.runtime.logviewer.actions;
+package org.jboss.as.console.client.shared.runtime.logging.store;
 
-import org.jboss.as.console.client.shared.runtime.logviewer.Direction;
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Action for navigating in the active log file.
+ * Read the log files of the selected server (taken
+ * from {@link org.jboss.as.console.client.v3.stores.domain.HostStore#getSelectedServer()})
  *
  * @author Harald Pehl
  */
-public class NavigateInLogFile implements Action {
-
-    private final Direction direction;
-
-    public NavigateInLogFile(Direction direction) {
-        this.direction = direction;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof NavigateInLogFile)) return false;
-
-        NavigateInLogFile that = (NavigateInLogFile) o;
-
-        if (direction != that.direction) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return direction.hashCode();
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
+public class ReadLogFiles implements Action {
 }
