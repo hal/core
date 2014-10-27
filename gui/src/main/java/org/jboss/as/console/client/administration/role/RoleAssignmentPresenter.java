@@ -181,7 +181,7 @@ public class RoleAssignmentPresenter
     public void launchAddRoleAssignmentWizard(final Principal.Type type) {
         String title = type == USER ? Console.CONSTANTS.administration_add_user_assignment() : Console
                 .CONSTANTS.administration_add_group_assignment();
-        openWindow(title, 480, 630, new AddRoleAssignmentWizard(this, type, principals, roles).asWidget());
+        openWindow(title, 480, 550, new AddRoleAssignmentWizard(this, type, principals, roles).asWidget());
     }
 
     public void addRoleAssignment(final RoleAssignment assignment) {

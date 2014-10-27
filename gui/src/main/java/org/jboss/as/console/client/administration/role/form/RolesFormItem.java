@@ -24,11 +24,8 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.*;
+import com.google.gwt.view.client.DefaultSelectionEventManager.SelectAction;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.Roles;
@@ -73,7 +70,19 @@ public class RolesFormItem extends FormItem<List<Role>> {
     public Widget asWidget() {
         // table
         DefaultCellTable<Role> table = new DefaultCellTable<Role>(pageSize, keyProvider);
-        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.<Role>createCheckboxManager());
+        table.setSelectionModel(selectionModel, DefaultSelectionEventManager.createCustomManager(
+                new DefaultSelectionEventManager.CheckboxEventTranslator<Role>() {
+                    @Override
+                    public SelectAction translateSelectionEvent(CellPreviewEvent<Role> event) {
+                        SelectAction action = super.translateSelectionEvent(event);
+                        if (action.equals(SelectAction.IGNORE)) {
+                            Role role = event.getValue();
+                            boolean selected = selectionModel.isSelected(role);
+                            return selected ? SelectAction.DESELECT : SelectAction.SELECT;
+                        }
+                        return action;
+                    }
+                }));
         dataProvider.addDataDisplay(table);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
