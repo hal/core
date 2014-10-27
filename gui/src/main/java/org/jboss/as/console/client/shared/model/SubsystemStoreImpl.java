@@ -62,6 +62,7 @@ public class SubsystemStoreImpl implements SubsystemLoader {
         extensionOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         extensionOp.get(CHILD_TYPE).set("extension");
         extensionOp.get(RECURSIVE).set(true);
+        extensionOp.get(INCLUDE_RUNTIME).set(true);
         extensionOp.get(ADDRESS).setEmptyList();
 
         ModelNode subsysOp = new ModelNode();
