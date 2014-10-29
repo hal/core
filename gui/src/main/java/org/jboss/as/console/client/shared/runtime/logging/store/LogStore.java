@@ -22,13 +22,16 @@
 package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -39,6 +42,7 @@ import org.jboss.gwt.circuit.meta.Store;
 
 import java.util.*;
 
+import static com.google.gwt.http.client.URL.encode;
 import static java.lang.Math.max;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -81,7 +85,7 @@ public class LogStore extends ChangeSupport {
     protected final Map<String, LogFile> states;
 
     /**
-     * The selected log state
+     * The selected log file
      */
     protected LogFile activeLogFile;
 
@@ -131,7 +135,12 @@ public class LogStore extends ChangeSupport {
                             ": " + response.getFailureDescription()));
                 } else {
                     logFiles.clear();
-                    logFiles.addAll(response.get(RESULT).asList());
+                    List<Property> properties = response.get(RESULT).asPropertyList();
+                    for (Property property : properties) {
+                        ModelNode node = property.getValue();
+                        node.get(FILE_NAME).set(property.getName());
+                        logFiles.add(node);
+                    }
 
                     // mark outdated log views as stale
                     Set<String> names = new HashSet<String>();
@@ -184,6 +193,49 @@ public class LogStore extends ChangeSupport {
             activate(logFile);
             channel.ack();
         }
+    }
+
+    @Process(actionType = StreamLogFile.class)
+    public void streamLogFile(final String name, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(name);
+
+        if (logFile == null) {
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
+            requestBuilder.setHeader("org.wildfly.useStreamAsResponse", "");
+            requestBuilder.setHeader("Content-Type", "text/plain");
+            try {
+                Request request = requestBuilder.sendRequest(null, new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        if (response.getStatusCode() >= 400) {
+                            channel.nack("Failed to stream log file " + name + ": " +
+                                    response.getStatusCode() + " - " + response.getStatusText());
+                        }
+                        LogFile newLogFile = new LogFile(name, response.getText());
+                        states.put(name, newLogFile);
+                        activate(newLogFile);
+                        channel.ack();
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        channel.nack(exception);
+                    }
+                });
+            } catch (RequestException e) {
+                channel.nack(e);
+            }
+
+        } else {
+            // already streamed, just activate
+            activate(logFile);
+            channel.ack();
+        }
+    }
+
+    @Process(actionType = DownloadLogFile.class)
+    public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
+        channel.nack("NYI");
     }
 
     @Process(actionType = CloseLogFile.class)
@@ -423,6 +475,16 @@ public class LogStore extends ChangeSupport {
         scheduler.scheduleFixedDelay(new RefreshLogFile(logFile.getName()), FOLLOW_INTERVAL);
     }
 
+    private String streamUrl(final String name) {
+        StringBuilder url = new StringBuilder();
+        url.append(bootstrap.getProperty(ApplicationProperties.DOMAIN_API)).append("/");
+        for (ModelNode path : baseAddress().asList()) {
+            url.append(path.asString()).append("/");
+        }
+        url.append("log-file/").append(name).append("?operation=attribute&name=stream");
+        return url.toString();
+    }
+
 
     // ------------------------------------------------------ model node methods
 
@@ -439,7 +501,9 @@ public class LogStore extends ChangeSupport {
     private ModelNode listLogFilesOp() {
         final ModelNode op = new ModelNode();
         op.get(ADDRESS).set(baseAddress());
-        op.get(OP).set("list-log-files");
+        op.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        op.get(CHILD_TYPE).set("log-file");
+        op.get(INCLUDE_RUNTIME).set(true);
         return op;
     }
 
@@ -469,9 +533,9 @@ public class LogStore extends ChangeSupport {
         int size = -1;
         ModelNode stepResult = compResult.get("step-1");
         if (stepResult.get(RESULT).isDefined()) {
-            for (ModelNode node : stepResult.get(RESULT).asList()) {
-                if (name.equals(node.get(FILE_NAME).asString())) {
-                    size = node.get(FILE_SIZE).asInt();
+            for (Property property : stepResult.get(RESULT).asPropertyList()) {
+                if (name.equals(property.getName())) {
+                    size = property.getValue().get(FILE_SIZE).asInt();
                     break;
                 }
             }

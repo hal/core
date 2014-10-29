@@ -24,7 +24,7 @@ package org.jboss.as.console.client.shared.runtime.logging.files;
 /**
  * @author Harald Pehl
  */
-public interface LogFileId {
+public interface LogFilesId {
 
     String BASE_ID = "log_file";
 }

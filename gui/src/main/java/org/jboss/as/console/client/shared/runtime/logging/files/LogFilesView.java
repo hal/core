@@ -30,12 +30,12 @@ import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
-public class LogFilesView extends SuspendableViewImpl implements LogFilePresenter.MyView {
+public class LogFilesView extends SuspendableViewImpl implements LogFilesPresenter.MyView {
 
     private final Dispatcher circuit;
-    private LogFileTable logFiles;
-    private LogFileTabs logFileTabs;
-    private LogFilePresenter presenter;
+    private LogFilesTable logFiles;
+    private LogFilesTabs logFilesTabs;
+    private LogFilesPresenter presenter;
 
 
     @Inject
@@ -44,16 +44,16 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilePresente
     }
 
     @Override
-    public void setPresenter(LogFilePresenter presenter) {
+    public void setPresenter(LogFilesPresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
     public Widget createWidget() {
-        logFileTabs = new LogFileTabs(circuit);
-        logFiles = new LogFileTable(circuit, presenter);
-        logFileTabs.add(logFiles.asWidget(), "Log Files");
-        return logFileTabs;
+        logFilesTabs = new LogFilesTabs(circuit);
+        logFiles = new LogFilesTable(circuit, presenter);
+        logFilesTabs.add(logFiles.asWidget(), "Log Files");
+        return logFilesTabs;
     }
 
     @Override
@@ -63,11 +63,11 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilePresente
 
     @Override
     public void open(LogFile logFile) {
-        logFileTabs.open(logFile);
+        logFilesTabs.open(logFile);
     }
 
     @Override
     public boolean isLogFileSelected() {
-        return logFileTabs.selectedLogFilePanel() != null;
+        return logFilesTabs.selectedLogFilePanel() != null;
     }
 }

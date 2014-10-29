@@ -24,24 +24,22 @@ package org.jboss.as.console.client.shared.runtime.logging.store;
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Open a new unmanaged log file
- *
  * @author Harald Pehl
  */
-public class OpenLogFile implements Action {
+public class DownloadLogFile implements Action {
 
     private final String name;
 
-    public OpenLogFile(String name) {
+    public DownloadLogFile(String name) {
         this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OpenLogFile)) return false;
+        if (!(o instanceof DownloadLogFile)) return false;
 
-        OpenLogFile that = (OpenLogFile) o;
+        DownloadLogFile that = (DownloadLogFile) o;
         return name.equals(that.name);
     }
 

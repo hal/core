@@ -45,16 +45,16 @@ import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
 
-public class LogFilePresenter extends CircuitPresenter<LogFilePresenter.MyView, LogFilePresenter.MyProxy> {
+public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView, LogFilesPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LogFiles)
-    @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
-    public interface MyProxy extends Proxy<LogFilePresenter>, Place {
+    @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
+    public interface MyProxy extends Proxy<LogFilesPresenter>, Place {
 
     }
 
-    public interface MyView extends View, HasPresenter<LogFilePresenter> {
+    public interface MyView extends View, HasPresenter<LogFilesPresenter> {
         void list(List<ModelNode> logFiles);
         void open(LogFile logFile);
         boolean isLogFileSelected();
@@ -67,9 +67,9 @@ public class LogFilePresenter extends CircuitPresenter<LogFilePresenter.MyView, 
     private final DMREndpointConfig dmrEndpoint;
 
     @Inject
-    public LogFilePresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                            Dispatcher circuit, LogStore logStore, HostStore hostStore,
-                            DMREndpointConfig dmrEndpoint) {
+    public LogFilesPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
+                             Dispatcher circuit, LogStore logStore, HostStore hostStore,
+                             DMREndpointConfig dmrEndpoint) {
         super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;

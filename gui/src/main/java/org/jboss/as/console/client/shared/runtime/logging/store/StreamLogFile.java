@@ -24,24 +24,24 @@ package org.jboss.as.console.client.shared.runtime.logging.store;
 import org.jboss.gwt.circuit.Action;
 
 /**
- * Open a new unmanaged log file
- *
+ * Downloads the entire log file using the streaming feature of the log-file resource. Be sure to call this action
+ * only if the log file does not exceed a reasonable file size.
  * @author Harald Pehl
  */
-public class OpenLogFile implements Action {
+public class StreamLogFile implements Action {
 
     private final String name;
 
-    public OpenLogFile(String name) {
+    public StreamLogFile(String name) {
         this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof OpenLogFile)) return false;
+        if (!(o instanceof StreamLogFile)) return false;
 
-        OpenLogFile that = (OpenLogFile) o;
+        StreamLogFile that = (StreamLogFile) o;
         return name.equals(that.name);
     }
 

@@ -40,12 +40,12 @@ import org.jboss.gwt.circuit.Dispatcher;
 /**
  * @author Harald Pehl
  */
-public class LogFileTabs extends Composite {
+public class LogFilesTabs extends Composite {
 
     private final Dispatcher circuit;
     private final DefaultTabLayoutPanel tabLayout;
 
-    public LogFileTabs(final Dispatcher circuit) {
+    public LogFilesTabs(final Dispatcher circuit) {
         this.circuit = circuit;
         this.tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
         this.tabLayout.addSelectionHandler(new SelectionHandler<Integer>() {

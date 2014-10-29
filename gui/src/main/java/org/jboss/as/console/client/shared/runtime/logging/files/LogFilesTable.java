@@ -59,7 +59,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
 /**
  * @author Harald Pehl
  */
-public class LogFileTable extends Composite implements LogFileId {
+public class LogFilesTable extends Composite implements LogFilesId {
 
     private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
 
@@ -70,7 +70,7 @@ public class LogFileTable extends Composite implements LogFileId {
     private List<ModelNode> backup;
 
     @SuppressWarnings("unchecked")
-    public LogFileTable(final Dispatcher circuit, final LogFilePresenter presenter) {
+    public LogFilesTable(final Dispatcher circuit, final LogFilesPresenter presenter) {
 
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("rhs-content-panel");
@@ -114,7 +114,8 @@ public class LogFileTable extends Composite implements LogFileId {
             }
         });
         download.setEnabled(false);
-        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        // actually the attribute 'stream' is relevant for download, however we need to pass an operation here
+        download.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(download, BASE_ID, "download");
         tools.addToolButtonRight(download);
 
@@ -128,7 +129,7 @@ public class LogFileTable extends Composite implements LogFileId {
             }
         });
         view.setEnabled(false);
-        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging", "read-log-file");
+        view.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
         setId(view, BASE_ID, "view");
         tools.addToolButtonRight(view);
         panel.add(tools);

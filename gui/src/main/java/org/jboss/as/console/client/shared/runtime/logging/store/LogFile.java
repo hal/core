@@ -26,6 +26,7 @@ import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,6 +40,7 @@ public class LogFile {
 
     private final String name;
     private final List<String> lines;
+    private final String content;
     private int fileSize;
 
     private Position position;
@@ -50,8 +52,22 @@ public class LogFile {
     public LogFile(String name, List<String> lines, int fileSize) {
         this.name = name;
         this.lines = new ArrayList<>();
+        this.content = null;
         this.lines.addAll(lines);
         this.fileSize = fileSize;
+
+        this.position = Position.TAIL;
+        this.readFrom = Position.TAIL;
+        this.skipped = 0;
+        this.follow = false;
+        this.stale = false;
+    }
+
+    public LogFile(String name, String content) {
+        this.name = name;
+        this.lines = Collections.emptyList();
+        this.content = content;
+        this.fileSize = getNumBytes();
 
         this.position = Position.TAIL;
         this.readFrom = Position.TAIL;
@@ -66,10 +82,7 @@ public class LogFile {
         if (!(o instanceof LogFile)) return false;
 
         LogFile logFile = (LogFile) o;
-
-        if (!name.equals(logFile.name)) return false;
-
-        return true;
+        return name.equals(logFile.name);
     }
 
     @Override
@@ -101,19 +114,23 @@ public class LogFile {
     }
 
     void goTo(int line) {
-        if (line <= 0) {
-            goTo(readFrom);
-        } else {
-            this.position = Position.LINE_NUMBER;
-            this.skipped = line;
+        if (isPaged()) {
+            if (line <= 0) {
+                goTo(readFrom);
+            } else {
+                this.position = Position.LINE_NUMBER;
+                this.skipped = line;
+            }
         }
     }
 
     void goTo(Position position) {
-        this.position = position;
-        this.skipped = 0;
-        if (position == Position.HEAD || position == Position.TAIL) {
-            this.readFrom = position;
+        if (isPaged()) {
+            this.position = position;
+            this.skipped = 0;
+            if (position == Position.HEAD || position == Position.TAIL) {
+                this.readFrom = position;
+            }
         }
     }
 
@@ -141,8 +158,12 @@ public class LogFile {
         return skipped;
     }
 
+    public boolean isPaged() {
+        return content == null;
+    }
+
     public String getContent() {
-        return Joiner.on('\n').join(lines);
+        return isPaged() ? Joiner.on('\n').join(lines) : content;
     }
 
     public int getNumBytes() {
@@ -150,8 +171,10 @@ public class LogFile {
     }
 
     public void setLines(List<String> lines) {
-        this.lines.clear();
-        this.lines.addAll(lines);
+        if (isPaged()) {
+            this.lines.clear();
+            this.lines.addAll(lines);
+        }
     }
 
     public List<String> getLines() {
@@ -187,6 +210,8 @@ public class LogFile {
     }
 
     public void setFileSize(int fileSize) {
-        this.fileSize = fileSize;
+        if (isPaged()) {
+            this.fileSize = fileSize;
+        }
     }
 }

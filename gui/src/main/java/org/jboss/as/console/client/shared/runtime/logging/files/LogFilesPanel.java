@@ -47,7 +47,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
  *
  * @author Harald Pehl
  */
-public class LogFilePanel extends Composite implements LogViewerId {
+public class LogFilesPanel extends Composite implements LogViewerId {
 
     private final static int HEADER_HEIGHT = 48 + 35;
     private final static int TOOLS_HEIGHT = 32;
@@ -65,7 +65,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
     private final ToolButton tail;
     private int visibleLines;
 
-    public LogFilePanel(final Dispatcher circuit, final LogFile logFile) {
+    public LogFilesPanel(final Dispatcher circuit, final LogFile logFile) {
         this.circuit = circuit;
         this.name = logFile.getName();
 
