@@ -446,8 +446,8 @@ public class LogStore extends ChangeSupport {
     private ModelNode readLogFileOp(String logFile) {
         final ModelNode op = new ModelNode();
         op.get(ADDRESS).set(baseAddress());
+        op.get(ADDRESS).add("log-file", logFile);
         op.get(OP).set("read-log-file");
-        op.get(NAME).set(logFile);
         op.get("lines").set(pageSize);
         return op;
     }
