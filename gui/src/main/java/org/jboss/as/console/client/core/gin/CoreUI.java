@@ -88,7 +88,7 @@ import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
-import org.jboss.as.console.client.shared.runtime.logviewer.LogStoreAdapter;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStoreAdapter;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;

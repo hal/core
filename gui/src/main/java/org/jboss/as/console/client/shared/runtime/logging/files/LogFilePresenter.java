@@ -48,7 +48,7 @@ import java.util.List;
 public class LogFilePresenter extends CircuitPresenter<LogFilePresenter.MyView, LogFilePresenter.MyProxy> {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.LogViewer)
+    @NameToken(NameTokens.LogFiles)
     @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
     public interface MyProxy extends Proxy<LogFilePresenter>, Place {
 
