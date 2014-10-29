@@ -42,6 +42,7 @@ public class LoadExtensionCmd implements AsyncCommand<List<Extension>>{
         fetchExtensions.get(ADDRESS).setEmptyList();
         fetchExtensions.get(CHILD_TYPE).set("extension");
         fetchExtensions.get(RECURSIVE).set(true);
+        fetchExtensions.get(INCLUDE_RUNTIME).set(true);
 
         dispatcher.execute(new DMRAction(fetchExtensions), new LoggingCallback<DMRResponse>()
         {
