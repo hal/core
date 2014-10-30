@@ -50,7 +50,7 @@ public class LogFilesTabs extends Composite {
                 LogFilePanel logFilePanel = selectedLogFilePanel();
                 if (logFilePanel != null) {
                     circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
-                    logFilePanel.resize();
+                    logFilePanel.onResize();
                 } else {
                     circuit.dispatch(new PauseFollowLogFile());
                 }

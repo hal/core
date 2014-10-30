@@ -162,14 +162,14 @@ public class LogFileTable extends Composite implements LogViewerId {
         TextColumn<ModelNode> lastModifiedColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get(LAST_MODIFIED_DATE).asString();
+                return node.get(LAST_MODIFIED_TIMESTAMP).asString();
             }
         };
         lastModifiedColumn.setSortable(true);
         sortHandler.setComparator(lastModifiedColumn, new Comparator<ModelNode>() {
             @Override
             public int compare(ModelNode node1, ModelNode node2) {
-                return node1.get(LAST_MODIFIED_DATE).asString().compareTo(node2.get(LAST_MODIFIED_DATE).asString());
+                return node1.get(LAST_MODIFIED_TIMESTAMP).asString().compareTo(node2.get(LAST_MODIFIED_TIMESTAMP).asString());
             }
         });
         table.addColumn(lastModifiedColumn, "Date - Time (UTC)");

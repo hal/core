@@ -68,10 +68,9 @@ public class LogFilesTable extends Composite implements LogFilesId {
     private final ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
     private List<ModelNode> backup;
-    private LogFilesPresenter presenter;
 
     @SuppressWarnings("unchecked")
-    public LogFilesTable(final Dispatcher circuit) {
+    public LogFilesTable(final Dispatcher circuit, final LogFilesPresenter presenter) {
 
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("rhs-content-panel");
@@ -124,7 +123,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
             @Override
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
-                if (logFile != null && presenter != null) {
+                if (logFile != null) {
                     String name = logFile.get(FILE_NAME).asString();
                     int fileSize = logFile.get(FILE_SIZE).asInt();
                     presenter.onStreamLogFile(name, fileSize);
@@ -181,14 +180,14 @@ public class LogFilesTable extends Composite implements LogFilesId {
         TextColumn<ModelNode> lastModifiedColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                return node.get(LAST_MODIFIED_DATE).asString();
+                return node.get(LAST_MODIFIED_TIMESTAMP).asString();
             }
         };
         lastModifiedColumn.setSortable(true);
         sortHandler.setComparator(lastModifiedColumn, new Comparator<ModelNode>() {
             @Override
             public int compare(ModelNode node1, ModelNode node2) {
-                return node1.get(LAST_MODIFIED_DATE).asString().compareTo(node2.get(LAST_MODIFIED_DATE).asString());
+                return node1.get(LAST_MODIFIED_TIMESTAMP).asString().compareTo(node2.get(LAST_MODIFIED_TIMESTAMP).asString());
             }
         });
         table.addColumn(lastModifiedColumn, "Date - Time (UTC)");
@@ -231,10 +230,6 @@ public class LogFilesTable extends Composite implements LogFilesId {
         // Make sure the new values are properly sorted
         table.getColumnSortList().push(nameColumn);
         ColumnSortEvent.fire(table, table.getColumnSortList());
-    }
-
-    public void setPresenter(LogFilesPresenter presenter) {
-        this.presenter = presenter;
     }
 
     private void filterByPrefix(String prefix) {

@@ -57,7 +57,8 @@ public class LogStore extends ChangeSupport {
 
     public final static String FILE_NAME = "file-name";
     public final static String FILE_SIZE = "file-size";
-    public final static String LAST_MODIFIED_DATE = "last-modified-date";
+    public final static String LAST_MODIFIED_TIME = "last-modified-time";
+    public final static String LAST_MODIFIED_TIMESTAMP = "last-modified-timestamp";
 
     private final static int PAGE_SIZE = 25;
     private final static int FOLLOW_INTERVAL = 1200; // ms
@@ -202,7 +203,6 @@ public class LogStore extends ChangeSupport {
 
         if (logFile == null) {
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
-            requestBuilder.setHeader("org.wildfly.useStreamAsResponse", "");
             requestBuilder.setHeader("Content-Type", "text/plain");
             try {
                 requestBuilder.sendRequest(null, new RequestCallback() {
@@ -237,8 +237,7 @@ public class LogStore extends ChangeSupport {
 
     @Process(actionType = DownloadLogFile.class)
     public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
-        String url = streamUrl(name) + "&useStreamAsResponse";
-        Window.open(url, "_blank", "");
+        Window.open(streamUrl(name), "_blank", "");
         channel.ack();
     }
 
@@ -485,7 +484,7 @@ public class LogStore extends ChangeSupport {
         for (Property segment : baseAddress().asPropertyList()) {
             url.append(segment.getName()).append("/").append(segment.getValue().asString()).append("/");
         }
-        url.append("log-file/").append(name).append("?operation=attribute&name=stream");
+        url.append("log-file/").append(name).append("?operation=attribute&name=stream&useStreamAsResponse");
         return url.toString();
     }
 

@@ -25,7 +25,11 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
@@ -47,11 +51,12 @@ public class LogFilePanel extends Composite implements LogViewerId {
 
     private final static int HEADER_HEIGHT = 48 + 35;
     private final static int TOOLS_HEIGHT = 32;
-    private final static int MARGIN_BOTTOM = 50;
+    private final static int MARGIN_BOTTOM = 20;
 
     private final String name;
     private final VerticalPanel panel;
     private final AceEditor editor;
+    private final HandlerRegistration resizeHandler;
 
     public LogFilePanel(final LogFile logFile) {
         this.name = logFile.getName();
@@ -78,8 +83,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
                                     editor.setThemeByName("logfile");
                                     editor.setText(logFile.getContent());
                                     editor.setFontSize("11px");
-                                    editor.setVScrollBarVisible(false);
-                                    resize();
                                 }
                             }
                     );
@@ -91,6 +94,12 @@ public class LogFilePanel extends Composite implements LogViewerId {
         editorPanel.add(editor);
         panel.add(editorPanel);
 
+        resizeHandler = Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                LogFilePanel.this.onResize();
+            }
+        });
         initWidget(panel);
         setStyleName("rhs-content-panel");
     }
@@ -102,14 +111,21 @@ public class LogFilePanel extends Composite implements LogViewerId {
     @Override
     protected void onUnload() {
         editor.destroy();
+        resizeHandler.removeHandler();
     }
 
-    public void resize() {
-        int panelHeight = panel.getElement().getParentElement().getOffsetHeight();
-        int editorHeight = panelHeight - HEADER_HEIGHT - TOOLS_HEIGHT - MARGIN_BOTTOM;
-        if (panelHeight > 0) {
-            editor.setHeight(editorHeight + "px");
-        }
+    public void onResize() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                int panelHeight = panel.getElement().getParentElement().getOffsetHeight();
+                int editorHeight = panelHeight - HEADER_HEIGHT - TOOLS_HEIGHT - MARGIN_BOTTOM;
+
+                if (panelHeight > 0) {
+                    editor.setHeight(editorHeight + "px");
+                }
+            }
+        });
     }
 
     public String getName() {
@@ -154,11 +170,18 @@ public class LogFilePanel extends Composite implements LogViewerId {
             searchTools.addToolButton(findButton);
             searchTools.addToolWidget(findPrev);
             searchTools.addToolWidget(findNext);
-            findTextBox.getElement().getStyle().setWidth(20, EM);
+            searchTools.getElement().getStyle().setPaddingLeft(0, PX);
+            searchTools.getElement().getStyle().setMarginBottom(0.5, EM);
+            findTextBox.getElement().getStyle().setWidth(30, EM);
+            findTextBox.getElement().getStyle().setMarginRight(1, EM);
             findTextBox.getElement().getStyle().setMarginBottom(0, PX);
             findTextBox.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findButton.getElement().getStyle().setMarginLeft(1, EM);
+            findButton.getElement().getStyle().setHeight(27, PX);
             findButton.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findPrev.getElement().getStyle().setHeight(27, PX);
             findPrev.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
+            findNext.getElement().getStyle().setHeight(27, PX);
             findNext.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
 
             // next part: rebuild the original search box

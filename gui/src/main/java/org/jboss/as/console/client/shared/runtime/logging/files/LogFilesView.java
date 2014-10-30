@@ -35,6 +35,7 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilesPresent
     private final Dispatcher circuit;
     private LogFilesTable logFiles;
     private LogFilesTabs logFilesTabs;
+    private LogFilesPresenter presenter;
 
 
     @Inject
@@ -44,13 +45,13 @@ public class LogFilesView extends SuspendableViewImpl implements LogFilesPresent
 
     @Override
     public void setPresenter(LogFilesPresenter presenter) {
-        this.logFiles.setPresenter(presenter);
+        this.presenter = presenter;
     }
 
     @Override
     public Widget createWidget() {
         logFilesTabs = new LogFilesTabs(circuit);
-        logFiles = new LogFilesTable(circuit);
+        logFiles = new LogFilesTable(circuit, presenter);
         logFilesTabs.add(logFiles.asWidget(), "Log Files");
         return logFilesTabs;
     }

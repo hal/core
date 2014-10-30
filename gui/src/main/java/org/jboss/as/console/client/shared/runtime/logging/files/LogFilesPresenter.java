@@ -37,7 +37,6 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.dispatch.impl.DMREndpointConfig;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -63,23 +62,21 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     private final Dispatcher circuit;
     private final LogStore logStore;
     private final HostStore hostStore;
-    private final DMREndpointConfig dmrEndpoint;
 
     @Inject
     public LogFilesPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
-                             Dispatcher circuit, LogStore logStore, HostStore hostStore,
-                             DMREndpointConfig dmrEndpoint) {
+                             Dispatcher circuit, LogStore logStore, HostStore hostStore) {
         super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
         this.circuit = circuit;
         this.logStore = logStore;
         this.hostStore = hostStore;
-        this.dmrEndpoint = dmrEndpoint;
     }
 
     @Override
     protected void onBind() {
         super.onBind();
+        getView().setPresenter(this);
         addChangeHandler(logStore);
         addChangeHandler(hostStore);
     }
