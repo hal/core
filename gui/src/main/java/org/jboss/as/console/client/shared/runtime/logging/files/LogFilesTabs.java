@@ -32,9 +32,7 @@ import org.jboss.as.console.client.shared.runtime.logging.store.CloseLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.PauseFollowLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.SelectLogFile;
-import org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
-import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
 /**
@@ -42,11 +40,9 @@ import org.jboss.gwt.circuit.Dispatcher;
  */
 public class LogFilesTabs extends Composite {
 
-    private final Dispatcher circuit;
     private final DefaultTabLayoutPanel tabLayout;
 
     public LogFilesTabs(final Dispatcher circuit) {
-        this.circuit = circuit;
         this.tabLayout = new DefaultTabLayoutPanel(40, Style.Unit.PX, true, true);
         this.tabLayout.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -54,7 +50,7 @@ public class LogFilesTabs extends Composite {
                 LogFilePanel logFilePanel = selectedLogFilePanel();
                 if (logFilePanel != null) {
                     circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
-                    logFilePanel.onResize();
+                    logFilePanel.resize();
                 } else {
                     circuit.dispatch(new PauseFollowLogFile());
                 }
@@ -63,8 +59,8 @@ public class LogFilesTabs extends Composite {
         this.tabLayout.addCloseHandler(new CloseHandler<Widget>() {
             @Override
             public void onClose(CloseEvent<Widget> event) {
-                if (event.getTarget() instanceof LogFilePanel) {
-                    LogFilePanel logFilePanel = (LogFilePanel) event.getTarget();
+                if (event.getTarget() instanceof org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel) {
+                    org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel logFilePanel = (org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel) event.getTarget();
                     circuit.dispatch(new CloseLogFile(logFilePanel.getName()));
                 }
             }
@@ -76,15 +72,15 @@ public class LogFilesTabs extends Composite {
 
     public void open(LogFile logFile) {
         if (!tabLayout.contains(logFile.getName())) {
-            tabLayout.add(new LogFilePanel(circuit, logFile), logFile.getName());
+            tabLayout.add(new LogFilePanel(logFile), logFile.getName());
         }
         tabLayout.selectTab(logFile.getName());
     }
 
-    public void refresh(LogFile logFile, Action action) {
+    public void refresh(LogFile logFile) {
         LogFilePanel logFilePanel = selectedLogFilePanel();
         if (logFilePanel != null) {
-            logFilePanel.refresh(logFile, action);
+            logFilePanel.refresh(logFile);
         }
     }
 

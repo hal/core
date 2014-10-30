@@ -36,7 +36,6 @@ public class LogViewerView extends SuspendableViewImpl implements LogViewerPrese
     private final Dispatcher circuit;
     private LogFileTable logFiles;
     private LogFileTabs logFileTabs;
-    private LogViewerPresenter presenter;
 
 
     @Inject

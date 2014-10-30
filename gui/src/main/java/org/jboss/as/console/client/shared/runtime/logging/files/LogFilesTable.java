@@ -35,8 +35,8 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.runtime.logging.store.DownloadLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
-import org.jboss.as.console.client.shared.runtime.logging.store.OpenLogFile;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeCellTable;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -68,9 +68,10 @@ public class LogFilesTable extends Composite implements LogFilesId {
     private final ListDataProvider<ModelNode> dataProvider;
     private final SingleSelectionModel<ModelNode> selectionModel;
     private List<ModelNode> backup;
+    private LogFilesPresenter presenter;
 
     @SuppressWarnings("unchecked")
-    public LogFilesTable(final Dispatcher circuit, final LogFilesPresenter presenter) {
+    public LogFilesTable(final Dispatcher circuit) {
 
         VerticalPanel panel = new VerticalPanel();
         panel.addStyleName("rhs-content-panel");
@@ -109,7 +110,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
                 if (logFile != null) {
-                    presenter.download(logFile);
+                    circuit.dispatch(new DownloadLogFile(logFile.get(FILE_NAME).asString()));
                 }
             }
         });
@@ -123,8 +124,10 @@ public class LogFilesTable extends Composite implements LogFilesId {
             @Override
             public void onClick(ClickEvent event) {
                 ModelNode logFile = selectionModel.getSelectedObject();
-                if (logFile != null) {
-                    circuit.dispatch(new OpenLogFile(logFile.get(FILE_NAME).asString()));
+                if (logFile != null && presenter != null) {
+                    String name = logFile.get(FILE_NAME).asString();
+                    int fileSize = logFile.get(FILE_SIZE).asInt();
+                    presenter.onStreamLogFile(name, fileSize);
                 }
             }
         });
@@ -228,6 +231,10 @@ public class LogFilesTable extends Composite implements LogFilesId {
         // Make sure the new values are properly sorted
         table.getColumnSortList().push(nameColumn);
         ColumnSortEvent.fire(table, table.getColumnSortList());
+    }
+
+    public void setPresenter(LogFilesPresenter presenter) {
+        this.presenter = presenter;
     }
 
     private void filterByPrefix(String prefix) {

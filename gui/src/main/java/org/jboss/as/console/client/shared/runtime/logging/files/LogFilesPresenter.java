@@ -31,9 +31,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.logging.store.*;
-import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
@@ -57,6 +55,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     public interface MyView extends View, HasPresenter<LogFilesPresenter> {
         void list(List<ModelNode> logFiles);
         void open(LogFile logFile);
+        void refresh(LogFile logFile);
         boolean isLogFileSelected();
     }
 
@@ -96,7 +95,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         if (action instanceof  ReadLogFiles) {
             getView().list(logStore.getLogFiles());
 
-        } else if (action instanceof OpenLogFile) {
+        } else if (action instanceof StreamLogFile) {
             getView().open(logStore.getActiveLogFile());
 
         } else if (action instanceof SelectServerInstance) {
@@ -118,17 +117,8 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         }
     }
 
-    public void download(ModelNode logFile) {
-    }
-
-    private String logFileUrl(ModelNode logFile, String mimeType) {
-        StringBuilder url = new StringBuilder();
-        url.append(dmrEndpoint.getUrl()).append("/");
-        List<ModelNode> runtimeAddress = RuntimeBaseAddress.get().asList();
-        for (ModelNode path : runtimeAddress) {
-            url.append(path.asString()).append("/");
-        }
-        url.append("subsystem/logging?operation=attribute&");
-        return null;
+    public void onStreamLogFile(String logFile, int fileSize) {
+        // TODO ask for confirmation if file is too big
+        circuit.dispatch(new StreamLogFile(logFile));
     }
 }

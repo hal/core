@@ -97,10 +97,10 @@ import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricView;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricsView;
+import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesPresenter;
+import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesView;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStoreAdapter;
-import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerPresenter;
-import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerView;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiView;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
@@ -450,10 +450,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LoggingView.class,
                 LoggingPresenter.MyProxy.class);
 
-        bindPresenter(LogViewerPresenter.class,
-                LogViewerPresenter.MyView.class,
-                LogViewerView.class,
-                LogViewerPresenter.MyProxy.class);
+        bindPresenter(LogFilesPresenter.class,
+                LogFilesPresenter.MyView.class,
+                LogFilesView.class,
+                LogFilesPresenter.MyProxy.class);
 
         bind(HandlerListManager.class).in(Singleton.class);
 

@@ -23,6 +23,7 @@ package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.ApplicationProperties;
@@ -204,7 +205,7 @@ public class LogStore extends ChangeSupport {
             requestBuilder.setHeader("org.wildfly.useStreamAsResponse", "");
             requestBuilder.setHeader("Content-Type", "text/plain");
             try {
-                Request request = requestBuilder.sendRequest(null, new RequestCallback() {
+                requestBuilder.sendRequest(null, new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
                         if (response.getStatusCode() >= 400) {
@@ -212,6 +213,7 @@ public class LogStore extends ChangeSupport {
                                     response.getStatusCode() + " - " + response.getStatusText());
                         }
                         LogFile newLogFile = new LogFile(name, response.getText());
+                        newLogFile.setFollow(false);
                         states.put(name, newLogFile);
                         activate(newLogFile);
                         channel.ack();
@@ -235,7 +237,9 @@ public class LogStore extends ChangeSupport {
 
     @Process(actionType = DownloadLogFile.class)
     public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
-        channel.nack("NYI");
+        String url = streamUrl(name) + "&useStreamAsResponse";
+        Window.open(url, "_blank", "");
+        channel.ack();
     }
 
     @Process(actionType = CloseLogFile.class)
@@ -478,8 +482,8 @@ public class LogStore extends ChangeSupport {
     private String streamUrl(final String name) {
         StringBuilder url = new StringBuilder();
         url.append(bootstrap.getProperty(ApplicationProperties.DOMAIN_API)).append("/");
-        for (ModelNode path : baseAddress().asList()) {
-            url.append(path.asString()).append("/");
+        for (Property segment : baseAddress().asPropertyList()) {
+            url.append(segment.getName()).append("/").append(segment.getValue().asString()).append("/");
         }
         url.append("log-file/").append(name).append("?operation=attribute&name=stream");
         return url.toString();
