@@ -59,8 +59,8 @@ public class LogFilesTabs extends Composite {
         this.tabLayout.addCloseHandler(new CloseHandler<Widget>() {
             @Override
             public void onClose(CloseEvent<Widget> event) {
-                if (event.getTarget() instanceof org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel) {
-                    org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel logFilePanel = (org.jboss.as.console.client.shared.runtime.logging.viewer.LogFilePanel) event.getTarget();
+                if (event.getTarget() instanceof LogFilePanel) {
+                    LogFilePanel logFilePanel = (LogFilePanel) event.getTarget();
                     circuit.dispatch(new CloseLogFile(logFilePanel.getName()));
                 }
             }

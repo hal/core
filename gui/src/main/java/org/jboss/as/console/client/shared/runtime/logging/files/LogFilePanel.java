@@ -177,11 +177,11 @@ public class LogFilePanel extends Composite implements LogViewerId {
             findTextBox.getElement().getStyle().setMarginBottom(0, PX);
             findTextBox.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
             findButton.getElement().getStyle().setMarginLeft(1, EM);
-            findButton.getElement().getStyle().setHeight(27, PX);
+            findButton.getElement().getStyle().setHeight(25, PX);
             findButton.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
-            findPrev.getElement().getStyle().setHeight(27, PX);
+            findPrev.getElement().getStyle().setHeight(25, PX);
             findPrev.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
-            findNext.getElement().getStyle().setHeight(27, PX);
+            findNext.getElement().getStyle().setHeight(25, PX);
             findNext.getElement().getParentElement().getStyle().setVerticalAlign(MIDDLE);
 
             // next part: rebuild the original search box
