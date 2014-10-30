@@ -139,7 +139,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
     @SuppressWarnings("UnusedDeclaration")
     private class SearchBox extends Composite {
 
-        public SearchBox() {
+        SearchBox() {
 
             // first part: setup the visible widgets
             final TextBox findTextBox = new TextBox();
