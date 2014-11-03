@@ -92,9 +92,9 @@ public class LogStore extends ChangeSupport {
     protected LogFile activeLogFile;
 
     /**
-     * Active streaming request.
+     * Pending streaming request.
      */
-    protected Request streamingRequest;
+    protected PendingStreamingRequest pendingStreamingRequest;
 
     /**
      * The number of lines which is displayed in the log view. Changing this value influences the parameters
@@ -118,7 +118,7 @@ public class LogStore extends ChangeSupport {
         this.logFiles = new ArrayList<>();
         this.states = new LinkedHashMap<>();
         this.activeLogFile = null;
-        this.streamingRequest = null;
+        this.pendingStreamingRequest = null;
         this.pageSize = PAGE_SIZE;
     }
 
@@ -213,12 +213,12 @@ public class LogStore extends ChangeSupport {
             requestBuilder.setHeader("Content-Type", "text/plain");
             try {
                 // store the request in order to cancel it later
-                streamingRequest = requestBuilder.sendRequest(null, new RequestCallback() {
+                pendingStreamingRequest = new PendingStreamingRequest(name, requestBuilder.sendRequest(null, new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
                         if (response.getStatusCode() >= 400) {
-                            channel.nack("Failed to stream log file " + name + ": " +
-                                    response.getStatusCode() + " - " + response.getStatusText());
+                            channel.nack(new IllegalStateException("Failed to stream log file " + name + ": " +
+                                    response.getStatusCode() + " - " + response.getStatusText()));
                         } else {
                             LogFile newLogFile = new LogFile(name, response.getText());
                             newLogFile.setFollow(false);
@@ -232,7 +232,7 @@ public class LogStore extends ChangeSupport {
                     public void onError(Request request, Throwable exception) {
                         channel.nack(exception);
                     }
-                });
+                }), channel);
             } catch (RequestException e) {
                 channel.nack(e);
             }
@@ -587,8 +587,27 @@ public class LogStore extends ChangeSupport {
         return activeLogFile;
     }
 
-    public Request getStreamingRequest() {
-        return streamingRequest;
+    public PendingStreamingRequest getPendingStreamingRequest() {
+        return pendingStreamingRequest;
+    }
+
+    public static final class PendingStreamingRequest {
+        private final String logFile;
+        private final Request request;
+        private final Dispatcher.Channel channel;
+
+        private PendingStreamingRequest(final String logFile, final Request request, final Dispatcher.Channel channel) {
+            this.logFile = logFile;
+            this.request = request;
+            this.channel = channel;
+        }
+
+        public void cancel() {
+            if (request != null && request.isPending() && channel != null) {
+                request.cancel();
+                channel.nack("Download of " + logFile + " canceled");
+            }
+        }
     }
 
 

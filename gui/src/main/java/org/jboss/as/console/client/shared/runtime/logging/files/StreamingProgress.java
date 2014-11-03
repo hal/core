@@ -24,13 +24,13 @@ package org.jboss.as.console.client.shared.runtime.logging.files;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.http.client.Request;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
+import org.jboss.as.console.client.shared.runtime.logging.store.LogStore.PendingStreamingRequest;
 import org.jboss.as.console.client.shared.runtime.logging.store.StreamLogFile;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -74,8 +74,8 @@ public class StreamingProgress extends PopupPanel {
         cancel.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Request request = logStore.getStreamingRequest();
-                if (request != null && request.isPending()) {
+                PendingStreamingRequest request = logStore.getPendingStreamingRequest();
+                if (request != null) {
                     request.cancel();
                     done();
                 }

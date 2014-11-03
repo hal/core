@@ -28,6 +28,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -111,16 +112,8 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
 
     @Override
     protected void onError(Action action, String reason) {
-        super.onError(action, reason);
         if (action instanceof StreamLogFile) {
-            streamingProgress.done();
-        }
-    }
-
-    @Override
-    protected void onError(Action action, Throwable t) {
-        super.onError(action, t);
-        if (action instanceof StreamLogFile) {
+            Console.info(reason);
             streamingProgress.done();
         }
     }
