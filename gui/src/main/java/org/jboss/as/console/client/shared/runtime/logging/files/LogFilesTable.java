@@ -61,7 +61,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
  */
 public class LogFilesTable extends Composite implements LogFilesId {
 
-    private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("#.00");
+    private final static NumberFormat SIZE_FORMAT = NumberFormat.getFormat("0.00");
 
     private final ModelNodeCellTable table;
     private final TextColumn<ModelNode> nameColumn;
@@ -196,7 +196,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
         TextColumn<ModelNode> sizeColumn = new TextColumn<ModelNode>() {
             @Override
             public String getValue(ModelNode node) {
-                double size = node.get(LogStore.FILE_SIZE).asLong() / 1024.0;
+                double size = node.get(LogStore.FILE_SIZE).asLong() / 1048576.0;
                 return SIZE_FORMAT.format(size);
             }
         };
@@ -208,7 +208,7 @@ public class LogFilesTable extends Composite implements LogFilesId {
                 return node1.get(FILE_SIZE).asInt() - node2.get(FILE_SIZE).asInt();
             }
         });
-        table.addColumn(sizeColumn, "Size (kb)");
+        table.addColumn(sizeColumn, "Size (MB)");
 
         ScrollPanel scroll = new ScrollPanel(panel);
         LayoutPanel layout = new LayoutPanel();

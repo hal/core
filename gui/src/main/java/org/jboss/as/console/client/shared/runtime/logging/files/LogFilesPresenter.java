@@ -36,6 +36,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -51,17 +52,29 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
 
     }
 
-    public interface MyView extends View, HasPresenter<LogFilesPresenter> {
+    public interface MyView extends View, HasPresenter<LogFilesPresenter> { // @formatter:off
         void list(List<ModelNode> logFiles);
         void open(LogFile logFile);
         void refresh(LogFile logFile);
         boolean isLogFileSelected();
-    }
+    } // @formatter:on
+
+    /**
+     * If log files are bigger than this threshold a confirmation dialog is displayed.
+     */
+    public static final int LOG_FILE_SIZE_THRESHOLD = 15000000; // bytes
+
+    /**
+     * If the streaming of a log files takes longer then this timeout,
+     * the {@link StreamingProgress} modal is displayed.
+     */
+    public static final int SHOW_STREAM_IN_PROGRESS_TIMEOUT = 666; // ms
 
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;
     private final LogStore logStore;
     private final HostStore hostStore;
+    private final StreamingProgress streamingProgress;
 
     @Inject
     public LogFilesPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy,
@@ -71,6 +84,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         this.circuit = circuit;
         this.logStore = logStore;
         this.hostStore = hostStore;
+        this.streamingProgress = new StreamingProgress(circuit, logStore, SHOW_STREAM_IN_PROGRESS_TIMEOUT);
     }
 
     @Override
@@ -82,21 +96,32 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     }
 
     @Override
-    protected void onHide() {
-        super.onHide();
-        circuit.dispatch(new PauseFollowLogFile());
-    }
-
-    @Override
     public void onAction(Action action) {
-        if (action instanceof  ReadLogFiles) {
+        if (action instanceof ReadLogFiles) {
             getView().list(logStore.getLogFiles());
 
         } else if (action instanceof StreamLogFile) {
+            streamingProgress.done();
             getView().open(logStore.getActiveLogFile());
 
         } else if (action instanceof SelectServerInstance) {
             onReset();
+        }
+    }
+
+    @Override
+    protected void onError(Action action, String reason) {
+        super.onError(action, reason);
+        if (action instanceof StreamLogFile) {
+            streamingProgress.done();
+        }
+    }
+
+    @Override
+    protected void onError(Action action, Throwable t) {
+        super.onError(action, t);
+        if (action instanceof StreamLogFile) {
+            streamingProgress.done();
         }
     }
 
@@ -114,8 +139,22 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
         }
     }
 
-    public void onStreamLogFile(String logFile, int fileSize) {
-        // TODO ask for confirmation if file is too big
-        circuit.dispatch(new StreamLogFile(logFile));
+    public void onStreamLogFile(final String logFile, final int fileSize) {
+        if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
+            Feedback.confirm(
+                    "Download Log File",
+                    "Downloading this log file may take some time. Do you want to proceed?",
+                    new Feedback.ConfirmationHandler() {
+                        @Override
+                        public void onConfirmation(boolean isConfirmed) {
+                            if (isConfirmed) {
+                                streamingProgress.monitor(logFile);
+                            }
+                        }
+                    });
+        } else {
+            streamingProgress.monitor(logFile);
+        }
     }
+
 }

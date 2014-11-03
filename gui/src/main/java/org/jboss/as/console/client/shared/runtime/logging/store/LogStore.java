@@ -92,6 +92,11 @@ public class LogStore extends ChangeSupport {
     protected LogFile activeLogFile;
 
     /**
+     * Active streaming request.
+     */
+    protected Request streamingRequest;
+
+    /**
      * The number of lines which is displayed in the log view. Changing this value influences the parameters
      * for the {@code read-log-file} operations
      */
@@ -113,6 +118,7 @@ public class LogStore extends ChangeSupport {
         this.logFiles = new ArrayList<>();
         this.states = new LinkedHashMap<>();
         this.activeLogFile = null;
+        this.streamingRequest = null;
         this.pageSize = PAGE_SIZE;
     }
 
@@ -203,20 +209,23 @@ public class LogStore extends ChangeSupport {
 
         if (logFile == null) {
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
+            requestBuilder.setHeader("Accept", "text/plain");
             requestBuilder.setHeader("Content-Type", "text/plain");
             try {
-                requestBuilder.sendRequest(null, new RequestCallback() {
+                // store the request in order to cancel it later
+                streamingRequest = requestBuilder.sendRequest(null, new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
                         if (response.getStatusCode() >= 400) {
                             channel.nack("Failed to stream log file " + name + ": " +
                                     response.getStatusCode() + " - " + response.getStatusText());
+                        } else {
+                            LogFile newLogFile = new LogFile(name, response.getText());
+                            newLogFile.setFollow(false);
+                            states.put(name, newLogFile);
+                            activate(newLogFile);
+                            channel.ack();
                         }
-                        LogFile newLogFile = new LogFile(name, response.getText());
-                        newLogFile.setFollow(false);
-                        states.put(name, newLogFile);
-                        activate(newLogFile);
-                        channel.ack();
                     }
 
                     @Override
@@ -237,7 +246,7 @@ public class LogStore extends ChangeSupport {
 
     @Process(actionType = DownloadLogFile.class)
     public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
-        Window.open(streamUrl(name), "_blank", "");
+        Window.open(streamUrl(name), "", "");
         channel.ack();
     }
 
@@ -576,6 +585,10 @@ public class LogStore extends ChangeSupport {
 
     public LogFile getActiveLogFile() {
         return activeLogFile;
+    }
+
+    public Request getStreamingRequest() {
+        return streamingRequest;
     }
 
 

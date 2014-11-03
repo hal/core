@@ -77,7 +77,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
                                 public void execute() {
                                     editor.startEditor();
                                     editor.setReadOnly(true);
-                                    editor.setShowGutter(false);
+                                    editor.setShowGutter(true);
                                     editor.setShowPrintMargin(false);
                                     editor.setModeByName("logfile");
                                     editor.setThemeByName("logfile");

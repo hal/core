@@ -108,7 +108,6 @@ public class LogFile {
         if (stale) {
             builder.append(", stale");
         }
-        builder.append(", ").append(getLines().size()).append(" / ").append(getNumBytes()).append(" / ").append(fileSize);
         builder.append(")");
         return builder.toString();
     }
@@ -167,7 +166,7 @@ public class LogFile {
     }
 
     public int getNumBytes() {
-        return getContent().getBytes().length;
+        return getContent().length();
     }
 
     public void setLines(List<String> lines) {
