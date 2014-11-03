@@ -67,6 +67,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
         panel.add(new SearchBox());
 
         editor = new AceEditor();
+        editor.addStyleName("hal-LogViewer");
         editor.addAttachHandler(new AttachEvent.Handler() {
             @Override
             public void onAttachOrDetach(AttachEvent event) {

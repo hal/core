@@ -30,7 +30,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.runtime.logging.store.CloseLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
-import org.jboss.as.console.client.shared.runtime.logging.store.PauseFollowLogFile;
 import org.jboss.as.console.client.shared.runtime.logging.store.SelectLogFile;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -51,8 +50,6 @@ public class LogFilesTabs extends Composite {
                 if (logFilePanel != null) {
                     circuit.dispatch(new SelectLogFile(logFilePanel.getName()));
                     logFilePanel.onResize();
-                } else {
-                    circuit.dispatch(new PauseFollowLogFile());
                 }
             }
         });
