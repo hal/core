@@ -39,6 +39,7 @@ public class FeatureSet {
     }
 
     public boolean isCSPEnabled() {
-        return productConfig.getProfile() == ProductConfig.Profile.PRODUCT;
+        // CSP is disabled in 2.3.x branch
+        return false;// productConfig.getProfile() == ProductConfig.Profile.PRODUCT;
     }
 }
