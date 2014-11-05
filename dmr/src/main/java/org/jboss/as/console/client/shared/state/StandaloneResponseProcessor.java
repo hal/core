@@ -17,7 +17,7 @@ public class StandaloneResponseProcessor implements ResponseProcessor {
 
     private static final String RESTART_REQUIRED = "restart-required";
     private static final String RELOAD_REQUIRED = "reload-required";
-    private static final String STANDLONE_SERVER = "Standlone Server";
+    private static final String STANDLONE_SERVER = "Standalone Server";
 
 
     @Override
