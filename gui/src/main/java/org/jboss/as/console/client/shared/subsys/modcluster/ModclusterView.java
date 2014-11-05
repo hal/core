@@ -75,21 +75,16 @@ public class ModclusterView extends DisposableViewImpl implements ModclusterPres
 
         networkingForm = new ModclusterForm(presenter);
 
-        NumberBoxItem nodeTimeout = new NumberBoxItem("nodeTimeout", "Node Timeout", true);
-        NumberBoxItem socketTimeout = new NumberBoxItem("socketTimeout", "Socket Timeout");
-        NumberBoxItem stopContextTimeout = new NumberBoxItem("stopContextTimeout", "Stop Context Timeout");
+        NumberBoxItem nodeTimeout = new NumberBoxItem("nodeTimeout", "Node Timeout", -1, Integer.MAX_VALUE);
+        NumberBoxItem socketTimeout = new NumberBoxItem("socketTimeout", "Socket Timeout", 1, Integer.MAX_VALUE);
+        NumberBoxItem stopContextTimeout = new NumberBoxItem("stopContextTimeout", "Stop Context Timeout", 1, Integer.MAX_VALUE);
 
-        NumberBoxItem maxAttemps = new NumberBoxItem("maxAttemps", "Max Attemps", true);
+        NumberBoxItem maxAttemps = new NumberBoxItem("maxAttemps", "Max Attempts", 1, Integer.MAX_VALUE  );
         CheckBoxItem flushPackets = new CheckBoxItem("flushPackets", "Flush Packets");
-        NumberBoxItem flushWait = new NumberBoxItem("flushWait", "Flush Wait", true);
+        NumberBoxItem flushWait = new NumberBoxItem("flushWait", "Flush Wait", -1, Integer.MAX_VALUE);
         NumberBoxItem ping = new NumberBoxItem("ping", "Ping");
-        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout", true) {
-            @Override
-            public boolean validate(final Number value) {
-                return super.validate(value) && value.intValue() >= -1;
-            }
-        };
-        NumberBoxItem ttl = new NumberBoxItem("ttl", "TTL", true);
+        NumberBoxItem workerTimeout = new NumberBoxItem("workerTimeout", "Worker Timeout", -1, Integer.MAX_VALUE);
+        NumberBoxItem ttl = new NumberBoxItem("ttl", "TTL", -1, Integer.MAX_VALUE);
 
         networkingForm.setFields(nodeTimeout, socketTimeout, stopContextTimeout, maxAttemps, flushPackets, flushWait, ping, ttl, workerTimeout);
 
