@@ -1,5 +1,0 @@
-connect
-batch
-/core-service=management/access=authorization:write-attribute(name=provider, value=rbac)
-/core-service=management/access=authorization/role-mapping=SuperUser/include=admin:add(name=admin, type=user, realm=ManagementRealm)
-run-batch
