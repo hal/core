@@ -19,24 +19,16 @@
 package org.jboss.as.console.client.search;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SuggestOracle;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -44,39 +36,40 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.subsys.threads.model.ScheduledThreadPool;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Harald Pehl
  */
 class SearchPopup extends DefaultWindow {
 
+    private static final TokenGroupTemplate TEMPLATE = GWT.create(TokenGroupTemplate.class);
+
     private final Harvest harvest;
     private final Index index;
 
     private final DeckPanel deck;
     private final ProgressElement progressBar;
-    private final DefaultCellList<DocumentSuggestion> resultList;
-    private final SingleSelectionModel<DocumentSuggestion> resultSelectionModel;
-    private final ListDataProvider<DocumentSuggestion> resultProvider;
+    private final DefaultCellList<TokenGroup> resultList;
+    private final SingleSelectionModel<TokenGroup> resultSelectionModel;
+    private final ListDataProvider<TokenGroup> resultProvider;
     private final TextBox textBox;
+    private final HTML numberOfResults;
     private final PlaceManager placeManager;
 
     SearchPopup(final Harvest harvest, final Index index, final PlaceManager placeManager) {
         super("Search");
+        addStyleName("hal-searchPopup");
+
         this.harvest = harvest;
         this.index = index;
         this.placeManager = placeManager;
 
         deck = new DeckPanel();
-
         VerticalPanel indexPanel = new VerticalPanel();
         indexPanel.setStyleName("fill-layout-width");
         indexPanel.getElement().getStyle().setPadding(2, Style.Unit.PX);
@@ -87,19 +80,16 @@ class SearchPopup extends DefaultWindow {
 
         VerticalPanel searchPanel = new VerticalPanel();
         searchPanel.setStyleName("window-content");
+
         textBox = new TextBox();
         textBox.setStyleName("fill-layout-width");
         textBox.getElement().setAttribute("placeholder", "Search term ...");
-
         textBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent keyUpEvent) {
-                if(keyUpEvent.isDownArrow() && !resultProvider.getList().isEmpty())
-                {
+                if (keyUpEvent.isDownArrow() && !resultProvider.getList().isEmpty()) {
                     resultList.setFocus(true);
-                }
-                else
-                {
+                } else {
                     executeQuery();
                 }
             }
@@ -108,21 +98,21 @@ class SearchPopup extends DefaultWindow {
         textBox.setTabIndex(0);
         searchPanel.add(textBox);
 
-        resultList = new DefaultCellList<DocumentSuggestion>(new ResultCell());
+        numberOfResults = new HTML();
+        searchPanel.add(numberOfResults);
 
-        resultList.addCellPreviewHandler(new CellPreviewEvent.Handler() {
+        resultList = new DefaultCellList<TokenGroup>(new ResultCell());
+        resultList.addCellPreviewHandler(new CellPreviewEvent.Handler<TokenGroup>() {
             @Override
             public void onCellPreview(CellPreviewEvent event) {
-
                 if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ENTER) {
                     resultSelectionModel.setSelected(
-                            resultProvider.getList().get(resultList.getKeyboardSelectedRow()
-                            ), true);
+                            resultProvider.getList().get(resultList.getKeyboardSelectedRow()), true);
                 }
             }
         });
 
-        resultSelectionModel = new SingleSelectionModel<DocumentSuggestion>();
+        resultSelectionModel = new SingleSelectionModel<TokenGroup>();
         resultSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -134,60 +124,65 @@ class SearchPopup extends DefaultWindow {
         resultList.addStyleName("fill-layout-width");
         resultList.addStyleName("search-result");
 
-        resultProvider = new ListDataProvider<DocumentSuggestion>();
+        resultProvider = new ListDataProvider<TokenGroup>();
         resultProvider.addDataDisplay(resultList);
         searchPanel.add(resultList);
 
         deck.add(searchPanel);
-
         deck.showWidget(1);
         resultList.setTabIndex(0);
-
-
         setWidget(new ScrollPanel(deck));
-
-        /*addCloseHandler(new CloseHandler<PopupPanel>() {
+/*
+        addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
                 textBox.setText("");
                 resultProvider.setList(Collections.EMPTY_LIST);
             }
-        });*/
+        });
+*/
     }
 
     private void navigate() {
-        DocumentSuggestion selection = resultSelectionModel.getSelectedObject();
-        if(selection!=null)
-        {
+        TokenGroup selection = resultSelectionModel.getSelectedObject();
+        if (selection != null) {
             hide();
-            Document document = selection.getDocument();
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(document.getToken()).build());
-
+            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(selection.getToken()).build());
         }
     }
 
     private void executeQuery() {
-
         String query = textBox.getText().trim();
         if (query.length() != 0) {
-            List<Document> hits = index.search(query);
-            List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
-            for (Document hit : hits) {
-                String description = hit.getDescription();
-                boolean tooLong = description.length() > 250;
-                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
-                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
-                DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
-                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
-                suggestions.add(suggestion);
+            // split the query into multiple terms
+            String[] terms = query.split(" ");
+
+            // collect the hits over all terms into token groups (using disjunction)
+            Map<String, TokenGroup> tokenGroups = new LinkedHashMap<>();
+            for (String term : terms) {
+                if (term != null && term.trim().length() > 1) {
+                    List<Document> hits = index.search(term);
+                    for (Document hit : hits) {
+                        String token = hit.getToken();
+                        TokenGroup tokenGroup = tokenGroups.get(token);
+                        if (tokenGroup == null) {
+                            tokenGroup = new TokenGroup(token);
+                            tokenGroups.put(token, tokenGroup);
+                        }
+                        tokenGroup.add(hit);
+                    }
+                }
             }
-            resultProvider.setList(suggestions);
+
+            // display token groups
+            ArrayList<TokenGroup> results = new ArrayList<TokenGroup>(tokenGroups.values());
+            numberOfResults.setHTML("<h3>Number of results: " + results.size() + "</h3>");
+            resultProvider.setList(results);
             resultProvider.refresh();
-        }
-        else
-        {
+        } else {
             // clear display
-            resultProvider.setList(Collections.EMPTY_LIST);
+            numberOfResults.setHTML("<h3>Number of results: 0</h3>");
+            resultProvider.setList(Collections.<TokenGroup>emptyList());
             resultProvider.refresh();
         }
     }
@@ -202,7 +197,6 @@ class SearchPopup extends DefaultWindow {
 
     void showSearchPage() {
         deck.showWidget(1);
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -211,17 +205,46 @@ class SearchPopup extends DefaultWindow {
         });
     }
 
-    public class ResultCell extends AbstractCell<DocumentSuggestion> {
+
+    public class ResultCell extends AbstractCell<TokenGroup> {
 
         @Override
-        public void render(
-                Context context,
-                DocumentSuggestion document,
-                SafeHtmlBuilder safeHtmlBuilder)
-        {
-            safeHtmlBuilder.appendHtmlConstant(document.getDisplayString());
+        public void render(Context context, TokenGroup tokenGroup, SafeHtmlBuilder safeHtmlBuilder) {
+            SafeHtmlBuilder descriptions = new SafeHtmlBuilder();
+            for (String description : tokenGroup.getDescriptions()) {
+                descriptions.append(TEMPLATE.description(description));
+            }
+            if (tokenGroup.getKeywords().isEmpty()) {
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml()));
+            } else {
+                SafeHtmlBuilder keywords = new SafeHtmlBuilder();
+                for (String keyword : tokenGroup.getKeywords()) {
+                    keywords.append(TEMPLATE.keyword(keyword));
+                }
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml(),
+                        keywords.toSafeHtml()));
+            }
         }
-
     }
 
+    public interface TokenGroupTemplate extends SafeHtmlTemplates {
+        @Template("<div class=\"search-token-group\">" +
+                "<div class=\"header\"><i class=\"icon-file-alt\"></i>&nbsp;{0}</div>" +
+                "<ul class=\"descriptions\">{1}</ul>" +
+                "</div>")
+        SafeHtml tokenGroup(String header, SafeHtml descriptions);
+
+        @Template("<div class=\"search-token-group\">" +
+                "<div class=\"header\"><i class=\"icon-file-alt\"></i>&nbsp;{0}</div>" +
+                "<ul class=\"descriptions\">{1}</ul>" +
+                "<div class=\"keywords\">{2}</div>" +
+                "</div>")
+        SafeHtml tokenGroup(String header, SafeHtml descriptions, SafeHtml keywords);
+
+        @Template("<li>{0}</li>")
+        SafeHtml description(String description);
+
+        @Template("<span>{0}</span>")
+        SafeHtml keyword(String keyword);
+    }
 }

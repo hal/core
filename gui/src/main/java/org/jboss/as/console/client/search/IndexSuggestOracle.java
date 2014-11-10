@@ -21,7 +21,9 @@ package org.jboss.as.console.client.search;
 import com.google.gwt.user.client.ui.SuggestOracle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An suggest oracle which uses the {@link org.jboss.as.console.client.search.Index} for lookup.
@@ -38,6 +40,7 @@ public class IndexSuggestOracle extends SuggestOracle {
         String query = request.getQuery().trim();
         if (query.length() != 0) {
             List<Document> hits = index.search(query);
+            Map<String, List<Document>> tokens = groupByToken(hits);
             List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
             for (Document hit : hits) {
                 String description = hit.getDescription();
@@ -55,5 +58,19 @@ public class IndexSuggestOracle extends SuggestOracle {
     @Override
     public boolean isDisplayStringHTML() {
         return true;
+    }
+
+    private Map<String, List<Document>> groupByToken(List<Document> hits) {
+        Map<String, List<Document>> tokens = new HashMap<>();
+        for (Document document : hits) {
+            String token = document.getToken();
+            List<Document> documents = tokens.get(token);
+            if (documents == null) {
+                documents = new ArrayList<>();
+                tokens.put(token, documents);
+            }
+            documents.add(document);
+        }
+        return tokens;
     }
 }

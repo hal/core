@@ -18,22 +18,25 @@
  */
 package org.jboss.as.console.client.search;
 
+import java.util.Set;
+
 /**
  * A document in the search index. Used as autobean for interoperability with local storage.
  *
  * @author Harald Pehl
  */
+//@formatter:off
 public interface Document {
 
     long getId();
-
     void setId(long id);
 
     String getToken();
-
     void setToken(String token);
 
     String getDescription();
-
     void setDescription(String description);
+
+    Set<String> getKeywords();
+    void setKeywords(Set<String> keywords);
 }

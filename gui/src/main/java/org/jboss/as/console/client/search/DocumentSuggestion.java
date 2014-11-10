@@ -29,9 +29,9 @@ public class DocumentSuggestion extends MultiWordSuggestOracle.MultiWordSuggesti
 
     private final Document document;
 
-    public DocumentSuggestion(final Document document, String replacementString, String displayString) {
+    public DocumentSuggestion(final Document documents, String replacementString, String displayString) {
         super(replacementString, displayString);
-        this.document = document;
+        this.document = documents;
     }
 
     public Document getDocument() {
