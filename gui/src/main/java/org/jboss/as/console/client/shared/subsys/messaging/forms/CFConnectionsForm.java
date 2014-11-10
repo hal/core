@@ -35,7 +35,7 @@ public class CFConnectionsForm {
         NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry");
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
 
-        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", true);
+        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", -1, Integer.MAX_VALUE);
 
         TextAreaItem lbClass = new TextAreaItem("loadbalancingClassName", "Load Balacer Class");
 

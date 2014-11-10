@@ -110,7 +110,7 @@ public class ClusterConnectionForm {
         NumberBoxItem maxHops = new NumberBoxItem("maxHops", "Max Hops");
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
         NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry Interval");
-        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", true);
+        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", -1, Integer.MAX_VALUE);
 
         CheckBoxItem duplicateDetection = new CheckBoxItem("duplicateDetection","Duplicate Detection?");
 

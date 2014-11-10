@@ -32,7 +32,7 @@ public class BridgeConnectionsForm {
 
 
         NumberBoxItem retry = new NumberBoxItem("retryInterval", "Retry Interval");
-        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", true);
+        NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", -1, Integer.MAX_VALUE);
 
         TextBoxItem user = new TextBoxItem("user", "User", false);
         PasswordBoxItem pass = new PasswordBoxItem("password", "Password", false);
