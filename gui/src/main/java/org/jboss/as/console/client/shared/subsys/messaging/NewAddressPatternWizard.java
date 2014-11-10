@@ -63,7 +63,7 @@ public class NewAddressPatternWizard {
         TextBoxItem dlQ = new TextBoxItem("deadLetterQueue", "Dead Letter Address");
         TextBoxItem expQ= new TextBoxItem("expiryQueue", "Expiry Address");
         NumberBoxItem redelivery = new NumberBoxItem("redeliveryDelay", "Redelivery Delay");
-        NumberBoxItem maxAttempts = new NumberBoxItem("maxDelivery", "Max Delivery Attempts");
+        NumberBoxItem maxAttempts = new NumberBoxItem("maxDelivery", "Max Delivery Attempts", -1, Integer.MAX_VALUE);
 
         form.setFields(pattern, dlQ, expQ, redelivery, maxAttempts);
 
