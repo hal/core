@@ -276,6 +276,10 @@
 
 }
 
+.top-level-tools {
+    padding:2px;
+}
+
 .top-level-tools td {
     border-left: 1px solid #53565B;
     padding-left:2px;
@@ -296,5 +300,9 @@
 
 .notification-center td {
     border:none!important;
+}
+
+.csp-link-selected {
+    background-color: #717479;
 }
 

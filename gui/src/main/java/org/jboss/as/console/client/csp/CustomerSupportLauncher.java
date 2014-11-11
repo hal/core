@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 
@@ -32,14 +33,16 @@ public class CustomerSupportLauncher {
 
 
     private final PlaceManager placeManager;
+    private HTML button;
 
     public CustomerSupportLauncher(PlaceManager placeManager) {
         this.placeManager = placeManager;
     }
 
     public Widget asWidget() {
-        final HTML button = new HTML("<div class='header-textlink'>Red Hat Access &nbsp;<i style='color:#cecece' class='icon-angle-down'></i></div>");
+        button = new HTML("<div class='header-textlink'>Red Hat Access &nbsp;<i style='color:#cecece' class='icon-angle-down'></i></div>");
         button.getElement().setAttribute("style", "cursor:pointer");
+        button.addStyleName("csp-link");
 
         final DefaultPopup menuPopup = new DefaultPopup(DefaultPopup.Arrow.NONE);
         menuPopup.setAutoHideEnabled(true);
@@ -72,8 +75,7 @@ public class CustomerSupportLauncher {
         searchLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "search"));
-                menuPopup.hide();
+                reveal(menuPopup, "search");
             }
         });
 
@@ -82,8 +84,7 @@ public class CustomerSupportLauncher {
         openCaseLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "open"));
-                menuPopup.hide();
+                reveal(menuPopup, "open");
             }
         });
 
@@ -92,8 +93,7 @@ public class CustomerSupportLauncher {
         modifyCaseLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", "modify"));
-                menuPopup.hide();
+                reveal(menuPopup, "modify");
             }
         });
 
@@ -104,6 +104,19 @@ public class CustomerSupportLauncher {
         menuPopup.setWidget(supportMenu);
 
         return button;
+    }
+
+    private void reveal(DefaultPopup menuPopup, String token) {
+        Console.MODULES.getHeader().highlight("csp");
+        placeManager.revealPlace(new PlaceRequest(NameTokens.CSP).with("ref", token));
+        menuPopup.hide();
+    }
+
+    public void highlight(String name) {
+        if("csp".equals(name))
+            button.addStyleName("csp-link-selected");
+        else
+            button.removeStyleName("csp-link-selected");
     }
 
     /*private void openCSPView() {

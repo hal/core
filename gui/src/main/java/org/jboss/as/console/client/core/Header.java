@@ -415,7 +415,7 @@ public class Header implements ValueChangeHandler<String> {
         toggleSubnavigation(name);
 
         com.google.gwt.user.client.Element target = linksPane.getElementById("header-links-ref");
-        if(target!=null) // standalone doesn't provide any top level links
+        if(target!=null) // TODO: i think this cannot happen, does it?
         {
             NodeList<Node> childNodes = target.getChildNodes();
             for(int i=0; i<childNodes.getLength(); i++)
@@ -436,6 +436,9 @@ public class Header implements ValueChangeHandler<String> {
                 }
             }
         }
+
+        if(cspLauncher!=null)
+            cspLauncher.highlight(name);
 
     }
 
