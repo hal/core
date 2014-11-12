@@ -149,29 +149,34 @@ class SearchPopup extends DefaultWindow {
     private void executeQuery() {
         String query = textBox.getText().trim();
         if (query.length() != 0) {
-            List<Document> hits = index.search(query);
-            List<TokenGroup> tokenGroups = groupByToken(hits);
-            resultProvider.setList(tokenGroups);
+            // split the query into multiple terms
+            String[] terms = query.split(" ");
+
+            // collect the hits over all terms into token groups (using disjunction)
+            Map<String, TokenGroup> tokenGroups = new LinkedHashMap<>();
+            for (String term : terms) {
+                if (term != null && term.trim().length() != 0) {
+                    List<Document> hits = index.search(term);
+                    for (Document hit : hits) {
+                        String token = hit.getToken();
+                        TokenGroup tokenGroup = tokenGroups.get(token);
+                        if (tokenGroup == null) {
+                            tokenGroup = new TokenGroup(token);
+                            tokenGroups.put(token, tokenGroup);
+                        }
+                        tokenGroup.add(hit);
+                    }
+                }
+            }
+
+            // display token groups
+            resultProvider.setList(new ArrayList<TokenGroup>(tokenGroups.values()));
             resultProvider.refresh();
         } else {
             // clear display
             resultProvider.setList(Collections.<TokenGroup>emptyList());
             resultProvider.refresh();
         }
-    }
-
-    private List<TokenGroup> groupByToken(List<Document> hits) {
-        Map<String, TokenGroup> groups = new LinkedHashMap<>();
-        for (Document hit : hits) {
-            String token = hit.getToken();
-            TokenGroup group = groups.get(token);
-            if (group == null) {
-                group = new TokenGroup(token);
-                groups.put(token, group);
-            }
-            group.add(hit);
-        }
-        return new ArrayList<>(groups.values());
     }
 
     void showIndexPage() {
