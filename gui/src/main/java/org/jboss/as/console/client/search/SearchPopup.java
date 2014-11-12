@@ -58,6 +58,7 @@ class SearchPopup extends DefaultWindow {
     private final SingleSelectionModel<TokenGroup> resultSelectionModel;
     private final ListDataProvider<TokenGroup> resultProvider;
     private final TextBox textBox;
+    private final HTML numberOfResults;
     private final PlaceManager placeManager;
 
     SearchPopup(final Harvest harvest, final Index index, final PlaceManager placeManager) {
@@ -96,6 +97,9 @@ class SearchPopup extends DefaultWindow {
 
         textBox.setTabIndex(0);
         searchPanel.add(textBox);
+
+        numberOfResults = new HTML();
+        searchPanel.add(numberOfResults);
 
         resultList = new DefaultCellList<TokenGroup>(new ResultCell());
         resultList.addCellPreviewHandler(new CellPreviewEvent.Handler<TokenGroup>() {
@@ -156,7 +160,7 @@ class SearchPopup extends DefaultWindow {
             // collect the hits over all terms into token groups (using disjunction)
             Map<String, TokenGroup> tokenGroups = new LinkedHashMap<>();
             for (String term : terms) {
-                if (term != null && term.trim().length() != 0) {
+                if (term != null && term.trim().length() > 1) {
                     List<Document> hits = index.search(term);
                     for (Document hit : hits) {
                         String token = hit.getToken();
@@ -171,10 +175,13 @@ class SearchPopup extends DefaultWindow {
             }
 
             // display token groups
-            resultProvider.setList(new ArrayList<TokenGroup>(tokenGroups.values()));
+            ArrayList<TokenGroup> results = new ArrayList<TokenGroup>(tokenGroups.values());
+            numberOfResults.setHTML("<h3>Number of results: " + results.size() + "</h3>");
+            resultProvider.setList(results);
             resultProvider.refresh();
         } else {
             // clear display
+            numberOfResults.setHTML("<h3>Number of results: 0</h3>");
             resultProvider.setList(Collections.<TokenGroup>emptyList());
             resultProvider.refresh();
         }
