@@ -25,28 +25,22 @@
   }
 }
 
-.search-link {
-  font-family: @font-family;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 14px;
-  color: @search-link-color;
-  &:hover {
-    text-decoration: none;
-  }
-}
-
 .search-token-group {
   border-bottom: 1px solid #ddd;
-  padding-bottom: 20px;
+  margin: 0;
+  padding: 10px 0 20px;
 
-  .descriptions, .keywords {
-    padding-left: 3em;
-    margin-bottom: 0;
+  .header {
+    font-family: @font-family;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14px;
+    color: @search-link-color;
   }
 
-  .keywords {
-    padding-top: 1em;
+  .descriptions, .keywords {
+    margin: 10px 0 0 0;
+    padding: 0 0 0 3em;
   }
 
   .keywords span {

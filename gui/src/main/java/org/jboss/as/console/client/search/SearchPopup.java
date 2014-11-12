@@ -62,12 +62,13 @@ class SearchPopup extends DefaultWindow {
 
     SearchPopup(final Harvest harvest, final Index index, final PlaceManager placeManager) {
         super("Search");
+        addStyleName("hal-searchPopup");
+
         this.harvest = harvest;
         this.index = index;
         this.placeManager = placeManager;
 
         deck = new DeckPanel();
-
         VerticalPanel indexPanel = new VerticalPanel();
         indexPanel.setStyleName("fill-layout-width");
         indexPanel.getElement().getStyle().setPadding(2, Style.Unit.PX);
@@ -206,17 +207,28 @@ class SearchPopup extends DefaultWindow {
             for (String description : tokenGroup.getDescriptions()) {
                 descriptions.append(TEMPLATE.description(description));
             }
-            SafeHtmlBuilder keywords = new SafeHtmlBuilder();
-            for (String keyword : tokenGroup.getKeywords()) {
-                keywords.append(TEMPLATE.keyword(keyword));
+            if (tokenGroup.getKeywords().isEmpty()) {
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml()));
+            } else {
+                SafeHtmlBuilder keywords = new SafeHtmlBuilder();
+                for (String keyword : tokenGroup.getKeywords()) {
+                    keywords.append(TEMPLATE.keyword(keyword));
+                }
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml(),
+                        keywords.toSafeHtml()));
             }
-            safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml(), keywords.toSafeHtml()));
         }
     }
 
     public interface TokenGroupTemplate extends SafeHtmlTemplates {
         @Template("<div class=\"search-token-group\">" +
-                "<div class=\"header search-link\"><i class=\"icon-file-alt\"></i>&nbsp;{0}</div>" +
+                "<div class=\"header\"><i class=\"icon-file-alt\"></i>&nbsp;{0}</div>" +
+                "<ul class=\"descriptions\">{1}</ul>" +
+                "</div>")
+        SafeHtml tokenGroup(String header, SafeHtml descriptions);
+
+        @Template("<div class=\"search-token-group\">" +
+                "<div class=\"header\"><i class=\"icon-file-alt\"></i>&nbsp;{0}</div>" +
                 "<ul class=\"descriptions\">{1}</ul>" +
                 "<div class=\"keywords\">{2}</div>" +
                 "</div>")
