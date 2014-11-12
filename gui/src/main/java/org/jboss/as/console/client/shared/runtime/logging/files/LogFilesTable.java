@@ -159,6 +159,18 @@ public class LogFilesTable extends Composite implements LogFilesId {
         ColumnSortEvent.ListHandler<ModelNode> sortHandler = new ColumnSortEvent.ListHandler<ModelNode>(
                 dataProvider.getList());
         table.addColumnSortHandler(sortHandler);
+        // TODO Find a way to combine the double click handler with RBAC like
+        // foo.setOperationAddress("/{selected.host}/{selected.server}/subsystem=logging/log-file=*", "read-log-file");
+//        table.addCellPreviewHandler(new CellPreviewEvent.Handler<ModelNode>() {
+//            @Override
+//            public void onCellPreview(CellPreviewEvent<ModelNode> event) {
+//                NativeEvent nativeEvent = event.getNativeEvent();
+//                if (BrowserEvents.DBLCLICK.equals(nativeEvent.getType())) {
+//                    ModelNode selectedValue = event.getValue();
+//
+//                }
+//            }
+//        });
         panel.add(table);
 
         DefaultPager pager = new DefaultPager();
