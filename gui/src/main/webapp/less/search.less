@@ -1,0 +1,61 @@
+@search-link-color: #009bce;
+
+.hal-searchTool {
+  padding: 2px 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.hal-searchPopup {
+  h1 {
+    margin-top: 0;
+    font-size: 1.2em;
+  }
+  progress, input[type=text] {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.search-result {
+  .cellListOddItem {
+    background: none;
+  }
+}
+
+.search-link {
+  font-family: @font-family;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14px;
+  color: @search-link-color;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.search-token-group {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 20px;
+
+  .descriptions, .keywords {
+    padding-left: 3em;
+  }
+
+  .keywords span {
+    font-size: 10px;
+    margin: 0 6px 6px 0;
+    padding: 2px 4px 2px;
+    font-weight: normal;
+    text-decoration: none;
+    white-space: nowrap;
+    color: #333;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+  }
+}

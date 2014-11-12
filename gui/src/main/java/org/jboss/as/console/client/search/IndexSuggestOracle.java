@@ -40,21 +40,17 @@ public class IndexSuggestOracle extends SuggestOracle {
         String query = request.getQuery().trim();
         if (query.length() != 0) {
             List<Document> hits = index.search(query);
-            Map<String, List<Document>> keywords = extractAndFilterKeywords(query, hits);
-            List<KeywordSuggestion> suggestions = new ArrayList<KeywordSuggestion>();
-            for (Map.Entry<String, List<Document>> entry : keywords.entrySet()) {
-                KeywordSuggestion suggestion = new KeywordSuggestion(entry.getValue(), entry.getKey(), entry.getKey());
+            Map<String, List<Document>> tokens = groupByToken(hits);
+            List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
+            for (Document hit : hits) {
+                String description = hit.getDescription();
+                boolean tooLong = description.length() > 125;
+                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
+                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
+                DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
+                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
                 suggestions.add(suggestion);
             }
-//            for (Document hit : hits) {
-//                String description = hit.getDescription();
-//                boolean tooLong = description.length() > 125;
-//                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
-//                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
-//                KeywordSuggestion suggestion = new KeywordSuggestion(hit, description,
-//                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
-//                suggestions.add(suggestion);
-//            }
             callback.onSuggestionsReady(request, new Response(suggestions));
         }
     }
@@ -64,22 +60,17 @@ public class IndexSuggestOracle extends SuggestOracle {
         return true;
     }
 
-    private Map<String, List<Document>> extractAndFilterKeywords(String query, List<Document> hits) {
-        Map<String, List<Document>> keywords = new HashMap<>();
+    private Map<String, List<Document>> groupByToken(List<Document> hits) {
+        Map<String, List<Document>> tokens = new HashMap<>();
         for (Document document : hits) {
-            for (String keyword : document.getKeywords()) {
-
-                if (keyword.contains(query)/* || document.getDescription().contains(query)*/) {
-                    List<Document> documents = keywords.get(keyword);
-                    if (documents == null) {
-                        documents = new ArrayList<>();
-                        keywords.put(keyword, documents);
-                    }
-                    documents.add(document);
-                }
+            String token = document.getToken();
+            List<Document> documents = tokens.get(token);
+            if (documents == null) {
+                documents = new ArrayList<>();
+                tokens.put(token, documents);
             }
-            // TODO Take ordering of 'hits' into account
+            documents.add(document);
         }
-        return keywords;
+        return tokens;
     }
 }
