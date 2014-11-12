@@ -133,6 +133,7 @@ public class Index implements StorageEvent.Handler {
         document.setId(id);
         document.setToken(token);
         document.setDescription(description);
+        document.setKeywords(keywords);
         AutoBean<Document> autoBean = AutoBeanUtils.getAutoBean(document);
         String json = AutoBeanCodex.encode(autoBean).getPayload();
         localStorage.setItem(key(id), json);

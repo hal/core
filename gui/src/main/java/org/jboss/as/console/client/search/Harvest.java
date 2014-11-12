@@ -134,7 +134,7 @@ public class Harvest {
                                             }
                                         }
                                     } catch (Throwable e) {
-                                        System.out.println("Skipped " + token + " > " + resource);
+                                        System.out.println("Skipped " + token + " > " + resource + ": " + e.getMessage());
                                     }
                                 }
                                 control.proceed();

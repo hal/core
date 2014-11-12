@@ -20,21 +20,23 @@ package org.jboss.as.console.client.search;
 
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 
+import java.util.List;
+
 /**
  * A suggestion in {@link org.jboss.as.console.client.search.IndexSuggestOracle}.
  *
  * @author Harald Pehl
  */
-public class DocumentSuggestion extends MultiWordSuggestOracle.MultiWordSuggestion {
+public class KeywordSuggestion extends MultiWordSuggestOracle.MultiWordSuggestion {
 
-    private final Document document;
+    private final List<Document> documents;
 
-    public DocumentSuggestion(final Document document, String replacementString, String displayString) {
+    public KeywordSuggestion(final List<Document> documents, String replacementString, String displayString) {
         super(replacementString, displayString);
-        this.document = document;
+        this.documents = documents;
     }
 
-    public Document getDocument() {
-        return document;
+    public List<Document> getDocuments() {
+        return documents;
     }
 }

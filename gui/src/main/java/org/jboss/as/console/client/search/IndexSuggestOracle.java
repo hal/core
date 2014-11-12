@@ -21,7 +21,9 @@ package org.jboss.as.console.client.search;
 import com.google.gwt.user.client.ui.SuggestOracle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An suggest oracle which uses the {@link org.jboss.as.console.client.search.Index} for lookup.
@@ -38,16 +40,21 @@ public class IndexSuggestOracle extends SuggestOracle {
         String query = request.getQuery().trim();
         if (query.length() != 0) {
             List<Document> hits = index.search(query);
-            List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
-            for (Document hit : hits) {
-                String description = hit.getDescription();
-                boolean tooLong = description.length() > 125;
-                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
-                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
-                DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
-                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
+            Map<String, List<Document>> keywords = extractAndFilterKeywords(query, hits);
+            List<KeywordSuggestion> suggestions = new ArrayList<KeywordSuggestion>();
+            for (Map.Entry<String, List<Document>> entry : keywords.entrySet()) {
+                KeywordSuggestion suggestion = new KeywordSuggestion(entry.getValue(), entry.getKey(), entry.getKey());
                 suggestions.add(suggestion);
             }
+//            for (Document hit : hits) {
+//                String description = hit.getDescription();
+//                boolean tooLong = description.length() > 125;
+//                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
+//                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
+//                KeywordSuggestion suggestion = new KeywordSuggestion(hit, description,
+//                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
+//                suggestions.add(suggestion);
+//            }
             callback.onSuggestionsReady(request, new Response(suggestions));
         }
     }
@@ -55,5 +62,24 @@ public class IndexSuggestOracle extends SuggestOracle {
     @Override
     public boolean isDisplayStringHTML() {
         return true;
+    }
+
+    private Map<String, List<Document>> extractAndFilterKeywords(String query, List<Document> hits) {
+        Map<String, List<Document>> keywords = new HashMap<>();
+        for (Document document : hits) {
+            for (String keyword : document.getKeywords()) {
+
+                if (keyword.contains(query)/* || document.getDescription().contains(query)*/) {
+                    List<Document> documents = keywords.get(keyword);
+                    if (documents == null) {
+                        documents = new ArrayList<>();
+                        keywords.put(keyword, documents);
+                    }
+                    documents.add(document);
+                }
+            }
+            // TODO Take ordering of 'hits' into account
+        }
+        return keywords;
     }
 }

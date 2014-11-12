@@ -21,30 +21,17 @@ package org.jboss.as.console.client.search;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SuggestOracle;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.subsys.threads.model.ScheduledThreadPool;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -63,9 +50,9 @@ class SearchPopup extends DefaultWindow {
 
     private final DeckPanel deck;
     private final ProgressElement progressBar;
-    private final DefaultCellList<DocumentSuggestion> resultList;
-    private final SingleSelectionModel<DocumentSuggestion> resultSelectionModel;
-    private final ListDataProvider<DocumentSuggestion> resultProvider;
+    private final DefaultCellList<KeywordSuggestion> resultList;
+    private final SingleSelectionModel<KeywordSuggestion> resultSelectionModel;
+    private final ListDataProvider<KeywordSuggestion> resultProvider;
     private final TextBox textBox;
     private final PlaceManager placeManager;
 
@@ -87,6 +74,11 @@ class SearchPopup extends DefaultWindow {
 
         VerticalPanel searchPanel = new VerticalPanel();
         searchPanel.setStyleName("window-content");
+
+        IndexSuggestOracle oracle = new IndexSuggestOracle(index);
+        SuggestBox suggestBox = new SuggestBox(oracle);
+        searchPanel.add(suggestBox);
+
         textBox = new TextBox();
         textBox.setStyleName("fill-layout-width");
         textBox.getElement().setAttribute("placeholder", "Search term ...");
@@ -108,7 +100,7 @@ class SearchPopup extends DefaultWindow {
         textBox.setTabIndex(0);
         searchPanel.add(textBox);
 
-        resultList = new DefaultCellList<DocumentSuggestion>(new ResultCell());
+        resultList = new DefaultCellList<KeywordSuggestion>(new ResultCell());
 
         resultList.addCellPreviewHandler(new CellPreviewEvent.Handler() {
             @Override
@@ -122,7 +114,7 @@ class SearchPopup extends DefaultWindow {
             }
         });
 
-        resultSelectionModel = new SingleSelectionModel<DocumentSuggestion>();
+        resultSelectionModel = new SingleSelectionModel<KeywordSuggestion>();
         resultSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -134,7 +126,7 @@ class SearchPopup extends DefaultWindow {
         resultList.addStyleName("fill-layout-width");
         resultList.addStyleName("search-result");
 
-        resultProvider = new ListDataProvider<DocumentSuggestion>();
+        resultProvider = new ListDataProvider<KeywordSuggestion>();
         resultProvider.addDataDisplay(resultList);
         searchPanel.add(resultList);
 
@@ -156,14 +148,14 @@ class SearchPopup extends DefaultWindow {
     }
 
     private void navigate() {
-        DocumentSuggestion selection = resultSelectionModel.getSelectedObject();
-        if(selection!=null)
-        {
-            hide();
-            Document document = selection.getDocument();
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(document.getToken()).build());
-
-        }
+        KeywordSuggestion selection = resultSelectionModel.getSelectedObject();
+//        if(selection!=null)
+//        {
+//            hide();
+//            Document document = selection.getDocument();
+//            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(document.getToken()).build());
+//
+//        }
     }
 
     private void executeQuery() {
@@ -171,23 +163,23 @@ class SearchPopup extends DefaultWindow {
         String query = textBox.getText().trim();
         if (query.length() != 0) {
             List<Document> hits = index.search(query);
-            List<DocumentSuggestion> suggestions = new ArrayList<DocumentSuggestion>();
-            for (Document hit : hits) {
-                String description = hit.getDescription();
-                boolean tooLong = description.length() > 250;
-                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
-                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
-                DocumentSuggestion suggestion = new DocumentSuggestion(hit, description,
-                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
-                suggestions.add(suggestion);
-            }
+            List<KeywordSuggestion> suggestions = new ArrayList<KeywordSuggestion>();
+//            for (Document hit : hits) {
+//                String description = hit.getDescription();
+//                boolean tooLong = description.length() > 250;
+//                String shortDesc = tooLong ? description.substring(0, 125) + "..." : description;
+//                String display = tooLong ? "<span title=\"" + description + "\">" + shortDesc + "</span>" : description;
+//                KeywordSuggestion suggestion = new KeywordSuggestion(hit, description,
+//                        display + " <span class=\"hit-token\">(#" + hit.getToken() + ")</span>");
+//                suggestions.add(suggestion);
+//            }
             resultProvider.setList(suggestions);
             resultProvider.refresh();
         }
         else
         {
             // clear display
-            resultProvider.setList(Collections.EMPTY_LIST);
+            resultProvider.setList(Collections.<KeywordSuggestion>emptyList());
             resultProvider.refresh();
         }
     }
@@ -211,12 +203,12 @@ class SearchPopup extends DefaultWindow {
         });
     }
 
-    public class ResultCell extends AbstractCell<DocumentSuggestion> {
+    public class ResultCell extends AbstractCell<KeywordSuggestion> {
 
         @Override
         public void render(
                 Context context,
-                DocumentSuggestion document,
+                KeywordSuggestion document,
                 SafeHtmlBuilder safeHtmlBuilder)
         {
             safeHtmlBuilder.appendHtmlConstant(document.getDisplayString());
