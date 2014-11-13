@@ -169,23 +169,26 @@ public class Harvest {
             }
 
             private void dumpSearchIndex(Map<String, SearchIndexData> context) {
-                System.out.println("token|resources|descriptions|keywords");
+                StringBuffer sb = new StringBuffer();
+                sb.append("token|resources|descriptions|keywords").append("\n");
                 for (SearchIndexData sid : context.values()) {
-                    System.out.print(sid.token);
-                    System.out.print("|");
+                    sb.append(sid.token).append("|");
+
                     for (String resource : sid.resources) {
-                        System.out.print(resource + ";");
+                        sb.append(resource).append(";");
                     }
-                    System.out.print("|");
+                    sb.append("|");
                     for (String desc : sid.descriptions) {
-                        System.out.print(desc + ";");
+                        sb.append(desc).append(";");
                     }
-                    System.out.print("|");
+                    sb.append("|");
                     for (String keyword : sid.keywords) {
-                        System.out.print(keyword + ";");
+                        sb.append(keyword).append(";");
                     }
-                    System.out.println();
+                    sb.append("\n");
                 }
+
+                System.out.println(sb.toString());
             }
         }, functions.toArray(new Function[functions.size()]));
     }
