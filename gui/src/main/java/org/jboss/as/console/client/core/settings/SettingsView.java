@@ -20,9 +20,12 @@
 package org.jboss.as.console.client.core.settings;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -32,6 +35,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.ballroom.client.widgets.InlineLink;
+import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -107,7 +112,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
 
                                         // Ignore: it crashes the browser..
 
-                                        /*if(isConfirmed){
+                                        if(isConfirmed){
                                            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                                @Override
                                                public void execute() {
@@ -115,7 +120,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                                                }
                                            });
 
-                                       } */
+                                       }
                                     }
                                 }
                         );
@@ -150,11 +155,38 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
             html.appendEscaped("disabled, but you can enable collection of this data by checking the Enable Usage Data Collection box.");
         }
         html.appendHtmlConstant("</li>");
+
+        html.appendHtmlConstant("<li>");
+        html.appendEscaped(
+                "Reset Search Index: Clear the search index and force recreation next time when the search is being used.");
+        html.appendHtmlConstant("</li>");
+
         //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");
         html.appendHtmlConstant("</ul>");
         StaticHelpPanel help = new StaticHelpPanel(html.toSafeHtml());
         layout.add(help.asWidget());
         layout.add(form.asWidget());
+
+
+        // clear local storage
+        if(Console.MODULES.getFeatureSet().isSearchEnabled())
+        {
+            HorizontalPanel panel = new HorizontalPanel();
+            panel.getElement().setAttribute("style", "margin-left:16px");
+            panel.add(new HTML("Search Index:"));
+            InlineLink btn = new InlineLink("Reset");
+            btn.addClickHandler(new ClickHandler() {
+                            @Override
+                            public void onClick(ClickEvent event) {
+                                presenter.hideView();
+                                presenter.onResetSearchIndex();
+                            }
+                        });
+            btn.getElement().setAttribute("style", "margin-left:10px");
+            panel.add(btn);
+            layout.add(panel);
+        }
+
 
         window.setWidth(480);
         window.setHeight(360);
@@ -179,6 +211,6 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     }
 
     public static native JavaScriptObject reload() /*-{
-        window.location.reload();
+        $wnd.location.reload(true);
     }-*/;
 }

@@ -19,14 +19,17 @@
 
 package org.jboss.as.console.client.core.settings;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.Preferences;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -42,6 +45,7 @@ public class SettingsPresenterWidget
 
     private final BeanFactory factory;
     private final ProductConfig prodConfig;
+    private final Index searchIndex;
 
 
     public interface MyView extends PopupView {
@@ -50,11 +54,12 @@ public class SettingsPresenterWidget
 
     @Inject
     public SettingsPresenterWidget(final EventBus eventBus, final MyView view, BeanFactory factory,
-            ProductConfig prodConfig) {
+            ProductConfig prodConfig, Index searchIndex) {
 
         super(eventBus, view);
         this.factory = factory;
         this.prodConfig = prodConfig;
+        this.searchIndex = searchIndex;
         view.setPresenter(this);
     }
 
@@ -97,4 +102,28 @@ public class SettingsPresenterWidget
         settings.setSecurityCache(Boolean.valueOf(Preferences.get(Preferences.Key.SECURITY_CONTEXT, "true")));
         return settings;
     }
+
+    public void onResetSearchIndex() {
+
+        Feedback.confirm("Reload Required", "Resetting the search index requires this page to be reloaded. " +
+                "Reset the index and reload now?"
+                , new Feedback.ConfirmationHandler() {
+            @Override
+            public void onConfirmation(boolean isConfirmed) {
+                if(isConfirmed)
+                {
+                    searchIndex.reset();
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            SettingsView.reload();
+                        }
+                    });
+
+                }
+            }
+        });
+    }
+
+
 }
