@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <name>HAL Core Console :: Tools</name>
+    <artifactId>jboss-as-console-tools</artifactId>
+    <packaging>jar</packaging>
+
+    <!-- Parent -->
+    <parent>
+        <groupId>org.jboss.as</groupId>
+        <artifactId>jboss-as-console-parent</artifactId>
+        <version>2.4.7-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!--  Dependencies -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>jboss-as-console-bom</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-console-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>18.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>com.google.gwt:*</exclude>
+                                    <exclude>com.google.code:gwt-visualization</exclude>
+                                    <exclude>code.google.com:protovis-gwt</exclude>
+                                    <exclude>com.google.inject:guice</exclude>
+                                    <exclude>com.google.inject.extensions:guice-assistedinject</exclude>
+                                    <exclude>com.google.gwt.inject:gin</exclude>
+                                    <exclude>com.google.code.gwt-log:gwt-log</exclude>
+                                    <exclude>com.gwtplatform:gwtp-mvp-client</exclude>
+                                    <exclude>com.gwtplatform:gwtp-processors</exclude>
+                                    <exclude>log4j:log4j</exclude>
+                                    <exclude>junit:junit</exclude>
+                                    <exclude>org.mockito:mockito-all</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.jboss.as.console.tools.scanner.Main</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
