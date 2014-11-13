@@ -12,16 +12,11 @@ import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
-import org.jboss.gwt.flow.client.Outcome;
-import org.jboss.gwt.flow.client.Progress;
+import org.jboss.gwt.flow.client.*;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -79,9 +74,9 @@ public class Harvest {
     public void run(final Handler handler, Progress progress) {
         handler.onStart();
 
-        Set<Function<Object>> functions = new HashSet<Function<Object>>();
+        Set<Function<Map<String, SearchIndexData>>> functions = new HashSet<Function<Map<String, SearchIndexData>>>();
         for (final String token : searchIndexRegistry.getTokens(bootstrap.isStandalone())) {
-            Set<String> resources = searchIndexRegistry.getResources(token);
+            final Set<String> resources = searchIndexRegistry.getResources(token);
             final Set<String> keywords = searchIndexRegistry.getKeywords(token);
             for (final String resource : resources) {
                 // TODO
@@ -95,9 +90,9 @@ public class Harvest {
                 }
                 op.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
 
-                Function<Object> f = new Function<Object>() {
+                Function<Map<String, SearchIndexData>> f = new Function<Map<String, SearchIndexData>>() {
                     @Override
-                    public void execute(final Control control) {
+                    public void execute(final Control<Map<String, SearchIndexData>> control) {
 
                         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
                             @Override
@@ -127,6 +122,9 @@ public class Harvest {
                                         } else {
                                             String address = op.get(ADDRESS).asString();
                                             if (handler.shouldHarvest(token, address, description)) {
+
+                                                collectSearchIndex(token, resource, description, keywords);
+
                                                 index.add(token, keywords, description);
                                                 handler.onHarvest(token, address, description);
                                             } else {
@@ -139,6 +137,16 @@ public class Harvest {
                                 }
                                 control.proceed();
                             }
+
+                            private void collectSearchIndex(String token, String resource, String description, Set<String> keywords) {
+                                SearchIndexData sid = control.getContext().get(token);
+                                if (sid == null) {
+                                    sid = new SearchIndexData(token, keywords);
+                                    control.getContext().put(token, sid);
+                                }
+                                sid.resources.add(resource);
+                                sid.descriptions.add(description);
+                            }
                         });
                     }
                 };
@@ -147,17 +155,53 @@ public class Harvest {
         }
 
         //noinspection unchecked
-        new Async<Object>(progress).parallel(null, new Outcome<Object>() {
+        final Map<String, SearchIndexData> searchIndexDump = new HashMap<>();
+        new Async<Map<String, SearchIndexData>>(progress).parallel(searchIndexDump, new Outcome<Map<String, SearchIndexData>>() {
             @Override
-            public void onFailure(Object context) {
+            public void onFailure(Map<String, SearchIndexData> context) {
                 Console.error("Harvest failed");
             }
 
             @Override
-            public void onSuccess(Object context) {
+            public void onSuccess(Map<String, SearchIndexData> context) {
+                dumpSearchIndex(context);
                 handler.onFinish();
             }
+
+            private void dumpSearchIndex(Map<String, SearchIndexData> context) {
+                System.out.println("token|resources|descriptions|keywords");
+                for (SearchIndexData sid : context.values()) {
+                    System.out.print(sid.token);
+                    System.out.print("|");
+                    for (String resource : sid.resources) {
+                        System.out.print(resource + ";");
+                    }
+                    System.out.print("|");
+                    for (String desc : sid.descriptions) {
+                        System.out.print(desc + ";");
+                    }
+                    System.out.print("|");
+                    for (String keyword : sid.keywords) {
+                        System.out.print(keyword + ";");
+                    }
+                    System.out.println();
+                }
+            }
         }, functions.toArray(new Function[functions.size()]));
+    }
+
+    class SearchIndexData {
+        private final String token;
+        private final Set<String> keywords;
+        private final List<String> resources;
+        private final List<String> descriptions;
+
+        SearchIndexData(final String token, Set<String> keywords) {
+            this.token = token;
+            this.keywords = keywords;
+            this.resources = new ArrayList<>();
+            this.descriptions = new ArrayList<>();
+        }
     }
 
     public interface Handler {

@@ -212,12 +212,6 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>tools</id>
-            <modules>
-                <module>tools</module>
-            </modules>
-        </profile>
     </profiles>
 
 
