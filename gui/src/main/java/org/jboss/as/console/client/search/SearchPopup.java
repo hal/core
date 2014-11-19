@@ -42,6 +42,8 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 import java.util.*;
 
+import static com.google.gwt.dom.client.Style.Unit.PCT;
+
 /**
  * @author Harald Pehl
  */
@@ -81,8 +83,12 @@ class SearchPopup extends DefaultWindow {
         VerticalPanel searchPanel = new VerticalPanel();
         searchPanel.setStyleName("window-content");
 
+        Label header = new Label("Search Indexed Screens");
+        header.addStyleName("content-header-label");
+        searchPanel.add(header);
+
         textBox = new TextBox();
-        textBox.setStyleName("fill-layout-width");
+        textBox.getElement().getStyle().setWidth(66, PCT);
         textBox.getElement().setAttribute("placeholder", "Search term ...");
         textBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
@@ -99,6 +105,8 @@ class SearchPopup extends DefaultWindow {
         searchPanel.add(textBox);
 
         numberOfResults = new HTML();
+        numberOfResults.addStyleName("no-results");
+        numberOfResults.setVisible(false);
         searchPanel.add(numberOfResults);
 
         resultList = new DefaultCellList<TokenGroup>(new ResultCell());
@@ -132,15 +140,6 @@ class SearchPopup extends DefaultWindow {
         deck.showWidget(1);
         resultList.setTabIndex(0);
         setWidget(new ScrollPanel(deck));
-/*
-        addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-                textBox.setText("");
-                resultProvider.setList(Collections.EMPTY_LIST);
-            }
-        });
-*/
     }
 
     private void navigate() {
@@ -176,12 +175,21 @@ class SearchPopup extends DefaultWindow {
 
             // display token groups
             ArrayList<TokenGroup> results = new ArrayList<TokenGroup>(tokenGroups.values());
-            numberOfResults.setHTML("<h3>Number of results: " + results.size() + "</h3>");
+            numberOfResults.setVisible(true);
+            if (results.isEmpty()) {
+                numberOfResults.removeStyleName("number-of-results");
+                numberOfResults.addStyleName("no-results");
+                numberOfResults.setHTML("No results");
+            } else {
+                numberOfResults.removeStyleName("no-results");
+                numberOfResults.addStyleName("number-of-results");
+                numberOfResults.setHTML("Results: <b>" + results.size() + " instances</b>");
+            }
             resultProvider.setList(results);
             resultProvider.refresh();
         } else {
             // clear display
-            numberOfResults.setHTML("<h3>Number of results: 0</h3>");
+            numberOfResults.setVisible(false);
             resultProvider.setList(Collections.<TokenGroup>emptyList());
             resultProvider.refresh();
         }
@@ -214,22 +222,21 @@ class SearchPopup extends DefaultWindow {
             for (String description : tokenGroup.getDescriptions()) {
                 descriptions.append(TEMPLATE.description(description));
             }
+            String token = tokenGroup.getToken();
+            try {
+                // try to find a description for this token
+                token = Console.TOKENS.getString(token.replace('-', '_'));
+            } catch (MissingResourceException e) {
+                System.err.println("No description found for token " + token + ": " + e.getMessage());
+            }
             if (tokenGroup.getKeywords().isEmpty()) {
-                String token = tokenGroup.getToken();
-                try {
-                    // try to find a description for this token
-                    token = Console.TOKENS.getString(token.replace('-', '_'));
-                } catch (MissingResourceException e) {
-                    System.err.println("No description found for token " + token + ": " + e.getMessage());
-                }
                 safeHtmlBuilder.append(TEMPLATE.tokenGroup(token, descriptions.toSafeHtml()));
             } else {
                 SafeHtmlBuilder keywords = new SafeHtmlBuilder();
                 for (String keyword : tokenGroup.getKeywords()) {
                     keywords.append(TEMPLATE.keyword(keyword));
                 }
-                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml(),
-                        keywords.toSafeHtml()));
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(token, descriptions.toSafeHtml(), keywords.toSafeHtml()));
             }
         }
     }

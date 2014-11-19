@@ -91,6 +91,8 @@ public interface UITokens extends ConstantsWithLookup {
 
     String logfiles();
 
+    String logviewer();
+
     String mail();
 
     String messaging();

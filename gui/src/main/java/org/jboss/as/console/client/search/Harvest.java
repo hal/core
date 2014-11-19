@@ -123,7 +123,8 @@ public class Harvest {
                                             String address = op.get(ADDRESS).asString();
                                             if (handler.shouldHarvest(token, address, description)) {
 
-                                                collectSearchIndex(token, resource, description, keywords);
+                                                // Enable to dump search data
+                                                // collectSearchIndex(token, resource, description, keywords);
 
                                                 index.add(token, keywords, description);
                                                 handler.onHarvest(token, address, description);
@@ -138,6 +139,7 @@ public class Harvest {
                                 control.proceed();
                             }
 
+                            @SuppressWarnings("UnusedDeclaration")
                             private void collectSearchIndex(String token, String resource, String description, Set<String> keywords) {
                                 SearchIndexData sid = control.getContext().get(token);
                                 if (sid == null) {
@@ -164,10 +166,12 @@ public class Harvest {
 
             @Override
             public void onSuccess(Map<String, SearchIndexData> context) {
-                dumpSearchIndex(context);
+                // Enable to dump search data
+                // dumpSearchIndex(context);
                 handler.onFinish();
             }
 
+            @SuppressWarnings("UnusedDeclaration")
             private void dumpSearchIndex(Map<String, SearchIndexData> context) {
                 System.out.println("token|resources|descriptions|keywords");
                 for (SearchIndexData sid : context.values()) {
