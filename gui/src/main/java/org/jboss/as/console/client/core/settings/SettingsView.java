@@ -87,6 +87,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                 @Override
                 public void onClick(ClickEvent event) {
                     index.reset();
+                    Console.info("Search index cleared.");
                 }
             });
             fields.add(clear);
@@ -164,7 +165,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         html.appendHtmlConstant("</li>");
         if (featureSet.isSearchEnabled()) {
             html.appendHtmlConstant("<li>").
-                    appendEscaped("Clear Search Index: Removes the local search index. The index is re-generated automatically the next time you'll enter the search.").
+                    appendEscaped("Clear Search Index: Removes the local search index in case the search does not work as expected. The index is re-generated automatically the next time you'll enter the search.").
                     appendHtmlConstant("</li>");
         }
         //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");

@@ -79,6 +79,7 @@ public class Header implements ValueChangeHandler<String> {
     private HTMLPanel linksPane;
     private String currentHighlightedSection = null;
     private CustomerSupportLauncher cspLauncher;
+    private SearchTool searchTool;
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -167,10 +168,9 @@ public class Header implements ValueChangeHandler<String> {
 
         // global search
         if (featureSet.isSearchEnabled()) {
-            tools.add(new SearchTool(harvest, index, placeManager));
+            searchTool = new SearchTool(harvest, index, placeManager);
+            tools.add(searchTool);
         }
-
-
 
         // user menu
 
@@ -453,5 +453,9 @@ public class Header implements ValueChangeHandler<String> {
         // TODO: fill in contents
 
         return subnavigation;
+    }
+
+    public SearchTool getSearchTool() {
+        return searchTool;
     }
 }

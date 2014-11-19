@@ -19,11 +19,10 @@
 package org.jboss.as.console.client.shared.homepage;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.InlineHyperlink;
+import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.shared.util.IdHelper;
 
 /**
@@ -38,17 +37,28 @@ public class InfoBox extends Composite {
         SafeHtml infoBox(String id, String description);
     }
 
-
     private final static Templates TEMPLATES = GWT.create(Templates.class);
 
     public InfoBox(final String token, final String title, final String description) {
+        this(token, title, description, null);
+    }
+
+    public InfoBox(final String token, final String title, final String description,
+                   final ClickHandler clickHandler) {
         String linkId = IdHelper.asId(getClass(), "_" + token);
         HTMLPanel panel = new HTMLPanel(TEMPLATES.infoBox(linkId, description));
         panel.getElement().setId(IdHelper.asId(getClass(), "_info-box"));
         panel.addStyleName("homepage-info-box");
-        InlineHyperlink hyperlink = new InlineHyperlink(title, token);
-        hyperlink.addStyleName("homepage-link");
-        panel.add(hyperlink, linkId);
+        Widget link;
+        if (clickHandler != null) {
+            Anchor anchor = new Anchor(title);
+            anchor.addClickHandler(clickHandler);
+            link = anchor;
+        } else {
+            link = new InlineHyperlink(title, token);
+        }
+        link.addStyleName("homepage-link");
+        panel.add(link, linkId);
 
         initWidget(panel);
     }

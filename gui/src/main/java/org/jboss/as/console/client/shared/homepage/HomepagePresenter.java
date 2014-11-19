@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -29,10 +32,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -67,13 +67,16 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     private final List<InfoBox> infoBoxes;
     private final List<ContentBox> contentBoxes;
     private final List<SidebarSection> sidebarSections;
+    private final FeatureSet featureSet;
     private final Header header;
 
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final BootstrapContext bootstrapContext, final ProductConfig productConfig, final Header header) {
+            final BootstrapContext bootstrapContext, final ProductConfig productConfig,
+            final FeatureSet featureSet, Header header) {
 
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
+        this.featureSet = featureSet;
         this.infoBoxes = setupInfoBoxes(bootstrapContext.isStandalone());
         this.contentBoxes = setupContentBoxes(bootstrapContext.isStandalone());
         this.sidebarSections = setupSidebarSection(productConfig.getProfile());
@@ -98,6 +101,23 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         }
         infoBoxes.add(new InfoBox(NameTokens.AdministrationPresenter, "Administration",
                 Console.CONSTANTS.section_administration_intro()));
+
+        if (featureSet.isSearchEnabled()) {
+            String shortcut;
+            if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
+                shortcut = "⌘2";
+            } else {
+                shortcut = "Ctrl+2";
+            }
+            infoBoxes.add(new InfoBox("search",
+                    "Search", "Quickly navigate to any screen by using the local search: Enter keywords such as \"data-source\" or \"log viewer\". The search can be invoked anytime by pressing " + shortcut + ".",
+                    new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            header.getSearchTool().showPopup();
+                        }
+                    }));
+        }
 
         return infoBoxes;
     }
