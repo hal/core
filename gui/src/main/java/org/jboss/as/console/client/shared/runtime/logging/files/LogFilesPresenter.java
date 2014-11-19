@@ -50,7 +50,6 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     @NameToken(NameTokens.LogFiles)
     @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
     public interface MyProxy extends Proxy<LogFilesPresenter>, Place {
-
     }
 
     public interface MyView extends View, HasPresenter<LogFilesPresenter> { // @formatter:off

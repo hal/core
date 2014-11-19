@@ -215,7 +215,14 @@ class SearchPopup extends DefaultWindow {
                 descriptions.append(TEMPLATE.description(description));
             }
             if (tokenGroup.getKeywords().isEmpty()) {
-                safeHtmlBuilder.append(TEMPLATE.tokenGroup(tokenGroup.getToken(), descriptions.toSafeHtml()));
+                String token = tokenGroup.getToken();
+                try {
+                    // try to find a description for this token
+                    token = Console.TOKENS.getString(token.replace('-', '_'));
+                } catch (MissingResourceException e) {
+                    System.err.println("No description found for token " + token + ": " + e.getMessage());
+                }
+                safeHtmlBuilder.append(TEMPLATE.tokenGroup(token, descriptions.toSafeHtml()));
             } else {
                 SafeHtmlBuilder keywords = new SafeHtmlBuilder();
                 for (String keyword : tokenGroup.getKeywords()) {

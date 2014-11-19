@@ -35,6 +35,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -45,6 +46,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LogViewer)
+    @SearchIndex(exclude = true)
     @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
     public interface MyProxy extends Proxy<LogViewerPresenter>, Place {
 
