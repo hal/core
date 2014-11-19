@@ -30,16 +30,17 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.FeatureSet;
+import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.*;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -54,7 +55,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     private Form<CommonSettings> form;
 
     @Inject
-    public SettingsView(EventBus eventBus, ProductConfig productConfig) {
+    public SettingsView(EventBus eventBus, ProductConfig productConfig, FeatureSet featureSet, final Index index) {
         super(eventBus);
 
         window = new DefaultWindow(Console.CONSTANTS.common_label_settings());
@@ -62,6 +63,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         layout.setStyleName("window-content");
 
         form = new Form<CommonSettings>(CommonSettings.class);
+        List<FormItem> fields = new ArrayList<>();
 
         ComboBoxItem localeItem = null;
         List<String> locales = productConfig.getLocales();
@@ -70,18 +72,27 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                     Preferences.Key.LOCALE.getTitle());
             localeItem.setDefaultToFirstOption(true);
             localeItem.setValueMap(locales);
+            fields.add(localeItem);
         }
 
         //CheckBoxItem useCache = new CheckBoxItem(Preferences.Key.USE_CACHE.getToken(), Preferences.Key.USE_CACHE.getTitle());
 
         CheckBoxItem enableAnalytics = new CheckBoxItem(Preferences.Key.ANALYTICS.getToken(),
                 Preferences.Key.ANALYTICS.getTitle());
+        fields.add(enableAnalytics);
 
-        if (localeItem != null) {
-            form.setFields(localeItem, enableAnalytics);
-        } else {
-            form.setFields(enableAnalytics);
+        if (featureSet.isSearchEnabled()) {
+            ButtonItem clear = new ButtonItem("clear-search-index", "Clear Search Index", "Clear");
+            clear.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    index.reset();
+                }
+            });
+            fields.add(clear);
         }
+
+        form.setFields(fields.toArray(new FormItem[fields.size()]));
 
         CheckBoxItem enableSecurityContextCache = new CheckBoxItem(Preferences.Key.SECURITY_CONTEXT.getToken(),
                 Preferences.Key.SECURITY_CONTEXT.getTitle());
@@ -132,6 +143,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
 
         options.getElement().setAttribute("style", "padding:10px");
 
+        // TODO I18N
         SafeHtmlBuilder html = new SafeHtmlBuilder();
         html.appendHtmlConstant("<ul>");
         if (localeItem != null) {
@@ -150,6 +162,11 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
             html.appendEscaped("disabled, but you can enable collection of this data by checking the Enable Usage Data Collection box.");
         }
         html.appendHtmlConstant("</li>");
+        if (featureSet.isSearchEnabled()) {
+            html.appendHtmlConstant("<li>").
+                    appendEscaped("Clear Search Index: Removes the local search index. The index is re-generated automatically the next time you'll enter the search.").
+                    appendHtmlConstant("</li>");
+        }
         //html.appendHtmlConstant("<li>").appendEscaped("Security Cache: If disabled the security context will be re-created everytime you access a dialog (performance hit).");
         html.appendHtmlConstant("</ul>");
         StaticHelpPanel help = new StaticHelpPanel(html.toSafeHtml());

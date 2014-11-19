@@ -37,18 +37,17 @@ import org.jboss.as.console.client.core.bootstrap.GlobalShortcuts;
 public class SearchTool extends Composite {
 
     private final Index index;
-    private final HTML root;
     private final SearchPopup popup;
 
     public SearchTool(final Harvest harvest, final Index index, PlaceManager placeManager) {
         this.index = index;
-        this.root = new HTML("<i class=\"icon-search\" style='color:#CECECE'></i> Search");
+        HTML root = new HTML("<i class=\"icon-search\" style='color:#CECECE'></i> Search");
         if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
-            this.root.setTitle(Console.CONSTANTS.search_tooltip_osx());
+            root.setTitle(Console.CONSTANTS.search_tooltip_osx());
         } else {
-            this.root.setTitle(Console.CONSTANTS.search_tooltip_other());
+            root.setTitle(Console.CONSTANTS.search_tooltip_other());
         }
-        this.root.addClickHandler(new ClickHandler() {
+        root.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
                 showPopup();
