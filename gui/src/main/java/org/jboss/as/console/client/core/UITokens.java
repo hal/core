@@ -148,4 +148,12 @@ public interface UITokens extends ConstantsWithLookup {
     String webservices();
 
     String vm();
+
+    String administration();
+
+    String deployments();
+
+    String hosts();
+
+    String profiles();
 }
