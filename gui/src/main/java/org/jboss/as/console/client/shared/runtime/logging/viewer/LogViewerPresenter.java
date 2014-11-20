@@ -46,7 +46,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LogViewer)
-    @SearchIndex(exclude = true) // currently not used!
+    @SearchIndex(keywords = {"log-file", "log-view", "server-log"})
     @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
     public interface MyProxy extends Proxy<LogViewerPresenter>, Place {}
 

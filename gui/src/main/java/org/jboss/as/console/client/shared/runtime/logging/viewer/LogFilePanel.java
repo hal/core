@@ -109,7 +109,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
         editorPanel.add(indicator);
         editorPanel.add(editor);
         indicator.getElement().getParentElement().getStyle().setWidth(15, PX);
-        indicator.getElement().getParentElement().getStyle().setBackgroundColor("#030303");
+        indicator.getElement().getParentElement().getStyle().setBackgroundColor("#f9f9f9");
         panel.add(editorPanel);
 
         follow = new CheckBox("Auto Refresh");

@@ -140,7 +140,7 @@ public class StandaloneRuntimeNavigation implements LHSHighlightEvent.NavItemSel
         final GroupItem platformGroup = new GroupItem("Platform");
         platformGroup.addItem(new LHSNavTreeItem("JVM", NameTokens.VirtualMachine));
         platformGroup.addItem(new LHSNavTreeItem("Environment", NameTokens.EnvironmentPresenter));
-        platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogFiles));
+        platformGroup.addItem(new LHSNavTreeItem("Log Viewer", NameTokens.LogViewer));
 
         runtimeTree.addItem(platformGroup);
 
