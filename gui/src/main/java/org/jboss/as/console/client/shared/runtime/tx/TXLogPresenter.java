@@ -18,6 +18,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RuntimeExtension;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -35,24 +36,15 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/3/11
  */
-public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLogPresenter.MyProxy>
-{
-
-    private DispatchAsync dispatcher;
-    private EntityAdapter<TXRecord> entityAdapter;
-    private RevealStrategy revealStrategy;
-    private final EntityAdapter<TXParticipant> participantAdapter;
+public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLogPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken("tx-logs")
-    @RuntimeExtension(name="Transaction Logs", group=RuntimeGroup.METRICS, key="transactions")
+    @SearchIndex(keywords = {"recovery", "durability", "transaction-log", "transaction"})
+    @RuntimeExtension(name = "Transaction Logs", group = RuntimeGroup.METRICS, key = "transactions")
     @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store"
-            }
-            ,
-            operations = "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store#probe"
-    )
+            resources = {"/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store"},
+            operations = "/{selected.host}/{selected.server}/subsystem=transactions/log-store=log-store#probe")
     public interface MyProxy extends Proxy<TXLogPresenter>, Place {
     }
 
@@ -65,6 +57,12 @@ public class TXLogPresenter extends CircuitPresenter<TXLogPresenter.MyView, TXLo
 
         void updateParticpantsFrom(List<TXParticipant> records);
     }
+
+
+    private DispatchAsync dispatcher;
+    private EntityAdapter<TXRecord> entityAdapter;
+    private RevealStrategy revealStrategy;
+    private final EntityAdapter<TXParticipant> participantAdapter;
 
     @Inject
     public TXLogPresenter(

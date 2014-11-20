@@ -9,21 +9,18 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.messaging.CommonMsgPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadHornetQServersCmd;
-import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.model.BroadcastGroup;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ClusterConnection;
 import org.jboss.as.console.client.shared.subsys.messaging.model.DiscoveryGroup;
-import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvider;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
@@ -54,66 +51,47 @@ public class MsgClusteringPresenter
         extends Presenter<MsgClusteringPresenter.MyView, MsgClusteringPresenter.MyProxy>
         implements CommonMsgPresenter {
 
-    private final PlaceManager placeManager;
-
-    private DispatchAsync dispatcher;
-    private BeanFactory factory;
-    private MessagingProvider providerEntity;
-    private DefaultWindow window = null;
-    private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
-    private String currentServer = null;
-    private EntityAdapter<BroadcastGroup> bcastGroupAdapter;
-    private EntityAdapter<DiscoveryGroup> discGroupAdapter;
-    private EntityAdapter<ClusterConnection> clusterConnectionsAdapter;
-
-    private LoadJMSCmd loadJMSCmd;
-    private DefaultWindow propertyWindow;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgClusteringPresenter)
     @SubsystemExtension(name="Clustering", group = "Messaging", key="messaging")
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=messaging/hornetq-server=*"
-    })
-    @SearchIndex(keywords = {
-            "jms", "messaging", "cluster", "broadcast", "discovery"
-    })
+    @AccessControl(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
+    @SearchIndex(keywords = {"jms", "messaging", "cluster", "broadcast", "discovery"})
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
     }
 
     public interface MyView extends View {
         void setPresenter(MsgClusteringPresenter presenter);
-
         void setProvider(List<Property> result);
-
         void setSelectedProvider(String currentServer);
-
         void setBroadcastGroups(List<BroadcastGroup> groups);
-
         void setDiscoveryGroups(List<DiscoveryGroup> groups);
-
         void setClusterConnection(List<ClusterConnection> groups);
     }
+
+
+    private final PlaceManager placeManager;
+
+    private DispatchAsync dispatcher;
+    private DefaultWindow window = null;
+    private RevealStrategy revealStrategy;
+    private String currentServer = null;
+    private EntityAdapter<BroadcastGroup> bcastGroupAdapter;
+    private EntityAdapter<DiscoveryGroup> discGroupAdapter;
+    private EntityAdapter<ClusterConnection> clusterConnectionsAdapter;
 
     @Inject
     public MsgClusteringPresenter( EventBus eventBus, MyView view, MyProxy proxy,
                                    PlaceManager placeManager, DispatchAsync dispatcher,
-                                   BeanFactory factory, RevealStrategy revealStrategy,
-                                   ApplicationMetaData propertyMetaData) {
+                                   RevealStrategy revealStrategy, ApplicationMetaData propertyMetaData) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.dispatcher = dispatcher;
-        this.factory = factory;
         this.revealStrategy = revealStrategy;
-        this.metaData = propertyMetaData;
 
-        bcastGroupAdapter = new EntityAdapter<BroadcastGroup>(BroadcastGroup.class, metaData);
-        discGroupAdapter = new EntityAdapter<DiscoveryGroup>(DiscoveryGroup.class, metaData);
-        clusterConnectionsAdapter = new EntityAdapter<ClusterConnection>(ClusterConnection.class, metaData);
-
-        loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
+        bcastGroupAdapter = new EntityAdapter<BroadcastGroup>(BroadcastGroup.class, propertyMetaData);
+        discGroupAdapter = new EntityAdapter<DiscoveryGroup>(DiscoveryGroup.class, propertyMetaData);
+        clusterConnectionsAdapter = new EntityAdapter<ClusterConnection>(ClusterConnection.class, propertyMetaData);
     }
 
     @Override

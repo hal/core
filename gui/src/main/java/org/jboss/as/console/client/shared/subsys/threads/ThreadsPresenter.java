@@ -31,7 +31,6 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 
-
 /**
  * The Presenter for Deployment Scanners
  * @author Stan Silvert
@@ -43,12 +42,8 @@ public class ThreadsPresenter extends Presenter<ThreadsPresenter.MyView, Threads
 
     @ProxyCodeSplit
     @NameToken(NameTokens.BoundedQueueThreadPoolPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=threads"
-    })
-    @SearchIndex(keywords = {
-            "thread", "thread-pool"
-    })
+    @AccessControl(resources = {"{selected.profile}/subsystem=threads"})
+    @SearchIndex(keywords = {"thread", "thread-pool"})
     public interface MyProxy extends Proxy<ThreadsPresenter>, Place {
     }
 
@@ -79,5 +74,4 @@ public class ThreadsPresenter extends Presenter<ThreadsPresenter.MyView, Threads
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
-
 }

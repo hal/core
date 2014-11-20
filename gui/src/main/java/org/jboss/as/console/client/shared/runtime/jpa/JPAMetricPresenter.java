@@ -23,6 +23,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -42,8 +43,23 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 1/19/12
  */
-public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyView, JPAMetricPresenter.MyProxy>
-        {
+public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyView, JPAMetricPresenter.MyProxy> {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.JPAMetricPresenter)
+    @SearchIndex(keywords = {"jpa", "hibernate"})
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
+    public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(JPAMetricPresenter presenter);
+        void setJpaUnits(List<JPADeployment> jpaUnits);
+        void setSelectedUnit(String[] strings);
+        void updateMetric(UnitMetric unitMetric);
+        void clearValues();
+    }
+
 
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
@@ -51,27 +67,6 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     private PlaceManager placeManager;
     private String[] selectedUnit;
     private EntityAdapter<JPADeployment> adapter;
-
-    public PlaceManager getPlaceManager() {
-        return placeManager;
-    }
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.JPAMetricPresenter)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"
-    })
-    public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(JPAMetricPresenter presenter);
-        void setJpaUnits(List<JPADeployment> jpaUnits);
-        void setSelectedUnit(String[] strings);
-        void updateMetric(UnitMetric unitMetric);
-
-        void clearValues();
-    }
 
     @Inject
     public JPAMetricPresenter(
@@ -86,10 +81,11 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
         this.placeManager = placeManager;
         this.factory = factory;
 
-
         adapter = new EntityAdapter<JPADeployment>(JPADeployment.class, metaData);
+    }
 
-
+    public PlaceManager getPlaceManager() {
+        return placeManager;
     }
 
     @Override

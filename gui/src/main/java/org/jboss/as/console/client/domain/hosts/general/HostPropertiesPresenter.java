@@ -41,6 +41,7 @@ import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -61,14 +62,13 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
     @OperationMode(DOMAIN)
+    @SearchIndex(keywords = {"system-property", "property"})
     @AccessControl(resources = {"/{selected.host}/system-property=*",})
     public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {}
 
 
     public interface MyView extends View {
-
         void setPresenter(HostPropertiesPresenter presenter);
-
         void setProperties(List<PropertyRecord> properties);
     }
 

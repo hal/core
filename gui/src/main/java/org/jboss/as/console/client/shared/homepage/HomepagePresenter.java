@@ -20,7 +20,6 @@ package org.jboss.as.console.client.shared.homepage;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -103,14 +102,8 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                 Console.CONSTANTS.section_administration_intro()));
 
         if (featureSet.isSearchEnabled()) {
-            String shortcut;
-            if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
-                shortcut = "⌘2";
-            } else {
-                shortcut = "Ctrl+2";
-            }
             infoBoxes.add(new InfoBox("search",
-                    "Search", "Quickly navigate to any screen by using the local search: Enter keywords such as \"data-source\" or \"log viewer\". The search can be invoked anytime by pressing " + shortcut + ".",
+                    "Search", "Quickly navigate to any screen by using the local search. Enter keywords such as \"data-source\" or \"log viewer\" to get a list of relevant screens.",
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {

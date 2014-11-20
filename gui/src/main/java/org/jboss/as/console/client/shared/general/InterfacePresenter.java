@@ -26,11 +26,9 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -38,7 +36,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -51,22 +49,10 @@ import java.util.List;
 public class InterfacePresenter extends Presenter<InterfacePresenter.MyView, InterfacePresenter.MyProxy>
     implements InterfaceManagement.Callback {
 
-    private final PlaceManager placeManager;
-    private BeanFactory factory;
-    private DispatchAsync dispatcher;
-    private LoadInterfacesCmd loadInterfacesCmd;
-    private RevealStrategy revealStrategy;
-    private DefaultWindow window;
-    private EntityAdapter<Interface> entityAdapter;
-    private BeanMetaData beanMetaData;
-
-    private InterfaceManagement delegate;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.InterfacePresenter)
-    @AccessControl(resources = {
-            "interface=*"
-    })
+    @SearchIndex(keywords = {"network-interface", "ip", "ip-address", "ifconfig"})
+    @AccessControl(resources = {"interface=*"})
     public interface MyProxy extends Proxy<InterfacePresenter>, Place {
     }
 
@@ -76,25 +62,25 @@ public class InterfacePresenter extends Presenter<InterfacePresenter.MyView, Int
         void setDelegate(InterfaceManagement delegate);
     }
 
+
+    private LoadInterfacesCmd loadInterfacesCmd;
+    private RevealStrategy revealStrategy;
+    private InterfaceManagement delegate;
+
     @Inject
     public InterfacePresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
-            DispatchAsync dispatcher,
-            BeanFactory factory, RevealStrategy revealStrategy,
+            DispatchAsync dispatcher, RevealStrategy revealStrategy,
             ApplicationMetaData metaData) {
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
-        this.factory = factory;
-        this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
 
         ModelNode address = new ModelNode();
         address.setEmptyList();
         loadInterfacesCmd = new LoadInterfacesCmd(dispatcher, address, metaData);
-        entityAdapter = new EntityAdapter<Interface>(Interface.class, metaData);
-        beanMetaData = metaData.getBeanMetaData(Interface.class);
+        EntityAdapter<Interface> entityAdapter = new EntityAdapter<Interface>(Interface.class, metaData);
+        BeanMetaData beanMetaData = metaData.getBeanMetaData(Interface.class);
 
         this.delegate = new InterfaceManagementImpl(dispatcher, entityAdapter, beanMetaData);
         this.delegate.setCallback(this);
@@ -135,9 +121,5 @@ public class InterfacePresenter extends Presenter<InterfacePresenter.MyView, Int
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
-    }
-
-    public void closeDialoge() {
-        window.hide();
     }
 }

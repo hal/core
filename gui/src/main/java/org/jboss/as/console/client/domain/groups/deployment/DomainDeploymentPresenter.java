@@ -61,33 +61,31 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor
 {
-    private List<ServerGroupRecord> serverGroups;
-    private DeploymentStore deploymentStore;
-    private DefaultWindow window;
-    private DispatchAsync dispatcher;
-    private ContentRepository contentRepository;
-
-
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentsPresenter)
     @OperationMode(DOMAIN)
-    @SearchIndex(keywords = "deployment")
+    @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @AccessControl(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={addressable.group}/deployment=*",
             "/server-group={addressable.group}/deployment-overlay=*",
             "/deployment=*"
     }, recursive = false)
-    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place
-    {
-    }
+    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place {}
 
 
-    public interface MyView extends SuspendableView
-    {
+    public interface MyView extends SuspendableView {
         void setPresenter(DomainDeploymentPresenter presenter);
         void reset(ContentRepository contentRepository);
     }
+
+
+    private List<ServerGroupRecord> serverGroups;
+    private DeploymentStore deploymentStore;
+    private DefaultWindow window;
+    private DispatchAsync dispatcher;
+    private ContentRepository contentRepository;
+
 
     @Inject
     public DomainDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,

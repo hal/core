@@ -31,23 +31,17 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
 
 /**
  * @author David Bosschaert
  */
 public class JacOrbPresenter extends Presenter<JacOrbPresenter.MyView, JacOrbPresenter.MyProxy>{
-    private final DispatchAsync dispatcher;
     private final RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JacOrbPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=jacorb"
-    })
-    @SearchIndex(keywords = {
-            "corba", "iiop"
-    })
+    @AccessControl(resources = {"{selected.profile}/subsystem=jacorb"})
+    @SearchIndex(keywords = {"corba", "iiop"})
     public interface MyProxy extends Proxy<JacOrbPresenter>, Place {
     }
 
@@ -55,11 +49,8 @@ public class JacOrbPresenter extends Presenter<JacOrbPresenter.MyView, JacOrbPre
     }
 
     @Inject
-    public JacOrbPresenter(EventBus eventBus, MyView view, MyProxy proxy,
-        DispatchAsync dispatcher, RevealStrategy revealStrategy) {
+    public JacOrbPresenter(EventBus eventBus, MyView view, MyProxy proxy,RevealStrategy revealStrategy) {
         super(eventBus, view, proxy);
-
-        this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
     }
 

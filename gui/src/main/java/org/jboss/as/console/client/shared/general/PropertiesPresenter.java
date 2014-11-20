@@ -29,7 +29,6 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -41,6 +40,7 @@ import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -58,18 +58,10 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class PropertiesPresenter extends Presenter<PropertiesPresenter.MyView, PropertiesPresenter.MyProxy>
         implements PropertyManagement {
 
-    private final PlaceManager placeManager;
-    private BeanFactory factory;
-    private DispatchAsync dispatcher;
-    private DefaultWindow propertyWindow;
-    private LoadPropertiesCmd loadPropCmd;
-    private RevealStrategy revealStrategy;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.PropertiesPresenter)
-    @AccessControl(resources = {
-            "system-property=*"
-    })
+    @AccessControl(resources = {"system-property=*"})
+    @SearchIndex(keywords = {"system-property", "property"})
     public interface MyProxy extends Proxy<PropertiesPresenter>, Place {
     }
 
@@ -78,22 +70,23 @@ public class PropertiesPresenter extends Presenter<PropertiesPresenter.MyView, P
         void setProperties(List<PropertyRecord> properties);
     }
 
+    private DispatchAsync dispatcher;
+    private DefaultWindow propertyWindow;
+    private LoadPropertiesCmd loadPropCmd;
+    private RevealStrategy revealStrategy;
+
     @Inject
     public PropertiesPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, DispatchAsync dispatcher,
-            BeanFactory factory, RevealStrategy revealStrategy) {
+            DispatchAsync dispatcher, BeanFactory factory,
+            RevealStrategy revealStrategy) {
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
         this.dispatcher = dispatcher;
-        this.factory = factory;
         this.revealStrategy = revealStrategy;
-
 
         ModelNode address = new ModelNode();
         //address.get(ADDRESS).setEmptyList();
-
         loadPropCmd = new LoadPropertiesCmd(dispatcher, factory, address);
     }
 

@@ -64,8 +64,27 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class SecurityDomainsPresenter
-        extends Presenter<SecurityDomainsPresenter.MyView, SecurityDomainsPresenter.MyProxy>
-{
+        extends Presenter<SecurityDomainsPresenter.MyView, SecurityDomainsPresenter.MyProxy> {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.SecurityDomainsPresenter)
+    @AccessControl(resources = {"/{selected.profile}/subsystem=security/security-domain=*"})
+    @SearchIndex(keywords = {"security-domain", "authentication", "security", "vault", "authorisation",
+            "jaas", "login-module"})
+    public interface MyProxy extends Proxy<SecurityDomainsPresenter>, Place {
+    }
+
+    public interface MyView extends View, FrameworkView {
+        void setPresenter(SecurityDomainsPresenter presenter);
+        void setAuthenticationLoginModules(String domainName, List<AuthenticationLoginModule> modules, boolean resourceExists);
+        void setAuthorizationPolicyProviders(String domainName, List<AuthorizationPolicyProvider> providers, boolean resourceExists);
+        void setMappingModules(String domainName, List<MappingModule> modules, boolean resourceExists);
+        void setAuditModules(String domainName, List<GenericSecurityDomainData> modules, boolean resourceExists);
+        void loadSecurityDomain(String domainName);
+        @Deprecated void setAuthFlagValues(String type, List<String> values);
+        void setSelectedDomain(String selectedDomain);
+    }
+
 
     private static final String CLASSIC = "classic";
     private static final String SECURITY_DOMAIN = "security-domain";
@@ -85,36 +104,6 @@ public class SecurityDomainsPresenter
 
     private String selectedDomain;
 
-    public PlaceManager getPlaceManager() {
-        return this.placeManager;
-    }
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.SecurityDomainsPresenter)
-    @AccessControl(resources = {
-                "/{selected.profile}/subsystem=security/security-domain=*"
-        })
-    @SearchIndex(keywords = {
-            "security", "security-domain", "vault", "authentication", "authorisation"
-    })
-    public interface MyProxy extends Proxy<SecurityDomainsPresenter>, Place {
-    }
-
-    public interface MyView extends View, FrameworkView {
-        void setPresenter(SecurityDomainsPresenter presenter);
-        void setAuthenticationLoginModules(String domainName, List<AuthenticationLoginModule> modules, boolean resourceExists);
-        void setAuthorizationPolicyProviders(String domainName, List<AuthorizationPolicyProvider> providers, boolean resourceExists);
-        void setMappingModules(String domainName, List<MappingModule> modules, boolean resourceExists);
-        void setAuditModules(String domainName, List<GenericSecurityDomainData> modules, boolean resourceExists);
-
-        void loadSecurityDomain(String domainName);
-
-        @Deprecated
-        void setAuthFlagValues(String type, List<String> values);
-
-        void setSelectedDomain(String selectedDomain);
-    }
-
     @Inject
     public SecurityDomainsPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                                     DispatchAsync dispatcher, BeanFactory factory, RevealStrategy revealStrategy,
@@ -127,6 +116,10 @@ public class SecurityDomainsPresenter
         this.entityAdapter = new EntityAdapter<SecurityDomain>(SecurityDomain.class, appMetaData);
 
         this.placeManager = placeManager;
+    }
+
+    public PlaceManager getPlaceManager() {
+        return this.placeManager;
     }
 
     @Override

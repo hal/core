@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.domain.groups;
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -31,36 +30,23 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
-import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.*;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
-import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
-import org.jboss.as.console.client.shared.jvm.Jvm;
-import org.jboss.as.console.client.shared.jvm.JvmManagement;
-import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
-import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
-import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.jvm.*;
+import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -89,6 +75,28 @@ public class ServerGroupPresenter
         extends Presenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ServerGroupPresenter)
+    @OperationMode(DOMAIN)
+    @AccessControl(resources = {
+            "/server-group=*",
+            "opt://server-group={selected.entity}/system-property=*"},
+            recursive = false)
+    @SearchIndex(keywords = {"group", "server-group", "profile", "socket-binding", "jvm"})
+    public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
+
+
+    public interface MyView extends SuspendableView {
+        void setPresenter(ServerGroupPresenter presenter);
+        void setServerGroups(List<ServerGroupRecord> groups);
+        void updateSocketBindings(List<String> result);
+        void setJvm(ServerGroupRecord group, Jvm jvm);
+        void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
+        void setPreselection(String preselection);
+        void updateProfiles(List<ProfileRecord> result);
+    }
+
+
     private ServerGroupStore serverGroupStore;
     private ProfileStore profileStore;
 
@@ -103,30 +111,6 @@ public class ServerGroupPresenter
     private List<String> existingSockets;
     private String preselection;
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ServerGroupPresenter)
-    @OperationMode(DOMAIN)
-    @AccessControl(resources = {
-            "/server-group=*",
-            "opt://server-group={selected.entity}/system-property=*"
-    }, recursive = false)
-    @SearchIndex(keywords = {
-            "group", "server-group", "profile", "socket-binding", "jvm"
-    })
-    public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {
-    }
-
-    public interface MyView extends SuspendableView {
-        void setPresenter(ServerGroupPresenter presenter);
-        void setServerGroups(List<ServerGroupRecord> groups);
-        void updateSocketBindings(List<String> result);
-        void setJvm(ServerGroupRecord group, Jvm jvm);
-        void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
-
-        void setPreselection(String preselection);
-
-        void updateProfiles(List<ProfileRecord> result);
-    }
 
     @Inject
     public ServerGroupPresenter(

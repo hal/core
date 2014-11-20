@@ -31,6 +31,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -50,6 +51,30 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.MyProxy>
     implements PropertyManagement {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.JcaPresenter)
+    @SearchIndex(keywords = {"pool", "resource-management"})
+    @AccessControl(resources = {
+            "{selected.profile}/subsystem=jca",
+            "{selected.profile}/subsystem=jca/bean-validation=bean-validation",
+            "{selected.profile}/subsystem=jca/archive-validation=archive-validation",
+            "{selected.profile}/subsystem=jca/cached-connection-manager=cached-connection-manager",
+            "{selected.profile}/subsystem=jca/bootstrap-context=*",
+            "{selected.profile}/subsystem=jca/workmanager=*"})
+    public interface MyProxy extends Proxy<JcaPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(JcaPresenter presenter);
+        void setWorkManagers(List<JcaWorkmanager> managers);
+        void setBeanSettings(JcaBeanValidation jcaBeanValidation);
+        void setArchiveSettings(JcaArchiveValidation jcaArchiveValidation);
+        void setCCMSettings(JcaConnectionManager jcaConnectionManager);
+        void setBootstrapContexts(List<JcaBootstrapContext> contexts);
+        void setSelectedWorkmanager(String selectedWorkmanager);
+    }
+
 
     private final PlaceManager placeManager;
 
@@ -72,30 +97,6 @@ public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.My
     private List<JcaWorkmanager> managers;
     private EntityAdapter<WorkmanagerPool> poolAdapter;
     private String selectedWorkmanager;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.JcaPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=jca",
-            "{selected.profile}/subsystem=jca/bean-validation=bean-validation",
-            "{selected.profile}/subsystem=jca/archive-validation=archive-validation",
-            "{selected.profile}/subsystem=jca/cached-connection-manager=cached-connection-manager",
-            "{selected.profile}/subsystem=jca/bootstrap-context=*",
-            "{selected.profile}/subsystem=jca/workmanager=*"
-    })
-    public interface MyProxy extends Proxy<JcaPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(JcaPresenter presenter);
-        void setWorkManagers(List<JcaWorkmanager> managers);
-        void setBeanSettings(JcaBeanValidation jcaBeanValidation);
-        void setArchiveSettings(JcaArchiveValidation jcaArchiveValidation);
-        void setCCMSettings(JcaConnectionManager jcaConnectionManager);
-        void setBootstrapContexts(List<JcaBootstrapContext> contexts);
-
-        void setSelectedWorkmanager(String selectedWorkmanager);
-    }
 
     @Inject
     public JcaPresenter(

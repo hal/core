@@ -26,7 +26,6 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
@@ -36,6 +35,7 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -53,26 +53,19 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  * @date 15/10/12
  */
-public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.MyView,
-        EnvironmentPresenter.MyProxy>
-{
+public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.MyView, EnvironmentPresenter.MyProxy> {
+
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"
-    })
-    public interface MyProxy extends Proxy<EnvironmentPresenter>, Place
-    {
-
+    @SearchIndex(keywords = {"runtime", "environment", "jvm"})
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
+    public interface MyProxy extends Proxy<EnvironmentPresenter>, Place {
     }
 
 
-    public interface MyView extends SuspendableView
-    {
+    public interface MyView extends SuspendableView {
         void setPresenter(EnvironmentPresenter environmentPresenter);
-
         void setEnvironment(List<PropertyRecord> environment);
-
         void clearEnvironment();
     }
 
@@ -80,24 +73,19 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
     private final DispatchAsync dispatcher;
     private final BeanFactory factory;
     private final RevealStrategy revealStrategy;
-    private final BootstrapContext bootstrap;
-
 
     @Inject
     public EnvironmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
                                 final DispatchAsync dispatcher, Dispatcher circuit, final BeanFactory factory,
-                                final RevealStrategy revealStrategy, final BootstrapContext bootstrap)
-    {
+                                final RevealStrategy revealStrategy) {
         super(eventBus, view, proxy, circuit);
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.revealStrategy = revealStrategy;
-        this.bootstrap = bootstrap;
     }
 
     @Override
-    protected void onBind()
-    {
+    protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
         addChangeHandler(Console.MODULES.getServerStore());
@@ -109,21 +97,17 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
     }
 
     @Override
-    protected void revealInParent()
-    {
+    protected void revealInParent() {
         revealStrategy.revealInRuntimeParent(this);
     }
 
     @Override
-    protected void onReset()
-    {
+    protected void onReset() {
         super.onReset();
         refresh();
     }
 
-    public void refresh()
-    {
-
+    public void refresh() {
         getView().clearEnvironment();
 
         ModelNode operation = new ModelNode();
@@ -133,24 +117,18 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
         operation.get(OP).set(READ_ATTRIBUTE_OPERATION);
         operation.get(NAME).set("system-properties");
 
-        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>()
-        {
+        dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse result)
-            {
+            public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Log.error("Failed to read environment properties: "+ response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Log.error("Failed to read environment properties: " + response.getFailureDescription());
+                } else {
 
                     List<Property> properties = response.get(RESULT).asPropertyList();
                     List<PropertyRecord> environment = new ArrayList<PropertyRecord>(properties.size());
-                    for (Property property : properties)
-                    {
+                    for (Property property : properties) {
                         PropertyRecord model = factory.property().as();
                         model.setKey(property.getName());
                         model.setValue(property.getValue().asString());

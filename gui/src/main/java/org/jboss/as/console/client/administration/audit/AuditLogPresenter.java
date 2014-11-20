@@ -29,7 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.as.console.spi.SearchIndex;
 
 /**
  * @author Harald Pehl
@@ -37,15 +37,24 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 public class AuditLogPresenter
         extends Presenter<AuditLogPresenter.MyView, AuditLogPresenter.MyProxy> {
 
-    private final DispatchAsync dispatcher;
+    @ProxyCodeSplit
+    @NameToken(NameTokens.AuditLogPresenter)
+    @SearchIndex(keywords = {"audit", "log", "management"})
+    @AccessControl(resources = {"/{selected.host}/core-service=management/access=audit"})
+    public interface MyProxy extends Proxy<AuditLogPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(AuditLogPresenter presenter);
+    }
+
+
     private final RevealStrategy revealStrategy;
 
     @Inject
     public AuditLogPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final DispatchAsync dispatcher, final RevealStrategy revealStrategy) {
+            final RevealStrategy revealStrategy) {
         super(eventBus, view, proxy);
-
-        this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
     }
 
@@ -58,16 +67,5 @@ public class AuditLogPresenter
     @Override
     protected void revealInParent() {
         revealStrategy.revealInAdministration(this);
-    }
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.AuditLogPresenter)
-    @AccessControl(resources = {"/{selected.host}/core-service=management/access=audit"})
-    public interface MyProxy extends Proxy<AuditLogPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-
-        void setPresenter(AuditLogPresenter presenter);
     }
 }

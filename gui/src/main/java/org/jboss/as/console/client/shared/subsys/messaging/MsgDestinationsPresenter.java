@@ -81,6 +81,34 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter.MyView, MsgDestinationsPresenter.MyProxy>
         implements CommonMsgPresenter {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.MessagingPresenter)
+    @AccessControl(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
+    @SearchIndex(keywords = {"topic", "queue", "jms", "messaging", "publish", "subscribe"})
+    public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        // Messaging Provider
+        void setPresenter(MsgDestinationsPresenter presenter);
+        void setProviderDetails(MessagingProvider provider);
+        void setSecurityConfig(List<SecurityPattern> secPatterns);
+        void setAddressingConfig(List<AddressingPattern> addrPatterns);
+        void setProvider(List<Property> names);
+        void setSelectedProvider(String selectedProvider);
+        void setDiverts(List<Divert> diverts);
+    }
+
+
+    public interface JMSView {
+        void setQueues(List<Queue> queues);
+        void setTopics(List<JMSEndpoint> topics);
+        void setConnectionFactories(List<ConnectionFactory> factories);
+        void enableEditQueue(boolean b);
+        void enableEditTopic(boolean b);
+    }
+
+
     private final PlaceManager placeManager;
     private final CoreGUIContext statementContext;
     private DispatchAsync dispatcher;
@@ -102,38 +130,6 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
     private EntityAdapter<Topic> topicAdapter;
 
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.MessagingPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=messaging/hornetq-server=*"
-    })
-    @SearchIndex(keywords = {
-            "jms", "queue", "topic", "messaging"
-    })
-    public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-
-        // Messaging Provider
-        void setPresenter(MsgDestinationsPresenter presenter);
-        void setProviderDetails(MessagingProvider provider);
-        void setSecurityConfig(List<SecurityPattern> secPatterns);
-        void setAddressingConfig(List<AddressingPattern> addrPatterns);
-
-        void setProvider(List<Property> names);
-        void setSelectedProvider(String selectedProvider);
-
-        void setDiverts(List<Divert> diverts);
-    }
-
-    public interface JMSView {
-        void setQueues(List<Queue> queues);
-        void setTopics(List<JMSEndpoint> topics);
-        void setConnectionFactories(List<ConnectionFactory> factories);
-        void enableEditQueue(boolean b);
-        void enableEditTopic(boolean b);
-    }
 
     @Inject
     public MsgDestinationsPresenter(

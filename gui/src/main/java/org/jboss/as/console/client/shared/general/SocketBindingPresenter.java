@@ -47,6 +47,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -66,6 +67,24 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.SocketBindingPresenter)
+    @SearchIndex(keywords = {"socket", "port", "multi-cast", "interface", "network-interface", "bind-address"})
+    @AccessControl(resources = {"socket-binding-group=*"})
+    public interface MyProxy extends Proxy<SocketBindingPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(SocketBindingPresenter presenter);
+        void updateGroups(List<String> groups);
+        void setBindings(String groupName, List<SocketBinding> bindings);
+        void setEnabled(boolean b);
+        void setRemoteSockets(String groupName, List<RemoteSocketBinding> entities);
+        void setLocalSockets(String groupName, List<LocalSocketBinding> entities);
+        void setSelectedGroup(String selectedGroup);
+    }
+
+
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
@@ -79,30 +98,6 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
     private EntityAdapter<RemoteSocketBinding> remoteSocketAdapter;
     private EntityAdapter<LocalSocketBinding> localSocketAdapter;
     private String selectedSocketGroup = null;
-
-    public PlaceManager getPlaceManager() {
-        return placeManager;
-    }
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.SocketBindingPresenter)
-    @AccessControl(resources = {
-                       "socket-binding-group=*"
-               })
-    public interface MyProxy extends Proxy<SocketBindingPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(SocketBindingPresenter presenter);
-        void updateGroups(List<String> groups);
-        void setBindings(String groupName, List<SocketBinding> bindings);
-        void setEnabled(boolean b);
-
-        void setRemoteSockets(String groupName, List<RemoteSocketBinding> entities);
-
-        void setLocalSockets(String groupName, List<LocalSocketBinding> entities);
-        void setSelectedGroup(String selectedGroup);
-    }
 
     @Inject
     public SocketBindingPresenter(
@@ -126,6 +121,10 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
         ModelNode address = new ModelNode();
         address.setEmptyList();
         loadInterfacesCmd = new LoadInterfacesCmd(dispatcher, address, metaData);
+    }
+
+    public PlaceManager getPlaceManager() {
+        return placeManager;
     }
 
     @Override

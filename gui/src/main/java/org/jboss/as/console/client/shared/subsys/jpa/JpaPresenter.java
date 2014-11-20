@@ -7,7 +7,6 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -36,47 +35,36 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class JpaPresenter extends Presenter<JpaPresenter.MyView, JpaPresenter.MyProxy> {
 
-    private final PlaceManager placeManager;
-    private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
-    private DispatchAsync dispatcher;
-    private EntityAdapter<JpaSubsystem> adapter;
-    private BeanMetaData beanMetaData;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.JpaPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=jpa"
-    })
-    @SearchIndex(keywords = {
-            "jpa", "data-source"
-    })
-    public interface MyProxy extends Proxy<JpaPresenter>, Place {
-    }
+    @AccessControl(resources = {"{selected.profile}/subsystem=jpa"})
+    @SearchIndex(keywords = {"jpa", "data-source"})
+    public interface MyProxy extends Proxy<JpaPresenter>, Place {}
+
 
     public interface MyView extends View {
         void setPresenter(JpaPresenter presenter);
         void updateFrom(JpaSubsystem jpaSubsystem);
     }
 
+
+    private RevealStrategy revealStrategy;
+    private DispatchAsync dispatcher;
+    private EntityAdapter<JpaSubsystem> adapter;
+    private BeanMetaData beanMetaData;
+
     @Inject
     public JpaPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
             DispatchAsync dispatcher,
             RevealStrategy revealStrategy,
             ApplicationMetaData metaData) {
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
-        this.metaData = metaData;
         this.dispatcher = dispatcher;
-
         this.beanMetaData = metaData.getBeanMetaData(JpaSubsystem.class);
-
-        this.adapter = new EntityAdapter<JpaSubsystem>(
-                JpaSubsystem.class, metaData);
+        this.adapter = new EntityAdapter<JpaSubsystem>(JpaSubsystem.class, metaData);
     }
 
     @Override

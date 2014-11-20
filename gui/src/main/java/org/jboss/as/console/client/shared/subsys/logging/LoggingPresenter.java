@@ -39,22 +39,18 @@ import org.jboss.as.console.spi.SearchIndex;
  */
 public class LoggingPresenter extends Presenter<LoggingPresenter.MyView, LoggingPresenter.MyProxy> {
 
-    private final RevealStrategy revealStrategy;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.Logger)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=logging"
-    })
-    @SearchIndex(keywords = {
-            "log", "log-level", "category", "pattern", "handler", "log-file"
-    })
+    @AccessControl(resources = {"{selected.profile}/subsystem=logging"})
+    @SearchIndex(keywords = {"log", "log-level", "category", "pattern", "handler", "log-file", "log4j"})
     public interface MyProxy extends Proxy<LoggingPresenter>, Place {
     }
 
     public interface MyView extends View {
         void initialLoad();
     }
+
+    private final RevealStrategy revealStrategy;
 
     @Inject
     public LoggingPresenter(
@@ -80,5 +76,4 @@ public class LoggingPresenter extends Presenter<LoggingPresenter.MyView, Logging
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
-    
 }

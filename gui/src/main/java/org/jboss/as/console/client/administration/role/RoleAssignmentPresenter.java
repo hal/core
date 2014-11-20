@@ -50,6 +50,7 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Outcome;
@@ -74,7 +75,66 @@ import static org.jboss.as.console.client.administration.role.operation.Manageme
 public class RoleAssignmentPresenter
         extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.RoleAssignmentPresenter)
+    @SearchIndex(keywords = {"authorization", "access-control", "rbac", "security"})
+    @AccessControl(resources = {"/core-service=management/access=authorization"}, recursive = false)
+    public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(final RoleAssignmentPresenter presenter);
+        void update(final Principals principals, final RoleAssignments assignments, final Roles roles,
+                    final List<String> hosts, final List<String> serverGroups);
+    }
+
+
+    class FunctionOutcome implements Outcome<FunctionContext> {
+
+        private final String successMessage;
+        private final String failureMessage;
+
+        public FunctionOutcome(final String entity, final ManagementOperation.Operation op) {
+            switch (op) {
+                case ADD:
+                    successMessage = Console.MESSAGES.added(entity);
+                    failureMessage = Console.MESSAGES.addingFailed(entity);
+                    break;
+                case MODIFY:
+                    successMessage = Console.MESSAGES.saved(entity);
+                    failureMessage = Console.MESSAGES.saveFailed(entity);
+                    break;
+                case REMOVE:
+                    successMessage = Console.MESSAGES.deleted(entity);
+                    failureMessage = Console.MESSAGES.deletionFailed(entity);
+                    break;
+                default:
+                    successMessage = Console.CONSTANTS.common_label_success();
+                    failureMessage = Console.CONSTANTS.common_error_failure();
+            }
+        }
+
+        @Override
+        public void onSuccess(final FunctionContext context) {
+            Console.info(successMessage);
+            loadAssignments();
+        }
+
+        public void onFailure(final FunctionContext context) {
+            if (context.isForbidden()) {
+                Console.error(failureMessage, Console.CONSTANTS.forbidden_desc());
+            } else {
+                //noinspection ThrowableResultOfMethodCallIgnored
+                String details = context.getError() != null ? context.getError().getMessage() : null;
+                Console.error(failureMessage, details);
+            }
+            loadAssignments();
+        }
+    }
+
+
     static final String SIMPLE_ACCESS_CONTROL_PROVIDER = "simple";
+
     private final boolean standalone;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
@@ -86,6 +146,7 @@ public class RoleAssignmentPresenter
     private Roles roles;
     private List<String> hosts;
     private List<String> serverGroups;
+
 
     // ------------------------------------------------------ presenter lifecycle
 
@@ -315,6 +376,7 @@ public class RoleAssignmentPresenter
         }
     }
 
+
     // ------------------------------------------------------ properties
 
     public boolean isInitialized() {
@@ -323,64 +385,5 @@ public class RoleAssignmentPresenter
 
     public boolean isStandalone() {
         return standalone;
-    }
-
-    // ------------------------------------------------------ inner classes
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.RoleAssignmentPresenter)
-    @AccessControl(resources = {"/core-service=management/access=authorization"}, recursive = false)
-    public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-
-        void setPresenter(final RoleAssignmentPresenter presenter);
-
-        void update(final Principals principals, final RoleAssignments assignments, final Roles roles,
-                final List<String> hosts, final List<String> serverGroups);
-    }
-
-    class FunctionOutcome implements Outcome<FunctionContext> {
-
-        private final String successMessage;
-        private final String failureMessage;
-
-        public FunctionOutcome(final String entity, final ManagementOperation.Operation op) {
-            switch (op) {
-                case ADD:
-                    successMessage = Console.MESSAGES.added(entity);
-                    failureMessage = Console.MESSAGES.addingFailed(entity);
-                    break;
-                case MODIFY:
-                    successMessage = Console.MESSAGES.saved(entity);
-                    failureMessage = Console.MESSAGES.saveFailed(entity);
-                    break;
-                case REMOVE:
-                    successMessage = Console.MESSAGES.deleted(entity);
-                    failureMessage = Console.MESSAGES.deletionFailed(entity);
-                    break;
-                default:
-                    successMessage = Console.CONSTANTS.common_label_success();
-                    failureMessage = Console.CONSTANTS.common_error_failure();
-            }
-        }
-
-        @Override
-        public void onSuccess(final FunctionContext context) {
-            Console.info(successMessage);
-            loadAssignments();
-        }
-
-        public void onFailure(final FunctionContext context) {
-            if (context.isForbidden()) {
-                Console.error(failureMessage, Console.CONSTANTS.forbidden_desc());
-            } else {
-                //noinspection ThrowableResultOfMethodCallIgnored
-                String details = context.getError() != null ? context.getError().getMessage() : null;
-                Console.error(failureMessage, details);
-            }
-            loadAssignments();
-        }
     }
 }

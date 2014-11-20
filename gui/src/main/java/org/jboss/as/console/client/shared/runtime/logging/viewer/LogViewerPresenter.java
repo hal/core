@@ -46,11 +46,10 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LogViewer)
-    @SearchIndex(exclude = true)
+    @SearchIndex(exclude = true) // currently not used!
     @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
-    public interface MyProxy extends Proxy<LogViewerPresenter>, Place {
+    public interface MyProxy extends Proxy<LogViewerPresenter>, Place {}
 
-    }
 
     public interface MyView extends View {
         void list(List<ModelNode> logFiles);
@@ -58,6 +57,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
         void refresh(LogFile logFile, Action action);
         boolean isLogFileSelected();
     }
+
 
     private final RevealStrategy revealStrategy;
     private final Dispatcher circuit;

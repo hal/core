@@ -39,24 +39,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView, TXMetricPresenter.MyProxy>
         implements TXMetricManagement {
 
-    private DispatchAsync dispatcher;
-    private AddressBinding addressBinding;
-    private EntityAdapter<TransactionManager> entityAdapter;
-    private RevealStrategy revealStrategy;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.TXMetrics)
     @RuntimeExtension(name="Transactions", group=RuntimeGroup.METRICS, key="transactions")
-    @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/subsystem=transactions"
-            }
-    )
-    @SearchIndex(keywords = {
-            "transaction", "commit", "failure", "transaction-log"
-    })
-    public interface MyProxy extends Proxy<TXMetricPresenter>, Place {
-    }
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
+    @SearchIndex(keywords = {"transaction", "commit", "failure", "transaction-log"})
+    public interface MyProxy extends Proxy<TXMetricPresenter>, Place {}
+
 
     public interface MyView extends TXMetricView  {
         void setPresenter(TXMetricManagement presenter);
@@ -64,6 +53,13 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
         void setRollbackMetric(Metric rollbackMetric);
         void clearSamples();
     }
+
+
+    private DispatchAsync dispatcher;
+    private AddressBinding addressBinding;
+    private EntityAdapter<TransactionManager> entityAdapter;
+    private RevealStrategy revealStrategy;
+
 
     @Inject
     public TXMetricPresenter(

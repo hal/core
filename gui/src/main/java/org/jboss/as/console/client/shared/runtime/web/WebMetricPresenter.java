@@ -38,25 +38,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 12/9/11
  */
-public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyView, WebMetricPresenter.MyProxy>
-{
-
-    private DispatchAsync dispatcher;
-    private RevealStrategy revealStrategy;
-    private HttpConnector selectedConnector;
-    private BeanFactory factory;
-    private final LoadConnectorCmd cmd;
+public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyView, WebMetricPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebMetricPresenter)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/subsystem=web"
-    }, recursive = false)
-    @SearchIndex(keywords = {
-                "web", "http", "connections"
-        })
-    public interface MyProxy extends Proxy<WebMetricPresenter>, Place {
-    }
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=web"}, recursive = false)
+    @SearchIndex(keywords = {"web", "http", "connections"})
+    public interface MyProxy extends Proxy<WebMetricPresenter>, Place {}
+
 
     public interface MyView extends View {
         void setPresenter(WebMetricPresenter presenter);
@@ -64,6 +53,14 @@ public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyVi
         void setConnectorMetric(Metric metric);
         void setConnectors(List<HttpConnector> list);
     }
+
+
+    private DispatchAsync dispatcher;
+    private RevealStrategy revealStrategy;
+    private HttpConnector selectedConnector;
+    private BeanFactory factory;
+    private final LoadConnectorCmd cmd;
+
 
     @Inject
     public WebMetricPresenter(

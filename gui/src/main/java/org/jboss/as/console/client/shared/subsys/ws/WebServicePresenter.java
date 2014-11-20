@@ -38,6 +38,19 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, WebServicePresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.WebServicePresenter)
+    @AccessControl(resources = {"{selected.profile}/subsystem=webservices"})
+    @SearchIndex(keywords = {"web", "wsdl", "soap", "client-config", "endpoint-config"})
+    public interface MyProxy extends Proxy<WebServicePresenter>, Place {
+    }
+
+    public interface MyView extends View {
+        void setPresenter(WebServicePresenter presenter);
+        void setProvider(WebServiceProvider webServiceProvider);
+    }
+
+
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
@@ -48,23 +61,6 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
 
     private EntityAdapter<WebServiceProvider> providerAdapter;
     private BeanMetaData beanMeta;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.WebServicePresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=webservices"
-
-    })
-    @SearchIndex(keywords = {
-            "web", "wsdl", "soap", "client-config", "endpoint-config"
-    })
-    public interface MyProxy extends Proxy<WebServicePresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(WebServicePresenter presenter);
-        void setProvider(WebServiceProvider webServiceProvider);
-    }
 
     @Inject
     public WebServicePresenter(

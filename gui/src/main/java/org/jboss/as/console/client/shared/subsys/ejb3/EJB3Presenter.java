@@ -52,16 +52,12 @@ import java.util.List;
  * @author David Bosschaert
  */
 public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter.MyProxy>{
-    private final DispatchAsync dispatcher;
-    private final RevealStrategy revealStrategy;
-    private final BeanMetaData slsbMetaData;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EJB3Presenter)
     @AccessControl(resources = {"{selected.profile}/subsystem=ejb3"})
-    @SearchIndex(keywords = {
-               "ejb3", "cluster", "passivation", "thread-pool", "bean-pool", "timer-service", "remote-service", "iiop"
-       })
+    @SearchIndex(keywords = {"remote-service", "passivation", "timer-service", "bean-pool", "iiop",
+            "ejb3", "cluster", "thread-pool", "ejb", "mdb", "invocation", "remote", "interface", "local"})
     public interface MyProxy extends Proxy<EJB3Presenter>, Place {
     }
 
@@ -75,6 +71,11 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         void setPresenter(EJB3Presenter ejb3Presenter);
         void setThreadFactories();
     }
+
+
+    private final DispatchAsync dispatcher;
+    private final RevealStrategy revealStrategy;
+    private final BeanMetaData slsbMetaData;
 
     @Inject
     public EJB3Presenter(EventBus eventBus, MyView view, MyProxy proxy,

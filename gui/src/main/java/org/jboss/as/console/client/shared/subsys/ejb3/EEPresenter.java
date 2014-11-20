@@ -43,27 +43,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyProxy>
         implements DefaultPresenterContract {
 
-    private final PlaceManager placeManager;
-    private final CrudOperationDelegate operationDelegate;
-
-    private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
-    private DispatchAsync dispatcher;
-    private final CoreGUIContext statementContext;
-
-    private DefaultWindow window;
-    private List<ModelNode> globalModules = new ArrayList<ModelNode>();
-
     @ProxyCodeSplit
     @NameToken(NameTokens.EEPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=ee"
-    })
-    @SearchIndex(keywords = {
-            "ee", "scheduler", "executor", "context-service", "thread-factory"
-    })
-    public interface MyProxy extends Proxy<EEPresenter>, Place {
-    }
+    @AccessControl(resources = {"{selected.profile}/subsystem=ee"})
+    @SearchIndex(keywords = {"thread-factory", "ee", "context-service", "scheduler", "executor", "managed-bean"})
+    public interface MyProxy extends Proxy<EEPresenter>, Place {}
+
 
     public interface MyView extends View {
         void setPresenter(EEPresenter presenter);
@@ -77,12 +62,24 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         boolean isLegacyView();
     }
 
+
+    private final PlaceManager placeManager;
+    private final CrudOperationDelegate operationDelegate;
+
+    private RevealStrategy revealStrategy;
+    private ApplicationMetaData metaData;
+    private DispatchAsync dispatcher;
+    private final CoreGUIContext statementContext;
+
+    private DefaultWindow window;
+    private List<ModelNode> globalModules = new ArrayList<ModelNode>();
+
+
     @Inject
     public EEPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
-            RevealStrategy revealStrategy, CoreGUIContext statementContext
-    ) {
+            RevealStrategy revealStrategy, CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;

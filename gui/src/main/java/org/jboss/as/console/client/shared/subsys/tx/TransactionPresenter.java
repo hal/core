@@ -63,9 +63,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
     @NameToken(NameTokens.TransactionPresenter)
     @SubsystemExtension(name = "Transactions", group = "Container", key = "transactions")
     @AccessControl(resources = {"{selected.profile}/subsystem=transactions"})
-    @SearchIndex(keywords = {
-            "transaction", "log-store"
-    })
+    @SearchIndex(keywords = {"transaction", "log-store"})
     public interface MyProxy extends Proxy<TransactionPresenter>, Place {
     }
 

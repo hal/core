@@ -69,6 +69,29 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ServerPresenter)
+    @OperationMode(DOMAIN)
+    @AccessControl(resources = {
+            "/{selected.host}/server-config=*",
+            "opt://{selected.host}/server-config=*/system-property=*"},
+            recursive = false)
+    @SearchIndex(keywords = {"server", "server-config", "jvm", "socket-binding"})
+    public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {}
+
+
+    public interface MyView extends SuspendableView {
+        void setPresenter(ServerConfigPresenter presenter);
+        void updateSocketBindings(List<String> result);
+        void setJvm(String reference, Jvm jvm);
+        void setProperties(String reference, List<PropertyRecord> properties);
+        void setPorts(String socketBinding, Server selectedRecord, List<SocketBinding> result);
+        void setGroups(List<ServerGroupRecord> result);
+        void setPreselection(String config);
+        void setConfigurations(String selectedHost, List<Server> serverModel);
+    }
+
+
     private final ServerStore serverStore;
     private final Dispatcher circuit;
     private HostInformationStore hostInfoStore;
@@ -86,40 +109,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     private LoadSocketBindingsCmd loadSocketCmd;
     private final HostStore hostStore;
 
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ServerPresenter)
-    @OperationMode(DOMAIN)
-    @AccessControl(resources = {
-            "/{selected.host}/server-config=*",
-            "opt://{selected.host}/server-config=*/system-property=*"
-    }, recursive = false)
-    @SearchIndex(keywords = {
-            "server", "server-config", "jvm", "socket-binding"
-    })
-    public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {
-
-
-    }
-
-    public interface MyView extends SuspendableView {
-
-        void setPresenter(ServerConfigPresenter presenter);
-
-        void updateSocketBindings(List<String> result);
-
-        void setJvm(String reference, Jvm jvm);
-
-        void setProperties(String reference, List<PropertyRecord> properties);
-
-        void setPorts(String socketBinding, Server selectedRecord, List<SocketBinding> result);
-
-        void setGroups(List<ServerGroupRecord> result);
-
-        void setPreselection(String config);
-
-        void setConfigurations(String selectedHost, List<Server> serverModel);
-    }
 
     @Inject
     public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy,

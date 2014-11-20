@@ -40,19 +40,17 @@ public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPrese
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SecuritySubsystemPresenter)
-    @AccessControl(resources = {
-            "/{selected.profile}/subsystem=security"
-    }, recursive = false)
-    public interface MyProxy extends Proxy<SecuritySubsystemPresenter>, Place {
-    }
+    @SearchIndex(keywords = {"login-config", "login-module", "login-context", "authentication", "jaas"})
+    @AccessControl(resources = {"/{selected.profile}/subsystem=security"}, recursive = false)
+    public interface MyProxy extends Proxy<SecuritySubsystemPresenter>, Place {}
 
-    public interface MyView extends View, FrameworkView {
-    }
+
+    public interface MyView extends View, FrameworkView {}
+
 
     @Inject
     public SecuritySubsystemPresenter(EventBus eventBus, MyView view, MyProxy proxy, RevealStrategy revealStrategy) {
         super(eventBus, view, proxy);
-
         this.revealStrategy = revealStrategy;
     }
 
@@ -66,5 +64,4 @@ public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPrese
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
-
 }

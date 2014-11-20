@@ -47,6 +47,21 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroupsPresenter.MyProxy>
         implements PropertyManagement {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.JGroupsPresenter)
+    @AccessControl(resources = {"{selected.profile}/subsystem=jgroups"})
+    @SearchIndex(keywords = {"protocol", "group-communication", "cluster", "channel"})
+    public interface MyProxy extends Proxy<JGroupsPresenter>, Place {
+    }
+
+    public interface MyView extends View {
+        void setPresenter(JGroupsPresenter presenter);
+
+        void updateStacks(List<JGroupsStack> stacks);
+
+        void setSelectedStack(String selectedStack);
+    }
+
     private final PlaceManager placeManager;
 
     private RevealStrategy revealStrategy;
@@ -59,30 +74,6 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     private String selectedStack;
     private DefaultWindow propertyWindow;
     private DefaultWindow window;
-
-    public PlaceManager getPlaceManager() {
-        return placeManager;
-    }
-
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.JGroupsPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=jgroups"
-    })
-    @SearchIndex(keywords = {
-            "group-communication", "cluster", "protocol", "channel"
-    })
-    public interface MyProxy extends Proxy<JGroupsPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(JGroupsPresenter presenter);
-
-        void updateStacks(List<JGroupsStack> stacks);
-
-        void setSelectedStack(String selectedStack);
-    }
 
     @Inject
     public JGroupsPresenter(
@@ -104,12 +95,15 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         this.factory = beanFactory;
     }
 
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
+
     @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
     }
-
 
     @Override
     protected void onReset() {

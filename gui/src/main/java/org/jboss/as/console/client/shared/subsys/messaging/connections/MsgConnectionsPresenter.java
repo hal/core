@@ -9,8 +9,8 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -24,15 +24,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.AggregatedJMSModel;
 import org.jboss.as.console.client.shared.subsys.messaging.CommonMsgPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadHornetQServersCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
-import org.jboss.as.console.client.shared.subsys.messaging.model.AcceptorType;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Connector;
-import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorService;
-import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorType;
-import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvider;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
+import org.jboss.as.console.client.shared.subsys.messaging.model.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
@@ -62,37 +54,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.MyView, MsgConnectionsPresenter.MyProxy>
         implements CommonMsgPresenter, PropertyManagement  {
 
-    private final PlaceManager placeManager;
-    private DispatchAsync dispatcher;
-    private BeanFactory factory;
-    private MessagingProvider providerEntity;
-    private DefaultWindow window = null;
-    private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
-    private String currentServer = null;
-    private EntityAdapter<Acceptor> acceptorAdapter;
-    private EntityAdapter<Connector> connectorAdapter;
-    private EntityAdapter<ConnectorService> connectorServiceAdapter;
-    private EntityAdapter<Bridge> bridgeAdapter;
-    private LoadJMSCmd loadJMSCmd;
-    private DefaultWindow propertyWindow;
-
-    @Override
-    public PlaceManager getPlaceManager() {
-        return placeManager;
-    }
-
-
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgConnectionsPresenter)
     @SubsystemExtension(name="Connections", group = "Messaging", key="messaging")
     @AccessControl(resources = {
             "{selected.profile}/subsystem=messaging/hornetq-server=*",
-            "{selected.profile}/subsystem=messaging/jms-bridge=*"
-    })
-    @SearchIndex(keywords = {
-            "jms", "acceptor", "bridge", "connector"
-    })
+            "{selected.profile}/subsystem=messaging/jms-bridge=*"})
+    @SearchIndex(keywords = {"jms", "acceptor", "bridge", "connector"})
     public interface MyProxy extends Proxy<MsgConnectionsPresenter>, Place {
     }
 
@@ -100,23 +68,29 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         void setPresenter(MsgConnectionsPresenter presenter);
         void setSelectedProvider(String selectedProvider);
         void setProvider(List<Property> provider);
-
         void setGenericAcceptors(List<Acceptor> genericAcceptors);
-
         void setRemoteAcceptors(List<Acceptor> remote);
-
         void setInvmAcceptors(List<Acceptor> invm);
-
         void setGenericConnectors(List<Connector> generic);
-
         void setRemoteConnectors(List<Connector> remote);
-
         void setInvmConnectors(List<Connector> invm);
-
         void setConnetorServices(List<ConnectorService> services);
-
         void setBridges(List<Bridge> bridges);
     }
+
+
+    private final PlaceManager placeManager;
+    private DispatchAsync dispatcher;
+    private BeanFactory factory;
+    private DefaultWindow window = null;
+    private RevealStrategy revealStrategy;
+    private String currentServer = null;
+    private EntityAdapter<Acceptor> acceptorAdapter;
+    private EntityAdapter<Connector> connectorAdapter;
+    private EntityAdapter<ConnectorService> connectorServiceAdapter;
+    private EntityAdapter<Bridge> bridgeAdapter;
+    private LoadJMSCmd loadJMSCmd;
+    private DefaultWindow propertyWindow;
 
     @Inject
     public MsgConnectionsPresenter( EventBus eventBus, MyView view, MyProxy proxy,
@@ -129,14 +103,17 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.revealStrategy = revealStrategy;
-        this.metaData = propertyMetaData;
 
-        acceptorAdapter = new EntityAdapter<Acceptor>(Acceptor.class, metaData);
-        connectorAdapter = new EntityAdapter<Connector>(Connector.class, metaData);
-        connectorServiceAdapter = new EntityAdapter<ConnectorService>(ConnectorService.class, metaData);
-        bridgeAdapter = new EntityAdapter<Bridge>(Bridge.class, metaData);
+        acceptorAdapter = new EntityAdapter<Acceptor>(Acceptor.class, propertyMetaData);
+        connectorAdapter = new EntityAdapter<Connector>(Connector.class, propertyMetaData);
+        connectorServiceAdapter = new EntityAdapter<ConnectorService>(ConnectorService.class, propertyMetaData);
+        bridgeAdapter = new EntityAdapter<Bridge>(Bridge.class, propertyMetaData);
+        loadJMSCmd = new LoadJMSCmd(dispatcher, factory, propertyMetaData);
+    }
 
-        loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
+    @Override
+    public PlaceManager getPlaceManager() {
+        return placeManager;
     }
 
     @Override

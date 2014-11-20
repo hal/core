@@ -42,6 +42,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
@@ -60,16 +61,14 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @ProxyCodeSplit
     @NameToken(NameTokens.HostInterfacesPresenter)
     @OperationMode(DOMAIN)
+    @SearchIndex(keywords = {"interface", "network-interface", "bind-address"})
     @AccessControl(resources = {"/{selected.host}/interface=*",})
     public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {}
 
 
     public interface MyView extends View {
-
         void setPresenter(HostInterfacesPresenter presenter);
-
         void setInterfaces(List<Interface> interfaces);
-
         void setDelegate(InterfaceManagement delegate);
     }
 

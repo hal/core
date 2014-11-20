@@ -34,6 +34,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 
 
 /**
@@ -43,20 +44,20 @@ import org.jboss.as.console.spi.AccessControl;
  */
 public class LocalCachePresenter extends Presenter<LocalCachePresenter.MyView, LocalCachePresenter.MyProxy> {
 
-    private RevealStrategy revealStrategy;
-    private LocalCacheStore localCacheStore;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.LocalCachePresenter)
-    @AccessControl(resources = {
-               "{selected.profile}/subsystem=infinispan"
-       })
-    public interface MyProxy extends Proxy<LocalCachePresenter>, Place {
-    }
+    @SearchIndex(keywords = {"local", "cache"})
+    @AccessControl(resources = {"{selected.profile}/subsystem=infinispan"})
+    public interface MyProxy extends Proxy<LocalCachePresenter>, Place {}
+
 
     public interface MyView extends FrameworkView, View {
         void setPresenter(LocalCachePresenter presenter);
     }
+
+
+    private RevealStrategy revealStrategy;
+    private LocalCacheStore localCacheStore;
 
     @Inject
     public LocalCachePresenter(

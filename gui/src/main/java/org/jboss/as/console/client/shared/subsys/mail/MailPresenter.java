@@ -38,6 +38,20 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.MailPresenter)
+    @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
+    @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
+    public interface MyProxy extends Proxy<MailPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(MailPresenter presenter);
+        void updateFrom(List<MailSession> list);
+        void setSelectedSession(String selectedSession);
+    }
+
+
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
@@ -48,20 +62,6 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     private DefaultWindow window;
     private String selectedSession;
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.MailPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
-    @SearchIndex(keywords = {
-            "mail", "smtp", "imap", "channel"
-    })
-    public interface MyProxy extends Proxy<MailPresenter>, Place {}
-
-    public interface MyView extends View {
-
-        void setPresenter(MailPresenter presenter);
-        void updateFrom(List<MailSession> list);
-        void setSelectedSession(String selectedSession);
-    }
 
     @Inject
     public MailPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,

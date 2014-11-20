@@ -60,6 +60,22 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ResourceAdapterPresenter
         extends Presenter<ResourceAdapterPresenter.MyView, ResourceAdapterPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ResourceAdapterPresenter)
+    @AccessControl(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
+    @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
+    public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
+    }
+
+
+    public interface MyView extends View {
+        void setPresenter(ResourceAdapterPresenter presenter);
+        void setAdapters(List<ResourceAdapter> adapters);
+
+        void setSelectedAdapter(String selectedAdapter);
+    }
+
+
     private final PlaceManager placeManager;
     private RevealStrategy revealStrategy;
     private DispatchAsync dispatcher;
@@ -79,24 +95,6 @@ public class ResourceAdapterPresenter
     private EntityAdapter<PropertyRecord> propertyAdapter;
     private EntityAdapter<PoolConfig> poolAdapter;
     private EntityAdapter<AdminObject> adminAdapter;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ResourceAdapterPresenter)
-    @AccessControl(resources = {
-                "/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"
-        })
-    @SearchIndex(keywords = {
-            "jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"
-    })
-    public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(ResourceAdapterPresenter presenter);
-        void setAdapters(List<ResourceAdapter> adapters);
-
-        void setSelectedAdapter(String selectedAdapter);
-    }
 
     @Inject
     public ResourceAdapterPresenter(

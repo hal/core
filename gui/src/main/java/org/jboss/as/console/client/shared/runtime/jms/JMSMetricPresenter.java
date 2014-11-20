@@ -44,29 +44,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 12/9/11
  */
-public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy>
-{
-
-    private final PlaceManager placemanager;
-    private DispatchAsync dispatcher;
-    private RevealStrategy revealStrategy;
-    private JMSEndpoint selectedTopic;
-    private BeanFactory factory;
-    private LoadJMSCmd loadJMSCmd;
-    private Queue selectedQueue;
-    private final ServerStore serverStore;
-    private String currentServer;
+public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyView, JMSMetricPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JmsMetricPresenter)
-    @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"
-            }
-    )
-    @SearchIndex(keywords = {
-            "jms", "queue", "topic", "size"
-    })
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
+    @SearchIndex(keywords = {"jms", "queue", "topic", "size"})
     public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
     }
 
@@ -86,6 +69,15 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
         void setSelectedProvider(String name);
     }
 
+    private final PlaceManager placemanager;
+    private DispatchAsync dispatcher;
+    private RevealStrategy revealStrategy;
+    private JMSEndpoint selectedTopic;
+    private LoadJMSCmd loadJMSCmd;
+    private Queue selectedQueue;
+    private final ServerStore serverStore;
+    private String currentServer;
+
     @Inject
     public JMSMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
@@ -97,9 +89,7 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
         this.serverStore = serverStore;
-        this.factory = factory;
         this.placemanager = placemanager;
-
         this.loadJMSCmd = new LoadJMSCmd(dispatcher, factory, metaData);
     }
 
@@ -331,6 +321,4 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
     public PlaceManager getPlaceManager() {
         return placemanager;
     }
-
-
 }

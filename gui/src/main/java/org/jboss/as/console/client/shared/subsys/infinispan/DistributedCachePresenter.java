@@ -30,7 +30,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.AccessControl;
-
+import org.jboss.as.console.spi.SearchIndex;
 
 /**
  * The Presenter for Distributed Caches
@@ -39,18 +39,17 @@ import org.jboss.as.console.spi.AccessControl;
  */
 public class DistributedCachePresenter extends Presenter<DistributedCachePresenter.MyView, DistributedCachePresenter.MyProxy> {
 
-    private RevealStrategy revealStrategy;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.DistributedCachePresenter)
-    @AccessControl(resources = {
-               "{selected.profile}/subsystem=infinispan"
-       })
+    @SearchIndex(keywords = {"cache", "cluster"})
+    @AccessControl(resources = {"{selected.profile}/subsystem=infinispan"})
     public interface MyProxy extends Proxy<DistributedCachePresenter>, Place {
     }
 
     public interface MyView extends FrameworkView, View {
     }
+
+    private RevealStrategy revealStrategy;
 
     @Inject
     public DistributedCachePresenter(
@@ -76,5 +75,4 @@ public class DistributedCachePresenter extends Presenter<DistributedCachePresent
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
     }
-    
 }

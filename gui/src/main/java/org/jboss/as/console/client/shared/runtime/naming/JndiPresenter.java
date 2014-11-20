@@ -53,36 +53,28 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class JndiPresenter extends CircuitPresenter<JndiPresenter.MyView, JndiPresenter.MyProxy>
 {
+    @ProxyCodeSplit
+    @NameToken(NameTokens.JndiPresenter)
+    @AccessControl(
+            resources = {"/{selected.host}/{selected.server}/subsystem=naming"},
+            operations = {"/{selected.host}/{selected.server}/subsystem=naming#jndi-view"},
+            recursive = false)
+    @SearchIndex(keywords = {"jndi", "lookup", "jndi-tree"})
+    public interface MyProxy extends Proxy<JndiPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(JndiPresenter presenter);
+        void setJndiTree(CellTree tree, SingleSelectionModel<JndiEntry> selectionModel);
+        void clearValues();
+    }
+
 
     private final PlaceManager placeManager;
     private RevealStrategy revealStrategy;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private ServerStore serverStore;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.JndiPresenter)
-    @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/subsystem=naming"
-            },
-            operations = {
-                    "/{selected.host}/{selected.server}/subsystem=naming#jndi-view"
-            },
-            recursive = false
-    )
-    @SearchIndex(keywords = {
-                "jndi", "lookup", "jndi-tree"
-        })
-    public interface MyProxy extends Proxy<JndiPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(JndiPresenter presenter);
-        void setJndiTree(CellTree tree, SingleSelectionModel<JndiEntry> selectionModel);
-
-        void clearValues();
-    }
 
     @Inject
     public JndiPresenter(

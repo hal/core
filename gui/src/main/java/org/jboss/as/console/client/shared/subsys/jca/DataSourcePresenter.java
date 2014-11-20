@@ -47,13 +47,7 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDataSourcesFunction;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadXADataSourcesFunction;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
-import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
-import org.jboss.as.console.client.shared.subsys.jca.model.DriverStrategy;
-import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
-import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
-import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
+import org.jboss.as.console.client.shared.subsys.jca.model.*;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
 import org.jboss.as.console.spi.AccessControl;
@@ -64,7 +58,6 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -76,31 +69,14 @@ import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.V
 public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
         implements PropertyManagement {
 
-    private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
-    private final CurrentProfileSelection currentProfileSelection;
-    private boolean hasBeenRevealed = false;
-    private DefaultWindow window;
-
-    private DataSourceStore dataSourceStore;
-    private DriverStrategy driverRegistry;
-    private RevealStrategy revealStrategy;
-    private ApplicationProperties bootstrap;
-    private DefaultWindow propertyWindow;
-    private List<DataSource> datasources;
-    private List<JDBCDriver> drivers = Collections.EMPTY_LIST;
-    private List<XADataSource> xaDatasources;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourcePresenter)
     @AccessControl(resources = {
             "/{selected.profile}/subsystem=datasources/data-source=*",
-            "/{selected.profile}/subsystem=datasources/xa-data-source=*"
-    })
-    @SearchIndex(keywords = {
-            "jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"
-    })
+            "/{selected.profile}/subsystem=datasources/xa-data-source=*"})
+    @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"})
     public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
+
 
     public interface MyView extends SuspendableView {
 
@@ -115,6 +91,22 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         void setConnectionProperties(String reference, List<PropertyRecord> properties);
         void showVerifyConncectionResult(final String name, VerifyResult result);
     }
+
+
+    private final DispatchAsync dispatcher;
+    private final BeanFactory beanFactory;
+    private final CurrentProfileSelection currentProfileSelection;
+    private boolean hasBeenRevealed = false;
+    private DefaultWindow window;
+
+    private DataSourceStore dataSourceStore;
+    private DriverStrategy driverRegistry;
+    private RevealStrategy revealStrategy;
+    private ApplicationProperties bootstrap;
+    private DefaultWindow propertyWindow;
+    private List<DataSource> datasources;
+    private List<JDBCDriver> drivers;
+    private List<XADataSource> xaDatasources;
 
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,

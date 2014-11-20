@@ -7,12 +7,10 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.Path;
 import org.jboss.as.console.client.shared.general.wizard.NewPathWizard;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -20,6 +18,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -38,43 +37,33 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class PathManagementPresenter extends Presenter<PathManagementPresenter.MyView, PathManagementPresenter.MyProxy> {
 
-    private final PlaceManager placeManager;
-    private DispatchAsync dispatcher;
-    private BeanFactory factory;
-    private RevealStrategy revealStrategy;
-    private DefaultWindow window;
-    private ApplicationMetaData metaData;
-    private EntityAdapter<Path> entityAdapter;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.PathManagementPresenter)
-    @AccessControl(resources = {
-            "path=*"
-    })
+    @SearchIndex(keywords = {"file-system"})
+    @AccessControl(resources = {"path=*"})
     public interface MyProxy extends Proxy<PathManagementPresenter>, Place {
     }
 
     public interface MyView extends View {
         void setPresenter(PathManagementPresenter presenter);
-
         void setPaths(List<Path> paths);
     }
+
+    private DispatchAsync dispatcher;
+    private RevealStrategy revealStrategy;
+    private DefaultWindow window;
+    private EntityAdapter<Path> entityAdapter;
 
     @Inject
     public PathManagementPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager, DispatchAsync dispatcher,
-            BeanFactory factory, RevealStrategy revealStrategy,
+            DispatchAsync dispatcher, RevealStrategy revealStrategy,
             ApplicationMetaData propertyMetaData) {
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
         this.dispatcher = dispatcher;
-        this.factory = factory;
         this.revealStrategy = revealStrategy;
-        this.metaData = propertyMetaData;
-
-        this.entityAdapter = new EntityAdapter<Path>(Path.class, metaData);
+        this.entityAdapter = new EntityAdapter<Path>(Path.class, propertyMetaData);
 
     }
 

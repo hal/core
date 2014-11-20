@@ -44,10 +44,6 @@ public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
         implements UnauthorizedEvent.UnauthorizedHandler {
 
-    private final Dispatcher circuit;
-    private final ServerStore serverStore;
-    private HandlerRegistration handlerRegistration;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     @UseGatekeeper(DomainRuntimegateKeeper.class)
@@ -61,13 +57,17 @@ public class DomainRuntimePresenter
         void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology);
     }
 
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
             new GwtEvent.Type<RevealContentHandler<?>>();
 
+
+    private final Dispatcher circuit;
+    private final ServerStore serverStore;
+    private HandlerRegistration handlerRegistration;
     private final HostStore hostStore;
     private final PlaceManager placeManager;
-
     private final SubsystemLoader subsysStore;
     private final ServerGroupStore serverGroupStore;
 

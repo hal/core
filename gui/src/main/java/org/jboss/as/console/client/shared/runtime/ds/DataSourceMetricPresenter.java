@@ -47,6 +47,24 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetricPresenter.MyView,
         DataSourceMetricPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.DataSourceMetricPresenter)
+    @AccessControl(resources = {
+            "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
+            "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
+    @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})
+    public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {}
+
+
+    public interface MyView extends View {
+        void setPresenter(DataSourceMetricPresenter presenter);
+        void clearSamples();
+        void setDatasources(List<DataSource> datasources, boolean isXA);
+        void setDSPoolMetric(Metric poolMetric, boolean isXA);
+        void setDSCacheMetric(Metric metric, boolean isXA);
+    }
+
+
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
     private RevealStrategy revealStrategy;
@@ -58,27 +76,6 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
     private DataSource selectedXA;
     private final ServerStore serverStore;
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.DataSourceMetricPresenter)
-    @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
-                    "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"
-            }
-    )
-    @SearchIndex(keywords = {
-            "data-source", "pool", "pool-usage"
-    })
-    public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(DataSourceMetricPresenter presenter);
-        void clearSamples();
-        void setDatasources(List<DataSource> datasources, boolean isXA);
-        void setDSPoolMetric(Metric poolMetric, boolean isXA);
-        void setDSCacheMetric(Metric metric, boolean isXA);
-    }
 
     @Inject
     public DataSourceMetricPresenter(

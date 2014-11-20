@@ -76,8 +76,8 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
     @NameToken(NameTokens.WebPresenter)
     @AccessControl(resources = "/{selected.profile}/subsystem=web", recursive = false)
     @SearchIndex(keywords = {"http", "ssl", "servlet", "jsp", "virtual-host", "filter"})
-    public interface MyProxy extends Proxy<WebPresenter>, Place {
-    }
+    public interface MyProxy extends Proxy<WebPresenter>, Place {}
+
 
     public interface MyView extends View, HasPresenter<WebPresenter> {
         void updateGlobals(ModelNode globals);

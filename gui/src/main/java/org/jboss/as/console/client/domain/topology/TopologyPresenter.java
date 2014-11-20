@@ -30,9 +30,9 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -49,24 +49,17 @@ import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionManager;
 import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.Dispatcher;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRED;
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
@@ -75,37 +68,31 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager {
 
-    private final org.jboss.gwt.circuit.Dispatcher circuit;
-    private Boolean fillscreen;
-
-    /**
-     * We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
-     * the security service (race condition). So do not use them in the annotations below!
-     *
-     * @author Harald Pehl
-     */
+    // We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
+    // the security service (race condition). So do not use them in the annotations below!
     @ProxyCodeSplit
     @NameToken(NameTokens.Topology)
     @OperationMode(DOMAIN)
+    @SearchIndex(keywords = {"domain", "domain-overview", "server", "server-group", "start", "stop", "status"})
     @AccessControl(resources = {
             "/server-group=*",
             "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
-    }, recursive = false)
+            }, recursive = false)
     public interface MyProxy extends Proxy<TopologyPresenter>, Place {}
 
+
     public interface MyView extends SuspendableView {
-
         void setPresenter(TopologyPresenter presenter);
-
         void updateHosts(final SortedSet<ServerGroup> groups, final int hostIndex);
-
         void setExtensions(List<Extension> extensions);
     }
 
 
     public static final int VISIBLE_HOSTS_COLUMNS = 3;
 
+    private final org.jboss.gwt.circuit.Dispatcher circuit;
+    private Boolean fillscreen;
     private final RevealStrategy revealStrategy;
     private final PlaceManager placeManager;
     private final ServerGroupStore serverGroupStore;

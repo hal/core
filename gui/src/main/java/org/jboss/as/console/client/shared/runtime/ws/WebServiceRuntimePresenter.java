@@ -18,6 +18,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -28,25 +29,23 @@ import java.util.List;
  * @date 1/23/12
  */
 public class WebServiceRuntimePresenter
-        extends CircuitPresenter<WebServiceRuntimePresenter.MyView, WebServiceRuntimePresenter.MyProxy>
-        {
-
-    private EndpointRegistry endpointRegistry;
-    private RevealStrategy revealStrategy;
+        extends CircuitPresenter<WebServiceRuntimePresenter.MyView, WebServiceRuntimePresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServiceRuntimePresenter)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"
-    })
-    public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {
-    }
+    @SearchIndex(keywords = {"webservices", "jaxws", "endpoint", "jbossws"})
+    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"})
+    public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {}
+
 
     public interface MyView extends View {
         void setPresenter(WebServiceRuntimePresenter presenter);
         void updateEndpoints(List<WebServiceEndpoint> endpoints);
-
     }
+
+
+    private EndpointRegistry endpointRegistry;
+    private RevealStrategy revealStrategy;
 
     @Inject
     public WebServiceRuntimePresenter(

@@ -54,15 +54,10 @@ public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, M
     private EntityAdapter<SSLConfig> sslAdapter;
     private BeanFactory factory;
 
-
     @ProxyCodeSplit
     @NameToken(NameTokens.ModclusterPresenter)
-    @AccessControl(resources = {
-               "{selected.profile}/subsystem=modcluster"
-       }, recursive = false)
-    @SearchIndex(keywords = {
-            "cluster", "load-balancing", "reverse-proxy"
-    })
+    @AccessControl(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
+    @SearchIndex(keywords = {"load-balancing", "reverse-proxy", "cluster", "web-frontend"})
     public interface MyProxy extends Proxy<ModclusterPresenter>, Place {
     }
 

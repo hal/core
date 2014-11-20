@@ -11,7 +11,6 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -40,48 +39,39 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetricPresenter.MyProxy>
         implements VMMetricsManagement {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.HostVMMetricPresenter)
+    @OperationMode(DOMAIN)
+    @AccessControl(resources = {
+            "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
+            "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
+            "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
+            "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"})
+    @SearchIndex(keywords = {
+            "jvm", "memory-usage", "threads"})
+    public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {}
+
+
+    public interface MyView extends VMView {}
+
 
     private DispatchAsync dispatcher;
     private ApplicationMetaData metaData;
     private BeanFactory factory;
-
-    private HostInformationStore hostInfoStore;
     private final HostStore hostStore;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.HostVMMetricPresenter)
-    @OperationMode(DOMAIN)
-    @AccessControl(
-            resources = {
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",
-                    "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
-            }
-    )
-    @SearchIndex(keywords = {
-            "jvm", "memory-usage", "threads"
-    })
-    public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {
-    }
-
-    public interface MyView extends VMView {
-    }
 
     @Inject
     public HostVMMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             Dispatcher circuit, HostStore hostStore,
             DispatchAsync dispatcher, BeanFactory factory,
-            ApplicationMetaData metaData, HostInformationStore hostInfoStore
-    ) {
+            ApplicationMetaData metaData) {
         super(eventBus, view, proxy, circuit);
 
         this.hostStore = hostStore;
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.metaData = metaData;
-        this.hostInfoStore = hostInfoStore;
     }
 
     @Override
@@ -168,6 +158,4 @@ public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetric
             }
         });
     }
-
-
 }

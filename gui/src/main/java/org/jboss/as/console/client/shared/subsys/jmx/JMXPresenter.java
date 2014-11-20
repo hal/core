@@ -8,7 +8,6 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -25,6 +24,7 @@ import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -44,20 +44,10 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.MyProxy>
     implements SuggestionManagement {
 
-    private final PlaceManager placeManager;
-
-    private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
-    private DispatchAsync dispatcher;
-    private EntityAdapter<JMXSubsystem> adapter;
-    private BeanMetaData beanMetaData;
-    private BeanFactory factory;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.JMXPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=jmx"
-    }, recursive = false)
+    @SearchIndex(keywords = {"jmx", "mbean", "connector", "management"})
+    @AccessControl(resources = {"{selected.profile}/subsystem=jmx"}, recursive = false)
     public interface MyProxy extends Proxy<JMXPresenter>, Place {
     }
 
@@ -66,17 +56,22 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
         void updateFrom(JMXSubsystem jpaSubsystem);
     }
 
+    private RevealStrategy revealStrategy;
+    private ApplicationMetaData metaData;
+    private DispatchAsync dispatcher;
+    private EntityAdapter<JMXSubsystem> adapter;
+    private BeanMetaData beanMetaData;
+    private BeanFactory factory;
+
     @Inject
     public JMXPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
             DispatchAsync dispatcher,
             RevealStrategy revealStrategy,
             ApplicationMetaData metaData, BeanFactory factory) {
 
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.metaData = metaData;
         this.dispatcher = dispatcher;

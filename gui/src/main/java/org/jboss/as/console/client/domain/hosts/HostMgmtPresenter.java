@@ -50,28 +50,28 @@ import java.util.Set;
  */
 public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy> {
 
+    @ProxyCodeSplit
+    @NameToken(NameTokens.HostMgmtPresenter)
+    //@UseGatekeeper(HostManagementGatekeeper.class)
+    @SearchIndex(keywords = {"host", "jvm"})
+    public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
+    }
+
+
+    public interface MyView extends View {
+        void setPresenter(HostMgmtPresenter presenter);
+        void updateHosts(String selectedHost, Set<String> hostNames);
+    }
+
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
-    private final Dispatcher circuit;
 
+    private final Dispatcher circuit;
     private BootstrapContext bootstrap;
     private final HostStore hostStore;
     private HandlerRegistration handlerRegistration;
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.HostMgmtPresenter)
-    //@UseGatekeeper(HostManagementGatekeeper.class)
-    @SearchIndex(keywords = {
-            "host", "jvm"
-    })
-    public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(HostMgmtPresenter presenter);
-
-        void updateHosts(String selectedHost, Set<String> hostNames);
-    }
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
