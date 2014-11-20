@@ -197,6 +197,6 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     }
 
     public static native JavaScriptObject reload() /*-{
-        window.location.reload();
+        $wnd.location.reload();
     }-*/;
 }
