@@ -70,6 +70,7 @@ public class SearchTool extends Composite {
 
         popup.setWidth(640);
         popup.setHeight(480);
+        popup.setModal(true);
         popup.setGlassEnabled(true);
         popup.center();
 
