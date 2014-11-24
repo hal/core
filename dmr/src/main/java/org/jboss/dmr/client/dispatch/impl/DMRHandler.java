@@ -243,7 +243,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
                     else if (503 == statusCode)
                     {
                         resultCallback.onFailure(
-                                new DispatchError("Service temporarily unavailable. Is the server is still booting?", statusCode));
+                                new DispatchError("Service temporarily unavailable. Is the server still booting?", statusCode));
                     }
                     else
                     {
