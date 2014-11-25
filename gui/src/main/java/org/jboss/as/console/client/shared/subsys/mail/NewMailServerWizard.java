@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -24,10 +25,12 @@ import org.jboss.dmr.client.ModelNode;
 public class NewMailServerWizard {
     private MailPresenter presenter;
     private final MailSession selectedSession;
+    private final BeanFactory beanFactory;
 
-    public NewMailServerWizard(final MailPresenter presenter, final MailSession selectedSession) {
+    public NewMailServerWizard(final MailPresenter presenter, final MailSession selectedSession, BeanFactory beanFactory) {
         this.presenter = presenter;
         this.selectedSession = selectedSession;
+        this.beanFactory = beanFactory;
     }
 
     Widget asWidget() {
@@ -35,8 +38,8 @@ public class NewMailServerWizard {
         layout.setStyleName("window-content");
 
         TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
-        TextBoxItem user = new TextBoxItem("username", "Username");
-        PasswordBoxItem pass = new PasswordBoxItem("password", "Password");
+        TextBoxItem user = new TextBoxItem("username", "Username", false);
+        PasswordBoxItem pass = new PasswordBoxItem("password", "Password", false);
         CheckBoxItem ssl = new CheckBoxItem("ssl", "Use SSL?");
 
         final MailServerTypeItem type = new MailServerTypeItem();
@@ -48,6 +51,7 @@ public class NewMailServerWizard {
         type.setDefaultToFirstOption(true);
 
         final Form<MailServerDefinition> form = new Form<MailServerDefinition>(MailServerDefinition.class);
+        form.editTransient(beanFactory.mailServerDefinition().as());
         form.setFields(socket, type, user, pass, ssl);
 
         DialogueOptions options = new DialogueOptions(
@@ -121,16 +125,19 @@ public class NewMailServerWizard {
             return parentValid && !duplicateType;
         }
 
-        boolean sessionsContains(String typeValue) {
-            ServerType serverType = null;
-            if (selectedSession.getImapServer() != null) {
-                serverType = selectedSession.getImapServer().getType();
-            } else if (selectedSession.getPopServer() != null) {
-                serverType = selectedSession.getPopServer().getType();
-            } else if (selectedSession.getSmtpServer() != null) {
-                serverType = selectedSession.getSmtpServer().getType();
+        boolean sessionsContains(String value) {
+            boolean matched = match(selectedSession.getImapServer(), value);
+            if (!matched) {
+                matched = match(selectedSession.getPopServer(), value);
             }
-            return serverType != null && serverType.name().equals(typeValue);
+            if (!matched) {
+                matched = match(selectedSession.getSmtpServer(), value);
+            }
+            return matched;
+        }
+
+        boolean match(MailServerDefinition msd, String value) {
+            return msd != null && msd.getType() != null && msd.getType().name().equals(value);
         }
     }
 }

@@ -13,6 +13,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -55,6 +56,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
+    private final BeanFactory beanFactory;
     private final EntityAdapter<MailSession> adapter;
     private final BeanMetaData beanMetaData;
     private final EntityAdapter<MailServerDefinition> serverAdapter;
@@ -65,13 +67,15 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     @Inject
     public MailPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            DispatchAsync dispatcher, RevealStrategy revealStrategy, ApplicationMetaData metaData) {
+            DispatchAsync dispatcher, RevealStrategy revealStrategy, ApplicationMetaData metaData,
+            BeanFactory beanFactory) {
 
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
+        this.beanFactory = beanFactory;
         this.beanMetaData = metaData.getBeanMetaData(MailSession.class);
         this.adapter = new EntityAdapter<MailSession>(MailSession.class, metaData);
         this.serverAdapter = new EntityAdapter<MailServerDefinition>(MailServerDefinition.class, metaData);
@@ -103,7 +107,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         window = new DefaultWindow(Console.MESSAGES.createTitle("Mail Server"));
         window.setWidth(480);
         window.setHeight(360);
-        window.trapWidget(new NewMailServerWizard(MailPresenter.this, selectedSession).asWidget());
+        window.trapWidget(new NewMailServerWizard(MailPresenter.this, selectedSession, beanFactory).asWidget());
         window.setGlassEnabled(true);
         window.center();
     }
