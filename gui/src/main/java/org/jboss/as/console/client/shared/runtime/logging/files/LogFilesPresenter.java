@@ -107,6 +107,9 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
             streamingProgress.done();
             getView().open(logStore.getActiveLogFile());
 
+        } else if (action instanceof SelectLogFile) {
+            getView().open(logStore.getActiveLogFile());
+
         } else if (action instanceof SelectServerInstance) {
             onReset();
         }
@@ -135,21 +138,25 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     }
 
     public void onStreamLogFile(final String logFile, final int fileSize) {
-        if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
-            Feedback.confirm(
-                    "Download Log File",
-                    "Downloading this log file may take some time. Do you want to proceed?",
-                    new Feedback.ConfirmationHandler() {
-                        @Override
-                        public void onConfirmation(boolean isConfirmed) {
-                            if (isConfirmed) {
-                                streamingProgress.monitor(logFile);
-                            }
-                        }
-                    });
+        if (logStore.isOpen(logFile)) {
+            this.circuit.dispatch(new SelectLogFile(logFile));
         } else {
-            streamingProgress.monitor(logFile);
+            if (fileSize > LOG_FILE_SIZE_THRESHOLD) {
+                Feedback.confirm(
+                        "Download Log File",
+                        "Downloading this log file may take some time. Do you want to proceed?",
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    streamingProgress.monitor(logFile);
+                                }
+                            }
+                        });
+            } else {
+                streamingProgress.monitor(logFile);
+            }
+
         }
     }
-
 }

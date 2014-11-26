@@ -587,6 +587,10 @@ public class LogStore extends ChangeSupport {
         return activeLogFile;
     }
 
+    public boolean isOpen(final String name) {
+        return states.containsKey(name);
+    }
+
     public PendingStreamingRequest getPendingStreamingRequest() {
         return pendingStreamingRequest;
     }
