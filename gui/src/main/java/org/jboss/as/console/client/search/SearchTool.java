@@ -41,12 +41,8 @@ public class SearchTool extends Composite {
 
     public SearchTool(final Harvest harvest, final Index index, PlaceManager placeManager) {
         this.index = index;
-        HTML root = new HTML("<i class=\"icon-search\" style='color:#CECECE'></i> Search");
-        if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
-            root.setTitle(Console.CONSTANTS.search_tooltip_osx());
-        } else {
-            root.setTitle(Console.CONSTANTS.search_tooltip_other());
-        }
+        HTML root = new HTML("<i class=\"icon-search\" style='color:#CECECE'></i> " + Console.CONSTANTS.common_label_search());
+        root.setTitle(Console.CONSTANTS.common_label_search() + "(" + getShortcut() + ")");
         root.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
@@ -84,6 +80,13 @@ public class SearchTool extends Composite {
                 }
             }
         });
+    }
 
+    public static String getShortcut() {
+        if (Window.Navigator.getPlatform().toLowerCase().contains("mac")) {
+            return Console.CONSTANTS.search_tooltip_osx();
+        } else {
+            return Console.CONSTANTS.search_tooltip_other();
+        }
     }
 }

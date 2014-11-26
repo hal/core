@@ -257,5 +257,11 @@ public interface UIMessages extends Messages {
 
     SafeHtml search_index_pending();
 
+    SafeHtml search_on_homepage();
+
+    SafeHtml search_n_results(int n);
+
+    String search_popup_description(String shortcut);
+
     String patch_manager_restart_verify(String host);
 }

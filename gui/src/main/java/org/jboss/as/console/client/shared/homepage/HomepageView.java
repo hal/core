@@ -21,20 +21,17 @@ package org.jboss.as.console.client.shared.homepage;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.AnchorElement;
 import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.FeatureSet;
+import org.jboss.as.console.client.core.Header;
 
 import java.util.Iterator;
 import java.util.List;
@@ -52,6 +49,9 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
         @Template("<header><h1 class=\"homepage-primary-header\">{0}</h1></header>")
         SafeHtml header(String title);
 
+        @Template("<header><h1 class=\"homepage-primary-header\">{0}</h1><div class=\"homepage-primary-header intro\">{1}</div></header>")
+        SafeHtml headerAndIntro(String title, SafeHtml intro);
+
         @Template("<h2 class=\"homepage-secondary-header\">{0}</h2>")
         SafeHtml secondaryHeader(String title);
 
@@ -62,13 +62,17 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
     private static final Templates TEMPLATES = GWT.create(Templates.class);
     private final ProductConfig productConfig;
+    private final FeatureSet featureSet;
+    private final Header header;
     private HorizontalPanel infoBoxes;
     private HorizontalPanel contentBoxes;
     private FlowPanel sidebarSections;
 
     @Inject
-    public HomepageView(final ProductConfig productConfig) {
+    public HomepageView(final ProductConfig productConfig, FeatureSet featureSet, Header header) {
         this.productConfig = productConfig;
+        this.featureSet = featureSet;
+        this.header = header;
         initWidget(createWidget());
     }
 
@@ -76,10 +80,29 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
 
         FlowPanel main = new FlowPanel();
         main.addStyleName("homepage-main");
-        if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
-            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_community())));
+
+        if (featureSet.isSearchEnabled()) {
+            HTMLPanel head;
+            if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
+                head = new HTMLPanel(TEMPLATES.headerAndIntro(Console.CONSTANTS.homepage_header_community(), Console.MESSAGES.search_on_homepage()));
+            } else {
+                head = new HTMLPanel(TEMPLATES.headerAndIntro(Console.CONSTANTS.homepage_header_product(), Console.MESSAGES.search_on_homepage()));
+            }
+            Anchor anchor = new Anchor(Console.CONSTANTS.common_label_search());
+            anchor.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    header.getSearchTool().showPopup();
+                }
+            });
+            head.add(anchor, "homepage-search-link");
+            main.add(head);
         } else {
-            main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_product())));
+            if (productConfig.getProfile() == ProductConfig.Profile.COMMUNITY) {
+                main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_community())));
+            } else {
+                main.add(new HTML(TEMPLATES.header(Console.CONSTANTS.homepage_header_product())));
+            }
         }
 
         main.add(new HTML(TEMPLATES.secondaryHeader(Console.CONSTANTS.homepage_view_and_manage())));
@@ -133,7 +156,9 @@ public class HomepageView extends ViewImpl implements HomepagePresenter.MyView {
         int rowCounter = -1;
         for (Iterator<T> iterator = boxes.iterator(); iterator.hasNext(); columnCounter++) {
             columnCounter %= 2;
-            if (columnCounter == 0) { rowCounter++; }
+            if (columnCounter == 0) {
+                rowCounter++;
+            }
             table[rowCounter][columnCounter] = iterator.next();
         }
     }

@@ -43,6 +43,7 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import java.util.*;
 
 import static com.google.gwt.dom.client.Style.Unit.PCT;
+import static com.google.gwt.dom.client.Style.Unit.PX;
 
 /**
  * @author Harald Pehl
@@ -83,13 +84,13 @@ class SearchPopup extends DefaultWindow {
         VerticalPanel searchPanel = new VerticalPanel();
         searchPanel.setStyleName("window-content");
 
-        Label header = new Label("Search Indexed Screens");
-        header.addStyleName("content-header-label");
-        searchPanel.add(header);
+        searchPanel.add(new HTML("<h3>" + Console.CONSTANTS.search_popup_title() + "</h3>"));
+        searchPanel.add(new Label(Console.MESSAGES.search_popup_description(SearchTool.getShortcut())));
 
         textBox = new TextBox();
         textBox.getElement().getStyle().setWidth(66, PCT);
-        textBox.getElement().setAttribute("placeholder", "Search term ...");
+        textBox.getElement().setAttribute("placeholder", Console.CONSTANTS.search_placeholder());
+        textBox.getElement().getStyle().setMarginTop(15, PX);
         textBox.addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(KeyUpEvent keyUpEvent) {
@@ -179,11 +180,11 @@ class SearchPopup extends DefaultWindow {
             if (results.isEmpty()) {
                 numberOfResults.removeStyleName("number-of-results");
                 numberOfResults.addStyleName("no-results");
-                numberOfResults.setHTML("No results");
+                numberOfResults.setHTML(Console.CONSTANTS.search_no_results());
             } else {
                 numberOfResults.removeStyleName("no-results");
                 numberOfResults.addStyleName("number-of-results");
-                numberOfResults.setHTML("Results: <b>" + results.size() + " instances</b>");
+                numberOfResults.setHTML(Console.MESSAGES.search_n_results(results.size()));
             }
             resultProvider.setList(results);
             resultProvider.refresh();

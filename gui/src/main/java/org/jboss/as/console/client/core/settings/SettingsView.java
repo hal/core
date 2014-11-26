@@ -82,12 +82,13 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         fields.add(enableAnalytics);
 
         if (featureSet.isSearchEnabled()) {
-            ButtonItem clear = new ButtonItem("clear-search-index", "Clear Search Index", "Clear");
+            ButtonItem clear = new ButtonItem("clear-search-index", Console.CONSTANTS.search_index_reset(),
+                    Console.CONSTANTS.common_label_reset());
             clear.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     index.reset();
-                    Console.info("Search index cleared.");
+                    Console.info(Console.CONSTANTS.search_index_reset_finished());
                 }
             });
             fields.add(clear);

@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -66,16 +64,14 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     private final List<InfoBox> infoBoxes;
     private final List<ContentBox> contentBoxes;
     private final List<SidebarSection> sidebarSections;
-    private final FeatureSet featureSet;
     private final Header header;
 
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final BootstrapContext bootstrapContext, final ProductConfig productConfig,
-            final FeatureSet featureSet, Header header) {
+            Header header) {
 
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
-        this.featureSet = featureSet;
         this.infoBoxes = setupInfoBoxes(bootstrapContext.isStandalone());
         this.contentBoxes = setupContentBoxes(bootstrapContext.isStandalone());
         this.sidebarSections = setupSidebarSection(productConfig.getProfile());
@@ -86,11 +82,15 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         List<InfoBox> infoBoxes = new LinkedList<InfoBox>();
 
         if (standalone) {
+            infoBoxes.add(new InfoBox(NameTokens.DeploymentBrowserPresenter, Console.CONSTANTS.common_label_deployments(),
+                    Console.CONSTANTS.section_deployment_intro()));
             infoBoxes.add(new InfoBox(NameTokens.ServerProfile, Console.CONSTANTS.common_label_configuration(),
                     Console.CONSTANTS.section_configuration_intro()));
             infoBoxes.add(new InfoBox(NameTokens.StandaloneRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));
         } else {
+            infoBoxes.add(new InfoBox(NameTokens.DeploymentsPresenter, Console.CONSTANTS.common_label_deployments(),
+                    Console.CONSTANTS.section_deployment_intro()));
             infoBoxes.add(new InfoBox(NameTokens.ProfileMgmtPresenter,
                     Console.CONSTANTS.common_label_configuration(), Console.CONSTANTS.section_configuration_intro()));
             infoBoxes.add(new InfoBox(NameTokens.HostMgmtPresenter, "Domain",
@@ -100,17 +100,6 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         }
         infoBoxes.add(new InfoBox(NameTokens.AdministrationPresenter, "Administration",
                 Console.CONSTANTS.section_administration_intro()));
-
-        if (featureSet.isSearchEnabled()) {
-            infoBoxes.add(new InfoBox("search",
-                    "Search", "Quickly navigate to any screen by using the local search. Enter keywords such as \"data-source\" or \"log viewer\" to get a list of relevant screens.",
-                    new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            header.getSearchTool().showPopup();
-                        }
-                    }));
-        }
 
         return infoBoxes;
     }

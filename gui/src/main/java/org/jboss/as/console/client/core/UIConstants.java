@@ -1266,12 +1266,6 @@ public interface UIConstants extends Constants {
 
     String patch_manager_servers_still_running_warning();
 
-    String search_placeholder();
-
-    String search_tooltip_osx();
-
-    String search_tooltip_other();
-
     String common_label_restart();
 
     String patch_manager_restart_verify();
@@ -1291,4 +1285,22 @@ public interface UIConstants extends Constants {
     String tx_jacorb_state_wrong_value();
 
     String forbidden_desc();
+
+    String common_label_search();
+
+    String search_placeholder();
+
+    String search_popup_title();
+
+    String search_tooltip_osx();
+
+    String search_tooltip_other();
+
+    String search_no_results();
+
+    String section_deployment_intro();
+
+    String search_index_reset();
+
+    String search_index_reset_finished();
 }
