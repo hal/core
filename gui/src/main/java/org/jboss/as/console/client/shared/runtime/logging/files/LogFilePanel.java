@@ -33,7 +33,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import org.jboss.as.console.client.shared.runtime.logging.store.LogFile;
-import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerId;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
@@ -47,7 +46,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
  *
  * @author Harald Pehl
  */
-public class LogFilePanel extends Composite implements LogViewerId {
+public class LogFilePanel extends Composite implements LogFilesId {
 
     private final static int HEADER_HEIGHT = 48 + 35;
     private final static int TOOLS_HEIGHT = 32;
@@ -63,8 +62,6 @@ public class LogFilePanel extends Composite implements LogViewerId {
 
         panel = new VerticalPanel();
         panel.setStyleName("rhs-content-panel");
-        panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
-        panel.add(new SearchBox());
 
         editor = new AceEditor();
         editor.addStyleName("hal-LogViewer");
@@ -93,6 +90,12 @@ public class LogFilePanel extends Composite implements LogViewerId {
         HorizontalPanel editorPanel = new HorizontalPanel();
         editorPanel.setStyleName("fill-layout-width");
         editorPanel.add(editor);
+
+        SearchBox searchBox = new SearchBox(editor.getElement().getId());
+        editor.setSearchBox(searchBox.getElement());
+
+        panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
+        panel.add(searchBox);
         panel.add(editorPanel);
 
         resizeHandler = Window.addResizeHandler(new ResizeHandler() {
@@ -140,13 +143,13 @@ public class LogFilePanel extends Composite implements LogViewerId {
     @SuppressWarnings("UnusedDeclaration")
     private class SearchBox extends Composite {
 
-        SearchBox() {
+        SearchBox(final String editorId) {
 
             // first part: setup the visible widgets
             final TextBox findTextBox = new TextBox();
             findTextBox.addStyleName("ace_search_field");
             findTextBox.getElement().setAttribute("placeholder", "Find");
-            setId(findTextBox, BASE_ID, "find_input");
+            setId(findTextBox, BASE_ID + editorId, "find_input");
 
             ToolButton findButton = new ToolButton("Find", new ClickHandler() {
                 @Override
@@ -154,17 +157,17 @@ public class LogFilePanel extends Composite implements LogViewerId {
                     editor.search(findTextBox.getValue());
                 }
             });
-            setId(findButton, BASE_ID, "find");
+            setId(findButton, BASE_ID + editorId, "find");
 
             Button findPrev = new Button(SafeHtmlUtils.fromSafeConstant("<i class=\"icon-angle-left\"></i>"));
             findPrev.addStyleName("toolstrip-button");
             findPrev.getElement().setAttribute("action", "findPrev"); // AceEditor action wiring
-            setId(findPrev, BASE_ID, "prev_match");
+            setId(findPrev, BASE_ID + editorId, "prev_match");
 
             Button findNext = new Button(SafeHtmlUtils.fromSafeConstant("<i class=\"icon-angle-right\"></i>"));
             findNext.addStyleName("toolstrip-button");
             findNext.getElement().setAttribute("action", "findNext"); // AceEditor action wiring
-            setId(findNext, BASE_ID, "next_match");
+            setId(findNext, BASE_ID + editorId, "next_match");
 
             ToolStrip searchTools = new ToolStrip();
             searchTools.addToolWidget(findTextBox);
@@ -200,6 +203,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
             searchOptions.add(hiddenButton("toggleWholeWords", "ace_button"));
 
             FlowPanel searchBox = div("ace_search_log_viewer", false);
+            searchBox.getElement().setId(BASE_ID + editorId + "_search_panel");
             searchBox.add(hiddenButton("close", "ace_searchbtn_close"));
             searchBox.add(searchForm);
             searchBox.add(replaceForm);

@@ -179,11 +179,11 @@ user-select: none;\
     </div>\
 </div>'.replace(/>\s+/g, ">");
 
-    var SearchBox = function(editor, range, showReplaceForm) {
+    var SearchBox = function(editor, id, range, showReplaceForm) {
         // -+-+-+-+- LogViewer Patch -+-+-+-+-
         //var div = dom.createElement("div");
         //div.innerHTML = html;
-        this.element = document.querySelector(".ace_search_log_viewer"); // div.firstChild;
+        this.element = document.getElementById(id); // div.firstChild;
 
         this.$init();
         this.setEditor(editor);
@@ -394,8 +394,8 @@ user-select: none;\
 
     // -+-+-+-+- LogViewer Patch -+-+-+-+-
     // additional function to start searching
-    exports.SearchText = function(editor, text) {
-        var sb = editor.searchBox || new SearchBox(editor);
+    exports.SearchText = function(editor, id, text) {
+        var sb = editor.searchBox || new SearchBox(editor, id);
         sb.show(null, false);
         sb.find(false, false);
     };

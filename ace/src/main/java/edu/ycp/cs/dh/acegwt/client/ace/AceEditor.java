@@ -45,6 +45,7 @@ public class AceEditor extends Composite implements RequiresResize, HasText, Tak
 	private JsArray<AceAnnotation> annotations = JavaScriptObject.createArray().cast();
 	
 	private Element divElement;
+	private Element searchBox;
 
 	/**
 	 * Preferred constructor.
@@ -511,15 +512,19 @@ public class AceEditor extends Composite implements RequiresResize, HasText, Tak
 		return new AceCompletionCallbackImpl(jsCallback);
 	}
 
-    public void search(String text) {
+	public void setSearchBox(Element searchBox) {
+		this.searchBox = searchBox;
+	}
+
+	public void search(String text) {
         if (text != null && text.length() != 0) {
-            internalSearch(text);
+            internalSearch(searchBox.getId(), text);
         }
     }
 
-    public native void internalSearch(String text) /*-{
+    public native void internalSearch(String id, String text) /*-{
         var editor = this.@edu.ycp.cs.dh.acegwt.client.ace.AceEditor::editor;
         var sb = $wnd.ace.require("ace/ext/searchbox");
-        sb.SearchText(editor, text)
+        sb.SearchText(editor, id, text)
     }-*/;
 }
