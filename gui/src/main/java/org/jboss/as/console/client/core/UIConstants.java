@@ -1303,4 +1303,6 @@ public interface UIConstants extends Constants {
     String search_index_reset();
 
     String search_index_reset_finished();
+
+    String patch_manager_patch_details();
 }

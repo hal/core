@@ -21,21 +21,29 @@ package org.jboss.as.console.client.shared.patching;
 /**
  * @author Harald Pehl
  */
-public interface PatchInfo {
+public interface PatchInfo { //@formatter:off
 
     String getId();
-
     void setId(String id);
 
     String getVersion();
-
     void setVersion(String version);
 
     PatchType getType();
-
     void setType(PatchType type);
 
     String getAppliedAt();
-
     void setAppliedAt(String appliedAt);
-}
+
+    String getIdentityName();
+    void setIdentityName(String identityName);
+
+    String getIdentityVersion();
+    void setIdentityVersion(String identityVersion);
+
+    String getDescription();
+    void setDescription(String description);
+
+    String getLink();
+    void setLink(String link);
+} //@formatter:on

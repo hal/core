@@ -27,6 +27,7 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.Updateable;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -42,14 +43,15 @@ public class PatchManagementView extends SuspendableViewImpl implements PatchMan
     private final Updateable<List<Patches>> updateable;
 
     @Inject
-    public PatchManagementView(Dispatcher circuit, ProductConfig productConfig, BootstrapContext bootstrapContext) {
+    public PatchManagementView(Dispatcher circuit, ProductConfig productConfig, BootstrapContext bootstrapContext,
+                               PatchManager patchManager) {
         if (bootstrapContext.isStandalone()) {
-            StandalonePanel standalonePanel = new StandalonePanel(productConfig);
+            StandalonePanel standalonePanel = new StandalonePanel(productConfig, patchManager);
             isWidget = standalonePanel;
             hasPresenter = standalonePanel;
             updateable = standalonePanel;
         } else {
-            DomainPanel domainPanel = new DomainPanel(circuit, productConfig);
+            DomainPanel domainPanel = new DomainPanel(circuit, productConfig, patchManager);
             isWidget = domainPanel;
             hasPresenter = domainPanel;
             updateable = domainPanel;

@@ -31,10 +31,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.core.HasPresenter;
-import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
-import org.jboss.as.console.client.shared.patching.PatchType;
-import org.jboss.as.console.client.shared.patching.Patches;
+import org.jboss.as.console.client.shared.patching.*;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -59,6 +56,8 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPresenter> {
 
     private final ProductConfig productConfig;
+    private final PatchManager patchManager;
+
     private String host;
     private PatchManagementPresenter presenter;
     private ContentHeaderLabel header;
@@ -67,8 +66,9 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
     private PatchInfoTable table;
     private FlowPanel latestContainer;
 
-    public PatchInfoPanel(ProductConfig productConfig) {
+    public PatchInfoPanel(ProductConfig productConfig, PatchManager patchManager) {
         this.productConfig = productConfig;
+        this.patchManager = patchManager;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
 
         panel.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_recently()));
         panel.add(tools);
-        table = new PatchInfoTable();
+        table = new PatchInfoTable(patchManager);
         panel.add(table);
 
         return panel;

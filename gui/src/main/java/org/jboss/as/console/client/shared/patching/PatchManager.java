@@ -102,6 +102,38 @@ public class PatchManager {
         }, fn);
     }
 
+    public void getPatchInfo(final PatchInfo patch, final AsyncCallback<PatchInfo> callback) {
+        ModelNode patchInfoOp = baseAddress();
+        patchInfoOp.get(OP).set("patch-info");
+        patchInfoOp.get("patch-id").set(patch.getId());
+
+        dispatcher.execute(new DMRAction(patchInfoOp), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                callback.onFailure(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (!result.hasDefined(OUTCOME) || result.isFailure()) {
+                    callback.onFailure(new RuntimeException(result.getFailureDescription()));
+                } else {
+                    ModelNode payload = result.get(RESULT);
+                    patch.setIdentityName(payload.get("identity-name").asString());
+                    patch.setIdentityVersion(payload.get("identity-version").asString());
+                    patch.setDescription(payload.get("description").asString());
+                    if (payload.get("link").isDefined()) {
+                        patch.setLink(payload.get("link").asString());
+                    } else {
+                        patch.setLink("");
+                    }
+                    callback.onSuccess(patch);
+                }
+            }
+        });
+    }
+
     public void rollback(final PatchInfo patchInfo, final boolean resetConfiguration, final boolean overrideAll,
                          final AsyncCallback<Void> callback) {
         ModelNode rollbackOp = baseAddress();
@@ -133,6 +165,10 @@ public class PatchManager {
         patchInfo.setId(node.get("patch-id").asString());
         patchInfo.setType(PatchType.fromLabel(node.get("type").asString()));
         patchInfo.setAppliedAt(node.get("applied-at").asString());
+        patchInfo.setIdentityName("");
+        patchInfo.setIdentityVersion("");
+        patchInfo.setDescription("");
+        patchInfo.setLink("");
         return patchInfo;
     }
 
@@ -148,6 +184,7 @@ public class PatchManager {
         node.get(ADDRESS).add("core-service", "patching");
         return node;
     }
+
 
     private class ReadPatches implements Function<List<Patches>> {
 

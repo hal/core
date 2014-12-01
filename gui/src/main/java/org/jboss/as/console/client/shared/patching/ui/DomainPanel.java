@@ -39,6 +39,7 @@ import org.jboss.as.console.client.core.Updateable;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.pages.PagedView;
@@ -63,10 +64,10 @@ public class DomainPanel implements IsWidget, HasPresenter<PatchManagementPresen
     private final PatchInfoPanel patchInfoPanel;
     private final ListDataProvider<Patches> dataProvider;
 
-    public DomainPanel(Dispatcher circuit, ProductConfig productConfig) {
+    public DomainPanel(Dispatcher circuit, ProductConfig productConfig, PatchManager patchManager) {
         this.circuit = circuit;
         this.pagedView = new PagedView();
-        this.patchInfoPanel = new PatchInfoPanel(productConfig);
+        this.patchInfoPanel = new PatchInfoPanel(productConfig, patchManager);
         this.dataProvider = new ListDataProvider<>();
     }
 

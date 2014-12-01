@@ -30,6 +30,7 @@ import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Updateable;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManager;
 import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
@@ -45,8 +46,8 @@ public class StandalonePanel implements IsWidget, HasPresenter<PatchManagementPr
 
     private final PatchInfoPanel patchInfoPanel;
 
-    public StandalonePanel(final ProductConfig productConfig) {
-        this.patchInfoPanel = new PatchInfoPanel(productConfig);
+    public StandalonePanel(final ProductConfig productConfig, PatchManager patchManager) {
+        this.patchInfoPanel = new PatchInfoPanel(productConfig, patchManager);
     }
 
     @Override

@@ -91,6 +91,15 @@ public class Patches implements Iterable<PatchInfo> {
 
     public boolean add(final PatchInfo patchInfo) {return patches.add(patchInfo);}
 
+    public PatchInfo find(final String patchId) {
+        for (PatchInfo patchInfo : this) {
+            if (patchInfo.getId().equals(patchId)) {
+                return patchInfo;
+            }
+        }
+        return null;
+    }
+
     public boolean isRestartRequired() {
         return restartRequired;
     }
