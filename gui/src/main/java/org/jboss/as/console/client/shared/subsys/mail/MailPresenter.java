@@ -6,10 +6,9 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -43,7 +42,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     @NameToken(NameTokens.MailPresenter)
     @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
     @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
-    public interface MyProxy extends Proxy<MailPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<MailPresenter> {}
 
 
     public interface MyView extends View {
@@ -60,6 +59,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     private final EntityAdapter<MailSession> adapter;
     private final BeanMetaData beanMetaData;
     private final EntityAdapter<MailServerDefinition> serverAdapter;
+    private final List<MailSession> mailSessions;
 
     private DefaultWindow window;
     private String selectedSession;
@@ -79,6 +79,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         this.beanMetaData = metaData.getBeanMetaData(MailSession.class);
         this.adapter = new EntityAdapter<MailSession>(MailSession.class, metaData);
         this.serverAdapter = new EntityAdapter<MailServerDefinition>(MailServerDefinition.class, metaData);
+        this.mailSessions = new ArrayList<>();
     }
 
     @Override
@@ -92,8 +93,57 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     }
 
     @Override
+    public boolean useManualReveal() {
+        return true;
+    }
+
+    @Override
     public void prepareFromRequest(PlaceRequest request) {
         this.selectedSession = request.getParameter("name", null);
+        ModelNode operation = beanMetaData.getAddress().asSubresource(Baseadress.get());
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(RECURSIVE).set(true);
+        mailSessions.clear();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failed("Mail Sessions"));
+                } else {
+                    List<Property> items = response.get(RESULT).asPropertyList();
+                    for (Property item : items) {
+                        ModelNode model = item.getValue();
+                        MailSession mailSession = adapter.fromDMR(model);
+                        mailSession.setName(item.getName());
+
+                        if (model.hasDefined("server")) {
+                            List<Property> serverList = model.get("server").asPropertyList();
+                            for (Property server : serverList) {
+                                if (server.getName().equals(ServerType.smtp.name())) {
+                                    MailServerDefinition smtpServer = serverAdapter.fromDMR(server.getValue());
+                                    smtpServer.setType(ServerType.smtp);
+                                    mailSession.setSmtpServer(smtpServer);
+                                } else if (server.getName().equals(ServerType.imap.name())) {
+                                    MailServerDefinition imap = serverAdapter.fromDMR(server.getValue());
+                                    imap.setType(ServerType.imap);
+                                    mailSession.setImapServer(imap);
+                                } else if (server.getName().equals(ServerType.pop3.name())) {
+                                    MailServerDefinition pop = serverAdapter.fromDMR(server.getValue());
+                                    pop.setType(ServerType.pop3);
+                                    mailSession.setPopServer(pop);
+                                }
+                            }
+
+                        }
+                        mailSessions.add(mailSession);
+                    }
+                    getProxy().manualReveal(MailPresenter.this);
+                }
+            }
+        });
     }
 
     @Override
@@ -122,6 +172,11 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     }
 
     private void loadMailSessions(final boolean refreshDetail) {
+        getView().updateFrom(mailSessions);
+        if (refreshDetail)
+            getView().setSelectedSession(selectedSession);
+
+/*
         ModelNode operation = beanMetaData.getAddress().asSubresource(Baseadress.get());
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(RECURSIVE).set(true);
@@ -168,6 +223,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                     getView().setSelectedSession(selectedSession);
             }
         });
+*/
     }
 
     @Override
