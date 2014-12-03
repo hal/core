@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.core.settings;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -53,6 +54,8 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     private DefaultWindow window;
     private SettingsPresenterWidget presenter;
     private Form<CommonSettings> form;
+    private ButtonItem clear;
+    private boolean clearDisabled = false;
 
     @Inject
     public SettingsView(EventBus eventBus, ProductConfig productConfig, FeatureSet featureSet, final Index index) {
@@ -82,13 +85,13 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         fields.add(enableAnalytics);
 
         if (featureSet.isSearchEnabled()) {
-            ButtonItem clear = new ButtonItem("clear-search-index", Console.CONSTANTS.search_index_reset(),
+            clear = new ButtonItem("clear-search-index", Console.CONSTANTS.search_index_reset(),
                     Console.CONSTANTS.common_label_reset());
             clear.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    index.reset();
-                    Console.info(Console.CONSTANTS.search_index_reset_finished());
+                    clear.setEnabled(false);
+                    clearDisabled = true;
                 }
             });
             fields.add(clear);
@@ -109,7 +112,6 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        presenter.onSaveDialogue(form.getUpdatedEntity());
 
                         presenter.hideView();
 
@@ -118,17 +120,26 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
 
-                                        // Ignore: it crashes the browser..
 
-                                        /*if(isConfirmed){
-                                           Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                                               @Override
-                                               public void execute() {
-                                                   reload();
-                                               }
-                                           });
+                                        if(isConfirmed){
 
-                                       } */
+                                            // search index
+                                            if(clear!=null && clearDisabled==true)
+                                            {
+                                                index.reset();
+                                                //Console.info(Console.CONSTANTS.search_index_reset_finished());
+                                            }
+
+                                            presenter.onSaveDialogue(form.getUpdatedEntity());
+
+                                            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                                @Override
+                                                public void execute() {
+                                                    reload();
+                                                }
+                                            });
+
+                                        }
                                     }
                                 }
                         );
@@ -138,6 +149,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
+                        form.cancel();
                         presenter.onCancelDialogue();
                     }
                 }
@@ -190,6 +202,15 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
     public Widget asWidget() {
         form.edit(presenter.getCommonSettings());
         return window;
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        if(clear!=null) {
+            clear.setEnabled(true);
+            clearDisabled = false;
+        }
     }
 
     @Override

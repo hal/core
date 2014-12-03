@@ -60,7 +60,6 @@ public class SettingsPresenterWidget
 
     public void hideView() {
         getView().hide();
-
     }
 
     public void onSaveDialogue(CommonSettings settings) {

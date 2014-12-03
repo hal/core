@@ -175,7 +175,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-        createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
+         createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
     }
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
