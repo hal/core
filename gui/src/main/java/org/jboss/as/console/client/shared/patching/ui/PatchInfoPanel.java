@@ -21,30 +21,26 @@
  */
 package org.jboss.as.console.client.shared.patching.ui;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.core.HasPresenter;
-import org.jboss.as.console.client.shared.patching.*;
+import org.jboss.as.console.client.shared.patching.PatchInfo;
+import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
+import org.jboss.as.console.client.shared.patching.PatchManager;
+import org.jboss.as.console.client.shared.patching.Patches;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
-import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
+import static com.google.gwt.dom.client.Style.Unit.PX;
 import static org.jboss.as.console.client.shared.patching.Patches.STANDALONE_HOST;
 import static org.jboss.as.console.client.shared.patching.ui.PatchManagementElementId.PREFIX;
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
@@ -55,16 +51,17 @@ import static org.jboss.as.console.client.shared.util.IdHelper.asId;
  */
 public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPresenter> {
 
+    private final static Template TEMPLATE = GWT.create(Template.class);
+
     private final ProductConfig productConfig;
     private final PatchManager patchManager;
 
     private String host;
     private PatchManagementPresenter presenter;
     private ContentHeaderLabel header;
-    private Form<PatchInfo> latestForm;
-    private TextItem id;
     private PatchInfoTable table;
     private FlowPanel latestContainer;
+    private HTML latestAppliedPatch;
 
     public PatchInfoPanel(ProductConfig productConfig, PatchManager patchManager) {
         this.productConfig = productConfig;
@@ -87,19 +84,10 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
 
         // latest patch info
         latestContainer = new FlowPanel();
-        latestContainer.add(new ContentGroupLabel(Console.CONSTANTS.patch_manager_patch_information()));
-        latestForm = new Form<PatchInfo>(PatchInfo.class);
-        latestForm.setEnabled(false);
-        id = new TextItem("id", Console.CONSTANTS.patch_manager_latest());
-        TextItem version = new TextItem("version", "Version");
-        TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
-        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
-        Map<PatchType, String> values = new HashMap<PatchType, String>();
-        values.put(CUMULATIVE, CUMULATIVE.label());
-        values.put(ONE_OFF, ONE_OFF.label());
-        type.setValues(values);
-        latestForm.setFields(id, version, date, type);
-        latestContainer.add(latestForm);
+        latestAppliedPatch = new HTML();
+        latestAppliedPatch.getElement().getStyle().setMarginBottom(20, PX);
+        latestContainer.add(new HTML("<h3 class=\"metric-label-embedded\">" + Console.CONSTANTS.patch_manager_latest() + "</h3>"));
+        latestContainer.add(latestAppliedPatch);
         panel.add(latestContainer);
 
         // tools & table
@@ -157,10 +145,23 @@ public class PatchInfoPanel implements IsWidget, HasPresenter<PatchManagementPre
         boolean latestAvailable = patches.getLatest() != null;
         latestContainer.setVisible(latestAvailable);
         if (latestAvailable) {
-            latestForm.edit(patches.getLatest());
+            String id = patches.getLatest().getId();
             if (patches.isRestartRequired()) {
-                id.setValue(id.getValue() + " (" + Console.CONSTANTS.patch_manager_restart_required() + ")");
+                latestAppliedPatch.setHTML(TEMPLATE.latestAppliedPatchPendingRestart(id,
+                        Console.CONSTANTS.patch_manager_restart_required()));
+            } else {
+                latestAppliedPatch.setHTML(TEMPLATE.latestAppliedPatch(id));
             }
         }
+    }
+
+
+    interface Template extends SafeHtmlTemplates {
+
+        @Template("<b>{0}</b>")
+        SafeHtml latestAppliedPatch(String patchId);
+
+        @Template("<b>{0}</b> ({1})")
+        SafeHtml latestAppliedPatchPendingRestart(String patchId, String pending);
     }
 }

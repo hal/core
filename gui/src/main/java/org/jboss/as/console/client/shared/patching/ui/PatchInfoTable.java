@@ -109,8 +109,8 @@ public class PatchInfoTable implements IsWidget, PatchManagementElementId {
 
         detailsForm = new Form<>(PatchInfo.class);
         detailsForm.setEnabled(false);
-        TextItem name = new TextItem("identityName", "Name");
-        TextItem version = new TextItem("identityVersion", "Version");
+        TextItem name = new TextItem("identityName", "Target");
+        TextItem version = new TextItem("identityVersion", "Target Version");
         TextItem description = new TextItem("description", "Description");
         TextItem link = new TextItem("link", "Link");
         detailsForm.setFields(name, version, description, link);
