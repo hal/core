@@ -85,7 +85,7 @@
     </licenses>
 
 
-    <properties>
+   <!-- <properties>
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
@@ -105,8 +105,7 @@
         <csp.plugin.version>0.9.36.Final-jboss1</csp.plugin.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
-    </properties>
-
+    </properties>-->
 
     <modules>
         <module>ace</module>

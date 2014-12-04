@@ -248,7 +248,7 @@ public class StandaloneDeploymentPresenter
     @Override
     public void updateDeployment(DeploymentRecord record)
     {
-        launchDeploymentDialoge("Update Deployment", record, true);
+        launchDeploymentDialoge("Replace Deployment", record, true);
     }
 
     public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate)
