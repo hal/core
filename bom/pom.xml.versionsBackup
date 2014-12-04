@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jboss-as-console-bom</artifactId>
     <name>HAL Core Console :: BOM</name>
     <packaging>pom</packaging>
-    <version>2.5.1-SNAPSHOT</version>
+    <version>2.5.0.Final</version>
     <description>
         AS 7 console "bill of materials" which can be imported by any project
         providing extensions to the console. It provides dependency management for the developer APIs and SPIs.
@@ -13,7 +14,7 @@
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.5.1-SNAPSHOT</version>
+        <version>2.5.0.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -21,7 +22,7 @@
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
-        <ballroom.version>2.1.6.Final</ballroom.version>
+        <ballroom.version>2.1.5.Final</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
@@ -38,6 +39,7 @@
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
     </properties>
+
 
     <dependencyManagement>
         <dependencies>
