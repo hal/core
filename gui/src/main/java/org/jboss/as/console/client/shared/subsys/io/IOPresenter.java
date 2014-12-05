@@ -26,8 +26,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -57,7 +56,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     @ProxyCodeSplit
     @NameToken(NameTokens.IO)
     @RequiredResources(resources = "{selected.profile}/subsystem=io")
-    public interface MyProxy extends Proxy<IOPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<IOPresenter> {
     }
 
 

@@ -24,8 +24,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
@@ -40,8 +39,8 @@ import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -63,7 +62,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"interface", "network-interface", "bind-address"})
     @RequiredResources(resources = {"/{selected.host}/interface=*",})
-    public interface MyProxy extends Proxy<HostInterfacesPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostInterfacesPresenter> {}
 
 
     public interface MyView extends View {

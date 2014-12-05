@@ -7,10 +7,6 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA. User: pehlh Date: 15.10.12 Time: 17:04 To change this template use File | Settings | File
- * Templates.
- */
 public class EnvironmentView extends SuspendableViewImpl implements EnvironmentPresenter.MyView
 {
     private EnvironmentProperties properties;

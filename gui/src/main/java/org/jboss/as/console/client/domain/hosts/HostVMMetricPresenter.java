@@ -6,8 +6,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -22,8 +21,8 @@ import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -49,7 +48,7 @@ public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetric
             "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"})
     @SearchIndex(keywords = {
             "jvm", "memory-usage", "threads"})
-    public interface MyProxy extends Proxy<HostVMMetricPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostVMMetricPresenter> {}
 
 
     public interface MyView extends VMView {}

@@ -28,7 +28,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.*;
@@ -68,7 +68,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     @NameToken(NameTokens.PatchingPresenter)
     @SearchIndex(keywords = {"patching", "update", "upgrade"})
     @RequiredResources(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
-    public interface MyProxy extends Proxy<PatchManagementPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<PatchManagementPresenter> {
     }
 
 

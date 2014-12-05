@@ -24,6 +24,7 @@ package org.jboss.as.console.client.core;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
+import org.jboss.as.console.client.rbac.ReadOnlyContext;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
@@ -64,19 +65,24 @@ class ManualRevealFunctions {
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-            securityFramework.createSecurityContext(token, new AsyncCallback<SecurityContext>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    control.getContext().setError(caught);
-                    control.abort();
-                }
+            SecurityContext context = securityFramework.getSecurityContext(token);
+            if (context == null || (context instanceof ReadOnlyContext)) {
+                securityFramework.createSecurityContext(token, new AsyncCallback<SecurityContext>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        control.getContext().setError(caught);
+                        control.abort();
+                    }
 
-                @Override
-                public void onSuccess(SecurityContext securityContext) {
-                    // security context was successfully registered in SecurityFramework
-                    control.proceed();
-                }
-            });
+                    @Override
+                    public void onSuccess(SecurityContext securityContext) {
+                        // security context was successfully registered in SecurityFramework
+                        control.proceed();
+                    }
+                });
+            } else {
+                control.proceed();
+            }
         }
     }
 

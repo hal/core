@@ -21,13 +21,10 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.event.shared.GwtEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
-import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -40,40 +37,20 @@ import java.util.List;
 /**
  * A presenter which registers a {@link org.jboss.gwt.circuit.PropagatesChange.Handler} for a given store.
  * The handler delegates to {@link #onAction(org.jboss.gwt.circuit.Action)} if the presenter is visible.
- * The registered handlers are removed again in {@link #onUnbind()}.
+ * All registered handlers are removed automatically in {@link #onUnbind()}.
  *
  * @author Harald Pehl
  */
-public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_> {
+public abstract class CircuitPresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends ManualRevealPresenter<V, Proxy_> {
 
     private final List<HandlerRegistration> registrations;
 
-    protected CircuitPresenter(boolean autoBind, EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit) {
-        super(autoBind, eventBus, view, proxy);
-        this.registrations = new ArrayList<>();
-        circuit.addDiagnostics(new ErrorHandler());
-    }
-
     protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit) {
-        super(eventBus, view, proxy);
-        this.registrations = new ArrayList<>();
-        circuit.addDiagnostics(new ErrorHandler());
+        this(eventBus, view, proxy, circuit, false);
     }
 
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, Dispatcher circuit) {
-        super(eventBus, view, proxy, revealType);
-        this.registrations = new ArrayList<>();
-        circuit.addDiagnostics(new ErrorHandler());
-    }
-
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, GwtEvent.Type<RevealContentHandler<?>> slot, Dispatcher circuit) {
-        super(eventBus, view, proxy, slot);
-        this.registrations = new ArrayList<>();
-        circuit.addDiagnostics(new ErrorHandler());
-    }
-
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, RevealType revealType, GwtEvent.Type<RevealContentHandler<?>> slot, Dispatcher circuit) {
-        super(eventBus, view, proxy, revealType, slot);
+    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit, boolean rrd) {
+        super(eventBus, view, proxy, rrd);
         this.registrations = new ArrayList<>();
         circuit.addDiagnostics(new ErrorHandler());
     }

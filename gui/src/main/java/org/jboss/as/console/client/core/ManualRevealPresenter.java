@@ -53,6 +53,10 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
     private final ModelDrivenRegistry modelDrivenRegistry = Console.MODULES.getModelDrivenRegistry();
     private final RequiredResourcesRegistry requiredResourcesRegistry = Console.MODULES.getRequiredResourcesRegistry();
 
+    protected ManualRevealPresenter(EventBus eventBus, V view, Proxy_ proxy) {
+        this(eventBus, view, proxy, false);
+    }
+
     protected ManualRevealPresenter(EventBus eventBus, V view, Proxy_ proxy, boolean rrd) {
         super(eventBus, view, proxy);
         this.rrd = rrd;
@@ -78,8 +82,8 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
             flow.execute(new Command() {
                 @Override
                 public void execute() {
-                    nameTokenRegistry.reveal(token);
                     withRequest(request);
+                    nameTokenRegistry.revealed(token);
                 }
             });
         } else {

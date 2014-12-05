@@ -5,8 +5,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
@@ -18,8 +17,8 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
@@ -35,9 +34,6 @@ public class VMMetricsPresenter
         extends CircuitPresenter<VMView, VMMetricsPresenter.MyProxy>
         implements VMMetricsManagement {
 
-    private ApplicationMetaData metaData;
-    private LoadJVMMetricsCmd loadMetricCmd;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.VirtualMachine)
     @OperationMode(STANDALONE)
@@ -49,11 +45,13 @@ public class VMMetricsPresenter
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=operating-system"
             }
     )
-    public interface MyProxy extends Proxy<VMMetricsPresenter>, Place {
-    }
+    public interface MyProxy extends ProxyPlace<VMMetricsPresenter> {}
 
-    public interface MyView extends VMView {
-    }
+    public interface MyView extends VMView {}
+
+
+    private ApplicationMetaData metaData;
+    private LoadJVMMetricsCmd loadMetricCmd;
 
     @Inject
     public VMMetricsPresenter(

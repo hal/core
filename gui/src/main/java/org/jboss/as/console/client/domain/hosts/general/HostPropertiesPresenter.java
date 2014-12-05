@@ -27,8 +27,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
@@ -39,8 +38,8 @@ import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -64,7 +63,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"system-property", "property"})
     @RequiredResources(resources = {"/{selected.host}/system-property=*",})
-    public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostPropertiesPresenter> {}
 
 
     public interface MyView extends View {

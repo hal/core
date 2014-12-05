@@ -68,7 +68,7 @@ public final class NameTokenRegistry {
         return revealedTokens.contains(token);
     }
 
-    public void reveal(String token) {
+    public void revealed(String token) {
         revealedTokens.add(token);
     }
 }

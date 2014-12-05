@@ -6,8 +6,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -44,10 +43,10 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
     @RuntimeExtension(name="Transactions", group=RuntimeGroup.METRICS, key="transactions")
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "commit", "failure", "transaction-log"})
-    public interface MyProxy extends Proxy<TXMetricPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<TXMetricPresenter> {}
 
 
-    public interface MyView extends TXMetricView  {
+    public interface MyView extends TXMetricView {
         void setPresenter(TXMetricManagement presenter);
         void setTxMetric(Metric txMetric);
         void setRollbackMetric(Metric rollbackMetric);

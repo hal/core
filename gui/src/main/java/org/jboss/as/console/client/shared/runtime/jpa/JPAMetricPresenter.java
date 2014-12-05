@@ -7,12 +7,12 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -49,11 +49,10 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     @NameToken(NameTokens.JPAMetricPresenter)
     @SearchIndex(keywords = {"jpa", "hibernate"})
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
-    public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<JPAMetricPresenter> {}
 
 
-    public interface MyView extends View {
-        void setPresenter(JPAMetricPresenter presenter);
+    public interface MyView extends View, HasPresenter<JPAMetricPresenter> {
         void setJpaUnits(List<JPADeployment> jpaUnits);
         void setSelectedUnit(String[] strings);
         void updateMetric(UnitMetric unitMetric);
@@ -106,21 +105,16 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
-
-
+    protected void withRequest(PlaceRequest request) {
         String dpl = request.getParameter("dpl", null);
-        if(dpl!=null) {
-            this.selectedUnit = new String[] {
+        if (dpl != null) {
+            this.selectedUnit = new String[]{
                     dpl,
                     request.getParameter("unit", null)
             };
-        }
-        else
-        {
+        } else {
             this.selectedUnit = null;
         }
-
     }
 
     @Override

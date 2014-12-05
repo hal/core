@@ -26,8 +26,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
@@ -51,7 +50,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     @NameToken(NameTokens.LogFiles)
     @SearchIndex(keywords = {"log-file", "log-view", "server-log", "download"})
     @RequiredResources(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
-    public interface MyProxy extends Proxy<LogFilesPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<LogFilesPresenter> {}
 
 
     public interface MyView extends View, HasPresenter<LogFilesPresenter> { // @formatter:off

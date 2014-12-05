@@ -25,13 +25,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.*;
@@ -44,8 +44,8 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -77,11 +77,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             "opt://{selected.host}/server-config=*/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"server", "server-config", "jvm", "socket-binding"})
-    public interface MyProxy extends Proxy<ServerConfigPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<ServerConfigPresenter> {}
 
 
-    public interface MyView extends SuspendableView {
-        void setPresenter(ServerConfigPresenter presenter);
+    public interface MyView extends SuspendableView, HasPresenter<ServerConfigPresenter> {
         void updateSocketBindings(List<String> result);
         void setJvm(String reference, Jvm jvm);
         void setProperties(String reference, List<PropertyRecord> properties);
@@ -158,7 +157,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewConfigDialoge();

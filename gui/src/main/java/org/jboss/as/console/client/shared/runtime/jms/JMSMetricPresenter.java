@@ -7,9 +7,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
@@ -50,24 +49,21 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
     @NameToken(NameTokens.JmsMetricPresenter)
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"jms", "queue", "topic", "size"})
-    public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<JMSMetricPresenter> {
     }
+
 
     public interface MyView extends View {
         void setPresenter(JMSMetricPresenter presenter);
         void clearSamples();
-
         void setTopics(List<JMSEndpoint> topics);
         void setQueues(List<Queue> queues);
-
         void updateQueueMetrics(ModelNode result);
-
         void updateTopicMetrics(ModelNode result);
-
         void updateProvider(List<Property> provider);
-
         void setSelectedProvider(String name);
     }
+
 
     private final PlaceManager placemanager;
     private DispatchAsync dispatcher;
@@ -94,7 +90,7 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
            currentServer = request.getParameter("name", null);
        }
 

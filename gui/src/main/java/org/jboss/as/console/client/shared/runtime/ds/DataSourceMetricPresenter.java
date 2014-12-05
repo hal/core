@@ -8,9 +8,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -53,7 +52,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
             "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
             "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
     @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})
-    public interface MyProxy extends Proxy<DataSourceMetricPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<DataSourceMetricPresenter> {}
 
 
     public interface MyView extends View {

@@ -7,10 +7,10 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -44,11 +44,10 @@ public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyVi
     @NameToken(NameTokens.WebMetricPresenter)
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=web"}, recursive = false)
     @SearchIndex(keywords = {"web", "http", "connections"})
-    public interface MyProxy extends Proxy<WebMetricPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<WebMetricPresenter> {}
 
 
-    public interface MyView extends View {
-        void setPresenter(WebMetricPresenter presenter);
+    public interface MyView extends View, HasPresenter<WebMetricPresenter> {
         void clearSamples();
         void setConnectorMetric(Metric metric);
         void setConnectors(List<HttpConnector> list);
