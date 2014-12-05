@@ -26,9 +26,8 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyStandard;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealRootLayoutContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
 
@@ -45,7 +44,7 @@ public class ErrorPagePresenter extends
     @ProxyStandard
     @NameToken(NameTokens.errorPage)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<ErrorPagePresenter>, Place {
+    public interface MyProxy extends ProxyPlace<ErrorPagePresenter> {
     }
 
     public interface MyView extends View {

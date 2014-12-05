@@ -28,6 +28,10 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.*;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -59,7 +63,7 @@ public class ProfileMgmtPresenter
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
-    public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<ProfileMgmtPresenter> {}
 
     public interface MyView extends SuspendableView {
         void setProfiles(List<ProfileRecord> profileRecords);
@@ -127,7 +131,7 @@ public class ProfileMgmtPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
 
         final String preselection = request.getParameter("profile", null);

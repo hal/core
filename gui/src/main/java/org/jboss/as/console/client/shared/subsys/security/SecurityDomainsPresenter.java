@@ -25,23 +25,18 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.security.model.AbstractAuthData;
-import org.jboss.as.console.client.shared.subsys.security.model.AuthenticationLoginModule;
-import org.jboss.as.console.client.shared.subsys.security.model.AuthorizationPolicyProvider;
-import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
-import org.jboss.as.console.client.shared.subsys.security.model.MappingModule;
-import org.jboss.as.console.client.shared.subsys.security.model.SecurityDomain;
+import org.jboss.as.console.client.shared.subsys.security.model.*;
 import org.jboss.as.console.client.shared.util.SimpleDMRResponseHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -64,14 +59,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class SecurityDomainsPresenter
-        extends Presenter<SecurityDomainsPresenter.MyView, SecurityDomainsPresenter.MyProxy> {
+        extends ManualRevealPresenter<SecurityDomainsPresenter.MyView, SecurityDomainsPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SecurityDomainsPresenter)
     @RequiredResources(resources = {"/{selected.profile}/subsystem=security/security-domain=*"})
     @SearchIndex(keywords = {"security-domain", "authentication", "security", "vault", "authorisation",
             "jaas", "login-module"})
-    public interface MyProxy extends Proxy<SecurityDomainsPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<SecurityDomainsPresenter> {
     }
 
     public interface MyView extends View, FrameworkView {
@@ -148,7 +143,7 @@ public class SecurityDomainsPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
         selectedDomain = request.getParameter("name", null);
     }

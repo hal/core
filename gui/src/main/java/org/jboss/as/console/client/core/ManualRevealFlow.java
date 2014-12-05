@@ -21,7 +21,7 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -53,17 +53,18 @@ class ManualRevealFlow {
     }
 
     @SuppressWarnings("unchecked")
-    public void execute(final Command command) {
+    public void execute(final AsyncCallback<Void> callback) {
         new Async<FunctionContext>(progress).parallel(new FunctionContext(), new Outcome<FunctionContext>() {
             @Override
             public void onFailure(FunctionContext context) {
                 presenter.getProxy().manualRevealFailed();
+                callback.onFailure(context.getError());
             }
 
             @Override
             public void onSuccess(FunctionContext context) {
                 presenter.getProxy().manualReveal(presenter);
-                command.execute();
+                callback.onSuccess(null);
             }
         }, functions.toArray(new Function[functions.size()]));
     }

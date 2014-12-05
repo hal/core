@@ -21,12 +21,7 @@ package org.jboss.as.console.client.auth;
 
 
 import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -36,15 +31,15 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyStandard;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealRootContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 
 
+@Deprecated
 public class SignInPagePresenter extends
         Presenter<SignInPagePresenter.MyView, SignInPagePresenter.MyProxy> implements
         SignInPageUIHandlers {
@@ -58,7 +53,7 @@ public class SignInPagePresenter extends
     @ProxyStandard
     @NameToken(NameTokens.signInPage)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<SignInPagePresenter>, Place {
+    public interface MyProxy extends ProxyPlace<SignInPagePresenter> {
     }
 
     public interface MyView extends View, HasUiHandlers<SignInPageUIHandlers> {

@@ -9,11 +9,11 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -31,11 +31,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewAdapterWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewAdminWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewConnectionWizard;
-import org.jboss.as.console.client.widgets.forms.AddressBinding;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.client.widgets.forms.KeyAssignment;
+import org.jboss.as.console.client.widgets.forms.*;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -46,11 +42,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -58,13 +50,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class ResourceAdapterPresenter
-        extends Presenter<ResourceAdapterPresenter.MyView, ResourceAdapterPresenter.MyProxy> {
+        extends ManualRevealPresenter<ResourceAdapterPresenter.MyView, ResourceAdapterPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ResourceAdapterPresenter)
     @RequiredResources(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
     @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
-    public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<ResourceAdapterPresenter> {
     }
 
 
@@ -127,7 +119,7 @@ public class ResourceAdapterPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         this.selectedAdapter = request.getParameter("name", null);
     }
 

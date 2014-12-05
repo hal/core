@@ -33,7 +33,6 @@ import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
@@ -158,8 +157,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
                     }
                 };
 
-        new Async<ContextCreation>(Footer.PROGRESS_ELEMENT)
-                .waterfall(new ContextCreation(request), outcome, createContext);
+//        new Async<ContextCreation>(Footer.PROGRESS_ELEMENT)
+//                .waterfall(new ContextCreation(request), outcome, createContext);
     }
 
     @Override

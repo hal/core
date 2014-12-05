@@ -3,15 +3,14 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -40,8 +39,25 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
+public class HttpPresenter extends ManualRevealPresenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
         implements DefaultPresenterContract {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.HttpPresenter)
+    @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/server=*"})
+    public interface MyProxy extends ProxyPlace<HttpPresenter> {}
+
+
+    public interface MyView extends View {
+        void setPresenter(HttpPresenter presenter);
+        void setServer(List<Property> server);
+        void setServerSelection(String name);
+        void setHttpListener(List<Property> httpListener);
+        void setAjpListener(List<Property> ajpListener);
+        void setHttpsListener(List<Property> httpsListener);
+        void setHosts(List<Property> hosts);
+    }
+
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -55,7 +71,6 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(ResourceAddress address, String name) {
-
             if(address.getResourceType().equals("server"))
                 loadServer();
             else
@@ -68,30 +83,6 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         }
     };
 
-    @RequiredResources(
-            resources = {
-                    "{selected.profile}/subsystem=undertow/server=*"
-            })
-    @ProxyCodeSplit
-    @NameToken(NameTokens.HttpPresenter)
-    public interface MyProxy extends Proxy<HttpPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(HttpPresenter presenter);
-
-        void setServer(List<Property> server);
-
-        void setServerSelection(String name);
-
-        void setHttpListener(List<Property> httpListener);
-
-        void setAjpListener(List<Property> ajpListener);
-
-        void setHttpsListener(List<Property> httpsListener);
-
-        void setHosts(List<Property> hosts);
-    }
 
     @Inject
     public HttpPresenter(
@@ -176,7 +167,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 

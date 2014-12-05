@@ -21,7 +21,7 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
@@ -79,9 +79,14 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
                 flow.addFunction(new ReadResourceDescriptions(token, requiredResourcesRegistry, modelDrivenRegistry,
                         dispatcher, statementContext));
             }
-            flow.execute(new Command() {
+            flow.execute(new AsyncCallback<Void>() {
                 @Override
-                public void execute() {
+                public void onFailure(Throwable caught) {
+                    // TODO Error handling / reporting
+                }
+
+                @Override
+                public void onSuccess(Void result) {
                     withRequest(request);
                     nameTokenRegistry.revealed(token);
                 }

@@ -24,15 +24,14 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -42,8 +41,8 @@ import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -66,7 +65,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 5/18/11
  */
-public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
+public class HostJVMPresenter extends ManualRevealPresenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
         implements JvmManagement {
 
     @ProxyCodeSplit
@@ -74,7 +73,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
     @RequiredResources(resources = {"/{selected.host}/jvm=*",})
-    public interface MyProxy extends Proxy<HostJVMPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostJVMPresenter> {}
 
 
     public interface MyView extends View {

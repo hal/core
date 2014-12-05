@@ -20,12 +20,11 @@ package org.jboss.as.console.client.shared.subsys.ejb3;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -51,14 +50,14 @@ import java.util.List;
 /**
  * @author David Bosschaert
  */
-public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter.MyProxy>{
+public class EJB3Presenter extends ManualRevealPresenter<EJB3Presenter.MyView, EJB3Presenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EJB3Presenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=ejb3"})
     @SearchIndex(keywords = {"remote-service", "passivation", "timer-service", "bean-pool", "iiop",
             "ejb3", "cluster", "thread-pool", "ejb", "mdb", "invocation", "remote", "interface", "local"})
-    public interface MyProxy extends Proxy<EJB3Presenter>, Place {
+    public interface MyProxy extends ProxyPlace<EJB3Presenter> {
     }
 
     public interface MyView extends View, FrameworkView {

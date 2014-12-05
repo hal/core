@@ -64,35 +64,33 @@ import java.util.List;
  */
 public class RepositoryPresenter
         extends Presenter<RepositoryPresenter.MyView, RepositoryPresenter.MyProxy>
-        implements EditorResizeEvent.ResizeListener, ModelEditor.Presenter
-{
+        implements EditorResizeEvent.ResizeListener, ModelEditor.Presenter {
+
+    public interface MyView extends View {
+        void setPresenter(RepositoryPresenter presenter);
+        void setFullScreen(boolean fullscreen);
+        void updateDirectory(Entry dir, List<Entry> entries);
+        void clearHistory();
+        void updateFile(String name, String fileContents);
+        String getText();
+    }
+
+
+    @NoGatekeeper
+    @ProxyStandard
+    @NameToken("mbui-workbench")
+    public interface MyProxy extends ProxyPlace<RepositoryPresenter> {}
+
+
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
     private Vfs vfs;
     private final Kernel kernel;
     private final DispatchAsync dispatcher;
     private DefaultWindow preview;
-
-    @ContentSlot
-    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
     private Entry selectedDialog = null;
 
-    public interface MyView extends View
-    {
-        void setPresenter(RepositoryPresenter presenter);
-        void setFullScreen(boolean fullscreen);
-        void updateDirectory(Entry dir, List<Entry> entries);
-
-        void clearHistory();
-
-        void updateFile(String name, String fileContents);
-
-        String getText();
-    }
-
-    @ProxyStandard
-    @NameToken("mbui-workbench")
-    @NoGatekeeper
-    public interface MyProxy extends ProxyPlace<RepositoryPresenter> {}
 
     @Inject
     public RepositoryPresenter(

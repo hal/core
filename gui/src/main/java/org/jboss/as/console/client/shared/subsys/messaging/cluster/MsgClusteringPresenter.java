@@ -3,15 +3,14 @@ package org.jboss.as.console.client.shared.subsys.messaging.cluster;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -48,7 +47,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 4/18/12
  */
 public class MsgClusteringPresenter
-        extends Presenter<MsgClusteringPresenter.MyView, MsgClusteringPresenter.MyProxy>
+        extends ManualRevealPresenter<MsgClusteringPresenter.MyView, MsgClusteringPresenter.MyProxy>
         implements CommonMsgPresenter {
 
     @ProxyCodeSplit
@@ -56,7 +55,7 @@ public class MsgClusteringPresenter
     @SubsystemExtension(name="Clustering", group = "Messaging", key="messaging")
     @RequiredResources(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"jms", "messaging", "cluster", "broadcast", "discovery"})
-    public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<MsgClusteringPresenter> {
     }
 
     public interface MyView extends View {
@@ -131,7 +130,7 @@ public class MsgClusteringPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
         currentServer = request.getParameter("name", null);
     }

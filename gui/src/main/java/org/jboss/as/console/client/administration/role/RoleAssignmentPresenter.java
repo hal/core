@@ -22,28 +22,18 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
-import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
-import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
-import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
-import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
-import org.jboss.as.console.client.administration.role.operation.ShowMembersOperation;
+import org.jboss.as.console.client.administration.role.model.*;
+import org.jboss.as.console.client.administration.role.operation.*;
 import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
@@ -73,13 +63,13 @@ import static org.jboss.as.console.client.administration.role.operation.Manageme
  * @author Harald Pehl
  */
 public class RoleAssignmentPresenter
-        extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
+        extends ManualRevealPresenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
     @SearchIndex(keywords = {"authorization", "access-control", "rbac", "security"})
     @RequiredResources(resources = {"/core-service=management/access=authorization"}, recursive = false)
-    public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<RoleAssignmentPresenter> {}
 
 
     public interface MyView extends View {

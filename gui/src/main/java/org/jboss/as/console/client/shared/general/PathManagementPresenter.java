@@ -2,13 +2,12 @@ package org.jboss.as.console.client.shared.general;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.general.model.Path;
@@ -35,13 +34,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 10/15/12
  */
-public class PathManagementPresenter extends Presenter<PathManagementPresenter.MyView, PathManagementPresenter.MyProxy> {
+public class PathManagementPresenter extends ManualRevealPresenter<PathManagementPresenter.MyView, PathManagementPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PathManagementPresenter)
     @SearchIndex(keywords = {"file-system"})
     @RequiredResources(resources = {"path=*"})
-    public interface MyProxy extends Proxy<PathManagementPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<PathManagementPresenter> {
     }
 
     public interface MyView extends View {

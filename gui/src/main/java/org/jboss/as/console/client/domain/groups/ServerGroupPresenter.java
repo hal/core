@@ -26,14 +26,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
@@ -44,8 +43,8 @@ import org.jboss.as.console.client.shared.jvm.*;
 import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -72,7 +71,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 2/16/11
  */
 public class ServerGroupPresenter
-        extends Presenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
+        extends ManualRevealPresenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
     @ProxyCodeSplit
@@ -83,7 +82,7 @@ public class ServerGroupPresenter
             "opt://server-group={selected.entity}/system-property=*"},
             recursive = false)
     @SearchIndex(keywords = {"group", "server-group", "profile", "socket-binding", "jvm"})
-    public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<ServerGroupPresenter> {}
 
 
     public interface MyView extends SuspendableView {
@@ -135,7 +134,7 @@ public class ServerGroupPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
 
         final String action = request.getParameter("action", null);

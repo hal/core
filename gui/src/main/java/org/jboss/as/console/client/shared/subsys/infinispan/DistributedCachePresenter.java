@@ -20,12 +20,11 @@ package org.jboss.as.console.client.shared.subsys.infinispan;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
@@ -37,13 +36,13 @@ import org.jboss.as.console.spi.SearchIndex;
  * 
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  */
-public class DistributedCachePresenter extends Presenter<DistributedCachePresenter.MyView, DistributedCachePresenter.MyProxy> {
+public class DistributedCachePresenter extends ManualRevealPresenter<DistributedCachePresenter.MyView, DistributedCachePresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DistributedCachePresenter)
     @SearchIndex(keywords = {"cache", "cluster"})
     @RequiredResources(resources = {"{selected.profile}/subsystem=infinispan"})
-    public interface MyProxy extends Proxy<DistributedCachePresenter>, Place {
+    public interface MyProxy extends ProxyPlace<DistributedCachePresenter> {
     }
 
     public interface MyView extends FrameworkView, View {

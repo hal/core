@@ -21,12 +21,11 @@ package org.jboss.as.console.client.shared.general;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.general.model.Interface;
@@ -46,14 +45,14 @@ import java.util.List;
  * @author Heiko Braun
  * @date 5/17/11
  */
-public class InterfacePresenter extends Presenter<InterfacePresenter.MyView, InterfacePresenter.MyProxy>
+public class InterfacePresenter extends ManualRevealPresenter<InterfacePresenter.MyView, InterfacePresenter.MyProxy>
     implements InterfaceManagement.Callback {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.InterfacePresenter)
     @SearchIndex(keywords = {"network-interface", "ip", "ip-address", "ifconfig"})
     @RequiredResources(resources = {"interface=*"})
-    public interface MyProxy extends Proxy<InterfacePresenter>, Place {
+    public interface MyProxy extends ProxyPlace<InterfacePresenter> {
     }
 
     public interface MyView extends View {

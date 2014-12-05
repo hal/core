@@ -3,13 +3,12 @@ package org.jboss.as.console.client.shared.subsys.jmx;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -41,14 +40,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/28/11
  */
-public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.MyProxy>
+public class JMXPresenter extends ManualRevealPresenter<JMXPresenter.MyView, JMXPresenter.MyProxy>
     implements SuggestionManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JMXPresenter)
     @SearchIndex(keywords = {"jmx", "mbean", "connector", "management"})
     @RequiredResources(resources = {"{selected.profile}/subsystem=jmx"}, recursive = false)
-    public interface MyProxy extends Proxy<JMXPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<JMXPresenter> {
     }
 
     public interface MyView extends View {

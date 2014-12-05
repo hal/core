@@ -54,7 +54,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @NameToken(NameTokens.HostMgmtPresenter)
     //@UseGatekeeper(HostManagementGatekeeper.class)
     @SearchIndex(keywords = {"host", "jvm"})
-    public interface MyProxy extends Proxy<HostMgmtPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<HostMgmtPresenter> {
     }
 
 

@@ -30,11 +30,11 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -42,14 +42,7 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.messaging.model.AddressingPattern;
-import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectionFactory;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Divert;
-import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvider;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
-import org.jboss.as.console.client.shared.subsys.messaging.model.SecurityPattern;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Topic;
+import org.jboss.as.console.client.shared.subsys.messaging.model.*;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -78,14 +71,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 5/10/11
  */
-public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter.MyView, MsgDestinationsPresenter.MyProxy>
+public class MsgDestinationsPresenter extends ManualRevealPresenter<MsgDestinationsPresenter.MyView, MsgDestinationsPresenter.MyProxy>
         implements CommonMsgPresenter {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MessagingPresenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"topic", "queue", "jms", "messaging", "publish", "subscribe"})
-    public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<MsgDestinationsPresenter> {}
 
 
     public interface MyView extends View {
@@ -180,7 +173,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 

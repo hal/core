@@ -47,13 +47,12 @@ public class DomainRuntimePresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     @UseGatekeeper(DomainRuntimegateKeeper.class)
-    public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
+    public interface MyProxy extends ProxyPlace<DomainRuntimePresenter> {
     }
 
     public interface MyView extends View {
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
-
         void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology);
     }
 

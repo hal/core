@@ -3,14 +3,13 @@ package org.jboss.as.console.client.shared.subsys.configadmin;
 import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -33,7 +32,8 @@ import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
-public class ConfigAdminPresenter extends Presenter<ConfigAdminPresenter.MyView, ConfigAdminPresenter.MyProxy> {
+public class ConfigAdminPresenter extends ManualRevealPresenter<ConfigAdminPresenter.MyView, ConfigAdminPresenter.MyProxy> {
+
     public static final String CONFIG_ADMIN_SUBSYSTEM = "configadmin";
 
     private final DispatchAsync dispatcher;
@@ -46,7 +46,7 @@ public class ConfigAdminPresenter extends Presenter<ConfigAdminPresenter.MyView,
     @RequiredResources(resources = {
             "/{selected.profile}/subsystem=osgi"
     })
-    public interface MyProxy extends Proxy<ConfigAdminPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<ConfigAdminPresenter> {
     }
 
     public interface MyView extends View {

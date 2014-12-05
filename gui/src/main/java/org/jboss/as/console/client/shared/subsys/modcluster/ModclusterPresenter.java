@@ -4,14 +4,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -41,7 +40,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 02/21/12
  */
-public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, ModclusterPresenter.MyProxy>
+public class ModclusterPresenter extends ManualRevealPresenter<ModclusterPresenter.MyView, ModclusterPresenter.MyProxy>
         implements ModclusterManagement {
 
     private final PlaceManager placeManager;
@@ -58,7 +57,7 @@ public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, M
     @NameToken(NameTokens.ModclusterPresenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
     @SearchIndex(keywords = {"load-balancing", "reverse-proxy", "cluster", "web-frontend"})
-    public interface MyProxy extends Proxy<ModclusterPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<ModclusterPresenter> {
     }
 
     public interface MyView extends View {

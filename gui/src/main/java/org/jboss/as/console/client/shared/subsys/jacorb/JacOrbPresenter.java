@@ -24,8 +24,8 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
@@ -35,14 +35,14 @@ import org.jboss.as.console.spi.SearchIndex;
 /**
  * @author David Bosschaert
  */
-public class JacOrbPresenter extends Presenter<JacOrbPresenter.MyView, JacOrbPresenter.MyProxy>{
+public class JacOrbPresenter extends ManualRevealPresenter<JacOrbPresenter.MyView, JacOrbPresenter.MyProxy> {
     private final RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JacOrbPresenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=jacorb"})
     @SearchIndex(keywords = {"corba", "iiop"})
-    public interface MyProxy extends Proxy<JacOrbPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<JacOrbPresenter> {
     }
 
     public interface MyView extends View, FrameworkView {

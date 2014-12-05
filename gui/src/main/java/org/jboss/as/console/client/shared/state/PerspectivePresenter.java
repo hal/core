@@ -19,22 +19,19 @@
 package org.jboss.as.console.client.shared.state;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.History;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SelectPerspective;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.List;
 
 /**
  * Base class for top level presenters like "Configuration", "Server Health" or "Administration". Meets two tasks:
@@ -47,7 +44,7 @@ import java.util.List;
  *
  * @author Harald Pehl
  */
-public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_>
+public abstract class PerspectivePresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends ManualRevealPresenter<V, Proxy_>
         implements UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;
@@ -84,7 +81,6 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
         header.highlight(token);
 
         PlaceRequest requestedPlace = placeManager.getCurrentPlaceRequest();
-
         boolean isChildRequest = !token.equals(requestedPlace.getNameToken());
 
         if (isChildRequest) {

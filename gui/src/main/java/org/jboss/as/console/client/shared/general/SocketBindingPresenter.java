@@ -25,20 +25,15 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.general.model.LoadInterfacesCmd;
-import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
-import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
-import org.jboss.as.console.client.shared.general.model.RemoteSocketBinding;
-import org.jboss.as.console.client.shared.general.model.SocketBinding;
-import org.jboss.as.console.client.shared.general.model.SocketGroup;
+import org.jboss.as.console.client.shared.general.model.*;
 import org.jboss.as.console.client.shared.general.wizard.NewLocalSocketWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewRemoteSocketWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewSocketWizard;
@@ -65,13 +60,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 4/6/11
  */
-public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
+public class SocketBindingPresenter extends ManualRevealPresenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SocketBindingPresenter)
     @SearchIndex(keywords = {"socket", "port", "multi-cast", "interface", "network-interface", "bind-address"})
     @RequiredResources(resources = {"socket-binding-group=*"})
-    public interface MyProxy extends Proxy<SocketBindingPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<SocketBindingPresenter> {}
 
 
     public interface MyView extends View {
@@ -134,7 +129,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
         selectedSocketGroup = request.getParameter("name", null);
     }

@@ -20,12 +20,11 @@ package org.jboss.as.console.client.administration.audit;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.RequiredResources;
@@ -35,13 +34,13 @@ import org.jboss.as.console.spi.SearchIndex;
  * @author Harald Pehl
  */
 public class AuditLogPresenter
-        extends Presenter<AuditLogPresenter.MyView, AuditLogPresenter.MyProxy> {
+        extends ManualRevealPresenter<AuditLogPresenter.MyView, AuditLogPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.AuditLogPresenter)
     @SearchIndex(keywords = {"audit", "log", "management"})
     @RequiredResources(resources = {"/{selected.host}/core-service=management/access=audit"})
-    public interface MyProxy extends Proxy<AuditLogPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<AuditLogPresenter> {}
 
 
     public interface MyView extends View {

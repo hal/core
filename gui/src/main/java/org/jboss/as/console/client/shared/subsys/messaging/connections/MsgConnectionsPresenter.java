@@ -7,11 +7,11 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -51,7 +51,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 4/2/12
  */
-public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.MyView, MsgConnectionsPresenter.MyProxy>
+public class MsgConnectionsPresenter extends ManualRevealPresenter<MsgConnectionsPresenter.MyView, MsgConnectionsPresenter.MyProxy>
         implements CommonMsgPresenter, PropertyManagement  {
 
     @ProxyCodeSplit
@@ -61,7 +61,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
             "{selected.profile}/subsystem=messaging/hornetq-server=*",
             "{selected.profile}/subsystem=messaging/jms-bridge=*"})
     @SearchIndex(keywords = {"jms", "acceptor", "bridge", "connector"})
-    public interface MyProxy extends Proxy<MsgConnectionsPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<MsgConnectionsPresenter> {
     }
 
     public interface MyView extends View {
@@ -123,7 +123,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 

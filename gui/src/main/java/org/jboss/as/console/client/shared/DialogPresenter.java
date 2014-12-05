@@ -10,10 +10,10 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -30,7 +30,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy> {
+public class DialogPresenter extends ManualRevealPresenter<DialogView, DialogPresenter.MyProxy> {
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
@@ -40,7 +40,7 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
     @ProxyCodeSplit
     @NameToken(NameTokens.DialogPresenter)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<DialogPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<DialogPresenter> {
     }
 
     @Inject
@@ -83,7 +83,7 @@ public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyPro
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
         String name = request.getParameter("dialog", null);
         if(null==name)

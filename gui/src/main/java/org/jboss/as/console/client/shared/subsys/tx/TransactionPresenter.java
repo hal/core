@@ -3,14 +3,13 @@ package org.jboss.as.console.client.shared.subsys.tx;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -38,7 +37,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class TransactionPresenter extends Presenter<TransactionPresenter.MyView, TransactionPresenter.MyProxy> {
+public class TransactionPresenter extends ManualRevealPresenter<TransactionPresenter.MyView, TransactionPresenter.MyProxy> {
 
     static enum JacorbState {
         UNDEFINED("undefined"),
@@ -64,7 +63,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
     @SubsystemExtension(name = "Transactions", group = "Container", key = "transactions")
     @RequiredResources(resources = {"{selected.profile}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "log-store"})
-    public interface MyProxy extends Proxy<TransactionPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<TransactionPresenter> {
     }
 
 

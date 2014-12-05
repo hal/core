@@ -3,15 +3,14 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -35,13 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class ServletPresenter extends Presenter<ServletPresenter.MyView, ServletPresenter.MyProxy>
+public class ServletPresenter extends ManualRevealPresenter<ServletPresenter.MyView, ServletPresenter.MyProxy>
         implements DefaultPresenterContract {
 
     private final PlaceManager placeManager;
@@ -71,7 +69,7 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
     @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
     @ProxyCodeSplit
     @NameToken(NameTokens.ServletPresenter)
-    public interface MyProxy extends Proxy<ServletPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<ServletPresenter> {
     }
 
     public interface MyView extends View {
@@ -160,7 +158,7 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         currentContainer = request.getParameter("name", null);
     }
 

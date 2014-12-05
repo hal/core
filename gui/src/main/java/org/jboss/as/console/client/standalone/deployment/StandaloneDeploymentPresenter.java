@@ -25,12 +25,12 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelection;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -63,7 +63,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 3/14/11
  */
 public class StandaloneDeploymentPresenter
-        extends Presenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
+        extends ManualRevealPresenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor {
 
     @ProxyCodeSplit
@@ -71,12 +71,11 @@ public class StandaloneDeploymentPresenter
     @NameToken(NameTokens.DeploymentBrowserPresenter)
     @SearchIndex(keywords = "deployment")
     @RequiredResources(resources = {"/deployment=*"}, recursive = false)
-    public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place {
-    }
+    public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> {}
+
 
     public interface MyView extends View {
         void setPresenter(StandaloneDeploymentPresenter presenter);
-
         void updateDeployments(List<DeploymentRecord> deployments);
     }
 
@@ -100,7 +99,7 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    public void prepareFromRequest(final PlaceRequest request) {
+    protected void withRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
 
         final String action = request.getParameter("action", null);

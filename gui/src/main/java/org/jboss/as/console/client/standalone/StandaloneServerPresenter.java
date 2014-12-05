@@ -7,17 +7,16 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -43,7 +42,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 6/7/11
  */
-public class StandaloneServerPresenter extends Presenter<StandaloneServerPresenter.MyView, StandaloneServerPresenter.MyProxy> implements ExtensionManager {
+public class StandaloneServerPresenter extends ManualRevealPresenter<StandaloneServerPresenter.MyView, StandaloneServerPresenter.MyProxy> implements ExtensionManager {
 
     private final PlaceManager placeManager;
     private DispatchAsync dispatcher;
@@ -55,7 +54,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
     @ProxyCodeSplit
     @NameToken(NameTokens.StandaloneServerPresenter)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<StandaloneServerPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<StandaloneServerPresenter> {
     }
 
     public interface MyView extends View {

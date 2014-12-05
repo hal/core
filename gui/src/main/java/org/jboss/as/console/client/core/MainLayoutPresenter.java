@@ -59,9 +59,9 @@ public class MainLayoutPresenter
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
+    @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.mainLayout)
-    @NoGatekeeper
     public interface MainLayoutProxy extends ProxyPlace<MainLayoutPresenter> {}
 
     @Inject

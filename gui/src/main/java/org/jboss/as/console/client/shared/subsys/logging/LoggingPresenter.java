@@ -20,12 +20,11 @@ package org.jboss.as.console.client.shared.subsys.logging;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.RequiredResources;
@@ -37,13 +36,13 @@ import org.jboss.as.console.spi.SearchIndex;
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  * @date 10/27/2011
  */
-public class LoggingPresenter extends Presenter<LoggingPresenter.MyView, LoggingPresenter.MyProxy> {
+public class LoggingPresenter extends ManualRevealPresenter<LoggingPresenter.MyView, LoggingPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Logger)
     @RequiredResources(resources = {"{selected.profile}/subsystem=logging"})
     @SearchIndex(keywords = {"log", "log-level", "category", "pattern", "handler", "log-file", "log4j"})
-    public interface MyProxy extends Proxy<LoggingPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<LoggingPresenter> {
     }
 
     public interface MyView extends View {

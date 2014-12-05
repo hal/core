@@ -25,11 +25,13 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.core.*;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.Header;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.NameTokens;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -45,15 +47,12 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.HomepagePresenter)
-    public interface MyProxy extends Proxy<HomepagePresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HomepagePresenter> {}
 
 
     public interface MyView extends View {
-
         void addInfoBoxes(List<InfoBox> infoBoxes);
-
         void addContentBoxes(List<ContentBox> contentBoxes);
-
         void addSidebarSections(List<SidebarSection> sidebarSections);
     }
 

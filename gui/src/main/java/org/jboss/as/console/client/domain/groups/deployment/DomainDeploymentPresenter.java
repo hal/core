@@ -24,12 +24,12 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -37,8 +37,8 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.deployment.*;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -58,7 +58,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  * @date 3/1/11
  */
-public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
+public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor
 {
     @ProxyCodeSplit
@@ -71,7 +71,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
             "/server-group={addressable.group}/deployment-overlay=*",
             "/deployment=*"
     }, recursive = false)
-    public interface MyProxy extends Proxy<DomainDeploymentPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<DomainDeploymentPresenter> {}
 
 
     public interface MyView extends SuspendableView {
@@ -111,7 +111,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     }
 
     @Override
-    public void prepareFromRequest(final PlaceRequest request) {
+    protected void withRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
 
         final String action = request.getParameter("action", null);

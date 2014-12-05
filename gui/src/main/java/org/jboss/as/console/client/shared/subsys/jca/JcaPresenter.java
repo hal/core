@@ -2,31 +2,23 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.layout.ModalWindowLayout;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
-import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaArchiveValidation;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaBootstrapContext;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaConnectionManager;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaWorkmanager;
-import org.jboss.as.console.client.shared.subsys.jca.model.WorkmanagerPool;
+import org.jboss.as.console.client.shared.subsys.jca.model.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -49,7 +41,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/29/11
  */
-public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.MyProxy>
+public class JcaPresenter extends ManualRevealPresenter<JcaPresenter.MyView, JcaPresenter.MyProxy>
     implements PropertyManagement {
 
     @ProxyCodeSplit
@@ -62,7 +54,7 @@ public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.My
             "{selected.profile}/subsystem=jca/cached-connection-manager=cached-connection-manager",
             "{selected.profile}/subsystem=jca/bootstrap-context=*",
             "{selected.profile}/subsystem=jca/workmanager=*"})
-    public interface MyProxy extends Proxy<JcaPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<JcaPresenter> {}
 
 
     public interface MyView extends View {
@@ -142,7 +134,7 @@ public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.My
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
 
         this.selectedWorkmanager = request.getParameter("name", null);

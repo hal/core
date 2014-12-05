@@ -29,13 +29,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ApplicationProperties;
-import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.SuspendableView;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -66,7 +62,7 @@ import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.V
 /**
  * @author Heiko Braun
  */
-public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
+public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
         implements PropertyManagement {
 
     @ProxyCodeSplit
@@ -75,7 +71,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
             "/{selected.profile}/subsystem=datasources/data-source=*",
             "/{selected.profile}/subsystem=datasources/xa-data-source=*"})
     @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"})
-    public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<DataSourcePresenter> {}
 
 
     public interface MyView extends SuspendableView {

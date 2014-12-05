@@ -25,14 +25,13 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -70,13 +69,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Pavel Slegr
  * @date 5/11/11
  */
-public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.MyProxy> {
+public class WebPresenter extends ManualRevealPresenter<WebPresenter.MyView, WebPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebPresenter)
     @RequiredResources(resources = "/{selected.profile}/subsystem=web", recursive = false)
     @SearchIndex(keywords = {"http", "ssl", "servlet", "jsp", "virtual-host", "filter"})
-    public interface MyProxy extends Proxy<WebPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<WebPresenter> {}
 
 
     public interface MyView extends View, HasPresenter<WebPresenter> {

@@ -12,12 +12,11 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
@@ -43,8 +42,22 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 6/15/12
  */
-public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresenter.MyProxy>
-{
+public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresenter.MyProxy>  {
+
+    @NoGatekeeper
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ToolsPresenter)
+    public interface MyProxy extends ProxyPlace<ToolsPresenter> {}
+
+
+    public interface MyView extends View {
+        void setPresenter(ToolsPresenter presenter);
+    }
+
+
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
+            new GwtEvent.Type<RevealContentHandler<?>>();
 
     private final PlaceManager placeManager;
     private final DispatchAsync dispatcher;
@@ -55,20 +68,6 @@ public class ToolsPresenter extends Presenter<ToolsPresenter.MyView, ToolsPresen
     private DefaultWindow window;
     private RunAsRoleTool runAsRoleTool;
     private DefaultWindow indexWindow;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ToolsPresenter)
-    @NoGatekeeper
-    public interface MyProxy extends Proxy<ToolsPresenter>, Place {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(ToolsPresenter presenter);
-    }
-
-    @ContentSlot
-    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
-            new GwtEvent.Type<RevealContentHandler<?>>();
 
     @Inject
     public ToolsPresenter(

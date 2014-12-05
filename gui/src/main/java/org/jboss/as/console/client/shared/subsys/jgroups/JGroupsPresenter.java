@@ -6,11 +6,11 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -31,12 +31,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -44,14 +39,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 2/16/12
  */
-public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroupsPresenter.MyProxy>
+public class JGroupsPresenter extends ManualRevealPresenter<JGroupsPresenter.MyView, JGroupsPresenter.MyProxy>
         implements PropertyManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JGroupsPresenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=jgroups"})
     @SearchIndex(keywords = {"protocol", "group-communication", "cluster", "channel"})
-    public interface MyProxy extends Proxy<JGroupsPresenter>, Place {
+    public interface MyProxy extends ProxyPlace<JGroupsPresenter> {
     }
 
     public interface MyView extends View {
@@ -112,7 +107,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
+    protected void withRequest(PlaceRequest request) {
         this.selectedStack = request.getParameter("name", null);
     }
 

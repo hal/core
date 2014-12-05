@@ -25,19 +25,14 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.SuspendableView;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -51,8 +46,8 @@ import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -65,7 +60,7 @@ import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRE
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
-public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
+public class TopologyPresenter extends ManualRevealPresenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager {
 
     // We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
@@ -79,7 +74,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
             "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997
             }, recursive = false)
-    public interface MyProxy extends Proxy<TopologyPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<TopologyPresenter> {}
 
 
     public interface MyView extends SuspendableView {
@@ -150,7 +145,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     }
 
     @Override
-    public void prepareFromRequest(final PlaceRequest request) {
+    protected void withRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
         fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
