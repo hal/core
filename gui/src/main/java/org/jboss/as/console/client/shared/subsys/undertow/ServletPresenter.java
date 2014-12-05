@@ -21,7 +21,7 @@ import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -68,7 +68,7 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
         }
     };
 
-    @AccessControl(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
     @ProxyCodeSplit
     @NameToken(NameTokens.ServletPresenter)
     public interface MyProxy extends Proxy<ServletPresenter>, Place {

@@ -37,7 +37,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.deployment.*;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -65,7 +65,7 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
     @NameToken(NameTokens.DeploymentsPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={addressable.group}/deployment=*",
             "/server-group={addressable.group}/deployment-overlay=*",

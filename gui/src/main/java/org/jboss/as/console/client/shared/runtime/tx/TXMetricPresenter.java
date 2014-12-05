@@ -20,7 +20,7 @@ import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.RuntimeExtension;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
@@ -42,7 +42,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
     @ProxyCodeSplit
     @NameToken(NameTokens.TXMetrics)
     @RuntimeExtension(name="Transactions", group=RuntimeGroup.METRICS, key="transactions")
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "commit", "failure", "transaction-log"})
     public interface MyProxy extends Proxy<TXMetricPresenter>, Place {}
 

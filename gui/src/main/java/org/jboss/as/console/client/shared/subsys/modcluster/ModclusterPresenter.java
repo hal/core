@@ -22,7 +22,7 @@ import org.jboss.as.console.client.shared.subsys.modcluster.model.SSLConfig;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -56,7 +56,7 @@ public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ModclusterPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
+    @RequiredResources(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
     @SearchIndex(keywords = {"load-balancing", "reverse-proxy", "cluster", "web-frontend"})
     public interface MyProxy extends Proxy<ModclusterPresenter>, Place {
     }

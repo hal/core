@@ -25,7 +25,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -49,7 +49,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourceMetricPresenter)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{selected.host}/{selected.server}/subsystem=datasources/data-source=*",
             "/{selected.host}/{selected.server}/subsystem=datasources/xa-data-source=*"})
     @SearchIndex(keywords = {"data-source", "pool", "pool-usage"})

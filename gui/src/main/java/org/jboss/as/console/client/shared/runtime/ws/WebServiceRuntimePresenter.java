@@ -17,7 +17,7 @@ import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.EndpointRegistry;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceEndpoint;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -34,7 +34,7 @@ public class WebServiceRuntimePresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServiceRuntimePresenter)
     @SearchIndex(keywords = {"webservices", "jaxws", "endpoint", "jbossws"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"})
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=webservices"})
     public interface MyProxy extends Proxy<WebServiceRuntimePresenter>, Place {}
 
 

@@ -30,7 +30,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.WorkmanagerPool;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -55,7 +55,7 @@ public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.My
     @ProxyCodeSplit
     @NameToken(NameTokens.JcaPresenter)
     @SearchIndex(keywords = {"pool", "resource-management"})
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "{selected.profile}/subsystem=jca",
             "{selected.profile}/subsystem=jca/bean-validation=bean-validation",
             "{selected.profile}/subsystem=jca/archive-validation=archive-validation",

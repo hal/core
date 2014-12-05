@@ -20,7 +20,7 @@ import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceProvider;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -40,7 +40,7 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServicePresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=webservices"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=webservices"})
     @SearchIndex(keywords = {"web", "wsdl", "soap", "client-config", "endpoint-config"})
     public interface MyProxy extends Proxy<WebServicePresenter>, Place {
     }

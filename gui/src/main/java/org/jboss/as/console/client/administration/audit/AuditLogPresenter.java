@@ -28,7 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 /**
@@ -40,7 +40,7 @@ public class AuditLogPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.AuditLogPresenter)
     @SearchIndex(keywords = {"audit", "log", "management"})
-    @AccessControl(resources = {"/{selected.host}/core-service=management/access=audit"})
+    @RequiredResources(resources = {"/{selected.host}/core-service=management/access=audit"})
     public interface MyProxy extends Proxy<AuditLogPresenter>, Place {}
 
 

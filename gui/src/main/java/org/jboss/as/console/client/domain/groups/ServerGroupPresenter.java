@@ -44,7 +44,7 @@ import org.jboss.as.console.client.shared.jvm.*;
 import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -78,7 +78,7 @@ public class ServerGroupPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerGroupPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/server-group=*",
             "opt://server-group={selected.entity}/system-property=*"},
             recursive = false)

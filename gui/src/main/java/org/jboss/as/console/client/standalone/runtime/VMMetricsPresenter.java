@@ -18,7 +18,7 @@ import org.jboss.as.console.client.shared.runtime.Metric;
 import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -41,7 +41,7 @@ public class VMMetricsPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.VirtualMachine)
     @OperationMode(STANDALONE)
-    @AccessControl(
+    @RequiredResources(
             resources = {
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",

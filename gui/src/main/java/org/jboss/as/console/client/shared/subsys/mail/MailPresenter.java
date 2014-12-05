@@ -18,7 +18,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -40,7 +40,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
     @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
     public interface MyProxy extends ProxyPlace<MailPresenter> {}
 

@@ -1,40 +1,19 @@
 package org.jboss.as.console.spi;
 
-import static javax.lang.model.SourceVersion.RELEASE_7;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import org.jboss.as.console.client.plugins.*;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Name;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
+import javax.annotation.processing.*;
+import javax.lang.model.element.*;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
 
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import org.jboss.as.console.client.plugins.AccessControlMetaData;
-import org.jboss.as.console.client.plugins.BootstrapOperation;
-import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
-import org.jboss.as.console.client.plugins.SearchIndexMetaData;
-import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
+import static javax.lang.model.SourceVersion.RELEASE_7;
 
 /**
  * @author Heiko Braun
@@ -52,8 +31,8 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String BEAN_FACTORY_FILENAME = "org.jboss.as.console.client.shared.BeanFactory";
     private static final String SUBSYSTEM_FILENAME = "org.jboss.as.console.client.plugins.SubsystemRegistryImpl";
     private static final String SUBSYSTEM_TEMPLATE = "SubsystemExtensions.tmpl";
-    private static final String ACCESS_FILENAME = "org.jboss.as.console.client.plugins.AccessControlRegistryImpl";
-    private static final String ACCESS_TEMPLATE = "AccessControlRegistry.tmpl";
+    private static final String REQUIRED_RESOURCES_FILENAME = "org.jboss.as.console.client.plugins.RequiredResourcesRegistryImpl";
+    private static final String REQUIRED_RESOURCES_TEMPLATE = "RequiredResourcesRegistry.tmpl";
     private static final String SEARCH_INDEX_FILENAME = "org.jboss.as.console.client.plugins.SearchIndexRegistryImpl";
     private static final String SEARCH_INDEX_TEMPLATE = "SearchIndexRegistry.tmpl";
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
@@ -67,8 +46,8 @@ public class SPIProcessor extends AbstractProcessor {
     private List<ExtensionDeclaration> discoveredBindings;
     private List<String> discoveredBeanFactories;
     private List<String> categoryClasses;
-    private List<SubsystemExtensionMetaData> subsystemDeclararions;
-    private List<AccessControlMetaData> accessControlDeclararions;
+    private List<SubsystemExtensionMetaData> subsystemDeclarations;
+    private List<RequiredResourcesMetaData> requiredResourcesDeclarations;
     private List<SearchIndexMetaData> searchIndexDeclarations;
     private List<BootstrapOperation> bootstrapOperations;
     private List<RuntimeExtensionMetaData> runtimeExtensions;
@@ -85,8 +64,8 @@ public class SPIProcessor extends AbstractProcessor {
         this.discoveredBindings = new ArrayList<>();
         this.discoveredBeanFactories = new ArrayList<>();
         this.categoryClasses = new ArrayList<>();
-        this.subsystemDeclararions = new ArrayList<>();
-        this.accessControlDeclararions = new ArrayList<>();
+        this.subsystemDeclarations = new ArrayList<>();
+        this.requiredResourcesDeclarations = new ArrayList<>();
         this.searchIndexDeclarations = new ArrayList<>();
         this.bootstrapOperations = new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
@@ -220,21 +199,21 @@ public class SPIProcessor extends AbstractProcessor {
 
             if (annotationType.equals(NameToken.class.getName())) {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
-                AccessControl accessControl = element.getAnnotation(AccessControl.class);
+                RequiredResources requiredResources = element.getAnnotation(RequiredResources.class);
 
-                if (accessControl != null) {
+                if (requiredResources != null) {
 
-                    for (String resourceAddress : accessControl.resources()) {
-                        AccessControlMetaData declared = new AccessControlMetaData(
+                    for (String resourceAddress : requiredResources.resources()) {
+                        RequiredResourcesMetaData declared = new RequiredResourcesMetaData(
                                 nameToken.value()[0], resourceAddress
                         );
 
-                        declared.setRecursive(accessControl.recursive());
+                        declared.setRecursive(requiredResources.recursive());
 
-                        accessControlDeclararions.add(declared);
+                        requiredResourcesDeclarations.add(declared);
                     }
 
-                    for (String opString : accessControl.operations()) {
+                    for (String opString : requiredResources.operations()) {
 
                         if (!opString.contains("#")) {
                             throw new IllegalArgumentException("Invalid operation string:" + opString);
@@ -264,11 +243,11 @@ public class SPIProcessor extends AbstractProcessor {
 
             if (annotationType.equals(NameToken.class.getName())) {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
-                AccessControl accessControl = element.getAnnotation(AccessControl.class);
+                RequiredResources requiredResources = element.getAnnotation(RequiredResources.class);
                 SearchIndex searchIndex = element.getAnnotation(SearchIndex.class);
                 OperationMode operationMode = element.getAnnotation(OperationMode.class);
 
-                if (accessControl != null) {
+                if (requiredResources != null) {
                     boolean standalone = true;
                     boolean domain = true;
                     String[] keywords = null;
@@ -284,7 +263,7 @@ public class SPIProcessor extends AbstractProcessor {
                     if (include) {
                         // excluded presenters are not part of the metadata!
                         SearchIndexMetaData searchIndexMetaData = new SearchIndexMetaData(nameToken.value()[0], standalone,
-                                domain, accessControl.resources(), keywords);
+                                domain, requiredResources.resources(), keywords);
                         searchIndexDeclarations.add(searchIndexMetaData);
                     }
                 }
@@ -373,7 +352,7 @@ public class SPIProcessor extends AbstractProcessor {
                             subsystem.group(), subsystem.key()
                     );
 
-                    subsystemDeclararions.add(declared);
+                    subsystemDeclarations.add(declared);
                     if (!nameTokens.add(nameToken.value()[0])) {
                         throw new RuntimeException("Duplicate name token '" + nameToken.value()[0] + "' declared on '"
                                 + element.asType());
@@ -388,7 +367,7 @@ public class SPIProcessor extends AbstractProcessor {
         writeBindingFile();
         writeBeanFactoryFile();
         writeSubsystemFile();
-        writeAccessControlFile();
+        writeRequiredResourcesFile();
         writeSearchIndexFile();
         writeRuntimeFile();
         writeProxyConfigurations();
@@ -399,14 +378,14 @@ public class SPIProcessor extends AbstractProcessor {
         }
     }
 
-    private void writeAccessControlFile() throws Exception {
+    private void writeRequiredResourcesFile() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("metaData", accessControlDeclararions);
+        model.put("metaData", requiredResourcesDeclarations);
         model.put("operations", bootstrapOperations);
 
-        JavaFileObject sourceFile = filer.createSourceFile(ACCESS_FILENAME);
+        JavaFileObject sourceFile = filer.createSourceFile(REQUIRED_RESOURCES_FILENAME);
         OutputStream output = sourceFile.openOutputStream();
-        new TemplateProcessor().process(ACCESS_TEMPLATE, model, output);
+        new TemplateProcessor().process(REQUIRED_RESOURCES_TEMPLATE, model, output);
         output.flush();
         output.close();
     }
@@ -461,7 +440,7 @@ public class SPIProcessor extends AbstractProcessor {
 
     private void writeSubsystemFile() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("subsystemExtensions", subsystemDeclararions);
+        model.put("subsystemExtensions", subsystemDeclarations);
 
         JavaFileObject sourceFile = filer.createSourceFile(SUBSYSTEM_FILENAME);
         OutputStream output = sourceFile.openOutputStream();

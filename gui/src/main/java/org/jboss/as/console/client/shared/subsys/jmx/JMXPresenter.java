@@ -23,7 +23,7 @@ import org.jboss.as.console.client.shared.subsys.jmx.model.JMXSubsystem;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -47,7 +47,7 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
     @ProxyCodeSplit
     @NameToken(NameTokens.JMXPresenter)
     @SearchIndex(keywords = {"jmx", "mbean", "connector", "management"})
-    @AccessControl(resources = {"{selected.profile}/subsystem=jmx"}, recursive = false)
+    @RequiredResources(resources = {"{selected.profile}/subsystem=jmx"}, recursive = false)
     public interface MyProxy extends Proxy<JMXPresenter>, Place {
     }
 

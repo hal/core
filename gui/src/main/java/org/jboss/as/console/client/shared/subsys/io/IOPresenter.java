@@ -38,7 +38,7 @@ import org.jboss.as.console.client.shared.subsys.io.worker.*;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
@@ -56,7 +56,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
 
     @ProxyCodeSplit
     @NameToken(NameTokens.IO)
-    @AccessControl(resources = "{selected.profile}/subsystem=io")
+    @RequiredResources(resources = "{selected.profile}/subsystem=io")
     public interface MyProxy extends Proxy<IOPresenter>, Place {
     }
 

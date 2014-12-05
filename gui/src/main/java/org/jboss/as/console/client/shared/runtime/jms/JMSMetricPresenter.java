@@ -25,7 +25,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -48,7 +48,7 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JmsMetricPresenter)
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"jms", "queue", "topic", "size"})
     public interface MyProxy extends Proxy<JMSMetricPresenter>, Place {
     }

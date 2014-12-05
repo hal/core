@@ -22,7 +22,7 @@ import org.jboss.as.console.client.shared.runtime.jpa.model.JPADeployment;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -48,7 +48,7 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     @ProxyCodeSplit
     @NameToken(NameTokens.JPAMetricPresenter)
     @SearchIndex(keywords = {"jpa", "hibernate"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
     public interface MyProxy extends Proxy<JPAMetricPresenter>, Place {}
 
 

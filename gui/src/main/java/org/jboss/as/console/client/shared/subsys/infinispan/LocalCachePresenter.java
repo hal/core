@@ -33,7 +33,7 @@ import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 
@@ -47,7 +47,7 @@ public class LocalCachePresenter extends Presenter<LocalCachePresenter.MyView, L
     @ProxyCodeSplit
     @NameToken(NameTokens.LocalCachePresenter)
     @SearchIndex(keywords = {"local", "cache"})
-    @AccessControl(resources = {"{selected.profile}/subsystem=infinispan"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=infinispan"})
     public interface MyProxy extends Proxy<LocalCachePresenter>, Place {}
 
 

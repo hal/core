@@ -28,7 +28,7 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 /**
@@ -42,7 +42,7 @@ public class ThreadsPresenter extends Presenter<ThreadsPresenter.MyView, Threads
 
     @ProxyCodeSplit
     @NameToken(NameTokens.BoundedQueueThreadPoolPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=threads"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=threads"})
     @SearchIndex(keywords = {"thread", "thread-pool"})
     public interface MyProxy extends Proxy<ThreadsPresenter>, Place {
     }

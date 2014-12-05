@@ -36,7 +36,7 @@ import org.jboss.as.console.client.shared.runtime.logging.store.*;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServerInstance;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -50,7 +50,7 @@ public class LogFilesPresenter extends CircuitPresenter<LogFilesPresenter.MyView
     @ProxyCodeSplit
     @NameToken(NameTokens.LogFiles)
     @SearchIndex(keywords = {"log-file", "log-view", "server-log", "download"})
-    @AccessControl(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
+    @RequiredResources(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = true)
     public interface MyProxy extends Proxy<LogFilesPresenter>, Place {}
 
 

@@ -49,7 +49,7 @@ import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -74,7 +74,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebPresenter)
-    @AccessControl(resources = "/{selected.profile}/subsystem=web", recursive = false)
+    @RequiredResources(resources = "/{selected.profile}/subsystem=web", recursive = false)
     @SearchIndex(keywords = {"http", "ssl", "servlet", "jsp", "virtual-host", "filter"})
     public interface MyProxy extends Proxy<WebPresenter>, Place {}
 

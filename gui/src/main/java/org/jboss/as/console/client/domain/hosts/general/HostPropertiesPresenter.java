@@ -39,7 +39,7 @@ import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -63,7 +63,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @NameToken(NameTokens.HostPropertiesPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"system-property", "property"})
-    @AccessControl(resources = {"/{selected.host}/system-property=*",})
+    @RequiredResources(resources = {"/{selected.host}/system-property=*",})
     public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {}
 
 

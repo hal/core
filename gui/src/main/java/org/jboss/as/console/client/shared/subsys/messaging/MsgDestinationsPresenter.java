@@ -58,7 +58,7 @@ import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -83,7 +83,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MessagingPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"topic", "queue", "jms", "messaging", "publish", "subscribe"})
     public interface MyProxy extends Proxy<MsgDestinationsPresenter>, Place {}
 

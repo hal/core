@@ -46,7 +46,7 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -70,7 +70,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
     @ProxyCodeSplit
     @NameToken(NameTokens.SocketBindingPresenter)
     @SearchIndex(keywords = {"socket", "port", "multi-cast", "interface", "network-interface", "bind-address"})
-    @AccessControl(resources = {"socket-binding-group=*"})
+    @RequiredResources(resources = {"socket-binding-group=*"})
     public interface MyProxy extends Proxy<SocketBindingPresenter>, Place {}
 
 

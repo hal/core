@@ -44,7 +44,7 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.*;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
@@ -72,7 +72,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{selected.host}/server-config=*",
             "opt://{selected.host}/server-config=*/system-property=*"},
             recursive = false)

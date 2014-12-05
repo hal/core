@@ -36,7 +36,7 @@ import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -55,7 +55,7 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EJB3Presenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=ejb3"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=ejb3"})
     @SearchIndex(keywords = {"remote-service", "passivation", "timer-service", "bean-pool", "iiop",
             "ejb3", "cluster", "thread-pool", "ejb", "mdb", "invocation", "remote", "interface", "local"})
     public interface MyProxy extends Proxy<EJB3Presenter>, Place {

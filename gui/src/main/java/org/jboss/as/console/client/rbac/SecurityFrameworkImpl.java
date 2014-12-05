@@ -7,7 +7,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
@@ -24,13 +24,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -56,7 +50,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
     private static final String COMBINED_DESCRIPTIONS = "combined-descriptions";
 
-    protected final AccessControlRegistry accessControlMetaData;
+    protected final RequiredResourcesRegistry requiredResourcesRegistry;
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final CoreGUIContext coreGUIContext;
@@ -70,11 +64,11 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
 
     @Inject
-    public SecurityFrameworkImpl(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
+    public SecurityFrameworkImpl(RequiredResourcesRegistry requiredResourcesRegistry, DispatchAsync dispatcher,
                                  CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus,
                                  CoreGUIContext coreGUIContext) {
 
-        this.accessControlMetaData = accessControlMetaData;
+        this.requiredResourcesRegistry = requiredResourcesRegistry;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.coreGUIContext = coreGUIContext;
@@ -175,7 +169,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-         createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
+        createSecurityContext(id, requiredResourcesRegistry.getResources(id), requiredResourcesRegistry.isRecursive(id), callback);
     }
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {

@@ -40,8 +40,8 @@ import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -64,20 +64,19 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class StandaloneDeploymentPresenter
         extends Presenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
-        implements DeployCommandExecutor
-{
+        implements DeployCommandExecutor {
+
     @ProxyCodeSplit
-    @NameToken(NameTokens.DeploymentBrowserPresenter)
     @OperationMode(STANDALONE)
+    @NameToken(NameTokens.DeploymentBrowserPresenter)
     @SearchIndex(keywords = "deployment")
-    @AccessControl(resources = {"/deployment=*"}, recursive = false)
-    public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place
-    {
+    @RequiredResources(resources = {"/deployment=*"}, recursive = false)
+    public interface MyProxy extends Proxy<StandaloneDeploymentPresenter>, Place {
     }
 
-    public interface MyView extends View
-    {
+    public interface MyView extends View {
         void setPresenter(StandaloneDeploymentPresenter presenter);
+
         void updateDeployments(List<DeploymentRecord> deployments);
     }
 
@@ -87,8 +86,7 @@ public class StandaloneDeploymentPresenter
 
     @Inject
     public StandaloneDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
-            DispatchAsync dispatcher)
-    {
+                                         DispatchAsync dispatcher) {
         super(eventBus, view, proxy);
         this.deploymentStore = deploymentStore;
         this.dispatcher = dispatcher;
@@ -96,8 +94,7 @@ public class StandaloneDeploymentPresenter
 
 
     @Override
-    protected void onBind()
-    {
+    protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
     }
@@ -113,52 +110,42 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    protected void onReset()
-    {
+    protected void onReset() {
         super.onReset();
         Console.MODULES.getHeader().highlight(NameTokens.DeploymentBrowserPresenter);
         loadDeployments();
     }
 
     @Override
-    public void refreshDeployments()
-    {
+    public void refreshDeployments() {
         loadDeployments();
     }
 
-    private void loadDeployments()
-    {
-        deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>()
-        {
+    private void loadDeployments() {
+        deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>() {
             @Override
-            public void onSuccess(List<DeploymentRecord> result)
-            {
+            public void onSuccess(List<DeploymentRecord> result) {
                 getView().updateDeployments(result);
             }
         });
     }
 
     @Override
-    protected void revealInParent()
-    {
+    protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override
-    public void onRemoveContent(final DeploymentRecord record)
-    {
-        deploymentStore.removeContent(record, new SimpleCallback<DMRResponse>()
-        {
+    public void onRemoveContent(final DeploymentRecord record) {
+        deploymentStore.removeContent(record, new SimpleCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse response)
-            {
+            public void onSuccess(DMRResponse response) {
                 refreshDeployments();
                 DeploymentCommand.REMOVE_FROM_STANDALONE.displaySuccessMessage(StandaloneDeploymentPresenter.this, record);
             }
 
             @Override
-            public void onFailure(Throwable t)
-            {
+            public void onFailure(Throwable t) {
                 super.onFailure(t);
                 refreshDeployments();
                 DeploymentCommand.REMOVE_FROM_STANDALONE
@@ -168,52 +155,40 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    public void enableDisableDeployment(final DeploymentRecord record)
-    {
+    public void enableDisableDeployment(final DeploymentRecord record) {
         final String success;
         final String failed;
-        if (record.isEnabled())
-        {
+        if (record.isEnabled()) {
             success = Console.MESSAGES.successDisabled(record.getRuntimeName());
             failed = Console.MESSAGES.failedToDisable(record.getRuntimeName());
-        }
-        else
-        {
+        } else {
             success = Console.MESSAGES.successEnabled(record.getRuntimeName());
             failed = Console.MESSAGES.failedToEnable(record.getRuntimeName());
         }
         final PopupPanel loading = Feedback.loading(
                 Console.CONSTANTS.common_label_plaseWait(),
                 Console.CONSTANTS.common_label_requestProcessed(),
-                new Feedback.LoadingCallback()
-                {
+                new Feedback.LoadingCallback() {
                     @Override
-                    public void onCancel()
-                    {
+                    public void onCancel() {
 
                     }
                 });
 
-        deploymentStore.enableDisableDeployment(record, new SimpleCallback<DMRResponse>()
-        {
+        deploymentStore.enableDisableDeployment(record, new SimpleCallback<DMRResponse>() {
             @Override
-            public void onFailure(final Throwable caught)
-            {
+            public void onFailure(final Throwable caught) {
                 loading.hide();
                 Console.error(failed, caught.getMessage());
             }
 
             @Override
-            public void onSuccess(DMRResponse response)
-            {
+            public void onSuccess(DMRResponse response) {
                 loading.hide();
                 ModelNode result = response.get();
-                if (result.isFailure())
-                {
+                if (result.isFailure()) {
                     Console.error(failed, result.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Console.info(success);
                 }
                 refreshDeployments();
@@ -222,42 +197,35 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    public void onAssignToServerGroup(DeploymentRecord record, boolean enable, Set<ServerGroupSelection> selectedGroups)
-    {
+    public void onAssignToServerGroup(DeploymentRecord record, boolean enable, Set<ServerGroupSelection> selectedGroups) {
         throw new UnsupportedOperationException("Not supported in standalone mode.");
     }
 
     @Override
-    public List<ServerGroupRecord> getPossibleGroupAssignments(DeploymentRecord record)
-    {
+    public List<ServerGroupRecord> getPossibleGroupAssignments(DeploymentRecord record) {
         return Collections.emptyList();
     }
 
     @Override
-    public void launchGroupSelectionWizard(DeploymentRecord record)
-    {
+    public void launchGroupSelectionWizard(DeploymentRecord record) {
         throw new UnsupportedOperationException("Not supported in standalone mode.");
     }
 
     @Override
-    public void removeDeploymentFromGroup(DeploymentRecord record)
-    {
+    public void removeDeploymentFromGroup(DeploymentRecord record) {
         throw new UnsupportedOperationException("Not supported in standalone mode.");
     }
 
     @Override
-    public void updateDeployment(DeploymentRecord record)
-    {
+    public void updateDeployment(DeploymentRecord record) {
         launchDeploymentDialoge("Replace Deployment", record, true);
     }
 
-    public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate)
-    {
+    public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate) {
         launchDeploymentDialoge(Console.MESSAGES.createTitle("Deployment"), record, isUpdate);
     }
 
-    private void launchDeploymentDialoge(String title, DeploymentRecord record, boolean isUpdate)
-    {
+    private void launchDeploymentDialoge(String title, DeploymentRecord record, boolean isUpdate) {
         window = new DefaultWindow(title);
         window.setWidth(480);
         window.setHeight(480);

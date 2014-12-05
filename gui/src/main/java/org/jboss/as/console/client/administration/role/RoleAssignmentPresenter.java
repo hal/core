@@ -49,7 +49,7 @@ import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -78,7 +78,7 @@ public class RoleAssignmentPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
     @SearchIndex(keywords = {"authorization", "access-control", "rbac", "security"})
-    @AccessControl(resources = {"/core-service=management/access=authorization"}, recursive = false)
+    @RequiredResources(resources = {"/core-service=management/access=authorization"}, recursive = false)
     public interface MyProxy extends Proxy<RoleAssignmentPresenter>, Place {}
 
 

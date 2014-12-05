@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * Search index meta data for presenters. This annotation works as add-on for {@link
- * org.jboss.as.console.spi.AccessControl} which is the primarily source for the search index. Without specifying
+ * RequiredResources} which is the primarily source for the search index. Without specifying
  * {@code SearchIndex} on a presenter, the presenter is indexed using the defaults specified here. Only use
  * {@code SearchIndex} on a presenter if you want to exclude the presenter or if you want to boost the presenter by
  * setting keywords.

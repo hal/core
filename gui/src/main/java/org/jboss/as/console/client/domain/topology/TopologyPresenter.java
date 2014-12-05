@@ -51,7 +51,7 @@ import org.jboss.as.console.client.shared.runtime.ext.LoadExtensionCmd;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -74,7 +74,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     @NameToken(NameTokens.Topology)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"domain", "domain-overview", "server", "server-group", "start", "stop", "status"})
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/server-group=*",
             "/{selected.host}/server-config=*"
             //"/{selected.host}/server=*",  https://issues.jboss.org/browse/WFLY-1997

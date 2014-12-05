@@ -34,7 +34,7 @@ import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -58,7 +58,7 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
     @SearchIndex(keywords = {"runtime", "environment", "jvm"})
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
     public interface MyProxy extends Proxy<EnvironmentPresenter>, Place {
     }
 

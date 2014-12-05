@@ -20,7 +20,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.configadmin.wizard.NewConfigAdminDataWizard;
 import org.jboss.as.console.client.shared.util.SimpleDMRResponseHandler;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -43,7 +43,7 @@ public class ConfigAdminPresenter extends Presenter<ConfigAdminPresenter.MyView,
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ConfigAdminPresenter)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{selected.profile}/subsystem=osgi"
     })
     public interface MyProxy extends Proxy<ConfigAdminPresenter>, Place {

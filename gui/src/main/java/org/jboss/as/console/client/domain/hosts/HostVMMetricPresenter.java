@@ -22,7 +22,7 @@ import org.jboss.as.console.client.shared.runtime.vm.VMMetricsManagement;
 import org.jboss.as.console.client.shared.runtime.vm.VMView;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
@@ -42,7 +42,7 @@ public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetric
     @ProxyCodeSplit
     @NameToken(NameTokens.HostVMMetricPresenter)
     @OperationMode(DOMAIN)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",
             "/{selected.host}/{selected.server}/core-service=platform-mbean/type=threading",
             "/{selected.host}/{selected.server}/core-service=platform-mbean/type=memory",

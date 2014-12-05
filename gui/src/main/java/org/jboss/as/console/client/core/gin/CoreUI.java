@@ -59,7 +59,7 @@ import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimegateKeeper;
 import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
@@ -155,6 +155,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.widgets.ModelDrivenRegistry;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -372,7 +373,9 @@ public interface CoreUI {
     // mbui workbench
     Provider<RepositoryPresenter> getRepositoryPresenter();
 
-    AccessControlRegistry getAccessControlRegistry();
+    RequiredResourcesRegistry getRequiredResourcesRegistry();
+
+    ModelDrivenRegistry getModelDrivenRegistry();
 
     SearchIndexRegistry getSearchIndexRegistry();
 
@@ -416,4 +419,6 @@ public interface CoreUI {
     SubsystemStoreAdapter getSubsystemStoreAdapter();
 
     PerspectiveStoreAdapter getPerspectiveStoreAdapter();
+
+    NameTokenRegistry getNameTokenRegistry();
 }

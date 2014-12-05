@@ -20,7 +20,7 @@ import org.jboss.as.console.client.shared.subsys.tx.model.TransactionManager;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.dmr.client.ModelNode;
@@ -62,7 +62,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
     @ProxyCodeSplit
     @NameToken(NameTokens.TransactionPresenter)
     @SubsystemExtension(name = "Transactions", group = "Container", key = "transactions")
-    @AccessControl(resources = {"{selected.profile}/subsystem=transactions"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "log-store"})
     public interface MyProxy extends Proxy<TransactionPresenter>, Place {
     }

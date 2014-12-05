@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 
@@ -47,13 +47,13 @@ public class PlaceRequestSecurityFramework {
     private final static SecurityContext DEFAULT_CONTEXT = new NoGatekeeperContext();
 
     private final SecurityFramework securityFramework;
-    private final AccessControlRegistry accessControlMetaData;
+    private final RequiredResourcesRegistry accessControlMetaData;
     private final TokenFormatter tokenFormatter;
     private final Map<String, SecurityContext> contextCache;
 
     @Inject
     public PlaceRequestSecurityFramework(final SecurityFramework securityFramework,
-                                         final AccessControlRegistry accessControlMetaData, final TokenFormatter tokenFormatter) {
+                                         final RequiredResourcesRegistry accessControlMetaData, final TokenFormatter tokenFormatter) {
         this.securityFramework = securityFramework;
         this.accessControlMetaData = accessControlMetaData;
         this.tokenFormatter = tokenFormatter;

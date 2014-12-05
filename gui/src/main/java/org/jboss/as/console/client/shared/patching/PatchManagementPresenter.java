@@ -42,7 +42,7 @@ import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackConte
 import org.jboss.as.console.client.shared.patching.wizard.rollback.RollbackWizard;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -67,7 +67,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
     @SearchIndex(keywords = {"patching", "update", "upgrade"})
-    @AccessControl(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
+    @RequiredResources(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
     public interface MyProxy extends Proxy<PatchManagementPresenter>, Place {
     }
 

@@ -37,7 +37,7 @@ import org.jboss.as.console.client.shared.subsys.batch.store.*;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.widgets.AddressableResourceView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
@@ -58,7 +58,7 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Batch)
-    @AccessControl(resources = "{selected.profile}/subsystem=batch")
+    @RequiredResources(resources = "{selected.profile}/subsystem=batch")
     public interface MyProxy extends Proxy<BatchPresenter>, Place {
     }
 

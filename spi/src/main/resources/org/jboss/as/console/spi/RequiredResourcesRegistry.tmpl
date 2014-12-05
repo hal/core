@@ -3,14 +3,14 @@ package org.jboss.as.console.client.plugins;
 
 import java.util.*;
 
-public class AccessControlRegistryImpl implements AccessControlRegistry{
+public class RequiredResourcesRegistryImpl implements RequiredResourcesRegistry {
 
-    private Set<AccessControlMetaData> accessMetaData;
+    private Set<RequiredResourcesMetaData> metaData;
     private ResourceMapping resourceMapping;
 
-    public AccessControlRegistryImpl() {
+    public RequiredResourcesRegistryImpl() {
 
-    this.accessMetaData = new HashSet<AccessControlMetaData>();
+        this.metaData = new HashSet<RequiredResourcesMetaData>();
         this.resourceMapping = new ResourceMapping();
 
         <#list metaData as md>

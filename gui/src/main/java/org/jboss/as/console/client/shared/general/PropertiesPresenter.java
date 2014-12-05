@@ -39,7 +39,7 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -60,7 +60,7 @@ public class PropertiesPresenter extends Presenter<PropertiesPresenter.MyView, P
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PropertiesPresenter)
-    @AccessControl(resources = {"system-property=*"})
+    @RequiredResources(resources = {"system-property=*"})
     @SearchIndex(keywords = {"system-property", "property"})
     public interface MyProxy extends Proxy<PropertiesPresenter>, Place {
     }

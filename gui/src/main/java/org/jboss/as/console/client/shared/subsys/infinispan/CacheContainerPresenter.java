@@ -33,7 +33,7 @@ import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 
@@ -49,7 +49,7 @@ public class CacheContainerPresenter extends Presenter<CacheContainerPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.CacheContainerPresenter)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "{selected.profile}/subsystem=infinispan"
     })
     @SearchIndex(keywords = {

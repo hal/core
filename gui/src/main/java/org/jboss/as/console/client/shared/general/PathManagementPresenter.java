@@ -17,7 +17,7 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -40,7 +40,7 @@ public class PathManagementPresenter extends Presenter<PathManagementPresenter.M
     @ProxyCodeSplit
     @NameToken(NameTokens.PathManagementPresenter)
     @SearchIndex(keywords = {"file-system"})
-    @AccessControl(resources = {"path=*"})
+    @RequiredResources(resources = {"path=*"})
     public interface MyProxy extends Proxy<PathManagementPresenter>, Place {
     }
 

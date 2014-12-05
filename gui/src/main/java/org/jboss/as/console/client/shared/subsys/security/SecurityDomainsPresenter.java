@@ -46,7 +46,7 @@ import org.jboss.as.console.client.shared.util.SimpleDMRResponseHandler;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -68,7 +68,7 @@ public class SecurityDomainsPresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SecurityDomainsPresenter)
-    @AccessControl(resources = {"/{selected.profile}/subsystem=security/security-domain=*"})
+    @RequiredResources(resources = {"/{selected.profile}/subsystem=security/security-domain=*"})
     @SearchIndex(keywords = {"security-domain", "authentication", "security", "vault", "authorisation",
             "jaas", "login-module"})
     public interface MyProxy extends Proxy<SecurityDomainsPresenter>, Place {

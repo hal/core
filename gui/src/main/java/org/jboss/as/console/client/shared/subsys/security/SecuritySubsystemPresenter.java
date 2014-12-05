@@ -29,7 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 /**
@@ -41,7 +41,7 @@ public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPrese
     @ProxyCodeSplit
     @NameToken(NameTokens.SecuritySubsystemPresenter)
     @SearchIndex(keywords = {"login-config", "login-module", "login-context", "authentication", "jaas"})
-    @AccessControl(resources = {"/{selected.profile}/subsystem=security"}, recursive = false)
+    @RequiredResources(resources = {"/{selected.profile}/subsystem=security"}, recursive = false)
     public interface MyProxy extends Proxy<SecuritySubsystemPresenter>, Place {}
 
 

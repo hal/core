@@ -23,7 +23,7 @@ public interface SecurityFramework extends SecurityService {
 
     /**
      * Create a security context for a particular place.
-     * Retrieves access control meta data from {@link org.jboss.as.console.spi.AccessControl} annotation.
+     * Retrieves access control meta data from {@link org.jboss.as.console.spi.RequiredResources} annotation.
      *
      * @param id
      * @param callback

@@ -30,7 +30,7 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -57,7 +57,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgConnectionsPresenter)
     @SubsystemExtension(name="Connections", group = "Messaging", key="messaging")
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "{selected.profile}/subsystem=messaging/hornetq-server=*",
             "{selected.profile}/subsystem=messaging/jms-bridge=*"})
     @SearchIndex(keywords = {"jms", "acceptor", "bridge", "connector"})

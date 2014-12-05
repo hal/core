@@ -42,7 +42,7 @@ import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -73,7 +73,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     @NameToken(NameTokens.HostJVMPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
-    @AccessControl(resources = {"/{selected.host}/jvm=*",})
+    @RequiredResources(resources = {"/{selected.host}/jvm=*",})
     public interface MyProxy extends Proxy<HostJVMPresenter>, Place {}
 
 

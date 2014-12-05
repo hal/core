@@ -20,7 +20,7 @@ import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -45,7 +45,7 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EEPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=ee"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=ee"})
     @SearchIndex(keywords = {"thread-factory", "ee", "context-service", "scheduler", "executor", "managed-bean"})
     public interface MyProxy extends Proxy<EEPresenter>, Place {}
 

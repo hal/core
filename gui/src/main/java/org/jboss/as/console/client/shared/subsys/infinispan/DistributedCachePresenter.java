@@ -29,7 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
 /**
@@ -42,7 +42,7 @@ public class DistributedCachePresenter extends Presenter<DistributedCachePresent
     @ProxyCodeSplit
     @NameToken(NameTokens.DistributedCachePresenter)
     @SearchIndex(keywords = {"cache", "cluster"})
-    @AccessControl(resources = {"{selected.profile}/subsystem=infinispan"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=infinispan"})
     public interface MyProxy extends Proxy<DistributedCachePresenter>, Place {
     }
 

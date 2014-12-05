@@ -20,7 +20,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.web.LoadConnectorCmd;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -42,7 +42,7 @@ public class WebMetricPresenter extends CircuitPresenter<WebMetricPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.WebMetricPresenter)
-    @AccessControl(resources = {"/{selected.host}/{selected.server}/subsystem=web"}, recursive = false)
+    @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=web"}, recursive = false)
     @SearchIndex(keywords = {"web", "http", "connections"})
     public interface MyProxy extends Proxy<WebMetricPresenter>, Place {}
 

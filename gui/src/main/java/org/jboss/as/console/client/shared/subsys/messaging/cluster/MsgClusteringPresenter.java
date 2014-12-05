@@ -26,7 +26,7 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -54,7 +54,7 @@ public class MsgClusteringPresenter
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgClusteringPresenter)
     @SubsystemExtension(name="Clustering", group = "Messaging", key="messaging")
-    @AccessControl(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=messaging/hornetq-server=*"})
     @SearchIndex(keywords = {"jms", "messaging", "cluster", "broadcast", "discovery"})
     public interface MyProxy extends Proxy<MsgClusteringPresenter>, Place {
     }
