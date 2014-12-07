@@ -134,9 +134,7 @@ public class ServerGroupPresenter
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
-
+    protected void fromRequest(PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             if (existingProfiles == null || existingSockets == null) {

@@ -21,7 +21,6 @@ package org.jboss.as.console.client.shared.general;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -129,8 +128,7 @@ public class SocketBindingPresenter extends ManualRevealPresenter<SocketBindingP
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
+    protected void fromRequest(PlaceRequest request) {
         selectedSocketGroup = request.getParameter("name", null);
     }
 

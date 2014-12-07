@@ -2,7 +2,6 @@ package org.jboss.as.console.client.shared.subsys.jgroups;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -107,7 +106,7 @@ public class JGroupsPresenter extends ManualRevealPresenter<JGroupsPresenter.MyV
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
+    protected void fromRequest(PlaceRequest request) {
         this.selectedStack = request.getParameter("name", null);
     }
 

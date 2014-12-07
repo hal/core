@@ -2,7 +2,6 @@ package org.jboss.as.console.client.csp;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -51,9 +50,7 @@ public class CSPPresenter extends ManualRevealPresenter<CSPPresenter.MyView, CSP
 
 
     @Override
-    protected void withRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
-
+    protected void fromRequest(PlaceRequest request) {
         angularRef = request.getParameter("ref", "search");
     }
 

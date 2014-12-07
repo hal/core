@@ -91,7 +91,7 @@ public class MailPresenter extends ManualRevealPresenter<MailPresenter.MyView, M
     }
 
     @Override
-    public void withRequest(PlaceRequest request) {
+    public void fromRequest(PlaceRequest request) {
         this.selectedSession = request.getParameter("name", null);
     }
 

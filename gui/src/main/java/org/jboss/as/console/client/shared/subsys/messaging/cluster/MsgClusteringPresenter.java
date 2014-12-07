@@ -130,8 +130,7 @@ public class MsgClusteringPresenter
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
+    protected void fromRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 

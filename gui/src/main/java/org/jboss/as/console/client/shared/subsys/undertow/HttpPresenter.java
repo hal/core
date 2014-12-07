@@ -167,7 +167,7 @@ public class HttpPresenter extends ManualRevealPresenter<HttpPresenter.MyView, H
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
+    protected void fromRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 

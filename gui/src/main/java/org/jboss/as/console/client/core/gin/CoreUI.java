@@ -23,7 +23,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.inject.client.AsyncProvider;
 import com.google.inject.Provider;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.annotations.DefaultGatekeeper;
 import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -183,7 +182,7 @@ public interface CoreUI {
     //ProxyFailureHandler getProxyFailureHandler();
     TokenFormatter getTokenFormatter();
 
-    @DefaultGatekeeper
+//    @DefaultGatekeeper
     Gatekeeper getRBACGatekeeper();
 
     HostManagementGatekeeper getHostManagementGatekeeper();

@@ -90,7 +90,7 @@ public class JMSMetricPresenter extends CircuitPresenter<JMSMetricPresenter.MyVi
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
+    protected void fromRequest(PlaceRequest request) {
            currentServer = request.getParameter("name", null);
        }
 

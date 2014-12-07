@@ -159,6 +159,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
 //        new Async<ContextCreation>(Footer.PROGRESS_ELEMENT)
 //                .waterfall(new ContextCreation(request), outcome, createContext);
+        super.doRevealPlace(request, updateBrowserUrl);
     }
 
     @Override

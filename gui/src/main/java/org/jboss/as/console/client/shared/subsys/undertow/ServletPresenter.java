@@ -158,7 +158,7 @@ public class ServletPresenter extends ManualRevealPresenter<ServletPresenter.MyV
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
+    protected void fromRequest(PlaceRequest request) {
         currentContainer = request.getParameter("name", null);
     }
 

@@ -145,8 +145,7 @@ public class TopologyPresenter extends ManualRevealPresenter<TopologyPresenter.M
     }
 
     @Override
-    protected void withRequest(final PlaceRequest request) {
-        super.prepareFromRequest(request);
+    protected void fromRequest(final PlaceRequest request) {
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
         fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));

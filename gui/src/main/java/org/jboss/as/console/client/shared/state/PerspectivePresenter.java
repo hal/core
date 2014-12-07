@@ -20,13 +20,13 @@ package org.jboss.as.console.client.shared.state;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SelectPerspective;
@@ -44,7 +44,7 @@ import org.jboss.gwt.circuit.Dispatcher;
  *
  * @author Harald Pehl
  */
-public abstract class PerspectivePresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends ManualRevealPresenter<V, Proxy_>
+public abstract class PerspectivePresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends Presenter<V, Proxy_>
         implements UnauthorizedEvent.UnauthorizedHandler {
 
     private final PlaceManager placeManager;

@@ -6,7 +6,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -83,8 +82,7 @@ public class DialogPresenter extends ManualRevealPresenter<DialogView, DialogPre
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
+    protected void fromRequest(PlaceRequest request) {
         String name = request.getParameter("dialog", null);
         if(null==name)
         {

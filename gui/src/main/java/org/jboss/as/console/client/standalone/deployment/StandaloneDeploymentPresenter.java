@@ -21,7 +21,6 @@ package org.jboss.as.console.client.standalone.deployment;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -60,7 +59,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
- * @date 3/14/11
  */
 public class StandaloneDeploymentPresenter
         extends ManualRevealPresenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
@@ -71,7 +69,11 @@ public class StandaloneDeploymentPresenter
     @NameToken(NameTokens.DeploymentBrowserPresenter)
     @SearchIndex(keywords = "deployment")
     @RequiredResources(resources = {"/deployment=*"}, recursive = false)
+<<<<<<< HEAD
     public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> {}
+=======
+    public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> { }
+>>>>>>> Move canReveal() code to ManualRevealPresenter
 
 
     public interface MyView extends View {
@@ -79,18 +81,23 @@ public class StandaloneDeploymentPresenter
         void updateDeployments(List<DeploymentRecord> deployments);
     }
 
+
     private DeploymentStore deploymentStore;
     private DefaultWindow window;
     private DispatchAsync dispatcher;
 
     @Inject
+<<<<<<< HEAD
     public StandaloneDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
                                          DispatchAsync dispatcher) {
+=======
+    public StandaloneDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                                         DeploymentStore deploymentStore, DispatchAsync dispatcher) {
+>>>>>>> Move canReveal() code to ManualRevealPresenter
         super(eventBus, view, proxy);
         this.deploymentStore = deploymentStore;
         this.dispatcher = dispatcher;
     }
-
 
     @Override
     protected void onBind() {
@@ -99,9 +106,7 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    protected void withRequest(final PlaceRequest request) {
-        super.prepareFromRequest(request);
-
+    protected void fromRequest(final PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewDeploymentDialoge(null, false);
@@ -121,7 +126,12 @@ public class StandaloneDeploymentPresenter
     }
 
     private void loadDeployments() {
+<<<<<<< HEAD
         deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>() {
+=======
+        deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>()
+        {
+>>>>>>> Move canReveal() code to ManualRevealPresenter
             @Override
             public void onSuccess(List<DeploymentRecord> result) {
                 getView().updateDeployments(result);

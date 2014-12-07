@@ -131,7 +131,7 @@ public class ProfileMgmtPresenter
     }
 
     @Override
-    protected void withRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         super.prepareFromRequest(request);
 
         final String preselection = request.getParameter("profile", null);

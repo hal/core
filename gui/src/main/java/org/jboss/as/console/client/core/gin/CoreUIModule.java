@@ -761,7 +761,6 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(PerspectiveStoreAdapter.class).in(Singleton.class);
         bind(NameTokenRegistry.class).in(Singleton.class);
         bind(ModelDrivenRegistry.class).in(Singleton.class);
-
     }
 
     @Provides Scheduler provideScheduler() {

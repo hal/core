@@ -25,6 +25,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.proxy.Gatekeeper;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
@@ -46,6 +48,8 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
 
     // TODO Replace "static" injections
     private final Progress progress = Footer.PROGRESS_ELEMENT;
+    private final Gatekeeper gatekeeper = Console.MODULES.getRBACGatekeeper();
+    private final PlaceManager placeManager = Console.MODULES.getPlaceManager();
     private final DispatchAsync dispatcher = Console.MODULES.getDispatchAsync();
     private final StatementContext statementContext = Console.MODULES.getCoreGUIContext();
     private final NameTokenRegistry nameTokenRegistry = Console.MODULES.getNameTokenRegistry();
@@ -87,16 +91,28 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
 
                 @Override
                 public void onSuccess(Void result) {
-                    withRequest(request);
-                    nameTokenRegistry.revealed(token);
+                    if (canReveal()) {
+                        fromRequest(request);
+                        nameTokenRegistry.revealed(token);
+                    } else {
+                        placeManager.revealUnauthorizedPlace(request.getNameToken());
+                    }
                 }
             });
         } else {
-            withRequest(request);
+            if (canReveal()) {
+                fromRequest(request);
+            } else {
+                placeManager.revealUnauthorizedPlace(request.getNameToken());
+            }
         }
     }
 
-    protected void withRequest(final PlaceRequest request) {
+    private boolean canReveal() {
+        return gatekeeper.canReveal();
+    }
+
+    protected void fromRequest(final PlaceRequest request) {
         // noop
     }
 }

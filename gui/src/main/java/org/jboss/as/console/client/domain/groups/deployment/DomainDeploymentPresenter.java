@@ -21,7 +21,6 @@ package org.jboss.as.console.client.domain.groups.deployment;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -56,14 +55,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @author Harald Pehl
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
- * @date 3/1/11
  */
 public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
-        implements DeployCommandExecutor
-{
+        implements DeployCommandExecutor {
+
     @ProxyCodeSplit
-    @NameToken(NameTokens.DeploymentsPresenter)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.DeploymentsPresenter)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
@@ -89,8 +87,7 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
 
     @Inject
     public DomainDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
-            DispatchAsync dispatcher)
-    {
+                                     DispatchAsync dispatcher) {
         super(eventBus, view, proxy);
         this.deploymentStore = deploymentStore;
         this.dispatcher = dispatcher;
@@ -98,22 +95,18 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    protected void onBind()
-    {
+    protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
     }
 
     @Override
-    protected void revealInParent()
-    {
+    protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override
-    protected void withRequest(final PlaceRequest request) {
-        super.prepareFromRequest(request);
-
+    protected void fromRequest(final PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewDeploymentDialoge(null, false);
@@ -121,27 +114,22 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    protected void onReset()
-    {
+    protected void onReset() {
         super.onReset();
         Console.MODULES.getHeader().highlight(NameTokens.DeploymentsPresenter);
         loadContentRepository();
     }
 
     @Override
-    public void refreshDeployments()
-    {
+    public void refreshDeployments() {
         loadContentRepository();
     }
 
 
-    private void loadContentRepository()
-    {
-        deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>()
-        {
+    private void loadContentRepository() {
+        deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
             @Override
-            public void onSuccess(final ContentRepository result)
-            {
+            public void onSuccess(final ContentRepository result) {
                 DomainDeploymentPresenter.this.contentRepository = result;
                 getView().reset(result);
             }
@@ -151,52 +139,40 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     // ------------------------------------------------------ TODO Refactor
 
     @Override
-    public void enableDisableDeployment(final DeploymentRecord record)
-    {
+    public void enableDisableDeployment(final DeploymentRecord record) {
         final String success;
         final String failed;
-        if (record.isEnabled())
-        {
+        if (record.isEnabled()) {
             success = Console.MESSAGES.successDisabled(record.getRuntimeName());
             failed = Console.MESSAGES.failedToDisable(record.getRuntimeName());
-        }
-        else
-        {
+        } else {
             success = Console.MESSAGES.successEnabled(record.getRuntimeName());
             failed = Console.MESSAGES.failedToEnable(record.getRuntimeName());
         }
         final PopupPanel loading = Feedback.loading(
                 Console.CONSTANTS.common_label_plaseWait(),
                 Console.CONSTANTS.common_label_requestProcessed(),
-                new Feedback.LoadingCallback()
-                {
+                new Feedback.LoadingCallback() {
                     @Override
-                    public void onCancel()
-                    {
+                    public void onCancel() {
 
                     }
                 });
 
-        deploymentStore.enableDisableDeployment(record, new SimpleCallback<DMRResponse>()
-        {
+        deploymentStore.enableDisableDeployment(record, new SimpleCallback<DMRResponse>() {
             @Override
-            public void onFailure(final Throwable caught)
-            {
+            public void onFailure(final Throwable caught) {
                 loading.hide();
                 Console.error(failed, caught.getMessage());
             }
 
             @Override
-            public void onSuccess(DMRResponse response)
-            {
+            public void onSuccess(DMRResponse response) {
                 loading.hide();
                 ModelNode result = response.get();
-                if (result.isFailure())
-                {
+                if (result.isFailure()) {
                     Console.error(failed, result.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Console.info(success);
                 }
                 refreshDeployments();
@@ -205,20 +181,16 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    public void removeDeploymentFromGroup(final DeploymentRecord deployment)
-    {
-        deploymentStore.removeDeploymentFromGroup(deployment, new SimpleCallback<DMRResponse>()
-        {
+    public void removeDeploymentFromGroup(final DeploymentRecord deployment) {
+        deploymentStore.removeDeploymentFromGroup(deployment, new SimpleCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse response)
-            {
+            public void onSuccess(DMRResponse response) {
                 refreshDeployments();
                 DeploymentCommand.REMOVE_FROM_GROUP.displaySuccessMessage(DomainDeploymentPresenter.this, deployment);
             }
 
             @Override
-            public void onFailure(Throwable t)
-            {
+            public void onFailure(Throwable t) {
                 super.onFailure(t);
                 refreshDeployments();
                 DeploymentCommand.REMOVE_FROM_GROUP.displayFailureMessage(DomainDeploymentPresenter.this, deployment, t);
@@ -228,46 +200,38 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
 
     @Override
     public void onAssignToServerGroup(final DeploymentRecord deployment, final boolean enable,
-            Set<ServerGroupSelection> selection)
-    {
+                                      Set<ServerGroupSelection> selection) {
         final PopupPanel loading = Feedback.loading(
                 Console.CONSTANTS.common_label_plaseWait(),
                 Console.CONSTANTS.common_label_requestProcessed(),
-                new Feedback.LoadingCallback()
-                {
+                new Feedback.LoadingCallback() {
                     @Override
-                    public void onCancel()
-                    {
+                    public void onCancel() {
 
                     }
                 });
 
         Set<String> names = new HashSet<String>();
-        for (ServerGroupSelection group : selection)
-        { names.add(group.getName()); }
+        for (ServerGroupSelection group : selection) {
+            names.add(group.getName());
+        }
 
-        deploymentStore.addToServerGroups(names, enable, deployment, new SimpleCallback<DMRResponse>()
-        {
+        deploymentStore.addToServerGroups(names, enable, deployment, new SimpleCallback<DMRResponse>() {
             @Override
-            public void onFailure(final Throwable caught)
-            {
+            public void onFailure(final Throwable caught) {
                 loading.hide();
                 Console.error(Console.MESSAGES.addingFailed("Deployment " + deployment.getRuntimeName()),
                         caught.getMessage());
             }
 
             @Override
-            public void onSuccess(DMRResponse response)
-            {
+            public void onSuccess(DMRResponse response) {
                 loading.hide();
                 ModelNode result = response.get();
-                if (result.isFailure())
-                {
+                if (result.isFailure()) {
                     Console.error(Console.MESSAGES.addingFailed("Deployment " + deployment.getRuntimeName()),
                             result.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Console.info(Console.MESSAGES
                             .added("Deployment " + deployment.getRuntimeName() + " to group " + serverGroups));
                 }
@@ -277,19 +241,16 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    public void onRemoveContent(final DeploymentRecord deployment)
-    {
+    public void onRemoveContent(final DeploymentRecord deployment) {
         assert contentRepository != null : "Contentrepository must not be null!";
         List<String> assignedGroups = contentRepository.getServerGroups(deployment);
 
         final PopupPanel loading = Feedback.loading(
                 Console.CONSTANTS.common_label_plaseWait(),
                 Console.CONSTANTS.common_label_requestProcessed(),
-                new Feedback.LoadingCallback()
-                {
+                new Feedback.LoadingCallback() {
                     @Override
-                    public void onCancel()
-                    {
+                    public void onCancel() {
 
                     }
                 });
@@ -299,8 +260,7 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
         operation.get(ADDRESS).setEmptyList();
 
         List<ModelNode> steps = new LinkedList<ModelNode>();
-        for (String group : assignedGroups)
-        {
+        for (String group : assignedGroups) {
             ModelNode groupOp = new ModelNode();
             groupOp.get(OP).set(REMOVE);
             groupOp.get(ADDRESS).add("server-group", group);
@@ -313,24 +273,19 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
         removeContentOp.get(ADDRESS).add("deployment", deployment.getName());
         steps.add(removeContentOp);
         operation.get(STEPS).set(steps);
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>()
-        {
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse dmrResponse)
-            {
+            public void onSuccess(DMRResponse dmrResponse) {
                 loading.hide();
 
                 ModelNode result = dmrResponse.get();
 
-                if (result.isFailure())
-                {
+                if (result.isFailure()) {
                     Console.error(Console.MESSAGES.deletionFailed(
-                            "Deployment " + deployment.getRuntimeName()),
+                                    "Deployment " + deployment.getRuntimeName()),
                             result.getFailureDescription()
                     );
-                }
-                else
-                {
+                } else {
                     Console.info(Console.MESSAGES.deleted("Deployment " + deployment.getRuntimeName()));
                 }
                 refreshDeployments();
@@ -339,31 +294,26 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    public List<ServerGroupRecord> getPossibleGroupAssignments(DeploymentRecord record)
-    {
-        assert contentRepository!=null;
+    public List<ServerGroupRecord> getPossibleGroupAssignments(DeploymentRecord record) {
+        assert contentRepository != null;
         return contentRepository.getPossibleServerGroupAssignments(record);
     }
 
     @Override
-    public void launchGroupSelectionWizard(DeploymentRecord record)
-    {
+    public void launchGroupSelectionWizard(DeploymentRecord record) {
         new ServerGroupSelector(this, record);
     }
 
     @Override
-    public void updateDeployment(DeploymentRecord record)
-    {
+    public void updateDeployment(DeploymentRecord record) {
         launchDeploymentDialoge("Update Deployment", record, true);
     }
 
-    public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate)
-    {
+    public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate) {
         launchDeploymentDialoge(Console.MESSAGES.createTitle("Deployment"), record, isUpdate);
     }
 
-    public void launchDeploymentDialoge(String title, DeploymentRecord record, boolean isUpdate)
-    {
+    public void launchDeploymentDialoge(String title, DeploymentRecord record, boolean isUpdate) {
         window = new DefaultWindow(title);
         window.setWidth(480);
         window.setHeight(480);
@@ -373,22 +323,19 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
         window.center();
     }
 
-    public void onDisableDeploymentInGroup(DeploymentRecord selection)
-    {
+    public void onDisableDeploymentInGroup(DeploymentRecord selection) {
         new DeploymentCommandDelegate(this, DeploymentCommand.ENABLE_DISABLE).execute(
                 selection
         );
     }
 
-    public void onRemoveDeploymentInGroup(DeploymentRecord selection)
-    {
+    public void onRemoveDeploymentInGroup(DeploymentRecord selection) {
         new DeploymentCommandDelegate(this, DeploymentCommand.REMOVE_FROM_GROUP).execute(
                 selection
         );
     }
 
-    public void launchAssignDeploymentToGroupWizard(ServerGroupRecord serverGroup)
-    {
+    public void launchAssignDeploymentToGroupWizard(ServerGroupRecord serverGroup) {
         assert contentRepository != null;
         List<DeploymentRecord> available = contentRepository.getPossibleServerGroupAssignments(serverGroup);
 
@@ -401,16 +348,13 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
         window.center();
     }
 
-    public void closeDialogue()
-    {
+    public void closeDialogue() {
         window.hide();
     }
 
-    public void onAssignDeployments(ServerGroupRecord serverGroup, Set<DeploymentRecord> selectedSet)
-    {
+    public void onAssignDeployments(ServerGroupRecord serverGroup, Set<DeploymentRecord> selectedSet) {
         closeDialogue();
-        for (DeploymentRecord deployment : selectedSet)
-        {
+        for (DeploymentRecord deployment : selectedSet) {
             HashSet<ServerGroupSelection> groups = new HashSet<ServerGroupSelection>();
             ServerGroupSelection selection = new ServerGroupSelection(serverGroup);
             groups.add(selection);

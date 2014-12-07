@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.core;
 
 import com.google.inject.Inject;
-import com.gwtplatform.mvp.shared.proxy.PlaceTokenRegistry;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.mbui.widgets.ModelDrivenContext;
 import org.jboss.as.console.mbui.widgets.ModelDrivenRegistry;
@@ -38,22 +37,16 @@ import java.util.Set;
  */
 public final class NameTokenRegistry {
 
-    private final PlaceTokenRegistry tokens;
     private final SecurityFramework securityFramework;
     private final ModelDrivenRegistry modelDrivenRegistry;
     private final Set<String> revealedTokens;
 
     @Inject
-    public NameTokenRegistry(PlaceTokenRegistry tokens, SecurityFramework securityFramework,
+    public NameTokenRegistry(SecurityFramework securityFramework,
                              ModelDrivenRegistry modelDrivenRegistry) {
-        this.tokens = tokens;
         this.securityFramework = securityFramework;
         this.modelDrivenRegistry = modelDrivenRegistry;
         this.revealedTokens = new HashSet<>();
-    }
-
-    public Set<String> getAllTokens() {
-        return tokens.getAllPlaceTokens();
     }
 
     public SecurityContext getSecurityContext(String token) {
