@@ -95,15 +95,16 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
                         fromRequest(request);
                         nameTokenRegistry.revealed(token);
                     } else {
-                        placeManager.revealUnauthorizedPlace(request.getNameToken());
+                        placeManager.revealUnauthorizedPlace(token);
                     }
                 }
             });
         } else {
+            getProxy().manualReveal(this);
             if (canReveal()) {
                 fromRequest(request);
             } else {
-                placeManager.revealUnauthorizedPlace(request.getNameToken());
+                placeManager.revealUnauthorizedPlace(token);
             }
         }
     }
