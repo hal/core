@@ -69,11 +69,7 @@ public class StandaloneDeploymentPresenter
     @NameToken(NameTokens.DeploymentBrowserPresenter)
     @SearchIndex(keywords = "deployment")
     @RequiredResources(resources = {"/deployment=*"}, recursive = false)
-<<<<<<< HEAD
     public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> {}
-=======
-    public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> { }
->>>>>>> Move canReveal() code to ManualRevealPresenter
 
 
     public interface MyView extends View {
@@ -87,13 +83,8 @@ public class StandaloneDeploymentPresenter
     private DispatchAsync dispatcher;
 
     @Inject
-<<<<<<< HEAD
-    public StandaloneDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy, DeploymentStore deploymentStore,
-                                         DispatchAsync dispatcher) {
-=======
     public StandaloneDeploymentPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                                          DeploymentStore deploymentStore, DispatchAsync dispatcher) {
->>>>>>> Move canReveal() code to ManualRevealPresenter
         super(eventBus, view, proxy);
         this.deploymentStore = deploymentStore;
         this.dispatcher = dispatcher;
@@ -126,12 +117,7 @@ public class StandaloneDeploymentPresenter
     }
 
     private void loadDeployments() {
-<<<<<<< HEAD
         deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>() {
-=======
-        deploymentStore.loadDeployments(new SimpleCallback<List<DeploymentRecord>>()
-        {
->>>>>>> Move canReveal() code to ManualRevealPresenter
             @Override
             public void onSuccess(List<DeploymentRecord> result) {
                 getView().updateDeployments(result);
