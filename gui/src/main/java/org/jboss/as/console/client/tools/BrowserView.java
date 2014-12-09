@@ -529,6 +529,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     {
         Set<String> names = new HashSet<>();
         Map<String, Set<String>> singletons = new HashMap<>();
+        Set<String> whitelist = new HashSet<>();
         for(ModelNode child : childrenTypes)
         {
             String item = child.asString();
@@ -538,6 +539,9 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             String value = isSingleton ? item.substring(idx+1, item.length()) : item;
 
             names.add(key);
+            if(!isSingleton)
+                whitelist.add(key);
+
             if(isSingleton) {
                 if(null==singletons.get(key))
                     singletons.put(key, new HashSet<String>());
@@ -546,6 +550,14 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             }
 
         }
+
+        // process white list: {datasource, datasource=ExampleDS} means datasource is _not_ a singleton
+        for(String whitelisted : whitelist)
+        {
+            if(singletons.containsKey(whitelisted))
+                singletons.remove(whitelisted);
+        }
+
 
         return new ChildInformation(names, singletons);
 

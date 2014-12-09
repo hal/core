@@ -1,8 +1,14 @@
 package org.jboss.as.console.client.tools;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -32,6 +38,7 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -275,34 +282,62 @@ public class ChildView {
         }
     }
 
+    interface Template extends SafeHtmlTemplates {
+        @Template("<div class=\"{0}\">{1}</div>")
+        SafeHtml item(String cssClass, String title);
+    }
+
+    private static final Template TEMPLATE = GWT.create(Template.class);
+
     class SingletonDialog extends DefaultWindow {
 
-        private ComboBox selector;
+        private final CellList<String> cellList;
+        private final SingleSelectionModel<String> selectionModel;
+
 
         public SingletonDialog(Set<String> singletonTypes, final SimpleCallback callback) {
             super("Select Resource type");
 
-            this.selector = new ComboBox();
+            // Create a CellList that uses the cell.
+            cellList = new CellList<String>(new TextCell()
+            {
+                @Override
+                public void render(Context context, String data, SafeHtmlBuilder sb) {
+                    String cssName = (context.getIndex() %2 > 0) ? "combobox-item combobox-item-odd" : "combobox-item";
 
-            selector.setValues(singletonTypes);
-            selector.setItemSelected(0, true);
+                    if(data.equals(selectionModel.getSelectedObject()))
+                        cssName+=" combobox-item-selected";
+
+                    sb.append(TEMPLATE.item(cssName, data));
+                }
+
+            });
+
+            cellList.setStyleName("fill-layout-width");
+            selectionModel = new SingleSelectionModel<String>();
+
+            cellList.setSelectionModel(selectionModel);
+            cellList.setRowCount(singletonTypes.size(), true);
+            ArrayList<String> values = new ArrayList<String>(singletonTypes);
+            cellList.setRowData(0, values);
+
+            selectionModel.setSelected(values.get(0), true);
 
             VerticalPanel panel = new VerticalPanel();
             panel.setStyleName("fill-layout-width");
-            panel.add(selector.asWidget());
+            panel.add(cellList.asWidget());
             Widget widget = new WindowContentBuilder(panel, new DialogueOptions(
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
 
                             SingletonDialog.this.hide();
-                            callback.onSuccess(selector.getSelectedValue());
+                            callback.onSuccess(selectionModel.getSelectedObject());
                         }
                     },
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
-                            SingletonDialog.this.selector.clearSelection();
                             SingletonDialog.this.hide();
                         }
                     }
@@ -312,8 +347,8 @@ public class ChildView {
 
         }
 
-        public ComboBox getSelector() {
-            return selector;
+        public String getSelectedValue() {
+            return selectionModel.getSelectedObject();
         }
     }
 }
