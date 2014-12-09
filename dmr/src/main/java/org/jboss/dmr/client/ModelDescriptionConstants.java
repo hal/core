@@ -72,6 +72,7 @@ public class ModelDescriptionConstants {
     public static final String INCLUDES = "includes";
     public static final String INCLUDE_ALIASES = "include-aliases";
     public static final String INCLUDE_RUNTIME = "include-runtime";
+    public static final String INCLUDE_SINGLETONS = "include-singletons";
     public static final String INHERITED = "inherited";
     public static final String INET_ADDRESS = "inet-address";
     public static final String INPUT_STREAM_INDEX = "input-stream-index";

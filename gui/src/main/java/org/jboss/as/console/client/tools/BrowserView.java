@@ -36,9 +36,13 @@ import org.jboss.dmr.client.Property;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -349,11 +353,11 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             // if it has been loaded before we need to update the child view
             // the data exists with the tree
             List<ModelNode> model = new ArrayList<ModelNode>(treeItem.getChildCount());
-            boolean squatting = false;
+            boolean hasSingletons = false;
             for(int i=0; i<treeItem.getChildCount(); i++)
             {
                 ModelTreeItem child = (ModelTreeItem)treeItem.getChild(i);
-                squatting = child.isSquatting(); // either all or none children are squatting
+                hasSingletons = child.isSingleton(); // either all or none children are hasSingletons
                 model.add(new ModelNode().set(child.getText()));
             }
 
@@ -361,7 +365,10 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             path.add("*");
             final ModelNode address = toAddress(path);
 
-            childView.setChildren(address, model, squatting);
+            ChildInformation childInformation = treeItem.getParentItem()!=null ?
+                    ((ModelTreeItem) treeItem.getParentItem()).getChildInformation() : treeItem.getChildInformation();
+
+            childView.setChildren(address, model, childInformation);
         }
     }
 
@@ -445,7 +452,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         currentRootKey = key;
 
-        addChildrenTypes(rootItem, modelNodes);
+        addChildrenTypes((ModelTreeItem)rootItem, modelNodes);
     }
 
     /**
@@ -457,22 +464,24 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     public void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem  rootItem = findTreeItem(tree, address);
-        addChildrenTypes(rootItem, modelNodes);
+        addChildrenTypes((ModelTreeItem)rootItem, modelNodes);
 
     }
 
     @Override
-    public void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes, boolean flagSquatting) {
+    public void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes) {
 
         TreeItem rootItem = findTreeItem(tree, address);
 
         assert rootItem!=null : "unable to find matching tree item: "+address;
 
         // update the tree
-        addChildrenNames(rootItem, modelNodes, flagSquatting);
+        addChildrenNames((ModelTreeItem)rootItem, modelNodes);
 
         // update the append child panel
-        childView.setChildren(address, modelNodes, flagSquatting);
+        // the parent of the current node contains the child info
+        ChildInformation childInformation = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation();
+        childView.setChildren(address, modelNodes, childInformation);
     }
 
     @Override
@@ -494,26 +503,55 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         }
     }
 
-    private void addChildrenTypes(TreeItem rootItem, List<ModelNode> modelNodes) {
+    private void addChildrenTypes(ModelTreeItem rootItem, List<ModelNode> modelNodes) {
 
         rootItem.removeItems();
 
-        for(ModelNode child : modelNodes)
+        final ChildInformation childInformation = parseChildrenTypes(modelNodes);
+
+        for(String child : childInformation.getNames())
         {
-            final ModelNode address = getNodeAddress(rootItem, child.asString());
+            final ModelNode address = getNodeAddress(rootItem, child);
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
             html.appendHtmlConstant("<i class='icon-folder-close-alt'></i>&nbsp;");
-            html.appendHtmlConstant(child.asString());
-            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child.asString(), address, false);
+            html.appendHtmlConstant(child);
+            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child, address, childInformation.isSingleton(child));
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
+            rootItem.updateChildInfo(childInformation);
         }
 
         rootItem.setState(true);
     }
 
-    private void addChildrenNames(TreeItem rootItem, List<ModelNode> modelNodes, boolean flagSquatting) {
+    private ChildInformation parseChildrenTypes(List<ModelNode> childrenTypes)
+    {
+        Set<String> names = new HashSet<>();
+        Map<String, Set<String>> singletons = new HashMap<>();
+        for(ModelNode child : childrenTypes)
+        {
+            String item = child.asString();
+            int idx = item.indexOf("=");
+            boolean isSingleton = idx != -1;
+            String key = isSingleton ? item.substring(0, idx) : item;
+            String value = isSingleton ? item.substring(idx+1, item.length()) : item;
+
+            names.add(key);
+            if(isSingleton) {
+                if(null==singletons.get(key))
+                    singletons.put(key, new HashSet<String>());
+
+                singletons.get(key).add(value);
+            }
+
+        }
+
+        return new ChildInformation(names, singletons);
+
+    }
+
+    private void addChildrenNames(ModelTreeItem rootItem, List<ModelNode> modelNodes) {
 
         rootItem.removeItems();
 
@@ -523,13 +561,16 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         for(ModelNode child : modelNodes)
         {
 
-            final ModelNode address = getNodeAddress(rootItem, child.asString());
+            String childName = child.asString();
+            boolean isSingleton = rootItem.hasChildInformation() ? rootItem.getChildInformation().isSingleton(childName) : false;
+            final ModelNode address = getNodeAddress(rootItem, childName);
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
-            String icon = flagSquatting ? "icon-file-alt" : "icon-file-text-alt";
+
+            String icon = isSingleton ? "icon-exclamation-sign" : "icon-file-text-alt";
             html.appendHtmlConstant("<i class='"+icon+"'></i>&nbsp;");
-            html.appendHtmlConstant(child.asString());
-            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), child.asString(), address, flagSquatting);
+            html.appendHtmlConstant(childName);
+            TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
         }
@@ -699,13 +740,14 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
 
         private String key;
         private ModelNode address;
-        private boolean isSquatting = false;
+        private boolean isSingleton = false;
+        private ChildInformation childInformation;
 
-        ModelTreeItem(SafeHtml html, String key, ModelNode address, boolean isSquatting) {
+        ModelTreeItem(SafeHtml html, String key, ModelNode address, boolean isSingleton) {
             super(html);
             this.key = key;
             this.address = address;
-            this.isSquatting = isSquatting;
+            this.isSingleton = isSingleton;
         }
 
         @Override
@@ -721,8 +763,21 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             return key;
         }
 
-        public boolean isSquatting() {
-            return isSquatting;
+        public boolean isSingleton() {
+            return isSingleton;
+        }
+
+        public void updateChildInfo(ChildInformation childInformation) {
+
+            this.childInformation = childInformation;
+        }
+
+        public ChildInformation getChildInformation() {
+            return childInformation;
+        }
+
+        public boolean hasChildInformation() {
+            return childInformation!=null;
         }
     }
 
@@ -732,7 +787,42 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     }
 
     @Override
-    public void showAddDialog(ModelNode address, SecurityContext securityContext, ModelNode desc) {
-        childView.showAddDialog(address, securityContext, desc);
+    public void showAddDialog(ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode desc) {
+        childView.showAddDialog(address, isSingleton, securityContext, desc);
+    }
+
+    class ChildInformation {
+
+        private final Set<String> names;
+        private final Map<String, Set<String>> singletons;
+
+        public ChildInformation(Set<String> names, Map<String, Set<String>> singletons) {
+
+            this.names = names;
+            this.singletons = singletons;
+        }
+
+        /*public ChildInformation() {
+            this.names = new HashSet<>();
+            this.singletons = new HashMap<String, Set<String>>();
+        }*/
+
+        public Set<String> getNames() {
+            return names;
+        }
+
+        public Map<String, Set<String>> getSingletons() {
+            return singletons;
+        }
+
+        public boolean isSingleton(String key) {
+            if(!names.contains(key))
+                throw new IllegalArgumentException("Invalid key "+key);
+            return singletons.containsKey(key);
+        }
+
+        public boolean hasSingletons() {
+            return singletons.size()>0;
+        }
     }
 }

@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.tools;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -50,10 +49,10 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         void setPresenter(BrowserPresenter presenter);
         void updateRootTypes(ModelNode address, List<ModelNode> modelNodes);
         void updateChildrenTypes(ModelNode address, List<ModelNode> modelNodes);
-        void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes, boolean flagSquatting);
+        void updateChildrenNames(ModelNode address, List<ModelNode> modelNodes);
         void updateResource(ModelNode address, SecurityContext securityContext, ModelNode description, ModelNode resource);
 
-        void showAddDialog(ModelNode address, SecurityContext securityContext, ModelNode desc);
+        void showAddDialog(ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode desc);
     }
 
     @Inject
@@ -103,6 +102,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                 ModelNode childTypeOp  = new ModelNode();
                 childTypeOp.get(ADDRESS).set(address);
                 childTypeOp.get(OP).set(READ_CHILDREN_TYPES_OPERATION);
+                childTypeOp.get(INCLUDE_SINGLETONS).set(true);
 
                 dispatcher.execute(new DMRAction(childTypeOp), new SimpleCallback<DMRResponse>() {
                     @Override
@@ -161,7 +161,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
         final String typeName = typeDenominator.asProperty().getName();
 
-        Function<DMRContext> squatterFn = new Function<DMRContext>() {
+       /* Function<DMRContext> squatterFn = new Function<DMRContext>() {
             @Override
             public void execute(final Control<DMRContext> control) {
 
@@ -199,7 +199,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
             }
         };
-
+*/
         Function<DMRContext> childNameFn = new Function<DMRContext>() {
             @Override
             public void execute(final Control<DMRContext> control) {
@@ -245,9 +245,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             @Override
             public void onSuccess(DMRContext context) {
                 ModelNode response = context.response;
-                getView().updateChildrenNames(address, response.get(RESULT).asList(), context.flagSquatting);
+                getView().updateChildrenNames(address, response.get(RESULT).asList());
             }
-        }, squatterFn, childNameFn);
+        }, childNameFn);
 
     }
 
@@ -518,9 +518,9 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     /**
      * Add a child resource
      * @param address
-     * @param isSquatting
+     * @param isSingleton
      */
-    public void onPrepareAddChildResource(final ModelNode address, final boolean isSquatting) {
+    public void onPrepareAddChildResource(final ModelNode address, final boolean isSingleton) {
 
 
         Function<ResourceData> secFn = new Function<ResourceData>() {
@@ -529,7 +529,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
                 SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
 
-                final String addressString = AddressUtils.toString(address, isSquatting);
+                final String addressString = AddressUtils.toString(address, isSingleton);
 
                 final Set<String> resources = new HashSet<String>();
                 resources.add(addressString);
@@ -587,19 +587,11 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                             if (ModelType.LIST.equals(result.getType()))
                                 desc = result.asList().get(0).get(RESULT).asObject();
                             else {
-                                // workaround ...
-                                if (!result.hasDefined(RESULT)) {
-                                    Console.warning("Failed to read resource description" + address);
-                                } else {
-                                    desc = result.asObject();
-                                }
+                                desc = result.asObject();
                             }
 
-                            if (desc != null) {
-
-                                control.getContext().description = desc;
-                                control.proceed();
-                            }
+                            control.getContext().description = desc;
+                            control.proceed();
 
                         }
 
@@ -616,7 +608,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
             @Override
             public void onSuccess(ResourceData context) {
-                getView().showAddDialog(address, context.securityContext, context.description);
+                getView().showAddDialog(address, isSingleton, context.securityContext, context.description);
             }
         }, secFn, descFn);
 

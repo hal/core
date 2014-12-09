@@ -11,6 +11,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
@@ -19,6 +20,7 @@ import org.jboss.as.console.mbui.widgets.ModelNodeColumn;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.ComboBox;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -30,7 +32,9 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -39,7 +43,6 @@ import java.util.List;
 public class ChildView {
 
     private ModelNode currentAddress;
-    private boolean currentSquatting;
 
     private BrowserNavigation presenter;
     private ModelNodeCellTable table;
@@ -47,6 +50,7 @@ public class ChildView {
     private SingleSelectionModel<ModelNode> selectionModel;
     private HTML header;
     private ToolStrip tools;
+    private BrowserView.ChildInformation childInformation;
 
     Widget asWidget() {
 
@@ -57,7 +61,53 @@ public class ChildView {
         tools.addToolButtonRight(new ToolButton("Add", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onPrepareAddChildResource(currentAddress, currentSquatting);
+
+                // onAdd singleton we need to request the specific type to be added
+
+                int i=1;
+                List<Property> addressTuple = currentAddress.asPropertyList();
+                final ModelNode addressPrefix = new ModelNode();
+                Property denominator = null;
+                for(Property tuple : addressTuple)
+                {
+                    if(i==addressTuple.size())
+                    {
+                        denominator = tuple;
+                        break;
+                    }
+                    else
+                    {
+                        addressPrefix.add(tuple.getName(), tuple.getValue());
+                    }
+
+                    i++;
+                }
+
+                if(childInformation.hasSingletons())
+                {
+                    final String denominatorType = denominator.getName();
+                    SingletonDialog dialog = new SingletonDialog(
+                            childInformation.getSingletons().get(denominatorType),
+                            new SimpleCallback<String>() {
+
+                                @Override
+                                public void onSuccess(String result) {
+
+                                    addressPrefix.add(denominatorType, result);
+                                    presenter.onPrepareAddChildResource(addressPrefix, true);
+                                }
+                            }
+                    );
+                    dialog.setWidth(320);
+                    dialog.setHeight(240);
+                    dialog.center();
+
+                }
+                else
+                {
+                    presenter.onPrepareAddChildResource(currentAddress, false);
+                }
+
             }
         }));
 
@@ -129,30 +179,30 @@ public class ChildView {
         this.presenter = presenter;
     }
 
-    public void setChildren(ModelNode address, List<ModelNode> modelNodes, boolean flagSquatting) {
+    public void setChildren(ModelNode address, List<ModelNode> modelNodes, BrowserView.ChildInformation childInformation) {
 
         this.currentAddress = address;
-        this.currentSquatting = flagSquatting;
+        this.childInformation = childInformation;
 
-        String text = flagSquatting ? "Nested Types" : "Child Resources";
+        boolean hasSingletons = childInformation.hasSingletons();
+        String text = hasSingletons ? "Singleton Child Resources" : "Child Resources";
         header.setHTML("<h2 class='homepage-secondary-header'>"+text+" ("+modelNodes.size()+")</h2>");
         dataProvider.setList(modelNodes);
 
-        // squatters cannot be added/removed
-        tools.setVisible(!flagSquatting);
 
     }
 
     /**
      * Callback for creation of add dialogs.
      * Will be invoked once the presenter has loaded the resource description.
-     *  @param address
+     * @param address
+     * @param isSingleton
      * @param securityContext
      * @param description
      */
-    public void showAddDialog(final ModelNode address, SecurityContext securityContext, ModelNode description) {
+    public void showAddDialog(final ModelNode address, boolean isSingleton, SecurityContext securityContext, ModelNode description) {
 
-        String resourceAddress = AddressUtils.asKey(address, false);
+        String resourceAddress = AddressUtils.asKey(address, isSingleton);
         if(securityContext.getOperationPriviledge(resourceAddress, "add").isGranted()) {
             _showAddDialog(address, securityContext, description);
         }
@@ -222,6 +272,48 @@ public class ChildView {
         {
             // no writable attributes
             Feedback.alert("Cannot create child resource", "There are no configurable attributes on resources " + address);
+        }
+    }
+
+    class SingletonDialog extends DefaultWindow {
+
+        private ComboBox selector;
+
+        public SingletonDialog(Set<String> singletonTypes, final SimpleCallback callback) {
+            super("Select Resource type");
+
+            this.selector = new ComboBox();
+
+            selector.setValues(singletonTypes);
+            selector.setItemSelected(0, true);
+
+            VerticalPanel panel = new VerticalPanel();
+            panel.setStyleName("fill-layout-width");
+            panel.add(selector.asWidget());
+            Widget widget = new WindowContentBuilder(panel, new DialogueOptions(
+                    new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+
+                            SingletonDialog.this.hide();
+                            callback.onSuccess(selector.getSelectedValue());
+                        }
+                    },
+                    new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            SingletonDialog.this.selector.clearSelection();
+                            SingletonDialog.this.hide();
+                        }
+                    }
+            )).build();
+
+            setWidget(widget);
+
+        }
+
+        public ComboBox getSelector() {
+            return selector;
         }
     }
 }
