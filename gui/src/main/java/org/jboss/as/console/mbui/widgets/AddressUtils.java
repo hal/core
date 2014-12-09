@@ -28,6 +28,28 @@ public class AddressUtils {
         return fqAddress;
     }
 
+    public static ModelNode fromFqAddress(ModelNode address)
+       {
+           ModelNode wildcardAddress = new ModelNode();
+           List<Property> tuples = address.asPropertyList();
+           int i=0;
+           for(Property tuple : tuples)
+           {
+               String key = tuple.getName();
+               String value = tuple.getValue().asString();
+
+               if(i==tuples.size()-1)
+                   wildcardAddress.add(key, "*");
+               else
+                   wildcardAddress.add(key, value);
+
+               i++;
+           }
+
+
+           return wildcardAddress;
+       }
+
     public static String toString(ModelNode address, boolean fq) {
 
         List<Property> tuples = address.asPropertyList();

@@ -161,45 +161,6 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
 
         final String typeName = typeDenominator.asProperty().getName();
 
-       /* Function<DMRContext> squatterFn = new Function<DMRContext>() {
-            @Override
-            public void execute(final Control<DMRContext> control) {
-
-                ModelNode operation  = new ModelNode();
-                operation.get(ADDRESS).set(address);
-                operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
-
-                dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Log.error("Failed to load child names: " + caught.getMessage());
-
-                        control.getContext().flagSquatting = true;
-                        control.proceed();
-                    }
-
-                    @Override
-                    public void onSuccess(DMRResponse dmrResponse) {
-                        ModelNode dmrRsp = dmrResponse.get();
-
-                        // TODO (hbraun): workaround for https://issues.jboss.org/browse/WFLY-3706
-                        if(dmrRsp.isFailure() || dmrRsp.get(RESULT).isFailure())
-                        {
-                            control.getContext().flagSquatting = true;
-                            //System.out.println("squatting: "+ address);
-                            control.proceed();
-                        }
-                        else
-                        {
-                            control.proceed();
-                        }
-                    }
-                });
-
-            }
-        };
-*/
         Function<DMRContext> childNameFn = new Function<DMRContext>() {
             @Override
             public void execute(final Control<DMRContext> control) {
@@ -630,7 +591,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                     Console.error("Failed to add resource " + fqAddress.asString(),
                             response.getFailureDescription());
                 } else {
-                    readChildrenNames(address);
+                    readChildrenNames(AddressUtils.fromFqAddress(address));
                 }
 
             }

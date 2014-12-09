@@ -26,7 +26,6 @@ import org.jboss.as.console.mbui.widgets.ModelNodeColumn;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.widgets.forms.ComboBox;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -39,7 +38,6 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -93,21 +91,35 @@ public class ChildView {
                 if(childInformation.hasSingletons())
                 {
                     final String denominatorType = denominator.getName();
-                    SingletonDialog dialog = new SingletonDialog(
-                            childInformation.getSingletons().get(denominatorType),
-                            new SimpleCallback<String>() {
+                    Set<String> allowedSubResources = childInformation.getSingletons().get(denominatorType);
 
-                                @Override
-                                public void onSuccess(String result) {
+                    // filter existing resources
+                    for(ModelNode existing : dataProvider.getList())
+                    {
+                        allowedSubResources.remove(existing.asString());
+                    }
 
-                                    addressPrefix.add(denominatorType, result);
-                                    presenter.onPrepareAddChildResource(addressPrefix, true);
+                    if(allowedSubResources.size()>0) {
+                        SingletonDialog dialog = new SingletonDialog(
+                                allowedSubResources,
+                                new SimpleCallback<String>() {
+
+                                    @Override
+                                    public void onSuccess(String result) {
+
+                                        addressPrefix.add(denominatorType, result);
+                                        presenter.onPrepareAddChildResource(addressPrefix, true);
+                                    }
                                 }
-                            }
-                    );
-                    dialog.setWidth(320);
-                    dialog.setHeight(240);
-                    dialog.center();
+                        );
+                        dialog.setWidth(320);
+                        dialog.setHeight(240);
+                        dialog.center();
+                    }
+                    else {
+                        Feedback.alert("Available Children Types","All singleton resources have been added already.");
+                    }
+
 
                 }
                 else
@@ -296,7 +308,7 @@ public class ChildView {
 
 
         public SingletonDialog(Set<String> singletonTypes, final SimpleCallback callback) {
-            super("Select Resource type");
+            super("Select Resource Type");
 
             // Create a CellList that uses the cell.
             cellList = new CellList<String>(new TextCell()
