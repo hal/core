@@ -26,6 +26,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
+import org.jboss.as.console.client.administration.role.operation.PrincipalFunctions;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
@@ -263,8 +264,13 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         ModelNode displayAddress = address.clone();
 
         boolean isPlaceHolder = (treeItem instanceof PlaceholderItem);
+        //ChildInformation childInfo = findChildInfo(treeItem);
 
         if(path.size()%2==0) {
+
+            /*String denominatorType = AddressUtils.getDenominatorType(address.asPropertyList());
+            boolean isSingleton = denominatorType!=null ? childInfo.isSingleton(denominatorType) : false; // false==root*/
+
             // addressable resources
             presenter.readResource(address, isPlaceHolder);
 
@@ -283,6 +289,21 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         }
 
         nodeHeader.updateDescription(displayAddress);
+    }
+
+    private final static ChildInformation findChildInfo(TreeItem treeItem)
+    {
+        ChildInformation childInfo = null;
+
+        if(treeItem instanceof ModelTreeItem)
+        {
+            childInfo = ((ModelTreeItem) treeItem).getChildInformation();
+            if(null==childInfo) {
+                if(treeItem.getParentItem()!=null)
+                    childInfo = findChildInfo(treeItem.getParentItem());
+            }
+        }
+        return childInfo;
     }
 
     /**
