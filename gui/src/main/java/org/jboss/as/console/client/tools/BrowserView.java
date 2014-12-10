@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -52,6 +53,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         BrowserNavigation {
 
     private static final String DEFAULT_ROOT = "Management Model";
+    private static final String WILDCARD = "*";
     private BrowserPresenter presenter;
     private SplitLayoutPanel layout;
 
@@ -255,10 +257,12 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         ModelNode address = toAddress(path);
         ModelNode displayAddress = address.clone();
 
+        boolean isPlaceHolder = (treeItem instanceof PlaceholderItem);
 
         if(path.size()%2==0) {
             // addressable resources
-            presenter.readResource(address);
+            presenter.readResource(address, isPlaceHolder);
+
             toggleEditor(true);
             filter.setEnabled(true);
 
@@ -266,7 +270,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         else {
             toggleEditor(false);
             // display tweaks
-            displayAddress.add(path.getLast(), "*");
+            displayAddress.add(path.getLast(), WILDCARD);
 
             // force loading of children upon selection
             loadChildren((ModelTreeItem)treeItem, false);
@@ -351,7 +355,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         else if(!notHasBeenLoaded)
         {
             // if it has been loaded before we need to update the child view
-            // the data exists with the tree
+            // NOTE: the data exists with the tree
             List<ModelNode> model = new ArrayList<ModelNode>(treeItem.getChildCount());
             boolean hasSingletons = false;
             for(int i=0; i<treeItem.getChildCount(); i++)
@@ -362,7 +366,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             }
 
             final List<String> path = resolvePath(treeItem);
-            path.add("*");
+            path.add(WILDCARD);
             final ModelNode address = toAddress(path);
 
             ChildInformation childInformation = treeItem.getParentItem()!=null ?
@@ -388,7 +392,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             if(i%2!=0 )
                 address.add(path.get(i-1), path.get(i));
             else
-                address.add(path.get(i), "*");
+                address.add(path.get(i), WILDCARD);
         }
 
         return address;
@@ -495,7 +499,10 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         final List<Property> tokens = address.asPropertyList();
         String name = tokens.isEmpty() ? DEFAULT_ROOT : tokens.get(tokens.size()-1).getValue().asString();
 
-        formView.display(address, description, securityContext, new Property(name, resource));
+        if(resource.isDefined())
+            formView.display(address, description, securityContext, new Property(name, resource));
+        else
+            formView.clearDisplay();
 
         if(!GWT.isScript())
         {
@@ -570,22 +577,38 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         if(modelNodes.isEmpty())
             rootItem.addItem(new PlaceholderItem());
 
+        String denominatorType = AddressUtils.getDenominatorType(rootItem.getAddress().asPropertyList());
+
+        Set<String> singletonTypes = ((ModelTreeItem) rootItem.getParentItem()).getChildInformation().getSingletons().get(denominatorType);
+        Set<String> remainingSingletons = rootItem.isSingleton() ?
+                new HashSet<String>(singletonTypes) :
+                new HashSet<String>();
+
         for(ModelNode child : modelNodes)
         {
 
             String childName = child.asString();
-            boolean isSingleton = rootItem.hasChildInformation() ? rootItem.getChildInformation().isSingleton(childName) : false;
+            boolean isSingleton = rootItem.isSingleton; // both parent and child form the tuple and are of the same type
             final ModelNode address = getNodeAddress(rootItem, childName);
 
             SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-            String icon = isSingleton ? "icon-exclamation-sign" : "icon-file-text-alt";
+            String icon = isSingleton ? "icon-file-text-alt" : "icon-file-text-alt";
             html.appendHtmlConstant("<i class='"+icon+"'></i>&nbsp;");
             html.appendHtmlConstant(childName);
             TreeItem childItem = new ModelTreeItem(html.toSafeHtml(), childName, address, isSingleton);
             childItem.addItem(new PlaceholderItem());
             rootItem.addItem(childItem);
+
+            remainingSingletons.remove(childName);
         }
+
+        // remaining singleton links (the ones not added yet)
+        for(String child : remainingSingletons)
+        {
+            rootItem.addItem(new PlaceholderItem(child));
+        }
+
     }
 
     private ModelNode getNodeAddress(TreeItem rootItem, String childName) {
@@ -594,7 +617,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         {
             // non-addressable resource
             path.add(childName);
-            path.add("*");
+            path.add(WILDCARD);
         }
         else
         {
@@ -615,7 +638,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
         {
             path.add(prop.getName());
             final String value = prop.getValue().asString();
-            if(!"*".equals(value)) {
+            if(!WILDCARD.equals(value)) {
                 path.add(value);
             }
         }
@@ -744,7 +767,15 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     class PlaceholderItem extends TreeItem {
 
         PlaceholderItem() {
-            super(new SafeHtmlBuilder().appendEscaped("*").toSafeHtml());
+            super(new SafeHtmlBuilder().appendEscaped(WILDCARD).toSafeHtml());
+        }
+
+        PlaceholderItem(String title) {
+            super(new SafeHtmlBuilder()
+                    .appendHtmlConstant("<span style='color:#cccccc'>")
+                    .appendEscaped(title)
+                    .appendHtmlConstant("</span>")
+                    .toSafeHtml());
         }
     }
 

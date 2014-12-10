@@ -84,7 +84,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         ModelNode target = pinToAddress != null ? pinToAddress : ROOT;
 
         readChildrenTypes(target, true);
-        readResource(target);
+        readResource(target, false);
     }
 
     class DMRContext {
@@ -213,12 +213,19 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
     }
 
     class ResourceData {
+        private final boolean isTransient;
         SecurityContext securityContext;
         ModelNode description;
         ModelNode data;
+
+        public ResourceData(boolean isTransient) {
+            this.isTransient = isTransient;
+        }
     }
 
-    public void readResource(final ModelNode address) {
+
+
+    public void readResource(final ModelNode address, boolean isPlaceHolder) {
 
 
         Function<ResourceData> secFn = new Function<ResourceData>() {
@@ -284,25 +291,33 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         Function<ResourceData> dataFn = new Function<ResourceData>() {
             @Override
             public void execute(final Control<ResourceData> control) {
-                _readResouce(address, new SimpleCallback<ModelNode>() {
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        Console.error("Failed to read resource: "+caught.getMessage());
-                        control.abort();
-                    }
+                if(!control.getContext().isTransient) {
+                    _readResouce(address, new SimpleCallback<ModelNode>() {
 
-                    @Override
-                    public void onSuccess(ModelNode result) {
-                        control.getContext().data = result;
-                        control.proceed();
-                    }
-                });
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            Console.error("Failed to read resource: " + caught.getMessage());
+                            control.abort();
+                        }
+
+                        @Override
+                        public void onSuccess(ModelNode result) {
+                            control.getContext().data = result;
+                            control.proceed();
+                        }
+                    });
+                }
+                else
+                {
+                    control.getContext().data = new ModelNode(); // no data
+                    control.proceed();
+                }
             }
         };
 
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(), new Outcome<ResourceData>() {
+        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 
@@ -416,7 +431,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
                 }
                 else {
                     Console.info("Successfully saved resource " + address.asString());
-                    readResource(address); // refresh
+                    readResource(address, false); // refresh
                 }
 
             }
@@ -561,7 +576,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(), new Outcome<ResourceData>() {
+        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(true), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 

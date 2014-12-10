@@ -90,7 +90,7 @@ public class FormView {
     public void clearDisplay()
     {
         currentAddress = null;
-
+        formContainer.clear();
     }
 
     public void setPresenter(BrowserPresenter presenter) {
@@ -113,7 +113,7 @@ public class FormView {
 
         @Override
         public void onCancel(ModelNode entity) {
-            presenter.readResource(address);
+            presenter.readResource(address, false);
         }
     }
 }

@@ -42,7 +42,7 @@ public class RawView {
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
                         public void execute() {
-                            presenter.readResource(currentAddress);
+                            presenter.readResource(currentAddress, false);
                         }
                     });
                 }
