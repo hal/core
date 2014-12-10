@@ -80,12 +80,10 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
-    public FormAssets build()
-    {
+    public FormAssets build() {
 
         // pre-requisite
-        if(createMode && !modelDescription.hasDefined("operations"))
-        {
+        if (createMode && !modelDescription.hasDefined("operations")) {
             throw new IllegalStateException("Operation descriptions not defined");
         }
 
@@ -98,12 +96,9 @@ public class ModelNodeFormBuilder {
 
 
         List<Property> attributeDescriptions = new ArrayList<Property>();
-        if(createMode && modelDescription.get("operations").get("add").hasDefined("request-properties"))
-        {
+        if (createMode && modelDescription.get("operations").get("add").hasDefined("request-properties")) {
             attributeDescriptions = modelDescription.get("operations").get("add").get("request-properties").asPropertyList();
-        }
-        else if(!createMode)
-        {
+        } else if (!createMode) {
             attributeDescriptions = modelDescription.get("attributes").asPropertyList();
         }
 
@@ -116,12 +111,10 @@ public class ModelNodeFormBuilder {
         });
 
         // catch-all directive, if no explicit attributes given
-        if(null == attributeNames)
-        {
+        if (null == attributeNames) {
             attributeNames = new String[attributeDescriptions.size()];
-            int i=0;
-            for(Property attr : attributeDescriptions)
-            {
+            int i = 0;
+            for (Property attr : attributeDescriptions) {
                 attributeNames[i] = attr.getName();
                 i++;
             }
@@ -140,7 +133,7 @@ public class ModelNodeFormBuilder {
         boolean hasRequired = false;
 
         // for some decision below we need to know wether or not required attributes exist at all
-            if(requiredOnly) {
+        if (requiredOnly) {
             for (Property attr : attributeDescriptions) {
                 ModelNode value = attr.getValue();
                 boolean required = value.hasDefined("nillable") ? !value.get("nillable").asBoolean() : false;
@@ -153,25 +146,22 @@ public class ModelNodeFormBuilder {
             }
         }
 
-        for (String attribute : attributeNames)
-        {
-            for(Property attr : attributeDescriptions)
-            {
+        Set<String[]> unsupportedTypes = new HashSet<>();
+        for (String attribute : attributeNames) {
+            for (Property attr : attributeDescriptions) {
 
                 boolean isRuntime = attr.getValue().get("storage").asString().equals("runtime");
                 boolean isConfig = !attr.getValue().get("storage").asString().equals("runtime"); // TODO: verify statement
 
-                if(runtimeAttributes == false && isRuntime)
-                {
+                if (runtimeAttributes == false && isRuntime) {
                     continue;
                 }
 
-                if(configAttributes == false && isConfig)
-                {
+                if (configAttributes == false && isConfig) {
                     continue;
                 }
 
-                if(!attr.getName().equals(attribute))
+                if (!attr.getName().equals(attribute))
                     continue;
 
                 // -------
@@ -189,7 +179,7 @@ public class ModelNodeFormBuilder {
                 ModelType type = ModelType.valueOf(attrDesc.get("type").asString().toUpperCase());
 
                 // default value
-                if(attrDesc.hasDefined("default")) {
+                if (attrDesc.hasDefined("default")) {
                     ModelNode defaultValue = attrDesc.get("default");
                     ModelNode value = new ModelNode();
                     //value.set(type, ModelNodeForm.downCast(defaultValue));
@@ -202,22 +192,22 @@ public class ModelNodeFormBuilder {
 
                 // read-only
                 final boolean readOnly = attrDesc.hasDefined("access-type") ?
-                        attrDesc.get("access-type").asString().equals("read-only"): false;
+                        attrDesc.get("access-type").asString().equals("read-only") : false;
 
                 // nillable
                 boolean isRequired = attrDesc.hasDefined("nillable") ? !attrDesc.get("nillable").asBoolean() : false;
 
                 // createMode flag
-                if((createMode && readOnly) )
+                if ((createMode && readOnly))
                     continue;
 
                 // requiredOnly flag
-                if(requiredOnly && hasRequired && !isRequired)
+                if (requiredOnly && hasRequired && !isRequired)
                     continue;
 
 
                 // count writable attributes
-                if(!readOnly && !isRuntime) numWritable++;
+                if (!readOnly && !isRuntime) numWritable++;
 
                 // -------
                 // help
@@ -240,8 +230,7 @@ public class ModelNodeFormBuilder {
 
                 FormItem formItem = null;
 
-                switch(type)
-                {
+                switch (type) {
                     case BOOLEAN:
                         formItem = new CheckBoxItem(attr.getName(), label);
                         formItem.setEnabled(!readOnly && !isRuntime);
@@ -254,29 +243,28 @@ public class ModelNodeFormBuilder {
                     case LONG:
                         formItem = new NumberBoxItem(attr.getName(), label);
                         formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly&& !isRuntime);
+                        formItem.setEnabled(!readOnly && !isRuntime);
                         break;
                     case BIG_DECIMAL:
                         formItem = new NumberBoxItem(attr.getName(), label);
                         formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly&& !isRuntime);
+                        formItem.setEnabled(!readOnly && !isRuntime);
                         break;
                     case INT:
                         formItem = new NumberBoxItem(attr.getName(), label);
                         formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly&& !isRuntime);
+                        formItem.setEnabled(!readOnly && !isRuntime);
                         break;
                     case LIST:
                         formItem = new ListItem(attr.getName(), label);
                         formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly&& !isRuntime);
+                        formItem.setEnabled(!readOnly && !isRuntime);
                         break;
                     case STRING:
-                        if(attrDesc.get("allowed").isDefined())
-                        {
+                        if (attrDesc.get("allowed").isDefined()) {
                             List<ModelNode> allowed = attrDesc.get("allowed").asList();
                             Set<String> allowedValues = new HashSet<String>(allowed.size());
-                            for(ModelNode value : allowed)
+                            for (ModelNode value : allowed)
                                 allowedValues.add(value.asString());
 
                             ComboBoxItem combo = new ComboBoxItem(attr.getName(), label);
@@ -285,9 +273,7 @@ public class ModelNodeFormBuilder {
                             combo.setRequired(isRequired);
 
                             formItem = combo;
-                        }
-                        else
-                        {
+                        } else {
                             TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
                             textBoxItem.setAllowWhiteSpace(true);
 
@@ -300,20 +286,19 @@ public class ModelNodeFormBuilder {
                         // TODO: Support for TextAreaItem
 
                         break;
-                    default:
-                        Log.error("Unsupported ModelType " + type + ", attribute '"+attr.getName()+"'");
+                    default: {
+                        unsupportedTypes.add(new String[]{attr.getName(), type.toString()});
+                        Log.error("Unsupported ModelType " + type + ", attribute '" + attr.getName() + "'");
+                    }
                 }
 
-                if(formItem!=null)
-                {
-                    if(createMode) {
-                        if(isRequired)
+                if (formItem != null) {
+                    if (createMode) {
+                        if (isRequired)
                             requiredItems.add(formItem);
                         else
                             optionalItems.add(formItem);
-                    }
-                    else
-                    {
+                    } else {
                         requiredItems.add(formItem);
                     }
                 }
@@ -322,27 +307,22 @@ public class ModelNodeFormBuilder {
         }
 
         // distinguish required and optional fields (createMode)
-        if(requiredItems.isEmpty())
-        {
+        if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required
-            if(createMode)
-            {
+            if (createMode) {
                 optionalItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
             form.setFields(optionalItems.toArray(new FormItem[]{}));
-        }
-        else
-        {
-            if(createMode)
-            {
+        } else {
+            if (createMode) {
                 requiredItems.addFirst(new TextBoxItem("name", "Name", true));
                 numWritable++;
             }
 
             form.setFields(requiredItems.toArray(new FormItem[]{}));
 
-            if(optionalItems.size()>0)
+            if (optionalItems.size() > 0)
                 form.setFieldsInGroup("Optional Fields", new DisclosureGroupRenderer(), optionalItems.toArray(new FormItem[]{}));
         }
 
@@ -351,7 +331,9 @@ public class ModelNodeFormBuilder {
         form.setHasWritableAttributes(numWritable > 0);
 
 
-        return new FormAssets(form, helpTexts.toSafeHtml());
+        FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
+        formAssets.setUnsupportedTypes(unsupportedTypes);
+        return formAssets;
     }
 
     public ModelNodeFormBuilder setRequiredOnly(boolean requiredOnly) {
@@ -374,6 +356,7 @@ public class ModelNodeFormBuilder {
     public final class FormAssets {
         private ModelNodeForm form;
         private SafeHtml help;
+        private Set<String[]> unsupportedTypes = Collections.EMPTY_SET;
 
         public FormAssets(ModelNodeForm form, SafeHtml help) {
             this.form = form;
@@ -386,6 +369,14 @@ public class ModelNodeFormBuilder {
 
         public StaticHelpPanel getHelp() {
             return new StaticHelpPanel(help);
+        }
+
+        public void setUnsupportedTypes(Set<String[]> unsupportedTypes) {
+            this.unsupportedTypes = unsupportedTypes;
+        }
+
+        public Set<String[]> getUnsupportedTypes() {
+            return unsupportedTypes;
         }
     }
 
