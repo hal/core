@@ -360,9 +360,11 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
             boolean hasSingletons = false;
             for(int i=0; i<treeItem.getChildCount(); i++)
             {
-                ModelTreeItem child = (ModelTreeItem)treeItem.getChild(i);
-                hasSingletons = child.isSingleton(); // either all or none children are hasSingletons
-                model.add(new ModelNode().set(child.getText()));
+                if(treeItem.getChild(i) instanceof ModelTreeItem) { // in some cases the children a placehoders
+                    ModelTreeItem child = (ModelTreeItem) treeItem.getChild(i);
+                    hasSingletons = child.isSingleton(); // either all or none children are hasSingletons
+                    model.add(new ModelNode().set(child.getText()));
+                }
             }
 
             final List<String> path = resolvePath(treeItem);
@@ -767,7 +769,7 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     class PlaceholderItem extends TreeItem {
 
         PlaceholderItem() {
-            super(new SafeHtmlBuilder().appendEscaped(WILDCARD).toSafeHtml());
+            this(WILDCARD);
         }
 
         PlaceholderItem(String title) {
