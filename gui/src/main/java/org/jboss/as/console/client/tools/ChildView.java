@@ -38,6 +38,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -88,10 +89,12 @@ public class ChildView {
                     i++;
                 }
 
-                if(childInformation.hasSingletons())
+                final String denominatorType = denominator.getName();
+                if(childInformation.isSingleton(denominatorType))
                 {
-                    final String denominatorType = denominator.getName();
-                    Set<String> allowedSubResources = childInformation.getSingletons().get(denominatorType);
+                    Set<String> allowedSubResources = childInformation.getSingletons().get(denominatorType)!=null ?
+                            new HashSet<String>(childInformation.getSingletons().get(denominatorType)) :
+                            new HashSet<String>();
 
                     // filter existing resources
                     for(ModelNode existing : dataProvider.getList())
@@ -203,8 +206,10 @@ public class ChildView {
         this.currentAddress = address;
         this.childInformation = childInformation;
 
-        boolean hasSingletons = childInformation.hasSingletons();
-        String text = hasSingletons ? "Singleton Child Resources" : "Child Resources";
+        String denominatorType = AddressUtils.getDenominatorType(address.asPropertyList());
+        boolean isSingleton = denominatorType!=null ? childInformation.isSingleton(denominatorType) : false;
+
+        String text = isSingleton ? "Singleton Child Resources" : "Child Resources";
         header.setHTML("<h2 class='homepage-secondary-header'>"+text+" ("+modelNodes.size()+")</h2>");
         dataProvider.setList(modelNodes);
 
@@ -339,6 +344,7 @@ public class ChildView {
             panel.setStyleName("fill-layout-width");
             panel.add(cellList.asWidget());
             Widget widget = new WindowContentBuilder(panel, new DialogueOptions(
+                    "Continue",
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
@@ -347,6 +353,7 @@ public class ChildView {
                             callback.onSuccess(selectionModel.getSelectedObject());
                         }
                     },
+                    "Cancel",
                     new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {

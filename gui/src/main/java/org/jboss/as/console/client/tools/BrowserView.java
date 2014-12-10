@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
+import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.widgets.AddressUtils;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.common.DefaultButton;
@@ -51,6 +52,8 @@ import java.util.Set;
  */
 public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyView,
         BrowserNavigation {
+
+    public final static ProgressElement PROGRESS_ELEMENT = new ProgressElement();
 
     private static final String DEFAULT_ROOT = "Management Model";
     private static final String WILDCARD = "*";
@@ -108,6 +111,8 @@ public class BrowserView extends PopupViewImpl implements BrowserPresenter.MyVie
     private void createWidget() {
         window = new DefaultWindow("Management Model View");
         window.addStyleName("model-browser-window");
+        PROGRESS_ELEMENT.getElement().setAttribute("style", "float:right;margin-right:20px;margin-top:4px");
+        window.getFooter().add(PROGRESS_ELEMENT);
 
         window.setGlassEnabled(true);
 

@@ -51,6 +51,7 @@ public class AddressUtils {
     }
 
     public static String getDenominatorType(List<Property> addressTuple) {
+
         int i=1;
 
         final ModelNode addressPrefix = new ModelNode();
@@ -69,7 +70,7 @@ public class AddressUtils {
 
             i++;
         }
-        return denominator.getName();
+        return denominator!=null ? denominator.getName() : null;
     }
 
     public static String toString(ModelNode address, boolean fq) {

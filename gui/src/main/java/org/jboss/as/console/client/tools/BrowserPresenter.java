@@ -6,7 +6,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupView;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.util.LRUCache;
@@ -125,7 +124,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed ot load children types: "+context.response.getFailureDescription());
@@ -197,7 +196,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new DMRContext(), new Outcome<DMRContext>() {
             @Override
             public void onFailure(DMRContext context) {
                 Console.error("Failed to load children names: "+ context.response.getFailureDescription());
@@ -317,7 +316,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         };
 
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(isPlaceHolder), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 
@@ -576,7 +575,7 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
             }
         };
 
-        new Async(Footer.PROGRESS_ELEMENT).waterfall(new ResourceData(true), new Outcome<ResourceData>() {
+        new Async(BrowserView.PROGRESS_ELEMENT).waterfall(new ResourceData(true), new Outcome<ResourceData>() {
             @Override
             public void onFailure(ResourceData context) {
 
