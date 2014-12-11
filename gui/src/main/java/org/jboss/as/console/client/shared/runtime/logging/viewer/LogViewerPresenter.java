@@ -24,11 +24,13 @@ package org.jboss.as.console.client.shared.runtime.logging.viewer;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.shared.runtime.logging.store.*;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -45,6 +47,7 @@ public class LogViewerPresenter extends CircuitPresenter<LogViewerPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LogViewer)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(exclude = true) // currently not used!
     @RequiredResources(resources = "/{selected.host}/{selected.server}/subsystem=logging", recursive = false)
     public interface MyProxy extends ProxyPlace<LogViewerPresenter> {}

@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -32,6 +33,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
@@ -59,8 +61,9 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
         implements PropertyManagement {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.HostPropertiesPresenter)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.HostPropertiesPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"system-property", "property"})
     @RequiredResources(resources = {"/{selected.host}/system-property=*",})
     public interface MyProxy extends ProxyPlace<HostPropertiesPresenter> {}

@@ -25,6 +25,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
@@ -66,6 +67,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
 
     @ProxyCodeSplit
     @NameToken(NameTokens.PatchingPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"patching", "update", "upgrade"})
     @RequiredResources(resources = {"/{selected.host}", "/{selected.host}/core-service=patching"}, recursive = false)
     public interface MyProxy extends ProxyPlace<PatchManagementPresenter> {

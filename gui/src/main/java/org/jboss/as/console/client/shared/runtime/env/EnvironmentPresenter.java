@@ -21,12 +21,14 @@ package org.jboss.as.console.client.shared.runtime.env;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -56,6 +58,7 @@ public class EnvironmentPresenter extends CircuitPresenter<EnvironmentPresenter.
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EnvironmentPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"runtime", "environment", "jvm"})
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime"})
     public interface MyProxy extends ProxyPlace<EnvironmentPresenter> {

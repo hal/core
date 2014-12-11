@@ -3,6 +3,7 @@ package org.jboss.as.console.client.standalone.runtime;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -10,6 +11,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.LoadJVMMetricsCmd;
 import org.jboss.as.console.client.shared.jvm.model.CompositeVMMetric;
@@ -35,8 +37,9 @@ public class VMMetricsPresenter
         implements VMMetricsManagement {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.VirtualMachine)
     @OperationMode(STANDALONE)
+    @NameToken(NameTokens.VirtualMachine)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(
             resources = {
                     "/{selected.host}/{selected.server}/core-service=platform-mbean/type=runtime",

@@ -23,6 +23,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -30,10 +31,7 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.CircuitPresenter;
-import org.jboss.as.console.client.core.HasPresenter;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.SuspendableView;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.*;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
@@ -70,8 +68,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.ServerPresenter)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.ServerPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {
             "/{selected.host}/server-config=*",
             "opt://{selected.host}/server-config=*/system-property=*"},

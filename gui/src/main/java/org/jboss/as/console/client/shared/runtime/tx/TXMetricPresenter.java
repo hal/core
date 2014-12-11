@@ -4,12 +4,14 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -40,6 +42,7 @@ public class TXMetricPresenter extends CircuitPresenter<TXMetricPresenter.MyView
 
     @ProxyCodeSplit
     @NameToken(NameTokens.TXMetrics)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RuntimeExtension(name="Transactions", group=RuntimeGroup.METRICS, key="transactions")
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/subsystem=transactions"})
     @SearchIndex(keywords = {"transaction", "commit", "failure", "transaction-log"})

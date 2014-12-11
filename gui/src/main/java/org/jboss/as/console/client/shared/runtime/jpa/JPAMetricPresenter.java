@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -14,6 +15,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.runtime.Metric;
@@ -47,6 +49,7 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JPAMetricPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"jpa", "hibernate"})
     @RequiredResources(resources = {"/{selected.host}/{selected.server}/deployment=*/subsystem=jpa"})
     public interface MyProxy extends ProxyPlace<JPAMetricPresenter> {}
