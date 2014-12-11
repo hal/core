@@ -52,6 +52,7 @@ public class FormView {
         {
             // retrieve from cache
             formAssets = widgetCache.get(cacheKey);
+            formAssets.getForm().clearValues();
         }
         else {
 
