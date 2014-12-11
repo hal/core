@@ -2,15 +2,17 @@ package org.jboss.as.console.client.shared.subsys.mail;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -36,10 +38,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Heiko Braun
  */
-public class MailPresenter extends ManualRevealPresenter<MailPresenter.MyView, MailPresenter.MyProxy> {
+public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
     @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
     public interface MyProxy extends ProxyPlace<MailPresenter> {}
@@ -91,7 +94,7 @@ public class MailPresenter extends ManualRevealPresenter<MailPresenter.MyView, M
     }
 
     @Override
-    public void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         this.selectedSession = request.getParameter("name", null);
     }
 

@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.common.base.Stopwatch;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -26,7 +27,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.VerifyResult;
 
 /**
@@ -104,6 +105,8 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
     private List<JDBCDriver> drivers;
     private List<XADataSource> xaDatasources;
 
+    private final Stopwatch stopwatch;
+
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
             DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
@@ -121,6 +124,8 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
         this.datasources = new ArrayList<DataSource>();
         this.xaDatasources = new ArrayList<XADataSource>();
         this.drivers = new ArrayList<JDBCDriver>();
+
+        this.stopwatch = Stopwatch.createUnstarted();
     }
 
     @Override
@@ -130,7 +135,16 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
     }
 
     @Override
+    protected void revealInParent() {
+        stopwatch.reset();
+        stopwatch.start();
+        revealStrategy.revealInParent(this);
+        System.out.println(stopwatch.elapsed(MILLISECONDS) + ": DataSourcePresenter.revealInParent()");
+    }
+
+    @Override
     protected void onReset() {
+        System.out.println(stopwatch.elapsed(MILLISECONDS) + ": DataSourcePresenter.onReset()");
         super.onReset();
 
         Outcome<FunctionContext> resetOutcome = new Outcome<FunctionContext>() {
@@ -145,6 +159,7 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
             @Override
             public void onSuccess(final FunctionContext context) {
                 // reading this kind of information is expensive, so cache the results until the next call to reset()
+                System.out.println(stopwatch.elapsed(MILLISECONDS) + ": DataSourcePresenter.onReset().onSuccess()");
                 datasources = context.get(LoadDataSourcesFunction.KEY);
                 xaDatasources = context.get(LoadXADataSourcesFunction.KEY);
 
@@ -159,6 +174,7 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
+                        System.out.println(stopwatch.elapsed(MILLISECONDS) + ": DataSourcePresenter.scheduleDeferred(loadDrivers())");
                         loadDrivers();
                     }
                 });
@@ -168,11 +184,6 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT)
                 .waterfall(new FunctionContext(), resetOutcome, new LoadDataSourcesFunction(dataSourceStore),
                         new LoadXADataSourcesFunction(dataSourceStore));
-    }
-
-    @Override
-    protected void revealInParent() {
-        revealStrategy.revealInParent(this);
     }
 
     private void loadDrivers() {
@@ -186,6 +197,7 @@ public class DataSourcePresenter extends ManualRevealPresenter<DataSourcePresent
             @Override
             public void onSuccess(final List<JDBCDriver> result) {
                 DataSourcePresenter.this.drivers = result;
+                System.out.println(stopwatch.elapsed(MILLISECONDS) + ": DataSourcePresenter.loadDrivers().onSuccess()");
             }
         });
     }

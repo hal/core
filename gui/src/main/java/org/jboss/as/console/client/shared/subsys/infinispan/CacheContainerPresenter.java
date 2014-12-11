@@ -25,6 +25,7 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -43,23 +44,17 @@ import org.jboss.as.console.spi.SearchIndex;
  */
 public class CacheContainerPresenter extends ManualRevealPresenter<CacheContainerPresenter.MyView, CacheContainerPresenter.MyProxy> {
 
-    private RevealStrategy revealStrategy;
-    private CacheContainerStore cacheContainerStore;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.CacheContainerPresenter)
-    @RequiredResources(resources = {
-            "{selected.profile}/subsystem=infinispan"
-    })
-    @SearchIndex(keywords = {
-               "cache", "ejb", "hibernate", "web", "transport"
-       })
-    public interface MyProxy extends ProxyPlace<CacheContainerPresenter> {
-    }
+    @RequiredResources(resources = {"{selected.profile}/subsystem=infinispan"})
+    @SearchIndex(keywords = {"cache", "ejb", "hibernate", "web", "transport"})
+    public interface MyProxy extends ProxyPlace<CacheContainerPresenter> {}
 
-    public interface MyView extends FrameworkView, View {
-        void setPresenter(CacheContainerPresenter presenter);
-    }
+    public interface MyView extends FrameworkView, View, HasPresenter<CacheContainerPresenter> {}
+
+
+    private RevealStrategy revealStrategy;
+    private CacheContainerStore cacheContainerStore;
 
     @Inject
     public CacheContainerPresenter(
@@ -100,5 +95,4 @@ public class CacheContainerPresenter extends ManualRevealPresenter<CacheContaine
             }
         });
     }
-
 }

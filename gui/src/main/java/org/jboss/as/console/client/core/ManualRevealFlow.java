@@ -57,14 +57,14 @@ class ManualRevealFlow {
         new Async<FunctionContext>(progress).parallel(new FunctionContext(), new Outcome<FunctionContext>() {
             @Override
             public void onFailure(FunctionContext context) {
-                presenter.getProxy().manualRevealFailed();
                 callback.onFailure(context.getError());
+                presenter.getProxy().manualRevealFailed();
             }
 
             @Override
             public void onSuccess(FunctionContext context) {
-                presenter.getProxy().manualReveal(presenter);
                 callback.onSuccess(null);
+                presenter.getProxy().manualReveal(presenter);
             }
         }, functions.toArray(new Function[functions.size()]));
     }

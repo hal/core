@@ -76,6 +76,7 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
         super.prepareFromRequest(request);
 
         final String token = request.getNameToken();
+        System.out.print("Manual reveal for #" + token + "...");
         if (!nameTokenRegistry.wasRevealed(token)) {
             ManualRevealFlow flow = new ManualRevealFlow(this, progress);
             flow.addFunction(new CreateSecurityContext(token, securityFramework));
@@ -86,15 +87,18 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
             flow.execute(new AsyncCallback<Void>() {
                 @Override
                 public void onFailure(Throwable caught) {
+                    System.out.println("failed: " + caught.getMessage() + "!");
                     // TODO Error handling / reporting
                 }
 
                 @Override
                 public void onSuccess(Void result) {
                     if (canReveal()) {
+                        System.out.println("done.");
                         fromRequest(request);
                         nameTokenRegistry.revealed(token);
                     } else {
+                        System.out.println("forbidden!");
                         placeManager.revealUnauthorizedPlace(token);
                     }
                 }
@@ -102,8 +106,10 @@ public abstract class ManualRevealPresenter<V extends View, Proxy_ extends Proxy
         } else {
             getProxy().manualReveal(this);
             if (canReveal()) {
+                System.out.println("cached.");
                 fromRequest(request);
             } else {
+                System.out.println("forbidden!");
                 placeManager.revealUnauthorizedPlace(token);
             }
         }

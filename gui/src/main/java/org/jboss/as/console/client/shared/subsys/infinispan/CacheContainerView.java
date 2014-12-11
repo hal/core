@@ -170,5 +170,4 @@ public class CacheContainerView extends AbstractEntityView<CacheContainer> imple
     public void setPresenter(CacheContainerPresenter presenter) {
         this.cacheContainerPresenter = presenter;
     }
-
 }

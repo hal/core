@@ -420,4 +420,6 @@ public interface CoreUI {
     PerspectiveStoreAdapter getPerspectiveStoreAdapter();
 
     NameTokenRegistry getNameTokenRegistry();
+
+    RequiredResourcesLoader getRequiredResourcesLoader();
 }
