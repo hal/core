@@ -7,6 +7,7 @@ import org.jboss.dmr.client.ModelType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -130,6 +131,13 @@ public class ModelNodeAdapter {
             List l = (List)value;
             for(Object o : l)
                 nodeToSetValueUpon.add(o.toString()); // TODO: type conversion ?
+        }
+        else if (HashMap.class == type)
+        {
+            nodeToSetValueUpon.clear();
+            Map<String,String> map = (Map<String,String>)value;
+            for(String k : map.keySet())
+                nodeToSetValueUpon.add(k, map.get(k));
         }
         else
         {

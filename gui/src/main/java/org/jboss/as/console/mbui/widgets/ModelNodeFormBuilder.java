@@ -11,6 +11,7 @@ import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.PropertyListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
@@ -183,7 +184,7 @@ public class ModelNodeFormBuilder {
                     ModelNode defaultValue = attrDesc.get("default");
                     ModelNode value = new ModelNode();
                     //value.set(type, ModelNodeForm.downCast(defaultValue));
-                    setValue(value, type, ModelNodeForm.downCast(defaultValue)); // workaround for numeric types
+                    setValue(value, type, ModelNodeForm.downCast(defaultValue, attrDesc)); // workaround for numeric types
 
 
                     defaultValues.put(attr.getName(), value);
@@ -286,6 +287,16 @@ public class ModelNodeFormBuilder {
                         // TODO: Support for TextAreaItem
 
                         break;
+                    case OBJECT:
+                        if(attrDesc.has("value-type") && attrDesc.get("value-type").asString().equals("STRING"))
+                        {
+                            PropertyListItem propList = new PropertyListItem(attr.getName(), label);
+                            propList.setRequired(isRequired);
+                            propList.setEnabled(!readOnly && !isRuntime);
+
+                            formItem = propList;
+                            break;
+                        }
                     default: {
                         unsupportedTypes.add(new String[]{attr.getName(), type.toString()});
                         Log.error("Unsupported ModelType " + type + ", attribute '" + attr.getName() + "'");
@@ -301,6 +312,10 @@ public class ModelNodeFormBuilder {
                     } else {
                         requiredItems.add(formItem);
                     }
+
+
+                    // attribute meta data attached to form item
+                    formItem.setMetadata(attrDesc);
                 }
 
             }

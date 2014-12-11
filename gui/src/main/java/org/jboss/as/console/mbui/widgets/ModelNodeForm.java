@@ -6,6 +6,7 @@ import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
+import org.jboss.dmr.client.Property;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -81,14 +82,16 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         }
 
                         // values
+                        // values
                         else if(value.isDefined()) {
                             item.setUndefined(false);
-                            item.setValue(downCast(value));
+                            Object castedValue = downCast(value, (ModelNode)item.getMetadata());
+                            item.setValue(castedValue);
                         }
                         else if(defaults.containsKey(propertyName))
                         {
                             item.setUndefined(false);
-                            item.setValue(downCast(defaults.get(propertyName)));
+                            item.setValue(downCast(defaults.get(propertyName), (ModelNode) item.getMetadata()));
                         }
                         else
                         {
@@ -189,11 +192,11 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     }
 
 
-    public static Object downCast(ModelNode value)
+    public static Object downCast(ModelNode value, ModelNode metadata)
     {
         Object result = null;
-        ModelType type = value.getType();
-        switch (type)
+        ModelType targetType = resolveTypeFromMetaData(metadata);
+        switch (targetType)
         {
             case STRING:
                 result = value.asString();
@@ -218,18 +221,64 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                 break;
             case LIST: {
 
-                List<ModelNode> items = value.asList();
-                List<String> list = new ArrayList<String>(items.size());
-                for(ModelNode item : items)
-                    list.add(item.asString()); // TODO: currently the only supported type
-                result = list;
+                try {
+
+                    List<ModelNode> items = value.asList();
+                    List<String> list = new ArrayList<String>(items.size());
+                    for (ModelNode item : items)
+                        list.add(item.asString());
+                    result = list;
+
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    result = new ArrayList<>(); // syntax errors
+
+                }
+                break;
+            }
+            case PROPERTY: {  // it's actually interpreted as a property list, but that ttype doesn'ty really exist (yet)
+
+                try {
+
+                    List<Property> properties = value.asPropertyList();
+                    Map<String, String> map = new HashMap<>();
+                    for (Property item : properties)
+                        map.put(item.getName(), item.getValue().asString());
+                    result = map;
+
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                    result = new HashMap(); // syntax errors
+                }
                 break;
             }
             case UNDEFINED:
                 break;
             default:
-                throw new RuntimeException("Unexpected type "+type);
+                throw new RuntimeException("Unexpected targetType "+targetType);
 
+        }
+        return result;
+    }
+
+    private static ModelType resolveTypeFromMetaData(ModelNode metadata) {
+
+        if(!metadata.has("type"))
+            throw new IllegalArgumentException("Illegal meta data:" + metadata.toString());
+
+        ModelType result = null;
+        ModelType type = ModelType.valueOf(metadata.get("type").asString());
+        ModelType valueType = metadata.has("value-type") ? ModelType.valueOf(metadata.get("value-type").asString()) : null;
+
+        switch (type) {
+            case OBJECT:
+                if(valueType!=null && ModelType.STRING == valueType)
+                    result = ModelType.PROPERTY;  // we abuse this type, actually its a property list
+                else if(null==valueType)
+                    result = type;
+                break;
+            default:
+                result = type; // ignore the value type setting
         }
         return result;
     }
@@ -280,21 +329,24 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     public Map<String, Object> getChangedValues() {
 
         final Map<String,Object> changedValues = new HashMap<String, Object>();
+        final ModelNode src = ModelNodeForm.this.editedEntity;
+        final ModelNode dest = getUpdatedEntity();
 
         ModelNodeInspector inspector = new ModelNodeInspector(this.getUpdatedEntity());
-        inspector.accept(new ModelNodeVisitor()
-                         {
-                             @Override
-                             public boolean visitValueProperty(String propertyName, ModelNode value, PropertyContext ctx) {
-                                 ModelNode src = ModelNodeForm.this.editedEntity;
-                                 ModelNode dest = getUpdatedEntity();
+        inspector.accept(
+                new ModelNodeVisitor()
+                {
+                    @Override
+                    public boolean visitValueProperty(String propertyName, ModelNode value, PropertyContext ctx) {
 
-                                 if(!src.get(propertyName).equals(dest.get(propertyName)))
-                                     changedValues.put(propertyName, downCast(dest.get(propertyName)));
+                        if(!src.get(propertyName).equals(dest.get(propertyName))) {
+                            Object castedValue = downCast(dest.get(propertyName), getAttributeMetaData(propertyName));
+                            changedValues.put(propertyName, castedValue);
+                        }
 
-                                 return true;
-                             }
-                         }
+                        return true;
+                    }
+                }
         );
 
         Map<String, Object> finalDiff = new HashMap<String,Object>();
@@ -402,6 +454,15 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
                         }
 
+                        // MAP
+                        else if (baseType == HashMap.class) {
+                            node.clear();
+                            Map<String,String> m = (Map<String,String>)obj;
+                            for(String k : m.keySet())
+                                node.add(k, m.get(k));
+
+                        }
+
                         else {
                             throw new IllegalArgumentException("Can not convert. This value is not of a recognized base type. Value =" + obj.toString());
                         }
@@ -447,9 +508,26 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         return hasWritableAttributes;
     }
 
-interface FormItemVisitor {
-    void visit(FormItem item);
-}
+    public ModelNode getAttributeMetaData(String name) {
+
+        ModelNode metaData = null;
+
+        for(Map<String, FormItem> groupItems : formItems.values()) {
+            for (FormItem item : groupItems.values()) {
+                if(name.equals(item.getName()))
+                {
+                    metaData = (ModelNode) item.getMetadata();
+                    break;
+                }
+            }
+        }
+
+        return metaData;
+    }
+
+    interface FormItemVisitor {
+        void visit(FormItem item);
+    }
 
 
     // ---- deprecated, blow up -----
