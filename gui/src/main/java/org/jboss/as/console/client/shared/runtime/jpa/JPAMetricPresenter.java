@@ -105,7 +105,7 @@ public class JPAMetricPresenter extends CircuitPresenter<JPAMetricPresenter.MyVi
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         String dpl = request.getParameter("dpl", null);
         if (dpl != null) {
             this.selectedUnit = new String[]{

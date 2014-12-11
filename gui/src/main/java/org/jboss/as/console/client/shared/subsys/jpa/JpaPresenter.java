@@ -2,13 +2,15 @@ package org.jboss.as.console.client.shared.subsys.jpa;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -32,10 +34,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/28/11
  */
-public class JpaPresenter extends ManualRevealPresenter<JpaPresenter.MyView, JpaPresenter.MyProxy> {
+public class JpaPresenter extends Presenter<JpaPresenter.MyView, JpaPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JpaPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {"{selected.profile}/subsystem=jpa"})
     @SearchIndex(keywords = {"jpa", "data-source"})
     public interface MyProxy extends ProxyPlace<JpaPresenter> {}

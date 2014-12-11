@@ -157,7 +157,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewConfigDialoge();

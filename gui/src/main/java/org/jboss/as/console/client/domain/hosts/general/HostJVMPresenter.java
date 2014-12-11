@@ -24,15 +24,17 @@ import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
@@ -65,12 +67,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 5/18/11
  */
-public class HostJVMPresenter extends ManualRevealPresenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
+public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVMPresenter.MyProxy>
         implements JvmManagement {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.HostJVMPresenter)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.HostJVMPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"jvm", "heap", "xmx", "xms", "xss"})
     @RequiredResources(resources = {"/{selected.host}/jvm=*",})
     public interface MyProxy extends ProxyPlace<HostJVMPresenter> {}

@@ -22,7 +22,9 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -33,8 +35,8 @@ import org.jboss.as.console.client.administration.role.ui.AccessControlProviderD
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -63,10 +65,11 @@ import static org.jboss.as.console.client.administration.role.operation.Manageme
  * @author Harald Pehl
  */
 public class RoleAssignmentPresenter
-        extends ManualRevealPresenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
+        extends Presenter<RoleAssignmentPresenter.MyView, RoleAssignmentPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.RoleAssignmentPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"authorization", "access-control", "rbac", "security"})
     @RequiredResources(resources = {"/core-service=management/access=authorization"}, recursive = false)
     public interface MyProxy extends ProxyPlace<RoleAssignmentPresenter> {}

@@ -21,6 +21,8 @@ package org.jboss.as.console.client.domain.groups.deployment;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -28,8 +30,8 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -56,12 +58,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  */
-public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
+public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor {
 
     @ProxyCodeSplit
     @OperationMode(DOMAIN)
     @NameToken(NameTokens.DeploymentsPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
@@ -106,7 +109,7 @@ public class DomainDeploymentPresenter extends ManualRevealPresenter<DomainDeplo
     }
 
     @Override
-    protected void fromRequest(final PlaceRequest request) {
+    public void prepareFromRequest(final PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewDeploymentDialoge(null, false);

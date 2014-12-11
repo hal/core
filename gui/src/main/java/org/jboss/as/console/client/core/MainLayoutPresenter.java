@@ -46,23 +46,20 @@ public class MainLayoutPresenter
         MainLayoutPresenter.MainLayoutProxy>
         implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler {
 
-    boolean revealDefault = true;
-    private BootstrapContext bootstrap;
-
-    private ExpressionTool expressionTool;
-
-    private PlaceManager placeManager;
-
-    public interface MainLayoutView extends View {
-    }
-
-    @ContentSlot
-    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
-
     @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.mainLayout)
     public interface MainLayoutProxy extends ProxyPlace<MainLayoutPresenter> {}
+
+    public interface MainLayoutView extends View {}
+
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+
+    boolean revealDefault = true;
+    private BootstrapContext bootstrap;
+    private ExpressionTool expressionTool;
+    private PlaceManager placeManager;
 
     @Inject
     public MainLayoutPresenter(

@@ -4,14 +4,16 @@ import com.google.inject.Inject;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanUtils;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
@@ -40,8 +42,22 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 02/21/12
  */
-public class ModclusterPresenter extends ManualRevealPresenter<ModclusterPresenter.MyView, ModclusterPresenter.MyProxy>
+public class ModclusterPresenter extends Presenter<ModclusterPresenter.MyView, ModclusterPresenter.MyProxy>
         implements ModclusterManagement {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ModclusterPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
+    @RequiredResources(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
+    @SearchIndex(keywords = {"load-balancing", "reverse-proxy", "cluster", "web-frontend"})
+    public interface MyProxy extends ProxyPlace<ModclusterPresenter> {
+    }
+
+    public interface MyView extends View {
+        void setPresenter(ModclusterPresenter presenter);
+        void updateFrom(Modcluster modcluster);
+    }
+
 
     private final PlaceManager placeManager;
     private RevealStrategy revealStrategy;
@@ -52,18 +68,6 @@ public class ModclusterPresenter extends ManualRevealPresenter<ModclusterPresent
     private DefaultWindow window;
     private EntityAdapter<SSLConfig> sslAdapter;
     private BeanFactory factory;
-
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ModclusterPresenter)
-    @RequiredResources(resources = {"{selected.profile}/subsystem=modcluster"}, recursive = false)
-    @SearchIndex(keywords = {"load-balancing", "reverse-proxy", "cluster", "web-frontend"})
-    public interface MyProxy extends ProxyPlace<ModclusterPresenter> {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(ModclusterPresenter presenter);
-        void updateFrom(Modcluster modcluster);
-    }
 
     @Inject
     public ModclusterPresenter(

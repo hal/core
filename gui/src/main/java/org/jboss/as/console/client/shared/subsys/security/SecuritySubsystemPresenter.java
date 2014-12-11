@@ -20,12 +20,14 @@ package org.jboss.as.console.client.shared.subsys.security;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.spi.RequiredResources;
@@ -34,11 +36,12 @@ import org.jboss.as.console.spi.SearchIndex;
 /**
  * @author David Bosschaert
  */
-public class SecuritySubsystemPresenter extends ManualRevealPresenter<SecuritySubsystemPresenter.MyView, SecuritySubsystemPresenter.MyProxy> {
+public class SecuritySubsystemPresenter extends Presenter<SecuritySubsystemPresenter.MyView, SecuritySubsystemPresenter.MyProxy> {
     private final RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SecuritySubsystemPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"login-config", "login-module", "login-context", "authentication", "jaas"})
     @RequiredResources(resources = {"/{selected.profile}/subsystem=security"}, recursive = false)
     public interface MyProxy extends ProxyPlace<SecuritySubsystemPresenter> {}

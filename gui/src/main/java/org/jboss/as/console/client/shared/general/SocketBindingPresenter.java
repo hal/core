@@ -21,15 +21,17 @@ package org.jboss.as.console.client.shared.general;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.*;
@@ -59,10 +61,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 4/6/11
  */
-public class SocketBindingPresenter extends ManualRevealPresenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
+public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyView, SocketBindingPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.SocketBindingPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"socket", "port", "multi-cast", "interface", "network-interface", "bind-address"})
     @RequiredResources(resources = {"socket-binding-group=*"})
     public interface MyProxy extends ProxyPlace<SocketBindingPresenter> {}
@@ -128,7 +131,7 @@ public class SocketBindingPresenter extends ManualRevealPresenter<SocketBindingP
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         selectedSocketGroup = request.getParameter("name", null);
     }
 

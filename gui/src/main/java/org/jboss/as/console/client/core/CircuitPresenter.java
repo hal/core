@@ -23,6 +23,7 @@ package org.jboss.as.console.client.core;
 
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
@@ -41,16 +42,12 @@ import java.util.List;
  *
  * @author Harald Pehl
  */
-public abstract class CircuitPresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends ManualRevealPresenter<V, Proxy_> {
+public abstract class CircuitPresenter<V extends View, Proxy_ extends ProxyPlace<?>> extends Presenter<V, Proxy_> {
 
     private final List<HandlerRegistration> registrations;
 
     protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit) {
-        this(eventBus, view, proxy, circuit, false);
-    }
-
-    protected CircuitPresenter(EventBus eventBus, V view, Proxy_ proxy, Dispatcher circuit, boolean rrd) {
-        super(eventBus, view, proxy, rrd);
+        super(eventBus, view, proxy);
         this.registrations = new ArrayList<>();
         circuit.addDiagnostics(new ErrorHandler());
     }

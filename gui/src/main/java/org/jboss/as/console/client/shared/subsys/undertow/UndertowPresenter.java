@@ -4,24 +4,26 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 
 /**
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class UndertowPresenter extends ManualRevealPresenter<UndertowPresenter.MyView, UndertowPresenter.MyProxy> {
+public class UndertowPresenter extends Presenter<UndertowPresenter.MyView, UndertowPresenter.MyProxy> {
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
+    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.UndertowPresenter)
     public interface MyProxy extends ProxyPlace<UndertowPresenter> {
     }

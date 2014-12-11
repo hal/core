@@ -25,6 +25,8 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
@@ -60,14 +62,15 @@ import static org.jboss.as.console.client.domain.model.ServerFlag.RELOAD_REQUIRE
 import static org.jboss.as.console.client.domain.model.ServerFlag.RESTART_REQUIRED;
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
-public class TopologyPresenter extends ManualRevealPresenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
+public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, TopologyPresenter.MyProxy>
         implements ExtensionManager {
 
     // We cannot expect a valid {@code {selected.server}} when the access control rules are evaluated by
     // the security service (race condition). So do not use them in the annotations below!
     @ProxyCodeSplit
-    @NameToken(NameTokens.Topology)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.Topology)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"domain", "domain-overview", "server", "server-group", "start", "stop", "status"})
     @RequiredResources(resources = {
             "/server-group=*",
@@ -145,7 +148,7 @@ public class TopologyPresenter extends ManualRevealPresenter<TopologyPresenter.M
     }
 
     @Override
-    protected void fromRequest(final PlaceRequest request) {
+    public void prepareFromRequest(final PlaceRequest request) {
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
         fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));

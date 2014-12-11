@@ -2,15 +2,17 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.layout.ModalWindowLayout;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -40,11 +42,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/29/11
  */
-public class JcaPresenter extends ManualRevealPresenter<JcaPresenter.MyView, JcaPresenter.MyProxy>
+public class JcaPresenter extends Presenter<JcaPresenter.MyView, JcaPresenter.MyProxy>
     implements PropertyManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JcaPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"pool", "resource-management"})
     @RequiredResources(resources = {
             "{selected.profile}/subsystem=jca",
@@ -133,7 +136,7 @@ public class JcaPresenter extends ManualRevealPresenter<JcaPresenter.MyView, Jca
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         this.selectedWorkmanager = request.getParameter("name", null);
     }
 

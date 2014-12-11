@@ -21,20 +21,20 @@ package org.jboss.as.console.client.core.settings;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 
 /**
  * @author Heiko Braun
  * @date 5/3/11
  */
-public class SettingsPresenter extends ManualRevealPresenter<SettingsPresenter.MyView, SettingsPresenter.MyProxy> {
+public class SettingsPresenter extends Presenter<SettingsPresenter.MyView, SettingsPresenter.MyProxy> {
 
     @NoGatekeeper
     @ProxyCodeSplit
@@ -43,7 +43,7 @@ public class SettingsPresenter extends ManualRevealPresenter<SettingsPresenter.M
 
     public interface MyView extends View {}
 
-
+    
     private SettingsPresenterWidget settingsWidget;
 
     @Inject

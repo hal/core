@@ -26,14 +26,16 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
@@ -71,12 +73,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 2/16/11
  */
 public class ServerGroupPresenter
-        extends ManualRevealPresenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
+        extends Presenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.ServerGroupPresenter)
     @OperationMode(DOMAIN)
+    @NameToken(NameTokens.ServerGroupPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {
             "/server-group=*",
             "opt://server-group={selected.entity}/system-property=*"},
@@ -134,7 +137,7 @@ public class ServerGroupPresenter
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             if (existingProfiles == null || existingSockets == null) {

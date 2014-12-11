@@ -3,15 +3,17 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -39,8 +41,23 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class ServletPresenter extends ManualRevealPresenter<ServletPresenter.MyView, ServletPresenter.MyProxy>
+public class ServletPresenter extends Presenter<ServletPresenter.MyView, ServletPresenter.MyProxy>
         implements DefaultPresenterContract {
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ServletPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
+    @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
+    public interface MyProxy extends ProxyPlace<ServletPresenter> {
+    }
+
+    public interface MyView extends View {
+        void setPresenter(ServletPresenter presenter);
+        void setServletContainer(List<Property> container);
+        void setServerSelection(String name) ;
+        void setJSPSettings(ModelNode data) ;
+    }
+
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -65,19 +82,6 @@ public class ServletPresenter extends ManualRevealPresenter<ServletPresenter.MyV
             // noop
         }
     };
-
-    @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ServletPresenter)
-    public interface MyProxy extends ProxyPlace<ServletPresenter> {
-    }
-
-    public interface MyView extends View {
-        void setPresenter(ServletPresenter presenter);
-        void setServletContainer(List<Property> container);
-        void setServerSelection(String name) ;
-        void setJSPSettings(ModelNode data) ;
-    }
 
     @Inject
     public ServletPresenter(
@@ -158,7 +162,7 @@ public class ServletPresenter extends ManualRevealPresenter<ServletPresenter.MyV
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         currentContainer = request.getParameter("name", null);
     }
 

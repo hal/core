@@ -22,11 +22,12 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -36,11 +37,12 @@ import org.jboss.as.console.spi.SearchIndex;
  * @author Stan Silvert
  * @date 9/15/11
  */
-public class ThreadsPresenter extends ManualRevealPresenter<ThreadsPresenter.MyView, ThreadsPresenter.MyProxy> {
+public class ThreadsPresenter extends Presenter<ThreadsPresenter.MyView, ThreadsPresenter.MyProxy> {
 
     private RevealStrategy revealStrategy;
 
     @ProxyCodeSplit
+    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.BoundedQueueThreadPoolPresenter)
     @RequiredResources(resources = {"{selected.profile}/subsystem=threads"})
     @SearchIndex(keywords = {"thread", "thread-pool"})

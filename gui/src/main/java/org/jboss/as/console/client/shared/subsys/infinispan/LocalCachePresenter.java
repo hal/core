@@ -20,13 +20,15 @@ package org.jboss.as.console.client.shared.subsys.infinispan;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -41,10 +43,11 @@ import org.jboss.as.console.spi.SearchIndex;
  *
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  */
-public class LocalCachePresenter extends ManualRevealPresenter<LocalCachePresenter.MyView, LocalCachePresenter.MyProxy> {
+public class LocalCachePresenter extends Presenter<LocalCachePresenter.MyView, LocalCachePresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.LocalCachePresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = {"local", "cache"})
     @RequiredResources(resources = {"{selected.profile}/subsystem=infinispan"})
     public interface MyProxy extends ProxyPlace<LocalCachePresenter> {}

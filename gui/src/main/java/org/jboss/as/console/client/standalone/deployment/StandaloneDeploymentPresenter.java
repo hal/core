@@ -21,7 +21,9 @@ package org.jboss.as.console.client.standalone.deployment;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
@@ -29,8 +31,8 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelection;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -61,12 +63,13 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  */
 public class StandaloneDeploymentPresenter
-        extends ManualRevealPresenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
+        extends Presenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor {
 
     @ProxyCodeSplit
     @OperationMode(STANDALONE)
     @NameToken(NameTokens.DeploymentBrowserPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @SearchIndex(keywords = "deployment")
     @RequiredResources(resources = {"/deployment=*"}, recursive = false)
     public interface MyProxy extends ProxyPlace<StandaloneDeploymentPresenter> {}
@@ -97,7 +100,7 @@ public class StandaloneDeploymentPresenter
     }
 
     @Override
-    protected void fromRequest(final PlaceRequest request) {
+    public void prepareFromRequest(final PlaceRequest request) {
         final String action = request.getParameter("action", null);
         if ("new".equals(action)) {
             launchNewDeploymentDialoge(null, false);

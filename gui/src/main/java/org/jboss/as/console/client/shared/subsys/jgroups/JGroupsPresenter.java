@@ -2,15 +2,17 @@ package org.jboss.as.console.client.shared.subsys.jgroups;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
@@ -38,11 +40,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 2/16/12
  */
-public class JGroupsPresenter extends ManualRevealPresenter<JGroupsPresenter.MyView, JGroupsPresenter.MyProxy>
+public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroupsPresenter.MyProxy>
         implements PropertyManagement {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JGroupsPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {"{selected.profile}/subsystem=jgroups"})
     @SearchIndex(keywords = {"protocol", "group-communication", "cluster", "channel"})
     public interface MyProxy extends ProxyPlace<JGroupsPresenter> {
@@ -106,7 +109,7 @@ public class JGroupsPresenter extends ManualRevealPresenter<JGroupsPresenter.MyV
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         this.selectedStack = request.getParameter("name", null);
     }
 

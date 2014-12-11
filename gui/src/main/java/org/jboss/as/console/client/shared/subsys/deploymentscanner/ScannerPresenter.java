@@ -20,11 +20,11 @@ package org.jboss.as.console.client.shared.subsys.deploymentscanner;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
@@ -36,20 +36,17 @@ import org.jboss.as.console.spi.RequiredResources;
  * @author Stan Silvert
  * @date 9/15/11
  */
-public class ScannerPresenter extends ManualRevealPresenter<ScannerPresenter.MyView, ScannerPresenter.MyProxy> {
-
-    private RevealStrategy revealStrategy;
+public class ScannerPresenter extends Presenter<ScannerPresenter.MyView, ScannerPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ScannerPresenter)
-    @RequiredResources(resources = {
-            "{selected.profile}/subsystem=deployment-scanner"
-    })
-    public interface MyProxy extends ProxyPlace<ScannerPresenter> {
-    }
+    @RequiredResources(resources = {"{selected.profile}/subsystem=deployment-scanner"})
+    public interface MyProxy extends ProxyPlace<ScannerPresenter> {}
 
-    public interface MyView extends FrameworkView, View {
-    }
+    public interface MyView extends FrameworkView, View {}
+
+
+    private RevealStrategy revealStrategy;
 
     @Inject
     public ScannerPresenter(

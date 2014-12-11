@@ -6,13 +6,13 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -29,16 +29,16 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
  * @author Heiko Braun
  * @date 10/25/11
  */
-public class DialogPresenter extends ManualRevealPresenter<DialogView, DialogPresenter.MyProxy> {
+public class DialogPresenter extends Presenter<DialogView, DialogPresenter.MyProxy> {
 
     private final Kernel kernel;
     private final RevealStrategy revealStrategy;
     private final DialogRepository dialogs;
     private String dialog;
 
+    @NoGatekeeper
     @ProxyCodeSplit
     @NameToken(NameTokens.DialogPresenter)
-    @NoGatekeeper
     public interface MyProxy extends ProxyPlace<DialogPresenter> {
     }
 
@@ -82,7 +82,7 @@ public class DialogPresenter extends ManualRevealPresenter<DialogView, DialogPre
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         String name = request.getParameter("dialog", null);
         if(null==name)
         {

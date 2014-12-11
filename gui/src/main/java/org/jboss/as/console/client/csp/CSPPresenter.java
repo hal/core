@@ -2,6 +2,7 @@ package org.jboss.as.console.client.csp;
 
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
@@ -10,14 +11,13 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 
 /**
  * @author Heiko Braun
  * @since 19/08/14
  */
-public class CSPPresenter extends ManualRevealPresenter<CSPPresenter.MyView, CSPPresenter.MyProxy> {
+public class CSPPresenter extends Presenter<CSPPresenter.MyView, CSPPresenter.MyProxy> {
 
     private final PlaceManager placeManager;
     private String angularRef;
@@ -50,7 +50,7 @@ public class CSPPresenter extends ManualRevealPresenter<CSPPresenter.MyView, CSP
 
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         angularRef = request.getParameter("ref", "search");
     }
 

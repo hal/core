@@ -3,15 +3,17 @@ package org.jboss.as.console.client.shared.subsys.undertow;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ManualRevealPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -39,11 +41,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class HttpPresenter extends ManualRevealPresenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
+public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
         implements DefaultPresenterContract {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpPresenter)
+    @CustomProvider(RequiredResourcesProvider.class)
     @RequiredResources(resources = {"{selected.profile}/subsystem=undertow/server=*"})
     public interface MyProxy extends ProxyPlace<HttpPresenter> {}
 
@@ -167,7 +170,7 @@ public class HttpPresenter extends ManualRevealPresenter<HttpPresenter.MyView, H
     }
 
     @Override
-    protected void fromRequest(PlaceRequest request) {
+    public void prepareFromRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
 
