@@ -3,8 +3,8 @@ package org.jboss.as.console.client.tools;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -46,7 +46,7 @@ public class PageHeader {
         {
             SafeHtmlBuilder builder = new SafeHtmlBuilder();
             builder.appendHtmlConstant("<h1 class='node-header'>Management Model</h1>");
-            header.add(new HTML(builder.toSafeHtml()));
+            header.add(new InlineHTML(builder.toSafeHtml()));
         }
         else {
             int i=0;
@@ -54,11 +54,11 @@ public class PageHeader {
 
             final ModelNode parentAddress = new ModelNode().setEmptyList();
             for (final Property p : path) {
-                nav.add(new HTML("/"));
+                nav.add(new InlineHTML("/"));
 
                 boolean isLinked = subaddressContainsPath(subAddress, p);
                 String css =  isLinked ? "node-header-link" : "";
-                HTML type = new HTML("<div class='"+css+"'>"+p.getName()+"</div>");
+                InlineHTML type = new InlineHTML("<span class='"+css+"'>"+p.getName()+"</span>");
 
                 if(isLinked) {
                     type.addClickHandler(new ClickHandler() {
@@ -72,8 +72,8 @@ public class PageHeader {
                 }
 
                 nav.add(type);
-                nav.add(new HTML("="));
-                nav.add(new HTML(p.getValue().asString()));
+                nav.add(new InlineHTML("="));
+                nav.add(new InlineHTML(p.getValue().asString()));
 
                 // has to be last step. valid for the next iteration
                 parentAddress.add(p.getName(), p.getValue().asString());
@@ -90,7 +90,7 @@ public class PageHeader {
                 .appendHtmlConstant(desc)
                 .appendHtmlConstant("</p>");
 
-        header.add(new HTML(builder.toSafeHtml()));
+        header.add(new InlineHTML(builder.toSafeHtml()));
 
 
     }
