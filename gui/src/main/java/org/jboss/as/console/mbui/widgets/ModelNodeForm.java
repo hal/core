@@ -268,7 +268,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
         ModelType result = null;
         ModelType type = ModelType.valueOf(metadata.get("type").asString());
-        ModelType valueType = metadata.has("value-type") ? ModelType.valueOf(metadata.get("value-type").asString()) : null;
+        ModelType valueType = (metadata.has("value-type")
+            && metadata.get("value-type").getType()!=ModelType.OBJECT) ?
+                ModelType.valueOf(metadata.get("value-type").asString()) : null;
 
         switch (type) {
             case OBJECT:
