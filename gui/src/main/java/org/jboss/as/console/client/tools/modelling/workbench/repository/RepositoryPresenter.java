@@ -76,7 +76,6 @@ public class RepositoryPresenter
 
     @NoGatekeeper
     @ProxyStandard
-    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken("mbui-workbench")
     public interface MyProxy extends ProxyPlace<RepositoryPresenter> {}
 

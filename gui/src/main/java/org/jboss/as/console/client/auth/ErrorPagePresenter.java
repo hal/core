@@ -41,7 +41,6 @@ public class ErrorPagePresenter extends
 
     @NoGatekeeper
     @ProxyStandard
-    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.errorPage)
     public interface MyProxy extends ProxyPlace<ErrorPagePresenter> {}
 

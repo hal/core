@@ -28,7 +28,6 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.HasUiHandlers;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
-import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyStandard;
@@ -38,7 +37,6 @@ import com.gwtplatform.mvp.client.proxy.RevealRootContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.RequiredResourcesProvider;
 
 
 @Deprecated
@@ -54,7 +52,6 @@ public class SignInPagePresenter extends
 
     @NoGatekeeper
     @ProxyStandard
-    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.signInPage)
     public interface MyProxy extends ProxyPlace<SignInPagePresenter> {
     }
