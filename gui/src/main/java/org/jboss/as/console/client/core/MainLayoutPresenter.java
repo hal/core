@@ -25,10 +25,7 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
-import com.gwtplatform.mvp.client.annotations.ContentSlot;
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.annotations.*;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
@@ -48,6 +45,7 @@ public class MainLayoutPresenter
 
     @NoGatekeeper
     @ProxyCodeSplit
+    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.mainLayout)
     public interface MainLayoutProxy extends ProxyPlace<MainLayoutPresenter> {}
 

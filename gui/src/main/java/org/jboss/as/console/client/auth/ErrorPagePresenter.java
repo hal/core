@@ -23,12 +23,14 @@ import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyStandard;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealRootLayoutContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesProvider;
 
 /**
  * @author Heiko Braun
@@ -37,8 +39,9 @@ import org.jboss.as.console.client.core.NameTokens;
 public class ErrorPagePresenter extends
         Presenter<ErrorPagePresenter.MyView, ErrorPagePresenter.MyProxy> {
 
-    @ProxyStandard
     @NoGatekeeper
+    @ProxyStandard
+    @CustomProvider(RequiredResourcesProvider.class)
     @NameToken(NameTokens.errorPage)
     public interface MyProxy extends ProxyPlace<ErrorPagePresenter> {}
 
