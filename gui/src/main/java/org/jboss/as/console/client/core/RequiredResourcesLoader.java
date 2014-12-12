@@ -67,19 +67,17 @@ public class RequiredResourcesLoader {
 
     public <P extends Presenter<?, ?>> void loadRequiredResources(final AsyncProvider<P> provider, final AsyncCallback<P> callback) {
         final String token = placeManager.getCurrentPlaceRequest().getNameToken();
-        System.out.print("Load required resources for #" + token + "...");
 
         if (!nameTokenRegistry.wasRevealed(token)) {
             Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
                 @Override
                 public void onFailure(FunctionContext context) {
-                    System.out.println("failed: " + context.getErrorMessage() + "!");
                     callback.onFailure(context.getError());
                 }
 
                 @Override
                 public void onSuccess(FunctionContext context) {
-                    System.out.println("done.");
+                    nameTokenRegistry.revealed(token);
                     provider.get(callback);
                 }
             };
@@ -88,7 +86,6 @@ public class RequiredResourcesLoader {
                     new CreateSecurityContext(token, securityFramework),
                     new ReadResourceDescriptions(token, requiredResourcesRegistry, modelDrivenRegistry, dispatcher, statementContext));
         } else {
-            System.out.println("cached.");
             provider.get(callback);
         }
     }
