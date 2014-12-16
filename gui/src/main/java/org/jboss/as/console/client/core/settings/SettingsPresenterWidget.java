@@ -37,20 +37,19 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 5/3/11
  */
-public class SettingsPresenterWidget
-        extends PresenterWidget<SettingsPresenterWidget.MyView> {
-
-    private final BeanFactory factory;
-    private final ProductConfig prodConfig;
-
+public class SettingsPresenterWidget extends PresenterWidget<SettingsPresenterWidget.MyView> {
 
     public interface MyView extends PopupView {
         void setPresenter(SettingsPresenterWidget presenter);
     }
 
+
+    private final BeanFactory factory;
+    private final ProductConfig prodConfig;
+
     @Inject
     public SettingsPresenterWidget(final EventBus eventBus, final MyView view, BeanFactory factory,
-            ProductConfig prodConfig) {
+                                   ProductConfig prodConfig) {
 
         super(eventBus, view);
         this.factory = factory;
@@ -63,25 +62,17 @@ public class SettingsPresenterWidget
     }
 
     public void onSaveDialogue(CommonSettings settings) {
-
-        // see also App.gwt.xml
-
-        Map<String, Object> properties = AutoBeanUtils.getAllProperties(
-                AutoBeanUtils.getAutoBean(settings)
-        );
-
-        for(String token : properties.keySet())
-        {
+        Map<String, Object> properties = AutoBeanUtils.getAllProperties(AutoBeanUtils.getAutoBean(settings));
+        for (String token : properties.keySet()) {
             Preferences.Key key = Preferences.Key.match(token);
-            assert key !=null : "invalid token "+token;
+            assert key != null : "invalid token " + token;
             Object value = properties.get(token);
-            if(null==value || value.equals(""))
+            if (null == value || value.equals("")) {
                 value = key.getDefaultValue();
+            }
             Preferences.set(key, String.valueOf(value));
         }
-
         Console.info(Console.MESSAGES.savedSettings());
-
     }
 
     public void onCancelDialogue() {

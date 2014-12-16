@@ -27,7 +27,6 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import org.jboss.as.console.client.core.NameTokens;
@@ -38,45 +37,26 @@ import org.jboss.as.console.client.core.NameTokens;
  */
 public class SettingsPresenter extends Presenter<SettingsPresenter.MyView, SettingsPresenter.MyProxy> {
 
-    private final PlaceManager placeManager;
-    private SettingsPresenterWidget settingsWidget;
-
     @ProxyCodeSplit
     @NameToken(NameTokens.SettingsPresenter)
     @NoGatekeeper
-    public interface MyProxy extends Proxy<SettingsPresenter>, Place {
-    }
+    public interface MyProxy extends Proxy<SettingsPresenter>, Place {}
 
-    public interface MyView extends View {
-        void setPresenter(SettingsPresenter presenter);
-    }
+    public interface MyView extends View {}
+
+
+    private SettingsPresenterWidget settingsWidget;
 
     @Inject
-    public SettingsPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
-            SettingsPresenterWidget settingsWidget) {
+    public SettingsPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                             SettingsPresenterWidget settingsWidget) {
         super(eventBus, view, proxy);
-
-        this.placeManager = placeManager;
         this.settingsWidget = settingsWidget;
-
-
-    }
-
-    @Override
-    protected void onBind() {
-        super.onBind();
-        getView().setPresenter(this);
     }
 
     @Override
     protected void revealInParent() {
-
         RevealRootPopupContentEvent.fire(this, settingsWidget);
         //addToPopupSlot(settingsWidget, true);
-
-
     }
-
 }

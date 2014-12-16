@@ -25,13 +25,8 @@ import com.gwtplatform.mvp.client.ViewImpl;
 
 /**
  * @author Heiko Braun
- * @date 5/3/11
  */
 public class SettingsPresenterViewImpl extends ViewImpl implements SettingsPresenter.MyView{
-    @Override
-    public void setPresenter(SettingsPresenter presenter) {
-    }
-
     @Override
     public Widget asWidget() {
         return new HTML("Should not be displayed");
