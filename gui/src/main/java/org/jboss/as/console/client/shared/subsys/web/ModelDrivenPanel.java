@@ -90,7 +90,7 @@ class ModelDrivenPanel extends ModelDrivenWidget {
         form.setToolsCallback(new FormCallback<Map<String, Object>>() {
             @Override
             public void onSave(Map<String, Object>  changedValues) {
-                presenter.onSaveResource(address.toString(), null, changedValues);
+                presenter.onSaveResource(getAddressTemplate(), null, changedValues);
             }
 
             @Override

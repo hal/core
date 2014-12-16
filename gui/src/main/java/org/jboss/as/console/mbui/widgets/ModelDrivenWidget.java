@@ -26,12 +26,14 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     private static final String ACCESS_CONTROL = "access-control";
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
 
+    private final String addressTemplate;
     private final ResourceAddress address;
     private ResourceDefinition definition;
     private HTML errorWidget = null;
 
     public ModelDrivenWidget(String address, StatementContext statementContext) {
-        this.address = new ResourceAddress(address, statementContext);
+        this.addressTemplate = address;
+        this.address = new ResourceAddress(addressTemplate, statementContext);
         init();
     }
 
@@ -123,5 +125,9 @@ public abstract class ModelDrivenWidget extends LazyPanel {
 
     public boolean isInitialised() {
         return getWidget()!=null;
+    }
+
+    public String getAddressTemplate() {
+        return addressTemplate;
     }
 }
