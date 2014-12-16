@@ -21,9 +21,9 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.inject.Inject;
-import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.mbui.widgets.ResourceDescription;
+import org.jboss.as.console.client.rbac.ReadOnlyContext;
+import org.jboss.as.console.client.rbac.ResourceRef;
+import org.jboss.as.console.client.rbac.SecurityContextImpl;
 import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
@@ -31,37 +31,53 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Meta registry which acts as single entry point to various HAL registries.
- *
  * @author Harald Pehl
  */
-public final class NameTokenRegistry {
+public class RequiredResourcesContext {
 
-    private final SecurityFramework securityFramework;
+    private final String token;
     private final ResourceDescriptionRegistry resourceDescriptionRegistry;
-    private final Set<String> revealedTokens;
+    private final SecurityContextImpl securityContextImpl;
+    private boolean readOnly;
+    private Throwable error;
 
-    @Inject
-    public NameTokenRegistry(SecurityFramework securityFramework,
-                             ResourceDescriptionRegistry resourceDescriptionRegistry) {
-        this.securityFramework = securityFramework;
+    public RequiredResourcesContext(String token, Set<String> requiredResources,
+                                    ResourceDescriptionRegistry resourceDescriptionRegistry) {
+        this.token = token;
         this.resourceDescriptionRegistry = resourceDescriptionRegistry;
-        this.revealedTokens = new HashSet<>();
+
+        Set<ResourceRef> refs = new HashSet<>();
+        for (String requiredResource : requiredResources) {
+            refs.add(new ResourceRef(requiredResource));
+        }
+        this.securityContextImpl = new SecurityContextImpl(token, refs);
     }
 
-    public SecurityContext getSecurityContext(String token) {
-        return securityFramework.getSecurityContext(token);
+    public String getToken() {
+        return token;
     }
 
-    public ResourceDescription getModelDrivenContext(String template) {
-        return resourceDescriptionRegistry.lookup(template);
+    public SecurityContext getSecurityContext() {
+        return readOnly ? new ReadOnlyContext() : securityContextImpl;
     }
 
-    public boolean wasRevealed(String token) {
-        return revealedTokens.contains(token);
+    SecurityContextImpl getSecurityContextImpl() {
+        return securityContextImpl;
     }
 
-    public void revealed(String token) {
-        revealedTokens.add(token);
+    void makeReadonly() {
+        this.readOnly = true;
+    }
+
+    public ResourceDescriptionRegistry getResourceDescriptionRegistry() {
+        return resourceDescriptionRegistry;
+    }
+
+    public void setError(final Throwable error) {
+        this.error = error;
+    }
+
+    public Throwable getError() {
+        return error;
     }
 }

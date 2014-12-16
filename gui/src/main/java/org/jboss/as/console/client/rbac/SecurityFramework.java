@@ -1,10 +1,7 @@
 package org.jboss.as.console.client.rbac;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityService;
-
-import java.util.Set;
 
 /**
  * API for core platform components to leverage security facilities.
@@ -14,30 +11,14 @@ import java.util.Set;
  */
 public interface SecurityFramework extends SecurityService {
 
+    void assignContext(String id, SecurityContext context);
+
     /**
-     * Get the security context associated with the current {@link com.gwtplatform.mvp.client.proxy.PlaceRequest}
+     * Get the security context associated with the current {@link com.gwtplatform.mvp.shared.proxy.PlaceRequest}
      * @see com.gwtplatform.mvp.client.proxy.PlaceManager
      * @return the current security context
      */
     SecurityContext getSecurityContext(String id);
-
-    /**
-     * Create a security context for a particular place.
-     * Retrieves access control meta data from {@link org.jboss.as.console.spi.RequiredResources} annotation.
-     *
-     * @param id
-     * @param callback
-     */
-    void createSecurityContext(String id, AsyncCallback<SecurityContext> callback);
-
-    /**
-     * Create a security context for a particular place.
-     *
-     * @param id
-     * @param requiredResources a list of resources to operate on
-     * @param callback
-     */
-    void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback);
 
     /**
      * Check wether or not a context exists.

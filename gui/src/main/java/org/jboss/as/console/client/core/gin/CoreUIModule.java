@@ -195,7 +195,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.widgets.ModelDrivenRegistry;
+import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.GinExtensionBinding;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -760,8 +760,8 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(PerspectiveStore.class).in(Singleton.class);
         bind(PerspectiveStoreAdapter.class).in(Singleton.class);
         bind(NameTokenRegistry.class).in(Singleton.class);
-        bind(ModelDrivenRegistry.class).in(Singleton.class);
-        bind(RequiredResourcesLoader.class).in(Singleton.class);
+        bind(ResourceDescriptionRegistry.class).in(Singleton.class);
+        bind(RequiredResourcesProcessor.class).in(Singleton.class);
     }
 
     @Provides Scheduler provideScheduler() {

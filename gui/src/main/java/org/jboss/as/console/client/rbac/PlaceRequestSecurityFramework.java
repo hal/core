@@ -47,15 +47,16 @@ public class PlaceRequestSecurityFramework {
     private final static SecurityContext DEFAULT_CONTEXT = new NoGatekeeperContext();
 
     private final SecurityFramework securityFramework;
-    private final RequiredResourcesRegistry accessControlMetaData;
+    private final RequiredResourcesRegistry requiredResourcesRegistry;
     private final TokenFormatter tokenFormatter;
     private final Map<String, SecurityContext> contextCache;
 
     @Inject
     public PlaceRequestSecurityFramework(final SecurityFramework securityFramework,
-                                         final RequiredResourcesRegistry accessControlMetaData, final TokenFormatter tokenFormatter) {
+                                         final RequiredResourcesRegistry requiredResourcesRegistry,
+                                         final TokenFormatter tokenFormatter) {
         this.securityFramework = securityFramework;
-        this.accessControlMetaData = accessControlMetaData;
+        this.requiredResourcesRegistry = requiredResourcesRegistry;
         this.tokenFormatter = tokenFormatter;
         this.contextCache = new HashMap<String, SecurityContext>();
     }
@@ -77,8 +78,8 @@ public class PlaceRequestSecurityFramework {
         final String parametrizedToken = tokenFormatter.toPlaceToken(placeRequest);
         final SecurityContext context = lookupContext(placeRequest);
         if (context == null) {
-            securityFramework.createSecurityContext(parametrizedToken, accessControlMetaData.getResources(token),
-                    accessControlMetaData.isRecursive(token), new AsyncCallback<SecurityContext>() {
+            securityFramework.createSecurityContext(parametrizedToken, requiredResourcesRegistry.getResources(token),
+                    requiredResourcesRegistry.isRecursive(token), new AsyncCallback<SecurityContext>() {
                         @Override
                         public void onFailure(final Throwable caught) {
                             SecurityContextChangedEvent.fire(eventSource, DEFAULT_CONTEXT);

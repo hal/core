@@ -154,7 +154,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.widgets.ModelDrivenRegistry;
+import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -374,7 +374,7 @@ public interface CoreUI {
 
     RequiredResourcesRegistry getRequiredResourcesRegistry();
 
-    ModelDrivenRegistry getModelDrivenRegistry();
+    ResourceDescriptionRegistry getResourceDescriptionRegistry();
 
     SearchIndexRegistry getSearchIndexRegistry();
 
@@ -421,5 +421,5 @@ public interface CoreUI {
 
     NameTokenRegistry getNameTokenRegistry();
 
-    RequiredResourcesLoader getRequiredResourcesLoader();
+    RequiredResourcesProcessor getRequiredResourcesLoader();
 }

@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * The security context has access to the authorisation meta data and provides policies to reason over it.
- * Each security context is associated with a specific {@link com.gwtplatform.mvp.client.proxy.PlaceRequest}.
+ * Each security context is associated with a specific {@link com.gwtplatform.mvp.shared.proxy.PlaceRequest}.
  *
  * @see org.jboss.ballroom.client.rbac.SecurityService
  * @see com.gwtplatform.mvp.client.proxy.PlaceManager
@@ -71,19 +71,19 @@ public class SecurityContextImpl implements SecurityContext {
         AuthorisationDecision decision = new AuthorisationDecision(true);
         for(ResourceRef ref : requiredResources)
         {
-            if(ref.optional) continue; // skip optional ones
+            if(ref.isOptional()) continue; // skip optional ones
 
-            final Constraints model = getConstraints(ref.address, includeOptional);
+            final Constraints model = getConstraints(ref.getAddress(), includeOptional);
             if(model!=null)
             {
                 if(!p.isGranted(model))
                 {
-                    decision.getErrorMessages().add(ref.address);
+                    decision.getErrorMessages().add(ref.getAddress());
                 }
             }
             else
             {
-                decision.getErrorMessages().add("Missing constraints for "+ ref.address);
+                decision.getErrorMessages().add("Missing constraints for "+ ref.getAddress());
             }
 
             if(decision.hasErrorMessages())
@@ -200,17 +200,17 @@ public class SecurityContextImpl implements SecurityContext {
         return constraints;
     }
 
-    void setConstraints(String resourceAddress, Constraints model) {
+    public void setConstraints(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         accessConstraints.put(resourceAddress, model);
     }
 
-    void setOptionalConstraints(String resourceAddress, Constraints model) {
+    public void setOptionalConstraints(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         optionalConstraints.put(resourceAddress, model);
     }
 
-    void addChildContext(String resourceAddress, Constraints model) {
+    public void addChildContext(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         ChildContext childContext = new ChildContext(resourceAddress, model);
         childContexts.put(resourceAddress, childContext);

@@ -33,15 +33,15 @@ import org.jboss.as.console.client.Console;
 public class RequiredResourcesProvider<P extends Presenter<?, ?>> implements IndirectProvider<P> {
 
     private final AsyncProvider<P> provider;
-    private final RequiredResourcesLoader loader;
+    private final RequiredResourcesProcessor processor;
 
     public RequiredResourcesProvider(AsyncProvider<P> provider) {
         this.provider = provider;
-        this.loader = Console.MODULES.getRequiredResourcesLoader();
+        this.processor = Console.MODULES.getRequiredResourcesLoader();
     }
 
     @Override
     public void get(AsyncCallback<P> callback) {
-        loader.loadRequiredResources(provider, callback);
+        processor.process(provider, callback);
     }
 }

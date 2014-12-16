@@ -21,51 +21,29 @@
  */
 package org.jboss.as.console.mbui.widgets;
 
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class ModelDrivenContext {
+public class ResourceDescriptionRegistry {
 
-    private final String template;
-    private final ResourceAddress address;
-    private ResourceDefinition definition;
+    private final Map<String, ResourceDescription> registry;
 
-    public ModelDrivenContext(String template, ResourceAddress address) {
-        this.template = template;
-        this.address = address;
+    public ResourceDescriptionRegistry() {
+        registry = new HashMap<>();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ModelDrivenContext)) return false;
-
-        ModelDrivenContext that = (ModelDrivenContext) o;
-        return template.equals(that.template);
-
+    public void add(ResourceDescription context) {
+        registry.put(context.getTemplate(), context);
     }
 
-    @Override
-    public int hashCode() {
-        return template.hashCode();
+    public ResourceDescription lookup(String template) {
+        return registry.get(template);
     }
 
-    public ResourceAddress getAddress() {
-        return address;
-    }
-
-    public ResourceDefinition getDefinition() {
-        return definition;
-    }
-
-    public void setDefinition(ResourceDefinition definition) {
-        this.definition = definition;
-    }
-
-    public String getTemplate() {
-        return template;
+    public boolean contains(String template) {
+        return registry.containsKey(template);
     }
 }

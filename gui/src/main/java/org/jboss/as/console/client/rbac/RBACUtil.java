@@ -8,39 +8,34 @@ import java.util.Map;
 
 /**
  * @author Heiko Braun
- * @date 8/7/13
  */
 public class RBACUtil {
-
 
     public static SafeHtml dump(SecurityContext sc) {
         SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-        SecurityContextImpl context = (SecurityContextImpl)sc;
+        SecurityContextImpl context = (SecurityContextImpl) sc;
 
         // required resource
-        html.appendHtmlConstant("<h2>Resources References for: "+context.nameToken+"</h2>");
+        html.appendHtmlConstant("<h2>Resources References for: " + context.nameToken + "</h2>");
         html.appendHtmlConstant("<h3>Required</h3>");
         html.appendHtmlConstant("<ul>");
-        for(ResourceRef ref : context.requiredResources)
-        {
-            if(ref.optional) continue;
-            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
+        for (ResourceRef ref : context.requiredResources) {
+            if (ref.isOptional()) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.getAddress()).appendHtmlConstant("</li>");
         }
         html.appendHtmlConstant("</ul><p/>");
 
         // optional resource
         html.appendHtmlConstant("<h3>Optional</h3>");
         html.appendHtmlConstant("<ul>");
-        for(ResourceRef ref : context.requiredResources)
-        {
-            if(!ref.optional) continue;
-            html.appendHtmlConstant("<li>").appendEscaped(ref.address).appendHtmlConstant("</li>");
+        for (ResourceRef ref : context.requiredResources) {
+            if (!ref.isOptional()) continue;
+            html.appendHtmlConstant("<li>").appendEscaped(ref.getAddress()).appendHtmlConstant("</li>");
         }
         html.appendHtmlConstant("</ul><p/>");
 
         html.appendHtmlConstant("<h2>Constraints</h2>");
-
         dumpPermissions(html, context.accessConstraints);
         dumpPermissions(html, context.optionalConstraints);
 
@@ -48,21 +43,18 @@ public class RBACUtil {
     }
 
     private static void dumpPermissions(SafeHtmlBuilder html, Map<String, Constraints> resourcePrivileges) {
-        for(String resource : resourcePrivileges.keySet())
-        {
+        for (String resource : resourcePrivileges.keySet()) {
             html.appendHtmlConstant("<h3>").appendEscaped(resource).appendHtmlConstant("</h3>");
 
             Constraints constraints = resourcePrivileges.get(resource);
             html.appendHtmlConstant("<ul>");
-            html.appendHtmlConstant("<li>").appendEscaped("read-config:"+constraints.isReadResource()).appendHtmlConstant("</li>");
-            html.appendHtmlConstant("<li>").appendEscaped("write-config:"+constraints.isWriteResource()).appendHtmlConstant("</li>");
+            html.appendHtmlConstant("<li>").appendEscaped("read-config:" + constraints.isReadResource()).appendHtmlConstant("</li>");
+            html.appendHtmlConstant("<li>").appendEscaped("write-config:" + constraints.isWriteResource()).appendHtmlConstant("</li>");
             html.appendHtmlConstant("</ul>");
-
 
             html.appendHtmlConstant("<p/>");
 
             html.appendHtmlConstant("<h4>Attributes</h4>");
-
             html.appendHtmlConstant("<table border='0' cellpadding='5'>");
             html.appendHtmlConstant("<tr>");
             html.appendHtmlConstant("<th>");
@@ -76,8 +68,7 @@ public class RBACUtil {
             html.appendHtmlConstant("</th>");
             html.appendHtmlConstant("</tr>");
 
-            for(String att : constraints.attributePermissions.keySet())
-            {
+            for (String att : constraints.attributePermissions.keySet()) {
                 html.appendHtmlConstant("<tr>");
                 html.appendHtmlConstant("<td>");
                 html.appendEscaped(att);
@@ -96,7 +87,6 @@ public class RBACUtil {
             html.appendHtmlConstant("<p/>");
 
             html.appendHtmlConstant("<h4>Operations</h4>");
-
             html.appendHtmlConstant("<table border='0' cellpadding='5'>");
             html.appendHtmlConstant("<tr>");
             html.appendHtmlConstant("<th>");
@@ -107,10 +97,8 @@ public class RBACUtil {
             html.appendHtmlConstant("</th>");
             html.appendHtmlConstant("</tr>");
 
-            if(!constraints.execPermission.isEmpty())
-            {
-                for(String op : constraints.execPermission.get(resource))
-                {
+            if (!constraints.execPermission.isEmpty()) {
+                for (String op : constraints.execPermission.get(resource)) {
                     html.appendHtmlConstant("<tr>");
                     html.appendHtmlConstant("<td>");
                     html.appendEscaped(op);
@@ -121,7 +109,6 @@ public class RBACUtil {
                     html.appendHtmlConstant("</tr>");
                 }
             }
-
             html.appendHtmlConstant("</table>");
         }
     }
