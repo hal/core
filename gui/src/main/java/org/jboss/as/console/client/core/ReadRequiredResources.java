@@ -185,6 +185,9 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                             payload = stepResult;
                         }
 
+                        // TODO extract the functions to parse and process the
+                        // resource descriptions and the security related metadata
+
                         // update & store description
                         in.description.setDefinition(new ResourceDefinition(payload));
                         control.getContext().getResourceDescriptionRegistry().add(in.description);
