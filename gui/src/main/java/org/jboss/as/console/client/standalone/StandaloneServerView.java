@@ -15,6 +15,8 @@ import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.ext.ExtensionView;
+import org.jboss.as.console.client.shared.state.ReloadState;
+import org.jboss.as.console.client.shared.state.ServerState;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -25,6 +27,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -39,11 +42,13 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
     private DeckPanel reloadPanel;
     private Form<StandaloneServer> form;
     private ExtensionView extensions = new ExtensionView();
+    private HTML reloadMessage;
+    private ToolButton reloadBtn;
 
     @Override
     public Widget createWidget() {
 
-        ToolButton reloadBtn = new ToolButton(Console.CONSTANTS.common_label_reload(), new ClickHandler(){
+        reloadBtn = new ToolButton(Console.CONSTANTS.common_label_reload(), new ClickHandler(){
             @Override
             public void onClick(ClickEvent event) {
                 Feedback.confirm(Console.CONSTANTS.server_reload_title(),
@@ -122,13 +127,13 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
         staleContent.addStyleName("serverNeedsUpdate");
 
         Image img2 = new Image(Icons.INSTANCE.status_warn());
-        HTML desc2 = new HTML(Console.CONSTANTS.server_reload_desc());
-        staleContent.add(desc2);
+        reloadMessage = new HTML(Console.CONSTANTS.server_reload_desc());
+        staleContent.add(reloadMessage);
         staleContent.add(img2);
 
         //img2.getElement().getParentElement().addClassName("WarnBlock");
         img2.getElement().getParentElement().setAttribute("style", "padding:15px;vertical-align:middle;width:20%");
-        desc2.getElement().getParentElement().setAttribute("style", "padding:15px;vertical-align:middle");
+        reloadMessage.getElement().getParentElement().setAttribute("style", "padding:15px;vertical-align:middle");
 
         configNeedsUpdate.add(staleContent);
 
@@ -171,8 +176,26 @@ public class StandaloneServerView extends DisposableViewImpl implements Standalo
     }
 
     @Override
-    public void setReloadRequired(boolean reloadRequired) {
-        reloadPanel.showWidget( reloadRequired ? 1:0);
+    public void setReloadRequired(ReloadState reloadState) {
+
+        if(reloadState.isStaleModel()) {
+
+            final Map<String, ServerState> serverStates = reloadState.getServerStates();
+
+            StringBuffer sb = new StringBuffer();
+            ServerState serverState = serverStates.values().iterator().next();
+            String message = serverState.isReloadRequired() ?
+                    "The server configuration needs to be reloaded!" :
+                    "The server needs to be restarted!";
+
+            sb.append(message).append("\n\n");
+
+            reloadMessage.setText(sb.toString());
+
+            reloadBtn.setVisible(serverState.isReloadRequired());
+        }
+
+        reloadPanel.showWidget( reloadState.isStaleModel() ? 1:0);
     }
 
     @Override

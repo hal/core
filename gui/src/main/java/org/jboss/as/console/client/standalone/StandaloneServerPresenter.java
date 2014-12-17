@@ -61,7 +61,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
     public interface MyView extends View {
         void setPresenter(StandaloneServerPresenter presenter);
         void updateFrom(StandaloneServer server);
-        void setReloadRequired(boolean reloadRequired);
+        void setReloadRequired(ReloadState reloadState);
         void setExtensions(List<Extension> extensions);
     }
 
@@ -105,7 +105,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
                 server.setReleaseVersion(bootstrap.getProductVersion());
                 server.setServerState(serverAttributes.get("server-state").asString());
                 getView().updateFrom(server);
-                getView().setReloadRequired(reloadState.isStaleModel());
+                getView().setReloadRequired(reloadState);
             }
         });
 
@@ -128,7 +128,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
         loadConfig();
         loadExtensions();
 
-        getView().setReloadRequired(reloadState.isStaleModel());
+        getView().setReloadRequired(reloadState);
     }
 
     @Override
@@ -212,7 +212,7 @@ public class StandaloneServerPresenter extends Presenter<StandaloneServerPresent
                         reloadState.reset();
 
                         Console.info(Console.MESSAGES.successful("Reload Server"));
-                        getView().setReloadRequired(reloadState.isStaleModel());
+                        getView().setReloadRequired(reloadState);
                         getEventBus().fireEvent(new ReloadEvent());
                     }
 

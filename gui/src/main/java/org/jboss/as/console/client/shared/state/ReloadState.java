@@ -59,4 +59,8 @@ public class ReloadState {
     public void updateFrom(Map<String, ServerState> states) {
         this.serverStates = states;
     }
+
+    public Map<String, ServerState> getServerStates() {
+        return serverStates;
+    }
 }
