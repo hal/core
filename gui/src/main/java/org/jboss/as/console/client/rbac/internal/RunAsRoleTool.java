@@ -63,6 +63,9 @@ public class RunAsRoleTool implements Tool {
             setupWindow();
         }
 
+        // preselection
+
+
         window.center();
     }
 
@@ -124,7 +127,7 @@ public class RunAsRoleTool implements Tool {
     private void runAs(final String role) {
         window.hide();
 
-        String oldRole = Preferences.get(RUN_AS_ROLE);
+        String oldRole = Console.MODULES.getBootstrapContext().getRunAs();
         if ((oldRole == null && role.equals("No preselection")) || role.equalsIgnoreCase(oldRole)) {
             return;
         }
