@@ -111,6 +111,7 @@ public class ProfileMgmtPresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
+        // TODO Why is this necessary? --> No profile (circuit) store!
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
