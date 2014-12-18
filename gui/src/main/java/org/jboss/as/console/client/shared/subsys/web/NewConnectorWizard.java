@@ -63,7 +63,7 @@ public class NewConnectorWizard {
 
         SuggestBoxItem socket = new SuggestBoxItem("socketBinding", "Socket Binding") {
 
-            private String errOrig;
+            private String errOrig = null;
 
             @Override
             public boolean validate(String value) {
@@ -71,6 +71,10 @@ public class NewConnectorWizard {
 
                 boolean parentValid = super.validate(value);
                 boolean bindingValid = true;
+
+                if(errOrig!=null)
+                    setErrMessage(errOrig); // reset
+
                 if(parentValid)
                 {
                     for(HttpConnector existing : connectors)
@@ -80,6 +84,7 @@ public class NewConnectorWizard {
                             errOrig = getErrMessage();
                             setErrMessage("Socket binding already in use");
                             bindingValid = false;
+                            break;
                         }
                     }
                 }
