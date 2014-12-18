@@ -9,5 +9,10 @@ package org.jboss.as.console.spi;
 public @interface SubsystemExtension {
     String name();
     String group() default "";
+
+    /**
+     * DMR name of the subsystem
+     * @return
+     */
     String key();
 }

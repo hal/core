@@ -33,12 +33,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -268,7 +263,6 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
 
     public void setValues(Collection<String> values)
     {
-        clearSelection();
         clearValues();
         this.values.addAll(values);
 
@@ -322,11 +316,11 @@ public class ComboPicker implements HasValueChangeHandlers<String> {
         }
     }
 
-    public void clearSelection() {
+    private void clearSelection() {
         setDisplayedValue("");
         for(int i=0; i< getItemCount(); i++)
         {
-            setItemSelected(i, false);
+            setItemSelected(i, false, false);
         }
     }
 }

@@ -127,7 +127,7 @@ public class SubsystemMetaData {
                 if(!item.isDisabled())
                 {
                     SubsystemExtensionMetaData meta = new SubsystemExtensionMetaData(
-                            item.getName(), item.getPresenter(),
+                            item.getName(), item.getToken(),
                             group.getName(), item.getKey()
                     );
 
@@ -182,12 +182,18 @@ public class SubsystemMetaData {
             throw new RuntimeException("No subsystem provided!");
 
         SubsystemRecord chosen = null;
-        for(SubsystemRecord subsys : existing)
-        {
-            if(subsys.getKey().equals(preferred))
+        SubsystemRegistry subsystemRegistry = Console.MODULES.getSubsystemRegistry();
+        for (SubsystemExtensionMetaData subsys : subsystemRegistry.getExtensions()) {
+            if (preferred.equals(subsys.getToken()))
             {
-                chosen = subsys;
-                break;
+                for (SubsystemRecord subsystemRecord : existing) {
+                    if(subsystemRecord.getKey().equals(subsys.getKey()))
+                    {
+                        chosen = subsystemRecord;
+                        break;
+                    }
+                }
+
             }
         }
 

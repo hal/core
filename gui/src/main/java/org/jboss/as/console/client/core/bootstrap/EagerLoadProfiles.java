@@ -66,10 +66,19 @@ public class EagerLoadProfiles implements Function<BootstrapContext> {
 
     private void selectDefaultProfile(List<ProfileRecord> result) {
 
-        if(!profileSelection.isSet())
-        {
-            String name = result.get(0).getName();
-            profileSelection.setName(name);
+        if(!profileSelection.isSet()) {
+            String match = null;
+            String pref = "full";
+            for (ProfileRecord record : result) {
+                if (record.getName().equals(pref)) {
+                    match = record.getName();
+                    break;
+                }
+            }
+            if (match == null) {
+                match = result.get(0).getName();
+            }
+            profileSelection.setName(match);
         }
     }
 

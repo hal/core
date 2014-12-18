@@ -69,7 +69,6 @@ public class HostSelector {
             i++;
         }
 
-        hosts.clearSelection();
         hosts.setValues(hostNames);
         hosts.setItemSelected(selectedIndex, true, false);
     }

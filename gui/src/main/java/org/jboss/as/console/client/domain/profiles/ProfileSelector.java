@@ -68,7 +68,6 @@ public class ProfileSelector {
 
     public void setProfiles(List<String> profileNames)
     {
-        profiles.clearSelection();
         profiles.setValues(profileNames);
 
         int index = -1;

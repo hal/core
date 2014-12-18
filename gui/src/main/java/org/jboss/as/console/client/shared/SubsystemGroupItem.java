@@ -28,7 +28,7 @@ public class SubsystemGroupItem {
 
     private String name;
     private String key;
-    private String presenter;
+    private String token;
     private final int major;
     private final int minor;
     private final int micro;
@@ -38,14 +38,14 @@ public class SubsystemGroupItem {
         this(name, key, key.toLowerCase().replace(" ", "_"));
     }
 
-    public SubsystemGroupItem(String name, String key, String presenter) {
-        this(name, key, presenter, 0, 0, 0);
+    public SubsystemGroupItem(String name, String key, String token) {
+        this(name, key, token, 0, 0, 0);
     }
 
-    public SubsystemGroupItem(String name, String key, String presenter, int major, int minor, int micro) {
+    public SubsystemGroupItem(String name, String key, String token, int major, int minor, int micro) {
         this.name = name;
         this.key = key;
-        this.presenter = presenter;
+        this.token = token;
         this.major = major;
         this.minor = minor;
         this.micro = micro;
@@ -59,8 +59,8 @@ public class SubsystemGroupItem {
         return key;
     }
 
-    public String getPresenter() {
-        return presenter;
+    public String getToken() {
+        return token;
     }
 
     public boolean isDisabled() {
