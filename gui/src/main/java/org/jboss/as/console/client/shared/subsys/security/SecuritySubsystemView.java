@@ -72,12 +72,12 @@ public class SecuritySubsystemView extends AbstractEntityView<SecuritySubsystem>
 
     @Override
     protected EntityEditor<SecuritySubsystem> makeEntityEditor() {
-        EntityDetails<SecuritySubsystem> details = new EntityDetails<SecuritySubsystem>(
+        entityDetails = new EntityDetails<SecuritySubsystem>(
                 this, getEntityDisplayName(),
                 makeEditEntityDetailsForm(),
                 getAddress(),
                 hideButtons);
-        return new EntityEditor<SecuritySubsystem>(this, getEntityDisplayName(), null, makeEntityTable(), details, hideButtons);
+        return new EntityEditor<SecuritySubsystem>(this, getEntityDisplayName(), null, makeEntityTable(), entityDetails, hideButtons);
     }
     @Override
     public EntityToDmrBridge<SecuritySubsystem> getEntityBridge() {
@@ -100,4 +100,6 @@ public class SecuritySubsystemView extends AbstractEntityView<SecuritySubsystem>
     protected String getEntityDisplayName() {
         return Console.CONSTANTS.subsys_security();
     }
+
+
 }
