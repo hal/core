@@ -138,6 +138,12 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
+            public void onFailure(Throwable caught) {
+                Console.error(Console.MESSAGES.modificationFailed("Web Service Provider"), caught.getMessage());
+                loadProvider();
+            }
+
+            @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
