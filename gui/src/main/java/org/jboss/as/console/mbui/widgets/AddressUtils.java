@@ -28,6 +28,51 @@ public class AddressUtils {
         return fqAddress;
     }
 
+    public static ModelNode fromFqAddress(ModelNode address)
+    {
+        ModelNode wildcardAddress = new ModelNode();
+        List<Property> tuples = address.asPropertyList();
+        int i=0;
+        for(Property tuple : tuples)
+        {
+            String key = tuple.getName();
+            String value = tuple.getValue().asString();
+
+            if(i==tuples.size()-1)
+                wildcardAddress.add(key, "*");
+            else
+                wildcardAddress.add(key, value);
+
+            i++;
+        }
+
+
+        return wildcardAddress;
+    }
+
+    public static String getDenominatorType(List<Property> addressTuple) {
+
+        int i=1;
+
+        final ModelNode addressPrefix = new ModelNode();
+        Property denominator = null;
+        for(Property tuple : addressTuple)
+        {
+            if(i==addressTuple.size())
+            {
+                denominator = tuple;
+                break;
+            }
+            else
+            {
+                addressPrefix.add(tuple.getName(), tuple.getValue());
+            }
+
+            i++;
+        }
+        return denominator!=null ? denominator.getName() : null;
+    }
+
     public static String toString(ModelNode address, boolean fq) {
 
         List<Property> tuples = address.asPropertyList();

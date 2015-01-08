@@ -306,3 +306,10 @@
     background-color: #717479;
 }
 
+.form-item-help-desc {
+    font-size: 10px;
+    padding-left:10px;
+    position: relative;
+    top:-6px;
+    color: #cccccc;
+}
