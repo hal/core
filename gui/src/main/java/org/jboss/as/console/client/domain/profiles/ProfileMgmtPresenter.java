@@ -43,6 +43,7 @@ import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -96,6 +97,7 @@ public class ProfileMgmtPresenter
     protected void onBind() {
         super.onBind();
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
+        getEventBus().addHandler(LHSHighlightEvent.TYPE, getView());
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
@@ -103,10 +105,8 @@ public class ProfileMgmtPresenter
                 getView().setSubsystems(subsystems);
 
                 // prefer to reveal the last place, if exists in selected profile
-                //PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
-                //revealDefaultSubsystem(preference, subsystems);
-
-
+                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
+                revealDefaultSubsystem(preference, subsystems);
             }
         });
     }

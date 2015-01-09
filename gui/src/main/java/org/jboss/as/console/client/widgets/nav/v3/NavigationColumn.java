@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 
@@ -27,7 +28,8 @@ public class NavigationColumn<T> {
     private final SingleSelectionModel<T> selectionModel;
     private final CellList<T> cellList;
     private final String title;
-
+    private final ProvidesKey keyProvider;
+    private HTML header;
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
@@ -36,8 +38,9 @@ public class NavigationColumn<T> {
 
     private static final Template TEMPLATE = GWT.create(Template.class);
 
-    public NavigationColumn(String title, final Display display) {
+    public NavigationColumn(String title, final Display display, ProvidesKey keyProvider) {
         this.title = title;
+        this.keyProvider = keyProvider;
         selectionModel = new SingleSelectionModel<T>();
 
         cellList = new CellList<T>(new AbstractCell<T>()
@@ -77,7 +80,7 @@ public class NavigationColumn<T> {
         LayoutPanel layout = new LayoutPanel();
         layout.addStyleName("navigation-column");
 
-        HTML header = new HTML(title);
+        header = new HTML(title);
         header.addStyleName("server-picker-section-header");
 
         ScrollPanel nav = new ScrollPanel(cellList);
@@ -100,6 +103,7 @@ public class NavigationColumn<T> {
         cellList.setRowCount(records.size(), true);
         cellList.setRowData(0, records);
 
+        header.setHTML(title+" ("+records.size()+")");
         if(selectDefault && records.size()>0)
         {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -114,4 +118,18 @@ public class NavigationColumn<T> {
     public interface Display<T> {
         public SafeHtml render(String baseCss, T data);
     }
+
+    public void selectByKey(Object key) {
+        selectionModel.clear();
+        int i=0;
+        for(T item : cellList.getVisibleItems()) {
+            if(keyProvider.getKey(item).equals(key)) {
+                selectionModel.setSelected(item, true);
+                cellList.getRowElement(i).scrollIntoView();
+                break;
+            }
+            i++;
+        }
+    }
+
 }

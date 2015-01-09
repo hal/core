@@ -4,15 +4,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
@@ -21,6 +20,7 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
+import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import java.util.Map;
  * @since 09/01/15
  */
 public class ColumnProfileView extends SuspendableViewImpl
-        implements ProfileMgmtPresenter.MyView {
+        implements ProfileMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler {
 
     private final NavigationColumn<ProfileRecord> profiles;
     private final NavigationColumn<SubsystemLink> subsystems;
@@ -55,19 +55,35 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
-        profiles = new NavigationColumn<ProfileRecord>("Profiles", new NavigationColumn.Display<ProfileRecord>() {
-            @Override
-            public SafeHtml render(String baseCss, ProfileRecord data) {
-                return TEMPLATE.item(baseCss, data.getName());
-            }
-        });
+        profiles = new NavigationColumn<ProfileRecord>(
+                "Profiles",
+                new NavigationColumn.Display<ProfileRecord>() {
+                    @Override
+                    public SafeHtml render(String baseCss, ProfileRecord data) {
+                        return TEMPLATE.item(baseCss, data.getName());
+                    }
+                },
+                new ProvidesKey<ProfileRecord>() {
+                    @Override
+                    public Object getKey(ProfileRecord item) {
+                        return item.getName();
+                    }
+                });
 
-        subsystems = new NavigationColumn<SubsystemLink>("Subsystems", new NavigationColumn.Display<SubsystemLink>() {
-            @Override
-            public SafeHtml render(String baseCss, SubsystemLink data) {
-                return TEMPLATE.item(baseCss, data.getTitle());
-            }
-        });
+        subsystems = new NavigationColumn<SubsystemLink>(
+                "Subsystems",
+                new NavigationColumn.Display<SubsystemLink>() {
+                    @Override
+                    public SafeHtml render(String baseCss, SubsystemLink data) {
+                        return TEMPLATE.item(baseCss, data.getTitle());
+                    }
+                },
+                new ProvidesKey<SubsystemLink>() {
+                    @Override
+                    public Object getKey(SubsystemLink item) {
+                        return item.getToken();
+                    }
+                });
 
         layout.addWest(profiles.asWidget(), 217);
         layout.addWest(subsystems.asWidget(), 217);
@@ -90,13 +106,10 @@ public class ColumnProfileView extends SuspendableViewImpl
                                     Console.getEventBus().fireEvent(
                                             new ProfileSelectionEvent(selectedProfile.getName())
                                     );
-
-                                    Console.getPlaceManager().revealPlace(new PlaceRequest(NameTokens.ProfileMgmtPresenter));
                                 }
-                            });
+                            }
+                    );
 
-                     // TODO: this is probably not the right place
-                    clearCanvas();
                 }
             }
         });
@@ -120,12 +133,6 @@ public class ColumnProfileView extends SuspendableViewImpl
                 }
             }
         });
-    }
-
-    private void clearCanvas() {
-        setContent(
-                new HTML("<center><div style='font-size:80px;color:#cccccc;margin-top:100px'><i class='icon-folder-close-alt'></i></div></center>")
-        );
     }
 
     @Override
@@ -163,6 +170,11 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     }
 
+    @Override
+    public void onSelectedNavTree(LHSHighlightEvent event) {
+        subsystems.selectByKey(event.getToken());
+    }
+
     class SubsystemLink
     {
         String title;
@@ -182,71 +194,71 @@ public class ColumnProfileView extends SuspendableViewImpl
         }
     }
 
-    public List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
+    private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
+    {
+
+        List<SubsystemLink> matches = new ArrayList<>();
+
+        SubsystemRegistry registry = Console.getSubsystemRegistry();
+
+        Map<String, List<SubsystemExtensionMetaData>> grouped = new HashMap<String, List<SubsystemExtensionMetaData>>();
+        List<String> groupNames = new ArrayList<String>();
+        for(SubsystemExtensionMetaData ext : registry.getExtensions())
         {
-
-            List<SubsystemLink> matches = new ArrayList<>();
-
-            SubsystemRegistry registry = Console.getSubsystemRegistry();
-
-            Map<String, List<SubsystemExtensionMetaData>> grouped = new HashMap<String, List<SubsystemExtensionMetaData>>();
-            List<String> groupNames = new ArrayList<String>();
-            for(SubsystemExtensionMetaData ext : registry.getExtensions())
+            if(!grouped.containsKey(ext.getGroup()))
             {
-                if(!grouped.containsKey(ext.getGroup()))
-                {
-                    groupNames.add(ext.getGroup());
-                    grouped.put(ext.getGroup(), new ArrayList<SubsystemExtensionMetaData>());
-                }
-
-                grouped.get(ext.getGroup()).add(ext);
+                groupNames.add(ext.getGroup());
+                grouped.put(ext.getGroup(), new ArrayList<SubsystemExtensionMetaData>());
             }
 
-            int includedSubsystems = 0;
+            grouped.get(ext.getGroup()).add(ext);
+        }
+
+        int includedSubsystems = 0;
 
 
-            Collections.sort(groupNames);
+        Collections.sort(groupNames);
 
-            // build groups first
-            for(String groupName : groupNames)
+        // build groups first
+        for(String groupName : groupNames)
+        {
+            List<SubsystemExtensionMetaData> items = grouped.get(groupName);
+
+            final GroupItem groupTreeItem = new GroupItem(groupName);
+
+            for(SubsystemExtensionMetaData candidate : items)
             {
-                List<SubsystemExtensionMetaData> items = grouped.get(groupName);
-
-                final GroupItem groupTreeItem = new GroupItem(groupName);
-
-                for(SubsystemExtensionMetaData candidate : items)
+                for(SubsystemRecord actual: subsystems)
                 {
-                    for(SubsystemRecord actual: subsystems)
+                    if(actual.getKey().equals(candidate.getKey()))
                     {
-                        if(actual.getKey().equals(candidate.getKey()))
-                        {
-                            includedSubsystems++;
+                        includedSubsystems++;
 
-                            final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
-                            link.setKey(candidate.getKey());
-                            link.getElement().setAttribute("title", candidate.getName()+" "+
-                                    actual.getMajor()+"."+
-                                    actual.getMinor()+"."+
-                                    actual.getMicro());
+                        final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
+                        link.setKey(candidate.getKey());
+                        link.getElement().setAttribute("title", candidate.getName()+" "+
+                                actual.getMajor()+"."+
+                                actual.getMinor()+"."+
+                                actual.getMicro());
 
                             /*if(compatibleVersion(actual, candidate)) {
                                 groupTreeItem.addItem(link);
                             }*/
 
-                            matches.add(
-                                    new SubsystemLink(candidate.getName(), candidate.getToken())
-                            );
+                        matches.add(
+                                new SubsystemLink(candidate.getName(), candidate.getToken())
+                        );
 
-                        }
                     }
                 }
+            }
 
 
-                // skip empty groups
+            // skip empty groups
                /* if(groupTreeItem.getChildCount()>0)
                     matches.add(new SubsystemLink());*/
 
-            }
+        }
 
             /*// fallback in case no manageable subsystems exist
             if(includedSubsystems==0)
@@ -261,7 +273,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                 subsysTree.addItem(new TreeItem(explanation));
             }*/
 
-            return matches;
-        }
+        return matches;
+    }
 
 }
