@@ -63,6 +63,7 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.impl.HostInfoStoreImpl;
 import org.jboss.as.console.client.domain.model.impl.ProfileStoreImpl;
 import org.jboss.as.console.client.domain.model.impl.ServerGroupStoreImpl;
+import org.jboss.as.console.client.domain.profiles.ColumnProfileView;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtView;
@@ -301,7 +302,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         // profile management application
         bindPresenter(ProfileMgmtPresenter.class,
                 ProfileMgmtPresenter.MyView.class,
-                ProfileMgmtView.class,
+                ColumnProfileView.class,
                 ProfileMgmtPresenter.MyProxy.class);
 
         bindPresenter(TopologyPresenter.class,

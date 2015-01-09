@@ -16,10 +16,17 @@ public class TwoColumnLayout {
 
     private Widget centerPanel;
     private Widget westPanel;
+    private final int width;
 
     public TwoColumnLayout(Widget west, Widget center) {
+        this(west, center, 217);
+
+    }
+
+    public TwoColumnLayout(Widget west, Widget center, int width) {
         this.centerPanel = center;
         this.westPanel = west;
+        this.width = width;
 
         westPanel.getElement().setAttribute("role", "navigation");
         westPanel.getElement().setId("content-west");
@@ -56,7 +63,7 @@ public class TwoColumnLayout {
         // fix display issue
         collapseButton.getElement().getParentElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
 
-         // workaround: the panel always open not collapsed, but the west panel might be invisible
+        // workaround: the panel always open not collapsed, but the west panel might be invisible
         layout.addAttachHandler(new AttachEvent.Handler() {
             @Override
             public void onAttachOrDetach(AttachEvent event) {
@@ -70,7 +77,7 @@ public class TwoColumnLayout {
         westPanelWrapper.setWidgetTopHeight(collapseButton, 5, Style.Unit.PX, 15, Style.Unit.PX);
         westPanelWrapper.setWidgetRightWidth(collapseButton, 5, Style.Unit.PX, 15, Style.Unit.PX);
 
-        layout.addWest(westPanelWrapper, 217);
+        layout.addWest(westPanelWrapper, width);
         layout.add(centerPanel);
 
         //layout.setWidgetMinSize(nav, 15);
