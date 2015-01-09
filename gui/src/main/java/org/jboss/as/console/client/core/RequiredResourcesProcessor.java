@@ -119,8 +119,8 @@ public class RequiredResourcesProcessor {
         int index = 0;
         List<ReadRequiredResources> functions = new ArrayList<>();
 
+        ReadRequiredResources rrr = null;
         for (Iterator<String> iterator = requiredResources.iterator(); iterator.hasNext(); index++) {
-            ReadRequiredResources rrr = null;
             if (index % batchSize == 0) {
                 rrr = new ReadRequiredResources(dispatcher, statementContext);
                 functions.add(rrr);
