@@ -327,7 +327,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "datasources");
         operation.get(ADDRESS).add(subresource, dsName);
-        operation.get(OP).set("flush-all-connection-in-pool");
+        operation.get(OP).set("flush-gracefully-connection-in-pool");
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
