@@ -103,8 +103,10 @@ public class ProfileMgmtPresenter
                 getView().setSubsystems(subsystems);
 
                 // prefer to reveal the last place, if exists in selected profile
-                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
-                revealDefaultSubsystem(preference, subsystems);
+                //PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
+                //revealDefaultSubsystem(preference, subsystems);
+
+
             }
         });
     }
