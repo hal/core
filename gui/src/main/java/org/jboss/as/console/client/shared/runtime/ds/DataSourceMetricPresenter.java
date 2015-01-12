@@ -327,13 +327,12 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "datasources");
         operation.get(ADDRESS).add(subresource, dsName);
-        operation.get(OP).set("flush-all-connection-in-pool");
+        operation.get(OP).set("flush-idle-connection-in-pool");
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode response = dmrResponse.get();
-
                 if(response.isFailure())
                 {
                     Console.error(Console.MESSAGES.failed("Flush connections error for " + dsName), response.getFailureDescription());
