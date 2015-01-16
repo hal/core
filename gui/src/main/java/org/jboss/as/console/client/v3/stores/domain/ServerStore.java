@@ -14,6 +14,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
@@ -53,6 +54,7 @@ public class ServerStore extends ChangeSupport {
 
     private Map<String, List<Server>> serverModel = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
+    private ServerRef selectServer;
 
     @Inject
     public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
@@ -93,6 +95,32 @@ public class ServerStore extends ChangeSupport {
             channel.ack();
         }
 
+    }
+
+    @Process(actionType = SelectServer.class)
+    public void onSelectServer(String server, String host, final Dispatcher.Channel channel) {
+
+        this.selectServer = new ServerRef(host, server);
+        channel.ack();
+
+    }
+
+    public final class ServerRef {
+        String hostName;
+        String serverName;
+
+        public ServerRef(String hostName, String serverName) {
+            this.hostName = hostName;
+            this.serverName = serverName;
+        }
+
+        public String getHostName() {
+            return hostName;
+        }
+
+        public String getServerName() {
+            return serverName;
+        }
     }
 
     class RefreshValues {
@@ -366,6 +394,10 @@ public class ServerStore extends ChangeSupport {
     public List<ServerInstance> getServerInstances(String host) {
         List<ServerInstance> serverInstances = instanceModel.get(host);
         return serverInstances != null ? serverInstances : new ArrayList<ServerInstance>();
+    }
+
+    public ServerRef getSelectServer() {
+        return selectServer;
     }
 
     // -----------------------------------------------

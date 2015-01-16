@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -34,15 +33,33 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
-import org.jboss.as.console.client.domain.model.*;
+import org.jboss.as.console.client.domain.model.Host;
+import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
-import org.jboss.as.console.client.shared.jvm.*;
-import org.jboss.as.console.client.shared.properties.*;
+import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
+import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
+import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.shared.jvm.JvmManagement;
+import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
+import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
+import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
+import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
+import org.jboss.as.console.client.shared.properties.PropertyManagement;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.*;
+import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
@@ -87,8 +104,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         void setProperties(String reference, List<PropertyRecord> properties);
         void setPorts(String socketBinding, Server selectedRecord, List<SocketBinding> result);
         void setGroups(List<ServerGroupRecord> result);
-        void setPreselection(String config);
-        void setConfigurations(String selectedHost, List<Server> serverModel);
+        void updateFrom(Server server);
     }
 
 
@@ -142,19 +158,19 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     @Override
     protected void onAction(Action action) {
-        handleChange();
-    }
-
-    private void handleChange() {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                getView().setConfigurations(
-                        hostStore.getSelectedHost(),
-                        serverStore.getServerModel(hostStore.getSelectedHost())
-                );
+        if(action instanceof SelectServer)
+        {
+            SelectServer serverSelection = (SelectServer) action;
+            List<Server> serverModel = serverStore.getServerModel(hostStore.getSelectedHost());
+            for (Server server : serverModel) {
+                if(server.getHostName().equals(serverSelection.getHost())
+                        && server.getName().equals(serverSelection.getServer()))
+                {
+                    getView().updateFrom(server);
+                    break;
+                }
             }
-        });
+        }
     }
 
     @Override
@@ -163,7 +179,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         if ("new".equals(action)) {
             launchNewConfigDialoge();
         }
-        getView().setPreselection(request.getParameter("config", null));
+
     }
 
     @Override
@@ -271,7 +287,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
             @Override
             public void onFailure(Throwable throwable) {
-               Console.error("Failed to delete server", throwable.getMessage());
+                Console.error("Failed to delete server", throwable.getMessage());
             }
 
             @Override
@@ -459,7 +475,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         hostInfoStore.loadJVMConfiguration(hostStore.getSelectedHost(), server, new SimpleCallback<Jvm>() {
             @Override
             public void onSuccess(Jvm jvm) {
-            getView().setJvm(server.getName(), jvm);
+                getView().setJvm(server.getName(), jvm);
             }
         });
     }
@@ -469,7 +485,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                 .loadProperties(hostStore.getSelectedHost(), server, new SimpleCallback<List<PropertyRecord>>() {
                     @Override
                     public void onSuccess(List<PropertyRecord> properties) {
-                    getView().setProperties(server.getName(), properties);
+                        getView().setProperties(server.getName(), properties);
                     }
                 });
     }

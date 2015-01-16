@@ -92,7 +92,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public static final int VISIBLE_HOSTS_COLUMNS = 3;
 
     private final org.jboss.gwt.circuit.Dispatcher circuit;
-    private Boolean fillscreen;
     private final RevealStrategy revealStrategy;
     private final PlaceManager placeManager;
     private final ServerGroupStore serverGroupStore;
@@ -133,13 +132,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
 
     @Override
     protected void revealInParent() {
-        if(fillscreen==true)
-        {
-            RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
-        }
-        else {
-            revealStrategy.revealInDomain(this);
-        }
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override
@@ -153,7 +146,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     public void prepareFromRequest(final PlaceRequest request) {
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
-        fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
         hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));
     }
 

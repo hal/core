@@ -99,7 +99,8 @@ public class ServerConfigDetails {
             }
         };
 
-        form.setFields(nameItem, startedItem, groupItem, socketItem, portOffset);
+        TextItem profile = new TextItem("profile", "Profile");
+        form.setFields(nameItem, startedItem, groupItem, profile, socketItem, portOffset);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
@@ -165,5 +166,13 @@ public class ServerConfigDetails {
             names.add(rec.getName());
 
         groupItem.setValueMap(names);
+    }
+
+    public void clearValues() {
+        form.clearValues();
+    }
+
+    public void updateFrom(Server server) {
+        form.edit(server);
     }
 }

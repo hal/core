@@ -23,14 +23,17 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
+import java.util.List;
 import java.util.Set;
 
 /**
  * @author Heiko Braun
  * @date 3/2/11
  */
+@Deprecated
 public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresenter.MyView {
 
     private HostMgmtPresenter presenter;
@@ -80,4 +83,8 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
         lhsNavigation.setHosts(selectedHost, hostNames);
     }
 
+    @Override
+    public void updateServer(List<Server> serverModel) {
+        // noop
+    }
 }

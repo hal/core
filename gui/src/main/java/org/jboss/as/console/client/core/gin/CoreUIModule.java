@@ -325,7 +325,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,
-                HostMgmtView.class,
+                ColumnHostView.class,
                 HostMgmtPresenter.MyProxy.class);
 
         bindPresenter(ServerConfigPresenter.class,

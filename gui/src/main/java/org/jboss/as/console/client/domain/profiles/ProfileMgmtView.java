@@ -36,6 +36,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 2/4/11
  */
+@Deprecated
 public class ProfileMgmtView extends SuspendableViewImpl
         implements ProfileMgmtPresenter.MyView{
 
