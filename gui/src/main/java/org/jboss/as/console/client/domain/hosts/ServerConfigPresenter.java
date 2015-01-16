@@ -22,6 +22,7 @@ package org.jboss.as.console.client.domain.hosts;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
@@ -41,7 +42,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
-import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
 import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -72,7 +72,9 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -85,6 +87,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
+
+    private HandlerRegistration hostStoreHandler;
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
@@ -102,9 +107,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         void updateSocketBindings(List<String> result);
         void setJvm(String reference, Jvm jvm);
         void setProperties(String reference, List<PropertyRecord> properties);
-        void setPorts(String socketBinding, Server selectedRecord, List<SocketBinding> result);
         void setGroups(List<ServerGroupRecord> result);
         void updateFrom(Server server);
+
+        void updateServerList(List<Server> serverModel);
     }
 
 
@@ -152,6 +158,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(ServerWizardEvent.TYPE, this);
+
         addChangeHandler(hostStore);
         addChangeHandler(serverStore);
     }
@@ -170,6 +177,18 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                     break;
                 }
             }
+        }
+
+        else  {
+            String selectedHost = hostStore.getSelectedHost();
+            List<Server> serverModel = Collections.EMPTY_LIST;
+            if (selectedHost != null) {
+                serverModel = serverStore.getServerModel(
+                        hostStore.getSelectedHost()
+                );
+
+            }
+            getView().updateServerList(serverModel);
         }
     }
 
@@ -196,10 +215,8 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         if (server != null) {
             loadJVMConfiguration(server);
             loadProperties(server);
-            loadPorts(server);
 
-            SecurityContextChangedEvent
-                    .fire(this, "/{selected.host}/server-config=*", server.getName());
+            SecurityContextChangedEvent.fire(this, "/{selected.host}/server-config=*", server.getName());
         }
     }
 
@@ -448,23 +465,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         propertyWindow.hide();
     }
 
-    public void loadPorts(final Server server) {
-
-        if (server.getSocketBinding() != null &&
-                !server.getSocketBinding().equals("")) {
-
-            loadSocketCmd.execute(server.getSocketBinding(),
-                    new SimpleCallback<List<SocketBinding>>() {
-                        @Override
-                        public void onSuccess(List<SocketBinding> result) {
-
-                            getView().setPorts(server.getSocketBinding(), server, result);
-                        }
-                    }
-            );
-        }
-
-    }
 
     @Override
     public void launchWizard(String HostName) {
@@ -518,4 +518,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         circuit.dispatch(new CopyServer(targetHost, original, newServer));
 
     }
+
+
 }

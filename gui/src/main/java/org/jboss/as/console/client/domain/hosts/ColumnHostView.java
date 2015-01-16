@@ -33,7 +33,7 @@ public class ColumnHostView extends SuspendableViewImpl
         implements HostMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler {
 
     private final NavigationColumn<String> hosts;
-    private final NavigationColumn<Server> server;
+
     private final HostStore hostStore;
     private final ServerStore serverStore;
 
@@ -46,13 +46,7 @@ public class ColumnHostView extends SuspendableViewImpl
         SafeHtml item(String cssClass, String title);
     }
 
-    interface ServerTemplate extends SafeHtmlTemplates {
-            @Template("<div class=\"{0}\">{1}&nbsp;<span style='font-size:8px'>({2})</span></div>")
-            SafeHtml item(String cssClass, String server, String host);
-        }
-
     private static final Template TEMPLATE = GWT.create(Template.class);
-    private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore) {
@@ -77,23 +71,10 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 });
 
-        server = new NavigationColumn<Server>(
-                "Server",
-                new NavigationColumn.Display<Server>() {
-                    @Override
-                    public SafeHtml render(String baseCss, Server data) {
-                        return SERVER_TEMPLATE.item(baseCss, data.getName(), data.getHostName());
-                    }
-                },
-                new ProvidesKey<Server>() {
-                    @Override
-                    public Object getKey(Server item) {
-                        return item.getName()+item.getHostName();
-                    }
-                });
+
 
         layout.addWest(hosts.asWidget(), 217);
-        layout.addWest(server.asWidget(), 217);
+        //layout.addWest(server.asWidget(), 217);
         layout.add(contentCanvas);
 
         hosts.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -120,25 +101,6 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
-        server.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-
-                if (server.hasSelectedItem()) {
-
-                    final Server selectedServer = server.getSelectedItem();
-
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        public void execute() {
-
-                            Console.getCircuit().dispatch(
-                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
-                            );
-                        }
-                    });
-                }
-            }
-        });
     }
 
     @Override
@@ -169,11 +131,6 @@ public class ColumnHostView extends SuspendableViewImpl
     public void updateHosts(String selectedHost, Set<String> hostNames) {
         // TODO API Compatibility: remove need for list wrapper
         hosts.updateFrom(new ArrayList<String>(hostNames), true);
-    }
-
-    @Override
-    public void updateServer(List<Server> serverModel) {
-        server.updateFrom(serverModel, true);
     }
 
     @Override

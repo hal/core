@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class NavigationColumn<T> {
     private final String title;
     private final ProvidesKey keyProvider;
     private HTML header;
+    private ToolStrip toolstrip;
+
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
@@ -86,10 +89,22 @@ public class NavigationColumn<T> {
         ScrollPanel nav = new ScrollPanel(cellList);
 
         layout.add(header);
+
+        if(toolstrip!=null)
+            layout.add(toolstrip.asWidget());
+
         layout.add(nav);
 
-        layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+        if(toolstrip!=null) {
+            layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
+            layout.setWidgetTopHeight(toolstrip, 40, Style.Unit.PX, 70, Style.Unit.PX);
+            layout.setWidgetTopHeight(nav, 70, Style.Unit.PX, 100, Style.Unit.PCT);
+        }
+        else
+        {
+            layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
+            layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+        }
 
         return layout;
     }
@@ -132,4 +147,7 @@ public class NavigationColumn<T> {
         }
     }
 
+    public void setTools(ToolStrip toolStrip) {
+        this.toolstrip = toolStrip;
+    }
 }

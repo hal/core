@@ -82,9 +82,4 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
     public void updateHosts(String selectedHost, Set<String> hostNames) {
         lhsNavigation.setHosts(selectedHost, hostNames);
     }
-
-    @Override
-    public void updateServer(List<Server> serverModel) {
-        // noop
-    }
 }

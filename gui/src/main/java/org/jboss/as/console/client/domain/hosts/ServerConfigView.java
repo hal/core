@@ -19,30 +19,29 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.safehtml.client.SafeHtmlTemplates;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.widgets.tables.IconCell;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -67,7 +66,16 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private ListDataProvider serverConfigProvider;
     private String preselection;*/
     private ContentHeaderLabel headline;
+    private SplitLayoutPanel splitlayout;
+    private NavigationColumn<Server> serverColumn;
 
+
+    interface ServerTemplate extends SafeHtmlTemplates {
+        @Template("<div class=\"{0}\">{1}&nbsp;<span style='font-size:8px'>({2})</span></div>")
+        SafeHtml item(String cssClass, String server, String host);
+    }
+
+    private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
     public ServerConfigView() {
        /* serverConfigTable = new DefaultCellTable<Server>(8, new ProvidesKey<Server>() {
@@ -88,7 +96,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     @Override
     public Widget createWidget() {
 
-        /*final ToolStrip toolStrip = new ToolStrip();
+        final ToolStrip toolStrip = new ToolStrip();
 
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler(){
             @Override
@@ -105,7 +113,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
             @Override
             public void onClick(ClickEvent clickEvent) {
 
-                final Server server = getSelectionModel().getSelectedObject();
+                final Server server = serverColumn.getSelectedItem();
 
                 Feedback.confirm(
                         Console.MESSAGES.deleteServerConfig(),
@@ -113,7 +121,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
-                                if(isConfirmed)
+                                if (isConfirmed)
                                     presenter.tryDelete(server);
                             }
                         });
@@ -129,54 +137,16 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
             @Override
             public void onClick(ClickEvent clickEvent) {
 
-                final Server server = getSelectionModel().getSelectedObject();
+                final Server server = serverColumn.getSelectedItem();
                 presenter.onLaunchCopyWizard(server);
             }
         });
         copyBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
 
         toolStrip.addToolButtonRight(copyBtn);
-        toolStrip.setFilter("/{selected.host}/server-config=*");*/
+        toolStrip.setFilter("/{selected.host}/server-config=*");
 
         // ------------------------------------------------------
-
-       /* // Create columns
-        Column<Server, String> nameColumn = new Column<Server, String>(new TextCell()) {
-            @Override
-            public String getValue(Server object) {
-                return object.getName();
-            }
-        };
-
-
-        Column<Server, String> groupColumn = new Column<Server, String>(new TextCell()) {
-            @Override
-            public String getValue(Server object) {
-                return object.getGroup();
-            }
-        };
-
-        Column<Server, String> startMode = new Column<Server, String>(new TextCell()) {
-            @Override
-            public String getValue(Server server) {
-                return server.isAutoStart() ? "auto" : "on-demand";
-            }
-        };
-
-        Column<Server, String> running = new Column<Server, String>(new IconCell()) {
-            @Override
-            public String getValue(Server server) {
-                return server.isStarted() ? "icon-ok" : "";
-            }
-        };
-
-        serverConfigTable.addColumn(nameColumn, "Configuration Name");
-        serverConfigTable.addColumn(groupColumn, Console.CONSTANTS.common_label_serverGroup());
-        serverConfigTable.addColumn(startMode, "Start Mode");
-        serverConfigTable.addColumn(running, "Running?");
-*/
-
-        // ---------------------
 
 
         details = new ServerConfigDetails(presenter);
@@ -198,14 +168,12 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         propertyEditor = new PropertyEditor(presenter, true);
 //        propertyEditor.setOperationAddress("/{selected.host}/server-config=*/system-property=*", "add");
 
-       // portsView = new PortsView();
-
 
         // --------------------
 
         headline = new ContentHeaderLabel();
 
-        OneToOneLayout layout = new OneToOneLayout()
+        OneToOneLayout editor = new OneToOneLayout()
                 .setTitle("Server Configuration")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
@@ -218,29 +186,58 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         // server-config, we shouldn't be able to edit the JVM settings either.
         jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
+        splitlayout = new SplitLayoutPanel(2);
 
-        /*details.bind(serverConfigTable);
+        serverColumn = new NavigationColumn<Server>(
+                        "Server",
+                        new NavigationColumn.Display<Server>() {
+                            @Override
+                            public SafeHtml render(String baseCss, Server data) {
+                                return SERVER_TEMPLATE.item(baseCss, data.getName(), data.getHostName());
+                            }
+                        },
+                        new ProvidesKey<Server>() {
+                            @Override
+                            public Object getKey(Server item) {
+                                return item.getName()+item.getHostName();
+                            }
+                        });
 
-        serverConfigTable.getSelectionModel().addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler() {
-                    @Override
-                    public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                        presenter.onServerConfigSelectionChanged(getSelectionModel().getSelectedObject());
-                    }
-                });*/
+        serverColumn.setTools(toolStrip);
 
-        return layout.build();
+        splitlayout.addWest(serverColumn.asWidget(), 217);
+        splitlayout.add(editor.build());
+
+
+        serverColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+
+                if (serverColumn.hasSelectedItem()) {
+
+                    final Server selectedServer = serverColumn.getSelectedItem();
+
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        public void execute() {
+
+                            Console.getCircuit().dispatch(
+                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
+                            );
+                        }
+                    });
+                }
+            }
+        });
+
+        return splitlayout;
     }
 
-   /* @SuppressWarnings("unchecked")
-    private SingleSelectionModel<Server> getSelectionModel() {
-        return (SingleSelectionModel<Server>) serverConfigTable.getSelectionModel();
-    }
-*/
+
     @Override
-    public void setPorts(String socketBinding, Server server, List<SocketBinding> sockets) {
-        //portsView.setPorts(server.getSocketBinding(), server, sockets);
+    public void updateServerList(List<Server> serverModel) {
+        serverColumn.updateFrom(serverModel, true);
     }
+
 
     @Override
     public void setJvm(String reference, Jvm jvm) {
@@ -277,15 +274,5 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     public void setGroups(List<ServerGroupRecord> result) {
         details.setAvailableGroups(result);
     }
-
-    private Server findSelectedServer(List<Server> servers,String name){
-        for (Server server : servers) {
-            if(server.getName().equals(name)) {
-                return server;
-            }
-        }
-        return servers.get(0);
-    }
-
 
 }
