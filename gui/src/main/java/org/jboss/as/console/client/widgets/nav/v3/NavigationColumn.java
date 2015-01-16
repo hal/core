@@ -1,10 +1,8 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
@@ -32,14 +30,7 @@ public class NavigationColumn<T> {
     private final ProvidesKey keyProvider;
     private HTML header;
     private ToolStrip toolstrip;
-
-
-    interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}</div>")
-        SafeHtml item(String cssClass, String title);
-    }
-
-    private static final Template TEMPLATE = GWT.create(Template.class);
+    private boolean plain = false;
 
     public NavigationColumn(String title, final Display display, ProvidesKey keyProvider) {
         this.title = title;
@@ -63,7 +54,11 @@ public class NavigationColumn<T> {
 
         cellList.setSelectionModel(selectionModel);
 
+    }
 
+    public NavigationColumn<T> setPlain(boolean plain) {
+        this.plain = plain;
+        return this;
     }
 
     public void addSelectionChangeHandler(SelectionChangeEvent.Handler handler) {
@@ -83,27 +78,46 @@ public class NavigationColumn<T> {
         LayoutPanel layout = new LayoutPanel();
         layout.addStyleName("navigation-column");
 
-        header = new HTML(title);
-        header.addStyleName("server-picker-section-header");
+        if(!plain) {     // including the header
 
-        ScrollPanel nav = new ScrollPanel(cellList);
+            header = new HTML(title);
+            header.addStyleName("server-picker-section-header");
 
-        layout.add(header);
+            ScrollPanel nav = new ScrollPanel(cellList);
 
-        if(toolstrip!=null)
-            layout.add(toolstrip.asWidget());
+            layout.add(header);
 
-        layout.add(nav);
+            if (toolstrip != null)
+                layout.add(toolstrip.asWidget());
 
-        if(toolstrip!=null) {
-            layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(toolstrip, 40, Style.Unit.PX, 70, Style.Unit.PX);
-            layout.setWidgetTopHeight(nav, 70, Style.Unit.PX, 100, Style.Unit.PCT);
+            layout.add(nav);
+
+            if (toolstrip != null) {
+                layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
+                layout.setWidgetTopHeight(toolstrip, 40, Style.Unit.PX, 70, Style.Unit.PX);
+                layout.setWidgetTopHeight(nav, 70, Style.Unit.PX, 100, Style.Unit.PCT);
+            } else {
+                layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
+                layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+            }
+
         }
-        else
+        else            // embedded mode, w/o header
         {
-            layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+            ScrollPanel nav = new ScrollPanel(cellList);
+
+            if (toolstrip != null)
+                layout.add(toolstrip.asWidget());
+
+            layout.add(nav);
+
+            if (toolstrip != null) {
+                layout.setWidgetTopHeight(toolstrip, 0, Style.Unit.PX, 30, Style.Unit.PX);
+                layout.setWidgetTopHeight(nav, 30, Style.Unit.PX, 100, Style.Unit.PCT);
+            } else {
+                layout.setWidgetTopHeight(nav, 0, Style.Unit.PX, 100, Style.Unit.PCT);
+            }
+
         }
 
         return layout;
@@ -118,7 +132,7 @@ public class NavigationColumn<T> {
         cellList.setRowCount(records.size(), true);
         cellList.setRowData(0, records);
 
-        header.setHTML(title+" ("+records.size()+")");
+        if(!plain) header.setHTML(title+" ("+records.size()+")");
         if(selectDefault && records.size()>0)
         {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
