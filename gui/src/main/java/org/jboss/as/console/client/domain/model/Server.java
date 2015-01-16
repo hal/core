@@ -37,6 +37,9 @@ public interface Server {
     String getGroup();
     void setGroup(String group);
 
+    String getHostName();
+    void setHostName(String hostName);
+
     @Binding(detypedName = "auto-start")
     boolean isAutoStart();
     void setAutoStart(boolean b);

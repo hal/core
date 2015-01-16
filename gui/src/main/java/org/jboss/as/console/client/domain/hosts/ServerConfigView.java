@@ -33,6 +33,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.general.model.SocketBinding;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -61,22 +62,22 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private JvmEditor jvmEditor;
     private PropertyEditor propertyEditor;
 
-    private PortsView portsView;
+   /* private PortsView portsView;
     private DefaultCellTable<Server> serverConfigTable;
     private ListDataProvider serverConfigProvider;
-    private String preselection;
+    private String preselection;*/
     private ContentHeaderLabel headline;
 
 
     public ServerConfigView() {
-        serverConfigTable = new DefaultCellTable<Server>(8, new ProvidesKey<Server>() {
+       /* serverConfigTable = new DefaultCellTable<Server>(8, new ProvidesKey<Server>() {
             @Override
             public Object getKey(Server server) {
                 return server.getName();
             }
         });
         serverConfigProvider = new ListDataProvider<Server>();
-        serverConfigProvider.addDataDisplay(serverConfigTable);
+        serverConfigProvider.addDataDisplay(serverConfigTable);*/
     }
 
     @Override
@@ -87,7 +88,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     @Override
     public Widget createWidget() {
 
-        final ToolStrip toolStrip = new ToolStrip();
+        /*final ToolStrip toolStrip = new ToolStrip();
 
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler(){
             @Override
@@ -135,11 +136,11 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         copyBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
 
         toolStrip.addToolButtonRight(copyBtn);
-        toolStrip.setFilter("/{selected.host}/server-config=*");
+        toolStrip.setFilter("/{selected.host}/server-config=*");*/
 
         // ------------------------------------------------------
 
-        // Create columns
+       /* // Create columns
         Column<Server, String> nameColumn = new Column<Server, String>(new TextCell()) {
             @Override
             public String getValue(Server object) {
@@ -173,7 +174,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         serverConfigTable.addColumn(groupColumn, Console.CONSTANTS.common_label_serverGroup());
         serverConfigTable.addColumn(startMode, "Start Mode");
         serverConfigTable.addColumn(running, "Running?");
-
+*/
 
         // ---------------------
 
@@ -197,19 +198,17 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         propertyEditor = new PropertyEditor(presenter, true);
 //        propertyEditor.setOperationAddress("/{selected.host}/server-config=*/system-property=*", "add");
 
-        portsView = new PortsView();
+       // portsView = new PortsView();
 
 
         // --------------------
 
         headline = new ContentHeaderLabel();
 
-        MultipleToOneLayout layout = new MultipleToOneLayout()
-                .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
+        OneToOneLayout layout = new OneToOneLayout()
+                .setTitle("Server Configuration")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
-                .setMaster(Console.MESSAGES.available(Console.CONSTANTS.common_label_serverConfigs()), serverConfigTable)
-                .setMasterTools(toolStrip.asWidget())
                 .addDetail("Attributes", details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
@@ -220,7 +219,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
 
-        details.bind(serverConfigTable);
+        /*details.bind(serverConfigTable);
 
         serverConfigTable.getSelectionModel().addSelectionChangeHandler(
                 new SelectionChangeEvent.Handler() {
@@ -228,16 +227,16 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                     public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                         presenter.onServerConfigSelectionChanged(getSelectionModel().getSelectedObject());
                     }
-                });
+                });*/
 
         return layout.build();
     }
 
-    @SuppressWarnings("unchecked")
+   /* @SuppressWarnings("unchecked")
     private SingleSelectionModel<Server> getSelectionModel() {
         return (SingleSelectionModel<Server>) serverConfigTable.getSelectionModel();
     }
-
+*/
     @Override
     public void setPorts(String socketBinding, Server server, List<SocketBinding> sockets) {
         //portsView.setPorts(server.getSocketBinding(), server, sockets);
@@ -260,21 +259,19 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     }
 
     @Override
-    public void setConfigurations(String selectedHost, List<Server> serverModel) {
+    public void updateFrom(Server server) {
+        headline.setHTML("Server '"+server.getName()+"' on Host '"+server.getHostName()+"'");
 
-        headline.setText("Server Configurations: Host '"+selectedHost+"'");
-        serverConfigProvider.getList().clear();
-        serverConfigProvider.getList().addAll(serverModel);
-        serverConfigProvider.refresh();
-
+        details.clearValues();
         jvmEditor.clearValues();
         propertyEditor.clearValues();
 
-        serverConfigTable.selectDefaultEntity();
+        details.updateFrom(server);
+
+        // lazily fetch jvm and property settings
+        presenter.onServerConfigSelectionChanged(server);
 
     }
-
-
 
     @Override
     public void setGroups(List<ServerGroupRecord> result) {
@@ -290,8 +287,5 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         return servers.get(0);
     }
 
-    @Override
-    public void setPreselection(String config) {
-        this.preselection = config;
-    }
+
 }

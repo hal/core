@@ -231,7 +231,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
     }
 
     @Override
-    public void getServerConfigurations(String host, final AsyncCallback<List<Server>> callback) {
+    public void getServerConfigurations(final String host, final AsyncCallback<List<Server>> callback) {
 
         if(host==null) throw new RuntimeException("Host parameter is null!");
 
@@ -292,6 +292,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                     {
                         ModelNode model = item.asProperty().getValue();
                         Server server = serverAdapter.fromDMR(model);
+                        server.setHostName(host);
                         server.setStarted(model.get("status").asString().equalsIgnoreCase("STARTED"));
                         server.setProfile(group2profile.get(server.getGroup()));
                         records.add(server);
