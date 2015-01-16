@@ -2,27 +2,29 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,12 +36,8 @@ public class ColumnHostView extends SuspendableViewImpl
 
     private final NavigationColumn<String> hosts;
 
-    private final HostStore hostStore;
-    private final ServerStore serverStore;
-
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
-    private HostMgmtPresenter presenter;
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
@@ -51,8 +49,6 @@ public class ColumnHostView extends SuspendableViewImpl
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore) {
         super();
-        this.hostStore = hostStore;
-        this.serverStore = serverStore;
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
@@ -69,11 +65,35 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(String item) {
                         return item;
                     }
-                });
+                }).setPlain(true);
 
 
+        StackLayoutPanel stack = new StackLayoutPanel(Style.Unit.PX);
 
-        layout.addWest(hosts.asWidget(), 217);
+        HTML hostsHeader = new HTML("Hosts");
+        hostsHeader.addStyleName("server-picker-section-header");
+
+        final HTML groupsHeader = new HTML("Server Groups");
+        groupsHeader.addStyleName("server-picker-section-header");
+        groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
+
+        stack.add(hosts.asWidget(), hostsHeader, 40);
+        stack.add(new HTML(), groupsHeader, 40);
+
+
+        stack.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                if(event.getSelectedItem()>0)
+                {
+                    groupsHeader.getElement().removeAttribute("style");
+                }
+                else {
+                    groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
+                }
+            }
+        });
+        layout.addWest(stack, 217);
         //layout.addWest(server.asWidget(), 217);
         layout.add(contentCanvas);
 
@@ -124,7 +144,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void setPresenter(HostMgmtPresenter presenter) {
-        this.presenter = presenter;
+
     }
 
     @Override
