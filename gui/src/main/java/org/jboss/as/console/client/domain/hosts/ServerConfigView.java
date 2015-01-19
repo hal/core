@@ -21,11 +21,8 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -46,7 +43,6 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
@@ -136,8 +132,8 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         });
         copyBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
 
-        toolStrip.addToolButtonRight(copyBtn);*/
-        toolStrip.setFilter("/{selected.host}/server-config=*");
+        toolStrip.addToolButtonRight(copyBtn);
+        toolStrip.setFilter("/{selected.host}/server-config=*");  */
 
         // ------------------------------------------------------
 
