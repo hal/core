@@ -38,6 +38,11 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -47,6 +52,7 @@ import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -66,6 +72,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public interface MyView extends View {
         void setPresenter(HostMgmtPresenter presenter);
         void updateHosts(String selectedHost, Set<String> hostNames);
+        void updateProfiles(List<ProfileRecord> result);
+        void updateSocketBindings(List<String> result);
+        void setServerGroups(List<ServerGroupRecord> result);
     }
 
 
@@ -73,15 +82,19 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
     private final Dispatcher circuit;
+    private final ServerGroupStore serverGroupStore;
+    private final ProfileStore profileStore;
     private BootstrapContext bootstrap;
     private final HostStore hostStore;
     private HandlerRegistration hostHandler;
-
+    private List<ProfileRecord> existingProfiles;
+    private List<String> existingSockets;
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
-            UnauthorisedPresenter unauthorisedPresenter) {
+                             BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
+                             UnauthorisedPresenter unauthorisedPresenter,  ServerGroupStore serverGroupStore,
+                             ProfileStore profileStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -89,6 +102,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.bootstrap = bootstrap;
         this.hostStore = hostStore;
         this.circuit = circuit;
+        this.serverGroupStore = serverGroupStore;
+        this.profileStore = profileStore;
     }
 
     @Override
@@ -122,6 +137,35 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         clearInitialPlace();
         circuit.dispatch(new RefreshHosts());
         HostMgmtPresenter.super.onReset();
+
+        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+            @Override
+            public void onSuccess(List<ProfileRecord> result) {
+                existingProfiles = result;
+                getView().updateProfiles(result);
+            }
+        });
+
+        serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> result) {
+                existingSockets = result;
+
+                getView().updateSocketBindings(result);
+            }
+        });
+
+        loadServerGroups();
+    }
+
+    private void loadServerGroups() {
+        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+            @Override
+            public void onSuccess(List<ServerGroupRecord> result) {
+
+                getView().setServerGroups(result);
+            }
+        });
     }
 
     @Override
