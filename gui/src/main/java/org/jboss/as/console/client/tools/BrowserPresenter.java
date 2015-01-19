@@ -78,6 +78,12 @@ public class BrowserPresenter extends PresenterWidget<BrowserPresenter.MyView>{
         }
     }
 
+    @Override
+    protected void onHide() {
+        super.onHide();
+        Console.getPlaceManager().revealRelativePlace(-1);
+    }
+
     public void onRefresh() {
 
         ModelNode target = pinToAddress != null ? pinToAddress : ROOT;

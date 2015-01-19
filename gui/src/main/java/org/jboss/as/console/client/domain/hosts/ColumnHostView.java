@@ -15,7 +15,9 @@ import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
@@ -157,13 +159,33 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts.setMenuItems(
                 new MenuDelegate<String>(          // TODO permissions
-                        "Edit", new ContextualCommand<String>() {
+                        "Properties", new ContextualCommand<String>() {
                     @Override
                     public void executeOn(final String host) {
-
-
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.HostPropertiesPresenter)
+                        );
+                    }
+                }),
+                new MenuDelegate<String>(          // TODO permissions
+                        "Interface", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.HostInterfacesPresenter)
+                        );
+                    }
+                }),
+                new MenuDelegate<String>(          // TODO permissions
+                        "JVM Settings", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.HostJVMPresenter)
+                        );
                     }
                 })
+
         );
 
         groups.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

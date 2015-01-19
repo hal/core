@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -115,7 +116,7 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Popup, this);
     }
 
     @Override
