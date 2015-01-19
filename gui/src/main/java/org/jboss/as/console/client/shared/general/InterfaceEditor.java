@@ -57,7 +57,8 @@ public class InterfaceEditor {
     public Widget asWidget() {
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
-                .setTitle(title);
+                .setTitle(title)
+                .setPlain(true);
 
         form = new Form<Interface>(Interface.class);
 

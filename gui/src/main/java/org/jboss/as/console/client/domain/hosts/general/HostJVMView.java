@@ -133,6 +133,7 @@ public class HostJVMView extends DisposableViewImpl implements HostJVMPresenter.
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setTitle("JVM Configurations")
+                .setPlain(true)
                 .setDescription(Console.CONSTANTS.hosts_jvm_desc())
                 .setHeadline(Console.CONSTANTS.hosts_jvm_title())
                 .setMaster(Console.MESSAGES.available("JVM Configurations"), table)

@@ -40,7 +40,7 @@ public class HostPropertiesView extends DisposableViewImpl implements HostProper
     @Override
     public Widget createWidget() {
 
-        SimpleLayout layout = new SimpleLayout()
+        /*SimpleLayout layout = new SimpleLayout()
                         .setTitle("Host Properties")
                         .setHeadline("Host Property Declarations")
                         .setDescription(Console.CONSTANTS.host_properties_desc());
@@ -48,7 +48,10 @@ public class HostPropertiesView extends DisposableViewImpl implements HostProper
         propertyEditor = new PropertyEditor(presenter, true);
         layout.addContent("", propertyEditor.asWidget());
 
-        return layout.build();
+        return layout.build();*/
+
+        propertyEditor = new PropertyEditor(presenter, true);
+        return propertyEditor.asWidget();
     }
 
     @Override

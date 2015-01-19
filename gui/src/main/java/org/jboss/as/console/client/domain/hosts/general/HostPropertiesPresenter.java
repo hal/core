@@ -22,22 +22,29 @@ package org.jboss.as.console.client.domain.hosts.general;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.properties.*;
+import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
+import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
+import org.jboss.as.console.client.shared.properties.LoadPropertiesCmd;
+import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
+import org.jboss.as.console.client.shared.properties.PropertyManagement;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
@@ -59,12 +66,14 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPresenter.MyView, HostPropertiesPresenter.MyProxy>
         implements PropertyManagement {
 
+    private DefaultWindow window;
+
     @ProxyCodeSplit
     @NameToken(NameTokens.HostPropertiesPresenter)
     @OperationMode(DOMAIN)
     @SearchIndex(keywords = {"system-property", "property"})
     @AccessControl(resources = {"/{selected.host}/system-property=*",})
-    public interface MyProxy extends Proxy<HostPropertiesPresenter>, Place {}
+    public interface MyProxy extends ProxyPlace<HostPropertiesPresenter>, Place {}
 
 
     public interface MyView extends View {
@@ -78,7 +87,6 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     private final BeanFactory factory;
     private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow propertyWindow;
-
 
     @Inject
     public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
@@ -106,9 +114,9 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
         loadProperties();
     }
 
-    @Override
+     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Popup, this);
     }
 
     @Override

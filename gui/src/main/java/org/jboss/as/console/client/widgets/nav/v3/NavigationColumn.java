@@ -41,8 +41,8 @@ public class NavigationColumn<T> {
     private final ProvidesKey keyProvider;
     private HorizontalPanel header;
     private boolean plain = false;
-    private MenuDelegate[] menuItems;
-    private MenuDelegate[] topMenuItems;
+    private MenuDelegate[] menuItems = new MenuDelegate[]{};
+    private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
 
     public NavigationColumn(String title, final Display display, ProvidesKey keyProvider) {

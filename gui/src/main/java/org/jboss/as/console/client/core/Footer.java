@@ -117,9 +117,10 @@ public class Footer {
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     toolsPopup.hide();
-                    placeManager.revealPlace(
+                    placeManager.revealRelativePlace(
                             new PlaceRequest.Builder().nameToken(NameTokens.ToolsPresenter).with("name", tool[1])
-                                    .build(),false);
+                                    .build()
+                    );
                 }
             });
             toolsList.add(browser);

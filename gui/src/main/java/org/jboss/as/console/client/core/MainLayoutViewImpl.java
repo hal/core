@@ -20,14 +20,19 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.ViewImpl;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.core.message.MessageCenter;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 /**
  * The main console layout that builds on GWT 2.1 layout panels.
@@ -45,6 +50,7 @@ public class MainLayoutViewImpl extends ViewImpl
 
     private Header header;
     private MessageCenter messageCenter;
+    private DefaultWindow window;
 
     @Inject
     public MainLayoutViewImpl(Header header, Footer footer, MessageCenter messageCenter) {
@@ -88,6 +94,23 @@ public class MainLayoutViewImpl extends ViewImpl
         if (slot == MainLayoutPresenter.TYPE_MainContent) {
             if(content!=null)
                 setMainContent(content);
+        }
+        else if(slot == MainLayoutPresenter.TYPE_Popup)
+        {
+            window = new DefaultWindow(Console.MESSAGES.createTitle("Host Properties"));
+            window.setWidth(640);
+            window.setHeight(480);
+            window.addCloseHandler(new CloseHandler<PopupPanel>() {
+                @Override
+                public void onClose(CloseEvent<PopupPanel> event) {
+                    Console.getPlaceManager().revealRelativePlace(-1);
+                }
+            });
+
+            window.setWidget(content);
+
+            window.setGlassEnabled(true);
+            window.center();
         }
         else {
             messageCenter.notify(

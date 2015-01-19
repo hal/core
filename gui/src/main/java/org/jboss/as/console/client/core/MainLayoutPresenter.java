@@ -58,6 +58,8 @@ public class MainLayoutPresenter
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_Popup = new GwtEvent.Type<RevealContentHandler<?>>();
 
     @ProxyCodeSplit
     @NameToken(NameTokens.mainLayout)
