@@ -221,7 +221,9 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = AddServer.class)
     public void onAddServer(final AddServer action, final Dispatcher.Channel channel) {
 
-        hostInfo.createServerConfig(hostStore.getSelectedHost(), action.getServer(), new SimpleCallback<Boolean>() {
+
+        hostInfo.createServerConfig(action.getServer().getHostName(), action.getServer(), new SimpleCallback<Boolean>() {
+
             @Override
             public void onSuccess(Boolean success) {
 
@@ -240,7 +242,7 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
     public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
 
-        hostInfo.deleteServerConfig(hostStore.getSelectedHost(), action.getServer(), new SimpleCallback<Boolean>() {
+        hostInfo.deleteServerConfig(action.getServer().getHostName(), action.getServer(), new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -269,7 +271,7 @@ public class ServerStore extends ChangeSupport {
 
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        proto.get(ADDRESS).add("host", hostStore.getSelectedHost());
+        proto.get(ADDRESS).add("host", action.getServer().getHostName());
         proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
 
         List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
@@ -313,8 +315,8 @@ public class ServerStore extends ChangeSupport {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        operation.get(ADDRESS).add("server-config", action.getOriginal().getName());
+        operation.get(ADDRESS).add("host", action.getNewServer().getHostName());
+        operation.get(ADDRESS).add("server-config", action.getNewServer().getName());
         operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {

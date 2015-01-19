@@ -74,6 +74,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -168,7 +169,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         if(action instanceof SelectServer)
         {
             SelectServer serverSelection = (SelectServer) action;
-            List<Server> serverModel = serverStore.getServerForHost(hostStore.getSelectedHost());
+            List<Server> serverModel = serverStore.getServerForHost(serverSelection.getHost());
             for (Server server : serverModel) {
                 if(server.getHostName().equals(serverSelection.getHost())
                         && server.getName().equals(serverSelection.getServer()))
@@ -272,7 +273,11 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             public void onSuccess(List<ServerGroupRecord> result) {
                 serverGroups = result;
                 window.trapWidget(
-                        new NewServerConfigWizard(ServerConfigPresenter.this, serverGroups).asWidget()
+                        new NewServerConfigWizard(
+                                ServerConfigPresenter.this,
+                                serverGroups,
+                                new ArrayList(hostStore.getHostNames()))
+                                .asWidget()
                 );
 
                 window.setGlassEnabled(true);
@@ -288,7 +293,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         }
     }
 
-    public void createServerConfig(final Server newServer) {
+    public void onCreateServerConfig(final Server newServer) {
 
         // close popup
         closeDialoge();
@@ -305,7 +310,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         // check if instance exist
         ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
+        operation.get(ADDRESS).add("host", serverStore.getSelectServer().getHostName());
         operation.get(ADDRESS).add("server-config", server.getName());
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -360,7 +365,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     @Override
     public void onCreateJvm(String reference, Jvm jvm) {
         ModelNode address = new ModelNode();
-        address.add("host", hostStore.getSelectedHost());
+        address.add("host", serverStore.getSelectServer().getHostName());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -378,7 +383,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public void onDeleteJvm(String reference, Jvm jvm) {
 
         ModelNode address = new ModelNode();
-        address.add("host", hostStore.getSelectedHost());
+        address.add("host", serverStore.getSelectServer().getHostName());
         address.add("server-config", reference);
         address.add(JVM, jvm.getName());
         final String selectedConfigName = reference;
@@ -398,7 +403,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         if (changedValues.size() > 0) {
             ModelNode address = new ModelNode();
-            address.add("host", hostStore.getSelectedHost());
+            address.add("host", serverStore.getSelectServer().getHostName());
             address.add("server-config", reference);
             address.add(JVM, jvmName);
             final String selectedConfigName = reference;
@@ -420,7 +425,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         }
 
         ModelNode address = new ModelNode();
-        address.add("host", hostStore.getSelectedHost());
+        address.add("host", serverStore.getSelectServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -438,7 +443,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public void onDeleteProperty(String reference, final PropertyRecord prop) {
 
         ModelNode address = new ModelNode();
-        address.add("host", hostStore.getSelectedHost());
+        address.add("host", serverStore.getSelectServer().getHostName());
         address.add("server-config", reference);
         address.add("system-property", prop.getKey());
         final String selectedConfigName = reference;
@@ -483,7 +488,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     public void loadJVMConfiguration(final Server server) {
-        hostInfoStore.loadJVMConfiguration(hostStore.getSelectedHost(), server, new SimpleCallback<Jvm>() {
+        hostInfoStore.loadJVMConfiguration(server.getHostName(), server, new SimpleCallback<Jvm>() {
             @Override
             public void onSuccess(Jvm jvm) {
                 getView().setJvm(server.getName(), jvm);
@@ -493,7 +498,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     public void loadProperties(final Server server) {
         hostInfoStore
-                .loadProperties(hostStore.getSelectedHost(), server, new SimpleCallback<List<PropertyRecord>>() {
+                .loadProperties(server.getHostName(), server, new SimpleCallback<List<PropertyRecord>>() {
                     @Override
                     public void onSuccess(List<PropertyRecord> properties) {
                         getView().setProperties(server.getName(), properties);
@@ -513,7 +518,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             public void onSuccess(List<Host> result) {
 
                 window.trapWidget(
-                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, hostStore.getSelectedHost())
+                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, orig.getHostName())
                                 .asWidget()
                 );
 
@@ -534,5 +539,8 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         return serverStore.getFilter();
     }
 
+    public String getSelectedGroup() {
+        return serverStore.getSelectedGroup();
+    }
 
 }
