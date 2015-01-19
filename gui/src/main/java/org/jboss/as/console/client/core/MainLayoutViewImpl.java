@@ -97,7 +97,7 @@ public class MainLayoutViewImpl extends ViewImpl
         }
         else if(slot == MainLayoutPresenter.TYPE_Popup)
         {
-            window = new DefaultWindow(Console.MESSAGES.createTitle("Host Properties"));
+            window = new DefaultWindow("");
             window.setWidth(640);
             window.setHeight(480);
             window.addCloseHandler(new CloseHandler<PopupPanel>() {
