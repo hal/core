@@ -23,7 +23,9 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.widgets.TwoColumnLayout;
 
 import java.util.List;
@@ -81,5 +83,20 @@ public class HostMgmtView extends SuspendableViewImpl implements HostMgmtPresent
     @Override
     public void updateHosts(String selectedHost, Set<String> hostNames) {
         lhsNavigation.setHosts(selectedHost, hostNames);
+    }
+
+    @Override
+    public void setServerGroups(List<ServerGroupRecord> result) {
+
+    }
+
+    @Override
+    public void updateSocketBindings(List<String> result) {
+
+    }
+
+    @Override
+    public void updateProfiles(List<ProfileRecord> result) {
+
     }
 }

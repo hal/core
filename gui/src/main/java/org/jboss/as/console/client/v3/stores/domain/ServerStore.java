@@ -11,10 +11,12 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
@@ -52,9 +54,11 @@ public class ServerStore extends ChangeSupport {
     private final HostInformationStore hostInfo;
     private final HostStore hostStore;
 
-    private Map<String, List<Server>> serverModel = new HashMap<>();
+    private Map<String, List<Server>> host2server = new HashMap<>();
     private Map<String, List<ServerInstance>> instanceModel = new HashMap<>();
     private ServerRef selectServer;
+    private String filter = FilterType.HOST;
+    private String selectedGroup;
 
     @Inject
     public ServerStore(HostStore hostStore, HostInformationStore hostInfo, DispatchAsync dispatcher, ApplicationMetaData propertyMetaData) {
@@ -76,7 +80,7 @@ public class ServerStore extends ChangeSupport {
 
             @Override
             public void onSuccess(Boolean aBoolean) {
-                callback.onSuccess(serverModel.get(hostName));
+                callback.onSuccess(host2server.get(hostName));
             }
         });
     }
@@ -88,13 +92,19 @@ public class ServerStore extends ChangeSupport {
     public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
 
         // load the server data on demand
-        if(!serverModel.containsKey(hostName))
+        if(!host2server.containsKey(hostName))
             onRefresh(channel);
         else {
 
             channel.ack();
         }
 
+    }
+
+    @Process(actionType = GroupSelection.class)
+    public void onSelectGroup(String groupName, final Dispatcher.Channel channel) {
+        this.selectedGroup = groupName;
+        channel.ack();
     }
 
     @Process(actionType = SelectServer.class)
@@ -198,7 +208,7 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(RefreshValues context) {
 
-                serverModel.put(hostName, context.servers);
+                host2server.put(hostName, context.servers);
                 instanceModel.put(hostName, context.instances);
 
                 callback.onSuccess(true);
@@ -288,6 +298,12 @@ public class ServerStore extends ChangeSupport {
         });
     }
 
+    @Process(actionType = FilterType.class)
+    public void onSetFilter(final String filter, final Dispatcher.Channel channel) {
+        this.filter = filter;
+        channel.ack();
+    }
+
     @Process(actionType = CopyServer.class)
     public void onSaveCopy(final String targetHost, final Server original, final Server newServer,
                            final Dispatcher.Channel channel) {
@@ -366,10 +382,33 @@ public class ServerStore extends ChangeSupport {
     // -----------------------------------------------
     // data access
 
-    public List<Server> getServerModel(String host) {
-        List<Server> servers = serverModel.get(host);
+    public String getFilter() {
+        return filter;
+    }
+
+    public String getSelectedGroup() {
+        return selectedGroup;
+    }
+
+    public List<Server> getServerForHost(String host) {
+        List<Server> servers = host2server.get(host);
         return servers != null ? servers : new ArrayList<Server>();
     }
+
+    public List<Server> getServerForGroup(String group) {
+
+        List<Server> matchingServer = new ArrayList<>();
+        for (Map.Entry<String, List<Server>> servers : host2server.entrySet()) {
+            for (Server server : servers.getValue()) {
+                if(server.getGroup().equals(group))
+                {
+                    matchingServer.add(server);
+                }
+            }
+        }
+        return matchingServer;
+    }
+
 
     public ServerInstance getServerInstance(String name) {
         ServerInstance match = null;

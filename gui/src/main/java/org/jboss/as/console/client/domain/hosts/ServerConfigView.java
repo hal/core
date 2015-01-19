@@ -39,6 +39,7 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -61,10 +62,6 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private JvmEditor jvmEditor;
     private PropertyEditor propertyEditor;
 
-   /* private PortsView portsView;
-    private DefaultCellTable<Server> serverConfigTable;
-    private ListDataProvider serverConfigProvider;
-    private String preselection;*/
     private ContentHeaderLabel headline;
     private SplitLayoutPanel splitlayout;
     private NavigationColumn<Server> serverColumn;
@@ -78,14 +75,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
     public ServerConfigView() {
-       /* serverConfigTable = new DefaultCellTable<Server>(8, new ProvidesKey<Server>() {
-            @Override
-            public Object getKey(Server server) {
-                return server.getName();
-            }
-        });
-        serverConfigProvider = new ListDataProvider<Server>();
-        serverConfigProvider.addDataDisplay(serverConfigTable);*/
+
     }
 
     @Override
@@ -193,7 +183,8 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
                         new NavigationColumn.Display<Server>() {
                             @Override
                             public SafeHtml render(String baseCss, Server data) {
-                                return SERVER_TEMPLATE.item(baseCss, data.getName(), data.getHostName());
+                                String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
+                                return SERVER_TEMPLATE.item(baseCss, data.getName(), context);
                             }
                         },
                         new ProvidesKey<Server>() {

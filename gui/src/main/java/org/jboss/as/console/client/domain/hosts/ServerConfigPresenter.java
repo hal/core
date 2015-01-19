@@ -56,6 +56,7 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
@@ -72,7 +73,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
-import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.Collections;
 import java.util.List;
@@ -168,7 +168,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         if(action instanceof SelectServer)
         {
             SelectServer serverSelection = (SelectServer) action;
-            List<Server> serverModel = serverStore.getServerModel(hostStore.getSelectedHost());
+            List<Server> serverModel = serverStore.getServerForHost(hostStore.getSelectedHost());
             for (Server server : serverModel) {
                 if(server.getHostName().equals(serverSelection.getHost())
                         && server.getName().equals(serverSelection.getServer()))
@@ -180,15 +180,26 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         }
 
         else  {
-            String selectedHost = hostStore.getSelectedHost();
-            List<Server> serverModel = Collections.EMPTY_LIST;
-            if (selectedHost != null) {
-                serverModel = serverStore.getServerModel(
-                        hostStore.getSelectedHost()
-                );
 
+            if(FilterType.HOST.equals(serverStore.getFilter()))
+            {
+                String selectedHost = hostStore.getSelectedHost();
+
+                List<Server> serverModel = Collections.EMPTY_LIST;
+                if (selectedHost != null) {
+                    serverModel = serverStore.getServerForHost(
+                            hostStore.getSelectedHost()
+                    );
+
+                }
+
+                getView().updateServerList(serverModel);
             }
-            getView().updateServerList(serverModel);
+            else if(FilterType.GROUP.equals(serverStore.getFilter()))
+            {
+                List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
+                getView().updateServerList(serverModel);
+            }
         }
     }
 
@@ -517,6 +528,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         window.hide();
         circuit.dispatch(new CopyServer(targetHost, original, newServer));
 
+    }
+
+    public String getFilter() {
+        return serverStore.getFilter();
     }
 
 
