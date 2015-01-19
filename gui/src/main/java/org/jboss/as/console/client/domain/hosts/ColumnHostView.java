@@ -18,14 +18,18 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
+import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -101,7 +105,6 @@ public class ColumnHostView extends SuspendableViewImpl
         stack.add(hosts.asWidget(), hostsHeader, 40);
         stack.add(groups.asWidget(), groupsHeader, 40);
 
-
         stack.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
@@ -152,6 +155,17 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
+        hosts.setMenuItems(
+                new MenuDelegate<String>(          // TODO permissions
+                        "Edit", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+
+
+                    }
+                })
+        );
+
         groups.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -172,6 +186,25 @@ public class ColumnHostView extends SuspendableViewImpl
                 }
             }
         });
+
+        groups.setMenuItems(
+                new MenuDelegate<ServerGroupRecord>(          // TODO permissions
+                        "Edit", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+
+                    }
+                }),
+                new MenuDelegate<ServerGroupRecord>(          // TODO permissions
+                        "Remove", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+
+                    }
+                })
+        );
 
     }
 
