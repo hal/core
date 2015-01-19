@@ -25,6 +25,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -41,6 +42,8 @@ import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -88,7 +91,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
         final ToolStrip toolStrip = new ToolStrip();
 
-        ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler(){
+        /*ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler(){
             @Override
             public void onClick(ClickEvent event) {
                 presenter.launchNewConfigDialoge();
@@ -96,9 +99,9 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         });
         addBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_serverConfigView());
-        toolStrip.addToolButtonRight(addBtn);
+        toolStrip.addToolButtonRight(addBtn);*/
 
-        ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
+       /* ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
         deleteBtn.addClickHandler(new ClickHandler(){
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -119,10 +122,10 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         });
         deleteBtn.setOperationAddress("/{selected.host}/server-config=*", "remove");
         deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_serverConfigView());
-        toolStrip.addToolButtonRight(deleteBtn);
+        toolStrip.addToolButtonRight(deleteBtn);*/
 
 
-        ToolButton copyBtn = new ToolButton(Console.CONSTANTS.common_label_copy());
+      /*  ToolButton copyBtn = new ToolButton(Console.CONSTANTS.common_label_copy());
         copyBtn.addClickHandler(new ClickHandler(){
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -133,7 +136,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         });
         copyBtn.setOperationAddress("/{selected.host}/server-config=*", "add");
 
-        toolStrip.addToolButtonRight(copyBtn);
+        toolStrip.addToolButtonRight(copyBtn);*/
         toolStrip.setFilter("/{selected.host}/server-config=*");
 
         // ------------------------------------------------------
@@ -179,22 +182,57 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         splitlayout = new SplitLayoutPanel(2);
 
         serverColumn = new NavigationColumn<Server>(
-                        "Server",
-                        new NavigationColumn.Display<Server>() {
+                "Server",
+                new NavigationColumn.Display<Server>() {
+                    @Override
+                    public SafeHtml render(String baseCss, Server data) {
+                        String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
+                        return SERVER_TEMPLATE.item(baseCss, data.getName(), context);
+                    }
+                },
+                new ProvidesKey<Server>() {
+                    @Override
+                    public Object getKey(Server item) {
+                        return item.getName()+item.getHostName();
+                    }
+                })
+                .setMenuItems(
+                        new MenuDelegate<Server>(          // TODO permissions
+                                "Remove", new ContextualCommand<Server>() {
                             @Override
-                            public SafeHtml render(String baseCss, Server data) {
-                                String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
-                                return SERVER_TEMPLATE.item(baseCss, data.getName(), context);
-                            }
-                        },
-                        new ProvidesKey<Server>() {
-                            @Override
-                            public Object getKey(Server item) {
-                                return item.getName()+item.getHostName();
-                            }
-                        });
+                            public void executeOn(final Server server) {
 
-        serverColumn.setTools(toolStrip);
+                                Feedback.confirm(
+                                        Console.MESSAGES.deleteServerConfig(),
+                                        Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
+                                        new Feedback.ConfirmationHandler() {
+                                            @Override
+                                            public void onConfirmation(boolean isConfirmed) {
+                                                if (isConfirmed)
+                                                    presenter.tryDelete(server);
+                                            }
+                                        });
+                            }
+                        }),
+                        new MenuDelegate<Server>(
+                                "Copy", new ContextualCommand<Server>() {
+                            @Override
+                            public void executeOn(Server server) {
+                                presenter.onLaunchCopyWizard(server);
+                            }
+                        })
+                );
+
+
+        serverColumn.setTopMenuItems(
+                new MenuDelegate<Server>(
+                        "Add", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.launchNewConfigDialoge();
+                    }
+                })
+        );
 
         splitlayout.addWest(serverColumn.asWidget(), 217);
         splitlayout.add(editor.build());
