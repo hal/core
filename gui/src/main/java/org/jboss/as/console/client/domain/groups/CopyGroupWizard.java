@@ -64,7 +64,6 @@ public class CopyGroupWizard {
                     @Override
                     public ModelNode getAddress() {
                         ModelNode address = new ModelNode();
-                        address.add("host", Console.MODULES.getHostStore().getSelectedHost());
                         address.add("server-group", "*");
                         return address;
                     }

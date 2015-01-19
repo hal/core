@@ -221,7 +221,7 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = AddServer.class)
     public void onAddServer(final Server server, final Dispatcher.Channel channel) {
 
-        hostInfo.createServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+        hostInfo.createServerConfig(server.getHostName(), server, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -240,7 +240,7 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
     public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
 
-        hostInfo.deleteServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+        hostInfo.deleteServerConfig(server.getHostName(), server, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -266,7 +266,7 @@ public class ServerStore extends ChangeSupport {
 
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-        proto.get(ADDRESS).add("host", hostStore.getSelectedHost());
+        proto.get(ADDRESS).add("host", server.getHostName());
         proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
 
         List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
@@ -311,7 +311,7 @@ public class ServerStore extends ChangeSupport {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).setEmptyList();
-        operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
+        operation.get(ADDRESS).add("host", newServer.getHostName());
         operation.get(ADDRESS).add("server-config", original.getName());
         operation.get(RECURSIVE).set(true);
 
