@@ -54,6 +54,7 @@ public class MainLayoutPresenter
     private PlaceManager placeManager;
 
     public interface MainLayoutView extends View {
+        void setPresenter(MainLayoutPresenter presenter);
     }
 
     @ContentSlot
@@ -82,6 +83,7 @@ public class MainLayoutPresenter
     @Override
     protected void onBind() {
         super.onBind();
+        getView().setPresenter(this);
         getEventBus().addHandler(ResolveExpressionEvent.TYPE, this);
         getEventBus().addHandler(LogoutEvent.TYPE, this);
     }
