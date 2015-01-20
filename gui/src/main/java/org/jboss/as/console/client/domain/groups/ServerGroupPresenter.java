@@ -34,6 +34,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
@@ -43,6 +44,7 @@ import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.*;
 import org.jboss.as.console.client.shared.properties.*;
 import org.jboss.as.console.client.shared.util.DMRUtil;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
@@ -88,12 +90,14 @@ public class ServerGroupPresenter
 
     public interface MyView extends SuspendableView {
         void setPresenter(ServerGroupPresenter presenter);
-        void setServerGroups(List<ServerGroupRecord> groups);
+
         void updateSocketBindings(List<String> result);
         void setJvm(ServerGroupRecord group, Jvm jvm);
         void setProperties(ServerGroupRecord group, List<PropertyRecord> properties);
         void setPreselection(String preselection);
         void updateProfiles(List<ProfileRecord> result);
+
+        void updateFrom(ServerGroupRecord group);
     }
 
 
@@ -106,6 +110,7 @@ public class ServerGroupPresenter
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private ApplicationMetaData propertyMetaData;
+    private final ServerStore serverStore;
 
     private List<ProfileRecord> existingProfiles;
     private List<String> existingSockets;
@@ -118,7 +123,7 @@ public class ServerGroupPresenter
             ServerGroupStore serverGroupStore,
             ProfileStore profileStore,
             DispatchAsync dispatcher, BeanFactory factory,
-            ApplicationMetaData propertyMetaData) {
+            ApplicationMetaData propertyMetaData, ServerStore serverStore) {
         super(eventBus, view, proxy);
 
         this.serverGroupStore = serverGroupStore;
@@ -126,6 +131,7 @@ public class ServerGroupPresenter
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.propertyMetaData = propertyMetaData;
+        this.serverStore = serverStore;
     }
 
     @Override
@@ -225,14 +231,21 @@ public class ServerGroupPresenter
             @Override
             public void onSuccess(List<ServerGroupRecord> result) {
 
-                getView().setServerGroups(result);
+                for (ServerGroupRecord groupRecord : result) {
+                    if(groupRecord.getName().equals(serverStore.getSelectedGroup()))
+                    {
+                        getView().updateFrom(groupRecord);
+                        break;
+                    }
+                }
+
             }
         });
     }
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Popup, this);
     }
 
     // ----------------------------------------------------------------
@@ -312,9 +325,9 @@ public class ServerGroupPresenter
             }
         });
 
-        window.trapWidget(
+        /*window.trapWidget(
                 new NewServerGroupWizard(this, existingProfiles, existingSockets).asWidget()
-        );
+        );*/
 
         window.setGlassEnabled(true);
         window.center();
@@ -453,9 +466,9 @@ public class ServerGroupPresenter
         window.setWidth(400);
         window.setHeight(320);
 
-        window.trapWidget(
+       /* window.trapWidget(
                 new CopyGroupWizard(ServerGroupPresenter.this, orig).asWidget()
-        );
+        );*/
 
         window.setGlassEnabled(true);
         window.center();

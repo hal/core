@@ -19,31 +19,21 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import com.google.gwt.cell.client.TextCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
@@ -76,7 +66,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
     public Widget createWidget() {
 
 
-        final ToolStrip toolStrip = new ToolStrip();
+      /*  final ToolStrip toolStrip = new ToolStrip();
 
         ToolButton newServerGroupBtn =  new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
@@ -123,11 +113,11 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
         copyBtn.setOperationAddress("/server-group=*", "add");
         toolStrip.addToolButtonRight(copyBtn);
-        toolStrip.setFilter("/server-group=*");
+        toolStrip.setFilter("/server-group=*");*/
 
         // ---------------------------------------------
 
-        serverGroupTable = new DefaultCellTable<ServerGroupRecord>(8, new ProvidesKey<ServerGroupRecord>() {
+       /* serverGroupTable = new DefaultCellTable<ServerGroupRecord>(8, new ProvidesKey<ServerGroupRecord>() {
             @Override
             public Object getKey(ServerGroupRecord item) {
                 return item.getName()+"_"+item.getProfileName();
@@ -155,7 +145,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
         serverGroupTable.addColumn(nameColumn, "Group Name");
         serverGroupTable.addColumn(profileColumn, "Profile");
-
+*/
 
         // ---------------------------------------------------
 
@@ -181,18 +171,17 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
         // --------------------
 
-        MultipleToOneLayout layout = new MultipleToOneLayout()
+        OneToOneLayout layout = new OneToOneLayout()
                 .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
-                .setHeadline("Server Groups")
+                .setPlain(true)
+                .setHeadline("Server Group")
                 .setDescription(Console.CONSTANTS.common_serverGroups_desc())
-                .setMaster(Console.MESSAGES.available(Console.CONSTANTS.common_label_serverGroupConfigurations()), serverGroupTable)
-                .setMasterTools(toolStrip.asWidget())
                 .addDetail("Attributes", details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_systemProperties(), propertyEditor.asWidget());
 
 
-        details.bind(serverGroupTable);
+       /* details.bind(serverGroupTable);
 
         serverGroupTable.getSelectionModel().addSelectionChangeHandler(
                 new SelectionChangeEvent.Handler() {
@@ -205,22 +194,19 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
                     }
                 });
 
-
+*/
 
         return layout.build();
     }
 
-    public void setServerGroups(final List<ServerGroupRecord> groups) {
+  /*  public void setServerGroups(final List<ServerGroupRecord> groups) {
 
-        // requires manual cleanup
-        jvmEditor.clearValues();
-        propertyEditor.clearValues();
 
-        serverGroupProvider.getList().clear();
+        *//*serverGroupProvider.getList().clear();
         serverGroupProvider.getList().addAll(groups);
         serverGroupProvider.refresh();
 
-        /*boolean matchedPreselection = false;
+        *//*boolean matchedPreselection = false;
         for(ServerGroupRecord group : groups)
         {
             if(group.getName().equals(preselection))
@@ -233,8 +219,21 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
         if(!matchedPreselection)
             serverGroupTable.selectDefaultEntity();
-            */
-        serverGroupTable.selectDefaultEntity();
+
+        //serverGroupTable.selectDefaultEntity();
+    }*/
+
+    @Override
+    public void updateFrom(ServerGroupRecord group) {
+        // requires manual cleanup
+        jvmEditor.clearValues();
+        propertyEditor.clearValues();
+
+        details.updateFrom(group);
+
+        presenter.loadJVMConfiguration(group);
+        presenter.loadProperties(group);
+
     }
 
     @Override
