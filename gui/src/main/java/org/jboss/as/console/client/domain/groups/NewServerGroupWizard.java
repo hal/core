@@ -24,6 +24,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -41,15 +42,15 @@ import java.util.List;
  * @author Heiko Braun
  * @date 3/1/11
  */
-class NewServerGroupWizard {
+public class NewServerGroupWizard {
 
-    private ServerGroupPresenter presenter;
+    private HostMgmtPresenter presenter;
 
     private List<ProfileRecord> existingProfiles;
     private List<String> existingSockets;
 
     public NewServerGroupWizard(
-            final ServerGroupPresenter presenter,
+            final HostMgmtPresenter presenter,
             List<ProfileRecord> existingProfiles,
             List<String> existingSockets) {
         this.presenter = presenter;

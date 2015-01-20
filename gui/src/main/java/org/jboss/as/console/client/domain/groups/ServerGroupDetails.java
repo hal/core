@@ -104,4 +104,8 @@ public class ServerGroupDetails {
 
         profileItem.setValueMap(names);
     }
+
+    public void updateFrom(ServerGroupRecord group) {
+        form.edit(group);
+    }
 }

@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -20,10 +21,10 @@ import org.jboss.dmr.client.ModelNode;
  * @date 10/22/12
  */
 public class CopyGroupWizard {
-    private ServerGroupPresenter presenter;
+    private HostMgmtPresenter presenter;
     private ServerGroupRecord orig;
 
-    public CopyGroupWizard(ServerGroupPresenter presenter, ServerGroupRecord orig) {
+    public CopyGroupWizard(HostMgmtPresenter presenter, ServerGroupRecord orig) {
         this.presenter = presenter;
         this.orig = orig;
     }

@@ -3,11 +3,14 @@ package org.jboss.as.console.client.domain.hosts;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -20,7 +23,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
@@ -47,9 +49,13 @@ public class ColumnHostView extends SuspendableViewImpl
 
     private final NavigationColumn<String> hosts;
     private final NavigationColumn<ServerGroupRecord> groups;
+    private final HorizontalPanel groupsHeader;
+    private final HTML headerTitle;
+    private final HTML addGroupBtn;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
+    private HostMgmtPresenter presenter;
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
@@ -100,9 +106,31 @@ public class ColumnHostView extends SuspendableViewImpl
         HTML hostsHeader = new HTML("Hosts");
         hostsHeader.addStyleName("server-picker-section-header");
 
-        final HTML groupsHeader = new HTML("Server Groups");
+        groupsHeader = new HorizontalPanel();
+        groupsHeader.addStyleName("fill-layout-width");
         groupsHeader.addStyleName("server-picker-section-header");
         groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
+
+        headerTitle = new HTML("Server Groups");
+        headerTitle.getElement().setAttribute("style", "height:25px");
+        groupsHeader.add(headerTitle);
+
+        // add server groups
+        addGroupBtn = new HTML("Add");
+        addGroupBtn.getElement().setAttribute("style", "color:#0099D3; cursor:pointer");
+        addGroupBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+
+
+                // TODO "/server-group=*", "add" permission
+
+                presenter.launchNewGroupDialog();
+            }
+        });
+        addGroupBtn.setVisible(false);
+        groupsHeader.add(addGroupBtn);
+
 
         stack.add(hosts.asWidget(), hostsHeader, 40);
         stack.add(groups.asWidget(), groupsHeader, 40);
@@ -116,12 +144,24 @@ public class ColumnHostView extends SuspendableViewImpl
                     groupsHeader.getElement().removeAttribute("style");
                     Console.getCircuit().dispatch(new FilterType(FilterType.GROUP));
 
+                    Scheduler.get().scheduleDeferred(
+                            new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    addGroupBtn.setVisible(true);
+                                }
+                            }
+                    );
+
+
+
                 }
                 else {
 
                     // hosts selected
                     groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
                     Console.getCircuit().dispatch(new FilterType(FilterType.HOST));
+                    addGroupBtn.setVisible(false);
 
                 }
             }
@@ -147,7 +187,6 @@ public class ColumnHostView extends SuspendableViewImpl
                                     @Override
                                     public void execute() {
                                         Console.getCircuit().dispatch(new HostSelection(selectedHost));
-
                                     }
                                 }
                         );
@@ -214,16 +253,45 @@ public class ColumnHostView extends SuspendableViewImpl
                         "Edit", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
+                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
 
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                Console.getPlaceManager().revealRelativePlace(
+                                        new PlaceRequest(NameTokens.ServerGroupPresenter)
+                                );
+                            }
+                        });
 
                     }
                 }),
-                new MenuDelegate<ServerGroupRecord>(          // TODO permissions
-                        "Remove", new ContextualCommand<ServerGroupRecord>() {
+                new MenuDelegate<ServerGroupRecord>(          // TODO permissions  "/server-group=*", "remove"
+                        "Remove",
+                        new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
+                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
 
+                        Feedback.confirm(
+                                Console.MESSAGES.deleteServerGroup(),
+                                Console.MESSAGES.deleteServerGroupConfirm(group.getName()),
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onDeleteGroup(group);
+                                    }
+                                });
+                    }
+                }),
+                new MenuDelegate<ServerGroupRecord>(          // TODO permissions   "/server-group=*", "add"
+                        "Copy", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+                        presenter.launchCopyWizard(group);
                     }
                 })
         );
@@ -252,6 +320,7 @@ public class ColumnHostView extends SuspendableViewImpl
     @Override
     public void setPresenter(HostMgmtPresenter presenter) {
 
+        this.presenter = presenter;
     }
 
     @Override
