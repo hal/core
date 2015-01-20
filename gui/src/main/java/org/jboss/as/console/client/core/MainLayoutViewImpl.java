@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
@@ -28,6 +29,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.ViewImpl;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
@@ -51,6 +53,7 @@ public class MainLayoutViewImpl extends ViewImpl
     private Header header;
     private MessageCenter messageCenter;
     private DefaultWindow window;
+    private MainLayoutPresenter presenter;
 
     @Inject
     public MainLayoutViewImpl(Header header, Footer footer, MessageCenter messageCenter) {
@@ -89,7 +92,13 @@ public class MainLayoutViewImpl extends ViewImpl
     }
 
     @Override
-    public void setInSlot(Object slot, IsWidget content) {
+    public void setPresenter(MainLayoutPresenter presenter) {
+
+        this.presenter = presenter;
+    }
+
+    @Override
+    public void setInSlot(final Object slot, final IsWidget content) {
 
         if (slot == MainLayoutPresenter.TYPE_MainContent) {
             if(content!=null)
@@ -97,20 +106,33 @@ public class MainLayoutViewImpl extends ViewImpl
         }
         else if(slot == MainLayoutPresenter.TYPE_Popup)
         {
-            window = new DefaultWindow("");
-            window.setWidth(640);
-            window.setHeight(480);
-            window.addCloseHandler(new CloseHandler<PopupPanel>() {
-                @Override
-                public void onClose(CloseEvent<PopupPanel> event) {
-                    Console.getPlaceManager().revealRelativePlace(-1);
-                }
-            });
+            if(content!=null) {  // clearSlot() can cause this
+                window = new DefaultWindow("");
+                window.setWidth(640);
+                window.setHeight(480);
+                window.addCloseHandler(new CloseHandler<PopupPanel>() {
+                    @Override
+                    public void onClose(CloseEvent<PopupPanel> event) {
+                        Console.getPlaceManager().revealRelativePlace(-1);
 
-            window.setWidget(content);
 
-            window.setGlassEnabled(true);
-            window.center();
+                        // clearing the slot:
+                        // this is necessary to signal GWTP that the slot is not used
+                        // without subsequent attempts to reveal the same place twice would not succeed
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
+                            }
+                        });
+                    }
+                });
+
+                window.setWidget(content);
+
+                window.setGlassEnabled(true);
+                window.center();
+            }
         }
         else {
             messageCenter.notify(
