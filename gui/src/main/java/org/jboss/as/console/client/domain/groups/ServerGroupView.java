@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.domain.groups;
 
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -56,6 +57,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
     private ListDataProvider<ServerGroupRecord> serverGroupProvider;
     private ServerGroupDetails details;
     private String preselection;
+    private HTML headline;
 
     @Override
     public void setPresenter(ServerGroupPresenter presenter) {
@@ -171,10 +173,13 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
         // --------------------
 
+        headline = new HTML("");
+        headline.setStyleName("content-header-label");
+
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
                 .setPlain(true)
-                .setHeadline("Server Group")
+                .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverGroups_desc())
                 .addDetail("Attributes", details.asWidget())
                 .addDetail(Console.CONSTANTS.common_label_virtualMachine(), jvmEditor.asWidget())
@@ -229,6 +234,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         jvmEditor.clearValues();
         propertyEditor.clearValues();
 
+        headline.setText("Server Group: "+ group.getName());
         details.updateFrom(group);
 
         presenter.loadJVMConfiguration(group);
