@@ -157,8 +157,6 @@ public class EntityAdapter<T> {
         //final Set<String> filteredJavaNames = new HashSet<String>(filteredDMRNames.size());
         //final Set<String> readonlyJavaNames = new HashSet<String>();
 
-        SecurityContext securityContext = getSecurityContext();
-
         for(PropertyBinding propBinding : beanMetaData.getProperties())
         {
 
