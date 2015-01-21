@@ -254,7 +254,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
-                        groups.selectByKey(group.getName());
+                        //groups.selectByKey(group.getName());
+                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
 
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                             @Override
