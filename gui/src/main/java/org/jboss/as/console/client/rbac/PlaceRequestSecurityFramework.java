@@ -21,6 +21,7 @@ package org.jboss.as.console.client.rbac;
 import com.google.gwt.event.shared.HasHandlers;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
@@ -61,7 +62,8 @@ public class PlaceRequestSecurityFramework {
     }
 
     public void addCurrentContext(final PlaceRequest placeRequest) {
-        this.contextCache.put(tokenFormatter.toPlaceToken(placeRequest), securityFramework.getSecurityContext());
+        String token = tokenFormatter.toPlaceToken(placeRequest);
+        this.contextCache.put(token, securityFramework.getSecurityContext(token));
     }
 
     /**
@@ -72,7 +74,7 @@ public class PlaceRequestSecurityFramework {
      * @param eventSource  the source for the {@code SecurityContextChangedEvent}
      * @param placeRequest the place request
      */
-    public void update(final HasHandlers eventSource, final PlaceRequest placeRequest) {
+    public void update(final Presenter eventSource, final PlaceRequest placeRequest) {
         final String token = placeRequest.getNameToken();
         final String parametrizedToken = tokenFormatter.toPlaceToken(placeRequest);
         final SecurityContext context = lookupContext(placeRequest);

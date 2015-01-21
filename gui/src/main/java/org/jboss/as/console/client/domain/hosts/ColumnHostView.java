@@ -94,10 +94,10 @@ public class ColumnHostView extends SuspendableViewImpl
                         return TEMPLATE.item(baseCss, data.getName());
                     }
                 },
-                new ProvidesKey<String>() {
+                new ProvidesKey<ServerGroupRecord>() {
                     @Override
-                    public Object getKey(String item) {
-                        return item;
+                    public Object getKey(ServerGroupRecord item) {
+                        return item.getName();
                     }
                 }).setPlain(true);
 
@@ -253,7 +253,8 @@ public class ColumnHostView extends SuspendableViewImpl
                         "Edit", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
-                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+
+                        groups.selectByKey(group.getName());
 
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                             @Override

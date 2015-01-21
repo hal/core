@@ -3,6 +3,8 @@ package org.jboss.as.console.client.rbac;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.proxy.Place;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -109,16 +111,8 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     @Override
-    public SecurityContext getSecurityContext() {
-        SecurityContext securityContext = getSecurityContext(keyResolver.resolveKey());
-        if(null==securityContext) {
-            // if this happens the order of presenter initialisation is probably wrong
-            // it should, however, not happen
-            String msg = "Failed to resolve security context for #" + keyResolver.resolveKey();
-            Console.error(msg);
-            throw new IllegalStateException(msg);
-        }
-        return securityContext;
+    public String resolveToken() {
+        return keyResolver.resolveKey();
     }
 
     @Override
@@ -128,7 +122,24 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public SecurityContext getSecurityContext(String id) {
-        return contextMapping.get(id);
+
+        SecurityContext securityContext = contextMapping.get(id);
+
+        if(null==securityContext) {
+            // if this happens the order of presenter initialisation is probably wrong
+            // it should, however, not happen
+            String msg = "Failed to resolve security context for #" + keyResolver.resolveKey();
+            Console.error(msg);
+            new RuntimeException(msg).printStackTrace();
+            securityContext = new ReadOnlyContext();
+
+        }
+
+        return securityContext;
+    }
+
+    public boolean hasSecurityContext(String id) {
+        return contextMapping.get(id)!=null;
     }
 
     @Override
@@ -143,44 +154,49 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public void onSecurityContextChanged(final SecurityContextChangedEvent event) {
+
+
+        Presenter presenter = (Presenter) event.getSource(); // mandatory, see SecurityContextChangedEvent#fire()
+        if(!(presenter.getProxy() instanceof Place))
+            throw new IllegalArgumentException("Source needs to be presenter place");
+
+        final String token = ((Place)presenter.getProxy()).getNameToken();
+
         SecurityContext context = event.getSecurityContext();
         String addressTemplate = event.getResourceAddress();
-        // System.out.println("<SCC>");
 
         if (context == null) {
-            // address resolution
-            ModelNode addressNode = AddressMapping.fromString(addressTemplate).asResource(coreGUIContext,
-                    event.getWildcards());
+
+            ModelNode addressNode = AddressMapping.fromString(addressTemplate)
+                    .asResource(coreGUIContext, event.getWildcards()
+                    );
+
             String resourceAddress = normalize(addressNode.get(ADDRESS));
-            // System.out.println(
-            //         "\tReceiving security context change event for " + addressTemplate + " -> " + resourceAddress);
+
+            context = getSecurityContext(token);
 
             // look for child context
-            context = getSecurityContext();
             if (context.hasChildContext(resourceAddress)) {
-                System.out.println("\tFound child context for " + resourceAddress);
                 context = context.getChildContext(resourceAddress);
             }
 
-        }/* else {
-            System.out.println("\tReceiving security context change event for " + context);
-        }*/
+        }
 
-        // update widgets (if visible and filter applies)
+        // update widgets (if attached and filter applies)
         for (Map.Entry<String, SecurityContextAware> entry : contextAwareWidgets.entrySet()) {
-            String id = entry.getKey();
-            SecurityContextAware widget = entry.getValue();
 
-            boolean update = true;
-            if (widget.getFilter() != null) {
-                update = widget.getFilter().equals(addressTemplate);
-            }
-            if (update && widget.isAttached()) {
-                //System.out.println("\tUpdating widget " + id);
-                widget.updateSecurityContext(context);
+            SecurityContextAware widget = entry.getValue();
+            if(widget.getToken().equals(token)) {   // only touch the ones that matter
+                boolean update = true;
+                if (widget.getFilter() != null) {
+                    update = widget.getFilter().equals(addressTemplate);
+                }
+                if (update && widget.isAttached()) {
+                    widget.updateSecurityContext(context);
+                }
             }
         }
-        //System.out.println("</SCC>\n");
+
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {

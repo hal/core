@@ -204,6 +204,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     }
 
     private void loadServerGroups() {
+
         serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> result) {

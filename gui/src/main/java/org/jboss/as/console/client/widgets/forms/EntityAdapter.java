@@ -322,11 +322,6 @@ public class EntityAdapter<T> {
         return entity;
     }
 
-    private SecurityContext getSecurityContext() {
-        SecurityService securityFacilities = Console.MODULES.getSecurityFramework();
-        return securityFacilities.getSecurityContext();
-    }
-
     /**
      * Parse a ModelNode of type ModelType.List<p/>
      * Basically calls {@link #fromDMR(org.jboss.dmr.client.ModelNode)} for each item.

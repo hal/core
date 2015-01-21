@@ -20,12 +20,15 @@ public class TextLinkCell<T> extends ActionCell<T> {
     static Framework FRAMEWORK  = GWT.create(Framework.class);
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
+    private final String token;
+
     public TextLinkCell(String title, Delegate<T> delegate) {
         super(title, delegate);
         this.title = title;
 
          // access control
-        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
+        token = SECURITY_SERVICE.resolveToken();
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(token);
 
         visible = securityContext.getWritePriviledge().isGranted();
     }

@@ -24,6 +24,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.widgets.icons.ConsoleIcons;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
@@ -173,7 +174,7 @@ final class HtmlGenerator {
     }
 
     SecurityContext findContext(final String resourceAddress) {
-        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext();
+        SecurityContext securityContext = SECURITY_SERVICE.getSecurityContext(NameTokens.Topology); // TODO: pass presenter
         if (securityContext.hasChildContext(resourceAddress)) {
             securityContext = securityContext.getChildContext(resourceAddress);
         }
