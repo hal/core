@@ -138,7 +138,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     public void launchAddWorkerDialog() {
         if (addWorkerDialog == null) {
             addWorkerDialog = new AddResourceDialog("{selected.profile}/subsystem=io/worker=*",
-                    workerStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    workerStore.getStatementContext(), securityFramework.getSecurityContext(getProxy().getNameToken()),
                     new AddResourceDialog.Callback() {
                         @Override
                         public void onAddResource(ResourceAddress address, ModelNode payload) {
@@ -178,7 +178,7 @@ public class IOPresenter extends CircuitPresenter<IOPresenter.MyView, IOPresente
     public void launchAddBufferPoolDialog() {
         if (addBufferPoolDialog == null) {
             addBufferPoolDialog = new AddResourceDialog("{selected.profile}/subsystem=io/buffer-pool=*",
-                    bufferPoolStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    bufferPoolStore.getStatementContext(), securityFramework.getSecurityContext(getProxy().getNameToken()),
                     new AddResourceDialog.Callback() {
                         @Override
                         public void onAddResource(ResourceAddress address, ModelNode payload) {

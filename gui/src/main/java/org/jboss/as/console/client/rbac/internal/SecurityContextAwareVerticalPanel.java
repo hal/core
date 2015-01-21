@@ -21,6 +21,7 @@ package org.jboss.as.console.client.rbac.internal;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.rbac.SecurityContextAware;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
@@ -37,12 +38,14 @@ public abstract class SecurityContextAwareVerticalPanel extends VerticalPanel im
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
 
     private final String id;
+    private final String token;
     private String filter;
 
     public SecurityContextAwareVerticalPanel() {
         this.id = Document.get().createUniqueId();
         getElement().setId(id);
         SECURITY_SERVICE.registerWidget(id, this);
+        token = SECURITY_SERVICE.resolveToken();
     }
 
     @Override
@@ -63,5 +66,10 @@ public abstract class SecurityContextAwareVerticalPanel extends VerticalPanel im
     @Override
     public String getFilter() {
         return filter;
+    }
+
+    @Override
+    public String getToken() {
+        return token;
     }
 }

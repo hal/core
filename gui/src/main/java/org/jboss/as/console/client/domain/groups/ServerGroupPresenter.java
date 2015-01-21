@@ -218,7 +218,7 @@ public class ServerGroupPresenter
             }
         });
 
-        loadServerGroups();
+        //loadServerGroups();
 
     }
 
@@ -226,8 +226,9 @@ public class ServerGroupPresenter
         fireEvent(new StaleModelEvent(StaleModelEvent.SERVER_GROUPS));
     }
 
+    @Deprecated
     private void loadServerGroups() {
-        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+       /* serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> result) {
 
@@ -240,7 +241,7 @@ public class ServerGroupPresenter
                 }
 
             }
-        });
+        });*/
     }
 
     @Override

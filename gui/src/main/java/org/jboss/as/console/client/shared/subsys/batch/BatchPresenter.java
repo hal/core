@@ -163,7 +163,7 @@ public class BatchPresenter extends CircuitPresenter<BatchPresenter.MyView, Batc
     public void launchAddThreadFactory() {
         if (addThreadFactoryDialog == null) {
             addThreadFactoryDialog = new AddResourceDialog(BatchStore.THREAD_FACTORIES_ADDRESS,
-                    batchStore.getStatementContext(), securityFramework.getSecurityContext(),
+                    batchStore.getStatementContext(), securityFramework.getSecurityContext(getProxy().getNameToken()),
                     new AddResourceDialog.Callback() {
                         @Override
                         public void onAddResource(ResourceAddress address, ModelNode payload) {

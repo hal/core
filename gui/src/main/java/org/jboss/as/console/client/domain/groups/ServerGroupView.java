@@ -234,7 +234,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         jvmEditor.clearValues();
         propertyEditor.clearValues();
 
-        headline.setText("Server Group: "+ group.getName());
+        headline.setHTML("Server Group: "+ group.getName());
         details.updateFrom(group);
 
         presenter.loadJVMConfiguration(group);

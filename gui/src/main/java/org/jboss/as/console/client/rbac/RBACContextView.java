@@ -44,8 +44,9 @@ public class RBACContextView {
 
     private static Widget createContent() {
 
+        SecurityFramework securityFramework = Console.MODULES.getSecurityFramework();
         SecurityContext securityContext =
-                Console.MODULES.getSecurityFramework().getSecurityContext();
+                securityFramework.getSecurityContext(securityFramework.resolveToken());
 
         if(securityContext instanceof SecurityContextImpl)
         {
