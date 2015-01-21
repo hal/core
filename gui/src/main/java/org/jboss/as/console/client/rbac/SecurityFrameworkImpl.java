@@ -110,7 +110,15 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
     @Override
     public SecurityContext getSecurityContext() {
-        return getSecurityContext(keyResolver.resolveKey());
+        SecurityContext securityContext = getSecurityContext(keyResolver.resolveKey());
+        if(null==securityContext) {
+            // if this happens the order of presenter initialisation is probably wrong
+            // it should, however, not happen
+            String msg = "Failed to resolve security context for #" + keyResolver.resolveKey();
+            Console.error(msg);
+            throw new IllegalStateException(msg);
+        }
+        return securityContext;
     }
 
     @Override
@@ -153,6 +161,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
                 System.out.println("\tFound child context for " + resourceAddress);
                 context = context.getChildContext(resourceAddress);
             }
+
         }/* else {
             System.out.println("\tReceiving security context change event for " + context);
         }*/
