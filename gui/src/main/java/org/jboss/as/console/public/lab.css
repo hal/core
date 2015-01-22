@@ -319,3 +319,82 @@
 .navigation-column {
     background-color: #F6F6F6;
 }
+
+.navigation-column-item {
+    min-height: 20px;
+    overflow: hidden !important;
+    padding: 7px;
+    text-overflow: ellipsis !important;
+    white-space: nowrap;
+    word-wrap: normal;
+}
+
+.navigation-cell-table {
+    border:none;
+    width: 100%;
+    background-color: #ffffff;
+}
+
+.navigation-cell-table .cellTableCell {
+    padding: 5px;
+    padding-left: 10px;
+    border:none!important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 250px;
+    line-height: 20px;
+}
+
+.navigation-cell-table .cellTableLastColumn {
+    border-right: none;
+}
+
+.navigation-cell-table .cellTableHoveredRow {
+    background-color: #f9f9f9;
+    -webkit-transition: background-color .1s ease-in-out;
+    -moz-transition: background-color .1s ease-in-out;
+    transition: background-color .1s ease-in-out;
+    cursor: pointer;
+}
+
+.navigation-cell-table .cellTableSelectedRow {
+    background: #D4EDFA; /* ddeef5 */
+}
+
+.navigation-cell-table  .cellTableSelectedRow .cellTableFirstColumn {
+    border-left: none;
+    padding-left: 10px;
+}
+
+.navigation-cell-table .cellTableKeyboardSelectedRowCell {
+}
+
+.navigation-cell-table .cellTableKeyboardSelectedRow .cellTableFirstColumn {
+
+    background-color: none;
+}
+
+.navigation-cell-table .cellTableKeyboardSelectedRow .cellTableLastColumn {
+
+}
+
+.navigation-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRowCell {
+    border: none;
+}
+
+.navigation-cell-table .cellTableSelectedRow .cellTableKeyboardSelectedRow .cellTableFirstColumn {
+    border: none;
+}
+
+.navigation-cell-table .cellTableSelectedRow.cellTableKeyboardSelectedRow .cellTableLastColumn {
+    border: none;
+}
+
+.nav-menu {
+    display: none;
+}
+
+.nav-hover .nav-menu {
+    display: inherit;
+}
