@@ -38,7 +38,6 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
-import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.*;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.*;
@@ -218,7 +217,7 @@ public class ServerGroupPresenter
             }
         });
 
-        loadServerGroups();
+        loadServerGroup();
 
     }
 
@@ -227,19 +226,12 @@ public class ServerGroupPresenter
     }
 
     @Deprecated
-    private void loadServerGroups() {
-       serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+    private void loadServerGroup() {
+       serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
+               new SimpleCallback<ServerGroupRecord>() {
             @Override
-            public void onSuccess(List<ServerGroupRecord> result) {
-
-                for (ServerGroupRecord groupRecord : result) {
-                    if(groupRecord.getName().equals(serverStore.getSelectedGroup()))
-                    {
-                        getView().updateFrom(groupRecord);
-                        break;
-                    }
-                }
-
+            public void onSuccess(ServerGroupRecord group) {
+                getView().updateFrom(group);
             }
         });
     }
@@ -265,7 +257,7 @@ public class ServerGroupPresenter
 
                 staleModel();
 
-                loadServerGroups();
+                loadServerGroup();
             }
         });
     }
@@ -281,7 +273,7 @@ public class ServerGroupPresenter
                 if (success) {
 
                     Console.info(Console.MESSAGES.added(newGroup.getName()));
-                    loadServerGroups();
+                    loadServerGroup();
 
                 } else {
                     Console.error(Console.MESSAGES.addingFailed(newGroup.getName()));
@@ -308,7 +300,7 @@ public class ServerGroupPresenter
                     Console.info(Console.MESSAGES.modificationFailed(group.getName()));
                 }
 
-                loadServerGroups();
+                loadServerGroup();
             }
         });
 
@@ -349,7 +341,7 @@ public class ServerGroupPresenter
         cmd.execute(changedValues, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                loadServerGroup();
             }
         });
 
@@ -365,7 +357,7 @@ public class ServerGroupPresenter
         cmd.execute(jvm, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                loadServerGroup();
             }
         });
 
@@ -381,7 +373,7 @@ public class ServerGroupPresenter
         cmd.execute(new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                loadServerGroup();
             }
         });
     }
@@ -419,7 +411,7 @@ public class ServerGroupPresenter
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                loadServerGroup();
             }
         });
     }
@@ -434,7 +426,7 @@ public class ServerGroupPresenter
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerGroups();
+                loadServerGroup();
             }
         });
     }
@@ -535,7 +527,7 @@ public class ServerGroupPresenter
                                 Console.info("Successfully copied server-group '"+newGroup.getName()+"'");
                             }
 
-                            loadServerGroups();
+                            loadServerGroup();
                         }
                     });
 
