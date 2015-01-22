@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.common.base.CharMatcher;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
@@ -26,20 +27,15 @@ import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
@@ -291,31 +287,42 @@ public class Header implements ValueChangeHandler<String> {
 
     private Widget getProductSection() {
 
-        HorizontalPanel panel = new HorizontalPanel();
+        final HorizontalPanel panel = new HorizontalPanel();
         panel.getElement().setAttribute("role", "presentation");
         panel.getElement().setAttribute("aria-hidden", "true");
 
-        Image logo = null;
-
-        if(ProductConfig.Profile.PRODUCT.equals(productConfig.getProfile()))
-        {
-            logo = new Image("images/logo/product_title.png");
-            logo.setAltText("JBoss Enterprise Application Platform");
-        }
-        else {
-            logo = new Image("images/logo/community_title.png");
-            logo.setAltText("Wildlfy Application Server");
-        }
-
+        final Image logo = new Image();
         logo.setStyleName("logo");
-
         panel.add(logo);
 
         HTML productVersion = new HTML(productConfig.getProductVersion());
         productVersion.setStyleName("header-product-version");
         panel.add(productVersion);
 
+        if (ProductConfig.Profile.PRODUCT.equals(productConfig.getProfile())) {
+            logo.addErrorHandler(new ErrorHandler() {
+                @Override
+                public void onError(ErrorEvent event) {
+                    panel.remove(logo);
+                    Label productName = new Label(productConfig.getProductName());
+                    productName.setStyleName("header-product-name");
+                    panel.insert(productName, 0);
+                }
+            });
+            logo.setUrl("images/logo/" + logoName(productConfig.getProductName()) + ".png");
+            logo.setAltText(productConfig.getProductName());
+        } else {
+            logo.setUrl("images/logo/community_title.png");
+            logo.setAltText("Wildlfy Application Server");
+        }
+
         return panel;
+    }
+
+    private String logoName(String productName) {
+        CharMatcher digits = CharMatcher.inRange('0', '9');
+        CharMatcher alpha = CharMatcher.inRange('a', 'z');
+        return digits.or(alpha).retainFrom(productName.toLowerCase());
     }
 
     private Widget getLinksSection() {
