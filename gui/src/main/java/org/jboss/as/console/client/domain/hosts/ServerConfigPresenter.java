@@ -57,6 +57,8 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
+import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
@@ -166,6 +168,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     @Override
     protected void onAction(Action action) {
+
+        if(!isVisible()) return; // don't process anything when not visible
+
+
         if(action instanceof SelectServer)
         {
             SelectServer serverSelection = (SelectServer) action;
@@ -180,7 +186,14 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             }
         }
 
-        else  {
+        // changes to host/group filter refresh the server list
+        // so do group and host selection events
+        else if(
+                (action instanceof FilterType)
+                || (action instanceof GroupSelection)
+                || (action instanceof HostSelection)
+
+                ) {
 
             if(FilterType.HOST.equals(serverStore.getFilter()))
             {

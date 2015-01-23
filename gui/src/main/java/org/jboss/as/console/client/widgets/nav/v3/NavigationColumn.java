@@ -1,12 +1,7 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.SafeHtmlCell;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.builder.shared.TableSectionBuilder;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
@@ -16,12 +11,8 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.Header;
-import com.google.gwt.user.cellview.client.HeaderBuilder;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -34,9 +25,7 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.widgets.tables.IconCell;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
 
@@ -95,6 +84,10 @@ public class NavigationColumn<T> {
             @Override
             public void onRowHover(RowHoverEvent event) {
                 TableRowElement hoveringRow = event.getHoveringRow();
+
+                // skip empty menus
+                if(menuItems.length==0) return;
+
                 if(event.isUnHover()) {
                     hoveringRow.removeClassName("nav-hover");
                 }
@@ -113,6 +106,7 @@ public class NavigationColumn<T> {
                 if(isClick && 1==event.getColumn())
                 {
                     event.getNativeEvent().preventDefault();
+
                     openContextMenu(event.getNativeEvent(), event.getValue());
                 }
             }

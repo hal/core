@@ -29,6 +29,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
@@ -84,7 +85,6 @@ public class ColumnHostView extends SuspendableViewImpl
                         return item;
                     }
                 }).setPlain(true);
-
 
         groups = new NavigationColumn<ServerGroupRecord>(
                 "Server Groups",
@@ -153,8 +153,6 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                             }
                     );
-
-
 
                 }
                 else {

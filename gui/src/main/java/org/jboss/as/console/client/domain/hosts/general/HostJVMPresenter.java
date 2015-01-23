@@ -106,7 +106,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        hostStore.addChangeHandler(new PropagatesChange.Handler() {
+        /*hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
                 if (isVisible()) {
@@ -115,7 +115,7 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
                 }
             }
         });
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());*/
     }
 
     @Override
