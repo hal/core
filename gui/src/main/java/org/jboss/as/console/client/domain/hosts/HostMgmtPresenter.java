@@ -198,7 +198,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onReset() {
         clearInitialPlace();
         HostMgmtPresenter.super.onReset();
-        loadServerGroupData();
     }
 
     // TODO: should be moved to circuit
@@ -237,6 +236,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
         circuit.dispatch(new RefreshHosts());
+        loadServerGroupData(); // move to circuit store
     }
 
     private void clearInitialPlace() {
