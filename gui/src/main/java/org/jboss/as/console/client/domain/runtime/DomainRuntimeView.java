@@ -199,7 +199,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                           Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                               public void execute() {
 
-                                  Console.getPlaceManager().revealPlace(new PlaceRequest(selectedLink.getToken()));
+                                  //Console.getPlaceManager().revealPlace(new PlaceRequest(selectedLink.getToken()));
                               }
                           });
                       }
