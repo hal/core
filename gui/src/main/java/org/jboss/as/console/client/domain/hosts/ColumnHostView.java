@@ -116,8 +116,8 @@ public class ColumnHostView extends SuspendableViewImpl
         groupsHeader.add(headerTitle);
 
         // add server groups
-        addGroupBtn = new HTML("Add");
-        addGroupBtn.getElement().setAttribute("style", "color:#0099D3; cursor:pointer");
+        addGroupBtn = new HTML("<i class=\"icon-plus\" style='color:black'></i>&nbsp;New");
+        addGroupBtn.getElement().setAttribute("style", "color:#0099D3; cursor:pointer;padding-right:5px");
         addGroupBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -130,6 +130,7 @@ public class ColumnHostView extends SuspendableViewImpl
         });
         addGroupBtn.setVisible(false);
         groupsHeader.add(addGroupBtn);
+        addGroupBtn.getElement().getParentElement().setAttribute("align", "right");
 
 
         stack.add(hosts.asWidget(), hostsHeader, 40);
