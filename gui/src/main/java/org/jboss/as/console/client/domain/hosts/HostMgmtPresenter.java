@@ -65,6 +65,8 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
@@ -123,6 +125,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
 
     private final Dispatcher circuit;
+    private final ServerStore serverStore;
     private final ServerGroupStore serverGroupStore;
     private final ProfileStore profileStore;
     private BootstrapContext bootstrap;
@@ -134,7 +137,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                              BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
-                             UnauthorisedPresenter unauthorisedPresenter,  ServerGroupStore serverGroupStore,
+                             UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore, ServerGroupStore serverGroupStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
                                          ApplicationMetaData propertyMetaData) {
 
@@ -144,6 +147,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.bootstrap = bootstrap;
         this.hostStore = hostStore;
         this.circuit = circuit;
+        this.serverStore = serverStore;
         this.serverGroupStore = serverGroupStore;
         this.profileStore = profileStore;
         this.dispatcher = dispatcher;
@@ -167,6 +171,19 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             }
         });
 
+        // switching between host/group views
+        serverStore.addChangeHandler(FilterType.class, new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Action action) {
+                if (!isVisible()) return;
+
+                if(serverStore.getFilter().equals(FilterType.HOST))
+                    getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
+                else
+                    loadServerGroupData();
+            }
+        });
+
     }
 
     @Override
@@ -180,9 +197,12 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @Override
     protected void onReset() {
         clearInitialPlace();
-        circuit.dispatch(new RefreshHosts());
         HostMgmtPresenter.super.onReset();
+        loadServerGroupData();
+    }
 
+    // TODO: should be moved to circuit
+    private void loadServerGroupData() {
         profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
             @Override
             public void onSuccess(List<ProfileRecord> result) {
@@ -216,10 +236,12 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        if(revealDefault)
+        /*if(revealDefault)
         {
             placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.ServerPresenter).build());
-        }
+        }*/
+
+        circuit.dispatch(new RefreshHosts());
     }
 
     private void clearInitialPlace() {

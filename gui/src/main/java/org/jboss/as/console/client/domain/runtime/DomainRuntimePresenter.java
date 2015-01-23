@@ -10,13 +10,18 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
-import com.gwtplatform.mvp.client.proxy.*;
+import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
-import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.ServerInstance;
@@ -28,11 +33,17 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
+import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
-import org.jboss.gwt.flow.client.*;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
+import org.jboss.gwt.flow.client.PushFlowCallback;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +55,8 @@ public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
         implements UnauthorizedEvent.UnauthorizedHandler {
 
+
+
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     @UseGatekeeper(DomainRuntimegateKeeper.class)
@@ -53,8 +66,7 @@ public class DomainRuntimePresenter
     public interface MyView extends View {
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
-
-        void setTopology(String selectedHost, String selectedServer, HostStore.Topology topology);
+        void updateServerList(List<Server> serverModel);
     }
 
 
@@ -94,31 +106,49 @@ public class DomainRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
 
-        handlerRegistration = hostStore.addChangeHandler(new PropagatesChange.Handler() {
+        handlerRegistration = serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
 
-                if (!isVisible()) return;
+                if(!isVisible()) return; // don't process anything when not visible
 
-                // server picker update
-                if (hostStore.hasSelectedServer()) {
-                    getView().setTopology(hostStore.getSelectedHost(), hostStore.getSelectedServer(), hostStore.getTopology());
+                if(action instanceof SelectServer)
+                {
+                    // changing the server selection: update subsystems on server
+                    if (hostStore.hasSelectedServer()) {
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                loadSubsystems();
+                            }
+                        });
+                    }
+                    else {
+                        getView().setSubsystems(Collections.EMPTY_LIST);
+                    }
                 }
 
-                // subsystem tree update
-                if (hostStore.hasSelectedServer())
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            loadSubsystems();
-                        }
-                    });
+                // changes between host/group filtering: refresh server list
+                else if(action instanceof GroupSelection){
+                    if (FilterType.HOST.equals(serverStore.getFilter())) {
+                        String selectedHost = hostStore.getSelectedHost();
 
-                else
-                    getView().setSubsystems(Collections.EMPTY_LIST);
+                        List<Server> serverModel = Collections.EMPTY_LIST;
+                        if (selectedHost != null) {
+                            serverModel = serverStore.getServerForHost(
+                                    hostStore.getSelectedHost()
+                            );
+
+                        }
+
+                        getView().updateServerList(serverModel);
+                    } else if (FilterType.GROUP.equals(serverStore.getFilter())) {
+                        List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
+                        getView().updateServerList(serverModel);
+                    }
+                }
             }
         });
-
     }
 
     @Override
@@ -132,27 +162,27 @@ public class DomainRuntimePresenter
     @Override
     protected void onReveal() {
         super.onReveal();
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+        /*Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 // load host and server data
                 circuit.dispatch(new RefreshHosts());
             }
-        });
+        });*/
     }
 
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        if(revealDefault)
+       /* if(revealDefault)
         {
             placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.HostVMMetricPresenter).build());
-        }
+        }*/
     }
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
     }
 
     private void loadSubsystems() {
@@ -197,5 +227,9 @@ public class DomainRuntimePresenter
             }
         });
 
+    }
+
+    public String getFilter() {
+        return serverStore.getFilter();
     }
 }

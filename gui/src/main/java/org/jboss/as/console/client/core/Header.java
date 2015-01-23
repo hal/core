@@ -372,13 +372,15 @@ public class Header implements ValueChangeHandler<String> {
                 public void onClick(ClickEvent event) {
                     // navigate either child directly or parent if revealed the first time
                     boolean hasChild = perspectiveStore.hasChild(tlt.getToken());
-                    String token = hasChild ?
+                    /*String token = hasChild ?
                             perspectiveStore.getChild(tlt.getToken()) : tlt.getToken();
 
 
-                    boolean updateToken = hasChild ? true : tlt.isUpdateToken();
+                    boolean updateToken = hasChild ? true : tlt.isUpdateToken();*/
+
+                    String token = tlt.getToken();
                     placeManager.revealPlace(
-                            new PlaceRequest.Builder().nameToken(token).build(), updateToken);
+                            new PlaceRequest.Builder().nameToken(token).build(), tlt.isUpdateToken());
                 }
             });
             linksPane.add(widget, id);
