@@ -222,7 +222,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
         serverColumn.setTopMenuItems(
                 new MenuDelegate<Server>(
-                        "Add", new ContextualCommand<Server>() {
+                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.launchNewConfigDialoge();

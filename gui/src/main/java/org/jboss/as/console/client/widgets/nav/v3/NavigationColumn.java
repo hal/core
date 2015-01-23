@@ -199,7 +199,7 @@ public class NavigationColumn<T> {
 
             for (final MenuDelegate menuItem : topMenuItems) {
                 HTML item = new HTML(menuItem.getTitle());
-                item.getElement().setAttribute("style", "color:#0099D3; cursor:pointer");
+                item.getElement().setAttribute("style", "color:#0099D3; cursor:pointer;padding-right:5px");
                 item.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -207,6 +207,7 @@ public class NavigationColumn<T> {
                     }
                 });
                 header.add(item);
+                item.getElement().getParentElement().setAttribute("align", "right");
             }
 
 
