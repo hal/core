@@ -20,14 +20,12 @@
 package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.gwtplatform.mvp.client.PresenterWidget;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -53,10 +51,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
-import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
-import org.jboss.as.console.client.shared.jvm.Jvm;
-import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
 import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
@@ -82,11 +76,9 @@ import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.STEPS;
 
 /**
  * @author Heiko Braun
@@ -305,27 +297,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         });
     }
 
-    public void onSaveChanges(final ServerGroupRecord group, Map<String,Object> changeset) {
-
-        serverGroupStore.save(group.getName(), changeset, new SimpleCallback<Boolean>() {
-
-            @Override
-            public void onSuccess(Boolean wasSuccessful) {
-                if(wasSuccessful)
-                {
-                    Console.info(Console.MESSAGES.modified(group.getName()));
-                }
-                else
-                {
-                    Console.info(Console.MESSAGES.modificationFailed(group.getName()));
-                }
-
-                loadServerGroups();
-            }
-        });
-
-    }
-
     public void launchNewGroupDialog() {
 
         window = new DefaultWindow(Console.MESSAGES.createTitle("Server Group"));
@@ -343,53 +314,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public void closeDialoge()
     {
         if(window!=null) window.hide();
-    }
-
-    public void onUpdateJvm(final String groupName, String jvmName, Map<String, Object> changedValues) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvmName);
-
-        UpdateJvmCmd cmd = new UpdateJvmCmd(dispatcher, factory, propertyMetaData, address);
-        cmd.execute(changedValues, new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                loadServerGroups();
-            }
-        });
-
-    }
-
-    public void onCreateJvm(final String groupName, Jvm jvm) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvm.getName());
-
-        CreateJvmCmd cmd = new CreateJvmCmd(dispatcher, factory, address);
-        cmd.execute(jvm, new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                loadServerGroups();
-            }
-        });
-
-    }
-
-    public void onDeleteJvm(final String groupName, Jvm jvm) {
-
-        ModelNode address = new ModelNode();
-        address.add("server-group", groupName);
-        address.add("jvm", jvm.getName());
-
-        DeleteJvmCmd cmd = new DeleteJvmCmd(dispatcher, factory, address);
-        cmd.execute(new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean result) {
-                loadServerGroups();
-            }
-        });
     }
 
     public void closePropertyDialoge() {
@@ -448,24 +372,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     @Override
     public void onChangeProperty(String groupName, PropertyRecord prop) {
         // do nothing
-    }
-
-    public void loadJVMConfiguration(final ServerGroupRecord group) {
-        serverGroupStore.loadJVMConfiguration(group, new SimpleCallback<Jvm>() {
-            @Override
-            public void onSuccess(Jvm jvm) {
-                //TODO getView().setJvm(group, jvm);
-            }
-        });
-    }
-
-    public void loadProperties(final ServerGroupRecord group) {
-        serverGroupStore.loadProperties(group, new SimpleCallback<List<PropertyRecord>>() {
-            @Override
-            public void onSuccess(List<PropertyRecord> properties) {
-                // TODO getView().setProperties(group, properties);
-            }
-        });
     }
 
     public void launchCopyWizard(final ServerGroupRecord orig) {
