@@ -186,13 +186,16 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             }
         }
 
-        // changes to host/group filter refresh the server list
-        // so do group and host selection events
+        // Refresh the server list when:
+        // - changes to host/group filter refresh the server list
+        // - group and host selection events
+        // - server's are added or removed
         else if(
                 (action instanceof FilterType)
-                || (action instanceof GroupSelection)
-                || (action instanceof HostSelection)
-
+                        || (action instanceof GroupSelection)
+                        || (action instanceof HostSelection)
+                        || (action instanceof RemoveServer)
+                        || (action instanceof AddServer)
                 ) {
 
             if(FilterType.HOST.equals(serverStore.getFilter()))
