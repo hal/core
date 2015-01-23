@@ -33,8 +33,12 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -85,9 +89,9 @@ public class DomainRuntimePresenter
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            HostStore hostStore, SubsystemLoader subsysStore,
-            ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
-            Dispatcher circuit, ServerStore serverStore) {
+                                  HostStore hostStore, SubsystemLoader subsysStore,
+                                  ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
+                                  Dispatcher circuit, ServerStore serverStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -128,9 +132,20 @@ public class DomainRuntimePresenter
                     }
                 }
 
-                // changes between host/group filtering: refresh server list
-                else if(action instanceof GroupSelection){
-                    if (FilterType.HOST.equals(serverStore.getFilter())) {
+                // Refresh the server list when:
+                // - changes to host/group filter refresh the server list
+                // - group and host selection events
+                // - server's are added or removed
+                else if(
+                        (action instanceof FilterType)
+                                || (action instanceof GroupSelection)
+                                || (action instanceof HostSelection)
+                                || (action instanceof RemoveServer)
+                                || (action instanceof AddServer)
+                        ) {
+
+                    if(FilterType.HOST.equals(serverStore.getFilter()))
+                    {
                         String selectedHost = hostStore.getSelectedHost();
 
                         List<Server> serverModel = Collections.EMPTY_LIST;
@@ -142,7 +157,9 @@ public class DomainRuntimePresenter
                         }
 
                         getView().updateServerList(serverModel);
-                    } else if (FilterType.GROUP.equals(serverStore.getFilter())) {
+                    }
+                    else if(FilterType.GROUP.equals(serverStore.getFilter()))
+                    {
                         List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
                         getView().updateServerList(serverModel);
                     }
@@ -160,24 +177,8 @@ public class DomainRuntimePresenter
     }
 
     @Override
-    protected void onReveal() {
-        super.onReveal();
-        /*Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                // load host and server data
-                circuit.dispatch(new RefreshHosts());
-            }
-        });*/
-    }
-
-
-    @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-       /* if(revealDefault)
-        {
-            placeManager.revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.HostVMMetricPresenter).build());
-        }*/
+        circuit.dispatch(new RefreshServer());
     }
 
     @Override
