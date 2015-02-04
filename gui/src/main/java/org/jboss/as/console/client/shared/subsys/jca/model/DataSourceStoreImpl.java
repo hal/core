@@ -27,11 +27,7 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.widgets.forms.AddressBinding;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.client.widgets.forms.KeyAssignment;
+import org.jboss.as.console.client.widgets.forms.*;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -163,14 +159,11 @@ public class DataSourceStoreImpl implements DataSourceStore {
             @Override
             public void onSuccess(DMRResponse result) {
 
-                ModelNode response  = result.get();
+                ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     callback.onFailure(new RuntimeException(response.getFailureDescription()));
-                }
-                else
-                {
+                } else {
                     List<XADataSource> datasources = xaDataSourceAdapter.fromDMRList(response.get(RESULT).asList());
                     callback.onSuccess(datasources);
                 }
@@ -198,19 +191,15 @@ public class DataSourceStoreImpl implements DataSourceStore {
             public void onSuccess(DMRResponse response) {
                 ModelNode result = response.get();
 
-                if(result.isFailure())
-                {
+                if (result.isFailure()) {
                     callback.onFailure(
-                            new RuntimeException("Failed to load XA properties for DS "+dataSourceName+": "
-                            +result.getFailureDescription())
+                            new RuntimeException("Failed to load XA properties for DS " + dataSourceName + ": "
+                                    + result.getFailureDescription())
                     );
-                }
-                else
-                {
+                } else {
                     List<Property> properties = result.get(RESULT).asPropertyList();
                     List<PropertyRecord> records = new ArrayList<PropertyRecord>(properties.size());
-                    for(Property prop : properties)
-                    {
+                    for (Property prop : properties) {
                         String name = prop.getName();
                         String value = prop.getValue().asObject().get("value").asString();
                         PropertyRecord propertyRecord = factory.property().as();
@@ -355,19 +344,17 @@ public class DataSourceStoreImpl implements DataSourceStore {
     @Override
     public void enableDataSource(DataSource dataSource, boolean doEnable, final AsyncCallback<ResponseWrapper<Boolean>> callback) {
 
-        final String opName = doEnable ? "enable" : "disable";
-
         AddressBinding address = dsMetaData.getAddress();
         ModelNode addressModel =  address.asResource(baseadress.getAdress(), dataSource.getName());
 
         ModelNode operation = dataSourceAdapter.fromEntity(dataSource);
-        operation.get(OP).set(opName);
         operation.get(ADDRESS).set(addressModel.get(ADDRESS));
+        operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+        operation.get(NAME).set("enabled");
+        operation.get(VALUE).set(doEnable);
 
-        if(!doEnable)
-            operation.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
-
-        //System.out.println(operation);
+//        if(!doEnable)
+//            operation.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
@@ -378,13 +365,9 @@ public class DataSourceStoreImpl implements DataSourceStore {
 
             @Override
             public void onSuccess(DMRResponse result) {
-
                 ModelNode modelNode = result.get();
                 ResponseWrapper<Boolean> response =
-                        new ResponseWrapper<Boolean>(
-                                modelNode.get(OUTCOME).asString().equals(SUCCESS), modelNode
-                        );
-
+                        new ResponseWrapper<Boolean>(modelNode.get(OUTCOME).asString().equals(SUCCESS), modelNode);
                 callback.onSuccess(response);
             }
         });
@@ -393,17 +376,17 @@ public class DataSourceStoreImpl implements DataSourceStore {
     @Override
     public void enableXADataSource(XADataSource dataSource, boolean doEnable, final AsyncCallback<ResponseWrapper<Boolean>> callback) {
 
-        final String opName = doEnable ? "enable" : "disable";
-
         AddressBinding address = xadsMetaData.getAddress();
         ModelNode addressModel =  address.asResource(baseadress.getAdress(), dataSource.getName());
 
         ModelNode operation = xaDataSourceAdapter.fromEntity(dataSource);
-        operation.get(OP).set(opName);
         operation.get(ADDRESS).set(addressModel.get(ADDRESS));
+        operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+        operation.get(NAME).set("enabled");
+        operation.get(VALUE).set(doEnable);
 
-        if(!doEnable)
-            operation.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
+//        if(!doEnable)
+//            operation.get(OPERATION_HEADERS).get(ALLOW_RESOURCE_SERVICE_RESTART).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
@@ -414,11 +397,10 @@ public class DataSourceStoreImpl implements DataSourceStore {
 
             @Override
             public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                ResponseWrapper<Boolean> wrapper =
-                        new ResponseWrapper<Boolean>(response.get("outcome").asString().equals("success"), response);
-                callback.onSuccess(wrapper);
+                ModelNode modelNode = result.get();
+                ResponseWrapper<Boolean> response =
+                        new ResponseWrapper<Boolean>(modelNode.get(OUTCOME).asString().equals(SUCCESS), modelNode);
+                callback.onSuccess(response);
             }
         });
     }
