@@ -31,6 +31,9 @@ import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
 
+import static com.google.gwt.dom.client.Style.TextAlign.RIGHT;
+import static com.google.gwt.dom.client.Style.Unit.PX;
+
 /**
  * @author Heiko Braun
  * @date 12/10/11
@@ -223,12 +226,8 @@ public class DataSourceMetrics {
 
         HTML refreshBtn = new HTML("<i class='icon-refresh'></i> Refresh Results");
         refreshBtn.setStyleName("html-link");
-        refreshBtn.getElement().getStyle().setPosition(Style.Position.RELATIVE);
-        refreshBtn.getElement().getStyle().setTop(40, Style.Unit.PX);
-        refreshBtn.getElement().getStyle().setMarginTop(10, Style.Unit.PX);
-        refreshBtn.getElement().getStyle().setFloat(Style.Float.RIGHT);
-        refreshBtn.getElement().getStyle().setLeft(80, Style.Unit.PCT);
-
+        refreshBtn.getElement().getStyle().setMarginTop(30, PX);
+        refreshBtn.getElement().getStyle().setMarginBottom(-20, PX);
         refreshBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -242,12 +241,14 @@ public class DataSourceMetrics {
                 .setHeadline(isXA ? "XA Data Source Metrics" : "Data Source Metrics")
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSource_metric_desc())
                 .addContent("", tools)
-                .addContent("Datasource", table)
+                .addContent("Datasource", tablePanel)
                 .addContent("", refreshBtn)
                 .addContent("Pool Usage", poolSampler.asWidget())
                 .addContent("Prepared Statement Cache", cacheSampler.asWidget());
 
-        return layout.build();
+        Widget root = layout.build();
+        refreshBtn.getElement().getParentElement().getStyle().setTextAlign(RIGHT);
+        return root;
     }
 
     private DataSource getCurrentSelection() {
