@@ -62,9 +62,38 @@ public class AuthenticationEditor extends AuthEditor<AuthenticationLoginModule>{
         flagValues.add("sufficient");
         flagValues.add("optional");
 
+        final List<String> codes  = new LinkedList<>();
+        codes.add("RealmDirect");
+        codes.add("Client");
+        codes.add("Remoting");
+        codes.add("Certificate");
+        codes.add("CertificateRoles");
+        codes.add("Database");
+        codes.add("DatabaseCertificate");
+        codes.add("Identity");
+        codes.add("Ldap");
+        codes.add("LdapExtended");
+        codes.add("RoleMapping");
+        codes.add("RunAs");
+        codes.add("Simple");
+        codes.add("ConfiguredIdentity");
+        codes.add("SecureIdentity");
+        codes.add("PropertiesUsers");
+        codes.add("SimpleUsers");
+        codes.add("LdapUsers");
+        codes.add("Kerberos");
+        codes.add("SPNEGO");
+        codes.add("AdvancedLdap");
+        codes.add("AdvancedADLdap");
+        codes.add("UsersRoles");
+
         // should really wait until flagValues are set.
         return new NewAuthPolicyModuleWizard<AuthenticationLoginModule>(this, entityClass, flagValues,
-            presenter, SecurityDomainsPresenter.AUTHENTICATION_IDENTIFIER, "login-modules");
+            presenter, SecurityDomainsPresenter.AUTHENTICATION_IDENTIFIER, "login-modules") {
+            {
+                setCodes(codes);
+            }
+        };
     }
     
 	@Override

@@ -39,6 +39,7 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.ListBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -47,6 +48,8 @@ import org.jboss.dmr.client.ModelNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +71,7 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
     private final String [] customAttributeNames;
 
     private boolean isDialogue = false;
+    private List<String> codes = new ArrayList<>();
 
     public GenericSecurityDomainWizard(AbstractDomainDetailEditor<T> editor, Class<T> cls, SecurityDomainsPresenter presenter, String type,
                                        String moduleAttrName, String ... customAttributeNames) {
@@ -76,7 +80,13 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
         this.presenter = presenter;
         this.type = type;
         this.moduleAttrName = moduleAttrName;
+
         this.customAttributeNames = customAttributeNames;
+    }
+
+    public GenericSecurityDomainWizard setCodes(List<String> codes) {
+        this.codes = codes;
+        return this;
     }
 
     public Wizard<T> setIsDialogue(boolean b) {
@@ -98,7 +108,11 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
 
         form = new Form<T>(entityClass);
 
-        TextBoxItem code = new TextBoxItem("code", Console.CONSTANTS.subsys_security_codeField());
+        ListBoxItem code = new ListBoxItem("code", Console.CONSTANTS.subsys_security_codeField());
+
+        String defaultChoice = codes.isEmpty() ? "" : codes.get(0);
+        code.setChoices(codes, defaultChoice);
+
         FormItem<?>[] customFields = getCustomFields();
         form.setFields(new FormItem [] {code}, customFields);
 

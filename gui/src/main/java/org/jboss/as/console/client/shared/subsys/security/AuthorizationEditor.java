@@ -32,6 +32,7 @@ public class AuthorizationEditor extends AuthEditor<AuthorizationPolicyProvider>
     AuthorizationEditor(SecurityDomainsPresenter presenter) {
         super(presenter, AuthorizationPolicyProvider.class);
         setDescription(Console.CONSTANTS.subsys_security_authorization_desc());
+
     }
 
     @Override
@@ -62,15 +63,28 @@ public class AuthorizationEditor extends AuthEditor<AuthorizationPolicyProvider>
         flagValues.add("sufficient");
         flagValues.add("optional");
 
+        final List<String> codes  = new LinkedList<>();
+        codes.add("DenyAll");
+        codes.add("PermitAll");
+        codes.add("Delegating");
+        codes.add("Web");
+        codes.add("JACC");
+        codes.add("XACML");
+
         // should really wait until flagValues are set.
         return new NewAuthPolicyModuleWizard<AuthorizationPolicyProvider>(this, entityClass, flagValues,
-            presenter, SecurityDomainsPresenter.AUTHORIZATION_IDENTIFIER, "policy-modules");
+                presenter, SecurityDomainsPresenter.AUTHORIZATION_IDENTIFIER, "policy-modules") {
+            {
+                setCodes(codes);
+            }
+        };
+
     }
-    
-	@Override
-	void removeData() {
+
+    @Override
+    void removeData() {
         presenter.removeAuthorization(domainName, attributesProvider.getList());
-		
-	}
-    
+
+    }
+
 }

@@ -24,6 +24,9 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
 import org.jboss.as.console.client.shared.subsys.security.wizard.GenericSecurityDomainWizard;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author David Bosschaert
  */
@@ -55,8 +58,14 @@ public class AuditEditor extends AbstractDomainDetailEditor<GenericSecurityDomai
 
     @Override
     Wizard<GenericSecurityDomainData> getWizard() {
-        return new GenericSecurityDomainWizard<GenericSecurityDomainData>(this, GenericSecurityDomainData.class,
-            presenter, SecurityDomainsPresenter.AUDIT_IDENTIFIER, "provider-modules");
+        GenericSecurityDomainWizard<GenericSecurityDomainData> wizard = new GenericSecurityDomainWizard<GenericSecurityDomainData>(this, GenericSecurityDomainData.class,
+                presenter, SecurityDomainsPresenter.AUDIT_IDENTIFIER, "provider-modules");
+        List<String> codes = new LinkedList<>();
+        codes.add("LogAuditProvider");
+        wizard.setCodes(codes);
+        return wizard;
+
+
     }
 
     @Override
