@@ -27,6 +27,7 @@ import org.jboss.as.console.client.shared.subsys.security.model.AbstractAuthData
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.ListBoxItem;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class NewAuthPolicyModuleWizard <T extends AbstractAuthData> extends Gene
     private final List<String> flagChoices;
 
     public NewAuthPolicyModuleWizard(AuthEditor<T> editor, Class<T> cls, List<String> flagChoices,
-        SecurityDomainsPresenter presenter, String type, String moduleAttrName) {
+                                     SecurityDomainsPresenter presenter, String type, String moduleAttrName) {
         super(editor, cls, presenter, type, moduleAttrName, "flag");
         this.flagChoices = flagChoices;
     }

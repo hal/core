@@ -27,14 +27,28 @@ import org.jboss.as.console.client.shared.subsys.security.model.MappingModule;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * @author David Bosschaert
  */
 public class NewMappingModuleWizard extends GenericSecurityDomainWizard<MappingModule>
-                                    implements PropertyManagement, Wizard<MappingModule> {
+        implements PropertyManagement, Wizard<MappingModule> {
+
     public NewMappingModuleWizard(MappingEditor editor, SecurityDomainsPresenter presenter) {
+
         super(editor, MappingModule.class, presenter, SecurityDomainsPresenter.MAPPING_IDENTIFIER,
             "mapping-modules", "type");
+
+        List<String> codes = new LinkedList<>();
+        codes.add("PropertiesRoles");
+        codes.add("SimpleRoles");
+        codes.add("DeploymentRoles");
+        codes.add("DatabaseRoles");
+        codes.add("LdapRoles");
+        codes.add("LdapAttributes");
+        setCodes(codes);
     }
 
     @Override
