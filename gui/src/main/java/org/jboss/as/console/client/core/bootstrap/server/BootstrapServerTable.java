@@ -22,10 +22,8 @@ import java.util.List;
  * Widget which contains a cell table with the stored servers. There are buttons to add and remove server.
  *
  * @author Harald Pehl
- * @date 02/27/2013
  */
-public class BootstrapServerTable implements IsWidget
-{
+public class BootstrapServerTable implements IsWidget {
     private static final int PAGE_SIZE = 10;
     private final BootstrapServerSetup serverSetup;
     private DefaultCellTable<BootstrapServer> cellTable;
@@ -33,35 +31,29 @@ public class BootstrapServerTable implements IsWidget
     private BootstrapServerStore bootstrapServerStore;
     private BootstrapServer selectedServer;
 
-    public BootstrapServerTable(final BootstrapServerSetup serverSetup)
-    {
+    public BootstrapServerTable(final BootstrapServerSetup serverSetup) {
         this.serverSetup = serverSetup;
         this.bootstrapServerStore = new BootstrapServerStore();
     }
 
     @Override
-    public Widget asWidget()
-    {
+    @SuppressWarnings("unchecked")
+    public Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("fill-layout-width");
 
         // toolbar
         ToolStrip topLevelTools = new ToolStrip();
-        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler()
-        {
+        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
-            public void onClick(ClickEvent event)
-            {
+            public void onClick(ClickEvent event) {
                 serverSetup.onConfigure();
             }
         }));
-        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler()
-        {
+        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
-            public void onClick(final ClickEvent event)
-            {
-                if (selectedServer != null)
-                {
+            public void onClick(final ClickEvent event) {
+                if (selectedServer != null) {
                     List<BootstrapServer> servers = bootstrapServerStore.remove(selectedServer);
                     dataProvider.setList(servers);
                     cellTable.selectDefaultEntity();
@@ -70,12 +62,10 @@ public class BootstrapServerTable implements IsWidget
         }));
         layout.add(topLevelTools.asWidget());
 
-        // celltable
-        ProvidesKey<BootstrapServer> providesKey = new ProvidesKey<BootstrapServer>()
-        {
+        // table
+        ProvidesKey<BootstrapServer> providesKey = new ProvidesKey<BootstrapServer>() {
             @Override
-            public Object getKey(BootstrapServer item)
-            {
+            public Object getKey(BootstrapServer item) {
                 return item.getName();
             }
         };
@@ -84,29 +74,23 @@ public class BootstrapServerTable implements IsWidget
         dataProvider.setList(bootstrapServerStore.load());
         dataProvider.addDataDisplay(cellTable);
         SingleSelectionModel<BootstrapServer> selectionModel = new SingleSelectionModel<BootstrapServer>(dataProvider);
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler()
-        {
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
-            public void onSelectionChange(final SelectionChangeEvent event)
-            {
+            public void onSelectionChange(final SelectionChangeEvent event) {
                 selectedServer = ((SingleSelectionModel<BootstrapServer>) cellTable.getSelectionModel())
                         .getSelectedObject();
             }
         });
         cellTable.setSelectionModel(selectionModel);
-        TextColumn<BootstrapServer> nameColumn = new TextColumn<BootstrapServer>()
-        {
+        TextColumn<BootstrapServer> nameColumn = new TextColumn<BootstrapServer>() {
             @Override
-            public String getValue(BootstrapServer record)
-            {
+            public String getValue(BootstrapServer record) {
                 return record.getName();
             }
         };
-        TextColumn<BootstrapServer> urlColumn = new TextColumn<BootstrapServer>()
-        {
+        TextColumn<BootstrapServer> urlColumn = new TextColumn<BootstrapServer>() {
             @Override
-            public String getValue(BootstrapServer record)
-            {
+            public String getValue(BootstrapServer record) {
                 return record.getUrl();
             }
         };
@@ -115,7 +99,6 @@ public class BootstrapServerTable implements IsWidget
         layout.add(cellTable);
 
         // pager
-        // http://code.google.com/p/google-web-toolkit/issues/detail?id=4988
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(cellTable);
         layout.add(pager);
@@ -123,25 +106,15 @@ public class BootstrapServerTable implements IsWidget
         return layout;
     }
 
-    BootstrapServer getSelectedServer()
-    {
+    BootstrapServer getSelectedServer() {
         return selectedServer;
     }
 
-    void addServer(final BootstrapServer server)
-    {
-        List<BootstrapServer> servers = bootstrapServerStore.add(server);
-        dataProvider.setList(servers);
-        cellTable.selectDefaultEntity();
-    }
-
-    DefaultCellTable<BootstrapServer> getCellTable()
-    {
+    DefaultCellTable<BootstrapServer> getCellTable() {
         return cellTable;
     }
 
-    ListDataProvider<BootstrapServer> getDataProvider()
-    {
+    ListDataProvider<BootstrapServer> getDataProvider() {
         return dataProvider;
     }
 }

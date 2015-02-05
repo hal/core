@@ -19,25 +19,21 @@ import java.util.List;
 
 /**
  * @author Harald Pehl
- * @date 02/28/2013
  */
-public class ConfigurePage implements IsWidget
-{
+public class ConfigurePage implements IsWidget {
     private final BootstrapServerSetup serverSetup;
     private final BootstrapServerStore bootstrapServerStore;
     private VerticalPanel page;
     private Form<BootstrapServer> form;
     private DialogueOptions options;
 
-    public ConfigurePage(final BootstrapServerSetup serverSetup)
-    {
+    public ConfigurePage(final BootstrapServerSetup serverSetup) {
         this.serverSetup = serverSetup;
         this.bootstrapServerStore = new BootstrapServerStore();
         initUI();
     }
 
-    private void initUI()
-    {
+    private void initUI() {
         page = new VerticalPanel();
         page.setStyleName("window-content");
 
@@ -52,27 +48,21 @@ public class ConfigurePage implements IsWidget
         final TextBoxItem nameItem = new TextBoxItem("name", "Name");
         TextBoxItem urlItem = new TextBoxItem("url", "URL");
         ButtonItem pingItem = new ButtonItem("", "", "Ping");
-        pingItem.addClickHandler(new ClickHandler()
-        {
+        pingItem.addClickHandler(new ClickHandler() {
             @Override
-            public void onClick(final ClickEvent event)
-            {
+            public void onClick(final ClickEvent event) {
                 FormValidation validation = form.validate();
-                if (!validation.hasErrors())
-                {
+                if (!validation.hasErrors()) {
                     configureErrorMessages.setText("");
                     BootstrapServer server = form.getUpdatedEntity();
-                    serverSetup.pingServer(server, new AsyncCallback<Void>()
-                    {
+                    serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
-                        public void onFailure(final Throwable caught)
-                        {
+                        public void onFailure(final Throwable caught) {
                             configureErrorMessages.setText("The server is not running.");
                         }
 
                         @Override
-                        public void onSuccess(final Void result)
-                        {
+                        public void onSuccess(final Void result) {
                             configureErrorMessages.setText("The server is running.");
                         }
                     });
@@ -86,35 +76,27 @@ public class ConfigurePage implements IsWidget
 
         options = new DialogueOptions(
                 "Add",
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent event)
-                    {
+                    public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
-                        if (!validation.hasErrors())
-                        {
+                        if (!validation.hasErrors()) {
                             configureErrorMessages.setText("");
                             BootstrapServer newServer = form.getUpdatedEntity();
 
                             boolean sameName = false;
                             List<BootstrapServer> servers = bootstrapServerStore.load();
-                            for (BootstrapServer server : servers)
-                            {
-                                if (server.getName().equals(newServer.getName()))
-                                {
+                            for (BootstrapServer server : servers) {
+                                if (server.getName().equals(newServer.getName())) {
                                     sameName = true;
                                     break;
                                 }
                             }
-                            if (sameName)
-                            {
+                            if (sameName) {
                                 configureErrorMessages.setText(
                                         "Server with this name already exists. Please choose another name.");
                                 nameItem.getInputElement().focus();
-                            }
-                            else
-                            {
+                            } else {
                                 bootstrapServerStore.add(newServer);
                                 serverSetup.onConfigureOk();
                             }
@@ -122,11 +104,9 @@ public class ConfigurePage implements IsWidget
                     }
                 },
                 "Cancel",
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(final ClickEvent event)
-                    {
+                    public void onClick(final ClickEvent event) {
                         serverSetup.onConfigureCancel();
                     }
                 }
@@ -134,13 +114,11 @@ public class ConfigurePage implements IsWidget
     }
 
     @Override
-    public Widget asWidget()
-    {
+    public Widget asWidget() {
         return new WindowContentBuilder(page, options).build();
     }
 
-    void reset()
-    {
+    void reset() {
         form.clearValues();
     }
 }

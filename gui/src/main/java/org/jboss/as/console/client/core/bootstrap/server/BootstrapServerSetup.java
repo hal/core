@@ -2,13 +2,9 @@ package org.jboss.as.console.client.core.bootstrap.server;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -28,7 +24,6 @@ import static org.jboss.as.console.client.core.ApplicationProperties.*;
  * <p>Please note: This class must run <em>before</em> any bootstrap steps!</p>
  *
  * @author Harald Pehl
- * @date 02/27/2013
  */
 public class BootstrapServerSetup implements Function<BootstrapContext> {
 
@@ -38,44 +33,36 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     private DefaultWindow window;
     private BootstrapServerDialog dialog;
 
-
     @Override
     public void execute(final Control<BootstrapContext> control) {
         this.control = control;
         this.context = control.getContext();
 
-        if (GWT.isScript()) {
-            // Check if the console is part of a running JBoss AS instance
-            final String baseUrl = getBaseUrl();
-            // TODO Think of a better way to check the URL. If the standalone console was served from
-            // http://www.acme.org/console this code would assume that it is part of a running server instance!
-            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "console");
-            requestBuilder.setCallback(new RequestCallback() {
-                @Override
-                public void onResponseReceived(final Request request, final Response response) {
-                    // Use this JBoss instance for building the URLs
-                    int statusCode = response.getStatusCode();
-                    if (statusCode == 0 || statusCode == 200 || statusCode == 401) // firefox returns 0
-                    {
-                        setUrls(baseUrl);
-                        control.proceed();
-                    } else {
-                        openDialog();
-                    }
-                }
-
-                @Override
-                public void onError(final Request request, final Throwable exception) {
-                    // This is a 'standalone' console. Show selection dialog
+        final String baseUrl = getBaseUrl();
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
+        requestBuilder.setCallback(new RequestCallback() {
+            @Override
+            public void onResponseReceived(final Request request, final Response response) {
+                // Use this JBoss instance for building the URLs
+                int statusCode = response.getStatusCode();
+                // firefox returns 0
+                if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
+                    setUrls(baseUrl);
+                    control.proceed();
+                } else {
                     openDialog();
                 }
-            });
-            try {
-                requestBuilder.send();
-            } catch (RequestException e) {
+            }
+
+            @Override
+            public void onError(final Request request, final Throwable exception) {
+                // This is a 'standalone' console. Show selection dialog
                 openDialog();
             }
-        } else {
+        });
+        try {
+            requestBuilder.send();
+        } catch (RequestException e) {
             openDialog();
         }
     }
@@ -152,7 +139,6 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
             }
         });
         iframe.setAttribute("src", context.getProperty(BootstrapContext.DOMAIN_API));
-
     }
 
     private void setUrls(String baseUrl) {
@@ -163,11 +149,16 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         String domainApi = localBaseUrl + "management";
         String deploymentApi = localBaseUrl + "management/add-content";
         String logoutApi = localBaseUrl + "logout";
+        String patchApi = localBaseUrl + "management-upload";
+        String cspApi = localBaseUrl + "console/csp";
+
         System.out.println("Domain API Endpoint: " + domainApi);
 
         context.setProperty(DOMAIN_API, domainApi);
         context.setProperty(DEPLOYMENT_API, deploymentApi);
         context.setProperty(LOGOUT_API, logoutApi);
+        context.setProperty(PATCH_API, patchApi);
+        context.setProperty(CSP_API, cspApi);
     }
 
     private String getBaseUrl() {

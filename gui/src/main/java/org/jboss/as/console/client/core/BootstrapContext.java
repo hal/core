@@ -64,67 +64,67 @@ public class BootstrapContext implements ApplicationProperties {
         this.productName = "Management Console";
         this.productVersion = "";
 
-        String devHost = productConfig.getDevHost();
-
-        String domainApi = GWT.isScript() ? getBaseUrl() + "management" : "http://" + devHost + ":8888/app/proxy";
-        setProperty(DOMAIN_API, domainApi);
-
-        String deploymentApi = GWT.isScript() ? getBaseUrl() + "management/add-content" : "http://" + devHost + ":8888/app/upload";
-        setProperty(DEPLOYMENT_API, deploymentApi);
-
-        String patchApi = GWT.isScript() ? getBaseUrl() + "management-upload" : "http://" + devHost + ":8888/app/patch";
-        setProperty(PATCH_API, patchApi);
-
-        String logoutApi = GWT.isScript() ? getBaseUrl() + "logout" : "http://" + devHost + ":8888/app/logout";
-        setProperty(LOGOUT_API, logoutApi);
-
-        String cspApi = GWT.isScript() ? getBaseUrl() + "console/csp" : getBaseUrl() + "csp";
-        setProperty(CSP_API, cspApi);
-
-        System.out.println("Domain API Endpoint: " + domainApi);
+//        String devHost = productConfig.getDevHost();
+//
+//        String domainApi = GWT.isScript() ? getBaseUrl() + "management" : "http://" + devHost + ":8888/app/proxy";
+//        setProperty(DOMAIN_API, domainApi);
+//
+//        String deploymentApi = GWT.isScript() ? getBaseUrl() + "management/add-content" : "http://" + devHost + ":8888/app/upload";
+//        setProperty(DEPLOYMENT_API, deploymentApi);
+//
+//        String patchApi = GWT.isScript() ? getBaseUrl() + "management-upload" : "http://" + devHost + ":8888/app/patch";
+//        setProperty(PATCH_API, patchApi);
+//
+//        String logoutApi = GWT.isScript() ? getBaseUrl() + "logout" : "http://" + devHost + ":8888/app/logout";
+//        setProperty(LOGOUT_API, logoutApi);
+//
+//        String cspApi = GWT.isScript() ? getBaseUrl() + "console/csp" : getBaseUrl() + "csp";
+//        setProperty(CSP_API, cspApi);
+//
+//        System.out.println("Domain API Endpoint: " + domainApi);
     }
 
-    private String getBaseUrl() {
-        // extract host
-        String base = GWT.getHostPageBaseURL();
-        return extractHttpEndpointUrl(base);
+//    private String getBaseUrl() {
+//        // extract host
+//        String base = GWT.getHostPageBaseURL();
+//        return extractHttpEndpointUrl(base);
+//
+//    }
 
-    }
-
-    public static String extractHttpEndpointUrl(String base) {
-        String protocol = base.substring(0, base.indexOf("//")+2);
-        String remainder = base.substring(base.indexOf(protocol)+protocol.length(), base.length());
-
-        String host;
-        String port;
-
-        int portDelim = remainder.indexOf(":");
-        if(portDelim !=-1 )
-        {
-            host = remainder.substring(0, portDelim);
-            String portRemainder = remainder.substring(portDelim+1, remainder.length());
-            if(portRemainder.indexOf("/")!=-1)
-            {
-                port = portRemainder.substring(0, portRemainder.indexOf("/"));
-            }
-            else
-            {
-                port = portRemainder;
-            }
-        }
-        else
-        {
-            host = remainder.substring(0, remainder.indexOf("/"));
-            if ("https://".equalsIgnoreCase(protocol)) {
-                port = "443";
-            } else {
-                port = "80";
-            }
-        }
-
-        // default url
-        return protocol + host + ":" + port + "/";
-    }
+//    public static String extractHttpEndpointUrl(String base) {
+//        String protocol = base.substring(0, base.indexOf("//")+2);
+//        String remainder = base.substring(base.indexOf(protocol)+protocol.length(), base.length());
+//
+//        String host;
+//        String port;
+//
+//        int portDelim = remainder.indexOf(":");
+//        if(portDelim !=-1 )
+//        {
+//            host = remainder.substring(0, portDelim);
+//            String portRemainder = remainder.substring(portDelim+1, remainder.length());
+//            if(portRemainder.indexOf("/")!=-1)
+//            {
+//                port = portRemainder.substring(0, portRemainder.indexOf("/"));
+//            }
+//            else
+//            {
+//                port = portRemainder;
+//            }
+//        }
+//        else
+//        {
+//            host = remainder.substring(0, remainder.indexOf("/"));
+//            if ("https://".equalsIgnoreCase(protocol)) {
+//                port = "443";
+//            } else {
+//                port = "80";
+//            }
+//        }
+//
+//        // default url
+//        return protocol + host + ":" + port + "/";
+//    }
 
     @Override
     public void setProperty(String key, String value)

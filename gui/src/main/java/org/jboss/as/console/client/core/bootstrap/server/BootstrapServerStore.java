@@ -19,40 +19,30 @@ import java.util.List;
  * Store for the management servers which uses the local storage of the browser.
  *
  * @author Harald Pehl
- * @date 02/27/2013
  */
-public class BootstrapServerStore
-{
+public class BootstrapServerStore {
     private static final String KEY = "org.jboss.as.console.bootstrap.servers";
 
     private final BeanFactory factory;
     private final Storage storage;
 
-    public BootstrapServerStore()
-    {
+    public BootstrapServerStore() {
         factory = GWT.create(BeanFactory.class);
         storage = Storage.getLocalStorageIfSupported();
     }
 
-    public List<BootstrapServer> load()
-    {
+    public List<BootstrapServer> load() {
         List<BootstrapServer> servers = new ArrayList<BootstrapServer>();
-        if (storage != null)
-        {
+        if (storage != null) {
             StorageMap storageMap = new StorageMap(storage);
-            if (storageMap.containsKey(KEY))
-            {
+            if (storageMap.containsKey(KEY)) {
                 String json = storageMap.get(KEY);
-                if (json != null)
-                {
+                if (json != null) {
                     JSONValue jsonValue = JSONParser.parseStrict(json);
-                    if (jsonValue != null)
-                    {
+                    if (jsonValue != null) {
                         JSONArray jsonArray = jsonValue.isArray();
-                        if (jsonArray != null)
-                        {
-                            for (int i = 0; i < jsonArray.size(); i++)
-                            {
+                        if (jsonArray != null) {
+                            for (int i = 0; i < jsonArray.size(); i++) {
                                 AutoBean<BootstrapServer> bean = AutoBeanCodex
                                         .decode(factory, BootstrapServer.class, jsonArray.get(i).toString());
                                 servers.add(bean.as());
@@ -65,11 +55,9 @@ public class BootstrapServerStore
         return servers;
     }
 
-    public List<BootstrapServer> add(BootstrapServer newServer)
-    {
+    public List<BootstrapServer> add(BootstrapServer newServer) {
         List<BootstrapServer> servers = new ArrayList<BootstrapServer>();
-        if (storage != null)
-        {
+        if (storage != null) {
             servers.addAll(load());
             servers.add(newServer);
             storage.setItem(KEY, toJson(servers));
@@ -77,17 +65,13 @@ public class BootstrapServerStore
         return servers;
     }
 
-    public List<BootstrapServer> remove(BootstrapServer removeServer)
-    {
+    public List<BootstrapServer> remove(BootstrapServer removeServer) {
         List<BootstrapServer> servers = new ArrayList<BootstrapServer>();
-        if (storage != null)
-        {
+        if (storage != null) {
             servers.addAll(load());
-            for (Iterator<BootstrapServer> iterator = servers.iterator(); iterator.hasNext(); )
-            {
+            for (Iterator<BootstrapServer> iterator = servers.iterator(); iterator.hasNext(); ) {
                 BootstrapServer server = iterator.next();
-                if (server.getName().equals(removeServer.getName()))
-                {
+                if (server.getName().equals(removeServer.getName())) {
                     iterator.remove();
                 }
             }
@@ -96,16 +80,13 @@ public class BootstrapServerStore
         return servers;
     }
 
-    private String toJson(List<BootstrapServer> servers)
-    {
+    private String toJson(List<BootstrapServer> servers) {
         StringBuilder json = new StringBuilder("[");
-        for (Iterator<BootstrapServer> iterator = servers.iterator(); iterator.hasNext(); )
-        {
+        for (Iterator<BootstrapServer> iterator = servers.iterator(); iterator.hasNext(); ) {
             BootstrapServer server = iterator.next();
             AutoBean<BootstrapServer> bean = AutoBeanUtils.getAutoBean(server);
             json.append(AutoBeanCodex.encode(bean).getPayload());
-            if (iterator.hasNext())
-            {
+            if (iterator.hasNext()) {
                 json.append(",");
             }
         }
