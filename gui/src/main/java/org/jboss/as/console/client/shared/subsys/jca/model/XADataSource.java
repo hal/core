@@ -63,4 +63,16 @@ public interface XADataSource extends DataSource {
     @Binding(detypedName = "xa-resource-timeout")
     int getXaResourceTimeout();
     void setXaResourceTimeout(int i);
+
+    @Binding(detypedName = "no-tx-separate-pool")
+    boolean isNoTxSeparatePool();
+    void setNoTxSeparatePool(boolean b);
+
+    @Binding(detypedName = "same-rm-override")
+    boolean isSameRmOverride();
+    void setSameRmOverride(boolean b);
+
+    @Binding(detypedName = "recovery-plugin-class-name")
+    String getRecoveryPluginClassName();
+    void setRecoveryPluginClassName(String s);
 }

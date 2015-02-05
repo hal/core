@@ -45,9 +45,12 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class DataSourceStep3 {
 
-
-    NewDatasourceWizard wizard;
-    Form<DataSource> form ;
+    private final NewDatasourceWizard wizard;
+    private Form<DataSource> form;
+    private TextAreaItem connectionUrl;
+    private TextBoxItem user;
+    private PasswordBoxItem pass;
+    private TextBoxItem domain;
 
     public DataSourceStep3(NewDatasourceWizard wizard) {
         this.wizard = wizard;
@@ -56,19 +59,18 @@ public class DataSourceStep3 {
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setAttribute("style", "margin:15px; vertical-align:center;width:95%");
-
         layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_dataSource_step3()+"</h3>"));
 
         form = new Form<DataSource>(DataSource.class);
 
-        TextAreaItem connectionUrl = new TextAreaItem("connectionUrl", "Connection URL");
-        TextBoxItem user = new NonRequiredTextBoxItem("username", "Username");
-        PasswordBoxItem pass = new PasswordBoxItem("password", "Password") {
+        connectionUrl = new TextAreaItem("connectionUrl", "Connection URL");
+        user = new NonRequiredTextBoxItem("username", "Username");
+        pass = new PasswordBoxItem("password", "Password") {
             {
                 setRequired(false);
             }
         };
-        TextBoxItem domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
+        domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
 
         ButtonItem testBtn = new ButtonItem("testConnection", "", Console.CONSTANTS.subsys_jca_dataSource_verify());
         testBtn.addClickHandler(new ClickHandler() {
@@ -83,49 +85,46 @@ public class DataSourceStep3 {
 
         form.setFields(connectionUrl, user, pass, domain, testBtn);
 
-        final FormHelpPanel helpPanel = new FormHelpPanel(
-                new FormHelpPanel.AddressCallback() {
-                    @Override
-                    public ModelNode getAddress() {
-                        ModelNode address = Baseadress.get();
-                        address.add("subsystem", "datasources");
-                        address.add("data-source", "*");
-                        return address;
-                    }
-                }, form
-        );
+        final FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
+            @Override
+            public ModelNode getAddress() {
+                ModelNode address = Baseadress.get();
+                address.add("subsystem", "datasources");
+                address.add("data-source", "*");
+                return address;
+            }
+        }, form);
         layout.add(helpPanel.asWidget());
-
         layout.add(form.asWidget());
 
         ClickHandler submitHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 FormValidation validation = form.validate();
-                if(!validation.hasErrors())
-                {
+                if (!validation.hasErrors()) {
                     wizard.onFinish(form.getUpdatedEntity());
                 }
             }
         };
-
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 wizard.getPresenter().closeDialogue();
             }
         };
-
         DialogueOptions options = new DialogueOptions(
-                "Done",submitHandler,
-                Console.CONSTANTS.common_label_cancel(),cancelHandler
+                "Done", submitHandler,
+                Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
 
         return new WindowContentBuilder(layout, options).build();
     }
 
-    void edit(DataSource entity)
-    {
+    void edit(DataSource entity) {
         form.edit(entity);
+        connectionUrl.setModified(true);
+        user.setModified(true);
+        pass.setModified(true);
+        domain.setModified(true);
     }
 }

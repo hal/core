@@ -54,45 +54,6 @@ public class XADatasourceStep3 implements PropertyManagement {
         this.properties = new ArrayList<PropertyRecord>();
     }
 
-    void edit(XADataSource dataSource) {
-
-    }
-
-    @Override
-    public void onCreateProperty(String reference, PropertyRecord prop) {
-
-    }
-
-    @Override
-    public void onDeleteProperty(String reference, PropertyRecord prop) {
-        properties.remove(prop);
-        propEditor.setProperties("", properties);
-    }
-
-    @Override
-    public void onChangeProperty(String reference, PropertyRecord prop) {
-        // do nothing
-    }
-    
-    @Override
-    public void launchNewPropertyDialoge(String reference) {
-        PropertyRecord proto = factory.property().as();
-        proto.setKey("name");
-        proto.setValue("<click to edit>");
-
-        properties.add(proto);
-        propEditor.setProperties("", properties);
-
-        propEditor.getPropertyTable().getSelectionModel().setSelected(proto, true);
-
-        errorMessages.setVisible(false);
-    }
-
-    @Override
-    public void closePropertyDialoge() {
-
-    }
-
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
@@ -136,5 +97,49 @@ public class XADatasourceStep3 implements PropertyManagement {
         );
 
         return new WindowContentBuilder(layout,options).build();
+    }
+
+    @Override
+    public void onCreateProperty(String reference, PropertyRecord prop) {
+
+    }
+
+    @Override
+    public void onDeleteProperty(String reference, PropertyRecord prop) {
+        properties.remove(prop);
+        propEditor.setProperties("", properties);
+    }
+
+    @Override
+    public void onChangeProperty(String reference, PropertyRecord prop) {
+        // do nothing
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void launchNewPropertyDialoge(String reference) {
+        PropertyRecord proto = factory.property().as();
+        proto.setKey("name");
+        proto.setValue("<click to edit>");
+
+        properties.add(proto);
+        propEditor.setProperties("", properties);
+
+        propEditor.getPropertyTable().getSelectionModel().setSelected(proto, true);
+
+        errorMessages.setVisible(false);
+    }
+
+    @Override
+    public void closePropertyDialoge() {
+
+    }
+
+    void edit(XADataSource xaDataSource) {
+        properties.clear();
+        if (xaDataSource.getProperties() != null) {
+            properties.addAll(xaDataSource.getProperties());
+            propEditor.setProperties("", xaDataSource.getProperties());
+        }
     }
 }

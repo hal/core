@@ -96,6 +96,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
     private final CurrentProfileSelection currentProfileSelection;
+    private final DataSourceTemplates dataSourceTemplates;
     private boolean hasBeenRevealed = false;
     private DefaultWindow window;
 
@@ -111,12 +112,14 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     @Inject
     public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
             DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
-            DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection) {
+            DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection,
+            DataSourceTemplates dataSourceTemplates) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
         this.currentProfileSelection = currentProfileSelection;
+        this.dataSourceTemplates = dataSourceTemplates;
 
         this.dataSourceStore = new DataSourceStoreInterceptor(dataSourceStore);
         this.driverRegistry = driverRegistry.create();
@@ -220,8 +223,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         window = new DefaultWindow(Console.MESSAGES.createTitle("Datasource"));
         window.setWidth(480);
         window.setHeight(450);
-        window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap)
-                .asWidget());
+        window.setWidget(new NewDatasourceWizard(DataSourcePresenter.this, drivers, datasources, bootstrap,
+                dataSourceTemplates, beanFactory).asWidget());
         window.setGlassEnabled(true);
         window.center();
 
@@ -232,9 +235,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         window = new DefaultWindow(Console.MESSAGES.createTitle("XA Datasource"));
         window.setWidth(480);
         window.setHeight(450);
-        window.setWidget(
-                new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap)
-                        .asWidget());
+        window.setWidget(new NewXADatasourceWizard(DataSourcePresenter.this, drivers, xaDatasources, bootstrap,
+                dataSourceTemplates, beanFactory).asWidget());
         window.setGlassEnabled(true);
         window.center();
     }

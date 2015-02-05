@@ -19,11 +19,15 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplate;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 
@@ -39,22 +43,31 @@ public class NewDatasourceWizard {
     private final List<DataSource> existingDataSources;
     private final List<JDBCDriver> drivers;
     private final ApplicationProperties bootstrap;
+    private final DataSourceTemplates templates;
+    private final BeanFactory beanFactory;
 
-    private DataSource baseAttributes = null;
-    private DataSource driverAttributes = null;
+    private DataSource dataSource;
 
     private DeckPanel deck;
+    private ChooseTemplateStep<DataSource> chooseTemplateStep;
+    private DatasourceStep1 step1;
     private DatasourceStep2 step2;
     private DataSourceStep3 step3;
     private TrappedFocusPanel trap;
 
     public NewDatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
-            final List<DataSource> existingDataSources, ApplicationProperties bootstrap) {
-
+                               List<DataSource> existingDataSources, ApplicationProperties bootstrap,
+                               DataSourceTemplates templates, BeanFactory beanFactory) {
         this.presenter = presenter;
         this.drivers = drivers;
         this.existingDataSources = existingDataSources;
         this.bootstrap = bootstrap;
+        this.templates = templates;
+        this.beanFactory = beanFactory;
+    }
+
+    public DataSourcePresenter getPresenter() {
+        return presenter;
     }
 
     public List<JDBCDriver> getDrivers() {
@@ -79,7 +92,16 @@ public class NewDatasourceWizard {
             }
         };
 
-        deck.add(new DatasourceStep1(this).asWidget());
+        chooseTemplateStep = new ChooseTemplateStep<DataSource>(getPresenter(), templates, false, new Command() {
+            @Override
+            public void execute() {
+                onStart();
+            }
+        });
+        deck.add(chooseTemplateStep);
+
+        step1 = new DatasourceStep1(this);
+        deck.add(step1.asWidget());
 
         step2 = new DatasourceStep2(this);
         deck.add(step2.asWidget());
@@ -92,41 +114,51 @@ public class NewDatasourceWizard {
         return trap;
     }
 
-    public DataSourcePresenter getPresenter() {
-        return presenter;
-    }
-
-    public void onConfigureBaseAttributes(DataSource entity) {
-        this.baseAttributes = entity;
-        step2.edit(entity);
+    public void onStart() {
+        DataSourceTemplate<DataSource> dataSourceTemplate = chooseTemplateStep.getSelectedTemplate();
+        if (dataSourceTemplate != null) {
+            dataSource = dataSourceTemplate.getDataSource();
+            JDBCDriver driver = dataSourceTemplate.getDriver();
+            step1.edit(dataSource);
+            step2.edit(driver);
+            step3.edit(dataSource);
+        } else {
+            dataSource = beanFactory.dataSource().as();
+        }
         deck.showWidget(1);
     }
 
-    public void onConfigureDriver(DataSource entity) {
-        this.driverAttributes = entity;
-        step3.edit(entity);
+    public void onConfigureBaseAttributes(DataSource baseAttributes) {
+        dataSource.setName(baseAttributes.getName());
+        dataSource.setJndiName(baseAttributes.getJndiName());
+        if (dataSource.getPoolName() == null || dataSource.getPoolName().length() == 0) {
+            dataSource.setPoolName(baseAttributes.getName() + "_Pool");
+        }
         deck.showWidget(2);
+    }
+
+    public void onConfigureDriver(JDBCDriver driver) {
+        dataSource.setDriverName(driver.getName());
+        dataSource.setDriverClass(driver.getDriverClass());
+        dataSource.setMajorVersion(driver.getMajorVersion());
+        dataSource.setMinorVersion(driver.getMinorVersion());
+        deck.showWidget(3);
     }
 
     public void onFinish(DataSource updatedEntity) {
         mergeAttributes(updatedEntity);
-        presenter.onCreateDatasource(updatedEntity);
+        presenter.onCreateDatasource(dataSource);
     }
 
     public void onVerifyConnection(final DataSource updatedEntity, final boolean xa, final boolean existing) {
         mergeAttributes(updatedEntity);
-        presenter.verifyConnection(updatedEntity, xa, existing);
+        presenter.verifyConnection(dataSource, xa, existing);
     }
 
-    private void mergeAttributes(final DataSource updatedEntity) {
-        // merge previous attributes into single entity
-        updatedEntity.setName(baseAttributes.getName());
-        updatedEntity.setJndiName(baseAttributes.getJndiName());
-        updatedEntity.setEnabled(baseAttributes.isEnabled());
-        updatedEntity.setDriverName(driverAttributes.getDriverName());
-        updatedEntity.setDriverClass(driverAttributes.getDriverClass());
-        updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
-        updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
-        updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
+    private void mergeAttributes(final DataSource connection) {
+        dataSource.setConnectionUrl(connection.getConnectionUrl());
+        dataSource.setUsername(connection.getUsername());
+        dataSource.setPassword(connection.getPassword());
+        dataSource.setSecurityDomain(connection.getSecurityDomain());
     }
 }

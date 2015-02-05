@@ -31,7 +31,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -47,13 +46,15 @@ import java.util.List;
 
 /**
  * @author Heiko Braun
- * @date 4/18/11
  */
 public class DatasourceStep2 {
 
-
-    private NewDatasourceWizard wizard;
-    private DataSource editedEntity;
+    private final NewDatasourceWizard wizard;
+    private Form<JDBCDriver> form;
+    private TextBoxItem name;
+    private TextBoxItem driverClass;
+    private NumberBoxItem major;
+    private NumberBoxItem minor;
     private SingleSelectionModel<JDBCDriver> selectionModel;
     private CellTable<JDBCDriver> table;
     private boolean isStandalone;
@@ -64,18 +65,34 @@ public class DatasourceStep2 {
         this.isStandalone = wizard.getBootstrap().isStandalone();
     }
 
+    @SuppressWarnings("unchecked")
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setAttribute("style", "margin:10px; vertical-align:center;width:95%");
 
-        HTML desc = new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_dataSource_step2()+"</h3>");
+        HTML desc = new HTML("<h3>" + Console.CONSTANTS.subsys_jca_dataSource_step2() + "</h3>");
         desc.getElement().setAttribute("style", "padding-bottom:10px;");
 
         layout.add(desc);
         layout.add(new ContentDescription("Select one of the installed JDBC driver. Don't see your driver? Please make sure it's deployed as a module and properly registered."));
 
-        // ---
+        // -- First tab: Define new JDBC Driver
+        form = new Form<JDBCDriver>(JDBCDriver.class);
+        name = new TextBoxItem("name", "Name", true);
+        driverClass = new TextBoxItem("driverClass", "Driver Class", false);
+        major = new NumberBoxItem("majorVersion", "Major Version") {
+            {
+                setRequired(false);
+            }
+        };
+        minor = new NumberBoxItem("minorVersion", "Minor Version") {
+            {
+                setRequired(false);
+            }
+        };
+        form.setFields(name, driverClass, major, minor);
 
+        // -- Second tab: Select existing JDBC driver
         table = new DefaultCellTable<JDBCDriver>(5);
 
         TextColumn<JDBCDriver> nameColumn = new TextColumn<JDBCDriver>() {
@@ -92,13 +109,12 @@ public class DatasourceStep2 {
         };
 
         table.addColumn(nameColumn, "Name");
-        if(!isStandalone) {
+        if (!isStandalone) {
             table.addColumn(moduleColumn, "Module");
         }
 
         selectionModel = new SingleSelectionModel<JDBCDriver>();
         table.setSelectionModel(selectionModel);
-
         provisionTable(table);
 
         DefaultPager pager = new DefaultPager();
@@ -108,29 +124,7 @@ public class DatasourceStep2 {
         driverPanel.add(table);
         driverPanel.add(pager);
 
-
         // --
-
-        final Form<JDBCDriver> form = new Form<JDBCDriver>(JDBCDriver.class);
-        TextBoxItem name = new TextBoxItem("name", "Name", true);
-        TextBoxItem driverClass = new TextBoxItem("driverClass", "Driver Class", false);
-        NumberBoxItem major = new NumberBoxItem("majorVersion", "Major Version")
-        {
-            {
-                setRequired(false);
-            }
-        };
-        NumberBoxItem minor = new NumberBoxItem("minorVersion", "Minor Version")
-        {
-            {
-                setRequired(false);
-            }
-        };
-
-        form.setFields(name, driverClass, major, minor);
-
-        // --
-
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
         tabs.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -140,53 +134,35 @@ public class DatasourceStep2 {
             }
         });
 
-        tabs.add(driverPanel, "Detected Driver");
         tabs.add(form.asWidget(), "Specify Driver");
+        tabs.add(driverPanel, "Detected Driver");
 
         layout.add(tabs);
         tabs.selectTab(0);
 
-
-        // ----
-
+        // --
         ClickHandler submitHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
                 JDBCDriver driver = null;
-
-                if(selectedTab==0){
+                if (selectedTab == 0) {
+                    FormValidation formValidation = form.validate();
+                    if (!formValidation.hasErrors()) {
+                        driver = form.getUpdatedEntity();
+                    }
+                } else {
                     // clear state
                     form.clearValues();
-
                     SingleSelectionModel<JDBCDriver> selection =
                             (SingleSelectionModel<JDBCDriver>) table.getSelectionModel();
                     driver = selection.getSelectedObject();
                 }
-                else
-                {
-                    FormValidation formValidation = form.validate();
-                    if(!formValidation.hasErrors())
-                    {
-                        driver = form.getUpdatedEntity();
-                    }
-                }
 
-                if(driver!=null) { // force selected driver
-                    editedEntity.setDriverName(driver.getName());
-
-                    if(driver.getDriverClass()!=null && !driver.getDriverClass().equals(""))
-                        editedEntity.setDriverClass(driver.getDriverClass());
-
-                    editedEntity.setMajorVersion(driver.getMajorVersion());
-                    editedEntity.setMinorVersion(driver.getMinorVersion());
-
-                    wizard.onConfigureDriver(editedEntity);
-                }
-                else {
+                if (driver != null) { // force selected driver
+                    wizard.onConfigureDriver(driver);
+                } else {
                     Console.warning("A driver needs to be specified or chosen!");
                 }
-
             }
         };
 
@@ -196,47 +172,36 @@ public class DatasourceStep2 {
                 wizard.getPresenter().closeDialogue();
             }
         };
-
         DialogueOptions options = new DialogueOptions(
-                Console.CONSTANTS.common_label_next(),submitHandler,
-                Console.CONSTANTS.common_label_cancel(),cancelHandler
+                Console.CONSTANTS.common_label_next(), submitHandler,
+                Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
-
         return new WindowContentBuilder(layout, options).build();
     }
 
     private void provisionTable(final CellTable<JDBCDriver> table) {
-
-
-        /*wizard.getPresenter().loadDriver(new SimpleCallback<List<JDBCDriver>>() {
-            @Override
-            public void onSuccess(List<JDBCDriver> drivers) {
-
-            }
-        });*/
-
         List<JDBCDriver> drivers = wizard.getDrivers();
         table.setRowCount(drivers.size(), true);
         table.setRowData(drivers);
 
         // clear selection
         JDBCDriver selectedDriver = selectionModel.getSelectedObject();
-        if(selectedDriver!=null)
+        if (selectedDriver != null) {
             selectionModel.setSelected(selectedDriver, false);
+        }
 
         // new default selection
-        if(drivers.size()>0) {
+        if (drivers.size() > 0) {
             selectionModel.setSelected(drivers.get(0), true);
         }
     }
 
-    void edit(DataSource entity)
-    {
-        this.editedEntity = entity;
-
-    }
-
-    private CellTable<JDBCDriver> getTable() {
-        return table;
+    void edit(JDBCDriver driver) {
+        form.edit(driver);
+        name.setModified(true);
+        driverClass.setModified(true);
+        major.setModified(true);
+        minor.setModified(true);
+        selectionModel.clear();
     }
 }

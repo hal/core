@@ -40,57 +40,50 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class DatasourceStep1 {
 
-
-    NewDatasourceWizard wizard;
+    final private NewDatasourceWizard wizard;
+    private Form<DataSource> form;
+    private DataSourceNameItem<DataSource> nameItem;
+    private DataSourceJndiItem<DataSource> jndiNameItem;
 
     public DatasourceStep1(NewDatasourceWizard wizard) {
         this.wizard = wizard;
     }
 
     Widget asWidget() {
-
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
+        layout.add(new HTML("<h3>" + Console.CONSTANTS.subsys_jca_dataSource_step1() + "</h3>"));
 
-        layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_dataSource_step1()+"</h3>"));
+        form = new Form<DataSource>(DataSource.class);
 
-        final Form<DataSource> form = new Form<DataSource>(DataSource.class);
-
-        final DataSourceNameItem<DataSource> nameItem = new DataSourceNameItem<DataSource>(
-                wizard.getExistingDataSources());
-        final DataSourceJndiItem<DataSource> jndiNameItem = new DataSourceJndiItem<DataSource>(
-                wizard.getExistingDataSources());
+        nameItem = new DataSourceNameItem<DataSource>(wizard.getExistingDataSources());
+        jndiNameItem = new DataSourceJndiItem<DataSource>(wizard.getExistingDataSources());
         //CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
         //enabled.setValue(Boolean.TRUE);
 
         form.setFields(nameItem, jndiNameItem);
 
-        final FormHelpPanel helpPanel = new FormHelpPanel(
-                new FormHelpPanel.AddressCallback() {
-                    @Override
-                    public ModelNode getAddress() {
-                        ModelNode address = Baseadress.get();
-                        address.add("subsystem", "datasources");
-                        address.add("data-source", "*");
-                        return address;
-                    }
-                }, form
-        );
+        final FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
+            @Override
+            public ModelNode getAddress() {
+                ModelNode address = Baseadress.get();
+                address.add("subsystem", "datasources");
+                address.add("data-source", "*");
+                return address;
+            }
+        }, form);
         layout.add(helpPanel.asWidget());
-
         layout.add(form.asWidget());
 
         ClickHandler submitHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 FormValidation validation = form.validate();
-                if(!validation.hasErrors())
-                {
+                if (!validation.hasErrors()) {
                     wizard.onConfigureBaseAttributes(form.getUpdatedEntity());
                 }
             }
         };
-
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -99,10 +92,15 @@ public class DatasourceStep1 {
         };
 
         DialogueOptions options = new DialogueOptions(
-                Console.CONSTANTS.common_label_next(),submitHandler,
-                Console.CONSTANTS.common_label_cancel(),cancelHandler
+                Console.CONSTANTS.common_label_next(), submitHandler,
+                Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
-
         return new WindowContentBuilder(layout, options).build();
+    }
+
+    void edit(DataSource dataSource) {
+        form.edit(dataSource);
+        nameItem.setModified(true);
+        jndiNameItem.setModified(true);
     }
 }

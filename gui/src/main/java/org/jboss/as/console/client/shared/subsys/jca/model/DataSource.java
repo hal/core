@@ -44,6 +44,14 @@ public interface DataSource {
     String getPoolName();
     void setPoolName(String name);
 
+    @Binding(detypedName = "min-pool-size")
+    int getMinPoolSize();
+    void setMinPoolSize(int i);
+
+    @Binding(detypedName = "max-pool-size")
+    int getMaxPoolSize();
+    void setMaxPoolSize(int i);
+
     // --
 
     @Binding(detypedName = "transaction-isolation")

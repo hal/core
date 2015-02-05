@@ -40,8 +40,10 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class XADatasourceStep1 {
 
-
-    private NewXADatasourceWizard wizard;
+    private final NewXADatasourceWizard wizard;
+    private Form<XADataSource> form;
+    private DataSourceNameItem<XADataSource> nameItem;
+    private DataSourceJndiItem<XADataSource> jndiNameItem;
 
     public XADatasourceStep1(NewXADatasourceWizard wizard) {
         this.wizard = wizard;
@@ -53,12 +55,10 @@ public class XADatasourceStep1 {
 
         layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_xadataSource_step1()+"</h3>"));
 
-        final Form<XADataSource> form = new Form<XADataSource>(XADataSource.class);
+        form = new Form<XADataSource>(XADataSource.class);
 
-        final DataSourceNameItem<XADataSource> nameItem = new DataSourceNameItem<XADataSource>(
-                wizard.getExistingXaDataSources());
-        final DataSourceJndiItem<XADataSource> jndiNameItem = new DataSourceJndiItem<XADataSource>(
-                wizard.getExistingXaDataSources());
+        nameItem = new DataSourceNameItem<XADataSource>(wizard.getExistingXaDataSources());
+        jndiNameItem = new DataSourceJndiItem<XADataSource>(wizard.getExistingXaDataSources());
         //CheckBoxItem enabled = new CheckBoxItem("enabled", "Enabled?");
         //enabled.setValue(Boolean.TRUE);
 
@@ -107,4 +107,9 @@ public class XADatasourceStep1 {
         return new WindowContentBuilder(layout,options).build();
     }
 
+    void edit(XADataSource xaDataSource) {
+        form.edit(xaDataSource);
+        nameItem.setModified(true);
+        jndiNameItem.setModified(true);
+    }
 }

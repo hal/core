@@ -49,7 +49,7 @@ public interface JDBCDriver {
 
     @Binding(detypedName = "driver-xa-datasource-class-name")
     String getXaDataSourceClass();
-    void setXaDataSourceClass(String dataSourceClass);
+    void setXaDataSourceClass(String xaDataSourceClass);
 
     @Binding(detypedName = "driver-module-name")
     String getDriverModuleName();

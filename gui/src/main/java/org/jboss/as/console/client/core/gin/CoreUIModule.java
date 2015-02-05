@@ -139,10 +139,7 @@ import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbView;
 import org.jboss.as.console.client.shared.subsys.jca.*;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStoreImpl;
-import org.jboss.as.console.client.shared.subsys.jca.model.DomainDriverStrategy;
-import org.jboss.as.console.client.shared.subsys.jca.model.StandaloneDriverStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.model.*;
 import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsPresenter;
 import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsSubsystemView;
 import org.jboss.as.console.client.shared.subsys.jmx.JMXPresenter;
@@ -759,6 +756,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(PerspectiveStore.class).in(Singleton.class);
         bind(PerspectiveStoreAdapter.class).in(Singleton.class);
 
+        bind(DataSourceTemplates.class).in(Singleton.class);
     }
 
     @Provides Scheduler provideScheduler() {

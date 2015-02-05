@@ -33,14 +33,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
-import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
-import org.jboss.ballroom.client.widgets.forms.ComboBox;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.*;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -55,34 +49,47 @@ import java.util.List;
 public class XADatasourceStep2 {
 
     private NewXADatasourceWizard wizard;
+    private Form<JDBCDriver> form;
     private SingleSelectionModel<JDBCDriver> selectionModel;
-    private XADataSource editedEntity;
     private CellTable<JDBCDriver> table;
-    private ComboBox groupSelection;
-    private boolean isStandalone;
     private HTML errorMessages;
     private Integer selectedTab;
+    private TextBoxItem name;
+    private TextBoxItem driverClass;
+    private TextBoxItem xaClass;
+    private NumberBoxItem major;
+    private NumberBoxItem minor;
 
 
     public XADatasourceStep2(NewXADatasourceWizard wizard) {
         this.wizard = wizard;
-        this.isStandalone = wizard.getBootstrap().isStandalone();
     }
 
-    void edit(XADataSource dataSource) {
-        this.editedEntity = dataSource;
-    }
-
+    @SuppressWarnings("unchecked")
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_xadataSource_step2()+"</h3>"));
+        layout.add(new HTML("<h3>" + Console.CONSTANTS.subsys_jca_xadataSource_step2() + "</h3>"));
 
+        // -- First tab: Define new JDBC Driver
+        form = new Form<JDBCDriver>(JDBCDriver.class);
+        name = new TextBoxItem("name", "Name", true);
+        driverClass = new TextBoxItem("driverClass", "Driver Class", false);
+        xaClass = new TextBoxItem("xaDataSourceClass", "XA DataSource Class", true);
+        major = new NumberBoxItem("majorVersion", "Major Version") {
+            {
+                setRequired(false);
+            }
+        };
+        minor = new NumberBoxItem("minorVersion", "Minor Version") {
+            {
+                setRequired(false);
+            }
+        };
+        form.setFields(name, driverClass, xaClass, major, minor);
 
-        // ---
-
-
+        // -- Second tab: Select existing JDBC driver
         table = new DefaultCellTable<JDBCDriver>(5);
 
         TextColumn<JDBCDriver> nameColumn = new TextColumn<JDBCDriver>() {
@@ -91,13 +98,6 @@ public class XADatasourceStep2 {
                 return record.getName();
             }
         };
-
-        /*TextColumn<JDBCDriver> xaClassColumn = new TextColumn<JDBCDriver>() {
-            @Override
-            public String getValue(JDBCDriver record) {
-                return record.getXaDataSourceClass();
-            }
-        };*/
 
         table.addColumn(nameColumn, "Name");
         //table.addColumn(xaClassColumn, "Datasource Class");
@@ -127,36 +127,14 @@ public class XADatasourceStep2 {
         table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-                String xaDataSourceClass = selectionModel.getSelectedObject().getXaDataSourceClass();
-                dsClass.setValue(xaDataSourceClass);
+                if (selectionModel.getSelectedObject() != null) {
+                    String xaDataSourceClass = selectionModel.getSelectedObject().getXaDataSourceClass();
+                    dsClass.setValue(xaDataSourceClass);
+                }
             }
         });
 
-
-
-        final Form<JDBCDriver> form = new Form<JDBCDriver>(JDBCDriver.class);
-        TextBoxItem name = new TextBoxItem("name", "Name", true);
-        TextBoxItem driverClass = new TextBoxItem("driverClass", "Driver Class", false);
-        TextBoxItem xaClass = new TextBoxItem("xaDataSourceClass", "XA DataSource Class", true);
-        NumberBoxItem major = new NumberBoxItem("majorVersion", "Major Version")
-        {
-            {
-                setRequired(false);
-            }
-        };
-        NumberBoxItem minor = new NumberBoxItem("minorVersion", "Minor Version")
-        {
-            {
-                setRequired(false);
-            }
-        };
-
-        form.setFields(name, driverClass, xaClass, major, minor);
-
         // --
-
-
-
         TabPanel tabs = new TabPanel();
         tabs.setStyleName("default-tabpanel");
         tabs.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -166,63 +144,44 @@ public class XADatasourceStep2 {
             }
         });
 
-        tabs.add(driverPanel, "Detected Driver");
         tabs.add(form.asWidget(), "Specify Driver");
+        tabs.add(driverPanel, "Detected Driver");
 
         layout.add(tabs);
         tabs.selectTab(0);
 
         // --
-
         ClickHandler submitHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
-
-                errorMessages.setVisible(false);
                 JDBCDriver driver = null;
 
-                if(selectedTab==0)
-                {
+                errorMessages.setVisible(false);
+                if (selectedTab == 0) {
+                    FormValidation formValidation = form.validate();
+                    if (!formValidation.hasErrors()) {
+                        driver = form.getUpdatedEntity();
+                    }
+                } else {
                     form.clearValues();
-
                     SingleSelectionModel<JDBCDriver> selection =
                             (SingleSelectionModel<JDBCDriver>) table.getSelectionModel();
                     driver = selection.getSelectedObject();
 
-                    if(dsClass.getValue()==null
-                            || dsClass.getValue().equals(""))
-                    {
+                    if (dsClass.getValue() == null || dsClass.getValue().equals("")) {
                         errorMessages.setText("XA Datasource Class is required!");
                         errorMessages.setVisible(true);
                         return;
                     }
                     driver.setXaDataSourceClass(dsClass.getValue());
                 }
-                else
-                {
-                    FormValidation formValidation = form.validate();
-                    if(!formValidation.hasErrors())
-                    {
-                        driver = form.getUpdatedEntity();
-                    }
-                }
 
-                if(driver!=null) { // force selected driver
-
-                    editedEntity.setDriverName(driver.getName());
-                    editedEntity.setDriverClass(driver.getDriverClass());
-                    editedEntity.setDataSourceClass(driver.getXaDataSourceClass());
-                    editedEntity.setMajorVersion(driver.getMajorVersion());
-                    editedEntity.setMinorVersion(driver.getMinorVersion());
-
-                    wizard.onConfigureDriver(editedEntity);
-                }
-                else {
+                if (driver != null) { // force selected driver
+                    wizard.onConfigureDriver(driver);
+                } else {
                     errorMessages.setText("A driver needs to be specified or chosen!");
                     errorMessages.setVisible(true);
                 }
-
             }
         };
 
@@ -232,24 +191,14 @@ public class XADatasourceStep2 {
                 wizard.getPresenter().closeDialogue();
             }
         };
-
         DialogueOptions options = new DialogueOptions(
-                Console.CONSTANTS.common_label_next(),submitHandler,
-                Console.CONSTANTS.common_label_cancel(),cancelHandler
+                Console.CONSTANTS.common_label_next(), submitHandler,
+                Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
-
-        return new WindowContentBuilder(layout,options).build();
+        return new WindowContentBuilder(layout, options).build();
     }
 
     private void provisionTable(final CellTable<JDBCDriver> table) {
-
-        /*wizard.getPresenter().loadDriver(new SimpleCallback<List<JDBCDriver>>() {
-   @Override
-   public void onSuccess(List<JDBCDriver> drivers) {
-         //
-   }
-});         */
-
         List<JDBCDriver> drivers = wizard.getDrivers();
         table.setRowCount(drivers.size(), true);
         table.setRowData(drivers);
@@ -265,4 +214,13 @@ public class XADatasourceStep2 {
         }
     }
 
+    void edit(JDBCDriver driver) {
+        form.edit(driver);
+        name.setModified(true);
+        driverClass.setModified(true);
+        xaClass.setModified(true);
+        major.setModified(true);
+        minor.setModified(true);
+        selectionModel.clear();
+    }
 }
