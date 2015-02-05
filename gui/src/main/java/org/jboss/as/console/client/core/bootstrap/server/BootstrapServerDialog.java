@@ -5,34 +5,28 @@ package org.jboss.as.console.client.core.bootstrap.server;
  * add new servers.
  *
  * @author Harald Pehl
- * @date 02/27/2013
  */
-public class BootstrapServerDialog
-{
+public class BootstrapServerDialog {
     private final BootstrapServerSetup serverSetup;
     private ConnectPage connectPage;
     private ConfigurePage configurePage;
 
 
-    public BootstrapServerDialog(final BootstrapServerSetup serverSetup)
-    {
+    public BootstrapServerDialog(final BootstrapServerSetup serverSetup) {
         this.serverSetup = serverSetup;
         initUI();
     }
 
-    public void initUI()
-    {
+    public void initUI() {
         connectPage = new ConnectPage(serverSetup);
         configurePage = new ConfigurePage(serverSetup);
     }
 
-    public ConnectPage getConnectPage()
-    {
+    public ConnectPage getConnectPage() {
         return connectPage;
     }
 
-    public ConfigurePage getConfigurePage()
-    {
+    public ConfigurePage getConfigurePage() {
         return configurePage;
     }
 }

@@ -14,25 +14,21 @@ import java.util.List;
 
 /**
  * @author Harald Pehl
- * @date 02/28/2013
  */
-public class ConnectPage implements IsWidget
-{
+public class ConnectPage implements IsWidget {
     private final BootstrapServerSetup serverSetup;
     private final BootstrapServerStore bootstrapServerStore;
     private VerticalPanel page;
     private DialogueOptions options;
     private BootstrapServerTable table;
 
-    public ConnectPage(final BootstrapServerSetup serverSetup)
-    {
+    public ConnectPage(final BootstrapServerSetup serverSetup) {
         this.serverSetup = serverSetup;
         this.bootstrapServerStore = new BootstrapServerStore();
         initUI();
     }
 
-    private void initUI()
-    {
+    private void initUI() {
         page = new VerticalPanel();
         page.setStyleName("window-content");
 
@@ -49,29 +45,21 @@ public class ConnectPage implements IsWidget
 
         options = new DialogueOptions(
                 "Connect",
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(ClickEvent event)
-                    {
+                    public void onClick(ClickEvent event) {
                         final BootstrapServer server = table.getSelectedServer();
-                        if (server == null)
-                        {
+                        if (server == null) {
                             connectErrorMessages.setText("Please select a server.");
-                        }
-                        else
-                        {
-                            serverSetup.pingServer(server, new AsyncCallback<Void>()
-                            {
+                        } else {
+                            serverSetup.pingServer(server, new AsyncCallback<Void>() {
                                 @Override
-                                public void onFailure(final Throwable caught)
-                                {
+                                public void onFailure(final Throwable caught) {
                                     connectErrorMessages.setText("The selected server is not running.");
                                 }
 
                                 @Override
-                                public void onSuccess(final Void result)
-                                {
+                                public void onSuccess(final Void result) {
                                     serverSetup.onConnect(server);
                                 }
                             });
@@ -79,11 +67,9 @@ public class ConnectPage implements IsWidget
                     }
                 },
                 "",
-                new ClickHandler()
-                {
+                new ClickHandler() {
                     @Override
-                    public void onClick(final ClickEvent event)
-                    {
+                    public void onClick(final ClickEvent event) {
                         // not used
                     }
                 }
@@ -91,13 +77,11 @@ public class ConnectPage implements IsWidget
     }
 
     @Override
-    public Widget asWidget()
-    {
+    public Widget asWidget() {
         return new WindowContentBuilder(page, options).build();
     }
 
-    void reset()
-    {
+    void reset() {
         List<BootstrapServer> servers = bootstrapServerStore.load();
         table.getDataProvider().setList(servers);
         table.getCellTable().selectDefaultEntity();

@@ -25,7 +25,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.inject.Inject;
 import org.jboss.as.console.client.rbac.ResourceAccessLog;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -62,22 +61,22 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
 
     private static long idCounter = 0;
 
-    private final RequestBuilder postRequestBuilder;
+    private RequestBuilder prb;
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
     private boolean trackInvocations = diagnostics.isEnabled();
     private DMREndpointConfig endpointConfig = GWT.create(DMREndpointConfig.class);
     private ResourceAccessLog resourceLog = ResourceAccessLog.INSTANCE;
 
-    @Inject
-    public DMRHandler()
-    {
-        postRequestBuilder = new RequestBuilder(RequestBuilder.POST, endpointConfig.getUrl());
-        postRequestBuilder.setHeader(HEADER_ACCEPT, DMR_ENCODED);
-        postRequestBuilder.setHeader(HEADER_CONTENT_TYPE, DMR_ENCODED);
-        postRequestBuilder.setIncludeCredentials(true);
+    private RequestBuilder postRequestBuilder() {
+        // lazy init, because endpointConfig.getUrl() is not initialized at construction time
+        if (prb == null) {
+            prb = new RequestBuilder(RequestBuilder.POST, endpointConfig.getUrl());
+            prb.setHeader(HEADER_ACCEPT, DMR_ENCODED);
+            prb.setHeader(HEADER_CONTENT_TYPE, DMR_ENCODED);
+            prb.setIncludeCredentials(true);
+        }
+        return prb;
     }
-
-
     private static native void redirect(String url)/*-{
         $wnd.location = url;
     }-*/;
@@ -145,7 +144,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
     private ModelNode runAsRole(final ModelNode operation, final Map<String, String> properties) {
 
         String role = properties.get("run_as");
-        if (role != null && !operation.get(OP).equals("whoami")) // otherwise we get the replacement role
+        if (role != null && !operation.get(OP).asString().equals("whoami")) // otherwise we get the replacement role
         {
             operation.get("operation-headers").get("roles").set(role);
         }
@@ -314,7 +313,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
         }
         else
         {
-            requestBuilder = postRequestBuilder;
+            requestBuilder = postRequestBuilder();
             requestBuilder.setRequestData(operation.toBase64String());
         }
         return requestBuilder;
