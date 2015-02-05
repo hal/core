@@ -1305,4 +1305,8 @@ public interface UIConstants extends Constants {
     String search_index_reset_finished();
 
     String patch_manager_patch_details();
+
+    String subsys_jca_dataSource_choose_template();
+
+    String subsys_jca_dataSource_custom_template();
 }

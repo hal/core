@@ -19,11 +19,15 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplate;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
@@ -40,24 +44,32 @@ public class NewXADatasourceWizard {
     private final List<JDBCDriver> drivers;
     private final List<XADataSource> existingXaDataSources;
     private final ApplicationProperties bootstrap;
+    private final DataSourceTemplates templates;
+    private final BeanFactory beanFactory;
 
-    private XADataSource baseAttributes = null;
-    private XADataSource driverAttributes = null;
-    private List<PropertyRecord> properties;
+    private XADataSource xaDataSource;
 
-    private XADatasourceStep4 step4;
     private DeckPanel deck;
+    private ChooseTemplateStep<XADataSource> chooseTemplateStep;
+    private XADatasourceStep1 step1;
     private XADatasourceStep2 step2;
     private XADatasourceStep3 step3;
+    private XADatasourceStep4 step4;
     private TrappedFocusPanel trap;
 
     public NewXADatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
-            List<XADataSource> existingXaDataSources, ApplicationProperties bootstrap) {
-
+                                 List<XADataSource> existingXaDataSources, ApplicationProperties bootstrap,
+                                 DataSourceTemplates templates, BeanFactory beanFactory) {
         this.presenter = presenter;
         this.drivers = drivers;
         this.existingXaDataSources = existingXaDataSources;
         this.bootstrap = bootstrap;
+        this.templates = templates;
+        this.beanFactory = beanFactory;
+    }
+
+    public DataSourcePresenter getPresenter() {
+        return presenter;
     }
 
     public List<JDBCDriver> getDrivers() {
@@ -66,6 +78,10 @@ public class NewXADatasourceWizard {
 
     public List<XADataSource> getExistingXaDataSources() {
         return existingXaDataSources;
+    }
+
+    ApplicationProperties getBootstrap() {
+        return this.bootstrap;
     }
 
     public Widget asWidget() {
@@ -78,7 +94,16 @@ public class NewXADatasourceWizard {
             }
         };
 
-        deck.add(new XADatasourceStep1(this).asWidget());
+        chooseTemplateStep = new ChooseTemplateStep<XADataSource>(getPresenter(), templates, true, new Command() {
+            @Override
+            public void execute() {
+                onStart();
+            }
+        });
+        deck.add(chooseTemplateStep);
+
+        step1 = new XADatasourceStep1(this);
+        deck.add(step1.asWidget());
 
         step2 = new XADatasourceStep2(this);
         deck.add(step2.asWidget());
@@ -90,62 +115,62 @@ public class NewXADatasourceWizard {
         deck.add(step4.asWidget());
 
         trap = new TrappedFocusPanel(deck);
-
         deck.showWidget(0);
-
         return trap;
     }
 
-    public DataSourcePresenter getPresenter() {
-        return presenter;
-    }
-
-    public void onConfigureBaseAttributes(XADataSource entity) {
-        this.baseAttributes = entity;
-        step2.edit(entity);
+    public void onStart() {
+        DataSourceTemplate<XADataSource> dataSourceTemplate = chooseTemplateStep.getSelectedTemplate();
+        if (dataSourceTemplate != null) {
+            xaDataSource = dataSourceTemplate.getDataSource();
+            JDBCDriver driver = dataSourceTemplate.getDriver();
+            step1.edit(xaDataSource);
+            step2.edit(driver);
+            step3.edit(xaDataSource);
+            step4.edit(xaDataSource);
+        } else {
+            xaDataSource = beanFactory.xaDataSource().as();
+        }
         deck.showWidget(1);
     }
 
-    public void onConfigureDriver(XADataSource entity) {
-        this.driverAttributes = entity;
-        step3.edit(entity);
+    public void onConfigureBaseAttributes(XADataSource baseAttributes) {
+        xaDataSource.setName(baseAttributes.getName());
+        xaDataSource.setJndiName(baseAttributes.getJndiName());
+        if (xaDataSource.getPoolName() == null || xaDataSource.getPoolName().length() == 0) {
+            xaDataSource.setPoolName(baseAttributes.getName() + "_Pool");
+        }
         deck.showWidget(2);
     }
 
-    public void onFinish(XADataSource updatedEntity) {
-        mergeAttributes(updatedEntity);
-        presenter.onCreateXADatasource(updatedEntity);
+    public void onConfigureDriver(JDBCDriver driver) {
+        xaDataSource.setDriverName(driver.getName());
+        xaDataSource.setDriverClass(driver.getDriverClass());
+        xaDataSource.setDataSourceClass(driver.getXaDataSourceClass());
+        xaDataSource.setMajorVersion(driver.getMajorVersion());
+        xaDataSource.setMinorVersion(driver.getMinorVersion());
+        deck.showWidget(3);
+    }
+
+    public void onConfigureProperties(List<PropertyRecord> properties) {
+        xaDataSource.getProperties().clear();
+        xaDataSource.getProperties().addAll(properties);
+        deck.showWidget(4);
     }
 
     public void onVerifyConnection(final XADataSource updatedEntity, final boolean xa, final boolean existing) {
         mergeAttributes(updatedEntity);
-        presenter.verifyConnection(updatedEntity, xa, existing);
+        presenter.verifyConnection(xaDataSource, xa, existing);
     }
 
-    private void mergeAttributes(final XADataSource updatedEntity) {
-        // merge previous attributes into single entity
-        updatedEntity.setName(baseAttributes.getName());
-        updatedEntity.setJndiName(baseAttributes.getJndiName());
-        updatedEntity.setEnabled(baseAttributes.isEnabled());
-        updatedEntity.setDataSourceClass(driverAttributes.getDataSourceClass());
-        updatedEntity.setDriverName(driverAttributes.getDriverName());
-        updatedEntity.setDriverClass(driverAttributes.getDriverClass());
-        updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
-        updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
-        updatedEntity.setProperties(properties);
-        updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
+    public void onFinish(XADataSource updatedEntity) {
+        mergeAttributes(updatedEntity);
+        presenter.onCreateXADatasource(xaDataSource);
     }
 
-    public void onConfigureProperties(List<PropertyRecord> properties) {
-        // merge it right away
-
-        this.properties = properties;
-
-        step4.edit(driverAttributes);
-        deck.showWidget(3);
-    }
-
-    public ApplicationProperties getBootstrap() {
-        return this.bootstrap;
+    private void mergeAttributes(final XADataSource connection) {
+        xaDataSource.setUsername(connection.getUsername());
+        xaDataSource.setPassword(connection.getPassword());
+        xaDataSource.setSecurityDomain(connection.getSecurityDomain());
     }
 }

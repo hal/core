@@ -29,11 +29,7 @@ import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.forms.items.NonRequiredTextBoxItem;
-import org.jboss.ballroom.client.widgets.forms.ButtonItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.*;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
@@ -44,9 +40,11 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class XADatasourceStep4 {
 
-
     NewXADatasourceWizard wizard;
-    Form<XADataSource> form ;
+    Form<XADataSource> form;
+    private TextBoxItem user;
+    private PasswordBoxItem pass;
+    private TextBoxItem domain;
 
     public XADatasourceStep4(NewXADatasourceWizard wizard) {
         this.wizard = wizard;
@@ -56,17 +54,17 @@ public class XADatasourceStep4 {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_xadataSource_step4()+"</h3>"));
+        layout.add(new HTML("<h3>" + Console.CONSTANTS.subsys_jca_xadataSource_step4() + "</h3>"));
 
         form = new Form<XADataSource>(XADataSource.class);
 
-        TextBoxItem user = new NonRequiredTextBoxItem("username", "Username");
-        PasswordBoxItem pass = new PasswordBoxItem("password", "Password") {
+        user = new NonRequiredTextBoxItem("username", "Username");
+        pass = new PasswordBoxItem("password", "Password") {
             {
                 setRequired(false);
             }
         };
-        TextBoxItem domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
+        domain = new NonRequiredTextBoxItem("securityDomain", "Security Domain");
 
         ButtonItem testBtn = new ButtonItem("testConnection", "", Console.CONSTANTS.subsys_jca_dataSource_verify());
         testBtn.addClickHandler(new ClickHandler() {
@@ -101,8 +99,7 @@ public class XADatasourceStep4 {
             @Override
             public void onClick(ClickEvent event) {
                 FormValidation validation = form.validate();
-                if(!validation.hasErrors())
-                {
+                if (!validation.hasErrors()) {
                     wizard.onFinish(form.getUpdatedEntity());
                 }
             }
@@ -116,15 +113,17 @@ public class XADatasourceStep4 {
         };
 
         DialogueOptions options = new DialogueOptions(
-                "Done",submitHandler,
-                Console.CONSTANTS.common_label_cancel(),cancelHandler
+                "Done", submitHandler,
+                Console.CONSTANTS.common_label_cancel(), cancelHandler
         );
 
-        return new WindowContentBuilder(layout,options).build();
+        return new WindowContentBuilder(layout, options).build();
     }
 
-    void edit(XADataSource entity)
-    {
+    void edit(XADataSource entity) {
         form.edit(entity);
+        user.setModified(true);
+        pass.setModified(true);
+        domain.setModified(true);
     }
 }
