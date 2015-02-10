@@ -64,7 +64,7 @@ public class DataSourceTemplate<T extends DataSource> {
         if (isXA()) {
             builder.append("XA ");
         }
-        builder.append("Dataource");
+        builder.append("Datasource");
         return builder.toString();
     }
 

@@ -1309,4 +1309,8 @@ public interface UIConstants extends Constants {
     String subsys_jca_dataSource_choose_template();
 
     String subsys_jca_dataSource_custom_template();
+
+    String missing_driver();
+
+    String missing_driver_module();
 }
