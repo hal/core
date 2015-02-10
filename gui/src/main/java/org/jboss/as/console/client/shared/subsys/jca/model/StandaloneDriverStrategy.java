@@ -75,6 +75,7 @@ public class StandaloneDriverStrategy implements DriverStrategy {
                             JDBCDriver driver = factory.jdbcDriver().as();
                             driver.setDriverClass(item.get("driver-class-name").asString());
                             driver.setName(item.get("driver-name").asString());
+                            driver.setDriverModuleName(item.get("driver-module-name").asString());
                             driver.setDeploymentName(item.get("deployment-name").asString());
                             driver.setMajorVersion(item.get("driver-major-version").asInt());
                             driver.setMinorVersion(item.get("driver-minor-version").asInt());

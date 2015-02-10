@@ -50,15 +50,16 @@ public class XADatasourceStep2 {
 
     private NewXADatasourceWizard wizard;
     private Form<JDBCDriver> form;
-    private SingleSelectionModel<JDBCDriver> selectionModel;
-    private CellTable<JDBCDriver> table;
-    private HTML errorMessages;
-    private Integer selectedTab;
-    private TextBoxItem name;
+    private DriverNameItem name;
+    private DriverModuleNameItem moduleName;
     private TextBoxItem driverClass;
     private TextBoxItem xaClass;
     private NumberBoxItem major;
     private NumberBoxItem minor;
+    private SingleSelectionModel<JDBCDriver> selectionModel;
+    private CellTable<JDBCDriver> table;
+    private HTML errorMessages;
+    private Integer selectedTab;
 
 
     public XADatasourceStep2(NewXADatasourceWizard wizard) {
@@ -74,7 +75,8 @@ public class XADatasourceStep2 {
 
         // -- First tab: Define new JDBC Driver
         form = new Form<JDBCDriver>(JDBCDriver.class);
-        name = new TextBoxItem("name", "Name", true);
+        name = new DriverNameItem(wizard.getDrivers());
+        moduleName = new DriverModuleNameItem(wizard.getDrivers());
         driverClass = new TextBoxItem("driverClass", "Driver Class", false);
         xaClass = new TextBoxItem("xaDataSourceClass", "XA DataSource Class", true);
         major = new NumberBoxItem("majorVersion", "Major Version") {
@@ -87,7 +89,7 @@ public class XADatasourceStep2 {
                 setRequired(false);
             }
         };
-        form.setFields(name, driverClass, xaClass, major, minor);
+        form.setFields(name, moduleName, driverClass, xaClass, major, minor);
 
         // -- Second tab: Select existing JDBC driver
         table = new DefaultCellTable<JDBCDriver>(5);
@@ -217,6 +219,7 @@ public class XADatasourceStep2 {
     void edit(JDBCDriver driver) {
         form.edit(driver);
         name.setModified(true);
+        moduleName.setModified(true);
         driverClass.setModified(true);
         xaClass.setModified(true);
         major.setModified(true);

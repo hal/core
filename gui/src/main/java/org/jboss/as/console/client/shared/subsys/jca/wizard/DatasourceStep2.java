@@ -51,7 +51,8 @@ public class DatasourceStep2 {
 
     private final NewDatasourceWizard wizard;
     private Form<JDBCDriver> form;
-    private TextBoxItem name;
+    private DriverNameItem name;
+    private DriverModuleNameItem moduleName;
     private TextBoxItem driverClass;
     private NumberBoxItem major;
     private NumberBoxItem minor;
@@ -78,7 +79,8 @@ public class DatasourceStep2 {
 
         // -- First tab: Define new JDBC Driver
         form = new Form<JDBCDriver>(JDBCDriver.class);
-        name = new TextBoxItem("name", "Name", true);
+        name = new DriverNameItem(wizard.getDrivers());
+        moduleName = new DriverModuleNameItem(wizard.getDrivers());
         driverClass = new TextBoxItem("driverClass", "Driver Class", false);
         major = new NumberBoxItem("majorVersion", "Major Version") {
             {
@@ -90,7 +92,7 @@ public class DatasourceStep2 {
                 setRequired(false);
             }
         };
-        form.setFields(name, driverClass, major, minor);
+        form.setFields(name, moduleName, driverClass, major, minor);
 
         // -- Second tab: Select existing JDBC driver
         table = new DefaultCellTable<JDBCDriver>(5);
@@ -199,6 +201,7 @@ public class DatasourceStep2 {
     void edit(JDBCDriver driver) {
         form.edit(driver);
         name.setModified(true);
+        moduleName.setModified(true);
         driverClass.setModified(true);
         major.setModified(true);
         minor.setModified(true);
