@@ -52,13 +52,13 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     Stack<Widget> visibleColumns = new Stack<>();
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}&nbsp;<span style='font-size:8px'>({2})</span></div>")
-        SafeHtml item(String cssClass, String server, String host);
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span></div>")
+        SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
     interface SubsystemTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}</span></div>")
-        SafeHtml item(String cssClass, String server);
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
+        SafeHtml item(String cssClass, String icon, String server);
     }
 
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
@@ -119,21 +119,21 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 reduceColumnsTo(2);
                 // NameTokens.HostVMMetricPresenter
             }
-        }));
+        }, false));
         statusLinks.add(new ActionLink("Environment", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
                 // NameTokens.EnvironmentPresenter
             }
-        }));
+        }, false));
         statusLinks.add(new ActionLink("Log Files", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
                 // NameTokens.LogFiles
             }
-        }));
+        }, false));
 
 
         statusLinks.add(new ActionLink("Subsystems", new Command() {
@@ -143,7 +143,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 appendColumn(subsysColWidget);
                 updateSubsystemColumn(subsystems);
             }
-        }));
+        }, true));
 
     }
 
@@ -158,7 +158,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     @Override
                     public SafeHtml render(String baseCss, Server data) {
                         String context = presenter.getFilter().equals(FilterType.HOST) ? data.getGroup() : data.getHostName();
-                        return SERVER_TEMPLATE.item(baseCss, data.getName(), context);
+                        return SERVER_TEMPLATE.item(baseCss, "icon-folder-close-alt",data.getName(), context);
                     }
                 },
                 new ProvidesKey<Server>() {
@@ -174,7 +174,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 new NavigationColumn.Display<ActionLink>() {
                     @Override
                     public SafeHtml render(String baseCss, ActionLink data) {
-                        return SUBSYSTEM_TEMPLATE.item(baseCss, data.getTitle());
+                        String icon = data.isFolder() ? "icon-folder-close-alt" : "icon-file-alt";
+                        return SUBSYSTEM_TEMPLATE.item(baseCss, icon, data.getTitle());
                     }
                 },
                 new ProvidesKey<ActionLink>() {
@@ -191,7 +192,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 new NavigationColumn.Display<PlaceLink>() {
                     @Override
                     public SafeHtml render(String baseCss, PlaceLink data) {
-                        return SUBSYSTEM_TEMPLATE.item(baseCss, data.getTitle());
+                        return SUBSYSTEM_TEMPLATE.item(baseCss, "icon-file-alt", data.getTitle());
                     }
                 },
                 new ProvidesKey<PlaceLink>() {
@@ -335,10 +336,12 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
         private String title;
         private Command cmd;
+        private boolean isFolder;
 
-        public ActionLink(String title, Command cmd) {
+        public ActionLink(String title, Command cmd, boolean isFolder) {
             this.title = title;
             this.cmd = cmd;
+            this.isFolder = isFolder;
         }
 
         public String getTitle() {
@@ -347,6 +350,10 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
         public Command getCmd() {
             return cmd;
+        }
+
+        public boolean isFolder() {
+            return isFolder;
         }
     }
 

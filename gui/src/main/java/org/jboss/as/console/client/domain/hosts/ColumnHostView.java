@@ -59,7 +59,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private HostMgmtPresenter presenter;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}</div>")
+        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
         SafeHtml item(String cssClass, String title);
     }
 
