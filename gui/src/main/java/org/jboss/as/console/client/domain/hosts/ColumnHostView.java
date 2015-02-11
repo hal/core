@@ -30,6 +30,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
@@ -46,13 +47,15 @@ import java.util.Set;
  * @since 09/01/15
  */
 public class ColumnHostView extends SuspendableViewImpl
-        implements HostMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler {
+        implements HostMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler, ClearFinderSelectionEvent.Handler {
 
     private final NavigationColumn<String> hosts;
     private final NavigationColumn<ServerGroupRecord> groups;
     private final HorizontalPanel groupsHeader;
     private final HTML headerTitle;
     private final HTML addGroupBtn;
+    private final Widget hostColWidget;
+    private final Widget groupsColWidget;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -68,6 +71,8 @@ public class ColumnHostView extends SuspendableViewImpl
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore) {
         super();
+
+        Console.getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
@@ -134,8 +139,11 @@ public class ColumnHostView extends SuspendableViewImpl
         addGroupBtn.getElement().getParentElement().setAttribute("align", "right");
 
 
-        stack.add(hosts.asWidget(), hostsHeader, 40);
-        stack.add(groups.asWidget(), groupsHeader, 40);
+        hostColWidget = hosts.asWidget();
+        groupsColWidget = groups.asWidget();
+
+        stack.add(hostColWidget, hostsHeader, 40);
+        stack.add(groupsColWidget, groupsHeader, 40);
 
         stack.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -179,7 +187,8 @@ public class ColumnHostView extends SuspendableViewImpl
                 if (hosts.hasSelectedItem()) {
 
                     final String selectedHost = hosts.getSelectedItem();
-
+                    groupsColWidget.getElement().removeClassName("active");
+                    hostColWidget.getElement().addClassName("active");
                     if(!hostStore.getSelectedHost().equals(selectedHost)) {
 
                         Scheduler.get().scheduleDeferred(
@@ -234,6 +243,9 @@ public class ColumnHostView extends SuspendableViewImpl
                 if (groups.hasSelectedItem()) {
 
                     final ServerGroupRecord selectedGroup = groups.getSelectedItem();
+
+                    hostColWidget.getElement().removeClassName("active");
+                    groupsColWidget.getElement().addClassName("active");
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
@@ -298,6 +310,12 @@ public class ColumnHostView extends SuspendableViewImpl
                 })
         );
 
+    }
+
+    @Override
+    public void onClearActiveSelection(ClearFinderSelectionEvent event) {
+        hostColWidget.getElement().removeClassName("active");
+        groupsColWidget.getElement().removeClassName("active");
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 
 import javax.inject.Inject;
@@ -281,10 +282,15 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     private void updateActiveSelection(Widget widget) {
+
+        ClearFinderSelectionEvent.fire(presenter);
+
         if(activeSelectionWidget!=null)
             activeSelectionWidget.getElement().removeClassName("active");
         widget.getElement().addClassName("active");
         activeSelectionWidget = widget;
+
+
     }
 
     private void appendColumn(Widget columnWidget) {
