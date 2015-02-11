@@ -359,7 +359,7 @@
 }
 
 .navigation-cell-table .cellTableSelectedRow {
-    background: #D4EDFA; /* ddeef5 */
+    background: #D8D8D8; /* ddeef5 */
 }
 
 .navigation-cell-table  .cellTableSelectedRow .cellTableFirstColumn {
@@ -389,6 +389,10 @@
 
 .navigation-cell-table .cellTableSelectedRow.cellTableKeyboardSelectedRow .cellTableLastColumn {
     border: none;
+}
+
+.active .cellTableSelectedRow {
+    background-color: #D4EDFA!important;
 }
 
 .nav-menu {

@@ -3,6 +3,7 @@ package org.jboss.as.console.client.domain.runtime;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Command;
@@ -27,7 +28,9 @@ import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -36,7 +39,12 @@ import java.util.Stack;
 public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresenter.MyView {
 
     private final SplitLayoutPanel splitlayout;
-    private  Widget subsysColWidget;
+    private Widget subsysColWidget;
+    private Widget statusColWidget;
+    private Widget serverColWidget;
+    private Stack<Widget> visibleColumns = new Stack<>();
+    private Widget activeSelectionWidget;
+
     private LayoutPanel contentCanvas;
     private NavigationColumn<Server> serverColumn;
     private DomainRuntimePresenter presenter;
@@ -47,9 +55,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private List<Predicate> runtimePredicates = new ArrayList<Predicate>();
     private List<ActionLink> statusLinks = new ArrayList<ActionLink>();
     private List<SubsystemRecord> subsystems;
-    private Widget statusColWidget;
 
-    Stack<Widget> visibleColumns = new Stack<>();
 
     interface ServerTemplate extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span></div>")
@@ -168,6 +174,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     }
                 });
 
+        serverColWidget = serverColumn.asWidget();
 
         statusColumn = new NavigationColumn<ActionLink>(
                 "Status",
@@ -206,7 +213,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         subsysColWidget = subsystemColumn.asWidget();
 
         // server column is always present
-        appendColumn(serverColumn.asWidget());
+        appendColumn(serverColWidget);
 
         // selection handling
 
@@ -215,6 +222,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 if (serverColumn.hasSelectedItem()) {
+
+                    updateActiveSelection(serverColWidget);
 
                     final Server selectedServer = serverColumn.getSelectedItem();
 
@@ -238,6 +247,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                 if (statusColumn.hasSelectedItem()) {
 
+                    updateActiveSelection(statusColWidget);
+
                     final ActionLink selectedLink = statusColumn.getSelectedItem();
                      selectedLink.getCmd().execute();
                 }
@@ -250,6 +261,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
             public void onSelectionChange(SelectionChangeEvent event) {
 
                 if (subsystemColumn.hasSelectedItem()) {
+
+                    updateActiveSelection(subsysColWidget);
 
                     final PlaceLink selectedLink = subsystemColumn.getSelectedItem();
 
@@ -267,9 +280,17 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         return splitlayout.asWidget();
     }
 
+    private void updateActiveSelection(Widget widget) {
+        if(activeSelectionWidget!=null)
+            activeSelectionWidget.getElement().removeClassName("active");
+        widget.getElement().addClassName("active");
+        activeSelectionWidget = widget;
+    }
+
     private void appendColumn(Widget columnWidget) {
         visibleColumns.push(columnWidget);
         splitlayout.addWest(columnWidget, 217);
+
     }
 
     private void reduceColumnsTo(int level) {
@@ -277,8 +298,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         for(int i=visibleColumns.size()-1; i>=level; i--)
         {
             Widget widget = visibleColumns.pop();
-            boolean b = splitlayout.remove(widget);
-            System.out.println(i+" popped? "+b);
+            splitlayout.remove(widget);
         }
     }
 
