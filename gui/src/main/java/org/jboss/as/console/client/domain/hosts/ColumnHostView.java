@@ -102,6 +102,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 }).setPlain(true);
 
         StackLayoutPanel stack = new StackLayoutPanel(Style.Unit.PX);
+        stack.setAnimationDuration(0);
 
         HTML hostsHeader = new HTML("Hosts");
         hostsHeader.addStyleName("server-picker-section-header");
