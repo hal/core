@@ -12,6 +12,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -72,10 +73,21 @@ public class FinderColumn<T> {
             }
         };
 
+        Column<T, SafeHtml> iconColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
+            @Override
+            public SafeHtml getValue(T data) {
+                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                builder.appendHtmlConstant("<i class='icon-caret-right row-icon' style='vertical-align:middle'></i>");
+                return builder.toSafeHtml();
+            }
+        };
+
         cellTable.addColumn(titleColumn);
         cellTable.addColumn(menuColumn);
+        cellTable.addColumn(iconColumn);
 
         cellTable.setColumnWidth(menuColumn, 20, Style.Unit.PX);
+        cellTable.setColumnWidth(iconColumn, 16, Style.Unit.PX);
 
         cellTable.setSelectionModel(selectionModel);
 
@@ -112,6 +124,13 @@ public class FinderColumn<T> {
             }
         });
 
+        cellTable.setRowStyles(new RowStyles<T>() {
+            @Override
+            public String getStyleNames(T row, int rowIndex) {
+                boolean isFolder = display.isFolder(row);
+                return isFolder ? "folder-view" : "file-view";
+            }
+        });
     }
 
     private void openContextMenu(NativeEvent event, final T object) {
@@ -246,6 +265,7 @@ public class FinderColumn<T> {
     }
 
     public interface Display<T> {
+        public boolean isFolder(T data);
         public SafeHtml render(String baseCss, T data);
     }
 
