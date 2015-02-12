@@ -59,7 +59,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>source-jar</goal>
+                            <goal>resources</goal>
                         </goals>
                     </execution>
                 </executions>
