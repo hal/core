@@ -35,6 +35,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -51,6 +52,7 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
     private ContentHeaderLabel headline;
     private NewServerConfigWizard serverWizard;
     private ConfirmationWindow removeConfirmation;
+    private CopyServerWizard copyServerWizard;
 
     @Override
     public void setPresenter(ServerConfigPresenter presenter) {
@@ -167,9 +169,12 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
                     }
                 });
 
+        copyServerWizard = new CopyServerWizard(presenter);
+
         register("edit",editor.build());
         register("new", serverWizard.asWidget());
         register("remove", removeConfirmation.asWidget());
+        register("copy", copyServerWizard.asWidget());
     }
 
 
@@ -214,10 +219,17 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
             System.out.println("<<< view not correctly initialized! >>>");
 
         serverWizard.updateGroups(result);
+
     }
 
     @Override
-    public void setHosts(List<String> hostNames) {
+    public void setSelectedServer(Server selectServer) {
+        copyServerWizard.setCurrentServerSelection(selectServer);
+    }
+
+    @Override
+    public void setHosts(Set<String> hostNames, String selectedHost) {
         serverWizard.updateHosts(hostNames);
+        copyServerWizard.setHosts(hostNames, selectedHost);
     }
 }
