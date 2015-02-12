@@ -18,7 +18,7 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.tree.GroupItem;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
@@ -36,8 +36,8 @@ import java.util.Map;
 public class ColumnProfileView extends SuspendableViewImpl
         implements ProfileMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler {
 
-    private final NavigationColumn<ProfileRecord> profiles;
-    private final NavigationColumn<SubsystemLink> subsystems;
+    private final FinderColumn<ProfileRecord> profiles;
+    private final FinderColumn<SubsystemLink> subsystems;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -55,9 +55,9 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
-        profiles = new NavigationColumn<ProfileRecord>(
+        profiles = new FinderColumn<ProfileRecord>(
                 "Profiles",
-                new NavigationColumn.Display<ProfileRecord>() {
+                new FinderColumn.Display<ProfileRecord>() {
                     @Override
                     public SafeHtml render(String baseCss, ProfileRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());
@@ -70,9 +70,9 @@ public class ColumnProfileView extends SuspendableViewImpl
                     }
                 });
 
-        subsystems = new NavigationColumn<SubsystemLink>(
+        subsystems = new FinderColumn<SubsystemLink>(
                 "Subsystems",
-                new NavigationColumn.Display<SubsystemLink>() {
+                new FinderColumn.Display<SubsystemLink>() {
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
                         return TEMPLATE.item(baseCss, data.getTitle());

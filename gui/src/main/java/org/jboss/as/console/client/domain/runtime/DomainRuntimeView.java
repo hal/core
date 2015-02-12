@@ -3,7 +3,6 @@ package org.jboss.as.console.client.domain.runtime;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Command;
@@ -14,6 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.gwtplatform.mvp.client.ViewImpl;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.message.Message;
@@ -25,13 +25,12 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -47,19 +46,19 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private Widget activeSelectionWidget;
 
     private LayoutPanel contentCanvas;
-    private NavigationColumn<Server> serverColumn;
+    private FinderColumn<Server> serverColumn;
     private DomainRuntimePresenter presenter;
-    private NavigationColumn<ActionLink> statusColumn;
-    private NavigationColumn<PlaceLink> subsystemColumn;
+    private FinderColumn<FinderItem> statusColumn;
+    private FinderColumn<PlaceLink> subsystemColumn;
 
     private List<Predicate> metricPredicates = new ArrayList<Predicate>();
     private List<Predicate> runtimePredicates = new ArrayList<Predicate>();
-    private List<ActionLink> statusLinks = new ArrayList<ActionLink>();
+    private List<FinderItem> statusLinks = new ArrayList<FinderItem>();
     private List<SubsystemRecord> subsystems;
 
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span></div>")
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span>&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle'></i></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
@@ -68,7 +67,14 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         SafeHtml item(String cssClass, String icon, String server);
     }
 
+    interface StatusTemplate extends SafeHtmlTemplates {
+            @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span>&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle;display:{3}'></i></div>")
+            SafeHtml item(String cssClass, String icon, String title, String display);
+        }
+
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
+
+    private static final StatusTemplate STATUS_TEMPLATE = GWT.create(StatusTemplate.class);
 
     private static final SubsystemTemplate SUBSYSTEM_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
@@ -120,21 +126,21 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         }
 
         // default links
-        statusLinks.add(new ActionLink("JVM", new Command() {
+        statusLinks.add(new FinderItem("JVM", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
                 // NameTokens.HostVMMetricPresenter
             }
         }, false));
-        statusLinks.add(new ActionLink("Environment", new Command() {
+        statusLinks.add(new FinderItem("Environment", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
                 // NameTokens.EnvironmentPresenter
             }
         }, false));
-        statusLinks.add(new ActionLink("Log Files", new Command() {
+        statusLinks.add(new FinderItem("Log Files", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
@@ -143,7 +149,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         }, false));
 
 
-        statusLinks.add(new ActionLink("Subsystems", new Command() {
+        statusLinks.add(new FinderItem("Subsystems", new Command() {
             @Override
             public void execute() {
                 reduceColumnsTo(2);
@@ -159,9 +165,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
 
 
-        serverColumn = new NavigationColumn<Server>(
+        serverColumn = new FinderColumn<Server>(
                 "Server",
-                new NavigationColumn.Display<Server>() {
+                new FinderColumn.Display<Server>() {
                     @Override
                     public SafeHtml render(String baseCss, Server data) {
                         String context = presenter.getFilter().equals(FilterType.HOST) ? data.getGroup() : data.getHostName();
@@ -177,27 +183,28 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
         serverColWidget = serverColumn.asWidget();
 
-        statusColumn = new NavigationColumn<ActionLink>(
+        statusColumn = new FinderColumn<FinderItem>(
                 "Status",
-                new NavigationColumn.Display<ActionLink>() {
+                new FinderColumn.Display<FinderItem>() {
                     @Override
-                    public SafeHtml render(String baseCss, ActionLink data) {
+                    public SafeHtml render(String baseCss, FinderItem data) {
                         String icon = data.isFolder() ? "icon-folder-close-alt" : "icon-file-alt";
-                        return SUBSYSTEM_TEMPLATE.item(baseCss, icon, data.getTitle());
+                        String display = data.isFolder() ? "inline" : "none";
+                        return STATUS_TEMPLATE.item(baseCss, icon, data.getTitle(), display);
                     }
                 },
-                new ProvidesKey<ActionLink>() {
+                new ProvidesKey<FinderItem>() {
                     @Override
-                    public Object getKey(ActionLink item) {
+                    public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
                 });
 
         statusColWidget = statusColumn.asWidget();
 
-        subsystemColumn = new NavigationColumn<PlaceLink>(
+        subsystemColumn = new FinderColumn<PlaceLink>(
                 "Subsystems",
-                new NavigationColumn.Display<PlaceLink>() {
+                new FinderColumn.Display<PlaceLink>() {
                     @Override
                     public SafeHtml render(String baseCss, PlaceLink data) {
                         return SUBSYSTEM_TEMPLATE.item(baseCss, "icon-file-alt", data.getTitle());
@@ -250,8 +257,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                     updateActiveSelection(statusColWidget);
 
-                    final ActionLink selectedLink = statusColumn.getSelectedItem();
-                     selectedLink.getCmd().execute();
+                    final FinderItem selectedLink = statusColumn.getSelectedItem();
+                    selectedLink.getCmd().execute();
                 }
             }
         });
@@ -267,12 +274,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                     final PlaceLink selectedLink = subsystemColumn.getSelectedItem();
 
-                  /*  Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        public void execute() {
-
-                            Console.getPlaceManager().revealPlace(new PlaceRequest(selectedLink.getToken()));
-                        }
-                    });*/
                 }
             }
         });
@@ -339,49 +340,25 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         serverColumn.updateFrom(serverModel, false);
     }
 
-    private class PlaceLink {
+    private class PlaceLink extends FinderItem {
 
-        private String title;
-        private String token;
+        public PlaceLink(String title, final String token) {
+            super(title, new Command() {
+                @Override
+                public void execute() {
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        public void execute() {
 
-        public PlaceLink(String title, String token) {
-            this.title = title;
-            this.token = token;
-        }
+                            Console.getPlaceManager().revealPlace(new PlaceRequest(token));
+                        }
+                    });
+                }
+            }, false);
 
-        public String getTitle() {
-            return title;
-        }
-
-        public String getToken() {
-            return token;
-        }
-    }
-
-    private class ActionLink {
-
-        private String title;
-        private Command cmd;
-        private boolean isFolder;
-
-        public ActionLink(String title, Command cmd, boolean isFolder) {
-            this.title = title;
-            this.cmd = cmd;
-            this.isFolder = isFolder;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public Command getCmd() {
-            return cmd;
-        }
-
-        public boolean isFolder() {
-            return isFolder;
         }
     }
+
+
 
     public final class Predicate {
         private String subsysName;

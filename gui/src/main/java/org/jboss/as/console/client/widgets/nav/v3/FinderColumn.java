@@ -33,7 +33,7 @@ import java.util.List;
  * @author Heiko Braun
  * @since 09/01/15
  */
-public class NavigationColumn<T> {
+public class FinderColumn<T> {
 
 
     private final SingleSelectionModel<T> selectionModel;
@@ -47,7 +47,7 @@ public class NavigationColumn<T> {
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
 
-    public NavigationColumn(String title, final Display display, final ProvidesKey keyProvider) {
+    public FinderColumn(String title, final Display display, final ProvidesKey keyProvider) {
         this.title = title;
         this.keyProvider = keyProvider;
         selectionModel = new SingleSelectionModel<T>();
@@ -147,17 +147,17 @@ public class NavigationColumn<T> {
         popupPanel.show();
     }
 
-    public NavigationColumn<T> setTopMenuItems(MenuDelegate... items) {
+    public FinderColumn<T> setTopMenuItems(MenuDelegate... items) {
         this.topMenuItems = items;
         return this;
     }
 
-    public NavigationColumn<T> setMenuItems(MenuDelegate... items) {
+    public FinderColumn<T> setMenuItems(MenuDelegate... items) {
         this.menuItems = items;
         return this;
     }
 
-    public NavigationColumn<T> setPlain(boolean plain) {
+    public FinderColumn<T> setPlain(boolean plain) {
         this.plain = plain;
         return this;
     }
