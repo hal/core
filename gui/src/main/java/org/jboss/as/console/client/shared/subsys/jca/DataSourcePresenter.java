@@ -27,15 +27,13 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
+import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.ApplicationProperties;
-import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.SuspendableView;
+import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -51,6 +49,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.*;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -71,7 +70,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DataSourcePresenter)
-    @AccessControl(resources = {
+    @RequiredResources(resources = {
             "/{selected.profile}/subsystem=datasources/data-source=*",
             "/{selected.profile}/subsystem=datasources/xa-data-source=*"})
     @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"})

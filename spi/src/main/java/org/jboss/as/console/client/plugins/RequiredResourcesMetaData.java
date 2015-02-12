@@ -4,14 +4,14 @@ package org.jboss.as.console.client.plugins;
  * @author Heiko Braun
  * @date 7/2/13
  */
-public class AccessControlMetaData {
+public class RequiredResourcesMetaData {
 
     private String resource;
     private String token;
     private String recursive;
     private String[] operations;
 
-    public AccessControlMetaData(String token, String resource) {
+    public RequiredResourcesMetaData(String token, String resource) {
         this.token = token;
         this.resource = resource;
     }

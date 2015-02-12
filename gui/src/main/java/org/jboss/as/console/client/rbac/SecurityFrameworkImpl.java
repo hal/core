@@ -7,7 +7,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.model.mapping.AddressMapping;
@@ -56,7 +56,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private static final String TRIM_DESCRIPTIONS = "trim-descriptions";
     private static final String COMBINED_DESCRIPTIONS = "combined-descriptions";
 
-    protected final AccessControlRegistry accessControlMetaData;
+    protected final RequiredResourcesRegistry requiredResourcesRegistry;
     protected final DispatchAsync dispatcher;
     protected final CoreGUIContext statementContext;
     protected final CoreGUIContext coreGUIContext;
@@ -70,11 +70,11 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     private final static SecurityContext READ_ONLY  = new ReadOnlyContext();
 
     @Inject
-    public SecurityFrameworkImpl(AccessControlRegistry accessControlMetaData, DispatchAsync dispatcher,
+    public SecurityFrameworkImpl(RequiredResourcesRegistry requiredResourcesRegistry, DispatchAsync dispatcher,
                                  CoreGUIContext statementContext, final BootstrapContext bootstrap, EventBus eventBus,
                                  CoreGUIContext coreGUIContext) {
 
-        this.accessControlMetaData = accessControlMetaData;
+        this.requiredResourcesRegistry = requiredResourcesRegistry;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.coreGUIContext = coreGUIContext;
@@ -175,29 +175,30 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
     }
 
     public void createSecurityContext(final String id, final AsyncCallback<SecurityContext> callback) {
-         createSecurityContext(id, accessControlMetaData.getResources(id),  accessControlMetaData.isRecursive(id), callback);
+         createSecurityContext(id, requiredResourcesRegistry.getResources(id), requiredResourcesRegistry.isRecursive(id), callback);
     }
 
     public void createSecurityContext(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
-
         // @NoGatekeeper (and thus no mapped resources ...)
-        if(requiredResources.isEmpty())
-        {
+        if (requiredResources.isEmpty()) {
             NoGatekeeperContext noop = new NoGatekeeperContext();
             contextMapping.put(id, noop);
             callback.onSuccess(noop);
         }
 
         // @RBACGatekeeper & @AccessControl
-        else
-        {
+        else {
             try {
                 loadSecurityMetadata(id, requiredResources, recursive, callback);
             } catch (Throwable t) {
                 callback.onFailure(t);
             }
         }
+    }
 
+    @Override
+    public void assignContext(String id, SecurityContext context) {
+        contextMapping.put(id, context);
     }
 
     private void loadSecurityMetadata(final String id, final Set<String> requiredResources, boolean recursive, final AsyncCallback<SecurityContext> callback) {
@@ -216,9 +217,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         for(String address : requiredResources)
             references.add(new ResourceRef(address));
 
-
-        for(ResourceRef ref : references)
-        {
+        for (ResourceRef ref : references) {
             ModelNode emptyAddress = new ModelNode().setEmptyList();
             ModelNode step = AddressMapping.fromString(ref.address).asResource(emptyAddress, filteringStatementContext);
 
@@ -234,7 +233,6 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
             step.get(INCLUDE_ALIASES).set("true"); // TODO Test if this is still necessary once WFLY-2738 is fixed
             step.get(OPERATIONS).set(true);
             steps.add(step);
-
         }
 
         operation.get(STEPS).set(steps);

@@ -192,6 +192,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.GinExtensionBinding;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -211,69 +212,6 @@ import org.jboss.gwt.circuit.dag.DAGDispatcher;
 public class CoreUIModule extends AbstractPresenterModule {
 
     protected void configure() {
-
-        // SPI first
-        bind(SubsystemRegistry.class).to(SubsystemRegistryImpl.class).in(Singleton.class);
-        bind(RuntimeExtensionRegistry.class).to(RuntimeLHSItemExtensionRegistryImpl.class).in(Singleton.class);
-
-        // static injections
-        requestStaticInjection(RuntimeBaseAddress.class);
-        requestStaticInjection(Baseadress.class);
-
-        bind(Harvest.class).in(Singleton.class);
-        bind(Index.class).toProvider(IndexProvider.class).in(Singleton.class);
-
-        // main layout
-        bind(Header.class).in(Singleton.class);
-        bind(Footer.class).in(Singleton.class);
-
-        // supporting components
-        bind(MessageBar.class).in(Singleton.class);
-        bind(MessageCenter.class).to(MessageCenterImpl.class).in(Singleton.class);
-        bind(MessageCenterView.class).in(Singleton.class);
-
-        bind(HelpSystem.class).in(Singleton.class);
-
-        bind(ExpressionResolver.class).to(DefaultExpressionResolver.class).in(Singleton.class);
-        bind(Baseadress.class).in(Singleton.class);
-        bind(RuntimeBaseAddress.class).in(Singleton.class);
-
-        // mobile:
-        // bindConstant().annotatedWith(GaAccount.class).to("UA-36590267-1");
-
-        bindConstant().annotatedWith(GaAccount.class).to("UA-35829315-1");
-
-        bind(GoogleAnalytics.class).toProvider(AnalyticsProvider.class).in(Singleton.class);
-        bind(NavigationTracker.class).asEagerSingleton();
-
-        bind(ModelVersions.class).in(Singleton.class);
-        bind(FeatureSet.class).in(Singleton.class);
-
-        // ----------------------------------------------------------------------
-
-        bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
-
-        bind(PlaceManager.class).to(DefaultPlaceManager.class).in(Singleton.class);
-
-        // see http://code.google.com/p/gwt-platform/issues/detail?id=381
-        //bind(TokenFormatter.class).to(ParameterTokenFormatter.class).in(Singleton.class);
-        bind(TokenFormatter.class).to(NewTokenFormatter.class).in(Singleton.class);
-
-        bind(RootPresenter.class).asEagerSingleton();
-        //bind(ProxyFailureHandler.class).to(DefaultProxyFailureHandler.class).in(Singleton.class);
-
-        bind(Gatekeeper.class).to(RBACGatekeeper.class).in(Singleton.class);
-        bind(HostManagementGatekeeper.class).in(Singleton.class);
-        bind(DomainRuntimegateKeeper.class).in(Singleton.class);
-
-        bind(CurrentUser.class).in(Singleton.class);
-        bind(BootstrapContext.class).in(Singleton.class);
-        bind(ApplicationProperties.class).to(BootstrapContext.class).in(Singleton.class);
-        bind(ApplicationMetaData.class).in(Singleton.class);
-
-        bind(PatchManager.class).in(Singleton.class);
-        bind(ToplevelTabs.class).in(Singleton.class);
-
         // sign in
         bindPresenter(SignInPagePresenter.class, SignInPagePresenter.MyView.class,
                 SignInPageView.class, SignInPagePresenter.MyProxy.class);
@@ -298,8 +236,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bindPresenterWidget(BrowserPresenter.class,
                 BrowserPresenter.MyView.class,
-                BrowserView.class
-        );
+                BrowserView.class);
 
         /*bindPresenterWidget(DebugPresenter.class,
                 DebugPresenter.MyView.class,
@@ -313,17 +250,9 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bindPresenterWidget(SettingsPresenterWidget.class,
                 SettingsPresenterWidget.MyView.class,
-                SettingsView.class
-        );
+                SettingsView.class);
 
         // ----------------------------------------------------------------------
-
-        bind(DispatchAsync.class).to(DispatchAsyncImpl.class).in(Singleton.class);
-        bind(HandlerMapping.class).to(HandlerRegistry.class).in(Singleton.class);
-        bind(DMRHandler.class).in(Singleton.class);
-
-        // ----------------------------------------------------------------------
-
         // server management application
 
         bindPresenter(ServerMgmtApplicationPresenter.class,
@@ -335,8 +264,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 StandaloneDeploymentPresenter.MyView.class,
                 StandaloneDeploymentView.class,
                 StandaloneDeploymentPresenter.MyProxy.class);
-
-        bind(DeploymentStore.class).in(Singleton.class);
 
         // ------------------------------------------------
         // domain management application
@@ -372,14 +299,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ProfileMgmtView.class,
                 ProfileMgmtPresenter.MyProxy.class);
 
-
         bindPresenter(TopologyPresenter.class,
                 TopologyPresenter.MyView.class,
                 TopologyView.class,
                 TopologyPresenter.MyProxy.class);
-
-        bind(CurrentProfileSelection.class).in(Singleton.class);
-        bind(ReloadState.class).in(Singleton.class);
 
         // domain/server-group
         bindPresenter(ServerGroupPresenter.class,
@@ -387,17 +310,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ServerGroupView.class,
                 ServerGroupPresenter.MyProxy.class);
 
-        bind(ProfileStore.class).to(ProfileStoreImpl.class).in(Singleton.class);
-        bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);
-        bind(ServerGroupStore.class).to(ServerGroupStoreImpl.class).in(Singleton.class);
-        bind(HostInformationStore.class).to(HostInfoStoreImpl.class).in(Singleton.class);
-
         // domain/domain-deployments
         bindPresenter(DomainDeploymentPresenter.class,
                 DomainDeploymentPresenter.MyView.class,
                 DomainDeploymentView.class,
                 DomainDeploymentPresenter.MyProxy.class);
-
 
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,
@@ -409,18 +326,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ServerConfigView.class,
                 ServerConfigPresenter.MyProxy.class);
 
-
-
-        // -------
-
         bindPresenter(DataSourcePresenter.class,
                 DataSourcePresenter.MyView.class,
                 DatasourceView.class,
                 DataSourcePresenter.MyProxy.class);
-
-        bind(DataSourceStore.class).to(DataSourceStoreImpl.class).in(Singleton.class);
-        bind(DomainDriverStrategy.class).in(Singleton.class);
-        bind(StandaloneDriverStrategy.class).in(Singleton.class);
 
         bindPresenter(EJB3Presenter.class,
                 EJB3Presenter.MyView.class,
@@ -451,8 +360,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LogFilesPresenter.MyView.class,
                 LogFilesView.class,
                 LogFilesPresenter.MyProxy.class);
-
-        bind(HandlerListManager.class).in(Singleton.class);
 
         bindPresenter(ScannerPresenter.class,
                 ScannerPresenter.MyView.class,
@@ -491,7 +398,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DistributedCacheView.class,
                 DistributedCachePresenter.MyProxy.class);
 
-
         bindPresenter(SocketBindingPresenter.class,
                 SocketBindingPresenter.MyView.class,
                 SocketBindingView.class,
@@ -526,12 +432,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 IOPresenter.MyView.class,
                 IOView.class,
                 IOPresenter.MyProxy.class);
-
-        bind(CacheContainerStore.class).to(CacheContainerStoreImpl.class).in(Singleton.class);
-        bind(LocalCacheStore.class).to(LocalCacheStoreImpl.class).in(Singleton.class);
-        bind(EndpointRegistry.class).in(Singleton.class);
-        bind(DomainEndpointStrategy.class).in(Singleton.class);
-        bind(StandaloneEndpointStrategy.class).in(Singleton.class);
 
         bindPresenter(ResourceAdapterPresenter.class,
                 ResourceAdapterPresenter.MyView.class,
@@ -673,26 +573,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 AuditLogPresenter.MyProxy.class);
 
         // mbui workbench
-
-        bindPresenter(
-                RepositoryPresenter.class,
+        bindPresenter(RepositoryPresenter.class,
                 RepositoryPresenter.MyView.class,
                 RepositoryView.class,
-                RepositoryPresenter.MyProxy.class
-        );
-
-        // Application
-        bind(SampleRepository.class).in(Singleton.class);
-
-        bind(AccessControlRegistry.class).to(AccessControlRegistryImpl.class).in(Singleton.class);
-
-        bind(SearchIndexRegistry.class).to(SearchIndexRegistryImpl.class).in(Singleton.class);
-
-        bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
-        bind(PlaceRequestSecurityFramework.class).in(Singleton.class);
-
-        /* use this to test against 6.x until the RBAC facilities are available */
-        //bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
+                RepositoryPresenter.MyProxy.class);
 
         bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
 
@@ -701,13 +585,33 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DialogViewImpl.class,
                 DialogPresenter.MyProxy.class);
 
-
         bindPresenter(NoServerPresenter.class,
                 NoServerPresenter.MyView.class,
                 NoServerView.class,
                 NoServerPresenter.MyProxy.class);
 
-        // circuit wiring
+        bindPresenter(CSPPresenter.class,
+                CSPPresenter.MyView.class,
+                CSPView.class,
+                CSPPresenter.MyProxy.class);
+
+        bindPresenter(HttpPresenter.class,
+                HttpPresenter.MyView.class,
+                HttpView.class,
+                HttpPresenter.MyProxy.class);
+
+        bindPresenter(ServletPresenter.class,
+                ServletPresenter.MyView.class,
+                ServletView.class,
+                ServletPresenter.MyProxy.class);
+
+        bindPresenter(UndertowPresenter.class,
+                UndertowPresenter.MyView.class,
+                UndertowView.class,
+                UndertowPresenter.MyProxy.class);
+
+        // ------------------------------------------------------ circuit & stores
+
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
 
         bind(BatchStore.class).in(Singleton.class);
@@ -728,35 +632,113 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(ServerStore.class).in(Singleton.class);
         bind(ServerStoreAdapter.class).in(Singleton.class);
 
-        bindPresenter(CSPPresenter.class,
-                CSPPresenter.MyView.class,
-                CSPView.class,
-                CSPPresenter.MyProxy.class);
-
-        bind(CoreGUIContext.class).in(Singleton.class);
-
-        bindPresenter(HttpPresenter.class,
-                HttpPresenter.MyView.class,
-                HttpView.class,
-                HttpPresenter.MyProxy.class);
-
-        bindPresenter(ServletPresenter.class,
-                ServletPresenter.MyView.class,
-                ServletView.class,
-                ServletPresenter.MyProxy.class);
-
-        bindPresenter(UndertowPresenter.class,
-                UndertowPresenter.MyView.class,
-                UndertowView.class,
-                UndertowPresenter.MyProxy.class);
-
         bind(SubsystemStore.class).in(Singleton.class);
         bind(SubsystemStoreAdapter.class).in(Singleton.class);
 
         bind(PerspectiveStore.class).in(Singleton.class);
         bind(PerspectiveStoreAdapter.class).in(Singleton.class);
 
+        // ------------------------------------------------------ no circuit stores yet!
+
+        bind(DeploymentStore.class).in(Singleton.class);
+        bind(CacheContainerStore.class).to(CacheContainerStoreImpl.class).in(Singleton.class);
+        bind(LocalCacheStore.class).to(LocalCacheStoreImpl.class).in(Singleton.class);
+        bind(DataSourceStore.class).to(DataSourceStoreImpl.class).in(Singleton.class);
+        bind(ProfileStore.class).to(ProfileStoreImpl.class).in(Singleton.class);
+        bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);
+        bind(ServerGroupStore.class).to(ServerGroupStoreImpl.class).in(Singleton.class);
+        bind(HostInformationStore.class).to(HostInfoStoreImpl.class).in(Singleton.class);
+        bind(PatchManager.class).in(Singleton.class);
+
+        bind(DomainDriverStrategy.class).in(Singleton.class);
+        bind(StandaloneDriverStrategy.class).in(Singleton.class);
+
+        // ------------------------------------------------------ registries
+
+        bind(SampleRepository.class).in(Singleton.class);
+        bind(NameTokenRegistry.class).in(Singleton.class);
+        bind(EndpointRegistry.class).in(Singleton.class);
+        bind(DomainEndpointStrategy.class).in(Singleton.class);
+        bind(RequiredResourcesRegistry.class).to(RequiredResourcesRegistryImpl.class).in(Singleton.class);
+        bind(ResourceDescriptionRegistry.class).in(Singleton.class);
+        bind(SearchIndexRegistry.class).to(SearchIndexRegistryImpl.class).in(Singleton.class);
+        bind(SubsystemRegistry.class).to(SubsystemRegistryImpl.class).in(Singleton.class);
+        bind(RuntimeExtensionRegistry.class).to(RuntimeLHSItemExtensionRegistryImpl.class).in(Singleton.class);
+
+        // ------------------------------------------------------ application specific
+
+        // static injections
+        requestStaticInjection(RuntimeBaseAddress.class);
+        requestStaticInjection(Baseadress.class);
+
+        bind(CoreGUIContext.class).in(Singleton.class);
+
+        bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
+        bind(PlaceRequestSecurityFramework.class).in(Singleton.class);
+
+        bind(StandaloneEndpointStrategy.class).in(Singleton.class);
+        bind(RequiredResourcesProcessor.class).in(Singleton.class);
+
+        /* use this to test against 6.x until the RBAC facilities are available */
+        //bind(SecurityFramework.class).to(MockSecurityFramework.class).in(Singleton.class);
+
+        bind(Harvest.class).in(Singleton.class);
+        bind(Index.class).toProvider(IndexProvider.class).in(Singleton.class);
+
+        bind(DMRHandler.class).in(Singleton.class);
+        bind(DispatchAsync.class).to(DispatchAsyncImpl.class).in(Singleton.class);
+        bind(HandlerMapping.class).to(HandlerRegistry.class).in(Singleton.class);
+
+        bind(ReloadState.class).in(Singleton.class);
+        bind(CurrentProfileSelection.class).in(Singleton.class);
+
         bind(DataSourceTemplates.class).in(Singleton.class);
+        bind(HandlerListManager.class).in(Singleton.class);
+
+        bind(Baseadress.class).in(Singleton.class);
+        bind(RuntimeBaseAddress.class).in(Singleton.class);
+        bind(ExpressionResolver.class).to(DefaultExpressionResolver.class).in(Singleton.class);
+
+        // main layout
+        bind(ToplevelTabs.class).in(Singleton.class);
+        bind(Header.class).in(Singleton.class);
+        bind(Footer.class).in(Singleton.class);
+
+        // supporting components
+        bind(MessageBar.class).in(Singleton.class);
+        bind(MessageCenter.class).to(MessageCenterImpl.class).in(Singleton.class);
+        bind(MessageCenterView.class).in(Singleton.class);
+        bind(HelpSystem.class).in(Singleton.class);
+
+        // mobile:
+        // bindConstant().annotatedWith(GaAccount.class).to("UA-36590267-1");
+
+        bindConstant().annotatedWith(GaAccount.class).to("UA-35829315-1");
+
+        bind(GoogleAnalytics.class).toProvider(AnalyticsProvider.class).in(Singleton.class);
+        bind(NavigationTracker.class).asEagerSingleton();
+
+        bind(ModelVersions.class).in(Singleton.class);
+        bind(FeatureSet.class).in(Singleton.class);
+
+        bind(EventBus.class).to(SimpleEventBus.class).in(Singleton.class);
+        bind(PlaceManager.class).to(DefaultPlaceManager.class).in(Singleton.class);
+
+        // see http://code.google.com/p/gwt-platform/issues/detail?id=381
+        //bind(TokenFormatter.class).to(ParameterTokenFormatter.class).in(Singleton.class);
+        bind(TokenFormatter.class).to(NewTokenFormatter.class).in(Singleton.class);
+
+        bind(RootPresenter.class).asEagerSingleton();
+        //bind(ProxyFailureHandler.class).to(DefaultProxyFailureHandler.class).in(Singleton.class);
+
+        bind(Gatekeeper.class).to(RBACGatekeeper.class).in(Singleton.class);
+        bind(HostManagementGatekeeper.class).in(Singleton.class);
+        bind(DomainRuntimegateKeeper.class).in(Singleton.class);
+
+        bind(CurrentUser.class).in(Singleton.class);
+        bind(BootstrapContext.class).in(Singleton.class);
+        bind(ApplicationProperties.class).to(BootstrapContext.class).in(Singleton.class);
+        bind(ApplicationMetaData.class).in(Singleton.class);
     }
 
     @Provides Scheduler provideScheduler() {

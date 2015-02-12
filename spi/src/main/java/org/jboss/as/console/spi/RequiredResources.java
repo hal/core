@@ -3,14 +3,12 @@ package org.jboss.as.console.spi;
 /**
  * Access control meta data for dialogs (presenter).
  *
- * @deprecated Use @org.jboss.as.console.spi.RequiredResources instead
  * @author Heiko Braun
  * @date 3/26/12
  */
-@Deprecated
 @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})
-public @interface AccessControl {
+public @interface RequiredResources {
 
     /**
      * Set of required resource to operate on (addressable privilege) within the dialog

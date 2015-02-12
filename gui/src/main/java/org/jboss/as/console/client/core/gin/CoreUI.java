@@ -59,7 +59,7 @@ import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimegateKeeper;
 import org.jboss.as.console.client.domain.runtime.NoServerPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
@@ -372,7 +372,7 @@ public interface CoreUI {
     // mbui workbench
     Provider<RepositoryPresenter> getRepositoryPresenter();
 
-    AccessControlRegistry getAccessControlRegistry();
+    RequiredResourcesRegistry getRequiredResourcesRegistry();
 
     SearchIndexRegistry getSearchIndexRegistry();
 
@@ -416,4 +416,6 @@ public interface CoreUI {
     SubsystemStoreAdapter getSubsystemStoreAdapter();
 
     PerspectiveStoreAdapter getPerspectiveStoreAdapter();
+
+    RequiredResourcesProcessor getRequiredResourcesProcessor();
 }
