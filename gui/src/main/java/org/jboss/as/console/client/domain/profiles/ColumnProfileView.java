@@ -59,6 +59,11 @@ public class ColumnProfileView extends SuspendableViewImpl
                 "Profiles",
                 new FinderColumn.Display<ProfileRecord>() {
                     @Override
+                    public boolean isFolder(ProfileRecord data) {
+                        return true;
+                    }
+
+                    @Override
                     public SafeHtml render(String baseCss, ProfileRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());
                     }
@@ -73,6 +78,12 @@ public class ColumnProfileView extends SuspendableViewImpl
         subsystems = new FinderColumn<SubsystemLink>(
                 "Subsystems",
                 new FinderColumn.Display<SubsystemLink>() {
+
+                    @Override
+                    public boolean isFolder(SubsystemLink data) {
+                        return data.isFolder();
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
                         return TEMPLATE.item(baseCss, data.getTitle());
@@ -179,10 +190,12 @@ public class ColumnProfileView extends SuspendableViewImpl
     {
         String title;
         String token;
+        private final boolean isFolder;
 
-        public SubsystemLink(String title, String token) {
+        public SubsystemLink(String title, String token, boolean isFolder) {
             this.title = title;
             this.token = token;
+            this.isFolder = isFolder;
         }
 
         public String getTitle() {
@@ -191,6 +204,10 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         public String getToken() {
             return token;
+        }
+
+        public boolean isFolder() {
+            return isFolder;
         }
     }
 
@@ -246,7 +263,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                             }*/
 
                         matches.add(
-                                new SubsystemLink(candidate.getName(), candidate.getToken())
+                                new SubsystemLink(candidate.getName(), candidate.getToken(), false)
                         );
 
                     }
