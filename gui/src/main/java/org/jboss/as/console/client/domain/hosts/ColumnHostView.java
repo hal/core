@@ -284,7 +284,7 @@ public class ColumnHostView extends SuspendableViewImpl
                             @Override
                             public void execute() {
                                 Console.getPlaceManager().revealRelativePlace(
-                                        new PlaceRequest(NameTokens.ServerGroupPresenter)
+                                        new PlaceRequest(NameTokens.ServerGroupPresenter).with("action", "edit")
                                 );
                             }
                         });

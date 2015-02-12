@@ -64,6 +64,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
         this.presenter = presenter;
     }
 
+
     @Override
     public Widget createWidget() {
 

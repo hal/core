@@ -19,6 +19,7 @@ import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,8 @@ public class ServerConfigDetails {
     public ServerConfigDetails(ServerConfigPresenter presenter) {
         this.presenter = presenter;
     }
+
+
 
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
