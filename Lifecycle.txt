@@ -17,7 +17,6 @@ On First load:
     revealInParent
     onReveal
     onReset
-    prepareRequest
 
 
 On Hiding:
@@ -31,6 +30,5 @@ On Subsequent Reveals:
     revealInParent
     onReveal
     onReset
-    prepareRequest
 
 (Taken from http://code.google.com/p/gwt-platform/wiki/FrequentlyAskedQuestions)
