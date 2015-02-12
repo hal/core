@@ -58,7 +58,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span>&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle'></i></div>")
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}&nbsp;<span style='font-size:8px'>({3})</span></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
@@ -68,8 +68,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     interface StatusTemplate extends SafeHtmlTemplates {
-            @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span>&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle;display:{3}'></i></div>")
-            SafeHtml item(String cssClass, String icon, String title, String display);
+            @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
+            SafeHtml item(String cssClass, String icon, String title);
         }
 
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
@@ -168,6 +168,12 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         serverColumn = new FinderColumn<Server>(
                 "Server",
                 new FinderColumn.Display<Server>() {
+
+                    @Override
+                    public boolean isFolder(Server data) {
+                        return true;
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, Server data) {
                         String context = presenter.getFilter().equals(FilterType.HOST) ? data.getGroup() : data.getHostName();
@@ -186,11 +192,16 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         statusColumn = new FinderColumn<FinderItem>(
                 "Status",
                 new FinderColumn.Display<FinderItem>() {
+
+                    @Override
+                    public boolean isFolder(FinderItem data) {
+                        return data.isFolder();
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, FinderItem data) {
                         String icon = data.isFolder() ? "icon-folder-close-alt" : "icon-file-alt";
-                        String display = data.isFolder() ? "inline" : "none";
-                        return STATUS_TEMPLATE.item(baseCss, icon, data.getTitle(), display);
+                        return STATUS_TEMPLATE.item(baseCss, icon, data.getTitle());
                     }
                 },
                 new ProvidesKey<FinderItem>() {
@@ -205,6 +216,12 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         subsystemColumn = new FinderColumn<PlaceLink>(
                 "Subsystems",
                 new FinderColumn.Display<PlaceLink>() {
+
+                    @Override
+                    public boolean isFolder(PlaceLink data) {
+                        return false;
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, PlaceLink data) {
                         return SUBSYSTEM_TEMPLATE.item(baseCss, "icon-file-alt", data.getTitle());

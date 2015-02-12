@@ -402,3 +402,11 @@
 .nav-hover .nav-menu {
     display: inherit;
 }
+
+.folder-view .row-icon {
+
+}
+
+.file-view .row-icon {
+    display: none;
+}

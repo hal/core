@@ -61,7 +61,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private HostMgmtPresenter presenter;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle'></i></div>")
+        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
         SafeHtml item(String cssClass, String title);
     }
 
@@ -78,6 +78,12 @@ public class ColumnHostView extends SuspendableViewImpl
         hosts = new FinderColumn<String>(
                 "Hosts",
                 new FinderColumn.Display<String>() {
+
+                    @Override
+                    public boolean isFolder(String data) {
+                        return true;
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, String data) {
                         return TEMPLATE.item(baseCss, data);
@@ -93,6 +99,12 @@ public class ColumnHostView extends SuspendableViewImpl
         groups = new FinderColumn<ServerGroupRecord>(
                 "Server Groups",
                 new FinderColumn.Display<ServerGroupRecord>() {
+
+                    @Override
+                    public boolean isFolder(ServerGroupRecord data) {
+                        return true;
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, ServerGroupRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());
