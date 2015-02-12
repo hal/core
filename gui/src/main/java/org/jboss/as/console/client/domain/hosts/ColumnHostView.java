@@ -145,6 +145,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 presenter.launchNewGroupDialog();
             }
         });
+
         addGroupBtn.setVisible(false);
         groupsHeader.add(addGroupBtn);
         addGroupBtn.getElement().getParentElement().setAttribute("align", "right");

@@ -25,6 +25,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.MultiView;
+import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
@@ -45,7 +47,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 2/16/11
  */
-public class ServerGroupView extends SuspendableViewImpl implements ServerGroupPresenter.MyView {
+public class ServerGroupView extends MultiViewImpl implements ServerGroupPresenter.MyView {
 
     private ServerGroupPresenter presenter;
     private VerticalPanel panel;
@@ -65,8 +67,9 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
     }
 
 
+
     @Override
-    public Widget createWidget() {
+    public void createWidget() {
 
 
       /*  final ToolStrip toolStrip = new ToolStrip();
@@ -202,7 +205,7 @@ public class ServerGroupView extends SuspendableViewImpl implements ServerGroupP
 
 */
 
-        return layout.build();
+        register("edit", layout.build());
     }
 
   /*  public void setServerGroups(final List<ServerGroupRecord> groups) {

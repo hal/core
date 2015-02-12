@@ -84,6 +84,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Heiko Braun
  * @date 3/3/11
+ *
+ * IA - refactoring remaining issues:
+ *
+ * + jvm settings
+ * + system properties
+ * - server status preview
+ * ? start/stop server
+ *
  */
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
@@ -118,15 +126,13 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     private HostInformationStore hostInfoStore;
     private ServerGroupStore serverGroupStore;
 
-    private DefaultWindow window = null;
-
     private DefaultWindow propertyWindow;
     private DispatchAsync dispatcher;
     private ApplicationMetaData propertyMetaData;
     private BeanFactory factory;
     private PlaceManager placeManager;
 
-    private LoadSocketBindingsCmd loadSocketCmd;
+
     private final HostStore hostStore;
 
 
@@ -147,7 +153,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         this.placeManager = placeManager;
         this.serverStore = serverStore;
         this.hostStore = hostStore;
-        this.loadSocketCmd = new LoadSocketBindingsCmd(dispatcher, factory, propertyMetaData);
+
         this.circuit = circuit;
     }
 
@@ -501,6 +507,5 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public ServerRef getSelectedServer() {
             return serverStore.getSelectServer();
         }
-
 
 }
