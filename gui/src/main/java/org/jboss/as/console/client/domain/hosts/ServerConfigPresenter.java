@@ -19,6 +19,8 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -93,6 +95,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     private List<String> cachedSocketBindings = Collections.EMPTY_LIST;
     private List<ServerGroupRecord> cachedServerGroups = Collections.EMPTY_LIST;
+    private Command resetCmd;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
@@ -223,19 +226,43 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     public void prepareFromRequest(PlaceRequest request) {
         String action = request.getParameter("action", null);
         if ("new".equals(action)) {
-            launchNewConfigDialoge();
+            this.resetCmd = new Command() {
+                @Override
+                public void execute() {
+                    launchNewConfigDialoge();
+                }
+            };
+
         }
         else if("remove".equals(action))
         {
-            tryDelete(serverStore.getSelectServer());
+            this.resetCmd = new Command() {
+                @Override
+                public void execute() {
+                    tryDelete(serverStore.getSelectServer());
+                }
+            };
+
         }
         else if("edit".equals(action))
         {
-            launchEditDialoge(serverStore.getSelectServer());
+            this.resetCmd = new Command() {
+                @Override
+                public void execute() {
+                    launchEditDialoge(serverStore.getSelectServer());
+                }
+            };
+
         }
         else if("copy".equals(action))
         {
-            onLaunchCopyWizard(serverStore.getSelectServer());
+            this.resetCmd = new Command() {
+                @Override
+                public void execute() {
+                    onLaunchCopyWizard(serverStore.getSelectServer());
+                }
+            };
+
         }
 
     }
@@ -244,8 +271,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     protected void onReset() {
         super.onReset();
 
-        loadSocketBindings();
-        loadServerGroups();
+        if(this.resetCmd!=null)
+        {
+            loadSocketBindings(this.resetCmd);
+        }
     }
 
     public void onServerConfigSelectionChanged(final Server server) {
@@ -257,22 +286,24 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         }
     }
 
-    private void loadSocketBindings() {
+    private void loadSocketBindings(final Command cmd) {
         serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
                 ServerConfigPresenter.this.cachedSocketBindings = result;
                 getView().updateSocketBindings(result);
+                loadServerGroups(cmd);
             }
         });
     }
 
-    private void loadServerGroups() {
+    private void loadServerGroups(final Command cmd) {
         serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> serverGroups) {
                 ServerConfigPresenter.this.cachedServerGroups = serverGroups;
                 getView().setGroups(serverGroups);
+                cmd.execute();
             }
         });
     }
@@ -312,6 +343,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                         new ArrayList(hostStore.getHostNames()))
                         .asWidget()
         );
+
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     public void closeDialoge() {
