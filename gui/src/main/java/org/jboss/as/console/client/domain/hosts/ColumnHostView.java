@@ -29,11 +29,10 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
-import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -49,8 +48,8 @@ import java.util.Set;
 public class ColumnHostView extends SuspendableViewImpl
         implements HostMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler, ClearFinderSelectionEvent.Handler {
 
-    private final NavigationColumn<String> hosts;
-    private final NavigationColumn<ServerGroupRecord> groups;
+    private final FinderColumn<String> hosts;
+    private final FinderColumn<ServerGroupRecord> groups;
     private final HorizontalPanel groupsHeader;
     private final HTML headerTitle;
     private final HTML addGroupBtn;
@@ -62,7 +61,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private HostMgmtPresenter presenter;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
+        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}&nbsp;<i class='icon-caret-right' style='padding-left:10px;vertical-align:middle'></i></div>")
         SafeHtml item(String cssClass, String title);
     }
 
@@ -76,9 +75,9 @@ public class ColumnHostView extends SuspendableViewImpl
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
-        hosts = new NavigationColumn<String>(
+        hosts = new FinderColumn<String>(
                 "Hosts",
-                new NavigationColumn.Display<String>() {
+                new FinderColumn.Display<String>() {
                     @Override
                     public SafeHtml render(String baseCss, String data) {
                         return TEMPLATE.item(baseCss, data);
@@ -91,9 +90,9 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }).setPlain(true);
 
-        groups = new NavigationColumn<ServerGroupRecord>(
+        groups = new FinderColumn<ServerGroupRecord>(
                 "Server Groups",
-                new NavigationColumn.Display<ServerGroupRecord>() {
+                new FinderColumn.Display<ServerGroupRecord>() {
                     @Override
                     public SafeHtml render(String baseCss, ServerGroupRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());

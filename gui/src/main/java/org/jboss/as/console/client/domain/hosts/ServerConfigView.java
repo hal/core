@@ -41,7 +41,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.nav.v3.NavigationColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -63,7 +63,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
     private ContentHeaderLabel headline;
     private SplitLayoutPanel splitlayout;
-    private NavigationColumn<Server> serverColumn;
+    private FinderColumn<Server> serverColumn;
 
 
     interface ServerTemplate extends SafeHtmlTemplates {
@@ -177,9 +177,9 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
         splitlayout = new SplitLayoutPanel(2);
 
-        serverColumn = new NavigationColumn<Server>(
+        serverColumn = new FinderColumn<Server>(
                 "Server",
-                new NavigationColumn.Display<Server>() {
+                new FinderColumn.Display<Server>() {
                     @Override
                     public SafeHtml render(String baseCss, Server data) {
                         String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
