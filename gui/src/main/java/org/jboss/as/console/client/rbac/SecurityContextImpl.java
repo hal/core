@@ -200,17 +200,17 @@ public class SecurityContextImpl implements SecurityContext {
         return constraints;
     }
 
-    void setConstraints(String resourceAddress, Constraints model) {
+    public void setConstraints(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         accessConstraints.put(resourceAddress, model);
     }
 
-    void setOptionalConstraints(String resourceAddress, Constraints model) {
+    public void setOptionalConstraints(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         optionalConstraints.put(resourceAddress, model);
     }
 
-    void addChildContext(String resourceAddress, Constraints model) {
+    public void addChildContext(String resourceAddress, Constraints model) {
         if (sealed) { throw new RuntimeException("Sealed security context cannot be modified"); }
         ChildContext childContext = new ChildContext(resourceAddress, model);
         childContexts.put(resourceAddress, childContext);

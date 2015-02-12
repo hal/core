@@ -30,7 +30,7 @@ import javax.tools.StandardLocation;
 
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import org.jboss.as.console.client.plugins.AccessControlMetaData;
+import org.jboss.as.console.client.plugins.RequiredResourcesMetaData;
 import org.jboss.as.console.client.plugins.BootstrapOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SearchIndexMetaData;
@@ -52,8 +52,8 @@ public class SPIProcessor extends AbstractProcessor {
     private static final String BEAN_FACTORY_FILENAME = "org.jboss.as.console.client.shared.BeanFactory";
     private static final String SUBSYSTEM_FILENAME = "org.jboss.as.console.client.plugins.SubsystemRegistryImpl";
     private static final String SUBSYSTEM_TEMPLATE = "SubsystemExtensions.tmpl";
-    private static final String ACCESS_FILENAME = "org.jboss.as.console.client.plugins.AccessControlRegistryImpl";
-    private static final String ACCESS_TEMPLATE = "AccessControlRegistry.tmpl";
+    private static final String REQUIRED_RESOURCES_FILENAME = "org.jboss.as.console.client.plugins.RequiredResourcesRegistryImpl";
+    private static final String REQUIRED_RESOURCES_TEMPLATE = "RequiredResourcesRegistry.tmpl";
     private static final String SEARCH_INDEX_FILENAME = "org.jboss.as.console.client.plugins.SearchIndexRegistryImpl";
     private static final String SEARCH_INDEX_TEMPLATE = "SearchIndexRegistry.tmpl";
     private static final String RUNTIME_FILENAME = "org.jboss.as.console.client.plugins.RuntimeLHSItemExtensionRegistryImpl";
@@ -68,7 +68,7 @@ public class SPIProcessor extends AbstractProcessor {
     private List<String> discoveredBeanFactories;
     private List<String> categoryClasses;
     private List<SubsystemExtensionMetaData> subsystemDeclararions;
-    private List<AccessControlMetaData> accessControlDeclararions;
+    private List<RequiredResourcesMetaData> requiredResourcesDeclarations;
     private List<SearchIndexMetaData> searchIndexDeclarations;
     private List<BootstrapOperation> bootstrapOperations;
     private List<RuntimeExtensionMetaData> runtimeExtensions;
@@ -86,7 +86,7 @@ public class SPIProcessor extends AbstractProcessor {
         this.discoveredBeanFactories = new ArrayList<>();
         this.categoryClasses = new ArrayList<>();
         this.subsystemDeclararions = new ArrayList<>();
-        this.accessControlDeclararions = new ArrayList<>();
+        this.requiredResourcesDeclarations = new ArrayList<>();
         this.searchIndexDeclarations = new ArrayList<>();
         this.bootstrapOperations = new ArrayList<>();
         this.runtimeExtensions = new ArrayList<>();
@@ -169,12 +169,12 @@ public class SPIProcessor extends AbstractProcessor {
             }
 
             System.out.println("=================================");
-            System.out.println("Parse AccessControl metadata ...");
+            System.out.println("Parse RequiredResources metadata ...");
             System.out.println("=================================");
             Set<? extends Element> accessElements = roundEnv.getElementsAnnotatedWith(NameToken.class);
 
             for (Element element : accessElements) {
-                handleAccessControlElement(element);
+                handleRequiredResourcesElement(element);
             }
 
             System.out.println("=================================");
@@ -211,41 +211,32 @@ public class SPIProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void handleAccessControlElement(Element element) {
-
-
+    private void handleRequiredResourcesElement(Element element) {
         List<? extends AnnotationMirror> annotationMirrors = element.getAnnotationMirrors();
         for (AnnotationMirror mirror : annotationMirrors) {
             final String annotationType = mirror.getAnnotationType().toString();
 
             if (annotationType.equals(NameToken.class.getName())) {
                 NameToken nameToken = element.getAnnotation(NameToken.class);
+                RequiredResources requiredResources = element.getAnnotation(RequiredResources.class);
                 AccessControl accessControl = element.getAnnotation(AccessControl.class);
 
-                if (accessControl != null) {
-
-                    for (String resourceAddress : accessControl.resources()) {
-                        AccessControlMetaData declared = new AccessControlMetaData(
-                                nameToken.value()[0], resourceAddress
-                        );
-
-                        declared.setRecursive(accessControl.recursive());
-
-                        accessControlDeclararions.add(declared);
-                    }
-
-                    for (String opString : accessControl.operations()) {
-
-                        if (!opString.contains("#")) {
-                            throw new IllegalArgumentException("Invalid operation string:" + opString);
-                        }
-
-                        BootstrapOperation op = new BootstrapOperation(
-                                nameToken.value()[0], opString
-                        );
-                        bootstrapOperations.add(op);
-                    }
-
+                if (accessControl != null && requiredResources != null) {
+                    System.out.println("WARNING: Detected both @" + RequiredResources.class.getSimpleName() +
+                            " and @" + AccessControl.class.getSimpleName() + " on #" + nameToken
+                            + "! Only @" + RequiredResources.class.getSimpleName() + " will be processed.");
+                }
+                else if (requiredResources != null) {
+                    String[] resources = requiredResources.resources();
+                    boolean recursive = requiredResources.recursive();
+                    String[] operations = requiredResources.operations();
+                    addRequiredResource(nameToken.value()[0], resources, recursive, operations);
+                }
+                else if (accessControl != null) {
+                    String[] resources = accessControl.resources();
+                    boolean recursive = accessControl.recursive();
+                    String[] operations = accessControl.operations();
+                    addRequiredResource(nameToken.value()[0], resources, recursive, operations);
 
                 } else if (element.getAnnotation(NoGatekeeper.class) == null) {
                     Name simpleName = element.getEnclosingElement() != null ? element.getEnclosingElement()
@@ -254,6 +245,22 @@ public class SPIProcessor extends AbstractProcessor {
                             simpleName + "(#" + nameToken.value()[0] + ")" + " is missing @AccessControl annotation!");
                 }
             }
+        }
+    }
+
+    private void addRequiredResource(String token, String[] resources, boolean recursive, String[] operations) {
+        for (String resourceAddress : resources) {
+            RequiredResourcesMetaData declared = new RequiredResourcesMetaData(token, resourceAddress);
+            declared.setRecursive(recursive);
+            requiredResourcesDeclarations.add(declared);
+        }
+
+        for (String opString : operations) {
+            if (!opString.contains("#")) {
+                throw new IllegalArgumentException("Invalid operation string:" + opString);
+            }
+            BootstrapOperation op = new BootstrapOperation(token, opString);
+            bootstrapOperations.add(op);
         }
     }
 
@@ -401,12 +408,12 @@ public class SPIProcessor extends AbstractProcessor {
 
     private void writeAccessControlFile() throws Exception {
         Map<String, Object> model = new HashMap<>();
-        model.put("metaData", accessControlDeclararions);
+        model.put("metaData", requiredResourcesDeclarations);
         model.put("operations", bootstrapOperations);
 
-        JavaFileObject sourceFile = filer.createSourceFile(ACCESS_FILENAME);
+        JavaFileObject sourceFile = filer.createSourceFile(REQUIRED_RESOURCES_FILENAME);
         OutputStream output = sourceFile.openOutputStream();
-        new TemplateProcessor().process(ACCESS_TEMPLATE, model, output);
+        new TemplateProcessor().process(REQUIRED_RESOURCES_TEMPLATE, model, output);
         output.flush();
         output.close();
     }

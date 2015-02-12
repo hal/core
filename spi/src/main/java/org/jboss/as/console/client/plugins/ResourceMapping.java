@@ -19,7 +19,7 @@ public class ResourceMapping {
         return mappings.keySet();
     }
 
-    public void put(String token, String address, String recursive){
+    public void put(String token, String address, String recursive) {
         if(null==token2address.get(token))
             token2address.put(token, new HashSet<String>());
 

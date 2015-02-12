@@ -3,7 +3,7 @@ package org.jboss.as.console.client.rbac;
 import com.allen_sauer.gwt.log.client.Log;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import org.jboss.as.console.client.plugins.AccessControlRegistry;
+import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.ballroom.client.rbac.AuthorisationDecision;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
@@ -16,16 +16,16 @@ import javax.inject.Singleton;
 @Singleton
 public class RBACGatekeeper implements Gatekeeper {
 
-    private final AccessControlRegistry accessControlMetaData;
+    private final RequiredResourcesRegistry requiredResourcesRegistry;
     private final PlaceManager placemanager;
     private final SecurityFramework securityFramework;
 
     @Inject
     public RBACGatekeeper(
-            final AccessControlRegistry accessControlMetaData,
+            final RequiredResourcesRegistry requiredResourcesRegistry,
             final PlaceManager placemanager,
             final SecurityFramework securityManager) {
-        this.accessControlMetaData = accessControlMetaData;
+        this.requiredResourcesRegistry = requiredResourcesRegistry;
         this.placemanager = placemanager;
         this.securityFramework = securityManager;
 
@@ -43,7 +43,7 @@ public class RBACGatekeeper implements Gatekeeper {
 
                 // bootstrap operations
                 boolean bootstrapRequirementsSatisfied = true;
-                for (String op : accessControlMetaData.getOperations(token)) {
+                for (String op : requiredResourcesRegistry.getOperations(token)) {
                     int idx = op.indexOf("#");
                     AuthorisationDecision opPrivilege = securityContext.getOperationPriviledge(
                             op.substring(0, idx),

@@ -1,11 +1,12 @@
 package org.jboss.as.console.client.rbac;
 
-class ResourceRef {
+public class ResourceRef {
     private static final String OPT = "opt:/";
+
     String address;
     boolean optional;
 
-    ResourceRef(String resourceRef) {
+    public ResourceRef(String resourceRef) {
         if(resourceRef.startsWith(OPT))
         {
             this.address = resourceRef.substring(5, resourceRef.length());
@@ -36,5 +37,14 @@ class ResourceRef {
         int result = address.hashCode();
         result = 31 * result + (optional ? 1 : 0);
         return result;
+    }
+
+
+    public String getAddress() {
+        return address;
+    }
+
+    public boolean isOptional() {
+        return optional;
     }
 }
