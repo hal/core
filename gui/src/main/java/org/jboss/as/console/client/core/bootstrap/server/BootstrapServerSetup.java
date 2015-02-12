@@ -7,6 +7,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -27,6 +28,8 @@ import static org.jboss.as.console.client.core.ApplicationProperties.*;
  */
 public class BootstrapServerSetup implements Function<BootstrapContext> {
 
+    public final static String CONNECT_PARAMETER = "connect";
+
     private final static String IFRAME_ID = "__console_corsAuthentication";
     private Control<BootstrapContext> control;
     private BootstrapContext context;
@@ -38,32 +41,54 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         this.control = control;
         this.context = control.getContext();
 
-        final String baseUrl = getBaseUrl();
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
-        requestBuilder.setCallback(new RequestCallback() {
-            @Override
-            public void onResponseReceived(final Request request, final Response response) {
-                // Use this JBoss instance for building the URLs
-                int statusCode = response.getStatusCode();
-                // firefox returns 0
-                if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
-                    setUrls(baseUrl);
-                    control.proceed();
-                } else {
-                    openDialog();
-                }
-            }
+        String connect = Window.Location.getParameter(CONNECT_PARAMETER);
+        if (connect != null) {
+            // Connect to a server given as a request parameter
+            final BootstrapServer server = new BootstrapServerStore().get(connect);
+            if (server != null) {
+                pingServer(server, new AsyncCallback<Void>() {
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        openDialog();
+                    }
 
-            @Override
-            public void onError(final Request request, final Throwable exception) {
-                // This is a 'standalone' console. Show selection dialog
+                    @Override
+                    public void onSuccess(Void whatever) {
+                        onConnect(server);
+                    }
+                });
+            } else {
                 openDialog();
             }
-        });
-        try {
-            requestBuilder.send();
-        } catch (RequestException e) {
-            openDialog();
+
+        } else {
+            final String baseUrl = getBaseUrl();
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
+            requestBuilder.setCallback(new RequestCallback() {
+                @Override
+                public void onResponseReceived(final Request request, final Response response) {
+                    // Use this JBoss instance for building the URLs
+                    int statusCode = response.getStatusCode();
+                    // firefox returns 0
+                    if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
+                        setUrls(baseUrl);
+                        control.proceed();
+                    } else {
+                        openDialog();
+                    }
+                }
+
+                @Override
+                public void onError(final Request request, final Throwable exception) {
+                    // This is a 'standalone' console. Show selection dialog
+                    openDialog();
+                }
+            });
+            try {
+                requestBuilder.send();
+            } catch (RequestException e) {
+                openDialog();
+            }
         }
     }
 
@@ -124,7 +149,9 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     }
 
     void onConnect(BootstrapServer server) {
-        window.hide();
+        if (window != null) {
+            window.hide();
+        }
         setUrls(server.getUrl());
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog

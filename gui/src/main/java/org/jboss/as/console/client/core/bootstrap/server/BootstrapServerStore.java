@@ -80,6 +80,16 @@ public class BootstrapServerStore {
         return servers;
     }
 
+    public BootstrapServer get(String name) {
+        List<BootstrapServer> servers = load();
+        for (BootstrapServer server : servers) {
+            if (name.equals(server.getName())) {
+                return server;
+            }
+        }
+        return null;
+    }
+
     private String toJson(List<BootstrapServer> servers) {
         StringBuilder json = new StringBuilder("[");
         for (Iterator<BootstrapServer> iterator = servers.iterator(); iterator.hasNext(); ) {

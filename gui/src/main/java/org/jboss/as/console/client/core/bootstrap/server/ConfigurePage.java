@@ -37,7 +37,7 @@ public class ConfigurePage implements IsWidget {
         page = new VerticalPanel();
         page.setStyleName("window-content");
 
-        final Label description = new Label("Enter the name and the URL of the new server.");
+        final Label description = new Label("Enter a name for the server and the URL of the management interface.");
         description.getElement().getStyle().setPaddingBottom(15, Style.Unit.PX);
         page.add(description);
 
@@ -46,8 +46,11 @@ public class ConfigurePage implements IsWidget {
 
         form = new Form<BootstrapServer>(BootstrapServer.class);
         final TextBoxItem nameItem = new TextBoxItem("name", "Name");
+        nameItem.getInputElement().setAttribute("placeholder", "A name for this server");
         TextBoxItem urlItem = new TextBoxItem("url", "URL");
+        urlItem.getInputElement().setAttribute("placeholder", "The URL of the management interface");
         ButtonItem pingItem = new ButtonItem("", "", "Ping");
+
         pingItem.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
