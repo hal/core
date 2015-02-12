@@ -135,7 +135,7 @@
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.gwt-log</groupId>
+            <groupId>com.allen-sauer.gwt.log</groupId>
             <artifactId>gwt-log</artifactId>
         </dependency>
         <dependency>

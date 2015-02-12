@@ -11,7 +11,7 @@ public class LoadingPanel {
 
     public Widget asWidget() {
 
-        HTMLPanel html = new HTMLPanel("<center><div id='loading-panel'><img src='images/loading_lite.gif' style='padding-top:3px;vertical-align:middle'/> Loading ... </div></center>");
+        HTMLPanel html = new HTMLPanel("<center><div id='loading-panel'><img src='images/loading_lite.gif' style='padding-top:3px;vertical-align:middle'/> Loading ...</div></center>");
 
         return html.asWidget();
 
