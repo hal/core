@@ -68,9 +68,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     interface StatusTemplate extends SafeHtmlTemplates {
-            @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
-            SafeHtml item(String cssClass, String icon, String title);
-        }
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
+        SafeHtml item(String cssClass, String icon, String title);
+    }
 
     private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
 
@@ -311,17 +311,16 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
     }
 
-    private void appendColumn(Widget columnWidget) {
+    private void appendColumn(final Widget columnWidget) {
         visibleColumns.push(columnWidget);
         splitlayout.addWest(columnWidget, 217);
-
     }
 
     private void reduceColumnsTo(int level) {
 
         for(int i=visibleColumns.size()-1; i>=level; i--)
         {
-            Widget widget = visibleColumns.pop();
+            final Widget widget = visibleColumns.pop();
             splitlayout.remove(widget);
         }
     }
