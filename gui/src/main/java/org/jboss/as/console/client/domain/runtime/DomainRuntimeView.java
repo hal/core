@@ -230,7 +230,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     @Override
                     public void executeOn(final Server server) {
 
-                        Feedback.confirm(
+                       /* Feedback.confirm(
                                 Console.MESSAGES.deleteServerConfig(),
                                 Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
                                 new Feedback.ConfirmationHandler() {
@@ -243,7 +243,11 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                                         }
 
                                     }
-                                });
+                                });*/
+
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "remove")
+                        );
                     }
                 }),
                 new MenuDelegate<Server>(

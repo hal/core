@@ -29,6 +29,7 @@ import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
@@ -51,20 +52,21 @@ public class NewServerConfigWizard {
 
     private ServerConfigPresenter presenter;
     private ComboBoxItem groupItem;
-    private List<ServerGroupRecord> serverGroups;
-    private final List<String> hostNames;
-    private ComboBoxItem hostItem;
 
-    public NewServerConfigWizard(final ServerConfigPresenter presenter, final List<ServerGroupRecord> serverGroups, final List<String> hostNames) {
+    private ComboBoxItem hostItem;
+    private ArrayList<String> groups;
+    private List<ServerGroupRecord> serverGroups;
+
+    public NewServerConfigWizard(final ServerConfigPresenter presenter) {
         this.presenter = presenter;
-        this.serverGroups = serverGroups;
-        this.hostNames = hostNames;
     }
 
     public Widget asWidget() {
 
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
+
+        layout.add(new ContentHeaderLabel("Create new server"));
 
         final Form<Server> form = new Form<Server>(Server.class);
         form.setNumColumns(1);
@@ -97,37 +99,22 @@ public class NewServerConfigWizard {
 
         NumberBoxItem portOffset = new NumberBoxItem("portOffset", "Port Offset");
 
-        List<String> groups = new ArrayList<String>(serverGroups.size());
-        for(ServerGroupRecord rec : serverGroups)
-            groups.add(rec.getName());
 
         groupItem = new ComboBoxItem("group", "Server Group");
         groupItem.setDefaultToFirstOption(true);
-        groupItem.setValueMap(groups);
 
         hostItem = new ComboBoxItem("hostName", "Host");
         hostItem.setDefaultToFirstOption(true);
-        hostItem.setValueMap(hostNames);
-
 
         if(presenter.getFilter().equals(FilterType.GROUP)) {
             groupItem.setEnabled(false);
 
-            int i=1;
-            for (String group : groups) {
-                if(presenter.getSelectedGroup().equals(group))
-                {
-                    groupItem.selectItem(i);
-                    break;
-                }
-                i++;
-            }
         }
         else
         {
             hostItem.setEnabled(false);
 
-            int i=1;
+            /*int i=1;
             for (String host : hostNames) {
                 if(presenter.getSelectedHost().equals(host))
                 {
@@ -135,7 +122,7 @@ public class NewServerConfigWizard {
                     break;
                 }
                 i++;
-            }
+            }*/
         }
 
         form.setFields(nameItem, hostItem, groupItem, portOffset, startedItem);
@@ -171,6 +158,7 @@ public class NewServerConfigWizard {
                 // merge inherited values
                 ServerGroupRecord selectedGroup =
                         getSelectedServerGroup(serverGroups, newServer.getGroup());
+
                 newServer.setSocketBinding(selectedGroup.getSocketBinding());
                 newServer.setJvm(null);//newServer.setJvm(selectedGroup.getJvm());
                 newServer.setProperties(Collections.EMPTY_LIST);
@@ -189,7 +177,7 @@ public class NewServerConfigWizard {
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.closeDialoge();
+                presenter.closeApplicationView();
             }
         };
 
@@ -197,6 +185,28 @@ public class NewServerConfigWizard {
 
         return new WindowContentBuilder(layout, options).build();
 
+    }
+
+    public void updateGroups(final List<ServerGroupRecord> serverGroups) {
+        this.serverGroups = serverGroups;
+        List<String> groups = new ArrayList<String>(serverGroups.size());
+        for(ServerGroupRecord rec : serverGroups)
+            groups.add(rec.getName());
+        groupItem.setValueMap(groups);
+
+        int i=1;
+        for (String group : groups) {
+            if(presenter.getSelectedGroup().equals(group))
+            {
+                groupItem.selectItem(i);
+                break;
+            }
+            i++;
+        }
+    }
+
+    public void updateHosts(final List<String> hostNames) {
+        hostItem.setValueMap(hostNames);
     }
 
     private ServerGroupRecord getSelectedServerGroup(List<ServerGroupRecord> available, String selectedName)

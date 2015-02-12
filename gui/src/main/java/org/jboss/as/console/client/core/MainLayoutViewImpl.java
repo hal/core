@@ -101,6 +101,12 @@ public class MainLayoutViewImpl extends ViewImpl
     public void setInSlot(final Object slot, final IsWidget content) {
 
         if (slot == MainLayoutPresenter.TYPE_MainContent) {
+
+            // necessary to prevent onReset() callbacks
+            // GWTP (correctly) assumes the presenters are still visible
+            presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
+            presenter.clearSlot(MainLayoutPresenter.TYPE_Hidden);
+
             if(content!=null)
                 setMainContent(content);
         }
@@ -128,6 +134,7 @@ public class MainLayoutViewImpl extends ViewImpl
                     }
                 });
 
+                window.setAutoHideOnHistoryEventsEnabled(true);
                 window.setWidget(content);
 
                 window.setGlassEnabled(true);
@@ -143,6 +150,16 @@ public class MainLayoutViewImpl extends ViewImpl
                     new Message("Unknown slot requested:" + slot)
             );
         }
+    }
+
+    @Override
+    public void closeApplication() {
+
+        System.out.println("<< close application >>");
+
+        if(window!=null && window.isVisible())
+            window.hide();
+
     }
 
     public void setMainContent(IsWidget content) {

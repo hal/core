@@ -19,10 +19,9 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -30,19 +29,32 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
-import org.jboss.as.console.client.domain.model.*;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.jvm.*;
-import org.jboss.as.console.client.shared.properties.*;
-import org.jboss.as.console.client.shared.util.DMRUtil;
+import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
+import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
+import org.jboss.as.console.client.shared.jvm.Jvm;
+import org.jboss.as.console.client.shared.jvm.JvmManagement;
+import org.jboss.as.console.client.shared.jvm.UpdateJvmCmd;
+import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
+import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
+import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
+import org.jboss.as.console.client.shared.properties.PropertyManagement;
+import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
@@ -51,20 +63,11 @@ import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.flow.client.Async;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
-import org.jboss.gwt.flow.client.Outcome;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Maintains a single server group.
@@ -114,7 +117,7 @@ public class ServerGroupPresenter
     private List<ProfileRecord> existingProfiles;
     private List<String> existingSockets;
     private String preselection;
-
+    private Command resetCmd = null;
 
     @Inject
     public ServerGroupPresenter(
@@ -144,52 +147,24 @@ public class ServerGroupPresenter
         super.prepareFromRequest(request);
 
         final String action = request.getParameter("action", null);
-        if ("new".equals(action)) {
-            if (existingProfiles == null || existingSockets == null) {
-                List<Function<Void>> functions = new LinkedList<Function<Void>>();
-                if (existingProfiles == null) {
-                    functions.add(new Function<Void>() {
-                        @Override
-                        public void execute(final Control<Void> control) {
-                            profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
-                                @Override
-                                public void onSuccess(List<ProfileRecord> result) {
-                                    existingProfiles = result;
-                                }
-                            });
-                        }
-                    });
-                }
-                if (existingSockets == null) {
-                    functions.add(new Function<Void>() {
-                        @Override
-                        public void execute(final Control<Void> control) {
-                            serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
-                                @Override
-                                public void onSuccess(List<String> result) {
-                                    existingSockets = result;
-                                }
-                            });
-                        }
-                    });
-                }
-                Outcome<Void> wizardOutcome = new Outcome<Void>() {
-                    @Override
-                    public void onFailure(final Void context) {
-                        Log.error("Cannot launch new server group wizard");
-                    }
 
-                    @Override
-                    public void onSuccess(final Void context) {
-                        launchNewGroupDialoge();
-                    }
-                };
-                //noinspection unchecked
-                new Async<Void>().parallel(null, wizardOutcome, functions.toArray(new Function[functions.size()]));
-            } else {
-                launchNewGroupDialoge();
-            }
-        }
+       /* if ("edit".equals(action))
+        {
+            this.resetCmd = new Command() {
+                @Override
+                public void execute() {
+                    serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
+                            new SimpleCallback<ServerGroupRecord>() {
+                                @Override
+                                public void onSuccess(ServerGroupRecord group) {
+                                    launchEditWizard(group);
+                                }
+                            }
+                    );
+                }
+            };
+
+        }*/
 
         preselection = request.getParameter("group", null);
         getView().setPreselection(preselection);
@@ -200,7 +175,8 @@ public class ServerGroupPresenter
 
         super.onReset();
 
-        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+        // TODO (hbraun) loading of init data
+       /* profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
             @Override
             public void onSuccess(List<ProfileRecord> result) {
                 existingProfiles = result;
@@ -215,9 +191,12 @@ public class ServerGroupPresenter
 
                 getView().updateSocketBindings(result);
             }
-        });
+        });*/
 
-        loadServerGroup();
+        if(this.resetCmd!=null)
+        {
+            this.resetCmd.execute();
+        }
 
     }
 
@@ -227,13 +206,13 @@ public class ServerGroupPresenter
 
     @Deprecated
     private void loadServerGroup() {
-       serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
-               new SimpleCallback<ServerGroupRecord>() {
-            @Override
-            public void onSuccess(ServerGroupRecord group) {
-                getView().updateFrom(group);
-            }
-        });
+        /*serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
+                new SimpleCallback<ServerGroupRecord>() {
+                    @Override
+                    public void onSuccess(ServerGroupRecord group) {
+                        getView().updateFrom(group);
+                    }
+                });*/
     }
 
     @Override
@@ -304,26 +283,6 @@ public class ServerGroupPresenter
             }
         });
 
-    }
-
-    public void launchNewGroupDialoge() {
-
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Server Group"));
-        window.setWidth(480);
-        window.setHeight(360);
-        window.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-            }
-        });
-
-        /*window.trapWidget(
-                new NewServerGroupWizard(this, existingProfiles, existingSockets).asWidget()
-        );*/
-
-        window.setGlassEnabled(true);
-        window.center();
     }
 
     public void closeDialoge()
@@ -454,88 +413,26 @@ public class ServerGroupPresenter
         });
     }
 
-    public void launchCopyWizard(final ServerGroupRecord orig) {
-        window = new DefaultWindow("New Server Group");
-        window.setWidth(400);
-        window.setHeight(320);
+    public void launchEditWizard(final ServerGroupRecord serverGroup) {
+        window = new DefaultWindow("Edit Server Group");
+        window.setWidth(640);
+        window.setHeight(480);
 
-       /* window.trapWidget(
-                new CopyGroupWizard(ServerGroupPresenter.this, orig).asWidget()
-        );*/
+        window.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
+            public void onClose(CloseEvent<PopupPanel> event) {
+                PlaceManager placeManager = Console.getPlaceManager();
+                if(placeManager.getHierarchyDepth()>0) {
+                    placeManager.revealRelativePlace(-1);
+                }
+
+            }
+        });
+        window.trapWidget(getView().asWidget());
+        getView().updateFrom(serverGroup);
 
         window.setGlassEnabled(true);
         window.center();
-    }
-
-    public void onSaveCopy(final ServerGroupRecord orig, final ServerGroupRecord newGroup) {
-        window.hide();
-
-        final ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-        operation.get(ADDRESS).add("server-group", orig.getName());
-        operation.get(RECURSIVE).set(true);
-
-        dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.error("Failed to read server-group: "+orig.getName(), caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-
-                if(response.isFailure())
-                {
-                    Console.error("Failed to read server-group: "+orig.getName(), response.getFailureDescription());
-                }
-                else
-                {
-                    ModelNode model = response.get("result").asObject();
-                    model.remove("name");
-
-                    // re-create node
-
-                    ModelNode compositeOp = new ModelNode();
-                    compositeOp.get(OP).set(COMPOSITE);
-                    compositeOp.get(ADDRESS).setEmptyList();
-
-                    List<ModelNode> steps = new ArrayList<ModelNode>();
-
-                    final ModelNode rootResourceOp = new ModelNode();
-                    rootResourceOp.get(OP).set(ADD);
-                    rootResourceOp.get(ADDRESS).add("server-group", newGroup.getName());
-
-                    steps.add(rootResourceOp);
-
-                    DMRUtil.copyResourceValues(model, rootResourceOp, steps);
-
-                    compositeOp.get(STEPS).set(steps);
-
-                    dispatcher.execute(new DMRAction(compositeOp), new SimpleCallback<DMRResponse>() {
-                        @Override
-                        public void onSuccess(DMRResponse dmrResponse) {
-                            ModelNode response = dmrResponse.get();
-
-                            if(response.isFailure())
-                            {
-                                Console.error("Failed to copy server-group", response.getFailureDescription());
-                            }
-                            else
-                            {
-                                Console.info("Successfully copied server-group '"+newGroup.getName()+"'");
-                            }
-
-                            loadServerGroup();
-                        }
-                    });
-
-                }
-
-            }
-
-        });
     }
 
 }

@@ -411,3 +411,11 @@
     display: none;
 }
 
+.form-edit-panel {
+    background-color: #FFFFFF !important;
+}
+
+.form-view-panel {
+    background-color: #FFFFFF !important;
+}
+

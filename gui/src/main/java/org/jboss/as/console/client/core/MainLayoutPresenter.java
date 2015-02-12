@@ -35,6 +35,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootLayoutContentEvent;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.expr.ExpressionTool;
+import org.jboss.as.console.client.widgets.nav.v3.CloseApplicationEvent;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 
 /**
@@ -44,7 +45,7 @@ import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 public class MainLayoutPresenter
         extends Presenter<MainLayoutPresenter.MainLayoutView,
         MainLayoutPresenter.MainLayoutProxy>
-        implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler {
+        implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler, CloseApplicationEvent.Handler {
 
     boolean revealDefault = true;
     private BootstrapContext bootstrap;
@@ -55,6 +56,8 @@ public class MainLayoutPresenter
 
     public interface MainLayoutView extends View {
         void setPresenter(MainLayoutPresenter presenter);
+
+        void closeApplication();
     }
 
     @ContentSlot
@@ -88,6 +91,7 @@ public class MainLayoutPresenter
         getView().setPresenter(this);
         getEventBus().addHandler(ResolveExpressionEvent.TYPE, this);
         getEventBus().addHandler(LogoutEvent.TYPE, this);
+        getEventBus().addHandler(CloseApplicationEvent.TYPE, this);
     }
 
     @Override
@@ -100,6 +104,11 @@ public class MainLayoutPresenter
         expressionTool.launch();
         expressionTool.resolve(expr);
 
+    }
+
+    @Override
+    public void onCloseApplication(CloseApplicationEvent event) {
+        getView().closeApplication();
     }
 
     @Override

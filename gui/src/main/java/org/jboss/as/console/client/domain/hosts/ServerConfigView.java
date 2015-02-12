@@ -19,16 +19,9 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.user.client.ui.HTML;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.layout.OneToOneLayout;
@@ -37,16 +30,8 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.v3.stores.domain.ServerRef;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
-import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
-import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
@@ -55,7 +40,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 3/3/11
  */
-public class ServerConfigView extends SuspendableViewImpl implements ServerConfigPresenter.MyView {
+public class ServerConfigView extends MultiViewImpl implements ServerConfigPresenter.MyView {
 
     private ServerConfigPresenter presenter;
 
@@ -64,18 +49,8 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private PropertyEditor propertyEditor;
 
     private ContentHeaderLabel headline;
-
-
-    interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\">{1}&nbsp;<span style='font-size:8px'>({2})</span></div>")
-        SafeHtml item(String cssClass, String server, String host);
-    }
-
-    private static final ServerTemplate SERVER_TEMPLATE = GWT.create(ServerTemplate.class);
-
-    public ServerConfigView() {
-
-    }
+    private NewServerConfigWizard serverWizard;
+    private ConfirmationWindow removeConfirmation;
 
     @Override
     public void setPresenter(ServerConfigPresenter presenter) {
@@ -83,7 +58,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     }
 
     @Override
-    public Widget createWidget() {
+    public void createWidget() {
 
         final ToolStrip toolStrip = new ToolStrip();
 
@@ -176,7 +151,25 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         // server-config, we shouldn't be able to edit the JVM settings either.
         jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
-        return editor.build();
+
+        serverWizard = new NewServerConfigWizard(presenter);
+        removeConfirmation = new ConfirmationWindow(
+                "Remove server",
+                "Do you really want to remove this server?",
+                new ConfirmationWindow.Handler() {
+                    @Override
+                    public void onConfirmation(boolean isConfirmed) {
+                        if(isConfirmed)
+                            presenter.tryDelete(presenter.getSelectedServer());
+                        else {
+                            presenter.closeApplicationView();
+                        }
+                    }
+                });
+
+        register("edit",editor.build());
+        register("new", serverWizard.asWidget());
+        register("remove", removeConfirmation.asWidget());
     }
 
 
@@ -189,6 +182,8 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     public void updateSocketBindings(List<String> result) {
         if(details!=null)
             details.setAvailableSockets(result);
+
+
     }
 
     @Override
@@ -217,6 +212,12 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
             details.setAvailableGroups(result);
         else
             System.out.println("<<< view not correctly initialized! >>>");
+
+        serverWizard.updateGroups(result);
     }
 
+    @Override
+    public void setHosts(List<String> hostNames) {
+        serverWizard.updateHosts(hostNames);
+    }
 }
