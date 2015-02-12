@@ -54,7 +54,7 @@ public class LoadMainApp implements Command {
     @Override
     public void execute() {
         String initialToken = History.getToken();
-        if (!initialToken.isEmpty() && !isBlackListed(initialToken)) {
+       /* if (!initialToken.isEmpty() && !isBlackListed(initialToken)) {
             List<PlaceRequest> hierarchy = formatter.toPlaceRequestHierarchy(initialToken);
             final PlaceRequest placeRequest = hierarchy.get(hierarchy.size() - 1);
 
@@ -67,6 +67,9 @@ public class LoadMainApp implements Command {
             bootstrapContext.setInitialPlace(placeRequest.getNameToken());
         } else {
             placeManager.revealDefaultPlace();
-        }
+        }*/
+
+        // TODO (hbraun): disabled until we now how this should work on a finder access (relative url's)
+        placeManager.revealDefaultPlace();
     }
 }
