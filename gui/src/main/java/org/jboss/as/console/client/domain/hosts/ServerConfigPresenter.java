@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -32,6 +33,7 @@ import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.Host;
@@ -53,15 +55,12 @@ import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
-import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
-import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
@@ -91,8 +90,9 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements ServerWizardEvent.ServerWizardListener, JvmManagement, PropertyManagement {
 
-    private HandlerRegistration hostStoreHandler;
 
+    private List<String> cachedSocketBindings = Collections.EMPTY_LIST;
+    private List<ServerGroupRecord> cachedServerGroups = Collections.EMPTY_LIST;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
@@ -113,7 +113,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         void setGroups(List<ServerGroupRecord> result);
         void updateFrom(Server server);
 
-        void updateServerList(List<Server> serverModel);
     }
 
 
@@ -123,7 +122,6 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     private ServerGroupStore serverGroupStore;
 
     private DefaultWindow window = null;
-    private List<ServerGroupRecord> serverGroups;
 
     private DefaultWindow propertyWindow;
     private DispatchAsync dispatcher;
@@ -171,8 +169,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         if(!isVisible()) return; // don't process anything when not visible
 
+        // TODO (hbraun):  I think this whole section is not needed anymore
 
-        if(action instanceof SelectServer)
+      /*  if(action instanceof SelectServer)
         {
             SelectServer serverSelection = (SelectServer) action;
             List<Server> serverModel = serverStore.getServerForHost(serverSelection.getHost());
@@ -217,7 +216,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                 List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
                 getView().updateServerList(serverModel);
             }
-        }
+        }*/
     }
 
     @Override
@@ -226,6 +225,18 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         if ("new".equals(action)) {
             launchNewConfigDialoge();
         }
+        else if("remove".equals(action))
+        {
+            tryDelete(serverStore.getSelectServer());
+        }
+        else if("edit".equals(action))
+        {
+            launchEditDialoge(serverStore.getSelectServer());
+        }
+        else if("copy".equals(action))
+        {
+            onLaunchCopyWizard(serverStore.getSelectServer());
+        }
 
     }
 
@@ -233,10 +244,8 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     protected void onReset() {
         super.onReset();
 
-        // step1
-        if (placeManager.getCurrentPlaceRequest().getNameToken().equals(getProxy().getNameToken())) {
-            loadSocketBindings();
-        }
+        loadSocketBindings();
+        loadServerGroups();
     }
 
     public void onServerConfigSelectionChanged(final Server server) {
@@ -252,55 +261,57 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
+                ServerConfigPresenter.this.cachedSocketBindings = result;
                 getView().updateSocketBindings(result);
-
-                // step2
-                loadServerConfigurations();
             }
         });
     }
 
-    private void loadServerConfigurations() {
-        circuit.dispatch(new RefreshServer());
-
+    private void loadServerGroups() {
         serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
-            public void onSuccess(List<ServerGroupRecord> result) {
-                getView().setGroups(result);
+            public void onSuccess(List<ServerGroupRecord> serverGroups) {
+                ServerConfigPresenter.this.cachedServerGroups = serverGroups;
+                getView().setGroups(serverGroups);
             }
         });
     }
-
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, HostMgmtPresenter.TYPE_MainContent, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Hidden, this);
     }
+
+    public void launchEditDialoge(final ServerRef serverRef) {
+
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Modify Server Configuration"));
+        window.setWidth(640);
+        window.setHeight(480);
+
+        Widget w = getView().asWidget();
+        getView().updateSocketBindings(cachedSocketBindings);
+        getView().setGroups(cachedServerGroups);
+        getView().updateFrom(serverStore.findServer(serverRef));
+        window.trapWidget(w);
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
 
     public void launchNewConfigDialoge() {
 
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Server Configuration"));
+        window = new DefaultWindow(Console.MESSAGES.createTitle("New Server Configuration"));
         window.setWidth(480);
         window.setHeight(360);
 
-
-        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
-            @Override
-            public void onSuccess(List<ServerGroupRecord> result) {
-                serverGroups = result;
-                window.trapWidget(
-                        new NewServerConfigWizard(
-                                ServerConfigPresenter.this,
-                                serverGroups,
-                                new ArrayList(hostStore.getHostNames()))
-                                .asWidget()
-                );
-
-                window.setGlassEnabled(true);
-                window.center();
-            }
-        });
-
+        window.trapWidget(
+                new NewServerConfigWizard(
+                        ServerConfigPresenter.this,
+                        cachedServerGroups,
+                        new ArrayList(hostStore.getHostNames()))
+                        .asWidget()
+        );
     }
 
     public void closeDialoge() {
@@ -311,9 +322,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     public void onCreateServerConfig(final Server newServer) {
 
-        // close popup
         closeDialoge();
-
         circuit.dispatch(new AddServer(newServer));
     }
 
@@ -322,12 +331,12 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
 
-    public void tryDelete(final Server server) {
+    public void tryDelete(final ServerRef server) {
 
         // check if instance exist
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).add("host", serverStore.getSelectServer().getHostName());
-        operation.get(ADDRESS).add("server-config", server.getName());
+        operation.get(ADDRESS).add("server-config", server.getServerName());
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
 
@@ -359,7 +368,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                 {
                     Console.error(
                             Console.MESSAGES.deletionFailed("Server Configuration"),
-                            Console.MESSAGES.server_config_stillRunning(server.getName())
+                            Console.MESSAGES.server_config_stillRunning(server.getServerName())
                     );
                 }
             }
@@ -368,7 +377,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     }
 
-    private void performDeleteOperation(final Server server) {
+    private void performDeleteOperation(final ServerRef server) {
 
         circuit.dispatch(new RemoveServer(server));
     }
@@ -390,7 +399,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         cmd.execute(jvm, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerConfigurations();
+                circuit.dispatch(new RefreshServer());
             }
         });
     }
@@ -408,7 +417,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         cmd.execute(new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerConfigurations();
+                circuit.dispatch(new RefreshServer());
             }
         });
 
@@ -428,7 +437,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             cmd.execute(changedValues, new SimpleCallback<Boolean>() {
                 @Override
                 public void onSuccess(Boolean result) {
-                    loadServerConfigurations();
+                    circuit.dispatch(new RefreshServer());
                 }
             });
         }
@@ -450,7 +459,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerConfigurations();
+                circuit.dispatch(new RefreshServer());
             }
         });
     }
@@ -468,7 +477,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         cmd.execute(prop, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean result) {
-                loadServerConfigurations();
+                circuit.dispatch(new RefreshServer());
             }
         });
     }
@@ -522,9 +531,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
                 });
     }
 
-    public void onLaunchCopyWizard(final Server orig) {
+    public void onLaunchCopyWizard(final ServerRef serverRef) {
 
-        window = new DefaultWindow("New Server Configuration");
+        window = new DefaultWindow("Copy Server Configuration");
         window.setWidth(480);
         window.setHeight(380);
 
@@ -533,9 +542,9 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             @Override
             public void onSuccess(List<Host> result) {
 
+                Server orig = serverStore.findServer(serverRef);
                 window.trapWidget(
-                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, orig.getHostName())
-                                .asWidget()
+                        new CopyServerWizard(ServerConfigPresenter.this, orig, result, orig.getHostName()).asWidget()
                 );
 
                 window.setGlassEnabled(true);
@@ -546,7 +555,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     public void onSaveCopy(final String targetHost, final Server original, final Server newServer) {
-        window.hide();
+        closeDialoge();
         circuit.dispatch(new CopyServer(targetHost, original, newServer));
 
     }

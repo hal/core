@@ -134,6 +134,10 @@ public class MainLayoutViewImpl extends ViewImpl
                 window.center();
             }
         }
+        else if(slot == MainLayoutPresenter.TYPE_Hidden)
+        {
+            System.out.println("<<< hidden widget >>>");
+        }
         else {
             messageCenter.notify(
                     new Message("Unknown slot requested:" + slot)

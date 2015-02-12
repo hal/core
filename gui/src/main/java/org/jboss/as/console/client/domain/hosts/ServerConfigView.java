@@ -37,6 +37,8 @@ import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmEditor;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.stores.domain.ServerRef;
+import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
@@ -62,8 +64,6 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
     private PropertyEditor propertyEditor;
 
     private ContentHeaderLabel headline;
-    private SplitLayoutPanel splitlayout;
-    private FinderColumn<Server> serverColumn;
 
 
     interface ServerTemplate extends SafeHtmlTemplates {
@@ -163,6 +163,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         headline = new ContentHeaderLabel();
 
         OneToOneLayout editor = new OneToOneLayout()
+                .setPlain(true)
                 .setTitle("Server Configuration")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
@@ -175,98 +176,7 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         // server-config, we shouldn't be able to edit the JVM settings either.
         jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
-        splitlayout = new SplitLayoutPanel(2);
-
-        serverColumn = new FinderColumn<Server>(
-                "Server",
-                new FinderColumn.Display<Server>() {
-
-                    @Override
-                    public boolean isFolder(Server data) {
-                        return true;
-                    }
-
-                    @Override
-                    public SafeHtml render(String baseCss, Server data) {
-                        String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
-                        return SERVER_TEMPLATE.item(baseCss, data.getName(), context);
-                    }
-                },
-                new ProvidesKey<Server>() {
-                    @Override
-                    public Object getKey(Server item) {
-                        return item.getName()+item.getHostName();
-                    }
-                })
-                .setMenuItems(
-                        new MenuDelegate<Server>(          // TODO permissions
-                                "Remove", new ContextualCommand<Server>() {
-                            @Override
-                            public void executeOn(final Server server) {
-
-                                Feedback.confirm(
-                                        Console.MESSAGES.deleteServerConfig(),
-                                        Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
-                                        new Feedback.ConfirmationHandler() {
-                                            @Override
-                                            public void onConfirmation(boolean isConfirmed) {
-                                                if (isConfirmed)
-                                                    presenter.tryDelete(server);
-                                            }
-                                        });
-                            }
-                        }),
-                        new MenuDelegate<Server>(
-                                "Copy", new ContextualCommand<Server>() {
-                            @Override
-                            public void executeOn(Server server) {
-                                presenter.onLaunchCopyWizard(server);
-                            }
-                        })
-                );
-
-
-        serverColumn.setTopMenuItems(
-                new MenuDelegate<Server>(
-                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<Server>() {
-                    @Override
-                    public void executeOn(Server server) {
-                        presenter.launchNewConfigDialoge();
-                    }
-                })
-        );
-
-        splitlayout.addWest(serverColumn.asWidget(), 217);
-        splitlayout.add(editor.build());
-
-
-        serverColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-
-                if (serverColumn.hasSelectedItem()) {
-
-                    final Server selectedServer = serverColumn.getSelectedItem();
-
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        public void execute() {
-
-                            Console.getCircuit().dispatch(
-                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
-                            );
-                        }
-                    });
-                }
-            }
-        });
-
-        return splitlayout;
-    }
-
-
-    @Override
-    public void updateServerList(List<Server> serverModel) {
-        serverColumn.updateFrom(serverModel, true);
+        return editor.build();
     }
 
 
@@ -303,7 +213,10 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
 
     @Override
     public void setGroups(List<ServerGroupRecord> result) {
-        details.setAvailableGroups(result);
+        if(details!=null)
+            details.setAvailableGroups(result);
+        else
+            System.out.println("<<< view not correctly initialized! >>>");
     }
 
 }
