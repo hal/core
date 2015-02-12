@@ -180,6 +180,12 @@ public class ServerConfigView extends SuspendableViewImpl implements ServerConfi
         serverColumn = new FinderColumn<Server>(
                 "Server",
                 new FinderColumn.Display<Server>() {
+
+                    @Override
+                    public boolean isFolder(Server data) {
+                        return true;
+                    }
+
                     @Override
                     public SafeHtml render(String baseCss, Server data) {
                         String context = presenter.getFilter().equals(FilterType.HOST)  ? data.getGroup() : data.getHostName();
