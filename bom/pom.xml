@@ -18,8 +18,6 @@
     </parent>
 
     <properties>
-        <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
-        <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
         <maven.min.version>3.1.0</maven.min.version>
         <ballroom.version>2.2.0-SNAPSHOT</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
@@ -27,7 +25,6 @@
         <guice.version>3.0</guice.version>
         <gwt.version>2.7.0</gwt.version>
         <gwtp.version>1.4</gwtp.version>
-        <gwt.maven>2.7.0</gwt.maven>
         <gwt-log.version>3.3.2</gwt-log.version>
         <gwt-vis.version>1.1.1</gwt-vis.version>
         <jgrapht.version>0.9.3-hal</jgrapht.version>
