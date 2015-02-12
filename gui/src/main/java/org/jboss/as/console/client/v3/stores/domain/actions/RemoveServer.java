@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.v3.stores.domain.actions;
 
-import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.gwt.circuit.Action;
 
 /**
@@ -9,16 +9,20 @@ import org.jboss.gwt.circuit.Action;
  */
 public class RemoveServer implements Action {
 
-    private Server server;
+    private final ServerRef server;
 
-    public RemoveServer(Server server) {
+    public RemoveServer(ServerRef server) {
         this.server = server;
+    }
+
+    public ServerRef getServer() {
+        return server;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof RemoveServer)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         RemoveServer that = (RemoveServer) o;
 
@@ -30,9 +34,5 @@ public class RemoveServer implements Action {
     @Override
     public int hashCode() {
         return server.hashCode();
-    }
-
-    public Server getServer() {
-        return server;
     }
 }

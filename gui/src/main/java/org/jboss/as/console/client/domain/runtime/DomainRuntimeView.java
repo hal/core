@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.gwtplatform.mvp.client.ViewImpl;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -25,8 +26,11 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -39,6 +43,7 @@ import java.util.Stack;
 public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresenter.MyView {
 
     private final SplitLayoutPanel splitlayout;
+    private final PlaceManager placeManager;
     private Widget subsysColWidget;
     private Widget statusColWidget;
     private Widget serverColWidget;
@@ -79,8 +84,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private static final SubsystemTemplate SUBSYSTEM_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
     @Inject
-    public DomainRuntimeView() {
+    public DomainRuntimeView(final PlaceManager placeManager) {
         super();
+        this.placeManager = placeManager;
         contentCanvas = new LayoutPanel();
         splitlayout = new SplitLayoutPanel(2);
 
@@ -186,6 +192,72 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                         return item.getName() + item.getHostName();
                     }
                 });
+
+
+        MenuDelegate<Server> editServerCmd = new MenuDelegate<Server>("Edit", new ContextualCommand<Server>() {
+            @Override
+            public void executeOn(Server item) {
+
+            }
+        });
+
+        serverColumn.setTopMenuItems(
+                new MenuDelegate<Server>(
+                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        //presenter.launchNewConfigDialoge();
+                       placeManager.revealRelativePlace(
+                               new PlaceRequest(NameTokens.ServerPresenter).with("action", "new")
+                       );
+                    }
+                })
+        );
+
+
+        serverColumn.setMenuItems(
+                new MenuDelegate<Server>(          // TODO permissions
+                        "Edit", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(final Server server) {
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "edit")
+                        );
+                    }
+                }),
+                new MenuDelegate<Server>(          // TODO permissions
+                        "Remove", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(final Server server) {
+
+                        Feedback.confirm(
+                                Console.MESSAGES.deleteServerConfig(),
+                                Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed) {
+                                            placeManager.revealRelativePlace(
+                                                    new PlaceRequest(NameTokens.ServerPresenter).with("action", "remove")
+                                            );
+                                        }
+
+                                    }
+                                });
+                    }
+                }),
+                new MenuDelegate<Server>(
+                        "Copy", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        //presenter.onLaunchCopyWizard(server);
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "copy")
+                        );
+                    }
+                })
+        );
+
 
         serverColWidget = serverColumn.asWidget();
 

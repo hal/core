@@ -56,7 +56,7 @@ public class ServerConfigDetails {
 
             @Override
             public void onDelete(Server entity) {
-                Feedback.confirm(
+               /* Feedback.confirm(
                         Console.MESSAGES.deleteServerConfig(),
                         Console.MESSAGES.deleteServerConfigConfirm(form.getEditedEntity().getName()),
                         new Feedback.ConfirmationHandler() {
@@ -65,7 +65,7 @@ public class ServerConfigDetails {
                                 if (isConfirmed)
                                     presenter.tryDelete(form.getEditedEntity());
                             }
-                        });
+                        });*/
             }
         });
 
@@ -75,6 +75,7 @@ public class ServerConfigDetails {
 
 
         TextItem nameItem = new TextItem("name", "Name");
+        TextItem hostItem = new TextItem("hostName", "Host");
 
         CheckBoxItem startedItem = new CheckBoxItem("autoStart", Console.CONSTANTS.common_label_autoStart());
 
@@ -100,7 +101,7 @@ public class ServerConfigDetails {
         };
 
         TextItem profile = new TextItem("profile", "Profile");
-        form.setFields(nameItem, startedItem, groupItem, profile, socketItem, portOffset);
+        form.setFields(nameItem, hostItem, startedItem, groupItem, profile, socketItem, portOffset);
 
         final FormHelpPanel helpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {

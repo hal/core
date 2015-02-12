@@ -114,7 +114,7 @@ public class CopyServerWizard {
 
         }
 
-        hostItem = new ComboBoxItem("host", Console.CONSTANTS.common_label_host());
+        hostItem = new ComboBoxItem("hostName", Console.CONSTANTS.common_label_host());
         hostItem.setValueMap(hostNames);
         hostItem.selectItem(preselection+1);
 

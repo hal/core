@@ -115,24 +115,6 @@ public class ServerStore extends ChangeSupport {
 
     }
 
-    public final class ServerRef {
-        String hostName;
-        String serverName;
-
-        public ServerRef(String hostName, String serverName) {
-            this.hostName = hostName;
-            this.serverName = serverName;
-        }
-
-        public String getHostName() {
-            return hostName;
-        }
-
-        public String getServerName() {
-            return serverName;
-        }
-    }
-
     class RefreshValues {
         List<Server> servers;
         List<ServerInstance> instances;
@@ -238,9 +220,10 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
-    public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
+    public void onRemoveServer(final ServerRef serverRef, final Dispatcher.Channel channel) {
 
-        hostInfo.deleteServerConfig(server.getHostName(), server, new SimpleCallback<Boolean>() {
+
+        hostInfo.deleteServerConfig(serverRef.getHostName(), findServer(serverRef), new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -253,6 +236,19 @@ public class ServerStore extends ChangeSupport {
                 channel.nack(caught);
             }
         });
+    }
+
+    public Server findServer(ServerRef ref) {
+        Server match = null;
+        List<Server> servers = host2server.get(ref.getHostName());
+        for (Server server : servers) {
+            if(server.getName().equals(ref.getServerName()))
+            {
+                match = server;
+                break;
+            }
+        }
+        return match;
     }
 
     @Process(actionType = UpdateServer.class)
@@ -293,6 +289,7 @@ public class ServerStore extends ChangeSupport {
 
             @Override
             public void onFailure(Throwable caught) {
+                Console.error(Console.MESSAGES.modificationFailed("Server Configuration ") + name,  caught.getMessage());
                 channel.nack(caught);
             }
         });
