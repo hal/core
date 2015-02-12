@@ -19,10 +19,6 @@
 
 package org.jboss.as.console.client.domain.groups;
 
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -32,12 +28,10 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import com.gwtplatform.mvp.client.proxy.RevealRootPopupContentEvent;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.MultiView;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
@@ -74,6 +68,13 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  *
  * @author Heiko Braun
  * @date 2/16/11
+ *
+ * * IA - refactoring remaining issues:
+ *
+ * + jvm settings
+ * + system properties
+ * ? start/stop group
+ *
  */
 public class ServerGroupPresenter
         extends Presenter<ServerGroupPresenter.MyView, ServerGroupPresenter.MyProxy>
@@ -90,7 +91,7 @@ public class ServerGroupPresenter
     public interface MyProxy extends Proxy<ServerGroupPresenter>, Place {}
 
 
-    public interface MyView extends SuspendableView {
+    public interface MyView extends MultiView {
         void setPresenter(ServerGroupPresenter presenter);
 
         void updateSocketBindings(List<String> result);
@@ -113,11 +114,11 @@ public class ServerGroupPresenter
     private BeanFactory factory;
     private ApplicationMetaData propertyMetaData;
     private final ServerStore serverStore;
+    private final PlaceManager placeManager;
 
     private List<ProfileRecord> existingProfiles;
     private List<String> existingSockets;
     private String preselection;
-    private Command resetCmd = null;
 
     @Inject
     public ServerGroupPresenter(
@@ -125,7 +126,7 @@ public class ServerGroupPresenter
             ServerGroupStore serverGroupStore,
             ProfileStore profileStore,
             DispatchAsync dispatcher, BeanFactory factory,
-            ApplicationMetaData propertyMetaData, ServerStore serverStore) {
+            ApplicationMetaData propertyMetaData, ServerStore serverStore, PlaceManager placeManager) {
         super(eventBus, view, proxy);
 
         this.serverGroupStore = serverGroupStore;
@@ -134,6 +135,7 @@ public class ServerGroupPresenter
         this.factory = factory;
         this.propertyMetaData = propertyMetaData;
         this.serverStore = serverStore;
+        this.placeManager = placeManager;
     }
 
     @Override
@@ -143,60 +145,45 @@ public class ServerGroupPresenter
     }
 
     @Override
-    public void prepareFromRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
-
-        final String action = request.getParameter("action", null);
-
-       /* if ("edit".equals(action))
-        {
-            this.resetCmd = new Command() {
-                @Override
-                public void execute() {
-                    serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
-                            new SimpleCallback<ServerGroupRecord>() {
-                                @Override
-                                public void onSuccess(ServerGroupRecord group) {
-                                    launchEditWizard(group);
-                                }
-                            }
-                    );
-                }
-            };
-
-        }*/
-
-        preselection = request.getParameter("group", null);
-        getView().setPreselection(preselection);
-    }
-
-    @Override
     protected void onReset() {
 
         super.onReset();
 
-        // TODO (hbraun) loading of init data
-       /* profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+
+        // (1)
+        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
             @Override
             public void onSuccess(List<ProfileRecord> result) {
                 existingProfiles = result;
                 getView().updateProfiles(result);
+
+                // (2)
+                serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
+                    @Override
+                    public void onSuccess(List<String> result) {
+                        existingSockets = result;
+
+                        getView().updateSocketBindings(result);
+
+                        // (3)
+                        serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(), new SimpleCallback<ServerGroupRecord>() {
+                            @Override
+                            public void onSuccess(ServerGroupRecord result) {
+
+                                getView().updateFrom(result);
+
+                                // (4)
+                                getView().toggle(
+                                        placeManager.getCurrentPlaceRequest().getParameter("action", "none")
+                                );
+                            }
+                        });
+
+                    }
+                });
             }
+
         });
-
-        serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
-            @Override
-            public void onSuccess(List<String> result) {
-                existingSockets = result;
-
-                getView().updateSocketBindings(result);
-            }
-        });*/
-
-        if(this.resetCmd!=null)
-        {
-            this.resetCmd.execute();
-        }
 
     }
 
@@ -411,28 +398,6 @@ public class ServerGroupPresenter
                 getView().setProperties(group, properties);
             }
         });
-    }
-
-    public void launchEditWizard(final ServerGroupRecord serverGroup) {
-        window = new DefaultWindow("Edit Server Group");
-        window.setWidth(640);
-        window.setHeight(480);
-
-        window.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-                PlaceManager placeManager = Console.getPlaceManager();
-                if(placeManager.getHierarchyDepth()>0) {
-                    placeManager.revealRelativePlace(-1);
-                }
-
-            }
-        });
-        window.trapWidget(getView().asWidget());
-        getView().updateFrom(serverGroup);
-
-        window.setGlassEnabled(true);
-        window.center();
     }
 
 }
