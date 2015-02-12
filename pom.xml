@@ -30,7 +30,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>14</version>
+        <version>17</version>
     </parent>
 
     <url>
@@ -85,6 +85,13 @@
     </licenses>
 
 
+    <properties>
+        <version.gwt.maven.plugin>2.7.0</version.gwt.maven.plugin>
+        <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
+        <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
+    </properties>
+
+
     <modules>
         <module>ace</module>
         <module>bom</module>
@@ -112,7 +119,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>gwt-maven-plugin</artifactId>
-                    <version>${gwt.maven}</version>
+                    <version>${version.gwt.maven.plugin}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.zanata</groupId>
