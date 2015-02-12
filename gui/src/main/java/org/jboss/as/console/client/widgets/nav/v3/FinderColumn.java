@@ -68,7 +68,7 @@ public class FinderColumn<T> {
             @Override
             public SafeHtml getValue(T data) {
                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<span class='nav-menu'><i class='icon-angle-down'></i></span>");
+                builder.appendHtmlConstant("<span class='nav-menu'><i class='icon-ellipsis-vertical'></i></span>");
                 return builder.toSafeHtml();
             }
         };
