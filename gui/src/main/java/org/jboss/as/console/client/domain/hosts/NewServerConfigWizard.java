@@ -43,6 +43,7 @@ import org.jboss.dmr.client.ModelNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -205,7 +206,7 @@ public class NewServerConfigWizard {
         }
     }
 
-    public void updateHosts(final List<String> hostNames) {
+    public void updateHosts(final Set<String> hostNames) {
         hostItem.setValueMap(hostNames);
     }
 

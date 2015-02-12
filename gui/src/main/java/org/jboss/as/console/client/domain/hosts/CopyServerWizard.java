@@ -39,6 +39,7 @@ import org.jboss.dmr.client.ModelNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -47,19 +48,13 @@ import java.util.List;
 public class CopyServerWizard {
 
     private ServerConfigPresenter presenter;
-    private Server original;
-    private List<Host> hosts;
     private ComboBoxItem hostItem;
-    private String currentHost;
+    private TextBoxItem nameItem;
+    private Server origServer;
 
-    public CopyServerWizard(
-            final ServerConfigPresenter presenter, Server orig, List<Host> hosts, String currentHost)
+    public CopyServerWizard(final ServerConfigPresenter presenter)
     {
         this.presenter = presenter;
-        this.original = orig;
-        this.hosts = hosts;
-        this.currentHost = currentHost;
-
     }
 
     public Widget asWidget() {
@@ -68,13 +63,13 @@ public class CopyServerWizard {
         layout.setStyleName("window-content");
 
 
-        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy of server-configuration <b>'"+original.getName()+
-        "'</b>. Please verify the port offset to avoid conflicts when starting the server."));
+        layout.add(new ContentDescription("<h3>Create copy</h3> You are about to create a copy a server-configuration. "+
+                "Please verify the port offset to avoid conflicts when starting the server."));
 
         final Form<Server> form = new Form<Server>(Server.class);
         form.setNumColumns(1);
 
-        TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name())
+        nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name())
         {
             @Override
             public boolean validate(String value) {
@@ -94,29 +89,17 @@ public class CopyServerWizard {
             }
         };
 
-        nameItem.setValue(original.getName()+"_copy");
+
 
         NumberBoxItem portOffset = new NumberBoxItem("portOffset", Console.CONSTANTS.common_label_portOffset());
 
         // host names
 
-        List<String> hostNames = new ArrayList<String>(hosts.size());
-        int preselection = 1;
-        int index = 0;
-        for(Host item : hosts)
-        {
-            String hostName = item.getName();
-            hostNames.add(hostName);
-
-            if(hostName.equals(currentHost))
-                preselection = index;
-            index++;
-
-        }
-
         hostItem = new ComboBoxItem("hostName", Console.CONSTANTS.common_label_host());
+/*
         hostItem.setValueMap(hostNames);
         hostItem.selectItem(preselection+1);
+*/
 
         form.setFields(nameItem, portOffset, hostItem);
 
@@ -146,7 +129,7 @@ public class CopyServerWizard {
                 FormValidation validation = form.validate();
                 if (!validation.hasErrors())
                 {
-                    presenter.onSaveCopy(hostItem.getValue(), original, newServer);
+                    presenter.onSaveCopy(hostItem.getValue(), origServer, newServer);
                 }
             }
         };
@@ -155,7 +138,7 @@ public class CopyServerWizard {
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.closeDialoge();
+                presenter.closeApplicationView();
             }
         };
 
@@ -163,5 +146,27 @@ public class CopyServerWizard {
 
         return new WindowContentBuilder(layout, options).build();
 
+    }
+
+    public void setCurrentServerSelection(Server server) {
+        this.origServer = server;
+        nameItem.setValue(server.getName()+"_copy");
+    }
+
+    public void setHosts(Set<String> hosts, String selectedHost) {
+
+        int preselection = 0;
+        int index = 1;
+        for(String item : hosts)
+        {
+
+            if(item.equals(selectedHost))
+                preselection = index;
+            index++;
+
+        }
+
+        hostItem.setValueMap(hosts);
+        hostItem.selectItem(preselection);
     }
 }
