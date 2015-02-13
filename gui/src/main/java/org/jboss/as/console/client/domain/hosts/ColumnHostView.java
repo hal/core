@@ -55,6 +55,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private final HTML addGroupBtn;
     private final Widget hostColWidget;
     private final Widget groupsColWidget;
+    private final LayoutPanel previewCanvas;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -74,6 +75,8 @@ public class ColumnHostView extends SuspendableViewImpl
         Console.getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
 
         contentCanvas = new LayoutPanel();
+        previewCanvas = new LayoutPanel();
+
         layout = new SplitLayoutPanel(2);
         hosts = new FinderColumn<String>(
                 "Hosts",
@@ -198,7 +201,6 @@ public class ColumnHostView extends SuspendableViewImpl
         });
 
         layout.addWest(stack, 217);
-        //layout.addWest(server.asWidget(), 217);
         layout.add(contentCanvas);
 
         // selection handling
@@ -332,6 +334,12 @@ public class ColumnHostView extends SuspendableViewImpl
                 })
         );
 
+    }
+
+    @Override
+    public void updatePreview(SafeHtml html) {
+        previewCanvas.clear();
+        previewCanvas.add(new HTML(html));
     }
 
     @Override

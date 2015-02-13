@@ -30,6 +30,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -324,12 +325,17 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                 if (serverColumn.hasSelectedItem()) {
 
+                    // selection
                     updateActiveSelection(serverColWidget);
-
                     final Server selectedServer = serverColumn.getSelectedItem();
 
+                    // preview
+                    PreviewEvent.fire(presenter, serverColumn.getPreview(selectedServer));
+
+                    // column handling
                     reduceColumnsTo(1);
 
+                    // action
                     if(selectedServer.isStarted()) {
                         appendColumn(statusColWidget);
                         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
