@@ -5,7 +5,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -31,6 +33,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -45,6 +48,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
+    private final LayoutPanel previewCanvas;
     private Widget subsysColWidget;
     private Widget statusColWidget;
     private Widget serverColWidget;
@@ -62,6 +66,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private List<FinderItem> statusLinks = new ArrayList<FinderItem>();
     private List<SubsystemRecord> subsystems;
 
+    private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
     interface ServerTemplate extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\" style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
@@ -89,6 +94,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         super();
         this.placeManager = placeManager;
         contentCanvas = new LayoutPanel();
+        previewCanvas = new LayoutPanel();
+
         splitlayout = new SplitLayoutPanel(2);
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
@@ -220,6 +227,19 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 })
         );
 
+        serverColumn.setPreviewFactory(new PreviewFactory<Server>() {
+            @Override
+            public SafeHtml createPreview(Server data) {
+                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-hdd' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getName()+"</span></center>");
+                builder.appendHtmlConstant("<ul style='font-size:14px;'>");
+                builder.appendHtmlConstant("<li>").appendEscaped("Active?: "+data.isStarted()).appendHtmlConstant("</li>");
+                builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfile()).appendHtmlConstant("</li>");
+                builder.appendHtmlConstant("<li>").appendEscaped("Port Offset: "+data.getPortOffset()).appendHtmlConstant("</li>");
+                builder.appendHtmlConstant("</ul>");
+                return builder.toSafeHtml();
+            }
+        });
 
         serverColumn.setMenuItems(
                 new MenuDelegate<Server>(          // TODO permissions
@@ -311,11 +331,26 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     }
                 });
 
+        subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
+                    @Override
+                    public SafeHtml createPreview(PlaceLink data) {
+                        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                        builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
+                        return builder.toSafeHtml();
+                    }
+                });
+
 
         subsysColWidget = subsystemColumn.asWidget();
 
         // server column is always present
-        appendColumn(serverColWidget);
+        splitlayout.addWest(serverColWidget, 217);
+        splitlayout.addWest(statusColWidget, 217);
+        splitlayout.addWest(subsysColWidget, 217);
+        splitlayout.add(previewCanvas);
+
+        splitlayout.setWidgetHidden(statusColWidget, true);
+        splitlayout.setWidgetHidden(subsysColWidget, true);
 
         // selection handling
 
@@ -328,9 +363,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     // selection
                     updateActiveSelection(serverColWidget);
                     final Server selectedServer = serverColumn.getSelectedItem();
-
-                    // preview
-                    PreviewEvent.fire(presenter, serverColumn.getPreview(selectedServer));
 
                     // column handling
                     reduceColumnsTo(1);
@@ -397,8 +429,8 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     private void appendColumn(final Widget columnWidget) {
+        splitlayout.setWidgetHidden(columnWidget, false);
         visibleColumns.push(columnWidget);
-        splitlayout.addWest(columnWidget, 217);
     }
 
     private void reduceColumnsTo(int level) {
@@ -406,8 +438,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         for(int i=visibleColumns.size()-1; i>=level; i--)
         {
             final Widget widget = visibleColumns.pop();
-            splitlayout.remove(widget);
+            splitlayout.setWidgetHidden(widget, true);
         }
+
     }
 
 
@@ -427,6 +460,21 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     private void setContent(IsWidget  newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
+    }
+
+    @Override
+    public void setPreview(final SafeHtml html) {
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                previewCanvas.clear();
+                HTML widget = new HTML(html);
+                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
+                previewCanvas.add(widget);
+            }
+        });
+
     }
 
     @Override
