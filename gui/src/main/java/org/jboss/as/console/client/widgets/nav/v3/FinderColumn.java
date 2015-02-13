@@ -128,7 +128,8 @@ public class FinderColumn<T> {
             @Override
             public String getStyleNames(T row, int rowIndex) {
                 boolean isFolder = display.isFolder(row);
-                return isFolder ? "folder-view" : "file-view";
+                String css = display.rowCss(row);
+                return isFolder ? css + " folder-view" : css + " file-view";
             }
         });
     }
@@ -265,8 +266,9 @@ public class FinderColumn<T> {
     }
 
     public interface Display<T> {
-        public boolean isFolder(T data);
-        public SafeHtml render(String baseCss, T data);
+        boolean isFolder(T data);
+        SafeHtml render(String baseCss, T data);
+        String rowCss(T data);
     }
 
     public void selectByKey(Object key) {

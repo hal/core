@@ -67,6 +67,11 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public SafeHtml render(String baseCss, ProfileRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());
                     }
+
+                    @Override
+                    public String rowCss(ProfileRecord data) {
+                        return "";
+                    }
                 },
                 new ProvidesKey<ProfileRecord>() {
                     @Override
@@ -87,6 +92,11 @@ public class ColumnProfileView extends SuspendableViewImpl
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
                         return TEMPLATE.item(baseCss, data.getTitle());
+                    }
+
+                    @Override
+                    public String rowCss(SubsystemLink data) {
+                        return "";
                     }
                 },
                 new ProvidesKey<SubsystemLink>() {
