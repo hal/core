@@ -21,6 +21,7 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -63,6 +64,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -84,7 +86,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy>
-    implements PropertyManagement {
+    implements PropertyManagement, PreviewEvent.Handler {
 
 
     private DefaultWindow window;
@@ -110,6 +112,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         void updateProfiles(List<ProfileRecord> result);
         void updateSocketBindings(List<String> result);
         void setServerGroups(List<ServerGroupRecord> result);
+        void updatePreview(SafeHtml html);
     }
 
 
@@ -151,6 +154,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
 
         hostHandler = hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
@@ -456,5 +460,10 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             }
 
         });
+    }
+
+    @Override
+    public void onPreview(PreviewEvent event) {
+        getView().updatePreview(event.getHtml());
     }
 }

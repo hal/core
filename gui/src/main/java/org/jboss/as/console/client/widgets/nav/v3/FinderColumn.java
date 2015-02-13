@@ -38,7 +38,6 @@ public class FinderColumn<T> {
 
 
     private final SingleSelectionModel<T> selectionModel;
-    //private final CellList<T> cellList;
     private final CellTable<T> cellTable;
     private final String title;
     private final ProvidesKey keyProvider;
@@ -47,6 +46,20 @@ public class FinderColumn<T> {
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
+
+    /**
+     * Thje default finder preview
+     */
+    private final static PreviewFactory DEFAULT_PREVIEW = new PreviewFactory() {
+        @Override
+        public SafeHtml createPreview(Object data) {
+            SafeHtmlBuilder builder = new SafeHtmlBuilder();
+            builder.appendHtmlConstant("<i class='icon-file-text-alt' style='font-size:48px'></i>");
+            return builder.toSafeHtml();
+        }
+    };
+
+    private PreviewFactory<T> previewFactory = DEFAULT_PREVIEW;
 
     public FinderColumn(String title, final Display display, final ProvidesKey keyProvider) {
         this.title = title;
@@ -182,6 +195,11 @@ public class FinderColumn<T> {
         return this;
     }
 
+    public FinderColumn<T> setPreviewFactory(PreviewFactory<T> previewFactory) {
+        this.previewFactory = previewFactory;
+        return this;
+    }
+
     public void addSelectionChangeHandler(SelectionChangeEvent.Handler handler) {
         selectionModel.addSelectionChangeHandler(handler);
     }
@@ -282,5 +300,9 @@ public class FinderColumn<T> {
             }
             i++;
         }
+    }
+
+    public SafeHtml getPreview(T data) {
+        return previewFactory.createPreview(data);
     }
 }
