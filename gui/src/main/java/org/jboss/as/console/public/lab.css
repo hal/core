@@ -317,7 +317,26 @@
 }
 
 .navigation-column {
+
+    /* fallback */
     background-color: #F6F6F6;
+    background-repeat: repeat-x;
+
+    /* Safari 4-5, Chrome 1-9 */
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ffffff), to(#F6F6F6));
+
+    /* Safari 5.1, Chrome 10+ */
+    background: -webkit-linear-gradient(top, #ffffff, #F6F6F6);
+
+    /* Firefox 3.6+ */
+    background: -moz-linear-gradient(top, #ffffff, #F6F6F6);
+
+    /* IE 10 */
+    background: -ms-linear-gradient(top, #ffffff, #F6F6F6);
+
+    /* Opera 11.10+ */
+    background: -o-linear-gradient(top, #ffffff, #F6F6F6);
+
 }
 
 .navigation-column-item {
