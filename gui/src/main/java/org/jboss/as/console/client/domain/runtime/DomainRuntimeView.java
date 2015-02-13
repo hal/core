@@ -170,7 +170,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     public Widget asWidget() {
 
 
-
         serverColumn = new FinderColumn<Server>(
                 "Server",
                 new FinderColumn.Display<Server>() {
@@ -181,9 +180,15 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     }
 
                     @Override
-                    public SafeHtml render(String baseCss, Server data) {
-                        String context = presenter.getFilter().equals(FilterType.HOST) ? data.getGroup() : data.getHostName();
-                        return SERVER_TEMPLATE.item(baseCss, "icon-folder-close-alt",data.getName(), context);
+                    public SafeHtml render(String baseCss, Server server) {
+                        String context = presenter.getFilter().equals(FilterType.HOST) ? server.getGroup() : server.getHostName();
+                        return SERVER_TEMPLATE.item(baseCss, "icon-folder-close-alt",server.getName(), context);
+                    }
+
+                    @Override
+                    public String rowCss(Server server) {
+                        String css = server.isStarted() ? "active" : "inactive";
+                        return css;
                     }
                 },
                 new ProvidesKey<Server>() {
@@ -279,6 +284,11 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                         String icon = data.isFolder() ? "icon-folder-close-alt" : "icon-file-alt";
                         return STATUS_TEMPLATE.item(baseCss, icon, data.getTitle());
                     }
+
+                    @Override
+                    public String rowCss(FinderItem data) {
+                        return "";
+                    }
                 },
                 new ProvidesKey<FinderItem>() {
                     @Override
@@ -301,6 +311,11 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     @Override
                     public SafeHtml render(String baseCss, PlaceLink data) {
                         return SUBSYSTEM_TEMPLATE.item(baseCss, "icon-file-alt", data.getTitle());
+                    }
+
+                    @Override
+                    public String rowCss(PlaceLink data) {
+                        return "";
                     }
                 },
                 new ProvidesKey<PlaceLink>() {

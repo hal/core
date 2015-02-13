@@ -88,6 +88,11 @@ public class ColumnHostView extends SuspendableViewImpl
                     public SafeHtml render(String baseCss, String data) {
                         return TEMPLATE.item(baseCss, data);
                     }
+
+                    @Override
+                    public String rowCss(String data) {
+                        return "";
+                    }
                 },
                 new ProvidesKey<String>() {
                     @Override
@@ -108,6 +113,11 @@ public class ColumnHostView extends SuspendableViewImpl
                     @Override
                     public SafeHtml render(String baseCss, ServerGroupRecord data) {
                         return TEMPLATE.item(baseCss, data.getName());
+                    }
+
+                    @Override
+                    public String rowCss(ServerGroupRecord data) {
+                        return "";
                     }
                 },
                 new ProvidesKey<ServerGroupRecord>() {
@@ -228,7 +238,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }),
                 new MenuDelegate<String>(          // TODO permissions
-                        "Interface", new ContextualCommand<String>() {
+                        "Interfaces", new ContextualCommand<String>() {
                     @Override
                     public void executeOn(final String host) {
                         Console.getPlaceManager().revealRelativePlace(

@@ -73,6 +73,7 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  *
  * + jvm settings
  * + system properties
+ * + server group store to share data with other presenters
  * ? start/stop group
  *
  */

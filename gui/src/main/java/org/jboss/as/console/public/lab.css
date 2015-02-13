@@ -391,6 +391,14 @@
     border: none;
 }
 
+.navigation-cell-table .inactive .cellTableFirstColumn {
+    border-left:4px solid #DC9F2E!important;
+}
+
+.navigation-cell-table .inactive .cellTableFirstColumn {
+    border-left:4px solid #DC9F2E!important;
+}
+
 .active .cellTableSelectedRow {
     background-color: #D4EDFA!important;
 }
