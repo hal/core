@@ -28,6 +28,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.as.console.client.widgets.forms.UploadForm;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -43,10 +44,12 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  */
 public class DeploymentStep1 implements IsWidget {
 
+    static final String UPLOAD_ID = "hal_deployment_artifact";
+
     private final NewDeploymentWizard wizard;
     private final DefaultWindow window;
 
-    private FormPanel managedForm;
+    private UploadForm managedForm;
     private Form<DeploymentRecord> unmanagedForm;
 
     public DeploymentStep1(NewDeploymentWizard wizard, DefaultWindow window) {
@@ -71,7 +74,7 @@ public class DeploymentStep1 implements IsWidget {
         layout.add(description);
 
         // point the managed form to the upload endpoint
-        managedForm = new FormPanel();
+        managedForm = new UploadForm();
         managedForm.setAction(Console.getBootstrapContext().getProperty(BootstrapContext.DEPLOYMENT_API));
         managedForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         managedForm.setMethod(FormPanel.METHOD_POST);
@@ -84,6 +87,7 @@ public class DeploymentStep1 implements IsWidget {
         // create a FileUpload widgets.
         final FileUpload upload = new FileUpload();
         upload.setName("uploadFormElement");
+        upload.getElement().setId(UPLOAD_ID);
         formPanel.add(upload);
 
         final HTML errorMessages = new HTML("Please chose a file!");
@@ -164,7 +168,7 @@ public class DeploymentStep1 implements IsWidget {
         return new WindowContentBuilder(tabs, options).build();
     }
 
-    FormPanel getManagedForm() {
+    UploadForm getManagedForm() {
         return managedForm;
     }
 
