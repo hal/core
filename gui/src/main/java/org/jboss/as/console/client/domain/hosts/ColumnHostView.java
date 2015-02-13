@@ -7,8 +7,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -23,6 +26,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
@@ -31,8 +35,9 @@ import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
-import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -55,7 +60,6 @@ public class ColumnHostView extends SuspendableViewImpl
     private final HTML addGroupBtn;
     private final Widget hostColWidget;
     private final Widget groupsColWidget;
-    private final LayoutPanel previewCanvas;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -75,7 +79,6 @@ public class ColumnHostView extends SuspendableViewImpl
         Console.getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
 
         contentCanvas = new LayoutPanel();
-        previewCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
         hosts = new FinderColumn<String>(
@@ -129,6 +132,20 @@ public class ColumnHostView extends SuspendableViewImpl
                         return item.getName();
                     }
                 }).setPlain(true);
+
+        groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
+            @Override
+            public SafeHtml createPreview(ServerGroupRecord data) {
+                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-sitemap' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getName()+"</span></center>");
+                builder.appendHtmlConstant("<ul style='font-size:14px;'>");
+                builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfileName()).appendHtmlConstant("</li>");
+                builder.appendHtmlConstant("<li>").appendEscaped("Socket Binding: "+data.getSocketBinding()).appendHtmlConstant("</li>");
+                builder.appendHtmlConstant("</ul>");
+                return builder.toSafeHtml();
+            }
+        });
+
 
         StackLayoutPanel stack = new StackLayoutPanel(Style.Unit.PX);
         stack.setAnimationDuration(0);
@@ -202,6 +219,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         layout.addWest(stack, 217);
         layout.add(contentCanvas);
+
 
         // selection handling
         hosts.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -337,12 +355,6 @@ public class ColumnHostView extends SuspendableViewImpl
     }
 
     @Override
-    public void updatePreview(SafeHtml html) {
-        previewCanvas.clear();
-        previewCanvas.add(new HTML(html));
-    }
-
-    @Override
     public void onClearActiveSelection(ClearFinderSelectionEvent event) {
         hostColWidget.getElement().removeClassName("active");
         groupsColWidget.getElement().removeClassName("active");
@@ -355,7 +367,6 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void setInSlot(Object slot, IsWidget content) {
-
         if (slot == HostMgmtPresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
@@ -365,6 +376,11 @@ public class ColumnHostView extends SuspendableViewImpl
     private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
+    }
+
+    @Override
+    public void preview(SafeHtml html) {
+       // TODO remove
     }
 
     @Override

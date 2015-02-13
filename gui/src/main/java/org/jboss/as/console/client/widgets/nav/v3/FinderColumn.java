@@ -26,6 +26,7 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class FinderColumn<T> {
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
     private final String title;
+    private final Display display;
     private final ProvidesKey keyProvider;
     private HorizontalPanel header;
     private boolean plain = false;
@@ -50,11 +52,12 @@ public class FinderColumn<T> {
     /**
      * Thje default finder preview
      */
-    private final static PreviewFactory DEFAULT_PREVIEW = new PreviewFactory() {
+    private final PreviewFactory DEFAULT_PREVIEW = new PreviewFactory() {
         @Override
         public SafeHtml createPreview(Object data) {
             SafeHtmlBuilder builder = new SafeHtmlBuilder();
-            builder.appendHtmlConstant("<i class='icon-file-text-alt' style='font-size:48px'></i>");
+            String icon = display.isFolder(data) ? "icon-folder-close-alt" : "icon-file-text-alt";
+            builder.appendHtmlConstant("<center><i class='"+icon+"' style='font-size:48px;top:100px;position:relative'></i></center>");
             return builder.toSafeHtml();
         }
     };
@@ -63,6 +66,7 @@ public class FinderColumn<T> {
 
     public FinderColumn(String title, final Display display, final ProvidesKey keyProvider) {
         this.title = title;
+        this.display = display;
         this.keyProvider = keyProvider;
         selectionModel = new SingleSelectionModel<T>();
 
@@ -143,6 +147,24 @@ public class FinderColumn<T> {
                 boolean isFolder = display.isFolder(row);
                 String css = display.rowCss(row);
                 return isFolder ? css + " folder-view" : css + " file-view";
+            }
+        });
+
+
+        cellTable.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+
+                        // preview
+                        T selectedObject = selectionModel.getSelectedObject();
+                        if(selectedObject!=null)
+                            PreviewEvent.fire(Console.MODULES.getPlaceManager(), getPreview(selectedObject));
+
+                    }
+                });
             }
         });
     }

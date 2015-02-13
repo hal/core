@@ -26,7 +26,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import com.gwtplatform.mvp.client.PresenterWidget;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -112,7 +111,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         void updateProfiles(List<ProfileRecord> result);
         void updateSocketBindings(List<String> result);
         void setServerGroups(List<ServerGroupRecord> result);
-        void updatePreview(SafeHtml html);
+
+        void preview(SafeHtml html);
     }
 
 
@@ -464,6 +464,6 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @Override
     public void onPreview(PreviewEvent event) {
-        getView().updatePreview(event.getHtml());
+        getView().preview(event.getHtml());
     }
 }

@@ -2,6 +2,7 @@ package org.jboss.as.console.client.domain.runtime;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -40,6 +41,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -57,7 +59,7 @@ import java.util.List;
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements UnauthorizedEvent.UnauthorizedHandler {
+        implements UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
 
 
 
@@ -71,6 +73,8 @@ public class DomainRuntimePresenter
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
         void updateServerList(List<Server> serverModel);
+
+        void setPreview(SafeHtml html);
     }
 
 
@@ -109,6 +113,8 @@ public class DomainRuntimePresenter
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+
+        HandlerRegistration previewReg = getEventBus().addHandler(PreviewEvent.TYPE, this);
 
         handlerRegistration = serverStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
@@ -166,6 +172,11 @@ public class DomainRuntimePresenter
                 }
             }
         });
+    }
+
+    @Override
+    public void onPreview(PreviewEvent event) {
+        getView().setPreview(event.getHtml());
     }
 
     @Override
