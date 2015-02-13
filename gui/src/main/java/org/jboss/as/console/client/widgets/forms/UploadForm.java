@@ -177,21 +177,19 @@ public class UploadForm extends FormPanel {
 
     private native void uploadUsingFormData(String action, Element fileInput) /*-{
         var that = this;
-
         var file = fileInput.files[0];
         var formData = new FormData();
         formData.append(fileInput.name, file);
 
         var xhr = new XMLHttpRequest();
         xhr.withCredentials = true;
-        xhr.onreadystatechange = $entry(function (evt) {
+        xhr.onreadystatechange = $entry(function(evt) {
             var status, text, readyState;
             try {
                 readyState = evt.target.readyState;
                 text = evt.target.responseText;
                 status = evt.target.status;
-            }
-            catch (e) {
+            } catch (e) {
                 return;
             }
             if (readyState == 4 && status == '200' && text) {

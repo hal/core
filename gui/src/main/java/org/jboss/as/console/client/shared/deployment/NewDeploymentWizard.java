@@ -25,13 +25,13 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.widgets.forms.UploadForm;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -112,22 +112,11 @@ public class NewDeploymentWizard {
                     }
                 });
 
-        step1.getManagedForm().addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+        step1.getManagedForm().addUploadCompleteHandler(new UploadForm.UploadCompleteHandler() {
             @Override
             public void onUploadComplete(UploadForm.UploadCompleteEvent event) {
                 String json = event.getPayload();
                 try {
-                    String json = html;
-
-                    try {
-                        if (!GWT.isScript()) // TODO: Formpanel weirdness
-                            json = html.substring(html.indexOf(">") + 1, html.lastIndexOf("<"));
-                    } catch (StringIndexOutOfBoundsException e) {
-                        // if I get this exception it means I shouldn't strip out the html
-                        // this issue still needs more research
-                        Log.debug("Failed to strip out HTML.  This should be preferred?");
-                    }
-
                     JSONObject response = JSONParser.parseLenient(json).isObject();
                     JSONObject result = response.get("result").isObject();
                     String hash = result.get("BYTES_VALUE").isString().stringValue();
@@ -136,7 +125,7 @@ public class NewDeploymentWizard {
                     assignDeployment(deploymentReference, loading);
                 } catch (Exception e) {
                     loading.hide();
-                    Log.error(Console.CONSTANTS.common_error_failedToDecode() + ": " + html, e);
+                    Log.error(Console.CONSTANTS.common_error_failedToDecode() + ": " + json, e);
                 }
             }
         });
@@ -149,6 +138,7 @@ public class NewDeploymentWizard {
                 RequestBuilder.POST,
                 Console.getBootstrapContext().getProperty(BootstrapContext.DOMAIN_API)
         );
+        rb.setIncludeCredentials(true);
         rb.setHeader(HEADER_CONTENT_TYPE, APPLICATION_JSON);
 
         try {
