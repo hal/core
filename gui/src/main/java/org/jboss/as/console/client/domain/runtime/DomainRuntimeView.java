@@ -235,21 +235,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     @Override
                     public void executeOn(final Server server) {
 
-                       /* Feedback.confirm(
-                                Console.MESSAGES.deleteServerConfig(),
-                                Console.MESSAGES.deleteServerConfigConfirm(server.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed) {
-                                            placeManager.revealRelativePlace(
-                                                    new PlaceRequest(NameTokens.ServerPresenter).with("action", "remove")
-                                            );
-                                        }
-
-                                    }
-                                });*/
-
                         placeManager.revealRelativePlace(
                                 new PlaceRequest(NameTokens.ServerPresenter).with("action", "remove")
                         );
@@ -344,15 +329,18 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     final Server selectedServer = serverColumn.getSelectedItem();
 
                     reduceColumnsTo(1);
-                    appendColumn(statusColWidget);
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        public void execute() {
 
-                            Console.getCircuit().dispatch(
-                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
-                            );
-                        }
-                    });
+                    if(selectedServer.isStarted()) {
+                        appendColumn(statusColWidget);
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            public void execute() {
+
+                                Console.getCircuit().dispatch(
+                                        new SelectServer(selectedServer.getHostName(), selectedServer.getName())
+                                );
+                            }
+                        });
+                    }
                 }
             }
         });
