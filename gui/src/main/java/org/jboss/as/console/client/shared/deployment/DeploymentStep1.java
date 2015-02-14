@@ -48,6 +48,7 @@ public class DeploymentStep1 implements IsWidget {
 
     private FormPanel managedForm;
     private Form<DeploymentRecord> unmanagedForm;
+    private FileUpload fileUpload;
 
     public DeploymentStep1(NewDeploymentWizard wizard, DefaultWindow window) {
         this.wizard = wizard;
@@ -82,9 +83,9 @@ public class DeploymentStep1 implements IsWidget {
         managedForm.setWidget(formPanel);
 
         // create a FileUpload widgets.
-        final FileUpload upload = new FileUpload();
-        upload.setName("uploadFormElement");
-        formPanel.add(upload);
+        fileUpload = new FileUpload();
+        fileUpload.setName("uploadFormElement");
+        formPanel.add(fileUpload);
 
         final HTML errorMessages = new HTML("Please chose a file!");
         errorMessages.setStyleName("error-panel");
@@ -140,7 +141,7 @@ public class DeploymentStep1 implements IsWidget {
 
                 // managed deployment
                 if (tabs.getTabBar().getSelectedTab() == 0) {
-                    String filename = upload.getFilename();
+                    String filename = fileUpload.getFilename();
                     if (filename != null && !filename.equals("")) {
                         wizard.createManagedDeployment(filename);
                     } else {
@@ -166,6 +167,10 @@ public class DeploymentStep1 implements IsWidget {
 
     FormPanel getManagedForm() {
         return managedForm;
+    }
+
+    public FileUpload getFileUpload() {
+        return fileUpload;
     }
 
     private SafeHtml unmanagedHelp() {

@@ -114,9 +114,8 @@ public class NewDeploymentWizard {
 
         step1.getManagedForm().addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
-            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                String html = event.getResults();
-
+            public void onUploadComplete(UploadForm.UploadCompleteEvent event) {
+                String json = event.getPayload();
                 try {
                     String json = html;
 
@@ -141,7 +140,7 @@ public class NewDeploymentWizard {
                 }
             }
         });
-        step1.getManagedForm().submit();
+        step1.getManagedForm().upload(step1.getFileUpload());
     }
 
     private void assignDeployment(final DeploymentReference deployment, final PopupPanel loading) {
