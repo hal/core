@@ -114,12 +114,7 @@ public class NewDeploymentWizard {
         step1.getManagedForm().addUploadCompleteHandler(new UploadForm.UploadCompleteHandler() {
             @Override
             public void onUploadComplete(UploadForm.UploadCompleteEvent event) {
-                // Please note: When using CORS 'event.getResults()' will return null!
-                // As stated in the API documentation [1]:
-                //   > The result html can be null as a result of submitting a form to a different domain.
-                // [1] http://www.gwtproject.org/javadoc/latest/com/google/gwt/user/client/ui/FormPanel.SubmitCompleteEvent.html#getResults()
                 String json = event.getPayload();
-
                 try {
                     JSONObject response = JSONParser.parseLenient(json).isObject();
                     JSONObject result = response.get("result").isObject();
@@ -133,7 +128,7 @@ public class NewDeploymentWizard {
                 }
             }
         });
-        step1.getManagedForm().upload(Document.get().getElementById(DeploymentStep1.UPLOAD_ID));
+        step1.getManagedForm().upload(step1.getFileUpload());
     }
 
     private void assignDeployment(final DeploymentReference deployment, final PopupPanel loading) {

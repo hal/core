@@ -44,13 +44,12 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  */
 public class DeploymentStep1 implements IsWidget {
 
-    static final String UPLOAD_ID = "hal_deployment_artifact";
-
     private final NewDeploymentWizard wizard;
     private final DefaultWindow window;
 
     private UploadForm managedForm;
     private Form<DeploymentRecord> unmanagedForm;
+    private FileUpload fileUpload;
 
     public DeploymentStep1(NewDeploymentWizard wizard, DefaultWindow window) {
         this.wizard = wizard;
@@ -85,10 +84,9 @@ public class DeploymentStep1 implements IsWidget {
         managedForm.setWidget(formPanel);
 
         // create a FileUpload widgets.
-        final FileUpload upload = new FileUpload();
-        upload.setName("uploadFormElement");
-        upload.getElement().setId(UPLOAD_ID);
-        formPanel.add(upload);
+        fileUpload = new FileUpload();
+        fileUpload.setName("uploadFormElement");
+        formPanel.add(fileUpload);
 
         final HTML errorMessages = new HTML("Please chose a file!");
         errorMessages.setStyleName("error-panel");
@@ -144,7 +142,7 @@ public class DeploymentStep1 implements IsWidget {
 
                 // managed deployment
                 if (tabs.getTabBar().getSelectedTab() == 0) {
-                    String filename = upload.getFilename();
+                    String filename = fileUpload.getFilename();
                     if (filename != null && !filename.equals("")) {
                         wizard.createManagedDeployment(filename);
                     } else {
@@ -170,6 +168,10 @@ public class DeploymentStep1 implements IsWidget {
 
     UploadForm getManagedForm() {
         return managedForm;
+    }
+
+    public FileUpload getFileUpload() {
+        return fileUpload;
     }
 
     private SafeHtml unmanagedHelp() {

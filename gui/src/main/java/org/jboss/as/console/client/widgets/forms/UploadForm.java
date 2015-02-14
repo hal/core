@@ -21,19 +21,70 @@
  */
 package org.jboss.as.console.client.widgets.forms;
 
-import com.google.gwt.dom.client.Document;
+import com.allen_sauer.gwt.log.client.Log;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
+import org.jboss.as.console.client.Console;
 
 /**
+ * A {@link FormPanel} to be used for file uploads within HAL. It uses the GWT approach with a hidden iframe when
+ * running in "same-origin-mode" and the new HTML5 FormData interface and XMLHttpRequest otherwise (due to CORS
+ * restrictions). Please not that the latter require a <a href="http://caniuse.com/#search=FormData">modern browser</a>.
+ *
  * @author Harald Pehl
+ * @see <a href="https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#formdata">https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#formdata</a>
  */
 public class UploadForm extends FormPanel {
 
-    // ------------------------------------------------------ event stuff
+    // ------------------------------------------------------ init
+
+    private final boolean sameOrigin;
+    private HandlerRegistration handlerRegistration;
+
+    public UploadForm() {
+        sameOrigin = Console.getBootstrapContext().isSameOrigin();
+    }
+
+    @Override
+    protected void onAttach() {
+        super.onAttach();
+        if (sameOrigin) {
+            // forward GWT's submit complete handler to our own upload complete handler
+            handlerRegistration = addSubmitCompleteHandler(new SubmitCompleteHandler() {
+                @Override
+                public void onSubmitComplete(SubmitCompleteEvent event) {
+                    String payload = event.getResults();
+                    if (payload != null) {
+                        try {
+                            if (!GWT.isScript()) // TODO: Formpanel weirdness
+                                payload = payload.substring(payload.indexOf(">") + 1, payload.lastIndexOf("<"));
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // if I get this exception it means I shouldn't strip out the html
+                            // this issue still needs more research
+                            Log.debug("Failed to strip out HTML.  This should be preferred?");
+                        }
+                    }
+                    fireUploadComplete(payload);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onDetach() {
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+        }
+        super.onDetach();
+    }
+
+
+    // ------------------------------------------------------ upload complete event
 
     /**
      * Fired when a upload has been submitted successfully.
@@ -114,32 +165,37 @@ public class UploadForm extends FormPanel {
     }
 
 
-    // ------------------------------------------------------ public methods
+    // ------------------------------------------------------ upload methods
 
-    public void upload(Element fileInput) {
-        uploadInternal(getAction(), fileInput);
+    public void upload(FileUpload fileInput) {
+        if (sameOrigin) {
+            submit();
+        } else {
+            uploadUsingFormData(getAction(), fileInput.getElement());
+        }
     }
 
-    private native void uploadInternal(String action, Element fileInput) /*-{
+    private native void uploadUsingFormData(String action, Element fileInput) /*-{
+        var that = this;
+
         var file = fileInput.files[0];
         var formData = new FormData();
         formData.append(fileInput.name, file);
 
-        var that = this;
         var xhr = new XMLHttpRequest();
         xhr.withCredentials = true;
-        xhr.onreadystatechange = $entry(function(evt) {
+        xhr.onreadystatechange = $entry(function (evt) {
             var status, text, readyState;
             try {
                 readyState = evt.target.readyState;
                 text = evt.target.responseText;
                 status = evt.target.status;
             }
-            catch(e) {
+            catch (e) {
                 return;
             }
             if (readyState == 4 && status == '200' && text) {
-                that.@org.jboss.as.console.client.widgets.forms.UploadForm::fireUploadComplete(Ljava/lang/String;)('' + text + '');
+                that.@org.jboss.as.console.client.widgets.forms.UploadForm::fireUploadComplete(Ljava/lang/String;)(text);
             }
         });
         xhr.open('POST', action, true);
