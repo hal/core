@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import static java.util.Arrays.asList;
+import static org.jboss.as.console.client.core.ApplicationProperties.DOMAIN_API;
 
 /**
  * @author Harald Pehl
@@ -21,28 +22,40 @@ import static java.util.Arrays.asList;
  */
 public class ProductConfigPanel implements IsWidget {
 
+    private final BootstrapContext context;
+    private final ProductConfig productConfig;
+
+    public ProductConfigPanel(BootstrapContext context, ProductConfig productConfig) {
+
+        this.context = context;
+        this.productConfig = productConfig;
+    }
+
     @Override
     public Widget asWidget() {
-        ProductConfig productConfig = GWT.create(ProductConfig.class);
-
         TextItem consoleVersion = new TextItem("console_version", "HAL version");
         consoleVersion.setValue(productConfig.getConsoleVersion() == null ? "n/a" : productConfig.getConsoleVersion());
-        consoleVersion.setUndefined(false);
         TextItem coreVersion = new TextItem("core_version", "Core version");
         coreVersion.setValue(productConfig.getCoreVersion());
-        coreVersion.setUndefined(false);
         TextItem productName = new TextItem("product_name", "Product name");
         productName.setValue(productConfig.getProductName());
-        productName.setUndefined(false);
         TextItem productVersion = new TextItem("product_version", "Product version");
         productVersion.setValue(productConfig.getProductVersion());
-        productVersion.setUndefined(false);
         TextItem profile = new TextItem("profile", "Profile");
         profile.setValue(productConfig.getProfile().name());
-        profile.setUndefined(false);
+        TextItem connectedTo = new TextItem("connectedTo", "Connected to");
+        connectedTo.setValue(context.getProperty(DOMAIN_API));
 
-        PlainFormView view = new PlainFormView(new ArrayList<FormItem>(
-                asList(consoleVersion, coreVersion, productName, productVersion, profile)));
+        ArrayList<FormItem> items = new ArrayList<FormItem>(
+                asList(consoleVersion, coreVersion, productName, productVersion, profile));
+        if (!context.isSameOrigin()) {
+            items.add(connectedTo);
+        }
+        for (FormItem item : items) {
+            item.setUndefined(false);
+        }
+
+        PlainFormView view = new PlainFormView(items);
         view.setNumColumns(1);
         RenderMetaData metaData = new RenderMetaData();
         metaData.setFilteredFields(Collections.<String>emptySet());

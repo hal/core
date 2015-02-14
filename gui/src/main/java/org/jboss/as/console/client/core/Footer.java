@@ -192,7 +192,7 @@ public class Footer {
                 }).showCancel(false);
                 window.setWidth(480);
                 window.setHeight(360);
-                window.trapWidget(new WindowContentBuilder(new ProductConfigPanel().asWidget(), options).build());
+                window.trapWidget(new WindowContentBuilder(new ProductConfigPanel(context, productConfig).asWidget(), options).build());
                 window.setGlassEnabled(true);
                 window.center();
             }

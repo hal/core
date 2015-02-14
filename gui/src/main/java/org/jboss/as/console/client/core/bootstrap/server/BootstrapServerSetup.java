@@ -152,9 +152,14 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         if (window != null) {
             window.hide();
         }
-        setUrls(server.getUrl());
+        String serverUrl = server.getUrl();
+        if (!serverUrl.endsWith("/")) {
+            serverUrl += "/";
+        }
+        context.setSameOrigin(serverUrl.equals(getBaseUrl()));
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog
+        setUrls(server.getUrl());
         Element iframe = Document.get().getElementById(IFRAME_ID).cast();
         DOM.sinkEvents(iframe, ONLOAD);
         DOM.setEventListener(iframe, new EventListener() {
