@@ -23,6 +23,11 @@ public class ResourceAddress extends ModelNode {
         set(resolved); // resolved is a model node which contains ADDRESS
     }
 
+    public ResourceAddress(String addressTemplate, ModelNode baseAddress, StatementContext context) {
+        ModelNode resolved = AddressMapping.fromString(addressTemplate).asResource(baseAddress, context);
+        set(resolved); // resolved is a model node which contains ADDRESS
+    }
+
     public List<Property> asTokens() {
         return get(ADDRESS).asPropertyList();
     }
