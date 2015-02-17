@@ -626,8 +626,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         propertyWindow.hide();
     }
 
-    public void onDoFlush(boolean isXA, String editedName) {
-        dataSourceStore.doFlush(isXA, editedName, new SimpleCallback<Boolean>() {
+    public void onDoFlush(boolean isXA, String editedName, String flushOp) {
+        dataSourceStore.doFlush(isXA, editedName, flushOp, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
                 if(success)

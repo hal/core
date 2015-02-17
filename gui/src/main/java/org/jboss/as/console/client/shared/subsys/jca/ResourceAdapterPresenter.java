@@ -866,12 +866,12 @@ public class ResourceAdapterPresenter
         });
     }
 
-    public void onDoFlush(ConnectionDefinition entity) {
+    public void onDoFlush(ConnectionDefinition entity, String flushOp) {
 
         ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, entity.getName());
 
-        operation.get(OP).set("flush-idle-connection-in-pool");
+        operation.get(OP).set(flushOp);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 

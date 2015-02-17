@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
@@ -457,12 +458,12 @@ public class DataSourceStoreImpl implements DataSourceStore {
     }
 
     @Override
-    public void doFlush(boolean xa, String name, final AsyncCallback<Boolean> callback) {
+    public void doFlush(boolean xa, String name, final String flushOp, final AsyncCallback<Boolean> callback) {
         String parentAddress = xa ? "xa-data-source" : "data-source";
         AddressBinding address = poolMetaData.getAddress();
 
         ModelNode operation = address.asResource(baseadress.getAdress(), parentAddress, name);
-        operation.get(OP).set("flush-gracefully-connection-in-pool");
+        operation.get(OP).set(flushOp);
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
 
@@ -475,7 +476,9 @@ public class DataSourceStoreImpl implements DataSourceStore {
             public void onSuccess(DMRResponse result) {
 
                 ModelNode response  = result.get();
-                callback.onSuccess(!response.isFailure());
+                boolean failure = response.isFailure();
+                Log.info("Successfully executed flush operation ':" + flushOp + "'");
+                callback.onSuccess(!failure);
             }
         });
     }

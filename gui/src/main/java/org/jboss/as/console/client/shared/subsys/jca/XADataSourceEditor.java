@@ -265,8 +265,8 @@ public class XADataSourceEditor implements PropertyManagement {
             }
 
             @Override
-            public void onDoFlush(String editedName) {
-                presenter.onDoFlush(true, editedName);
+            public void onDoFlush(String editedName, String flushOp) {
+                presenter.onDoFlush(true, editedName, flushOp);
             }
         });
         bottomPanel.add(poolConfig.asWidget(), "Pool");

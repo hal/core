@@ -209,7 +209,7 @@ public class DataSourceStoreInterceptor implements DataSourceStore {
     }
 
     @Override
-    public void doFlush(boolean xa, String editedName, AsyncCallback<Boolean> callback) {
-        delegate.doFlush(xa, editedName,callback);
+    public void doFlush(boolean xa, String editedName, String flushOp, AsyncCallback<Boolean> callback) {
+        delegate.doFlush(xa, editedName, flushOp, callback);
     }
 }

@@ -1,9 +1,11 @@
 package org.jboss.as.console.client.shared.runtime.ds;
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -22,9 +24,11 @@ import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
 import org.jboss.as.console.client.shared.runtime.plain.PlainColumnView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.ballroom.client.widgets.common.ButtonDropdown;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
@@ -75,7 +79,7 @@ public class DataSourceMetrics {
         };
 
 
-        com.google.gwt.user.cellview.client.Column<DataSource, String> protocolColumn = new com.google.gwt.user.cellview.client.Column<DataSource, String>(new TextCell()) {
+        final com.google.gwt.user.cellview.client.Column<DataSource, String> protocolColumn = new com.google.gwt.user.cellview.client.Column<DataSource, String>(new TextCell()) {
             @Override
             public String getValue(DataSource object) {
                 return object.getJndiName();
@@ -136,18 +140,35 @@ public class DataSourceMetrics {
                 presenter.verifyConnection(getCurrentSelection().getName(), isXA);
             }
         });
-        final ToolButton flushBtn = new ToolButton("Flush", new ClickHandler() {
+        final ToolButtonDropdown flushDropdown = new ToolButtonDropdown("Flush Gracefully", new ClickHandler() {
             @Override
-            public void onClick(ClickEvent clickEvent) {
-                presenter.flush(getCurrentSelection().getName(), isXA);
+            public void onClick(ClickEvent event) {
+                presenter.flush(getCurrentSelection().getName(), "flush-gracefully-connection-in-pool", isXA);
             }
         });
+        flushDropdown.addItem("Flush Idle", new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                presenter.flush(getCurrentSelection().getName(), "flush-idle-connection-in-pool", isXA);
+            }
+        });
+        flushDropdown.addItem("Flush Invalid", new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                presenter.flush(getCurrentSelection().getName(), "flush-invalid-connection-in-pool", isXA);
+            }
+        });
+        flushDropdown.addItem("Flush All", new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                presenter.flush(getCurrentSelection().getName(), "flush-all-connection-in-pool", isXA);
+            }
+        });
+
         verifyBtn.setVisible(true);
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
-        flushBtn.setVisible(true);
-        flushBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
         tools.addToolButtonRight(verifyBtn);
-        tools.addToolButtonRight(flushBtn);
+        tools.addToolWidgetRight(flushDropdown);
         tools.setVisible(true);
 
         // ----

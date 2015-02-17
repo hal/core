@@ -165,9 +165,9 @@ public class DataSourceEditor {
             }
 
             @Override
-            public void onDoFlush(String editedName) {
+            public void onDoFlush(String editedName, String flushOp) {
                 if(getCurrentSelection().isEnabled())
-                    presenter.onDoFlush(false, editedName);
+                    presenter.onDoFlush(false, editedName, flushOp);
                 else
                     Console.error(Console.CONSTANTS.subsys_jca_error_datasource_notenabled());
             }

@@ -294,7 +294,7 @@ public class ConnectionList implements PropertyManagement, PoolManagement {
     }
 
     @Override
-    public void onDoFlush(String editedName) {
-        presenter.onDoFlush(getCurrentSelection());
+    public void onDoFlush(String editedName, String flushOp) {
+        presenter.onDoFlush(getCurrentSelection(), flushOp);
     }
 }

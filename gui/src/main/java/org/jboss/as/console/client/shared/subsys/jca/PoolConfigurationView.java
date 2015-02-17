@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -10,12 +11,14 @@ import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.ballroom.client.widgets.common.ButtonDropdown;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
+import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.Map;
@@ -95,14 +98,31 @@ public class PoolConfigurationView {
 
         // TODO: https://issues.jboss.org/browse/AS7-3254
         if(Console.getBootstrapContext().isStandalone()) {
-            ToolButton flush = new ToolButton("Flush", new ClickHandler() {
+            final ToolButtonDropdown flushDropdown = new ToolButtonDropdown("Flush Gracefully", new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    management.onDoFlush(editedName);
+                    management.onDoFlush(editedName, "flush-gracefully-connection-in-pool");
                 }
             });
-            flush.setTitle("Flush Idle Connections");
-            toolStrip.addToolButtonRight(flush);
+            flushDropdown.addItem("Flush Idle", new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    management.onDoFlush(editedName, "flush-idle-connection-in-pool");
+                }
+            });
+            flushDropdown.addItem("Flush Invalid", new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    management.onDoFlush(editedName, "flush-invalid-connection-in-pool");
+                }
+            });
+            flushDropdown.addItem("Flush All", new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    management.onDoFlush(editedName, "flush-all-connection-in-pool");
+                }
+            });
+            toolStrip.addToolButtonRight(flushDropdown);
         }
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
