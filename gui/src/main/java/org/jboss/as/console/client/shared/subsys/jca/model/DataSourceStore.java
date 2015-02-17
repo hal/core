@@ -62,5 +62,5 @@ public interface DataSourceStore {
     void createXAConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
     void deleteXAConnectionProperty(String reference, PropertyRecord prop, AsyncCallback<Boolean> callback);
 
-    void doFlush(boolean xa, String editedName, AsyncCallback<Boolean> callback);
+    void doFlush(boolean xa, String editedName, String flushOp, AsyncCallback<Boolean> callback);
 }

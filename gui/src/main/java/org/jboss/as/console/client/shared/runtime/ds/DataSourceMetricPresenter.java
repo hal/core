@@ -318,7 +318,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         });
     }
 
-    public void flush(final String dsName, boolean isXA) {
+    public void flush(final String dsName, final String flushOp, boolean isXA) {
 
 
         String subresource = isXA ? "xa-data-source": "data-source";
@@ -327,7 +327,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
         operation.get(ADDRESS).set(RuntimeBaseAddress.get());
         operation.get(ADDRESS).add("subsystem", "datasources");
         operation.get(ADDRESS).add(subresource, dsName);
-        operation.get(OP).set("flush-gracefully-connection-in-pool");
+        operation.get(OP).set(flushOp);
 
         dispatcher.execute(new DMRAction(operation), new LoggingCallback<DMRResponse>() {
             @Override
@@ -340,6 +340,7 @@ public class DataSourceMetricPresenter extends CircuitPresenter<DataSourceMetric
                 }
                 else
                 {
+                    Log.info("Successfully executed flush operation ':" + flushOp + "'");
                     Console.info(Console.MESSAGES.successful("Flush connections for " + dsName));
                 }
             }

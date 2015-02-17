@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public interface PoolManagement {
 
-    public void onSavePoolConfig(final String parentName, Map<String, Object> changeset);
+    void onSavePoolConfig(final String parentName, Map<String, Object> changeset);
 
-    public void onResetPoolConfig(final String parentName, PoolConfig entity);
+    void onResetPoolConfig(final String parentName, PoolConfig entity);
 
-    void onDoFlush(String editedName);
+    void onDoFlush(String editedName, String flushOp);
 }

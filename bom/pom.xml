@@ -19,7 +19,7 @@
 
     <properties>
         <maven.min.version>3.1.0</maven.min.version>
-        <ballroom.version>2.2.0-SNAPSHOT</ballroom.version>
+        <ballroom.version>2.2.2</ballroom.version>
         <circuit.version>0.0.8</circuit.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>

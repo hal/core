@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.widgets.forms;
 
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.ballroom.client.widgets.forms.FormAdapter;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -21,7 +22,7 @@ public class FormToolStrip<T> {
 
     private FormAdapter<T> form = null;
 
-    private List<ToolButton> additionalButtons = new LinkedList<ToolButton>();
+    private List<Widget> additionalButtons = new LinkedList<Widget>();
 
     private PreValidation preValidation = null;
     private Set<Command> cancelDelegates = new HashSet<Command>();
@@ -77,8 +78,12 @@ public class FormToolStrip<T> {
 
         toolStrip = new ToolStrip();
 
-        for(ToolButton btn : additionalButtons)
-            toolStrip.addToolButtonRight(btn);
+        for(Widget btn : additionalButtons)
+            if (btn instanceof ToolButton) {
+                toolStrip.addToolButtonRight((ToolButton) btn);
+            } else {
+                toolStrip.addToolWidgetRight(btn);
+            }
 
 
         // with the form API changes (self containment), it happens that we have many empty toolstrips
@@ -89,7 +94,7 @@ public class FormToolStrip<T> {
         return toolStrip;
     }
 
-    public void addToolButtonRight(ToolButton btn) {
+    public void addToolButtonRight(Widget btn) {
         additionalButtons.add(btn);
     }
 
