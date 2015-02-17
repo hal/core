@@ -480,7 +480,7 @@ public class DataSourceStoreImpl implements DataSourceStore {
         AddressBinding address = poolMetaData.getAddress();
 
         ModelNode operation = address.asResource(baseadress.getAdress(), parentAddress, name);
-        operation.get(OP).set("flush-all-connection-in-pool");
+        operation.get(OP).set("flush-idle-connection-in-pool");
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
 
