@@ -130,6 +130,9 @@ import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresen
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
+import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
@@ -341,6 +344,7 @@ public interface CoreUI {
     AsyncProvider<ModclusterPresenter> getModclusterPresenter();
     AsyncProvider<JMXPresenter> getJMXPresenter();
     AsyncProvider<EEPresenter> getEEPresenter();
+    AsyncProvider<RemotingPresenter> getRemotingPresenter();
 
     AsyncProvider<JcaPresenter> getJcaPresenter();
 
@@ -401,6 +405,9 @@ public interface CoreUI {
 
     HostStore getHostStore();
     HostStoreAdapter getHostStoreAdapter();
+
+    RemotingStore getRemotingStore();
+    RemotingStoreAdapter getRemotingStoreAdapter();
 
     ServerStore getServerStore();
     ServerStoreAdapter getServerStoreAdapter();

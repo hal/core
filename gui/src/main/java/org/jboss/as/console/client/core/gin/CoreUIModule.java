@@ -159,6 +159,10 @@ import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnec
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsView;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
+import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStoreAdapter;
+import org.jboss.as.console.client.shared.subsys.remoting.ui.RemotingView;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsView;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
@@ -192,7 +196,7 @@ import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.spi.GinExtensionBinding;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
@@ -201,6 +205,7 @@ import org.jboss.dmr.client.dispatch.impl.DispatchAsyncImpl;
 import org.jboss.dmr.client.dispatch.impl.HandlerRegistry;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
  * Provides the bindings for the core UI widgets.
@@ -610,6 +615,12 @@ public class CoreUIModule extends AbstractPresenterModule {
                 UndertowView.class,
                 UndertowPresenter.MyProxy.class);
 
+        bindPresenter(RemotingPresenter.class,
+                RemotingPresenter.MyView.class,
+                RemotingView.class,
+                RemotingPresenter.MyProxy.class);
+
+
         // ------------------------------------------------------ circuit & stores
 
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
@@ -637,6 +648,9 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(PerspectiveStore.class).in(Singleton.class);
         bind(PerspectiveStoreAdapter.class).in(Singleton.class);
+
+        bind(RemotingStore.class).in(Singleton.class);
+        bind(RemotingStoreAdapter.class).in(Singleton.class);
 
         // ------------------------------------------------------ no circuit stores yet!
 
@@ -671,7 +685,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         requestStaticInjection(RuntimeBaseAddress.class);
         requestStaticInjection(Baseadress.class);
 
-        bind(CoreGUIContext.class).in(Singleton.class);
+        bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);
 
         bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
         bind(PlaceRequestSecurityFramework.class).in(Singleton.class);

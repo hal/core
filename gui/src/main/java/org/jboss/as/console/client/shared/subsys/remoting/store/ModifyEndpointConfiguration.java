@@ -19,44 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.stores;
+package org.jboss.as.console.client.shared.subsys.remoting.store;
+
+import org.jboss.gwt.circuit.Action;
 
 import java.util.Map;
 
 /**
  * @author Harald Pehl
  */
-public class ModifyPayload {
-    private final String name;
+public class ModifyEndpointConfiguration implements Action {
+
     private final Map<String, Object> changedValues;
 
-    public ModifyPayload(String name, Map<String, Object> changedValues) {
-        this.name = name;
+    public ModifyEndpointConfiguration(Map<String, Object> changedValues) {
         this.changedValues = changedValues;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ModifyPayload)) return false;
+        if (!(o instanceof ModifyEndpointConfiguration)) return false;
 
-        ModifyPayload that = (ModifyPayload) o;
+        ModifyEndpointConfiguration that = (ModifyEndpointConfiguration) o;
 
-        if (!changedValues.equals(that.changedValues)) return false;
-        if (!name.equals(that.name)) return false;
+        return changedValues.equals(that.changedValues);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + changedValues.hashCode();
-        return result;
-    }
-
-    public String getName() {
-        return name;
+        return changedValues.hashCode();
     }
 
     public Map<String, Object> getChangedValues() {

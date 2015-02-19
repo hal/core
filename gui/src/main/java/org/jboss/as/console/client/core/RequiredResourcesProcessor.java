@@ -23,12 +23,11 @@ package org.jboss.as.console.client.core;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.rbac.NoGatekeeperContext;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.flow.client.Async;

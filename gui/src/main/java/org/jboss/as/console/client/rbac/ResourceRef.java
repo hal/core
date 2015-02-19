@@ -1,5 +1,9 @@
 package org.jboss.as.console.client.rbac;
 
+/**
+ * @deprecated Replace with {@link org.jboss.as.console.client.v3.dmr.AddressTemplate}
+ */
+@Deprecated
 public class ResourceRef {
     private static final String OPT = "opt:/";
 

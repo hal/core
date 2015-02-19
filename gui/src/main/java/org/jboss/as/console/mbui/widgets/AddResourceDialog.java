@@ -20,9 +20,11 @@ import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
 /**
+ * @deprecated Replace with {@link org.jboss.as.console.client.v3.widgets.AddResourceDialog}
  * @author Heiko Braun
  * @since 29/08/14
  */
+@Deprecated
 public class AddResourceDialog extends ModelDrivenWidget {
 
     private Callback callback;

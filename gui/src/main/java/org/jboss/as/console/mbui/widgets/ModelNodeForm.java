@@ -331,7 +331,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     public Map<String, Object> getChangedValues() {
 
         final Map<String,Object> changedValues = new HashMap<String, Object>();
-        final ModelNode src = ModelNodeForm.this.editedEntity;
+        final ModelNode src = editedEntity == null ? new ModelNode() : editedEntity;
         final ModelNode dest = getUpdatedEntity();
 
         ModelNodeInspector inspector = new ModelNodeInspector(this.getUpdatedEntity());

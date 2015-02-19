@@ -23,10 +23,20 @@ package org.jboss.as.console.mbui.widgets;
 
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
+import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
+
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.CHILDREN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.MODEL_DESCRIPTION;
 
 /**
+ * @deprecated Replace with {@link org.jboss.as.console.client.v3.dmr.ResourceDescription}
  * @author Harald Pehl
  */
+@Deprecated
 public class ResourceDescription {
 
     private final String template;
@@ -63,6 +73,23 @@ public class ResourceDescription {
 
     public void setDefinition(ResourceDefinition definition) {
         this.definition = definition;
+    }
+
+    public ResourceDefinition getChildDefinition(String name) {
+        if (definition != null) {
+            if (definition.hasDefined(CHILDREN)) {
+                List<Property> properties = definition.get(CHILDREN).asPropertyList();
+                if (!properties.isEmpty()) {
+                    for (Property property : properties) {
+                        if (name.equals(property.getName()) && property.getValue().hasDefined(MODEL_DESCRIPTION)) {
+                            Property modelDescription = property.getValue().get(MODEL_DESCRIPTION).asProperty();
+                            return new ResourceDefinition(modelDescription.getValue());
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public String getTemplate() {

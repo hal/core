@@ -13,9 +13,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * NOTE: Stores the actual address as DMR property 'address'.
  *
+ * @deprecated Replace with {@link org.jboss.as.console.client.v3.dmr.ResourceAddress}
  * @author Heiko Braun
  * @since 29/08/14
  */
+@Deprecated
 public class ResourceAddress extends ModelNode {
 
     public ResourceAddress(String addressTemplate, StatementContext context) {
@@ -35,9 +37,11 @@ public class ResourceAddress extends ModelNode {
     public ModelNode asOperation(ModelNode data, String name) {
 
         ModelNode op = asFqAddress(name);
-        List<Property> atts = data.asPropertyList();
-        for (Property att : atts) {
-            op.get(att.getName()).set(att.getValue());
+        if (data.isDefined()) {
+            List<Property> atts = data.asPropertyList();
+            for (Property att : atts) {
+                op.get(att.getName()).set(att.getValue());
+            }
         }
         return op;
     }
