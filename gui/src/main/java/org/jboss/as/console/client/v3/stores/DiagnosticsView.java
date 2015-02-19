@@ -7,10 +7,6 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
 
-import javax.enterprise.context.ApplicationScoped;
-
-@ApplicationScoped
-@SuppressWarnings("UnusedDeclaration")
 public class DiagnosticsView implements DAGDispatcher.Diagnostics, IsWidget {
 
     private InlineLabel info;

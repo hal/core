@@ -59,6 +59,7 @@ public class NameTokens {
     public static final String OSGiRuntimePresenter = "osgi-runtime";
     public static final String PropertiesPresenter = "properties";
     public static final String ResourceAdapterPresenter ="resource-adapters";
+    public static final String Remoting = "remoting";
     public static final String ReplicatedCachePresenter = "replicated-cache";
     public static final String SecurityDomainsPresenter = "security-domains";
     public static final String SecuritySubsystemPresenter = "security";
@@ -104,7 +105,7 @@ public class NameTokens {
     public static final String CSP = "csp";
     public static final String HttpPresenter = "http";
     public static final String ServletPresenter = "servlet";
-    public static final String  UndertowPresenter = "undertow";
+    public static final String UndertowPresenter = "undertow";
 
     public static String getMainLayout() {
         return mainLayout;

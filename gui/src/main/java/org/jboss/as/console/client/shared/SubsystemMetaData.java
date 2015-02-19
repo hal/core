@@ -92,6 +92,7 @@ public class SubsystemMetaData {
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Deployment Scanners", "deployment-scanner"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", NameTokens.BoundedQueueThreadPoolPresenter));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("JMX", "jmx"));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("Remoting", NameTokens.Remoting));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Config Admin", "osgi", NameTokens.ConfigAdminPresenter));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("JGroups", NameTokens.JGroupsPresenter));
 

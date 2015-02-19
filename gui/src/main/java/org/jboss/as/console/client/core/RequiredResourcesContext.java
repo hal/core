@@ -24,7 +24,7 @@ package org.jboss.as.console.client.core;
 import org.jboss.as.console.client.rbac.ReadOnlyContext;
 import org.jboss.as.console.client.rbac.ResourceRef;
 import org.jboss.as.console.client.rbac.SecurityContextImpl;
-import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 
 import java.util.HashSet;

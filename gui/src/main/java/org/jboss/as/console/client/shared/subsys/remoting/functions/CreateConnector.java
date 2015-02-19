@@ -1,0 +1,82 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2010, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.jboss.as.console.client.shared.subsys.remoting.functions;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.useware.kernel.gui.behaviour.StatementContext;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
+/**
+ * @author Harald Pehl
+ */
+public class CreateConnector implements Function<FunctionContext> {
+
+    private final DispatchAsync dispatcher;
+    private final StatementContext statementContext;
+    private final AddressTemplate connectorAddress;
+    private final String connectorName;
+    private final ModelNode newModel;
+
+    public CreateConnector(DispatchAsync dispatcher, StatementContext statementContext,
+                           AddressTemplate connectorAddress, String connectorName, ModelNode newModel) {
+        this.dispatcher = dispatcher;
+        this.statementContext = statementContext;
+        this.connectorAddress = connectorAddress;
+        this.connectorName = connectorName;
+        this.newModel = newModel;
+    }
+
+    @Override
+    public void execute(final Control<FunctionContext> control) {
+        ModelNode op = newModel.clone();
+        op.get(ADDRESS).set(connectorAddress.resolve(statementContext, connectorName));
+        op.get(OP).set(ADD);
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                control.getContext().setError(caught);
+                control.abort();
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode result = dmrResponse.get();
+                if (result.isFailure()) {
+                    control.getContext().setError(new RuntimeException("Failed to add resource " +
+                            connectorName + ": " + result.getFailureDescription()));
+                    control.abort();
+                } else {
+                    control.proceed();
+                }
+            }
+        });
+    }
+}

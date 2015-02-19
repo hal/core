@@ -26,6 +26,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.rbac.Constraints;
 import org.jboss.as.console.client.rbac.ResourceRef;
 import org.jboss.as.console.client.rbac.SecurityContextImpl;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ResourceDescription;
@@ -44,6 +45,7 @@ import java.util.*;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * TODO Replace deprecated with new API
  * @author Harald Pehl
  */
 public class ReadRequiredResources implements Function<RequiredResourcesContext> {
@@ -104,6 +106,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
     // ------------------------------------------------------ inner classes
 
     private static class Input {
+        final AddressTemplate addressTemplate;
         final String requiredResource;
         final ResourceRef ref;
         final ResourceAddress address;
@@ -112,9 +115,10 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
         public Input(String requiredResource, ResourceRef ref, ResourceAddress address, ResourceDescription description,
                      ModelNode operation) {
+            this.requiredResource = requiredResource;
+            this.addressTemplate = AddressTemplate.of(requiredResource);
             this.ref = ref;
             this.address = address;
-            this.requiredResource = requiredResource;
             this.description = description;
             this.operation = operation;
         }
@@ -194,7 +198,8 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
                         // update & store description
                         in.description.setDefinition(new ResourceDefinition(payload));
-                        control.getContext().getResourceDescriptionRegistry().add(in.description);
+//                        control.getContext().getResourceDescriptionRegistry().add(in.description);
+                        control.getContext().getResourceDescriptionRegistry().add(in.addressTemplate, new org.jboss.as.console.client.v3.dmr.ResourceDescription(payload));
 
                         // break down into root resource and children
                         parseAccessControlChildren(in.ref, references, control.getContext().getSecurityContextImpl(),

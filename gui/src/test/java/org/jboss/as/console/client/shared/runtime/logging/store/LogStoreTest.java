@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 public class LogStoreTest {
 
     private StaticDispatcher dispatcher;
-    private LogStore logStore;
+    private LogStore store;
 
     @Before
     public void setUp() {
@@ -32,7 +32,7 @@ public class LogStoreTest {
         when(bootstrap.isStandalone()).thenReturn(true);
 
         dispatcher = new StaticDispatcher();
-        logStore = new LogStore(null, dispatcher, scheduler, bootstrap);
+        store = new LogStore(null, dispatcher, scheduler, bootstrap);
     }
 
 
@@ -41,32 +41,32 @@ public class LogStoreTest {
     @Test
     public void readLogFiles() {
         dispatcher.push(StaticDmrResponse.ok(logFileNodes("server.log", "server.log.2014.-08-01", "server.log.2014.-08-02")));
-        logStore.readLogFiles(NoopChannel.INSTANCE);
+        store.readLogFiles(NoopChannel.INSTANCE);
 
-        assertNull(logStore.getActiveLogFile());
-        assertEquals(3, logStore.getLogFiles().size());
+        assertNull(store.getActiveLogFile());
+        assertEquals(3, store.getLogFiles().size());
     }
 
     @Test
     public void readLogFilesAndVerifyStale() {
         LogFile stale = new LogFile("stale.log", Collections.<String>emptyList(), 0);
-        logStore.states.put(stale.getName(), stale);
+        store.states.put(stale.getName(), stale);
 
         dispatcher.push(StaticDmrResponse.ok(logFileNodes("server.log")));
-        logStore.readLogFiles(NoopChannel.INSTANCE);
+        store.readLogFiles(NoopChannel.INSTANCE);
 
         // "stale.log" is no longer in the list of log files and must be stale
-        assertTrue(logStore.states.get(stale.getName()).isStale());
+        assertTrue(store.states.get(stale.getName()).isStale());
     }
 
     @Test
     public void openLogFile() {
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.logFiles.add(logFileNode("server.log"));
-        logStore.openLogFile("server.log", NoopChannel.INSTANCE);
+        store.logFiles.add(logFileNode("server.log"));
+        store.openLogFile("server.log", NoopChannel.INSTANCE);
 
-        assertFalse(logStore.pauseFollow);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertFalse(store.pauseFollow);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -81,25 +81,25 @@ public class LogStoreTest {
     @Test
     public void reopenLogFile() {
         LogFile logFile = new LogFile("server.log", lines(0), 0);
-        logStore.states.put(logFile.getName(), logFile);
+        store.states.put(logFile.getName(), logFile);
 
-        assertFalse(logStore.pauseFollow);
+        assertFalse(store.pauseFollow);
         // Must not dispatch a DMR operation
-        logStore.openLogFile("server.log", NoopChannel.INSTANCE);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        store.openLogFile("server.log", NoopChannel.INSTANCE);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertSame(logFile, activeLogFile);
     }
 
     @Test
     public void selectLogFile() {
         LogFile logFile = new LogFile("server.log", lines(0), 0);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
-        assertFalse(logStore.pauseFollow);
+        assertFalse(store.pauseFollow);
         // Must not dispatch a DMR operation
-        logStore.selectLogFile("server.log", NoopChannel.INSTANCE);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        store.selectLogFile("server.log", NoopChannel.INSTANCE);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertSame(logFile, activeLogFile);
     }
 
@@ -107,41 +107,41 @@ public class LogStoreTest {
     public void closeLogFile() {
         LogFile foo = new LogFile("foo.log", Collections.<String>emptyList(), 0);
         LogFile bar = new LogFile("bar.log", Collections.<String>emptyList(), 0);
-        logStore.states.put(foo.getName(), foo);
-        logStore.states.put(bar.getName(), bar);
-        logStore.activate(foo);
+        store.states.put(foo.getName(), foo);
+        store.states.put(bar.getName(), bar);
+        store.activate(foo);
 
-        logStore.closeLogFile("bar.log", NoopChannel.INSTANCE);
+        store.closeLogFile("bar.log", NoopChannel.INSTANCE);
 
-        assertFalse(logStore.pauseFollow);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertFalse(store.pauseFollow);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertSame(foo, activeLogFile);
-        assertEquals(1, logStore.states.size());
-        assertSame(foo, logStore.states.values().iterator().next());
+        assertEquals(1, store.states.size());
+        assertSame(foo, store.states.values().iterator().next());
     }
 
     @Test
     public void closeActiveLogFile() {
         LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
-        logStore.closeLogFile("server.log", NoopChannel.INSTANCE);
+        store.closeLogFile("server.log", NoopChannel.INSTANCE);
 
-        assertTrue(logStore.pauseFollow);
-        assertNull(logStore.getActiveLogFile());
-        assertTrue(logStore.states.isEmpty());
+        assertTrue(store.pauseFollow);
+        assertNull(store.getActiveLogFile());
+        assertTrue(store.states.isEmpty());
     }
 
     @Test
     public void navigateHead() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.HEAD, NoopChannel.INSTANCE);
+        store.navigate(Direction.HEAD, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -150,7 +150,7 @@ public class LogStoreTest {
         assertEquals(0, operation.get("skip").asInt());
 
         // 2. verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -166,11 +166,11 @@ public class LogStoreTest {
     public void navigateTail() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.TAIL, NoopChannel.INSTANCE);
+        store.navigate(Direction.TAIL, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -179,7 +179,7 @@ public class LogStoreTest {
         assertEquals(0, operation.get("skip").asInt());
 
         // 2. verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -194,12 +194,12 @@ public class LogStoreTest {
     @Test
     public void navigatePrev() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
-        logStore.pageSize = 2;
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.pageSize = 2;
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -208,7 +208,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 2. verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -223,17 +223,17 @@ public class LogStoreTest {
     @Test
     public void navigatePrevPrevNext() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
-        logStore.pageSize = 2;
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.pageSize = 2;
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         // Prev (1)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // Prev (2)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -242,7 +242,7 @@ public class LogStoreTest {
         assertEquals(4, operation.get("skip").asInt());
 
         // 2 verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -255,7 +255,7 @@ public class LogStoreTest {
 
         // Next
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -264,7 +264,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 3.2 verify log file state
-        activeLogFile = logStore.getActiveLogFile();
+        activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -279,13 +279,13 @@ public class LogStoreTest {
     @Test
     public void navigatePrevHeadNext() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
-        logStore.pageSize = 2;
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.pageSize = 2;
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         // Prev
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -294,7 +294,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 1.2 verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -307,7 +307,7 @@ public class LogStoreTest {
 
         // Head
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.HEAD, NoopChannel.INSTANCE);
+        store.navigate(Direction.HEAD, NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -316,7 +316,7 @@ public class LogStoreTest {
         assertEquals(0, operation.get("skip").asInt());
 
         // 2.2 verify log file state
-        activeLogFile = logStore.getActiveLogFile();
+        activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -329,7 +329,7 @@ public class LogStoreTest {
 
         // Next
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -338,7 +338,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 3.2 verify log file state
-        activeLogFile = logStore.getActiveLogFile();
+        activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -354,12 +354,12 @@ public class LogStoreTest {
     public void navigateNext() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
-        logStore.pageSize = 2;
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.pageSize = 2;
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -368,7 +368,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 2. verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -384,13 +384,13 @@ public class LogStoreTest {
     public void navigateNextNextPrev() {
         LogFile logFile = new LogFile("server.log", lines(2), 0);
         logFile.goTo(Position.HEAD);
-        logStore.pageSize = 2;
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.pageSize = 2;
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
         // Next (1)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -399,7 +399,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 1.2 verify log file state
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -412,7 +412,7 @@ public class LogStoreTest {
 
         // Next (2)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -421,7 +421,7 @@ public class LogStoreTest {
         assertEquals(4, operation.get("skip").asInt());
 
         // 1.2 verify log file state
-        activeLogFile = logStore.getActiveLogFile();
+        activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -434,7 +434,7 @@ public class LogStoreTest {
 
         // Previous
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        logStore.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -443,7 +443,7 @@ public class LogStoreTest {
         assertEquals(2, operation.get("skip").asInt());
 
         // 3.2 verify log file state
-        activeLogFile = logStore.getActiveLogFile();
+        activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertEquals("server.log", activeLogFile.getName());
         assertLines(activeLogFile.getContent(), 0, 1);
@@ -457,20 +457,20 @@ public class LogStoreTest {
 
     @Test
     public void changePageSize() {
-        logStore.changePageSize(42, NoopChannel.INSTANCE);
-        assertEquals(42, logStore.pageSize);
+        store.changePageSize(42, NoopChannel.INSTANCE);
+        assertEquals(42, store.pageSize);
     }
 
     @Test
     public void follow() {
         LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
-        logStore.follow(NoopChannel.INSTANCE);
+        store.follow(NoopChannel.INSTANCE);
 
-        assertFalse(logStore.pauseFollow);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertFalse(store.pauseFollow);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertTrue(activeLogFile.isFollow());
     }
@@ -479,13 +479,13 @@ public class LogStoreTest {
     public void pauseFollow() {
         LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logFile.setFollow(true);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
-        logStore.pauseFollow(NoopChannel.INSTANCE);
+        store.pauseFollow(NoopChannel.INSTANCE);
 
-        assertTrue(logStore.pauseFollow);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertTrue(store.pauseFollow);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertTrue(activeLogFile.isFollow());
     }
@@ -494,13 +494,13 @@ public class LogStoreTest {
     public void unFollow() {
         LogFile logFile = new LogFile("server.log", Collections.<String>emptyList(), 0);
         logFile.setFollow(true);
-        logStore.states.put(logFile.getName(), logFile);
-        logStore.activate(logFile);
+        store.states.put(logFile.getName(), logFile);
+        store.activate(logFile);
 
-        logStore.unFollow(NoopChannel.INSTANCE);
+        store.unFollow(NoopChannel.INSTANCE);
 
-        assertFalse(logStore.pauseFollow);
-        LogFile activeLogFile = logStore.getActiveLogFile();
+        assertFalse(store.pauseFollow);
+        LogFile activeLogFile = store.getActiveLogFile();
         assertNotNull(activeLogFile);
         assertFalse(activeLogFile.isFollow());
     }

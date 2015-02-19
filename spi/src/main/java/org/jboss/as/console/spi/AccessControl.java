@@ -3,7 +3,7 @@ package org.jboss.as.console.spi;
 /**
  * Access control meta data for dialogs (presenter).
  *
- * @deprecated Use @org.jboss.as.console.spi.RequiredResources instead
+ * @deprecated Replace with {@link org.jboss.as.console.spi.RequiredResources}
  * @author Heiko Braun
  * @date 3/26/12
  */

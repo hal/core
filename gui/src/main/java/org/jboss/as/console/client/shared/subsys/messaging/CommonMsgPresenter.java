@@ -2,7 +2,6 @@ package org.jboss.as.console.client.shared.subsys.messaging;
 
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.dmr.client.ModelNode;
 
 import java.util.Map;
 

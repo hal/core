@@ -31,9 +31,11 @@ import org.useware.kernel.gui.behaviour.StatementContext;
  *
  * All expression are resolved against the {@link StatementContext}.
  *
+ * @deprecated Replace with org.jboss.as.console.client.v3.dmr.AddressTemplate
  * @author Heiko Braun
  * @date 9/23/11
  */
+@Deprecated
 public class AddressMapping {
 
     private List<Token> address = new LinkedList<Token>();

@@ -19,7 +19,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.mbui.widgets;
+package org.jboss.as.console.client.v3;
+
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,21 +32,21 @@ import java.util.Map;
  */
 public class ResourceDescriptionRegistry {
 
-    private final Map<String, ResourceDescription> registry;
+    private final Map<AddressTemplate, ResourceDescription> registry;
 
     public ResourceDescriptionRegistry() {
         registry = new HashMap<>();
     }
 
-    public void add(ResourceDescription context) {
-        registry.put(context.getTemplate(), context);
+    public void add(AddressTemplate addressTemplate, ResourceDescription description) {
+        registry.put(addressTemplate, description);
     }
 
-    public ResourceDescription lookup(String template) {
-        return registry.get(template);
+    public ResourceDescription lookup(AddressTemplate addressTemplate) {
+        return registry.get(addressTemplate);
     }
 
-    public boolean contains(String template) {
-        return registry.containsKey(template);
+    public boolean contains(AddressTemplate addressTemplate) {
+        return registry.containsKey(addressTemplate);
     }
 }

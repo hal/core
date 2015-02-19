@@ -21,11 +21,7 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.inject.Inject;
 import org.jboss.as.console.client.rbac.SecurityFramework;
-import org.jboss.as.console.mbui.widgets.ResourceDescription;
-import org.jboss.as.console.mbui.widgets.ResourceDescriptionRegistry;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -37,24 +33,10 @@ import java.util.Set;
  */
 public final class NameTokenRegistry {
 
-    private final SecurityFramework securityFramework;
-    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
     private final Set<String> revealedTokens;
 
-    @Inject
-    public NameTokenRegistry(SecurityFramework securityFramework,
-                             ResourceDescriptionRegistry resourceDescriptionRegistry) {
-        this.securityFramework = securityFramework;
-        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+    public NameTokenRegistry() {
         this.revealedTokens = new HashSet<>();
-    }
-
-    public SecurityContext getSecurityContext(String token) {
-        return securityFramework.getSecurityContext(token);
-    }
-
-    public ResourceDescription getModelDrivenContext(String template) {
-        return resourceDescriptionRegistry.lookup(template);
     }
 
     public boolean wasRevealed(String token) {
