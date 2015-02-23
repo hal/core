@@ -86,10 +86,9 @@ public class MainLayoutViewImpl extends ViewImpl
         getHeaderPanel().add(header.asWidget());
         getFooterPanel().add(footer.asWidget());
 
-
+        // the application window
         window = new DefaultWindow("");
-        window.setWidth(640);
-        window.setHeight(480);
+
         window.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
@@ -108,7 +107,10 @@ public class MainLayoutViewImpl extends ViewImpl
             }
         });
 
+        window.setWidth(640);
+        window.setHeight(480);
         window.setAutoHideOnHistoryEventsEnabled(true);
+        window.setGlassStyleName("application-panel-glass");
         window.setGlassEnabled(true);
     }
 
