@@ -67,7 +67,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
     public void add(String requiredResource, boolean recursive) {
         ResourceRef ref = new ResourceRef(requiredResource);
-        ResourceAddress address = new ResourceAddress(requiredResource, new ModelNode().setEmptyList(), statementContext);
+        ResourceAddress address = new ResourceAddress(ref.getAddress(), new ModelNode().setEmptyList(), statementContext);
         ResourceDescription description = new ResourceDescription(requiredResource, address);
         ModelNode operation = address.clone();
         operation.get(OP).set(READ_RESOURCE_DESCRIPTION_OPERATION);
