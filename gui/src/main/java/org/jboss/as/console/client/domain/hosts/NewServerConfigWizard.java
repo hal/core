@@ -208,6 +208,16 @@ public class NewServerConfigWizard {
 
     public void updateHosts(final Set<String> hostNames) {
         hostItem.setValueMap(hostNames);
+
+        int i=1;
+        for (String host: hostNames) {
+            if(presenter.getSelectedHost().equals(host))
+            {
+                hostItem.selectItem(i);
+                break;
+            }
+            i++;
+        }
     }
 
     private ServerGroupRecord getSelectedServerGroup(List<ServerGroupRecord> available, String selectedName)
