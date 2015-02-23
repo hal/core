@@ -1313,4 +1313,10 @@ public interface UIConstants extends Constants {
     String missing_driver();
 
     String missing_driver_module();
+
+    String connecto_to();
+
+    String connecto_to_desc_standalone();
+
+    String connecto_to_desc_domain();
 }

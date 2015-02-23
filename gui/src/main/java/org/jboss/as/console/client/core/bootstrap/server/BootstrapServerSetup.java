@@ -10,7 +10,6 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
@@ -22,7 +21,7 @@ import static org.jboss.as.console.client.core.ApplicationProperties.*;
  * interface. By default this class first tries to connect to the management interface this console was loaded from.
  * If no server was found or if running dev mode, the selection is triggered by {@link BootstrapServerDialog}.
  * <p/>
- * <p>Please note: This class must run <em>before</em> any bootstrap steps!</p>
+ * <p>Please note: This class must run <em>before</em> any other bootstrap steps!</p>
  *
  * @author Harald Pehl
  */
@@ -33,7 +32,6 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     private final static String IFRAME_ID = "__console_corsAuthentication";
     private Control<BootstrapContext> control;
     private BootstrapContext context;
-    private DefaultWindow window;
     private BootstrapServerDialog dialog;
 
     @Override
@@ -94,13 +92,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
     private void openDialog() {
         dialog = new BootstrapServerDialog(this);
-        window = new DefaultWindow("Connect to Server");
-        window.setWidth(600);
-        window.setHeight(400);
-        window.trapWidget(dialog.getConnectPage().asWidget());
-        window.setGlassEnabled(true);
-        window.center();
-        dialog.getConnectPage().reset();
+        dialog.open();
     }
 
     void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
@@ -131,26 +123,9 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         }
     }
 
-    void onConfigure() {
-        // Changing the title is not implemented in DefaultWindow window.setTitle("Configure Server");
-        window.trapWidget(dialog.getConfigurePage().asWidget());
-        dialog.getConfigurePage().reset();
-    }
-
-    void onConfigureOk() {
-        // Changing the title is not implemented in DefaultWindow window.setTitle("Connect to Server");
-        window.trapWidget(dialog.getConnectPage().asWidget());
-        dialog.getConnectPage().reset();
-    }
-
-    void onConfigureCancel() {
-        // Changing the title is not implemented in DefaultWindow window.setTitle("Connect to Server");
-        window.trapWidget(dialog.getConnectPage().asWidget());
-    }
-
     void onConnect(BootstrapServer server) {
-        if (window != null) {
-            window.hide();
+        if (dialog != null) {
+            dialog.hide();
         }
         String serverUrl = server.getUrl();
         if (!serverUrl.endsWith("/")) {

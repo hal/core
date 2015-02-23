@@ -23,16 +23,18 @@ import java.util.List;
  *
  * @author Harald Pehl
  */
-public class BootstrapServerTable implements IsWidget {
+class BootstrapServerTable implements IsWidget {
+
     private static final int PAGE_SIZE = 10;
-    private final BootstrapServerSetup serverSetup;
+
+    private final BootstrapServerDialog serverDialog;
     private DefaultCellTable<BootstrapServer> cellTable;
     private ListDataProvider<BootstrapServer> dataProvider;
     private BootstrapServerStore bootstrapServerStore;
     private BootstrapServer selectedServer;
 
-    public BootstrapServerTable(final BootstrapServerSetup serverSetup) {
-        this.serverSetup = serverSetup;
+    BootstrapServerTable(final BootstrapServerDialog serverDialog) {
+        this.serverDialog = serverDialog;
         this.bootstrapServerStore = new BootstrapServerStore();
     }
 
@@ -47,7 +49,7 @@ public class BootstrapServerTable implements IsWidget {
         topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                serverSetup.onConfigure();
+                serverDialog.onConfigure();
             }
         }));
         topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {

@@ -1,32 +1,63 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.google.gwt.user.client.ui.DeckLayoutPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+
 /**
  * Modal dialog to manage bootstrap servers. The dialog offers a page to connect to an existing server and a page to
  * add new servers.
  *
  * @author Harald Pehl
  */
-public class BootstrapServerDialog {
-    private final BootstrapServerSetup serverSetup;
-    private ConnectPage connectPage;
-    private ConfigurePage configurePage;
+class BootstrapServerDialog {
 
+    private final PopupPanel popupPanel;
+    private final DeckLayoutPanel deck;
+    private final ConnectPage connectPage;
+    private final ConfigurePage configurePage;
 
-    public BootstrapServerDialog(final BootstrapServerSetup serverSetup) {
-        this.serverSetup = serverSetup;
-        initUI();
+    BootstrapServerDialog(final BootstrapServerSetup serverSetup) {
+        connectPage = new ConnectPage(serverSetup, this);
+        configurePage = new ConfigurePage(serverSetup, this);
+
+        deck = new DeckLayoutPanel();
+        deck.addStyleName("window-content"); // white background for forms
+        deck.addStyleName("default-window-content");
+        deck.add(connectPage);
+        deck.add(configurePage);
+
+        int width = 700;
+        popupPanel = new PopupPanel(false, true);
+        popupPanel.setGlassEnabled(true);
+        popupPanel.setAnimationEnabled(false);
+        popupPanel.setWidget(deck);
+        popupPanel.setWidth(String.valueOf(width) + "px");
+        popupPanel.setHeight(String.valueOf(width / DefaultWindow.GOLDEN_RATIO) + "px");
+        popupPanel.setStyleName("default-window");
     }
 
-    public void initUI() {
-        connectPage = new ConnectPage(serverSetup);
-        configurePage = new ConfigurePage(serverSetup);
+    void open() {
+        connectPage.reset();
+        deck.showWidget(0);
+        popupPanel.center();
     }
 
-    public ConnectPage getConnectPage() {
-        return connectPage;
+    void hide() {
+        popupPanel.hide();
     }
 
-    public ConfigurePage getConfigurePage() {
-        return configurePage;
+    void onConfigure() {
+        configurePage.reset();
+        deck.showWidget(1);
+    }
+
+    void onConfigureOk() {
+        connectPage.reset();
+        deck.showWidget(0);
+    }
+
+    void onConfigureCancel() {
+        deck.showWidget(0);
     }
 }
