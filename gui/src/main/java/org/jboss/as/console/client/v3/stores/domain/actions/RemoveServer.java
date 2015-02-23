@@ -15,7 +15,7 @@ public class RemoveServer implements Action {
         this.server = server;
     }
 
-    public ServerRef getServer() {
+    public ServerRef getServerRef() {
         return server;
     }
 
