@@ -457,3 +457,55 @@
     opacity: 1;
     z-index: 5;
 }
+
+.btn-group, .btn-group-vertical {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+}
+
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+.btn-group > .btn:first-child {
+    margin-left: 0;
+}
+.btn-group-vertical > .btn, .btn-group > .btn {
+    /*float: left;*/
+    position: relative;
+}
+
+.btn {
+    -moz-user-select: none;
+    background-image: none;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 2px 4px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background-color: #337AB7;
+    border-color: #2E6DA4;
+    color: #FFFFFF;
+}
+.btn-primary:hover {
+    background-color: #286090;
+    border-color: #204D74;
+    color: #FFFFFF;
+}
+
+.btn-group > .btn + .dropdown-toggle {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}

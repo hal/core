@@ -1,7 +1,12 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
+import com.google.gwt.cell.client.ButtonCell;
+import com.google.gwt.cell.client.ButtonCellBase;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
@@ -38,6 +43,7 @@ import java.util.List;
 public class FinderColumn<T> {
 
 
+    private static final String CLICK = "click";
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
     private final String title;
@@ -81,13 +87,35 @@ public class FinderColumn<T> {
             }
         };
 
-        Column<T, SafeHtml> menuColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
-            @Override
-            public SafeHtml getValue(T data) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<span class='nav-menu'><i class='icon-ellipsis-vertical'></i></span>");
-                return builder.toSafeHtml();
+        Column<T, String> menuColumn = new Column<T, String>(new ButtonCell() {
+            public void render(Cell.Context context, SafeHtml data, SafeHtmlBuilder sb) {
+
+
+                sb.appendHtmlConstant("<div class='nav-menu'>");
+                sb.appendHtmlConstant("<div class='btn-group'>");
+                sb.appendHtmlConstant("<button action='default' class='btn btn-primary' type='button' tabindex=\"-1\">");
+                if(data != null) {
+                    sb.append(data);
+                }
+                sb.appendHtmlConstant("</button>");
+
+
+                sb.appendHtmlConstant("<button action='menu' class='btn btn-primary dropdown-toggle' type='button' tabindex=\"-1\">");
+                sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
+                sb.appendHtmlConstant("</button>");
+                sb.appendHtmlConstant("</div>");
+                sb.appendHtmlConstant("</div>");
+
             }
+
+        }) {
+
+
+            @Override
+            public String getValue(T object) {
+                return menuItems.length>0 ? menuItems[0].getTitle() : "";
+            }
+
         };
 
         Column<T, SafeHtml> iconColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
@@ -103,7 +131,7 @@ public class FinderColumn<T> {
         cellTable.addColumn(menuColumn);
         cellTable.addColumn(iconColumn);
 
-        cellTable.setColumnWidth(menuColumn, 20, Style.Unit.PX);
+        cellTable.setColumnWidth(menuColumn, 50, Style.Unit.PX);
         cellTable.setColumnWidth(iconColumn, 16, Style.Unit.PX);
 
         cellTable.setSelectionModel(selectionModel);
@@ -131,12 +159,13 @@ public class FinderColumn<T> {
         cellTable.addCellPreviewHandler(new CellPreviewEvent.Handler<T>() {
             @Override
             public void onCellPreview(CellPreviewEvent<T> event) {
-                boolean isClick = "click".equals(event.getNativeEvent().getType());
+                boolean isClick = CLICK.equals(event.getNativeEvent().getType());
                 if(isClick && 1==event.getColumn())
                 {
                     event.getNativeEvent().preventDefault();
-
-                    openContextMenu(event.getNativeEvent(), event.getValue());
+                    Element element = Element.as(event.getNativeEvent().getEventTarget());
+                    System.out.println(element.getAttribute("action"));
+                    //openContextMenu(event.getNativeEvent(), event.getValue());
                 }
             }
         });
