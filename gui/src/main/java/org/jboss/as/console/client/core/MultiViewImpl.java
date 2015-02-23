@@ -20,8 +20,11 @@ public abstract class MultiViewImpl extends ViewImpl implements MultiView {
     @Override
     public Widget asWidget() {
 
-        this.deck = new DeckLayoutPanel();
-        createWidget();
+        if(null==deck) {
+            this.deck = new DeckLayoutPanel();
+            createWidget();
+        }
+
         return deck;
     }
 
