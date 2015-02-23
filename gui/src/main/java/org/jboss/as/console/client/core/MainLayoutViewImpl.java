@@ -85,6 +85,31 @@ public class MainLayoutViewImpl extends ViewImpl
 
         getHeaderPanel().add(header.asWidget());
         getFooterPanel().add(footer.asWidget());
+
+
+        window = new DefaultWindow("");
+        window.setWidth(640);
+        window.setHeight(480);
+        window.addCloseHandler(new CloseHandler<PopupPanel>() {
+            @Override
+            public void onClose(CloseEvent<PopupPanel> event) {
+                Console.getPlaceManager().revealRelativePlace(-1);
+
+
+                // clearing the slot:
+                // this is necessary to signal GWTP that the slot is not used
+                // without subsequent attempts to reveal the same place twice would not succeed
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
+                    }
+                });
+            }
+        });
+
+        window.setAutoHideOnHistoryEventsEnabled(true);
+        window.setGlassEnabled(true);
     }
 
     public Widget asWidget() {
@@ -113,31 +138,8 @@ public class MainLayoutViewImpl extends ViewImpl
         else if(slot == MainLayoutPresenter.TYPE_Popup)
         {
             if(content!=null) {  // clearSlot() can cause this
-                window = new DefaultWindow("");
-                window.setWidth(640);
-                window.setHeight(480);
-                window.addCloseHandler(new CloseHandler<PopupPanel>() {
-                    @Override
-                    public void onClose(CloseEvent<PopupPanel> event) {
-                        Console.getPlaceManager().revealRelativePlace(-1);
 
-
-                        // clearing the slot:
-                        // this is necessary to signal GWTP that the slot is not used
-                        // without subsequent attempts to reveal the same place twice would not succeed
-                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
-                            }
-                        });
-                    }
-                });
-
-                window.setAutoHideOnHistoryEventsEnabled(true);
                 window.setWidget(content);
-
-                window.setGlassEnabled(true);
                 window.center();
             }
         }
