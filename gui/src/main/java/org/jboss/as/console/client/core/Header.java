@@ -35,12 +35,14 @@ import com.google.gwt.layout.client.Layout;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.bootstrap.server.BootstrapServerSetup;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.csp.CustomerSupportLauncher;
@@ -53,6 +55,8 @@ import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.Set;
+
+import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
 
 /**
  * Top level header, gives access to main applications.
@@ -209,6 +213,7 @@ public class Header implements ValueChangeHandler<String> {
         };
 
         userButton.addClickHandler(clickHandler);
+
         HTML logoutHtml = new HTML(Console.CONSTANTS.common_label_logout());
         logoutHtml.setStyleName("menu-item");
         logoutHtml.addClickHandler(new ClickHandler() {
@@ -274,6 +279,23 @@ public class Header implements ValueChangeHandler<String> {
 
         usermenu.add(logoutHtml);
         menuPopup.setWidget(usermenu);
+
+        // Reconnect to a different WildFly server / domain
+        if (productConfig.getProfile() == COMMUNITY) {
+            SafeHtml globe = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'><i style='color:#cecece' class='icon-globe'></i></div>").toSafeHtml();
+            HTML connectTo = new HTML(globe);
+            String desc = bootstrap.isStandalone() ? Console.CONSTANTS.connecto_to_desc_standalone() : Console.CONSTANTS.connecto_to_desc_domain();
+            connectTo.setTitle(desc);
+            connectTo.getElement().setAttribute("style", "cursor:pointer");
+            connectTo.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    String url = GWT.getHostPageBaseURL() + "?" + BootstrapServerSetup.CONNECT_PARAMETER;
+                    Window.Location.replace(url);
+                }
+            });
+            tools.add(connectTo);
+        }
 
         top.add(tools);
         top.setWidgetRightWidth(tools, 15, Style.Unit.PX, 700, Style.Unit.PX);

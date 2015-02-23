@@ -1,13 +1,15 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.layout.OneToOneLayout;
+import org.jboss.as.console.client.widgets.ContentDescription;
+import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.ButtonItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -20,64 +22,62 @@ import java.util.List;
 /**
  * @author Harald Pehl
  */
-public class ConfigurePage implements IsWidget {
-    private final BootstrapServerSetup serverSetup;
-    private final BootstrapServerStore bootstrapServerStore;
-    private VerticalPanel page;
-    private Form<BootstrapServer> form;
-    private DialogueOptions options;
+class ConfigurePage implements IsWidget {
 
-    public ConfigurePage(final BootstrapServerSetup serverSetup) {
+    private final BootstrapServerSetup serverSetup;
+    private final BootstrapServerDialog serverDialog;
+    private final BootstrapServerStore serverStore;
+
+    private Form<BootstrapServer> form;
+
+    ConfigurePage(final BootstrapServerSetup serverSetup, final BootstrapServerDialog serverDialog) {
         this.serverSetup = serverSetup;
-        this.bootstrapServerStore = new BootstrapServerStore();
-        initUI();
+        this.serverDialog = serverDialog;
+        this.serverStore = new BootstrapServerStore();
     }
 
-    private void initUI() {
-        page = new VerticalPanel();
-        page.setStyleName("window-content");
-
-        final Label description = new Label("Enter a name for the server and the URL of the management interface.");
-        description.getElement().getStyle().setPaddingBottom(15, Style.Unit.PX);
-        page.add(description);
+    public Widget asWidget() {
+        FlowPanel content = new FlowPanel();
+        content.add(new ContentHeaderLabel("Configure Management Interface"));
+        content.add(new ContentDescription("Enter the name and URL for a management interface."));
 
         final Label configureErrorMessages = new Label();
         configureErrorMessages.setStyleName("error-panel");
 
         form = new Form<BootstrapServer>(BootstrapServer.class);
         final TextBoxItem nameItem = new TextBoxItem("name", "Name");
-        nameItem.getInputElement().setAttribute("placeholder", "A name for this server");
-        TextBoxItem urlItem = new TextBoxItem("url", "URL");
-        urlItem.getInputElement().setAttribute("placeholder", "The URL of the management interface");
+        nameItem.getInputElement().setAttribute("style", "box-sizing:border-box;width:100%;");
+        nameItem.getInputElement().setAttribute("placeholder", "A name for this management interface");
+        final UrlItem urlItem = new UrlItem("url", "URL");
         ButtonItem pingItem = new ButtonItem("", "", "Ping");
-
         pingItem.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
-                FormValidation validation = form.validate();
-                if (!validation.hasErrors()) {
+                boolean valid = urlItem.validate(urlItem.getValue());
+                urlItem.setErroneous(!valid);
+                if (valid) {
                     configureErrorMessages.setText("");
                     BootstrapServer server = form.getUpdatedEntity();
                     serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
                         public void onFailure(final Throwable caught) {
-                            configureErrorMessages.setText("The server is not running.");
+                            configureErrorMessages.setText("The management interface does not respond.");
                         }
 
                         @Override
                         public void onSuccess(final Void result) {
-                            configureErrorMessages.setText("The server is running.");
+                            configureErrorMessages.setText("The management interface is running.");
                         }
                     });
                 }
             }
         });
         form.setFields(nameItem, urlItem, pingItem);
-        page.add(form);
 
-        page.add(configureErrorMessages);
+        content.add(form);
+        content.add(configureErrorMessages);
 
-        options = new DialogueOptions(
+        DialogueOptions options = new DialogueOptions(
                 "Add",
                 new ClickHandler() {
                     @Override
@@ -88,7 +88,7 @@ public class ConfigurePage implements IsWidget {
                             BootstrapServer newServer = form.getUpdatedEntity();
 
                             boolean sameName = false;
-                            List<BootstrapServer> servers = bootstrapServerStore.load();
+                            List<BootstrapServer> servers = serverStore.load();
                             for (BootstrapServer server : servers) {
                                 if (server.getName().equals(newServer.getName())) {
                                     sameName = true;
@@ -97,11 +97,11 @@ public class ConfigurePage implements IsWidget {
                             }
                             if (sameName) {
                                 configureErrorMessages.setText(
-                                        "Server with this name already exists. Please choose another name.");
+                                        "An entry with this name already exists. Please choose another name.");
                                 nameItem.getInputElement().focus();
                             } else {
-                                bootstrapServerStore.add(newServer);
-                                serverSetup.onConfigureOk();
+                                serverStore.add(newServer);
+                                serverDialog.onConfigureOk();
                             }
                         }
                     }
@@ -110,15 +110,12 @@ public class ConfigurePage implements IsWidget {
                 new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
-                        serverSetup.onConfigureCancel();
+                        serverDialog.onConfigureCancel();
                     }
                 }
         );
-    }
 
-    @Override
-    public Widget asWidget() {
-        return new WindowContentBuilder(page, options).build();
+        return new WindowContentBuilder(content, options).build();
     }
 
     void reset() {
