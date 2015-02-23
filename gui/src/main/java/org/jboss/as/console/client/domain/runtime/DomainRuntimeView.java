@@ -370,15 +370,16 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     // action
                     if(selectedServer.isStarted()) {
                         appendColumn(statusColWidget);
-                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            public void execute() {
-
-                                Console.getCircuit().dispatch(
-                                        new SelectServer(selectedServer.getHostName(), selectedServer.getName())
-                                );
-                            }
-                        });
                     }
+
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        public void execute() {
+
+                            Console.getCircuit().dispatch(
+                                    new SelectServer(selectedServer.getHostName(), selectedServer.getName())
+                            );
+                        }
+                    });
                 }
             }
         });

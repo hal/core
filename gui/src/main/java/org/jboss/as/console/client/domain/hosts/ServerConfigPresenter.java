@@ -230,11 +230,12 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
             @Override
             public void execute() {
 
-                if(serverStore.getSelectServer()!=null)
+                if(serverStore.getSelectServer()!=null) {
                     getView().updateFrom(serverStore.findServer(serverStore.getSelectServer()));
+                    getView().setSelectedServer(serverStore.findServer(serverStore.getSelectServer()));
+                }
 
                 getView().setHosts(hostStore.getHostNames(), hostStore.getSelectedHost());
-                getView().setSelectedServer(serverStore.findServer(serverStore.getSelectServer()));
 
                 getView().toggle(
                         placeManager.getCurrentPlaceRequest().getParameter("action", "none")
@@ -300,7 +301,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         // check if instance exist
         ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).add("host", serverStore.getSelectServer().getHostName());
+        operation.get(ADDRESS).add("host", server.getHostName());
         operation.get(ADDRESS).add("server-config", server.getServerName());
         operation.get(INCLUDE_RUNTIME).set(true);
         operation.get(OP).set(READ_RESOURCE_OPERATION);
