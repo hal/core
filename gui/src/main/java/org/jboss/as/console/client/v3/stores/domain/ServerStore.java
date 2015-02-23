@@ -224,7 +224,7 @@ public class ServerStore extends ChangeSupport {
     @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
     public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
 
-        hostInfo.deleteServerConfig(action.getServer().getHostName(), findServer(action.getServer()), new SimpleCallback<Boolean>() {
+        hostInfo.deleteServerConfig(action.getServerRef().getHostName(), findServer(action.getServerRef()), new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
