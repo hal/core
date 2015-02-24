@@ -2,6 +2,7 @@ package org.jboss.as.console.client.core.bootstrap.server;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.widgets.ContentDescription;
@@ -62,14 +63,14 @@ public class ConnectPage implements IsWidget {
                         }
                     }
                 },
-                "",
+                "Cancel",
                 new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
-                        // not used
+                        Window.Location.replace(serverSetup.getBaseUrl());
                     }
                 }
-        ).showCancel(false);
+        );
 
         return new WindowContentBuilder(content, options).build();
     }
