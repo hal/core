@@ -278,6 +278,7 @@ public class FinderColumn<T> {
 
         LayoutPanel layout = new LayoutPanel();
         layout.addStyleName("navigation-column");
+        layout.getElement().setId(title);
 
         if(!plain) {     // including the header
 

@@ -383,6 +383,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         splitlayout.addWest(subsysColWidget, 217);
         splitlayout.add(previewCanvas);
 
+        visibleColumns.push(serverColWidget); // default visible
         splitlayout.setWidgetHidden(statusColWidget, true);
         splitlayout.setWidgetHidden(subsysColWidget, true);
 
