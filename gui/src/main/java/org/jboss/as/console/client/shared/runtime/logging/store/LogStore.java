@@ -211,6 +211,7 @@ public class LogStore extends ChangeSupport {
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
             requestBuilder.setHeader("Accept", "text/plain");
             requestBuilder.setHeader("Content-Type", "text/plain");
+            requestBuilder.setIncludeCredentials(true);
             try {
                 // store the request in order to cancel it later
                 pendingStreamingRequest = new PendingStreamingRequest(name, requestBuilder.sendRequest(null, new RequestCallback() {

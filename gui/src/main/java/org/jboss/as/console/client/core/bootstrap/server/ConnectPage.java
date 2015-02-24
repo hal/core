@@ -3,10 +3,7 @@ package org.jboss.as.console.client.core.bootstrap.server;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -39,9 +36,8 @@ public class ConnectPage implements IsWidget {
         table = new BootstrapServerTable(serverDialog);
         content.add(table);
 
-        final Label connectErrorMessages = new Label();
-        connectErrorMessages.setStyleName("error-panel");
-        content.add(connectErrorMessages);
+        final HTML connectStatus = new HTML();
+        content.add(connectStatus);
 
         DialogueOptions options = new DialogueOptions(
                 "Connect",
@@ -50,12 +46,12 @@ public class ConnectPage implements IsWidget {
                     public void onClick(ClickEvent event) {
                         final BootstrapServer server = table.getSelectedServer();
                         if (server == null) {
-                            connectErrorMessages.setText("Please select a management interface.");
+                            connectStatus.setHTML(StatusMessage.error("Please select a management interface."));
                         } else {
                             serverSetup.pingServer(server, new AsyncCallback<Void>() {
                                 @Override
                                 public void onFailure(final Throwable caught) {
-                                    connectErrorMessages.setText("The selected management interface does not respond.");
+                                    connectStatus.setHTML(StatusMessage.warning("The selected management interface does not respond."));
                                 }
 
                                 @Override
@@ -81,6 +77,11 @@ public class ConnectPage implements IsWidget {
     void reset() {
         List<BootstrapServer> servers = serverStore.load();
         table.getDataProvider().setList(servers);
-        table.getCellTable().selectDefaultEntity();
+        BootstrapServer selection = serverStore.restoreSelection();
+        if (selection != null) {
+            table.select(selection);
+        } else {
+            table.getCellTable().selectDefaultEntity();
+        }
     }
 }

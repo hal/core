@@ -3,11 +3,7 @@ package org.jboss.as.console.client.core.bootstrap.server;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.layout.OneToOneLayout;
+import com.google.gwt.user.client.ui.*;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.forms.ButtonItem;
@@ -29,6 +25,7 @@ class ConfigurePage implements IsWidget {
     private final BootstrapServerStore serverStore;
 
     private Form<BootstrapServer> form;
+    private TextBoxItem nameItem;
 
     ConfigurePage(final BootstrapServerSetup serverSetup, final BootstrapServerDialog serverDialog) {
         this.serverSetup = serverSetup;
@@ -41,11 +38,10 @@ class ConfigurePage implements IsWidget {
         content.add(new ContentHeaderLabel("Configure Management Interface"));
         content.add(new ContentDescription("Enter the name and URL for a management interface."));
 
-        final Label configureErrorMessages = new Label();
-        configureErrorMessages.setStyleName("error-panel");
+        final HTML configureStatus = new HTML();
 
         form = new Form<BootstrapServer>(BootstrapServer.class);
-        final TextBoxItem nameItem = new TextBoxItem("name", "Name");
+        nameItem = new TextBoxItem("name", "Name");
         nameItem.getInputElement().setAttribute("style", "box-sizing:border-box;width:100%;");
         nameItem.getInputElement().setAttribute("placeholder", "A name for this management interface");
         final UrlItem urlItem = new UrlItem("url", "URL");
@@ -56,17 +52,19 @@ class ConfigurePage implements IsWidget {
                 boolean valid = urlItem.validate(urlItem.getValue());
                 urlItem.setErroneous(!valid);
                 if (valid) {
-                    configureErrorMessages.setText("");
+                    configureStatus.setVisible(false);
                     BootstrapServer server = form.getUpdatedEntity();
                     serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
                         public void onFailure(final Throwable caught) {
-                            configureErrorMessages.setText("The management interface does not respond.");
+                            configureStatus.setHTML(StatusMessage.warning("The management interface does not respond."));
+                            configureStatus.setVisible(true);
                         }
 
                         @Override
                         public void onSuccess(final Void result) {
-                            configureErrorMessages.setText("The management interface is running.");
+                            configureStatus.setHTML(StatusMessage.success("The management interface is running."));
+                            configureStatus.setVisible(true);
                         }
                     });
                 }
@@ -75,7 +73,7 @@ class ConfigurePage implements IsWidget {
         form.setFields(nameItem, urlItem, pingItem);
 
         content.add(form);
-        content.add(configureErrorMessages);
+        content.add(configureStatus);
 
         DialogueOptions options = new DialogueOptions(
                 "Add",
@@ -84,7 +82,7 @@ class ConfigurePage implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            configureErrorMessages.setText("");
+                            configureStatus.setVisible(false);
                             BootstrapServer newServer = form.getUpdatedEntity();
 
                             boolean sameName = false;
@@ -96,8 +94,8 @@ class ConfigurePage implements IsWidget {
                                 }
                             }
                             if (sameName) {
-                                configureErrorMessages.setText(
-                                        "An entry with this name already exists. Please choose another name.");
+                                configureStatus.setHTML(StatusMessage.error(
+                                        "An entry with this name already exists. Please choose another name."));
                                 nameItem.getInputElement().focus();
                             } else {
                                 serverStore.add(newServer);
@@ -120,5 +118,6 @@ class ConfigurePage implements IsWidget {
 
     void reset() {
         form.clearValues();
+        nameItem.getInputElement().focus();
     }
 }
