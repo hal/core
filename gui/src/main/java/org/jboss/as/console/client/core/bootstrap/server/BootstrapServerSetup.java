@@ -169,7 +169,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         context.setProperty(CSP_API, cspApi);
     }
 
-    private String getBaseUrl() {
+    String getBaseUrl() {
         String base = GWT.getHostPageBaseURL();
 
         String host;

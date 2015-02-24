@@ -290,7 +290,9 @@ public class Header implements ValueChangeHandler<String> {
             connectTo.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    String url = GWT.getHostPageBaseURL() + "?" + BootstrapServerSetup.CONNECT_PARAMETER;
+                    // Without "/App.hml" we would lose the query parameter because "/" redirects to "/App.html"
+                    // TODO Why is this redirect necessary?
+                    String url = GWT.getHostPageBaseURL() + "App.html?" + BootstrapServerSetup.CONNECT_PARAMETER;
                     Window.Location.replace(url);
                 }
             });
