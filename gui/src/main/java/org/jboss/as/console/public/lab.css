@@ -426,9 +426,13 @@
     display: none;
 }
 
-.nav-hover .nav-menu {
+.nav-hover .cellTableSelectedRowCell .nav-menu {
     display: inherit;
 }
+
+/*.nav-hover .nav-menu {
+    display: inherit;
+}*/
 
 .folder-view .row-icon {
 
@@ -479,7 +483,8 @@
 .btn {
     -moz-user-select: none;
     background-image: none;
-    border: 1px solid rgba(0, 0, 0, 0);
+    background:#ffffff;
+    border: 1px solid #bbbbbb;
     border-radius: 4px;
     cursor: pointer;
     display: inline-block;
@@ -488,6 +493,10 @@
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
+}
+
+.btn:hover {
+    background-color: #D9D9D9;
 }
 
 .btn-primary {
@@ -504,6 +513,7 @@
 .btn-group > .btn + .dropdown-toggle {
     padding-left: 8px;
     padding-right: 8px;
+    border-left: medium none;
 }
 .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
     border-bottom-left-radius: 0;
