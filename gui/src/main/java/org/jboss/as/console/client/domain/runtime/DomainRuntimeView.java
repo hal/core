@@ -3,6 +3,7 @@ package org.jboss.as.console.client.domain.runtime;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.place.shared.Place;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -143,32 +144,45 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
         statusLinks.add(new FinderItem("JVM", new Command() {
             @Override
             public void execute() {
-                reduceColumnsTo(2);
-                // NameTokens.HostVMMetricPresenter
+
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    public void execute() {
+
+                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.HostVMMetricPresenter));
+                    }
+                });
+
             }
         }, false));
         statusLinks.add(new FinderItem("Environment", new Command() {
             @Override
             public void execute() {
-                reduceColumnsTo(2);
-                // NameTokens.EnvironmentPresenter
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    public void execute() {
+
+                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.EnvironmentPresenter));
+                    }
+                });
+
             }
         }, false));
         statusLinks.add(new FinderItem("Log Files", new Command() {
             @Override
             public void execute() {
-                reduceColumnsTo(2);
-                // NameTokens.LogFiles
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    public void execute() {
+
+                        Console.getPlaceManager().revealRelativePlace(new PlaceRequest(NameTokens.LogFiles));
+                    }
+                });
+
             }
         }, false));
-
 
         statusLinks.add(new FinderItem("Subsystems", new Command() {
             @Override
             public void execute() {
-                reduceColumnsTo(2);
-                appendColumn(subsysColWidget);
-                updateSubsystemColumn(subsystems);
+                // noop
             }
         }, true));
 
@@ -220,9 +234,9 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     @Override
                     public void executeOn(Server server) {
                         //presenter.launchNewConfigDialoge();
-                       placeManager.revealRelativePlace(
-                               new PlaceRequest(NameTokens.ServerPresenter).with("action", "new")
-                       );
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "new")
+                        );
                     }
                 })
         );
@@ -293,7 +307,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                     @Override
                     public String rowCss(FinderItem data) {
-                        return "";
+                        return data.getTitle().equals("Subsystems") ? "no-menu" : "";
                     }
                 },
                 new ProvidesKey<FinderItem>() {
@@ -302,6 +316,15 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                         return item.getTitle();
                     }
                 });
+
+        statusColumn.setMenuItems(
+                new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
+                    @Override
+                    public void executeOn(FinderItem link) {
+                        link.getCmd().execute();
+                    }
+                })
+        );
 
         statusColWidget = statusColumn.asWidget();
 
@@ -321,6 +344,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                     @Override
                     public String rowCss(PlaceLink data) {
+
                         return "";
                     }
                 },
@@ -332,13 +356,23 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 });
 
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
+            @Override
+            public SafeHtml createPreview(PlaceLink data) {
+                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
+                return builder.toSafeHtml();
+            }
+        });
+
+        subsystemColumn.setMenuItems(
+                new MenuDelegate<PlaceLink>("View", new ContextualCommand<PlaceLink>() {
                     @Override
-                    public SafeHtml createPreview(PlaceLink data) {
-                        SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                        builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
-                        return builder.toSafeHtml();
+                    public void executeOn(PlaceLink link) {
+                        link.getCmd().execute();
                     }
-                });
+                })
+        );
+
 
 
         subsysColWidget = subsystemColumn.asWidget();
@@ -392,8 +426,22 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
 
                     updateActiveSelection(statusColWidget);
 
-                    final FinderItem selectedLink = statusColumn.getSelectedItem();
-                    selectedLink.getCmd().execute();
+                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+
+                            if(statusColumn.getSelectedItem().getTitle().equals("Subsystems"))
+                            {
+                                appendColumn(subsysColWidget);
+                                updateSubsystemColumn(subsystems);
+                            }
+                            else
+                            {
+                                reduceColumnsTo(2);
+                            }
+                        }
+                    });
+
                 }
             }
         });
@@ -406,9 +454,6 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 if (subsystemColumn.hasSelectedItem()) {
 
                     updateActiveSelection(subsysColWidget);
-
-                    final PlaceLink selectedLink = subsystemColumn.getSelectedItem();
-
                 }
             }
         });
@@ -499,7 +544,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         public void execute() {
 
-                            Console.getPlaceManager().revealPlace(new PlaceRequest(token));
+                            Console.getPlaceManager().revealRelativePlace(new PlaceRequest(token));
                         }
                     });
                 }

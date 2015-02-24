@@ -430,6 +430,10 @@
     display: inherit;
 }
 
+.no-menu .cellTableSelectedRowCell .nav-menu {
+    display: none!important;
+}
+
 /*.nav-hover .nav-menu {
     display: inherit;
 }*/
@@ -518,4 +522,20 @@
 .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
+}
+
+.default-window-content .gwt-TabLayoutPanelTabs {
+    background: none;
+}
+
+.default-window-content .gwt-TabLayoutPanelTab {
+    background: none;
+}
+
+.default-window-content .tab-space-right {
+    background: none;
+}
+
+.default-window-content .title-bar-panel {
+    background: none;
 }
