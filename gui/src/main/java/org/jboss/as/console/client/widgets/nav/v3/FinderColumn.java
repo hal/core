@@ -1,10 +1,8 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
 import com.google.gwt.cell.client.ButtonCell;
-import com.google.gwt.cell.client.ButtonCellBase;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.SafeHtmlCell;
-import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -160,12 +158,12 @@ public class FinderColumn<T> {
 
         cellTable.addCellPreviewHandler(new CellPreviewEvent.Handler<T>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<T> event) {
+            public void onCellPreview(final CellPreviewEvent<T> event) {
                 boolean isClick = CLICK.equals(event.getNativeEvent().getType());
                 if(isClick && 1==event.getColumn())
                 {
                     event.getNativeEvent().preventDefault();
-                    Element element = Element.as(event.getNativeEvent().getEventTarget());
+                    final Element element = Element.as(event.getNativeEvent().getEventTarget());
                     String action = element.getAttribute("action");
                     if("default".equals(action))
                     {
@@ -173,10 +171,10 @@ public class FinderColumn<T> {
                     }
                     else if("menu".equals(action))
                     {
-
+                        openContextMenu(event.getNativeEvent(), event.getValue());
                     }
 
-                    //openContextMenu(event.getNativeEvent(), event.getValue());
+
                 }
             }
         });
@@ -209,36 +207,49 @@ public class FinderColumn<T> {
         });
     }
 
-    private void openContextMenu(NativeEvent event, final T object) {
+    private void openContextMenu(final NativeEvent event, final T object) {
+
+        Element el = Element.as(event.getEventTarget());
+        Element anchor = el.getParentElement();
+
         final PopupPanel popupPanel = new PopupPanel(true);
-
         final MenuBar popupMenuBar = new MenuBar(true);
+        popupMenuBar.setStyleName("dropdown-menu");
 
+        int i=0;
         for (final MenuDelegate menuitem : menuItems) {
-            MenuItem cmd  = new MenuItem(menuitem.getTitle(), true,  new Command() {
 
-                @Override
-                public void execute() {
-                    Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                        @Override
-                        public void execute() {
-                            menuitem.getCommand().executeOn((T) object);
-                        }
-                    });
+            if(i>0) {     // skip the "default" action
+                MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
 
-                    popupPanel.hide();
-                }
+                    @Override
+                    public void execute() {
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                menuitem.getCommand().executeOn((T) object);
+                            }
+                        });
 
-            });
+                        popupPanel.hide();
+                    }
 
-            popupMenuBar.addItem(cmd);
+                });
+
+                popupMenuBar.addItem(cmd);
+            }
+            i++;
         }
 
         popupMenuBar.setVisible(true);
 
 
-        popupPanel.add(popupMenuBar);
-        popupPanel.setPopupPosition(event.getClientX()-5, event.getClientY()-5);
+        popupPanel.setWidget(popupMenuBar);
+        int left = anchor.getAbsoluteLeft();
+        int top = anchor.getAbsoluteTop() + 22;
+
+        popupPanel.setPopupPosition(left, top);
+        popupPanel.setAutoHideEnabled(true);
         popupPanel.show();
     }
 

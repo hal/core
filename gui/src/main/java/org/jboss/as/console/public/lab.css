@@ -1,12 +1,11 @@
 .gwt-MenuBar {
     padding:4px;
-    background-color:#F9F9F9;
     border:1px solid #cccccc;
 }
 
 .gwt-MenuItem {
-    background-color:#F9F9F9;
-    padding:4px;
+
+    padding:5px;
     cursor:pointer;
 }
 
@@ -522,6 +521,26 @@
 .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
+}
+
+.dropdown-menu {
+    background-clip: padding-box;
+    background-color: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+
+    float: left;
+    font-size: 14px;
+    left: 0;
+    list-style: none outside none;
+    margin: 2px 0 0;
+    min-width: 160px;
+    padding: 5px 0;
+    position: absolute;
+    text-align: left;
+    top: 100%;
+    z-index: 1000;
 }
 
 .default-window-content .gwt-TabLayoutPanelTabs {
