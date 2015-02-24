@@ -1,7 +1,9 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.apple.jobjc.SEL;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.storage.client.Storage;
@@ -22,6 +24,7 @@ import java.util.List;
  */
 public class BootstrapServerStore {
     private static final String KEY = "org.jboss.as.console.bootstrap.servers";
+    private static final String SELECTED = "org.jboss.as.console.bootstrap.selected";
 
     private final BeanFactory factory;
     private final Storage storage;
@@ -34,6 +37,7 @@ public class BootstrapServerStore {
     public List<BootstrapServer> load() {
         List<BootstrapServer> servers = new ArrayList<BootstrapServer>();
         if (storage != null) {
+            //noinspection MismatchedQueryAndUpdateOfCollection
             StorageMap storageMap = new StorageMap(storage);
             if (storageMap.containsKey(KEY)) {
                 String json = storageMap.get(KEY);
@@ -88,6 +92,39 @@ public class BootstrapServerStore {
             }
         }
         return null;
+    }
+
+    public void storeSelection(BootstrapServer server) {
+        if (storage != null) {
+            storage.setItem(SELECTED, toJson(server));
+        }
+    }
+
+    public BootstrapServer restoreSelection() {
+        if (storage != null) {
+            //noinspection MismatchedQueryAndUpdateOfCollection
+            StorageMap storageMap = new StorageMap(storage);
+            if (storageMap.containsKey(KEY)) {
+                String json = storageMap.get(SELECTED);
+                if (json != null) {
+                    JSONValue jsonValue = JSONParser.parseStrict(json);
+                    if (jsonValue != null) {
+                        JSONObject jsonObject = jsonValue.isObject();
+                        if (jsonObject != null) {
+                            AutoBean<BootstrapServer> bean = AutoBeanCodex
+                                    .decode(factory, BootstrapServer.class, jsonObject.toString());
+                            return bean.as();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private String toJson(BootstrapServer server) {
+        AutoBean<BootstrapServer> bean = AutoBeanUtils.getAutoBean(server);
+        return AutoBeanCodex.encode(bean).getPayload();
     }
 
     private String toJson(List<BootstrapServer> servers) {

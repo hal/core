@@ -41,6 +41,7 @@ public class Vfs {
         final String url = BASE_URL + dir.getName();
 
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, url);
+        requestBuilder.setIncludeCredentials(true);
         requestBuilder.setHeader(ACCEPT, JSON);
 
         try {
@@ -93,6 +94,7 @@ public class Vfs {
     public void save(final Entry entry, String  contents, final AsyncCallback<Boolean> callback) {
 
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.POST, entry.getLink());
+        requestBuilder.setIncludeCredentials(true);
         requestBuilder.setHeader(METHOD_OVERRIDE, PUT);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -127,6 +129,7 @@ public class Vfs {
     public void load(final Entry entry, final AsyncCallback<String> callback) {
 
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, entry.getLink());
+        requestBuilder.setIncludeCredentials(true);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {

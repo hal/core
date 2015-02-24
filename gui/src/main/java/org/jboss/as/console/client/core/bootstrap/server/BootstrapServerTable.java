@@ -30,6 +30,7 @@ class BootstrapServerTable implements IsWidget {
     private final BootstrapServerDialog serverDialog;
     private DefaultCellTable<BootstrapServer> cellTable;
     private ListDataProvider<BootstrapServer> dataProvider;
+    private SingleSelectionModel<BootstrapServer> selectionModel;
     private BootstrapServerStore bootstrapServerStore;
     private BootstrapServer selectedServer;
 
@@ -75,7 +76,7 @@ class BootstrapServerTable implements IsWidget {
         dataProvider = new ListDataProvider<BootstrapServer>(providesKey);
         dataProvider.setList(bootstrapServerStore.load());
         dataProvider.addDataDisplay(cellTable);
-        SingleSelectionModel<BootstrapServer> selectionModel = new SingleSelectionModel<BootstrapServer>(dataProvider);
+        selectionModel = new SingleSelectionModel<BootstrapServer>(dataProvider);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
@@ -110,6 +111,10 @@ class BootstrapServerTable implements IsWidget {
 
     BootstrapServer getSelectedServer() {
         return selectedServer;
+    }
+
+    void select(BootstrapServer server) {
+        selectionModel.setSelected(server, true);
     }
 
     DefaultCellTable<BootstrapServer> getCellTable() {

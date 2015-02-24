@@ -29,6 +29,7 @@ public class RemoteRepository implements DialogRepository {
         if(!name.startsWith("/")) name = ("/"+name);
 
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, repoUrl+name);
+        requestBuilder.setIncludeCredentials(true);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {

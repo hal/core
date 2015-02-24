@@ -65,9 +65,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
             requestBuilder.setCallback(new RequestCallback() {
                 @Override
                 public void onResponseReceived(final Request request, final Response response) {
-                    // Use this JBoss instance for building the URLs
                     int statusCode = response.getStatusCode();
-                    // firefox returns 0
                     if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
                         setUrls(baseUrl);
                         control.proceed();
@@ -100,30 +98,33 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(final Request request, final Response response) {
-                if (response.getStatusCode() == 200 || response.getStatusCode() == 0) // firefox returns 0
-                {
+                int statusCode = response.getStatusCode();
+                if (statusCode == 200) {
                     callback.onSuccess(null);
                 } else {
                     callback.onFailure(new IllegalStateException(
-                            "Server " + server.getName() + " at " + server.getUrl() + " not running!"));
+                            "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
                 }
             }
 
             @Override
             public void onError(final Request request, final Throwable exception) {
                 callback.onFailure(new IllegalStateException(
-                        "Server " + server.getName() + " at " + server.getUrl() + " not running!"));
+                        "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
             }
         });
         try {
             requestBuilder.send();
         } catch (RequestException e) {
             callback.onFailure(new IllegalStateException(
-                    "Server " + server.getName() + " at " + server.getUrl() + " not running!"));
+                    "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
         }
     }
 
     void onConnect(BootstrapServer server) {
+        // store selected server
+        new BootstrapServerStore().storeSelection(server);
+
         if (dialog != null) {
             dialog.hide();
         }
