@@ -81,6 +81,7 @@ public class ColumnHostView extends SuspendableViewImpl
         contentCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
+
         hosts = new FinderColumn<String>(
                 "Hosts",
                 new FinderColumn.Display<String>() {

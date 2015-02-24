@@ -23,6 +23,8 @@ import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.MainLayoutViewImpl;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
@@ -59,7 +61,7 @@ public class RevealStrategy {
          if(bootstrap.isStandalone())
             RevealContentEvent.fire(presenter, StandaloneRuntimePresenter.TYPE_MainContent, presenter);
         else
-            RevealContentEvent.fire(presenter, DomainRuntimePresenter.TYPE_MainContent, presenter);
+            RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_Popup, presenter);
     }
 
     public void revealInAdministration(final Presenter presenter) {
