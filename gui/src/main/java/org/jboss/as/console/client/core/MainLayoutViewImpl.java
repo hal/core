@@ -110,7 +110,7 @@ public class MainLayoutViewImpl extends ViewImpl
         window.setWidth(640);
         window.setHeight(480);
         window.setAutoHideOnHistoryEventsEnabled(true);
-        window.setGlassStyleName("application-panel-glass");
+        //window.setGlassStyleName("application-panel-glass");
         window.setGlassEnabled(true);
     }
 

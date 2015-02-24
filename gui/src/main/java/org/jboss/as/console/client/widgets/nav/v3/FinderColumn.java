@@ -87,24 +87,26 @@ public class FinderColumn<T> {
             }
         };
 
-        Column<T, String> menuColumn = new Column<T, String>(new ButtonCell() {
+        final Column<T, String> menuColumn = new Column<T, String>(new ButtonCell() {
             public void render(Cell.Context context, SafeHtml data, SafeHtmlBuilder sb) {
 
+                if(menuItems.length>0) {
+                    sb.appendHtmlConstant("<div class='nav-menu'>");
+                    sb.appendHtmlConstant("<div class='btn-group'>");
+                    sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
+                    if (data != null) {
+                        sb.append(data);
+                    }
+                    sb.appendHtmlConstant("</button>");
 
-                sb.appendHtmlConstant("<div class='nav-menu'>");
-                sb.appendHtmlConstant("<div class='btn-group'>");
-                sb.appendHtmlConstant("<button action='default' class='btn btn-primary' type='button' tabindex=\"-1\">");
-                if(data != null) {
-                    sb.append(data);
+                    if(menuItems.length>1) {
+                        sb.appendHtmlConstant("<button action='menu' class='btn dropdown-toggle' type='button' tabindex=\"-1\">");
+                        sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
+                        sb.appendHtmlConstant("</button>");
+                        sb.appendHtmlConstant("</div>");
+                        sb.appendHtmlConstant("</div>");
+                    }
                 }
-                sb.appendHtmlConstant("</button>");
-
-
-                sb.appendHtmlConstant("<button action='menu' class='btn btn-primary dropdown-toggle' type='button' tabindex=\"-1\">");
-                sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
-                sb.appendHtmlConstant("</button>");
-                sb.appendHtmlConstant("</div>");
-                sb.appendHtmlConstant("</div>");
 
             }
 
@@ -164,7 +166,16 @@ public class FinderColumn<T> {
                 {
                     event.getNativeEvent().preventDefault();
                     Element element = Element.as(event.getNativeEvent().getEventTarget());
-                    System.out.println(element.getAttribute("action"));
+                    String action = element.getAttribute("action");
+                    if("default".equals(action))
+                    {
+                        menuItems[0].getCommand().executeOn(event.getValue());
+                    }
+                    else if("menu".equals(action))
+                    {
+
+                    }
+
                     //openContextMenu(event.getNativeEvent(), event.getValue());
                 }
             }
