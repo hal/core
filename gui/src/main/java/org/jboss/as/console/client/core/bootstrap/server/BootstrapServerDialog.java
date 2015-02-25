@@ -58,6 +58,7 @@ class BootstrapServerDialog {
     }
 
     void onConfigureCancel() {
+        connectPage.reset();
         deck.showWidget(0);
     }
 }
