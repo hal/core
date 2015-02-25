@@ -3,6 +3,7 @@ package org.jboss.as.console.client.core.bootstrap.server;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -50,13 +51,12 @@ public class ConnectPage implements IsWidget {
                     public void onClick(ClickEvent event) {
                         final BootstrapServer server = table.getSelectedServer();
                         if (server == null) {
-                            connectStatus.setHTML(StatusMessage.error(Console.CONSTANTS.bs_connect_interface_no_selection()));
+                            status(StatusMessage.error(Console.CONSTANTS.bs_connect_interface_no_selection()));
                         } else {
                             serverSetup.pingServer(server, new AsyncCallback<Void>() {
                                 @Override
                                 public void onFailure(final Throwable caught) {
-                                    connectStatus.setHTML(StatusMessage.warning(
-                                            Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
+                                    status(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                                 }
 
                                 @Override
@@ -80,14 +80,18 @@ public class ConnectPage implements IsWidget {
     }
 
     void reset() {
-        List<BootstrapServer> servers = serverStore.load();
-        table.getDataProvider().setList(servers);
+        connectStatus.setVisible(false);
+        table.getDataProvider().setList(serverStore.load());
         BootstrapServer selection = serverStore.restoreSelection();
         if (selection != null) {
             table.select(selection);
         } else {
             table.getCellTable().selectDefaultEntity();
         }
-        connectStatus.setVisible(false);
+    }
+
+    private void status(SafeHtml message) {
+        connectStatus.setVisible(true);
+        connectStatus.setHTML(message);
     }
 }

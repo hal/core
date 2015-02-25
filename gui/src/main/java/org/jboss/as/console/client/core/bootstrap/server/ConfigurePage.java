@@ -3,6 +3,7 @@ package org.jboss.as.console.client.core.bootstrap.server;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -76,20 +77,16 @@ class ConfigurePage implements IsWidget {
             public void onClick(final ClickEvent event) {
                 FormValidation formValidation = form.validate();
                 if (!formValidation.hasErrors()) {
-                    configureStatus.setVisible(false);
                     final BootstrapServer server = form.getUpdatedEntity();
                     serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
                         public void onFailure(final Throwable caught) {
-                            configureStatus.setHTML(StatusMessage.warning(
-                                    Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
-                            configureStatus.setVisible(true);
+                            status(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                         }
 
                         @Override
                         public void onSuccess(final Void result) {
-                            configureStatus.setHTML(StatusMessage.success(Console.CONSTANTS.bs_interface_success()));
-                            configureStatus.setVisible(true);
+                            status(StatusMessage.success(Console.CONSTANTS.bs_interface_success()));
                         }
                     });
                 }
@@ -105,7 +102,6 @@ class ConfigurePage implements IsWidget {
                     public void onClick(ClickEvent event) {
                         FormValidation validation = form.validate();
                         if (!validation.hasErrors()) {
-                            configureStatus.setVisible(false);
                             BootstrapServer newServer = form.getUpdatedEntity();
 
                             boolean sameName = false;
@@ -117,7 +113,7 @@ class ConfigurePage implements IsWidget {
                                 }
                             }
                             if (sameName) {
-                                configureStatus.setHTML(StatusMessage.error(Console.CONSTANTS.bs_configure_interface_duplicate()));
+                                status(StatusMessage.error(Console.CONSTANTS.bs_configure_interface_duplicate()));
                                 nameItem.getInputElement().focus();
                             } else {
                                 serverStore.add(newServer);
@@ -139,14 +135,19 @@ class ConfigurePage implements IsWidget {
     }
 
     void reset() {
+        configureStatus.setVisible(false);
         form.clearValues();
         portItem.setValue(9990);
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                configureStatus.setVisible(false);
                 nameItem.getInputElement().focus();
             }
         });
+    }
+
+    private void status(SafeHtml message) {
+        configureStatus.setVisible(true);
+        configureStatus.setHTML(message);
     }
 }

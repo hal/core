@@ -56,7 +56,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         } else {
             final String baseUrl = getBaseUrl();
-            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "/management");
             requestBuilder.setCallback(new RequestCallback() {
                 @Override
                 public void onResponseReceived(final Request request, final Response response) {
@@ -91,7 +91,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
     void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
         RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getServerUrl(server));
-        requestBuilder.setTimeoutMillis(3000);
+        requestBuilder.setTimeoutMillis(2000);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(final Request request, final Response response) {
@@ -161,8 +161,10 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         String hostUrl = GWT.getHostPageBaseURL();
         int schemeIndex = hostUrl.indexOf("://");
         int slash = hostUrl.indexOf('/', schemeIndex + 3);
-        String baseUrl = hostUrl.substring(0, slash);
-        return baseUrl;
+        if (slash != -1) {
+            return hostUrl.substring(0, slash);
+        }
+        return hostUrl;
     }
 
     static String getServerUrl(BootstrapServer server) {
