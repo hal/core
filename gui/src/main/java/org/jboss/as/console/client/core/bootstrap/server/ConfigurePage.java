@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -31,6 +32,7 @@ class ConfigurePage implements IsWidget {
     private Form<BootstrapServer> form;
     private TextBoxItem nameItem;
     private NumberBoxItem portItem;
+    private HTML configureStatus;
 
     ConfigurePage(final BootstrapServerSetup serverSetup, final BootstrapServerDialog serverDialog) {
         this.serverSetup = serverSetup;
@@ -43,9 +45,9 @@ class ConfigurePage implements IsWidget {
         content.add(new ContentHeaderLabel(Console.CONSTANTS.bs_configure_interface_header()));
         content.add(new ContentDescription(Console.CONSTANTS.bs_configure_interface_desc()));
 
-        final HTML configureStatus = new HTML();
+        configureStatus = new HTML();
 
-        form = new Form<BootstrapServer>(BootstrapServer.class);
+        form = new Form<>(BootstrapServer.class);
         nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         nameItem.getInputElement().setAttribute("placeholder", Console.CONSTANTS.bs_configure_interface_name_placeholder());
 
@@ -76,11 +78,12 @@ class ConfigurePage implements IsWidget {
                 FormValidation formValidation = form.validate();
                 if (!formValidation.hasErrors()) {
                     configureStatus.setVisible(false);
-                    BootstrapServer server = form.getUpdatedEntity();
+                    final BootstrapServer server = form.getUpdatedEntity();
                     serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
                         public void onFailure(final Throwable caught) {
-                            configureStatus.setHTML(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
+                            configureStatus.setHTML(StatusMessage.warning(
+                                    Console.MESSAGES.bs_interface_warning(GWT.getHostPageBaseURL())));
                             configureStatus.setVisible(true);
                         }
 
@@ -142,6 +145,7 @@ class ConfigurePage implements IsWidget {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
+                configureStatus.setVisible(false);
                 nameItem.getInputElement().focus();
             }
         });

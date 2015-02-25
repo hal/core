@@ -1,12 +1,8 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.http.client.*;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
@@ -14,7 +10,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
-import static com.google.gwt.user.client.Event.ONLOAD;
 import static org.jboss.as.console.client.core.ApplicationProperties.*;
 
 /**
@@ -30,7 +25,6 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
     public final static String CONNECT_PARAMETER = "connect";
 
-    private final static String IFRAME_ID = "__console_corsAuthentication";
     private Control<BootstrapContext> control;
     private BootstrapContext context;
     private BootstrapServerDialog dialog;
@@ -61,7 +55,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
             }
 
         } else {
-            final String baseUrl = getBaseUrl();
+            final String baseUrl = GWT.getHostPageBaseURL();
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
             requestBuilder.setCallback(new RequestCallback() {
                 @Override
@@ -105,18 +99,21 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
                 if (statusCode == 200) {
                     callback.onSuccess(null);
                 } else {
+                    Log.error("Wrong status " + statusCode + " when pinging '" + getServerUrl(server) + "'");
                     callback.onFailure(new IllegalStateException());
                 }
             }
 
             @Override
             public void onError(final Request request, final Throwable exception) {
+                Log.error("Ping.onError(): '" + getServerUrl(server) + "': " + exception.getMessage());
                 callback.onFailure(new IllegalStateException());
             }
         });
         try {
             requestBuilder.send();
         } catch (RequestException e) {
+            Log.error("Failed to ping '" + getServerUrl(server) + "': " + e.getMessage());
             callback.onFailure(new IllegalStateException());
         }
     }
@@ -133,22 +130,11 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         if (!serverUrl.endsWith("/")) {
             serverUrl += "/";
         }
-        context.setSameOrigin(serverUrl.equals(getBaseUrl()));
+        context.setSameOrigin(serverUrl.equals(GWT.getHostPageBaseURL()));
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog
         setUrls(serverUrl);
         control.proceed();
-//        Element iframe = Document.get().getElementById(IFRAME_ID).cast();
-//        DOM.sinkEvents(iframe, ONLOAD);
-//        DOM.setEventListener(iframe, new EventListener() {
-//            @Override
-//            public void onBrowserEvent(final Event event) {
-//                if (DOM.eventGetType(event) == ONLOAD) {
-//                    control.proceed();
-//                }
-//            }
-//        });
-//        iframe.setAttribute("src", context.getProperty(BootstrapContext.DOMAIN_API));
     }
 
     private void setUrls(String baseUrl) {
@@ -169,36 +155,6 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         context.setProperty(LOGOUT_API, logoutApi);
         context.setProperty(PATCH_API, patchApi);
         context.setProperty(CSP_API, cspApi);
-    }
-
-    String getBaseUrl() {
-        String base = GWT.getHostPageBaseURL();
-
-        String host;
-        String port;
-        String protocol = base.substring(0, base.indexOf("//") + 2);
-        String remainder = base.substring(base.indexOf(protocol) + protocol.length(), base.length());
-
-        int portDelim = remainder.indexOf(":");
-        if (portDelim != -1) {
-            host = remainder.substring(0, portDelim);
-            String portRemainder = remainder.substring(portDelim + 1, remainder.length());
-            if (portRemainder.contains("/")) {
-                port = portRemainder.substring(0, portRemainder.indexOf("/"));
-            } else {
-                port = portRemainder;
-            }
-        } else {
-            host = remainder.substring(0, remainder.indexOf("/"));
-            if ("https://".equalsIgnoreCase(protocol)) {
-                port = "443";
-            } else {
-                port = "80";
-            }
-        }
-
-        // default url
-        return protocol + host + ":" + port + "/";
     }
 
     static String getServerUrl(BootstrapServer server) {

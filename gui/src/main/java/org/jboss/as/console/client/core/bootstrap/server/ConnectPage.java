@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -22,6 +23,7 @@ public class ConnectPage implements IsWidget {
     private final BootstrapServerDialog serverDialog;
     private final BootstrapServerStore serverStore;
     private BootstrapServerTable table;
+    private HTML connectStatus;
 
     public ConnectPage(final BootstrapServerSetup serverSetup, final BootstrapServerDialog serverDialog) {
         this.serverSetup = serverSetup;
@@ -38,7 +40,7 @@ public class ConnectPage implements IsWidget {
         table = new BootstrapServerTable(serverDialog);
         content.add(table);
 
-        final HTML connectStatus = new HTML();
+        connectStatus = new HTML();
         content.add(connectStatus);
 
         DialogueOptions options = new DialogueOptions(
@@ -53,7 +55,8 @@ public class ConnectPage implements IsWidget {
                             serverSetup.pingServer(server, new AsyncCallback<Void>() {
                                 @Override
                                 public void onFailure(final Throwable caught) {
-                                    connectStatus.setHTML(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
+                                    connectStatus.setHTML(StatusMessage.warning(
+                                            Console.MESSAGES.bs_interface_warning(GWT.getHostPageBaseURL())));
                                 }
 
                                 @Override
@@ -68,7 +71,7 @@ public class ConnectPage implements IsWidget {
                 new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
-                        Window.Location.replace(serverSetup.getBaseUrl());
+                        Window.Location.replace(GWT.getHostPageBaseURL());
                     }
                 }
         );
@@ -85,5 +88,6 @@ public class ConnectPage implements IsWidget {
         } else {
             table.getCellTable().selectDefaultEntity();
         }
+        connectStatus.setVisible(false);
     }
 }
