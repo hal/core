@@ -55,7 +55,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
             }
 
         } else {
-            final String baseUrl = GWT.getHostPageBaseURL();
+            final String baseUrl = getBaseUrl();
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "management");
             requestBuilder.setCallback(new RequestCallback() {
                 @Override
@@ -127,10 +127,10 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
             Console.showLoadingPanel();
         }
         String serverUrl = getServerUrl(server);
+        context.setSameOrigin(serverUrl.equals(getBaseUrl()));
         if (!serverUrl.endsWith("/")) {
             serverUrl += "/";
         }
-        context.setSameOrigin(serverUrl.equals(GWT.getHostPageBaseURL()));
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog
         setUrls(serverUrl);
@@ -155,6 +155,14 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         context.setProperty(LOGOUT_API, logoutApi);
         context.setProperty(PATCH_API, patchApi);
         context.setProperty(CSP_API, cspApi);
+    }
+
+    String getBaseUrl() {
+        String hostUrl = GWT.getHostPageBaseURL();
+        int schemeIndex = hostUrl.indexOf("://");
+        int slash = hostUrl.indexOf('/', schemeIndex + 3);
+        String baseUrl = hostUrl.substring(0, slash);
+        return baseUrl;
     }
 
     static String getServerUrl(BootstrapServer server) {

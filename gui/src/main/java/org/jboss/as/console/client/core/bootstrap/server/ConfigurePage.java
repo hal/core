@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -83,7 +82,7 @@ class ConfigurePage implements IsWidget {
                         @Override
                         public void onFailure(final Throwable caught) {
                             configureStatus.setHTML(StatusMessage.warning(
-                                    Console.MESSAGES.bs_interface_warning(GWT.getHostPageBaseURL())));
+                                    Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                             configureStatus.setVisible(true);
                         }
 

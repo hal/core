@@ -56,7 +56,7 @@ public class ConnectPage implements IsWidget {
                                 @Override
                                 public void onFailure(final Throwable caught) {
                                     connectStatus.setHTML(StatusMessage.warning(
-                                            Console.MESSAGES.bs_interface_warning(GWT.getHostPageBaseURL())));
+                                            Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                                 }
 
                                 @Override
