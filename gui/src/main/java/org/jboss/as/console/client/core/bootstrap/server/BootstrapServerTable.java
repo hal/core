@@ -72,11 +72,11 @@ class BootstrapServerTable implements IsWidget {
                 return item.getName();
             }
         };
-        cellTable = new DefaultCellTable<BootstrapServer>(PAGE_SIZE, providesKey);
-        dataProvider = new ListDataProvider<BootstrapServer>(providesKey);
+        cellTable = new DefaultCellTable<>(PAGE_SIZE, providesKey);
+        dataProvider = new ListDataProvider<>(providesKey);
         dataProvider.setList(bootstrapServerStore.load());
         dataProvider.addDataDisplay(cellTable);
-        selectionModel = new SingleSelectionModel<BootstrapServer>(dataProvider);
+        selectionModel = new SingleSelectionModel<>(dataProvider);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(final SelectionChangeEvent event) {
