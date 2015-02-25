@@ -42,7 +42,7 @@ class ConfigurePage implements IsWidget {
 
         form = new Form<BootstrapServer>(BootstrapServer.class);
         nameItem = new TextBoxItem("name", "Name");
-        nameItem.getInputElement().setAttribute("style", "box-sizing:border-box;width:100%;");
+        nameItem.getInputElement().setAttribute("style", "-moz-box-sizing:border-box;box-sizing:border-box;width:100%;");
         nameItem.getInputElement().setAttribute("placeholder", "A name for this management interface");
         final UrlItem urlItem = new UrlItem("url", "URL");
         ButtonItem pingItem = new ButtonItem("", "", "Ping");

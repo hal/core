@@ -2564,8 +2564,14 @@ hr {
 }
 
 .restart-window-content {
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-justify-content: center;
   justify-content: center;
 }
 .restart-error {
@@ -2647,9 +2653,17 @@ ul.patch-actions {
 }
 
 .stream-log-file-pending {
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-pack: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
   flex-direction: column;
+  -webkit-justify-content: center;
   justify-content: center;
 
   .cancel {
@@ -2716,10 +2730,15 @@ input[type=radio] {
 }
 
 .hal-urlItem {
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
 }
 .hal-urlItem .scheme {
+  -webkit-align-self: flex-start;
   align-self: flex-start;
   width: 8em;
 }
@@ -2729,6 +2748,7 @@ input[type=radio] {
   margin-right: 1em;
 }
 .hal-urlItem .port {
+  -webkit-align-self: flex-end;
   align-self: flex-end;
   width: 8em;
 }
