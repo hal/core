@@ -70,6 +70,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
     public final static UIMessages MESSAGES = GWT.create(UIMessages.class);
     public final static UITokens TOKENS = GWT.create(UITokens.class);
     public final static ProductConfig prodConfig = GWT.create(ProductConfig.class);
+    private static Widget loadingPanel;
 
     public void onModuleLoad() {
         Log.setUncaughtExceptionHandler();
@@ -89,7 +90,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
         injectResources();
 
         // display the loading panel
-        final Widget loadingPanel = new LoadingPanel().asWidget();
+        loadingPanel = new LoadingPanel().asWidget();
         RootLayoutPanel.get().add(loadingPanel);
 
         // start the GIN engine and kick off the bootstrap process
@@ -210,6 +211,18 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                 new ServerStoreInit(MODULES.getHostStore(), MODULES.getServerStore()),
                 new EagerLoadGroups(MODULES.getServerGroupStore())
         );
+    }
+
+    public static void hideLoadingPanel() {
+        if (loadingPanel != null) {
+            loadingPanel.setVisible(false);
+        }
+    }
+
+    public static void showLoadingPanel() {
+        if (loadingPanel != null) {
+            loadingPanel.setVisible(true);
+        }
     }
 
     public static void info(String message) {

@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
@@ -89,12 +90,14 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     }
 
     private void openDialog() {
+        Console.hideLoadingPanel();
         dialog = new BootstrapServerDialog(this);
         dialog.open();
     }
 
     void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, server.getUrl());
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getServerUrl(server));
+        requestBuilder.setTimeoutMillis(3000);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(final Request request, final Response response) {
@@ -102,22 +105,19 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
                 if (statusCode == 200) {
                     callback.onSuccess(null);
                 } else {
-                    callback.onFailure(new IllegalStateException(
-                            "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
+                    callback.onFailure(new IllegalStateException());
                 }
             }
 
             @Override
             public void onError(final Request request, final Throwable exception) {
-                callback.onFailure(new IllegalStateException(
-                        "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
+                callback.onFailure(new IllegalStateException());
             }
         });
         try {
             requestBuilder.send();
         } catch (RequestException e) {
-            callback.onFailure(new IllegalStateException(
-                    "Management interface " + server.getName() + " at " + server.getUrl() + " does not respond!"));
+            callback.onFailure(new IllegalStateException());
         }
     }
 
@@ -127,26 +127,28 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         if (dialog != null) {
             dialog.hide();
+            Console.showLoadingPanel();
         }
-        String serverUrl = server.getUrl();
+        String serverUrl = getServerUrl(server);
         if (!serverUrl.endsWith("/")) {
             serverUrl += "/";
         }
         context.setSameOrigin(serverUrl.equals(getBaseUrl()));
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog
-        setUrls(server.getUrl());
-        Element iframe = Document.get().getElementById(IFRAME_ID).cast();
-        DOM.sinkEvents(iframe, ONLOAD);
-        DOM.setEventListener(iframe, new EventListener() {
-            @Override
-            public void onBrowserEvent(final Event event) {
-                if (DOM.eventGetType(event) == ONLOAD) {
-                    control.proceed();
-                }
-            }
-        });
-        iframe.setAttribute("src", context.getProperty(BootstrapContext.DOMAIN_API));
+        setUrls(serverUrl);
+        control.proceed();
+//        Element iframe = Document.get().getElementById(IFRAME_ID).cast();
+//        DOM.sinkEvents(iframe, ONLOAD);
+//        DOM.setEventListener(iframe, new EventListener() {
+//            @Override
+//            public void onBrowserEvent(final Event event) {
+//                if (DOM.eventGetType(event) == ONLOAD) {
+//                    control.proceed();
+//                }
+//            }
+//        });
+//        iframe.setAttribute("src", context.getProperty(BootstrapContext.DOMAIN_API));
     }
 
     private void setUrls(String baseUrl) {
@@ -197,5 +199,14 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         // default url
         return protocol + host + ":" + port + "/";
+    }
+
+    static String getServerUrl(BootstrapServer server) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(server.getScheme()).append("://").append(server.getHostname());
+        if (server.getPort() != 0) {
+            builder.append(":").append(server.getPort());
+        }
+        return builder.toString();
     }
 }

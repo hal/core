@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
-import com.apple.jobjc.SEL;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;

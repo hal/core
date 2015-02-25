@@ -6,11 +6,16 @@ package org.jboss.as.console.client.core.bootstrap.server;
  * @author Harald Pehl
  */
 public interface BootstrapServer {
-    String getName();
 
+    String getName();
     void setName(String name);
 
-    String getUrl();
+    String getScheme();
+    void setScheme(String scheme);
 
-    void setUrl(String url);
+    String getHostname();
+    void setHostname(String hostname);
+
+    int getPort();
+    void setPort(int port);
 }
