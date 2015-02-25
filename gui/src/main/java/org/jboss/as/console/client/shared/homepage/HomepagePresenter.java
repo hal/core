@@ -93,8 +93,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
                     Console.CONSTANTS.section_deployment_intro()));
             infoBoxes.add(new InfoBox(NameTokens.ProfileMgmtPresenter,
                     Console.CONSTANTS.common_label_configuration(), Console.CONSTANTS.section_configuration_intro()));
-            infoBoxes.add(new InfoBox(NameTokens.HostMgmtPresenter, "Domain",
-                    Console.CONSTANTS.section_domain_intro()));
+
             infoBoxes.add(new InfoBox(NameTokens.DomainRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));
         }
