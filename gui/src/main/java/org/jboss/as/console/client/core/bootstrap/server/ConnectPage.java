@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -31,8 +32,8 @@ public class ConnectPage implements IsWidget {
     @Override
     public Widget asWidget() {
         FlowPanel content = new FlowPanel();
-        content.add(new ContentHeaderLabel("Connect to Management Interface"));
-        content.add(new ContentDescription("Pick a management interface from the list below or add a new one."));
+        content.add(new ContentHeaderLabel(Console.CONSTANTS.bs_connect_interface_header()));
+        content.add(new ContentDescription(Console.CONSTANTS.bs_connect_interface_desc()));
 
         table = new BootstrapServerTable(serverDialog);
         content.add(table);
@@ -41,18 +42,18 @@ public class ConnectPage implements IsWidget {
         content.add(connectStatus);
 
         DialogueOptions options = new DialogueOptions(
-                "Connect",
+                Console.CONSTANTS.bs_connect_interface_connect(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         final BootstrapServer server = table.getSelectedServer();
                         if (server == null) {
-                            connectStatus.setHTML(StatusMessage.error("Please select a management interface."));
+                            connectStatus.setHTML(StatusMessage.error(Console.CONSTANTS.bs_connect_interface_no_selection()));
                         } else {
                             serverSetup.pingServer(server, new AsyncCallback<Void>() {
                                 @Override
                                 public void onFailure(final Throwable caught) {
-                                    connectStatus.setHTML(StatusMessage.warning("The selected management interface does not respond."));
+                                    connectStatus.setHTML(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                                 }
 
                                 @Override
@@ -63,7 +64,7 @@ public class ConnectPage implements IsWidget {
                         }
                     }
                 },
-                "Cancel",
+                Console.CONSTANTS.common_label_cancel(),
                 new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {

@@ -1,18 +1,22 @@
 package org.jboss.as.console.client.core.bootstrap.server;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.ballroom.client.widgets.forms.ButtonItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.FormValidation;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.common.DefaultButton;
+import org.jboss.ballroom.client.widgets.forms.*;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -26,6 +30,7 @@ class ConfigurePage implements IsWidget {
 
     private Form<BootstrapServer> form;
     private TextBoxItem nameItem;
+    private NumberBoxItem portItem;
 
     ConfigurePage(final BootstrapServerSetup serverSetup, final BootstrapServerDialog serverDialog) {
         this.serverSetup = serverSetup;
@@ -35,48 +40,64 @@ class ConfigurePage implements IsWidget {
 
     public Widget asWidget() {
         FlowPanel content = new FlowPanel();
-        content.add(new ContentHeaderLabel("Configure Management Interface"));
-        content.add(new ContentDescription("Enter the name and URL for a management interface."));
+        content.add(new ContentHeaderLabel(Console.CONSTANTS.bs_configure_interface_header()));
+        content.add(new ContentDescription(Console.CONSTANTS.bs_configure_interface_desc()));
 
         final HTML configureStatus = new HTML();
 
         form = new Form<BootstrapServer>(BootstrapServer.class);
-        nameItem = new TextBoxItem("name", "Name");
-        nameItem.getInputElement().setAttribute("style", "-moz-box-sizing:border-box;box-sizing:border-box;width:100%;");
-        nameItem.getInputElement().setAttribute("placeholder", "A name for this management interface");
-        final UrlItem urlItem = new UrlItem("url", "URL");
-        ButtonItem pingItem = new ButtonItem("", "", "Ping");
-        pingItem.addClickHandler(new ClickHandler() {
+        nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
+        nameItem.getInputElement().setAttribute("placeholder", Console.CONSTANTS.bs_configure_interface_name_placeholder());
+
+        ListBoxItem schemeItem = new ListBoxItem("scheme", "Scheme");
+        schemeItem.setChoices(Arrays.asList("http", "https"), "http");
+        TextBoxItem hostItem = new TextBoxItem("hostname", "Hostname") {
+            @Override
+            public boolean validate(String value) {
+                boolean validate = super.validate(value);
+                if (validate) {
+                    if ("localhost".equals(getValue())) {
+                        setErrMessage("Localhost does not work reliably. Please use 127.0.0.1 instead.");
+                        validate = false;
+                    }
+                }
+                return validate;
+            }
+        };
+        portItem = new NumberBoxItem("port", "Port");
+
+        form.setFields(nameItem, schemeItem, hostItem, portItem);
+        content.add(form);
+
+        DefaultButton pingButton = new DefaultButton(Console.CONSTANTS.bs_ping());
+        pingButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
-                boolean valid = urlItem.validate(urlItem.getValue());
-                urlItem.setErroneous(!valid);
-                if (valid) {
+                FormValidation formValidation = form.validate();
+                if (!formValidation.hasErrors()) {
                     configureStatus.setVisible(false);
                     BootstrapServer server = form.getUpdatedEntity();
                     serverSetup.pingServer(server, new AsyncCallback<Void>() {
                         @Override
                         public void onFailure(final Throwable caught) {
-                            configureStatus.setHTML(StatusMessage.warning("The management interface does not respond."));
+                            configureStatus.setHTML(StatusMessage.warning(Console.MESSAGES.bs_interface_warning(serverSetup.getBaseUrl())));
                             configureStatus.setVisible(true);
                         }
 
                         @Override
                         public void onSuccess(final Void result) {
-                            configureStatus.setHTML(StatusMessage.success("The management interface is running."));
+                            configureStatus.setHTML(StatusMessage.success(Console.CONSTANTS.bs_interface_success()));
                             configureStatus.setVisible(true);
                         }
                     });
                 }
             }
         });
-        form.setFields(nameItem, urlItem, pingItem);
-
-        content.add(form);
+        content.add(pingButton);
         content.add(configureStatus);
 
         DialogueOptions options = new DialogueOptions(
-                "Add",
+                Console.CONSTANTS.common_label_add(),
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -94,8 +115,7 @@ class ConfigurePage implements IsWidget {
                                 }
                             }
                             if (sameName) {
-                                configureStatus.setHTML(StatusMessage.error(
-                                        "An entry with this name already exists. Please choose another name."));
+                                configureStatus.setHTML(StatusMessage.error(Console.CONSTANTS.bs_configure_interface_duplicate()));
                                 nameItem.getInputElement().focus();
                             } else {
                                 serverStore.add(newServer);
@@ -104,7 +124,7 @@ class ConfigurePage implements IsWidget {
                         }
                     }
                 },
-                "Cancel",
+                Console.CONSTANTS.common_label_cancel(),
                 new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
@@ -118,6 +138,12 @@ class ConfigurePage implements IsWidget {
 
     void reset() {
         form.clearValues();
-        nameItem.getInputElement().focus();
+        portItem.setValue(9990);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                nameItem.getInputElement().focus();
+            }
+        });
     }
 }

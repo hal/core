@@ -94,10 +94,10 @@ class BootstrapServerTable implements IsWidget {
         TextColumn<BootstrapServer> urlColumn = new TextColumn<BootstrapServer>() {
             @Override
             public String getValue(BootstrapServer record) {
-                return record.getUrl();
+                return BootstrapServerSetup.getServerUrl(record);
             }
         };
-        cellTable.addColumn(nameColumn, "Name");
+        cellTable.addColumn(nameColumn, Console.CONSTANTS.common_label_name());
         cellTable.addColumn(urlColumn, "URL");
         layout.add(cellTable);
 

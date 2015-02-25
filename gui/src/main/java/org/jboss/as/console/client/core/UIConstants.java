@@ -1319,4 +1319,30 @@ public interface UIConstants extends Constants {
     String connecto_to_desc_standalone();
 
     String connecto_to_desc_domain();
+
+    String bs_configure_interface_header();
+
+    String bs_configure_interface_desc();
+
+    String bs_ping();
+
+    String bs_interface_success();
+
+    String bs_configure_interface_name_placeholder();
+
+    String bs_configure_interface_invalid_scheme();
+
+    String bs_configure_interface_invalid_host();
+
+    String bs_configure_interface_invalid_port();
+
+    String bs_configure_interface_duplicate();
+
+    String bs_connect_interface_header();
+
+    String bs_connect_interface_desc();
+
+    String bs_connect_interface_connect();
+
+    String bs_connect_interface_no_selection();
 }
