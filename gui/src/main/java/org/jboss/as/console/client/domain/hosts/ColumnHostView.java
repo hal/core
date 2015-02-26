@@ -28,6 +28,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
@@ -351,6 +352,21 @@ public class ColumnHostView extends SuspendableViewImpl
                     public void executeOn(final ServerGroupRecord group) {
                         Console.getCircuit().dispatch(new GroupSelection(group.getName()));
                         presenter.launchCopyWizard(group);
+                    }
+                }),
+                new MenuDelegate<ServerGroupRecord>(
+                        "Start Group", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.START);
+                    }
+                }),
+                new MenuDelegate<ServerGroupRecord>(
+                        "Stop Group", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
                     }
                 })
         );

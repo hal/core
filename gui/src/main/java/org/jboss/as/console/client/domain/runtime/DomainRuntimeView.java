@@ -21,6 +21,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
@@ -280,6 +281,21 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         placeManager.revealRelativePlace(
                                 new PlaceRequest(NameTokens.ServerPresenter).with("action", "copy")
                         );
+                    }
+                }),
+                new MenuDelegate<Server>(
+                        "Start", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.START);
+
+                    }
+                }),
+                new MenuDelegate<Server>(
+                        "Stop", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.STOP);
                     }
                 })
         );
