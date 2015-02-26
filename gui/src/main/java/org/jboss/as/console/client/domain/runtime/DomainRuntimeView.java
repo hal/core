@@ -94,7 +94,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     public DomainRuntimeView(final PlaceManager placeManager) {
         super();
         this.placeManager = placeManager;
-        contentCanvas = new LayoutPanel();
+        contentCanvas = new LayoutPanel(); // TODO remove, including the widget slot in presenter
         previewCanvas = new LayoutPanel();
 
         splitlayout = new SplitLayoutPanel(2);

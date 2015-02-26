@@ -20,6 +20,7 @@
 package org.jboss.as.console.client.domain.profiles;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
@@ -46,6 +47,7 @@ import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -58,7 +60,7 @@ import java.util.List;
  */
 public class ProfileMgmtPresenter
         extends PerspectivePresenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
-        implements ProfileSelectionEvent.ProfileSelectionListener {
+        implements ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler {
 
 
 
@@ -72,6 +74,8 @@ public class ProfileMgmtPresenter
         void setSubsystems(List<SubsystemRecord> subsystemRecords);
         void setPreselection(String preselection);
         void setPresenter(ProfileMgmtPresenter presenter);
+
+        void setPreview(SafeHtml html);
     }
 
     @ContentSlot
@@ -106,6 +110,7 @@ public class ProfileMgmtPresenter
         getView().setPresenter(this);
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
         getEventBus().addHandler(LHSHighlightEvent.TYPE, getView());
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
@@ -150,5 +155,10 @@ public class ProfileMgmtPresenter
     public void onRefreshProfiles() {
 
         loadProfiles();
+    }
+
+    @Override
+    public void onPreview(PreviewEvent event) {
+        getView().setPreview(event.getHtml());
     }
 }
