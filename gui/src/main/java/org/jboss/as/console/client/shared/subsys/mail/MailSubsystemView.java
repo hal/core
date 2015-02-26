@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
@@ -15,13 +16,14 @@ import java.util.List;
  * @author Heiko Braun
  * @date 11/28/11
  */
-public class MailSubsystemView extends DisposableViewImpl implements MailPresenter.MyView{
+public class MailSubsystemView extends SuspendableViewImpl implements MailPresenter.MyView{
 
     private MailPresenter presenter;
     private PagedView panel;
     private MailSessionEditor sessionEditor;
     private List<MailSession> sessions;
     private ServerConfigView serverConfigEditor;
+
 
     @Override
     public Widget createWidget() {
