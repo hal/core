@@ -377,8 +377,16 @@
 }
 
 .navigation-cell-table .cellTableSelectedRow {
-    background: #D8D8D8; /* ddeef5 */
+    background: #D8D8D8;
 }
+
+/*.navigation-cell-table .cellTableKeyboardSelectedRow {
+    background: lightslategray!important;
+}
+
+.navigation-cell-table .cellTableKeyboardSelectedRow > td {
+    color:white!important;
+}*/
 
 .navigation-cell-table  .cellTableSelectedRow .cellTableFirstColumn {
     border-left: none;
@@ -418,7 +426,7 @@
 }
 
 .active .cellTableSelectedRow {
-    background-color: #D4EDFA!important;
+    background-color: #D4EDFA;
 }
 
 .nav-menu {
