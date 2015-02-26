@@ -22,10 +22,14 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
+import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
+import org.jboss.as.console.client.domain.topology.LifecycleCallback;
+import org.jboss.as.console.client.domain.topology.ServerInstanceOp;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -42,6 +46,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -85,6 +90,8 @@ public class DomainRuntimePresenter
 
     private final Dispatcher circuit;
     private final ServerStore serverStore;
+    private final HostInformationStore hostInfoStore;
+    private final DispatchAsync dispatcher;
     private HandlerRegistration handlerRegistration;
     private final HostStore hostStore;
     private final PlaceManager placeManager;
@@ -95,7 +102,7 @@ public class DomainRuntimePresenter
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                                   HostStore hostStore, SubsystemLoader subsysStore,
                                   ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
-                                  Dispatcher circuit, ServerStore serverStore) {
+                                  Dispatcher circuit, ServerStore serverStore, HostInformationStore hostInfoStore, DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -107,6 +114,8 @@ public class DomainRuntimePresenter
         this.serverGroupStore = serverGroupStore;
         this.circuit = circuit;
         this.serverStore = serverStore;
+        this.hostInfoStore = hostInfoStore;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -148,6 +157,7 @@ public class DomainRuntimePresenter
                                 || (action instanceof HostSelection)
                                 || (action instanceof RemoveServer)
                                 || (action instanceof AddServer)
+                                || (action instanceof RefreshServer)
                         ) {
 
                     if(FilterType.HOST.equals(serverStore.getFilter()))
@@ -244,4 +254,38 @@ public class DomainRuntimePresenter
     public String getFilter() {
         return serverStore.getFilter();
     }
+
+    public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
+
+        ServerInstanceOp serverInstanceOp = new ServerInstanceOp(
+                op, new LifecycleCallback() {
+            @Override
+            public void onSuccess() {
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onTimeout() {
+                Console.warning("Request timeout");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onAbort() {
+                Console.warning("Request aborted.");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onError(Throwable caught) {
+                Console.error("Server " + op.name() + " failed", caught.getMessage());
+                circuit.dispatch(new RefreshServer());
+            }
+        }, dispatcher, hostInfoStore,
+                host, server
+        );
+        serverInstanceOp.run();
+
+    }
+
 }

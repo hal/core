@@ -49,6 +49,11 @@ import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
+import org.jboss.as.console.client.domain.topology.LifecycleCallback;
+import org.jboss.as.console.client.domain.topology.ServerGroup;
+import org.jboss.as.console.client.domain.topology.ServerGroupOp;
+import org.jboss.as.console.client.domain.topology.ServerGroupOpV3;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
@@ -62,6 +67,7 @@ import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
@@ -85,7 +91,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy>
-    implements PropertyManagement, PreviewEvent.Handler {
+        implements PropertyManagement, PreviewEvent.Handler {
 
 
     private DefaultWindow window;
@@ -134,7 +140,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                              BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
                              UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore, ServerGroupStore serverGroupStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
-                                         ApplicationMetaData propertyMetaData) {
+                             ApplicationMetaData propertyMetaData) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -402,7 +408,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to read server-group: "+orig.getName(), caught.getMessage());
+                Console.error("Failed to read server-group: " + orig.getName(), caught.getMessage());
             }
 
             @Override
@@ -410,12 +416,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Console.error("Failed to read server-group: "+orig.getName(), response.getFailureDescription());
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    Console.error("Failed to read server-group: " + orig.getName(), response.getFailureDescription());
+                } else {
                     ModelNode model = response.get("result").asObject();
                     model.remove("name");
 
@@ -442,13 +445,10 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                         public void onSuccess(DMRResponse dmrResponse) {
                             ModelNode response = dmrResponse.get();
 
-                            if(response.isFailure())
-                            {
+                            if (response.isFailure()) {
                                 Console.error("Failed to copy server-group", response.getFailureDescription());
-                            }
-                            else
-                            {
-                                Console.info("Successfully copied server-group '"+newGroup.getName()+"'");
+                            } else {
+                                Console.info("Successfully copied server-group '" + newGroup.getName() + "'");
                             }
 
                             loadServerGroups();
@@ -466,4 +466,36 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public void onPreview(PreviewEvent event) {
         getView().preview(event.getHtml());
     }
+
+    public void onGroupLifecycle(final String group, final LifecycleOperation op) {
+
+        ServerGroupOpV3 serverGroupOp = new ServerGroupOpV3(op, new LifecycleCallback() {
+            @Override
+            public void onSuccess() {
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onTimeout() {
+                Console.warning("Request timeout");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onAbort() {
+                Console.warning("Request aborted.");
+                circuit.dispatch(new RefreshServer());
+            }
+
+            @Override
+            public void onError(Throwable caught) {
+                Console.error("Server " + op.name() + " failed", caught.getMessage());
+                circuit.dispatch(new RefreshServer());
+            }
+        }, dispatcher, serverGroupStore, group,  serverStore.getServerForGroup(group));
+
+        serverGroupOp.run();
+
+    }
+
 }

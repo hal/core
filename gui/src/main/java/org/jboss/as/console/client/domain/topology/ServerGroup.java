@@ -30,7 +30,7 @@ import java.util.TreeMap;
  * @author Harald Pehl
  * @dat 10/11/12
  */
-class ServerGroup implements Comparable<ServerGroup>
+public class ServerGroup implements Comparable<ServerGroup>
 {
     final String name;
     final String profile;
