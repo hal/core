@@ -56,6 +56,12 @@ public class ProfileMgmtView extends SuspendableViewImpl
     }
 
     @Override
+    public void setPresenter(ProfileMgmtPresenter presenter) {
+
+        this.presenter = presenter;
+    }
+
+    @Override
     public Widget createWidget() {
         return layout.asWidget();
     }
