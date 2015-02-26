@@ -5,6 +5,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -53,6 +54,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     private final Widget subsystColWidget;
     private final Widget configColWidget;
     private final PlaceManager placeManager;
+    private final LayoutPanel previewCanvas;
 
     private SplitLayoutPanel splitlayout;
     private LayoutPanel contentCanvas;
@@ -72,6 +74,8 @@ public class ColumnProfileView extends SuspendableViewImpl
         this.placeManager = placeManager;
 
         contentCanvas = new LayoutPanel();
+        previewCanvas = new LayoutPanel();
+
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout);
 
@@ -242,7 +246,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         columnManager.addWest(configColWidget);
         columnManager.addWest(profileColWidget);
         columnManager.addWest(subsystColWidget);
-        columnManager.add(contentCanvas);
+        columnManager.add(previewCanvas);
 
         columnManager.setInitialVisible(1);
 
@@ -466,5 +470,20 @@ public class ColumnProfileView extends SuspendableViewImpl
     public void setPresenter(ProfileMgmtPresenter presenter) {
 
         this.presenter = presenter;
+    }
+
+    @Override
+    public void setPreview(final SafeHtml html) {
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                previewCanvas.clear();
+                HTML widget = new HTML(html);
+                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
+                previewCanvas.add(widget);
+            }
+        });
+
     }
 }
