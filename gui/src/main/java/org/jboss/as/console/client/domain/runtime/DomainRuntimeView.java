@@ -29,6 +29,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
@@ -51,8 +52,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private Widget subsysColWidget;
     private Widget statusColWidget;
     private Widget serverColWidget;
-    private Stack<Widget> visibleColumns = new Stack<>();
-    private Widget activeSelectionWidget;
+
 
     private LayoutPanel contentCanvas;
     private FinderColumn<Server> serverColumn;
@@ -64,6 +64,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private List<Predicate> runtimePredicates = new ArrayList<Predicate>();
     private List<FinderItem> statusLinks = new ArrayList<FinderItem>();
     private List<SubsystemRecord> subsystems;
+
+    private ColumnManager columnManager;
 
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
@@ -96,6 +98,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         previewCanvas = new LayoutPanel();
 
         splitlayout = new SplitLayoutPanel(2);
+        columnManager = new ColumnManager(splitlayout);
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("JMS Destinations", NameTokens.JmsMetricPresenter);
@@ -391,14 +394,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         subsysColWidget = subsystemColumn.asWidget();
 
         // server column is always present
-        splitlayout.addWest(serverColWidget, 217);
-        splitlayout.addWest(statusColWidget, 217);
-        splitlayout.addWest(subsysColWidget, 217);
-        splitlayout.add(previewCanvas);
+        columnManager.addWest(serverColWidget);
+        columnManager.addWest(statusColWidget);
+        columnManager.addWest(subsysColWidget);
+        columnManager.add(previewCanvas);
 
-        visibleColumns.push(serverColWidget); // default visible
-        splitlayout.setWidgetHidden(statusColWidget, true);
-        splitlayout.setWidgetHidden(subsysColWidget, true);
+        columnManager.setInitialVisible(1);
 
         // selection handling
 
@@ -409,15 +410,15 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 if (serverColumn.hasSelectedItem()) {
 
                     // selection
-                    updateActiveSelection(serverColWidget);
+                    columnManager.updateActiveSelection(serverColWidget);
                     final Server selectedServer = serverColumn.getSelectedItem();
 
                     // column handling
-                    reduceColumnsTo(1);
+                    columnManager.reduceColumnsTo(1);
 
                     // action
                     if(selectedServer.isStarted()) {
-                        appendColumn(statusColWidget);
+                        columnManager.appendColumn(statusColWidget);
                     }
 
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -438,7 +439,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                 if (statusColumn.hasSelectedItem()) {
 
-                    updateActiveSelection(statusColWidget);
+                    columnManager.updateActiveSelection(statusColWidget);
 
                     Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                         @Override
@@ -446,12 +447,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                             if(statusColumn.getSelectedItem().getTitle().equals("Subsystems"))
                             {
-                                appendColumn(subsysColWidget);
+                                columnManager.appendColumn(subsysColWidget);
                                 updateSubsystemColumn(subsystems);
                             }
                             else
                             {
-                                reduceColumnsTo(2);
+                                columnManager.reduceColumnsTo(2);
                             }
                         }
                     });
@@ -467,7 +468,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                 if (subsystemColumn.hasSelectedItem()) {
 
-                    updateActiveSelection(subsysColWidget);
+                    columnManager.updateActiveSelection(subsysColWidget);
                 }
             }
         });
@@ -475,34 +476,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         return splitlayout.asWidget();
     }
-
-    private void updateActiveSelection(Widget widget) {
-
-        ClearFinderSelectionEvent.fire(presenter);
-
-        if(activeSelectionWidget!=null)
-            activeSelectionWidget.getElement().removeClassName("active");
-        widget.getElement().addClassName("active");
-        activeSelectionWidget = widget;
-
-
-    }
-
-    private void appendColumn(final Widget columnWidget) {
-        splitlayout.setWidgetHidden(columnWidget, false);
-        visibleColumns.push(columnWidget);
-    }
-
-    private void reduceColumnsTo(int level) {
-
-        for(int i=visibleColumns.size()-1; i>=level; i--)
-        {
-            final Widget widget = visibleColumns.pop();
-            splitlayout.setWidgetHidden(widget, true);
-        }
-
-    }
-
 
     @Override
     public void setInSlot(Object slot, IsWidget  content) {
@@ -545,7 +518,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
     @Override
     public void updateServerList(List<Server> serverModel) {
-        reduceColumnsTo(1);
+        columnManager.reduceColumnsTo(1);
         serverColumn.updateFrom(serverModel, false);
     }
 

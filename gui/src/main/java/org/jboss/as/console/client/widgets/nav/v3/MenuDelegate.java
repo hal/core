@@ -6,7 +6,7 @@ package org.jboss.as.console.client.widgets.nav.v3;
  */
 public class MenuDelegate<T> {
     private String title;
-    private ContextualCommand command;
+    private ContextualCommand<T> command;
     private String[] operationContext;
 
     public MenuDelegate(String title, ContextualCommand<T> command) {
@@ -18,7 +18,7 @@ public class MenuDelegate<T> {
         return title;
     }
 
-    public ContextualCommand getCommand() {
+    public ContextualCommand<T> getCommand() {
         return command;
     }
 

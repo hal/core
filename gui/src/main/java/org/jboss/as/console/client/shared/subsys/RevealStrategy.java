@@ -50,7 +50,7 @@ public class RevealStrategy {
          if(bootstrap.isStandalone())
             RevealContentEvent.fire(presenter, ServerMgmtApplicationPresenter.TYPE_MainContent, presenter);
         else
-            RevealContentEvent.fire(presenter, ProfileMgmtPresenter.TYPE_MainContent, presenter);
+            RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_Popup, presenter);
     }
 
     public void revealInDomain(final Presenter presenter) {

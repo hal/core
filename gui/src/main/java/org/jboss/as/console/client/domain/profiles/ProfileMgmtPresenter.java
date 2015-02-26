@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.domain.profiles;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -27,7 +26,11 @@ import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.proxy.*;
+import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -57,6 +60,8 @@ public class ProfileMgmtPresenter
         extends PerspectivePresenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
         implements ProfileSelectionEvent.ProfileSelectionListener {
 
+
+
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
@@ -66,6 +71,7 @@ public class ProfileMgmtPresenter
         void setProfiles(List<ProfileRecord> profileRecords);
         void setSubsystems(List<SubsystemRecord> subsystemRecords);
         void setPreselection(String preselection);
+        void setPresenter(ProfileMgmtPresenter presenter);
     }
 
     @ContentSlot
@@ -96,6 +102,8 @@ public class ProfileMgmtPresenter
     @Override
     protected void onBind() {
         super.onBind();
+
+        getView().setPresenter(this);
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
         getEventBus().addHandler(LHSHighlightEvent.TYPE, getView());
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
@@ -103,41 +111,13 @@ public class ProfileMgmtPresenter
             public void onChange(Action action) {
                 List<SubsystemRecord> subsystems = subsysStore.getSubsystems(profileSelection.getName());
                 getView().setSubsystems(subsystems);
-
-                // prefer to reveal the last place, if exists in selected profile
-                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
-                revealDefaultSubsystem(preference, subsystems);
             }
         });
     }
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        // TODO Why is this necessary? --> No profile (circuit) store!
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                loadProfiles();
-            }
-        });
-    }
 
-    private void revealDefaultSubsystem(PlaceRequest preference, List<SubsystemRecord> existingSubsystems) {
-        final String[] defaultSubsystem = SubsystemMetaData
-                .getDefaultSubsystem(preference.getNameToken(), existingSubsystems);
-        placeManager.revealPlace(new PlaceRequest.Builder().nameToken(defaultSubsystem[1]).build());
-    }
-
-    @Override
-    public void prepareFromRequest(PlaceRequest request) {
-        super.prepareFromRequest(request);
-
-        final String preselection = request.getParameter("profile", null);
-        if (preselection != null) {
-            getView().setPreselection(preselection);
-            profileSelection.setName(preselection);
-            resetLastPlace();
-        }
     }
 
     private void loadProfiles() {
@@ -159,23 +139,16 @@ public class ProfileMgmtPresenter
     public void onProfileSelection(String profileName) {
         assert profileName!=null && !profileName.equals("") : "illegal profile name: "+profileName;
         if(!isVisible()) return;
-
         profileSelection.setName(profileName);
-
         circuit.dispatch(new LoadProfile(profileName));
-        /*subsysStore.loadSubsystems(profileName, new SimpleCallback<List<SubsystemRecord>>() {
-            @Override
-            public void onSuccess(List<SubsystemRecord> result) {
-                getView().setSubsystems(result);
-
-                // prefer to reveal the last place, if exists in selected profile
-                PlaceRequest preference = getLastPlace() != null ? getLastPlace() : preferredPlace();
-                revealDefaultSubsystem(preference, result);
-            }
-        });*/
     }
 
     private PlaceRequest preferredPlace() {
         return new PlaceRequest.Builder().nameToken(NameTokens.DataSourcePresenter).build();
+    }
+
+    public void onRefreshProfiles() {
+
+        loadProfiles();
     }
 }
