@@ -251,6 +251,15 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts.setMenuItems(
                 new MenuDelegate<String>(          // TODO permissions
+                        "JVM Settings", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.HostJVMPresenter)
+                        );
+                    }
+                }),
+                new MenuDelegate<String>(          // TODO permissions
                         "Properties", new ContextualCommand<String>() {
                     @Override
                     public void executeOn(final String host) {
@@ -267,16 +276,8 @@ public class ColumnHostView extends SuspendableViewImpl
                                 new PlaceRequest(NameTokens.HostInterfacesPresenter)
                         );
                     }
-                }),
-                new MenuDelegate<String>(          // TODO permissions
-                        "JVM Settings", new ContextualCommand<String>() {
-                    @Override
-                    public void executeOn(final String host) {
-                        Console.getPlaceManager().revealRelativePlace(
-                                new PlaceRequest(NameTokens.HostJVMPresenter)
-                        );
-                    }
                 })
+
 
         );
 
@@ -327,23 +328,23 @@ public class ColumnHostView extends SuspendableViewImpl
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions  "/server-group=*", "remove"
                         "Remove",
                         new ContextualCommand<ServerGroupRecord>() {
-                    @Override
-                    public void executeOn(final ServerGroupRecord group) {
+                            @Override
+                            public void executeOn(final ServerGroupRecord group) {
 
-                        Console.getCircuit().dispatch(new GroupSelection(group.getName()));
+                                Console.getCircuit().dispatch(new GroupSelection(group.getName()));
 
-                        Feedback.confirm(
-                                Console.MESSAGES.deleteServerGroup(),
-                                Console.MESSAGES.deleteServerGroupConfirm(group.getName()),
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onDeleteGroup(group);
-                                    }
-                                });
-                    }
-                }),
+                                Feedback.confirm(
+                                        Console.MESSAGES.deleteServerGroup(),
+                                        Console.MESSAGES.deleteServerGroupConfirm(group.getName()),
+                                        new Feedback.ConfirmationHandler() {
+                                            @Override
+                                            public void onConfirmation(boolean isConfirmed) {
+                                                if (isConfirmed)
+                                                    presenter.onDeleteGroup(group);
+                                            }
+                                        });
+                            }
+                        }),
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions   "/server-group=*", "add"
                         "Copy", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -382,7 +383,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public void preview(SafeHtml html) {
-       // TODO remove
+        // TODO remove
     }
 
     @Override
