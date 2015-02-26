@@ -173,7 +173,7 @@ public class ServerConfigView {
 
     public void setServerConfig(MailSession parent) {
         this.parent = parent;
-        headline.setText("Mail Server: " + parent.getName());
+        headline.setText("Mail Session: " + parent.getName());
 
         // it's a single instance but we still use a table
         List<MailServerDefinition> values = new ArrayList<MailServerDefinition>(3);
