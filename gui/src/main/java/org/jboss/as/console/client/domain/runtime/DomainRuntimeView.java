@@ -3,7 +3,6 @@ package org.jboss.as.console.client.domain.runtime;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.place.shared.Place;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -15,11 +14,11 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import com.gwtplatform.mvp.client.ViewImpl;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -30,12 +29,10 @@ import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
-import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -45,7 +42,7 @@ import java.util.Stack;
 /**
  * @author Heiko Braun
  */
-public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresenter.MyView {
+public class DomainRuntimeView extends SuspendableViewImpl implements DomainRuntimePresenter.MyView {
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
@@ -189,8 +186,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
     }
 
     @Override
-    public Widget asWidget() {
-
+    public Widget createWidget() {
 
         serverColumn = new FinderColumn<Server>(
                 "Server",
