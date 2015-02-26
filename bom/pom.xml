@@ -23,6 +23,7 @@
         <ballroom.version>2.2.3</ballroom.version>
         <circuit.version>0.1.1</circuit.version>
         <freemarker.version>2.3.22</freemarker.version>
+
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
         <gwtp.version>1.4</gwtp.version>
