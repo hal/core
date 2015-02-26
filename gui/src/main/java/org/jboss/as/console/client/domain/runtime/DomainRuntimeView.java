@@ -251,6 +251,7 @@ public class DomainRuntimeView extends ViewImpl implements DomainRuntimePresente
                 builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfile()).appendHtmlConstant("</li>");
                 builder.appendHtmlConstant("<li>").appendEscaped("Port Offset: "+data.getPortOffset()).appendHtmlConstant("</li>");
                 builder.appendHtmlConstant("</ul>");
+                builder.appendHtmlConstant("<p>An individual application server processes that run on a host. It's configuration and deployments are determined by the server group the server belongs to.</p>");
                 return builder.toSafeHtml();
             }
         });
