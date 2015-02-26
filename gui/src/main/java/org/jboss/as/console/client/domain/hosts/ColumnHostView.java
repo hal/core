@@ -143,6 +143,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfileName()).appendHtmlConstant("</li>");
                 builder.appendHtmlConstant("<li>").appendEscaped("Socket Binding: "+data.getSocketBinding()).appendHtmlConstant("</li>");
                 builder.appendHtmlConstant("</ul>");
+                builder.appendHtmlConstant("<p>A server group is a collection of server instances that are managed and configured as one. In a managed domain, every application server instance belongs to a server group, even if it is the only member. The server instances in a group share the same profile configuration and deployed content. </p>");
                 return builder.toSafeHtml();
             }
         });
