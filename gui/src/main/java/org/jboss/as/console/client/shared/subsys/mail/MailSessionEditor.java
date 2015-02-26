@@ -56,6 +56,13 @@ public class MailSessionEditor {
         dataProvider = new ListDataProvider<MailSession>();
         dataProvider.addDataDisplay(table);
 
+        TextColumn<MailSession> name = new TextColumn<MailSession>() {
+                    @Override
+                    public String getValue(MailSession record) {
+                        return record.getName();
+                    }
+                };
+
         TextColumn<MailSession> jndiName = new TextColumn<MailSession>() {
             @Override
             public String getValue(MailSession record) {
@@ -80,6 +87,7 @@ public class MailSessionEditor {
         };
 
 
+        table.addColumn(name, "Name");
         table.addColumn(jndiName, "JNDI Name");
         table.addColumn(option, "Option");
 
