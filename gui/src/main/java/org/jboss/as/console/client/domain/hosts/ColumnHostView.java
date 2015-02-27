@@ -52,7 +52,7 @@ import java.util.Set;
  * @since 09/01/15
  */
 public class ColumnHostView extends SuspendableViewImpl
-        implements HostMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler, ClearFinderSelectionEvent.Handler {
+        implements HostMgmtPresenter.MyView, ClearFinderSelectionEvent.Handler {
 
     private final FinderColumn<String> hosts;
     private final FinderColumn<ServerGroupRecord> groups;
@@ -412,11 +412,6 @@ public class ColumnHostView extends SuspendableViewImpl
     public void updateHosts(String selectedHost, Set<String> hostNames) {
         // TODO API Compatibility: remove need for list wrapper
         hosts.updateFrom(new ArrayList<String>(hostNames), true);
-    }
-
-    @Override
-    public void onSelectedNavTree(LHSHighlightEvent event) {
-        //server.selectByKey(event.getToken());
     }
 
     @Override

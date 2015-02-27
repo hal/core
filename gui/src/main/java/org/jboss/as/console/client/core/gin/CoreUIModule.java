@@ -66,7 +66,6 @@ import org.jboss.as.console.client.domain.model.impl.ServerGroupStoreImpl;
 import org.jboss.as.console.client.domain.profiles.ColumnProfileView;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
-import org.jboss.as.console.client.domain.profiles.ProfileMgmtView;
 import org.jboss.as.console.client.domain.runtime.*;
 import org.jboss.as.console.client.domain.topology.TopologyPresenter;
 import org.jboss.as.console.client.domain.topology.TopologyView;
@@ -150,6 +149,8 @@ import org.jboss.as.console.client.shared.subsys.jpa.JpaView;
 import org.jboss.as.console.client.shared.subsys.logging.HandlerListManager;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingPresenter;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingView;
+import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
+import org.jboss.as.console.client.shared.subsys.mail.MailFinderView;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailSubsystemView;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
@@ -503,6 +504,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 MailPresenter.MyView.class,
                 MailSubsystemView.class,
                 MailPresenter.MyProxy.class);
+        
+        bindPresenter(MailFinder.class,
+                       MailFinder.MyView.class,
+                       MailFinderView.class,
+                       MailFinder.MyProxy.class);
 
         bindPresenter(ModclusterPresenter.class,
                 ModclusterPresenter.MyView.class,

@@ -125,6 +125,7 @@ import org.jboss.as.console.client.shared.subsys.jmx.JMXPresenter;
 import org.jboss.as.console.client.shared.subsys.jpa.JpaPresenter;
 import org.jboss.as.console.client.shared.subsys.logging.HandlerListManager;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingPresenter;
+import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
@@ -341,6 +342,7 @@ public interface CoreUI {
     AsyncProvider<JacOrbPresenter> getJacOrbPresenter();
     AsyncProvider<JpaPresenter> getJpaPresenter();
     AsyncProvider<MailPresenter> getMailPresenter();
+    AsyncProvider<MailFinder> getMailFinder();
     AsyncProvider<ModclusterPresenter> getModclusterPresenter();
     AsyncProvider<JMXPresenter> getJMXPresenter();
     AsyncProvider<EEPresenter> getEEPresenter();

@@ -51,8 +51,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
-import org.jboss.as.console.client.domain.topology.ServerGroup;
-import org.jboss.as.console.client.domain.topology.ServerGroupOp;
 import org.jboss.as.console.client.domain.topology.ServerGroupOpV3;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;

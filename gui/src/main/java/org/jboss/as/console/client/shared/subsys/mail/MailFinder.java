@@ -8,11 +8,13 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
@@ -37,19 +39,18 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Heiko Braun
  */
-public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter.MyProxy> {
+public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy> {
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.MailPresenter)
+    @NameToken(NameTokens.MailFinder)
     @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
     @SearchIndex(keywords = {"mail", "smtp", "imap", "channel"})
-    public interface MyProxy extends Proxy<MailPresenter>, Place {}
+    public interface MyProxy extends Proxy<MailFinder>, Place {}
 
 
     public interface MyView extends View {
-        void setPresenter(MailPresenter presenter);
+        void setPresenter(MailFinder presenter);
         void updateFrom(List<MailSession> list);
-        void setSelectedSession(String selectedSession);
     }
 
 
@@ -66,7 +67,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
 
     @Inject
-    public MailPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
+    public MailFinder(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             DispatchAsync dispatcher, RevealStrategy revealStrategy, ApplicationMetaData metaData,
             BeanFactory beanFactory) {
 
@@ -102,18 +103,13 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         loadMailSessions(true);
     }
 
-    public void launchNewServerWizard(final MailSession selectedSession) {
-        // TODO Read the outgoing socket bindings and replace the text input with a combo box
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Mail Server"));
+    public void launchNewSessionWizard() {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Mail Session"));
         window.setWidth(480);
         window.setHeight(360);
-        window.trapWidget(new NewMailServerWizard(MailPresenter.this, selectedSession, beanFactory).asWidget());
+        window.trapWidget(new NewMailSessionWizard(MailFinder.this).asWidget());
         window.setGlassEnabled(true);
         window.center();
-    }
-
-    public void launchNewSessionWizard() {
-
     }
 
     private void loadMailSessions(final boolean refreshDetail) {
@@ -159,21 +155,19 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                     }
                     getView().updateFrom(sessions);
                 }
-                if (refreshDetail)
-                    getView().setSelectedSession(selectedSession);
+
             }
         });
     }
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInParent(this);
+        RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
     }
 
     public void closeDialoge() {
         window.hide();
     }
-
 
     public void onCreateSession(final MailSession entity) {
         closeDialoge();
@@ -235,74 +229,6 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                     Console.info(Console.MESSAGES.modified("Mail Session " + editedEntity.getName()));
                 }
                 loadMailSessions(false);
-            }
-        });
-    }
-
-    public void onSaveServer(ServerType type, Map<String, Object> changeset) {
-        ModelNode address = new ModelNode();
-        address.get(ADDRESS).set(Baseadress.get());
-        address.get(ADDRESS).add("subsystem", "mail");
-        address.get(ADDRESS).add("mail-session", selectedSession);
-        address.get(ADDRESS).add("server", type.name());
-        ModelNode operation = serverAdapter.fromChangeset(changeset, address);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.modificationFailed("Mail Server"), response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.modified("Mail Server"));
-                }
-                loadMailSessions(true);
-            }
-        });
-    }
-
-    public void onRemoveServer(MailServerDefinition entity) {
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "mail");
-        operation.get(ADDRESS).add("mail-session", selectedSession);
-        operation.get(ADDRESS).add("server", entity.getType().name());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.deletionFailed("Mail Server"), response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.deleted("Mail Server"));
-                }
-                loadMailSessions(true);
-            }
-        });
-    }
-
-    public void onCreateServer(MailServerDefinition entity) {
-        closeDialoge();
-
-        ModelNode operation = serverAdapter.fromEntity(entity);
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "mail");
-        operation.get(ADDRESS).add("mail-session", selectedSession);
-        operation.get(ADDRESS).add("server", entity.getType().name());
-        operation.get(OP).set(ADD);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.addingFailed("Mail Server"), response.getFailureDescription());
-                } else {
-                    Console.info(Console.MESSAGES.added("Mail Server"));
-                }
-                loadMailSessions(true);
             }
         });
     }

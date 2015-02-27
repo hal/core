@@ -28,8 +28,6 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
-import org.jboss.as.console.client.widgets.tree.GroupItem;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ import java.util.Map;
  * @since 09/01/15
  */
 public class ColumnProfileView extends SuspendableViewImpl
-        implements ProfileMgmtPresenter.MyView, LHSHighlightEvent.NavItemSelectionHandler {
+        implements ProfileMgmtPresenter.MyView {
 
     private final FinderColumn<ProfileRecord> profiles;
     private final FinderColumn<SubsystemLink> subsystems;
@@ -74,7 +72,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         this.placeManager = placeManager;
 
         contentCanvas = new LayoutPanel();
-        previewCanvas = new LayoutPanel();
+        previewCanvas = new LayoutPanel(); // TODO remove
 
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout);
@@ -217,7 +215,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public String rowCss(SubsystemLink data) {
-                        return "";
+                        return data.isFolder() ? "no-menu" : "";
                     }
                 },
                 new ProvidesKey<SubsystemLink>() {
@@ -246,7 +244,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         columnManager.addWest(configColWidget);
         columnManager.addWest(profileColWidget);
         columnManager.addWest(subsystColWidget);
-        columnManager.add(previewCanvas);
+        columnManager.add(contentCanvas);
 
         columnManager.setInitialVisible(1);
 
@@ -261,10 +259,12 @@ public class ColumnProfileView extends SuspendableViewImpl
                     columnManager.reduceColumnsTo(1);
                     columnManager.updateActiveSelection(configColWidget);
 
+                    clearNestedPresenter();
+
                     if("Profiles".equals(item.getTitle())) {
 
                         columnManager.appendColumn(profileColWidget);
-                        presenter.onRefreshProfiles();
+                        presenter.loadProfiles();
                     }
                 }
             }
@@ -277,6 +277,8 @@ public class ColumnProfileView extends SuspendableViewImpl
                 if(profiles.hasSelectedItem()) {
 
                     final ProfileRecord selectedProfile = profiles.getSelectedItem();
+
+                    clearNestedPresenter();
 
                     columnManager.updateActiveSelection(profileColWidget);
                     columnManager.reduceColumnsTo(2);
@@ -303,9 +305,17 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                 if(subsystems.hasSelectedItem()) {
 
+                    final SubsystemLink link = subsystems.getSelectedItem();
                     columnManager.updateActiveSelection(subsystColWidget);
 
-                    final SubsystemLink selectedSubsystem = subsystems.getSelectedItem();
+                    if(link.isFolder())
+                    {
+                        placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
+                    }
+                    else
+                    {
+                        clearNestedPresenter();
+                    }
 
                 }
             }
@@ -330,6 +340,8 @@ public class ColumnProfileView extends SuspendableViewImpl
         if (slot == ProfileMgmtPresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
+            else
+                contentCanvas.clear();
         }
     }
 
@@ -350,13 +362,23 @@ public class ColumnProfileView extends SuspendableViewImpl
     }
 
     @Override
-    public void setPreselection(String preselection) {
-
+    public void clearActiveSelection() {
+        configColWidget.getElement().removeClassName("active");
+        profileColWidget.getElement().removeClassName("active");
+        subsystColWidget.getElement().removeClassName("active");
     }
 
-    @Override
-    public void onSelectedNavTree(LHSHighlightEvent event) {
-        subsystems.selectByKey(event.getToken());
+    private void clearNestedPresenter() {
+
+        presenter.clearSlot(ProfileMgmtPresenter.TYPE_MainContent);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if(placeManager.getHierarchyDepth()>1)
+                    placeManager.revealRelativePlace(1);
+            }
+        });
     }
 
     class SubsystemLink
@@ -384,6 +406,11 @@ public class ColumnProfileView extends SuspendableViewImpl
         }
     }
 
+
+    private final static String[] subsystemFolders = new String[] {
+            NameTokens.MailFinder
+    };
+
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
     {
 
@@ -404,9 +431,6 @@ public class ColumnProfileView extends SuspendableViewImpl
             grouped.get(ext.getGroup()).add(ext);
         }
 
-        int includedSubsystems = 0;
-
-
         Collections.sort(groupNames);
 
         // build groups first
@@ -414,15 +438,12 @@ public class ColumnProfileView extends SuspendableViewImpl
         {
             List<SubsystemExtensionMetaData> items = grouped.get(groupName);
 
-            final GroupItem groupTreeItem = new GroupItem(groupName);
-
             for(SubsystemExtensionMetaData candidate : items)
             {
                 for(SubsystemRecord actual: subsystems)
                 {
                     if(actual.getKey().equals(candidate.getKey()))
                     {
-                        includedSubsystems++;
 
                         final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
                         link.setKey(candidate.getKey());
@@ -431,37 +452,24 @@ public class ColumnProfileView extends SuspendableViewImpl
                                 actual.getMinor()+"."+
                                 actual.getMicro());
 
-                            /*if(compatibleVersion(actual, candidate)) {
-                                groupTreeItem.addItem(link);
-                            }*/
+
+                        boolean isFolder = false;
+                        for (String subsystemFolder : subsystemFolders) {
+                            if(candidate.getToken().equals(subsystemFolder)) {
+                                isFolder = true;
+                                break;
+                            }
+                        }
 
                         matches.add(
-                                new SubsystemLink(candidate.getName(), candidate.getToken(), false)
+                                new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder)
                         );
 
                     }
                 }
             }
 
-
-            // skip empty groups
-               /* if(groupTreeItem.getChildCount()>0)
-                    matches.add(new SubsystemLink());*/
-
         }
-
-            /*// fallback in case no manageable subsystems exist
-            if(includedSubsystems==0)
-            {
-                HTML explanation = new HTML("No manageable subsystems exist.");
-                explanation.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        displaySubsystemHelp(subsysTree);
-                    }
-                });
-                subsysTree.addItem(new TreeItem(explanation));
-            }*/
 
         return matches;
     }

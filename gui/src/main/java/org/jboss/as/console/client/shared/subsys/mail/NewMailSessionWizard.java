@@ -20,9 +20,9 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class NewMailSessionWizard {
 
-    private final MailPresenter presenter;
+    private final MailFinder presenter;
 
-    public NewMailSessionWizard(final MailPresenter presenter) {
+    public NewMailSessionWizard(final MailFinder presenter) {
         this.presenter = presenter;
     }
 
