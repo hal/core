@@ -66,7 +66,7 @@ public class NewMailServerWizard {
 
                         MailServerDefinition entity = form.getUpdatedEntity();
                         entity.setType(ServerType.valueOf(type.getValue()));
-                        presenter.onCreateServer(entity);
+                        presenter.onCreateServer("TODO", entity); // TODO fix me
                     }
                 },
 

@@ -8,9 +8,15 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.inject.Inject;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
+import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 
 import java.util.List;
 
@@ -20,6 +26,7 @@ import java.util.List;
  */
 public class MailFinderView extends SuspendableViewImpl implements MailFinder.MyView {
 
+    private final PlaceManager placeManager;
     private LayoutPanel previewCanvas;
     private SplitLayoutPanel layout;
     private FinderColumn<MailSession> mailSessions;
@@ -28,11 +35,17 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
     private Widget mailSessCol;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
-        SafeHtml item(String cssClass, String title);
+        @Template("<div class=\"{0}\">{1}<br/><span style='font-size:9px'>({2})</span></div>")
+        SafeHtml item(String cssClass, String title, String jndiName);
     }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
+
+    @Inject
+    public MailFinderView(PlaceManager placeManager) {
+
+        this.placeManager = placeManager;
+    }
 
     @Override
     public void setPresenter(MailFinder presenter) {
@@ -59,12 +72,12 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
                     @Override
                     public boolean isFolder(MailSession data) {
-                        return true;
+                        return false;
                     }
 
                     @Override
                     public SafeHtml render(String baseCss, MailSession data) {
-                        return TEMPLATE.item(baseCss, data.getName());
+                        return TEMPLATE.item(baseCss, data.getName(), data.getJndiName());
                     }
 
                     @Override
@@ -79,6 +92,43 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     }
                 })
         ;
+
+        mailSessions.setTopMenuItems(
+                new MenuDelegate<MailSession>(
+                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<MailSession>() {
+                    @Override
+                    public void executeOn(MailSession mailSession) {
+                        presenter.launchNewSessionWizard();
+                    }
+                })
+        );
+
+
+        mailSessions.setMenuItems(
+                new MenuDelegate<MailSession>(
+                        "Edit", new ContextualCommand<MailSession>() {
+                    @Override
+                    public void executeOn(MailSession mailSession) {
+                        placeManager.revealRelativePlace(
+                                new PlaceRequest(NameTokens.MailPresenter).with("name", mailSession.getName())
+                        );
+                    }
+                }),
+                new MenuDelegate<MailSession>(
+                        "Properties", new ContextualCommand<MailSession>() {
+                    @Override
+                    public void executeOn(MailSession mailSession) {
+                        // TODO
+                    }
+                }),
+                new MenuDelegate<MailSession>(
+                        "Remove", new ContextualCommand<MailSession>() {
+                    @Override
+                    public void executeOn(MailSession mailSession) {
+                        presenter.onDelete(mailSession);
+                    }
+                })
+        );
 
         mailSessions.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override

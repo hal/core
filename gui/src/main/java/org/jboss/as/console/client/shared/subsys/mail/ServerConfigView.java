@@ -23,7 +23,6 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,6 +40,8 @@ public class ServerConfigView {
     private String title;
     private DefaultCellTable<MailServerDefinition> table;
     private MailSession parent;
+    private List<MailServerDefinition> serverConfigs;
+    private String session;
 
 
     public ServerConfigView(
@@ -96,7 +97,7 @@ public class ServerConfigView {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
                                         if (isConfirmed) {
-                                            presenter.onRemoveServer(form.getEditedEntity());
+                                            presenter.onRemoveServer(session, form.getEditedEntity());
                                         }
                                     }
                                 });
@@ -124,7 +125,7 @@ public class ServerConfigView {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
 
-                        presenter.onSaveServer(form.getEditedEntity().getType(), changeset);
+                        presenter.onSaveServer(session, form.getEditedEntity().getType(), changeset);
                     }
 
                     @Override
@@ -171,23 +172,10 @@ public class ServerConfigView {
         return layout.build();
     }
 
-    public void setServerConfig(MailSession parent) {
-        this.parent = parent;
-        headline.setText("Mail Session: " + parent.getName());
-
-        // it's a single instance but we still use a table
-        List<MailServerDefinition> values = new ArrayList<MailServerDefinition>(3);
-
-        if(parent.getSmtpServer()!=null)
-            values.add(parent.getSmtpServer());
-
-        if(parent.getImapServer()!=null)
-            values.add(parent.getImapServer());
-
-        if(parent.getPopServer()!=null)
-            values.add(parent.getPopServer());
-
-        dataProvider.setList(values);
+    public void setServerConfigs(String name, List<MailServerDefinition> serverConfigs) {
+        this.session = name;
+        headline.setText("Mail Session: " + name);
+        dataProvider.setList(serverConfigs);
         table.selectDefaultEntity();
     }
 }

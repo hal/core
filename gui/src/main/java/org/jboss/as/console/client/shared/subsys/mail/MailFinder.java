@@ -100,7 +100,9 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
     @Override
     protected void onReset() {
         super.onReset();
-        loadMailSessions(true);
+
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+            loadMailSessions(true);
     }
 
     public void launchNewSessionWizard() {

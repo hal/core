@@ -36,12 +36,12 @@ import java.util.Map;
  */
 public class MailSessionEditor {
 
-    private MailPresenter presenter;
+    private MailFinder presenter;
     private Form<MailSession> form;
     private ListDataProvider<MailSession> dataProvider;
     private DefaultCellTable<MailSession> table ;
 
-    public MailSessionEditor(MailPresenter presenter) {
+    public MailSessionEditor(MailFinder presenter) {
         this.presenter = presenter;
     }
 
@@ -75,7 +75,7 @@ public class MailSessionEditor {
                     @Override
                     public void execute(MailSession selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest.Builder().nameToken(NameTokens.MailPresenter)
+                                new PlaceRequest.Builder().nameToken(NameTokens.MailFinder)
                                         .with("name", selection.getName()).build());
                     }
                 })
@@ -96,7 +96,7 @@ public class MailSessionEditor {
         ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.launchNewSessionWizard();
+                //presenter.launchNewSessionWizard();
             }
         });
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_mailSessionView());
