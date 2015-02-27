@@ -75,7 +75,8 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
         defaultForm = new TXModelForm(presenter, enableStatistics, enableTsm, jts, useHornetq, defaultTimeout, nodeId) {
             @Override
             protected FormValidation validateTx(final FormValidation formValidation) {
-                JacorbState jacorbState = presenter.getJacorbState();
+                // TODO HAL-594: Should this be replaced with a JDK ORB equivalent?
+                JacorbState jacorbState = VALID; // presenter.getJacorbState();
 
                 if (jts.getValue() && jacorbState != VALID) {
                     getFormValidationError().setText(jacorbState.getMessage());
