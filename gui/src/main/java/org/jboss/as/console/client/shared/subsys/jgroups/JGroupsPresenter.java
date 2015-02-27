@@ -8,8 +8,8 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -20,9 +20,8 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -32,9 +31,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +45,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
 
     @ProxyCodeSplit
     @NameToken(NameTokens.JGroupsPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=jgroups"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=jgroups"})
     @SearchIndex(keywords = {"protocol", "group-communication", "cluster", "channel"})
     public interface MyProxy extends Proxy<JGroupsPresenter>, Place {
     }
@@ -65,32 +61,27 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     private final PlaceManager placeManager;
 
     private RevealStrategy revealStrategy;
-    private ApplicationMetaData metaData;
     private DispatchAsync dispatcher;
     private EntityAdapter<JGroupsProtocol> protocolAdapter;
     private EntityAdapter<JGroupsTransport> transportAdapter;
-    private BeanMetaData beanMetaData;
     private BeanFactory factory;
     private String selectedStack;
     private DefaultWindow propertyWindow;
     private DefaultWindow window;
 
     @Inject
-    public JGroupsPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,
-            DispatchAsync dispatcher,
-            RevealStrategy revealStrategy,
-            ApplicationMetaData metaData, BeanFactory beanFactory) {
+    public JGroupsPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+                            PlaceManager placeManager, RevealStrategy revealStrategy,
+                            DispatchAsync dispatcher, ApplicationMetaData metaData,
+                            BeanFactory beanFactory) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
-        this.metaData = metaData;
         this.dispatcher = dispatcher;
 
-        this.protocolAdapter = new EntityAdapter<JGroupsProtocol>(JGroupsProtocol.class, metaData);
-        this.transportAdapter= new EntityAdapter<JGroupsTransport>(JGroupsTransport.class, metaData);
+        this.protocolAdapter = new EntityAdapter<>(JGroupsProtocol.class, metaData);
+        this.transportAdapter= new EntityAdapter<>(JGroupsTransport.class, metaData);
 
         this.factory = beanFactory;
     }
@@ -134,54 +125,31 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                     Console.error(Console.MESSAGES.failed("JGroups Stack"), response.getFailureDescription());
                 } else {
 
-                    List<JGroupsStack> stacks = new ArrayList<JGroupsStack>();
+                    List<JGroupsStack> stacks = new ArrayList<>();
 
                     List<Property> subresources = response.get(RESULT).asPropertyList();
-                    for(Property prop : subresources)
-                    {
+                    for (Property prop : subresources) {
                         ModelNode model = prop.getValue();
 
                         JGroupsStack stack = factory.jGroupsStack().as();
                         stack.setName(prop.getName());
 
-                        List<JGroupsProtocol> protocols = new ArrayList<JGroupsProtocol>();
-                        if(model.hasDefined("protocol"))
-                        {
-                            if(!model.hasDefined("protocols"))
-                                throw new RuntimeException("Protocol sort order not given!");
-
-                            List<ModelNode> sortOrder = model.get("protocols").asList();
-                            final List<String> keys = new LinkedList<String>();
-                            for(ModelNode key : sortOrder)
-                                keys.add(key.asString());
-
+                        List<JGroupsProtocol> protocols = new ArrayList<>();
+                        if (model.hasDefined("protocol")) {
                             // parse protocols
+                            // TODO There's no longer a "protocols" attribute which defines the order of protocols.
+                            // TODO How to maintain order in that case?
                             List<Property> items = model.get("protocol").asPropertyList();
-
-                            // todo: https://issues.jboss.org/browse/AS7-3863
-                            Collections.sort(items, new Comparator<Property>() {
-                                @Override
-                                public int compare(Property property, Property property1) {
-                                    int firstIdx = keys.indexOf(property.getName());
-                                    int secondIdx = keys.indexOf(property1.getName());
-
-                                    if(firstIdx<secondIdx) return -1;
-                                    if(firstIdx>secondIdx) return 1;
-                                    return 0;
-                                }
-                            });
-
-                            for(Property item : items)
-                            {
+                            for (Property item : items) {
+                                String protocolName = item.getName();
                                 ModelNode protocolModel = item.getValue();
                                 JGroupsProtocol jGroupsProtocol = protocolAdapter.fromDMR(protocolModel);
+                                jGroupsProtocol.setName(protocolName);
                                 jGroupsProtocol.setProperties(new ArrayList<PropertyRecord>());
                                 // protocol properties
-                                if(protocolModel.hasDefined("property"))
-                                {
+                                if (protocolModel.hasDefined("property")) {
                                     List<Property> propItems = protocolModel.get("property").asPropertyList();
-                                    for(Property p : propItems)
-                                    {
+                                    for (Property p : propItems) {
                                         String name = p.getName();
                                         String value = p.getValue().asObject().get("value").asString();
                                         PropertyRecord propertyRecord = factory.property().as();
@@ -201,16 +169,12 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
 
                         // TODO: parse transport
 
-                        if(model.hasDefined("transport"))
-                        {
+                        if (model.hasDefined("transport")) {
                             List<Property> transportList = model.get("transport").asPropertyList();
-                            if(transportList.isEmpty())
-                            {
+                            if (transportList.isEmpty()) {
                                 JGroupsTransport transport = factory.jGroupsTransport().as();
                                 stack.setTransport(transport);
-                            }
-                            else
-                            {
+                            } else {
                                 ModelNode transportDef = transportList.get(0).getValue();
                                 JGroupsTransport transport = transportAdapter.fromDMR(transportDef);
                                 stack.setTransport(transport);
@@ -222,7 +186,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
 
                     getView().updateStacks(stacks);
 
-                    if(refreshDetails)
+                    if (refreshDetails)
                         getView().setSelectedStack(selectedStack);
                 }
             }
@@ -258,7 +222,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         composite.get(ADDRESS).setEmptyList();
         composite.get(OP).set(COMPOSITE);
 
-        List<ModelNode> steps = new ArrayList<ModelNode>(entity.getProtocols().size()+2);
+        List<ModelNode> steps = new ArrayList<>(entity.getProtocols().size()+2);
 
         // the stack itself
         ModelNode stackOp = new ModelNode();
@@ -289,8 +253,8 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
             protocolOp.get(ADDRESS).set(Baseadress.get());
             protocolOp.get(ADDRESS).add("subsystem", "jgroups");
             protocolOp.get(ADDRESS).add("stack", entity.getType());
-            protocolOp.get(OP).set("add-protocol");
-            protocolOp.get("type").set(protocol.getType());
+            protocolOp.get(ADDRESS).add("protocol", protocol.getName());
+            protocolOp.get(OP).set(ADD);
             if(protocol.getSocketBinding()!=null && !protocol.getSocketBinding().isEmpty())
                 protocolOp.get("socket-binding").set(protocol.getSocketBinding());
 
@@ -356,8 +320,8 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "jgroups");
         operation.get(ADDRESS).add("stack", selectedStack);
-        operation.get(OP).set("remove-protocol");
-        operation.get("type").set(editedEntity.getType());
+        operation.get(ADDRESS).add("protocol", editedEntity.getName());
+        operation.get(OP).set(REMOVE);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -382,7 +346,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         address.get(ADDRESS).set(Baseadress.get());
         address.get(ADDRESS).add("subsystem", "jgroups");
         address.get(ADDRESS).add("stack", selectedStack);
-        address.get(ADDRESS).add("protocol", entity.getType());
+        address.get(ADDRESS).add("protocol", entity.getName());
 
         ModelNode operation = protocolAdapter.fromChangeset(changeset, address);
 
@@ -407,10 +371,14 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         closeDialoge();
 
         ModelNode operation = protocolAdapter.fromEntity(entity);
+        if (entity.getSocketBinding() == null || entity.getSocketBinding().length() == 0) {
+            operation.remove("socket-binding");
+        }
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "jgroups");
         operation.get(ADDRESS).add("stack", selectedStack);
-        operation.get(OP).set("add-protocol");
+        operation.get(ADDRESS).add("protocol", entity.getName());
+        operation.get(OP).set(ADD);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -519,7 +487,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
             propertyWindow.hide();
     }
 
-    public void onSaveTransport(JGroupsTransport entity, Map<String, Object> changeset) {
+    public void onSaveTransport(Map<String, Object> changeset) {
         ModelNode address = new ModelNode();
         address.get(ADDRESS).set(Baseadress.get());
         address.get(ADDRESS).add("subsystem", "jgroups");

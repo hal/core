@@ -80,7 +80,7 @@ public class TransportEditor implements PropertyManagement {
                 form, new FormToolStrip.FormCallback<JGroupsTransport>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
-                presenter.onSaveTransport(form.getEditedEntity(), changeset);
+                presenter.onSaveTransport(changeset);
             }
 
             @Override
