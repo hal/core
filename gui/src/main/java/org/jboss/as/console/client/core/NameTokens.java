@@ -105,7 +105,8 @@ public class NameTokens {
     public static final String CSP = "csp";
     public static final String HttpPresenter = "http";
     public static final String ServletPresenter = "servlet";
-    public static final String UndertowPresenter = "undertow";
+    public static final String  UndertowPresenter = "undertow";
+    public static final String MailFinder = "mail-sessions";
 
     public static String getMainLayout() {
         return mainLayout;

@@ -23,6 +23,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
@@ -42,11 +43,13 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.SubsystemMetaData;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Action;
@@ -59,10 +62,9 @@ import java.util.List;
  * @author Heiko Braun
  */
 public class ProfileMgmtPresenter
-        extends PerspectivePresenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
-        implements ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler {
-
-
+        extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
+        implements ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
+        UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler   {
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
@@ -72,10 +74,10 @@ public class ProfileMgmtPresenter
     public interface MyView extends SuspendableView {
         void setProfiles(List<ProfileRecord> profileRecords);
         void setSubsystems(List<SubsystemRecord> subsystemRecords);
-        void setPreselection(String preselection);
         void setPresenter(ProfileMgmtPresenter presenter);
-
         void setPreview(SafeHtml html);
+
+        void clearActiveSelection();
     }
 
     @ContentSlot
@@ -86,21 +88,37 @@ public class ProfileMgmtPresenter
     private final PlaceManager placeManager;
     private ProfileStore profileStore;
     private CurrentProfileSelection profileSelection;
+    private final UnauthorisedPresenter unauthorisedPresenter;
     private final Dispatcher circuit;
 
     @Inject
     public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
-            Header header, UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit) {
+            UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.ProfileMgmtPresenter, unauthorisedPresenter,
-                TYPE_MainContent);
+        super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.profileStore = profileStore;
         this.subsysStore = subsysStore;
         this.profileSelection = currentProfileSelection;
+        this.unauthorisedPresenter = unauthorisedPresenter;
         this.circuit = circuit;
+    }
+
+    /**
+     * Sets the {@link org.jboss.as.console.client.rbac.UnauthorisedPresenter} in the content slot given as constructor
+     * parameter.
+     */
+    @Override
+    public void onUnauthorized(final UnauthorizedEvent event) {
+        // resetLastPlace();
+        setInSlot(TYPE_MainContent, unauthorisedPresenter);
+    }
+
+    @Override
+    public void onClearActiveSelection(ClearFinderSelectionEvent event) {
+        getView().clearActiveSelection();
     }
 
     @Override
@@ -109,8 +127,8 @@ public class ProfileMgmtPresenter
 
         getView().setPresenter(this);
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
-        getEventBus().addHandler(LHSHighlightEvent.TYPE, getView());
         getEventBus().addHandler(PreviewEvent.TYPE, this);
+        getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
@@ -120,12 +138,7 @@ public class ProfileMgmtPresenter
         });
     }
 
-    @Override
-    protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-
-    }
-
-    private void loadProfiles() {
+    public void loadProfiles() {
         profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
             @Override
             public void onSuccess(final List<ProfileRecord> result) {
@@ -142,19 +155,9 @@ public class ProfileMgmtPresenter
 
     @Override
     public void onProfileSelection(String profileName) {
-        assert profileName!=null && !profileName.equals("") : "illegal profile name: "+profileName;
         if(!isVisible()) return;
         profileSelection.setName(profileName);
         circuit.dispatch(new LoadProfile(profileName));
-    }
-
-    private PlaceRequest preferredPlace() {
-        return new PlaceRequest.Builder().nameToken(NameTokens.DataSourcePresenter).build();
-    }
-
-    public void onRefreshProfiles() {
-
-        loadProfiles();
     }
 
     @Override
