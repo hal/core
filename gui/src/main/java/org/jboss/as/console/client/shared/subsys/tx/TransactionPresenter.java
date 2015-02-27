@@ -112,7 +112,7 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
         super.onReset();
         loadModel();
         // JacORB is no longer supported.
-        // TODO Should this be replaced with 'checkJdkOrb()'?
+        // TODO HAL-594: Should this be replaced with 'checkJdkOrb()'?
 //        checkJacorb();
     }
 
