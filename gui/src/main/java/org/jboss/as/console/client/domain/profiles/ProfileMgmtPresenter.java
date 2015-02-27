@@ -90,11 +90,12 @@ public class ProfileMgmtPresenter
     private CurrentProfileSelection profileSelection;
     private final UnauthorisedPresenter unauthorisedPresenter;
     private final Dispatcher circuit;
+    private final Header header;
 
     @Inject
     public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
             ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
-            UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit) {
+            UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit, Header header) {
 
         super(eventBus, view, proxy);
 
@@ -104,6 +105,7 @@ public class ProfileMgmtPresenter
         this.profileSelection = currentProfileSelection;
         this.unauthorisedPresenter = unauthorisedPresenter;
         this.circuit = circuit;
+        this.header = header;
     }
 
     /**
@@ -119,6 +121,12 @@ public class ProfileMgmtPresenter
     @Override
     public void onClearActiveSelection(ClearFinderSelectionEvent event) {
         getView().clearActiveSelection();
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        header.highlight(getProxy().getNameToken());
     }
 
     @Override
