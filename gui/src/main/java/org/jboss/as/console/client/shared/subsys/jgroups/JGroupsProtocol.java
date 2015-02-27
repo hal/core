@@ -11,10 +11,16 @@ import java.util.List;
  */
 public interface JGroupsProtocol {
 
+    @Binding(skip = true)
+    String getName();
+    void setName(String name);
+
     @Binding(detypedName = "socket-binding")
     String getSocketBinding();
     void setSocketBinding(String socketBinding);
 
+    @Deprecated
+    @Binding(skip = true)
     String getType();
     void setType(String type);
 

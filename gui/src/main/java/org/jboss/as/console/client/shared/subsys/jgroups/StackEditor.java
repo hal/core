@@ -2,6 +2,7 @@ package org.jboss.as.console.client.shared.subsys.jgroups;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -49,24 +50,25 @@ public class StackEditor {
         this.presenter = presenter;
     }
 
+    @SuppressWarnings("unchecked")
     Widget asWidget() {
-        table = new DefaultCellTable<JGroupsProtocol>(6, new ProvidesKey<JGroupsProtocol>() {
+        table = new DefaultCellTable<>(6, new ProvidesKey<JGroupsProtocol>() {
             @Override
             public Object getKey(JGroupsProtocol item) {
-                return item.getType();
+                return item.getName();
             }
         });
-        dataProvider = new ListDataProvider<JGroupsProtocol>();
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
-        TextColumn<JGroupsProtocol> type = new TextColumn<JGroupsProtocol>() {
+        TextColumn<JGroupsProtocol> name = new TextColumn<JGroupsProtocol>() {
             @Override
             public String getValue(JGroupsProtocol record) {
-                return record.getType();
+                return record.getName();
             }
         };
 
-        table.addColumn(type, "Type");
+        table.addColumn(name, "Name");
 
         ToolStrip toolstrip = new ToolStrip();
 
@@ -78,7 +80,7 @@ public class StackEditor {
         });
         toolstrip.addToolButtonRight(addBtn);
 
-        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_remove(), new ClickHandler() {
+        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 Feedback.confirm(
@@ -102,13 +104,13 @@ public class StackEditor {
 
         // ------
 
-        form = new Form<JGroupsProtocol>(JGroupsProtocol.class);
+        form = new Form<>(JGroupsProtocol.class);
         form.setNumColumns(2);
 
-        TextItem typeField = new TextItem("type", "Type");
+        TextItem nameField = new TextItem("name", "Name");
         TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding");
 
-        form.setFields(typeField, socket);
+        form.setFields(nameField, socket);
         form.setEnabled(false);
 
 
@@ -123,7 +125,7 @@ public class StackEditor {
             }
         }, form);
 
-        FormToolStrip<JGroupsProtocol> formToolStrip = new FormToolStrip<JGroupsProtocol>(
+        FormToolStrip<JGroupsProtocol> formToolStrip = new FormToolStrip<>(
                 form, new FormToolStrip.FormCallback<JGroupsProtocol>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
@@ -135,7 +137,6 @@ public class StackEditor {
 
             }
         });
-        formToolStrip.providesDeleteOp(false);
 
         Widget detail = new FormLayout()
                 .setForm(form)
@@ -149,7 +150,7 @@ public class StackEditor {
                 .setPlain(true)
                 .setTitle("JGroups")
                 .setHeadlineWidget(headline)
-                .setDescription(Console.CONSTANTS.subsys_jgroups_protocol_desc())
+                .setDescription(SafeHtmlUtils.fromTrustedString(Console.CONSTANTS.subsys_jgroups_protocol_desc()))
                 .setMaster(Console.MESSAGES.available("Protocols"), table)
                 .setMasterTools(toolstrip.asWidget())
                 .addDetail("Attributes", detail)
@@ -164,15 +165,16 @@ public class StackEditor {
                 JGroupsProtocol currentSelection = getCurrentSelection();
                 List<PropertyRecord> properties = currentSelection.getProperties();
                 if(properties!=null)
-                    propertyEditor.setProperties(selectedStack.getName() + "_#_" + currentSelection.getType(), properties);
+                    propertyEditor.setProperties(selectedStack.getName() + "_#_" + currentSelection.getName(), properties);
                 else
-                    propertyEditor.setProperties(selectedStack.getName() + "_#_" + currentSelection.getType(), Collections.EMPTY_LIST);
+                    propertyEditor.setProperties(selectedStack.getName() + "_#_" + currentSelection.getName(), Collections.EMPTY_LIST);
             }
         });
         return panel;
 
     }
 
+    @SuppressWarnings("unchecked")
     private JGroupsProtocol getCurrentSelection() {
         SingleSelectionModel<JGroupsProtocol> selectionModel = (SingleSelectionModel<JGroupsProtocol>) table.getSelectionModel();
         return selectionModel.getSelectedObject();

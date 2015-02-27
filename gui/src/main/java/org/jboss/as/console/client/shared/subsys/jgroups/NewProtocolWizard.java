@@ -34,22 +34,22 @@ public class NewProtocolWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<JGroupsProtocol> form = new Form<JGroupsProtocol>(JGroupsProtocol.class);
+        final Form<JGroupsProtocol> form = new Form<>(JGroupsProtocol.class);
 
-        ComboBoxItem typeField = new ComboBoxItem("type", "Type");
+        ComboBoxItem nameField = new ComboBoxItem("name", "Type");
 
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (Protocol element : Protocol.values()) {
             final String name = element.getLocalName();
             if (name!=null && !"TCP".equals(name) && !"UDP".equals(name))
                 names.add(name);
         }
 
-        typeField.setValueMap(names);
+        nameField.setValueMap(names);
 
         TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding", false);
 
-        form.setFields(typeField, socket);
+        form.setFields(nameField, socket);
 
 
         DialogueOptions options = new DialogueOptions(

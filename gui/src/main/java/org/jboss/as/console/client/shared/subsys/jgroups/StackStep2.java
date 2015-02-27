@@ -43,6 +43,7 @@ public class StackStep2 {
         this.presenter = presenter;
     }
 
+    @SuppressWarnings("unchecked")
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.getElement().setAttribute("style", "margin:15px; vertical-align:center;width:95%");
@@ -50,7 +51,7 @@ public class StackStep2 {
         layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jgroups_step2()+"</h3>"));
 
         // available protocols
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
         for (Protocol element : Protocol.values()) {
             final String name = element.getLocalName();
             if (name!=null && !"TCP".equals(name) && !"UDP".equals(name))
@@ -59,14 +60,14 @@ public class StackStep2 {
 
         final Form<JGroupsProtocol> form = new Form<JGroupsProtocol>(JGroupsProtocol.class);
 
-        ComboBoxItem typeField = new ComboBoxItem("type", "Type");
+        ComboBoxItem nameField = new ComboBoxItem("name", "Name");
 
 
-        typeField.setValueMap(names);
+        nameField.setValueMap(names);
 
         TextBoxItem socket = new TextBoxItem("socketBinding", "Socket Binding", false);
 
-        form.setFields(typeField, socket);
+        form.setFields(nameField, socket);
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override
@@ -85,25 +86,25 @@ public class StackStep2 {
         //  ------
 
 
-        table = new DefaultCellTable<JGroupsProtocol>(6, new ProvidesKey<JGroupsProtocol>() {
+        table = new DefaultCellTable<>(6, new ProvidesKey<JGroupsProtocol>() {
             @Override
             public Object getKey(JGroupsProtocol item) {
-                return item.getType();
+                return item.getName();
             }
         });
-        dataProvider = new ListDataProvider<JGroupsProtocol>();
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
-        TextColumn<JGroupsProtocol> type = new TextColumn<JGroupsProtocol>() {
+        TextColumn<JGroupsProtocol> name = new TextColumn<JGroupsProtocol>() {
             @Override
             public String getValue(JGroupsProtocol record) {
-                return record.getType();
+                return record.getName();
             }
         };
 
-        table.addColumn(type, "Type");
+        table.addColumn(name, "Name");
 
-        final SingleSelectionModel<JGroupsProtocol> selectionModel = new SingleSelectionModel<JGroupsProtocol>();
+        final SingleSelectionModel<JGroupsProtocol> selectionModel = new SingleSelectionModel<>();
         table.setSelectionModel(selectionModel);
 
         ToolStrip toolstrip = new ToolStrip();
@@ -123,7 +124,7 @@ public class StackStep2 {
         });
         toolstrip.addToolButtonRight(addBtn);
 
-        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_remove(), new ClickHandler() {
+        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
@@ -131,7 +132,7 @@ public class StackStep2 {
                 List<JGroupsProtocol> list = dataProvider.getList();
                 list.remove(protocol);
 
-                List<JGroupsProtocol> update = new LinkedList<JGroupsProtocol>();
+                List<JGroupsProtocol> update = new LinkedList<>();
                 update.addAll(list);
 
                 dataProvider.setList(update);
