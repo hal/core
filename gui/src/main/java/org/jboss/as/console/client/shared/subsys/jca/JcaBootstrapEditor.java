@@ -157,9 +157,6 @@ public class JcaBootstrapEditor {
 
     public void setContexts(List<JcaBootstrapContext> contexts) {
         dataProvider.setList(contexts);
-
-        if(!contexts.isEmpty())
-            table.getSelectionModel().setSelected(contexts.get(0), true);
-
+        table.selectDefaultEntity();
     }
 }
