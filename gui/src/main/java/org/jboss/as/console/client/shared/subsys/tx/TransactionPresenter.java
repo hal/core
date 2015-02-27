@@ -111,7 +111,9 @@ public class TransactionPresenter extends Presenter<TransactionPresenter.MyView,
     protected void onReset() {
         super.onReset();
         loadModel();
-        checkJacorb();
+        // JacORB is no longer supported.
+        // TODO Should this be replaced with 'checkJdkOrb()'?
+//        checkJacorb();
     }
 
     private void loadModel() {
