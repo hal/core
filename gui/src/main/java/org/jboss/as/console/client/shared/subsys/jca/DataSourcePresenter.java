@@ -471,7 +471,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
     public void onCreateXAProperty(final String reference, final PropertyRecord prop) {
 
-        closePropertyDialoge();
+        closeXAPropertyDialoge();
 
         dataSourceStore.createXAConnectionProperty(reference, prop, new SimpleCallback<Boolean>() {
             @Override
@@ -504,13 +504,6 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("XA property"));
         propertyWindow.setWidth(480);
         propertyWindow.setHeight(360);
-        propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-            }
-        });
-
         propertyWindow.trapWidget(
                 new NewPropertyWizard(new PropertyManagement() {
                     @Override

@@ -174,7 +174,7 @@ public class XADataSourceEditor implements PropertyManagement {
                     @Override
                     public void onSelectionChange(SelectionChangeEvent event) {
                         XADataSource dataSource = selectionModel.getSelectedObject();
-                        String nextState = dataSource.isEnabled() ? Console.CONSTANTS.common_label_disable():Console.CONSTANTS.common_label_enable();
+                        String nextState = dataSource.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
                         disableBtn.setText(nextState);
 
                         presenter.loadXAProperties(dataSource.getName());
@@ -211,12 +211,6 @@ public class XADataSourceEditor implements PropertyManagement {
 
         // -----
 
-        TabPanel bottomPanel = new TabPanel();
-        bottomPanel.setStyleName("default-tabpanel");
-        bottomPanel.addStyleName("master_detail-detail");
-        bottomPanel.add(details.asWidget(), "Attributes");
-        details.getForm().bind(dataSourceTable);
-
         final FormToolStrip.FormCallback<XADataSource> xaCallback = new FormToolStrip.FormCallback<XADataSource>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
@@ -244,15 +238,7 @@ public class XADataSourceEditor implements PropertyManagement {
         };
 
         connectionEditor = new XADataSourceConnection(presenter, xaCallback);
-        connectionEditor.getForm().bind(dataSourceTable);
-        bottomPanel.add(connectionEditor.asWidget(), "Connection");
-
         securityEditor = new DataSourceSecurityEditor(dsCallback);
-        securityEditor.getForm().bind(dataSourceTable);
-        bottomPanel.add(securityEditor.asWidget(), "Security");
-
-        bottomPanel.add(propertyEditor.asWidget(), "Properties");
-
         poolConfig = new PoolConfigurationView(new PoolManagement() {
             @Override
             public void onSavePoolConfig(String parentName, Map<String, Object> changeset) {
@@ -269,18 +255,8 @@ public class XADataSourceEditor implements PropertyManagement {
                 presenter.onDoFlush(true, editedName, flushOp);
             }
         });
-        bottomPanel.add(poolConfig.asWidget(), "Pool");
-        poolConfig.getForm().bind(dataSourceTable);
-
         validationEditor = new DataSourceValidationEditor(dsCallback);
-        validationEditor.getForm().bind(dataSourceTable);
-        bottomPanel.add(validationEditor.asWidget(), "Validation");
-
         timeoutEditor = new DataSourceTimeoutEditor<XADataSource>(xaCallback, true);
-        timeoutEditor.getForm().bind(dataSourceTable);
-        bottomPanel.add(timeoutEditor.asWidget(), "Timeouts");
-
-        bottomPanel.selectTab(0);
 
         MultipleToOneLayout builder = new MultipleToOneLayout()
                      .setPlain(true)
@@ -296,7 +272,16 @@ public class XADataSourceEditor implements PropertyManagement {
                      .addDetail("Validation", validationEditor.asWidget())
                      .addDetail("Timeouts", timeoutEditor.asWidget());
 
-        return builder.build();
+        // build the overall layout
+        Widget widget = builder.build();
+        // now it's safe to bind the forms
+        details.getForm().bind(dataSourceTable);
+        connectionEditor.getForm().bind(dataSourceTable);
+        poolConfig.getForm().bind(dataSourceTable);
+        securityEditor.getForm().bind(dataSourceTable);
+        validationEditor.getForm().bind(dataSourceTable);
+        timeoutEditor.getForm().bind(dataSourceTable);
+        return widget;
     }
 
 
