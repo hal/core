@@ -97,7 +97,9 @@ public class RequiredResourcesProcessor {
                     }
                 };
                 //noinspection unchecked
-                new Async<RequiredResourcesContext>(Footer.PROGRESS_ELEMENT).parallel(context, outcome,
+                // Unfortunately we cannot use Async.parallel() here unless someone finds a way
+                // to unambiguously map parallel r-r-d operations to their results (multiple "step-1" results)
+                new Async<RequiredResourcesContext>(Footer.PROGRESS_ELEMENT).waterfall(context, outcome,
                         functions.toArray(new ReadRequiredResources[functions.size()]));
             }
         } else {
