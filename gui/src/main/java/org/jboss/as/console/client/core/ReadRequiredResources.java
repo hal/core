@@ -178,7 +178,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
                                 // match the inquiry
                                 if (matchingAddress(responseAddress, inquiryAddress)) {
-                                    payload = node;
+                                    payload = node.get(RESULT);
                                     break;
                                 }
                             }
@@ -219,14 +219,12 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
 
         private void parseAccessControlChildren(ResourceRef ref, Set<ResourceRef> references,
                                                 SecurityContextImpl context, ModelNode payload) {
-            ModelNode actualPayload = payload.hasDefined(RESULT) ? payload.get(RESULT) : payload;
-
             // parse the root resource itself
-            parseAccessControlMetaData(ref, context, actualPayload);
+            parseAccessControlMetaData(ref, context, payload);
 
             // parse the child resources
-            if (actualPayload.hasDefined(CHILDREN)) {
-                ModelNode childNodes = actualPayload.get(CHILDREN);
+            if (payload.hasDefined(CHILDREN)) {
+                ModelNode childNodes = payload.get(CHILDREN);
                 Set<String> children = childNodes.keys();
                 for (String child : children) {
                     ResourceRef childAddress = new ResourceRef(ref.getAddress() + "/" + child + "=*");
