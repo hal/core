@@ -5,15 +5,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
-import org.jboss.as.console.client.shared.general.forms.LocalSocketForm;
 import org.jboss.as.console.client.shared.general.model.LocalSocketBinding;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.Map;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -23,27 +22,29 @@ public class NewLocalSocketWizard {
     private SocketBindingPresenter presenter;
 
     public NewLocalSocketWizard(SocketBindingPresenter presenter) {
-        this.presenter = presenter;                
+        this.presenter = presenter;
     }
 
     public Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final LocalSocketForm form = new LocalSocketForm(new FormToolStrip.FormCallback<LocalSocketBinding>() {
+        final Form<LocalSocketBinding> form = new Form<>(LocalSocketBinding.class);
+        TextBoxItem name = new TextBoxItem("name", "Name");
+        TextBoxItem socketBinding = new TextBoxItem("socketBinding", "Socket Binding");
+        form.setFields(name, socketBinding);
+
+        FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override
-            public void onSave(Map<String, Object> changeset) {
-
+            public ModelNode getAddress() {
+                ModelNode address = new ModelNode();
+                address.add("socket-binding-group", "*");
+                address.add("local-destination-outbound-socket-binding", "*");
+                return address;
             }
+        }, form);
 
-            @Override
-            public void onDelete(LocalSocketBinding entity) {
-
-            }
-        }, false);
-
-        form.setIsCreate(true);
-
+        layout.add(helpPanel.asWidget());
         layout.add(form.asWidget());
 
         DialogueOptions options = new DialogueOptions(
@@ -51,11 +52,9 @@ public class NewLocalSocketWizard {
 
                     @Override
                     public void onClick(ClickEvent event) {
-
-                        Form<LocalSocketBinding> actualForm = form.getForm();
-                        FormValidation validation = actualForm .validate();
-                        if(!validation.hasErrors()) {
-                            LocalSocketBinding entity = actualForm.getUpdatedEntity();
+                        FormValidation validation = form.validate();
+                        if (!validation.hasErrors()) {
+                            LocalSocketBinding entity = form.getUpdatedEntity();
                             presenter.onCreateLocalSocketBinding(entity);
                         }
                     }
@@ -68,10 +67,6 @@ public class NewLocalSocketWizard {
                     }
                 }
         );
-
-
-
         return new WindowContentBuilder(layout, options).build();
-
     }
 }

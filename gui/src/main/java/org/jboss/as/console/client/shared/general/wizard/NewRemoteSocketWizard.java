@@ -5,15 +5,15 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
-import org.jboss.as.console.client.shared.general.forms.RemoteSocketForm;
 import org.jboss.as.console.client.shared.general.model.RemoteSocketBinding;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
-
-import java.util.Map;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -23,27 +23,30 @@ public class NewRemoteSocketWizard {
     private SocketBindingPresenter presenter;
 
     public NewRemoteSocketWizard(SocketBindingPresenter presenter) {
-        this.presenter = presenter;                
+        this.presenter = presenter;
     }
 
     public Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.addStyleName("window-content");
 
-        final RemoteSocketForm form = new RemoteSocketForm(new FormToolStrip.FormCallback<RemoteSocketBinding>() {
+        final Form<RemoteSocketBinding> form = new Form<>(RemoteSocketBinding.class);
+        TextBoxItem name = new TextBoxItem("name", "Name");
+        TextBoxItem host = new TextBoxItem("host", "Host");
+        NumberBoxItem port = new NumberBoxItem("port", "Port");
+        form.setFields(name, host, port);
+
+        FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override
-            public void onSave(Map<String, Object> changeset) {
-
+            public ModelNode getAddress() {
+                ModelNode address = new ModelNode();
+                address.add("socket-binding-group", "*");
+                address.add("remote-destination-outbound-socket-binding", "*");
+                return address;
             }
+        }, form);
 
-            @Override
-            public void onDelete(RemoteSocketBinding entity) {
-
-            }
-        }, false);
-
-        form.setIsCreate(true);
-
+        layout.add(helpPanel.asWidget());
         layout.add(form.asWidget());
 
         DialogueOptions options = new DialogueOptions(
@@ -51,11 +54,9 @@ public class NewRemoteSocketWizard {
 
                     @Override
                     public void onClick(ClickEvent event) {
-
-                        Form<RemoteSocketBinding> actualForm = form.getForm();
-                        FormValidation validation = actualForm .validate();
-                        if(!validation.hasErrors()) {
-                            RemoteSocketBinding entity = actualForm.getUpdatedEntity();
+                        FormValidation validation = form.validate();
+                        if (!validation.hasErrors()) {
+                            RemoteSocketBinding entity = form.getUpdatedEntity();
                             presenter.onCreateRemoteSocketBinding(entity);
                         }
                     }
@@ -68,10 +69,6 @@ public class NewRemoteSocketWizard {
                     }
                 }
         );
-
-
-
         return new WindowContentBuilder(layout, options).build();
-
     }
 }
