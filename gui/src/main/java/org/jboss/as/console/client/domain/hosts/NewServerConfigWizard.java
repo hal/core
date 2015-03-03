@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -51,14 +52,14 @@ import java.util.Set;
  */
 public class NewServerConfigWizard {
 
-    private ServerConfigPresenter presenter;
+    private DomainRuntimePresenter presenter;
     private ComboBoxItem groupItem;
 
     private ComboBoxItem hostItem;
     private ArrayList<String> groups;
     private List<ServerGroupRecord> serverGroups;
 
-    public NewServerConfigWizard(final ServerConfigPresenter presenter) {
+    public NewServerConfigWizard(final DomainRuntimePresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -178,7 +179,7 @@ public class NewServerConfigWizard {
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.closeApplicationView();
+                presenter.closeWindow();
             }
         };
 

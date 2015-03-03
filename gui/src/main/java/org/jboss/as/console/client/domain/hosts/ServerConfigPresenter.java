@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.annotations.NameToken;
@@ -40,7 +39,6 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.general.model.LoadSocketBindingsCmd;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
 import org.jboss.as.console.client.shared.jvm.DeleteJvmCmd;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -51,14 +49,11 @@ import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.UpdateServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.nav.v3.CloseApplicationEvent;
@@ -69,18 +64,15 @@ import org.jboss.ballroom.client.rbac.SecurityContextChangedEvent;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.JVM;
 
 /**
  * @author Heiko Braun
@@ -97,6 +89,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresenter.MyView, ServerConfigPresenter.MyProxy>
         implements JvmManagement, PropertyManagement {
 
+    private DefaultWindow window;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ServerPresenter)
@@ -285,68 +278,10 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         CloseApplicationEvent.fire(this);
     }
 
-    public void onCreateServerConfig(final Server newServer) {
 
-        circuit.dispatch(new AddServer(newServer));
-        closeApplicationView();
-    }
 
     public void onSaveChanges(final Server entity, Map<String, Object> changedValues) {
         circuit.dispatch(new UpdateServer(entity, changedValues));
-    }
-
-
-    public void tryDelete(final ServerRef server) {
-
-        closeApplicationView();
-
-        // check if instance exist
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).add("host", server.getHostName());
-        operation.get(ADDRESS).add("server-config", server.getServerName());
-        operation.get(INCLUDE_RUNTIME).set(true);
-        operation.get(OP).set(READ_RESOURCE_OPERATION);
-
-        //System.out.println(operation);
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable throwable) {
-                Console.error("Failed to delete server", throwable.getMessage());
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                String outcome = response.get(OUTCOME).asString();
-
-                Boolean serverIsRunning = Boolean.FALSE;
-
-                // 2.0.x
-                if (outcome.equals(SUCCESS)) {
-                    serverIsRunning = response.get(RESULT).get("status").asString().equalsIgnoreCase("started");
-                }
-
-                if (!serverIsRunning)
-                {
-                    performDeleteOperation(server);
-                }
-                else
-                {
-                    Console.error(
-                            Console.MESSAGES.deletionFailed("Server Configuration"),
-                            Console.MESSAGES.server_config_stillRunning(server.getServerName())
-                    );
-                }
-            }
-        });
-
-
-    }
-
-    private void performDeleteOperation(final ServerRef server) {
-
-        circuit.dispatch(new RemoveServer(server));
     }
 
     public String getSelectedHost() {
@@ -507,7 +442,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     public ServerRef getSelectedServer() {
-            return serverStore.getSelectServer();
-        }
+        return serverStore.getSelectServer();
+    }
 
 }
