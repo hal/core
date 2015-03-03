@@ -36,7 +36,7 @@ public class FeatureSet {
     public FeatureSet(final ProductConfig productConfig) {this.productConfig = productConfig;}
 
     public boolean isSearchEnabled() {
-        return Storage.isLocalStorageSupported();
+        return false;//Storage.isLocalStorageSupported();
     }
 
     public boolean isCSPEnabled() {
