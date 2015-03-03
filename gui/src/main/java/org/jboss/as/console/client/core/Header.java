@@ -54,6 +54,7 @@ import org.jboss.as.console.client.shared.model.PerspectiveStore;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
@@ -83,6 +84,7 @@ public class Header implements ValueChangeHandler<String> {
     private LayoutPanel bottom;
     private LayoutPanel outerLayout;
     private LayoutPanel alternateSubNav;
+    private ArrayList<PlaceRequest> places = new ArrayList<>();
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -131,7 +133,19 @@ public class Header implements ValueChangeHandler<String> {
         backLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                placeManager.revealRelativePlace(1);
+               // placeManager.revealRelativePlace(1);
+
+                // a workaround. see details of toggleNavigation(bool)
+                if(places.isEmpty()) {
+
+                    // should not happen
+                    Console.error("Unable to navigate back");
+                }
+                else
+                {
+                    placeManager.revealPlace(places.get(0));
+                }
+
             }
         });
 
@@ -515,6 +529,13 @@ public class Header implements ValueChangeHandler<String> {
     public void toggleNavigation(boolean supressed) {
         if(supressed)
         {
+
+            // TODO: a workaround for pageview that are still in use
+            // the paged views break the place hierarchy
+            // hence we need to capture the actual place hierarchy so we can safely navigate back
+
+            places = new ArrayList(placeManager.getCurrentPlaceHierarchy());
+
             outerLayout.setWidgetVisible(bottom, false);
             outerLayout.setWidgetVisible(alternateSubNav, true);
 
