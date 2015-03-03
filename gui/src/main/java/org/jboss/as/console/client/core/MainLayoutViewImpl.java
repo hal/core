@@ -71,6 +71,7 @@ public class MainLayoutViewImpl extends ViewImpl
 
         mainContentPanel = new LayoutPanel();
         mainContentPanel.setStyleName("main-content-panel");
+        mainContentPanel.addStyleName("animated");
 
         // see http://www.w3.org/TR/wai-aria/states_and_properties#aria-live
         mainContentPanel.getElement().setAttribute("role", "region");
@@ -151,21 +152,17 @@ public class MainLayoutViewImpl extends ViewImpl
             presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
             presenter.clearSlot(MainLayoutPresenter.TYPE_Hidden);
 
-            if(content instanceof Finder)
+            if(content instanceof Finder) {
                 header.toggleNavigation(false);
-            else
+            }
+            else {
                 header.toggleNavigation(true);
+            }
 
 
             if(content!=null)
                 setMainContent(content);
         }
-       /* else if (slot == MainLayoutPresenter.TYPE_Overlay) {
-            if(null == content) System.out.println("clear TYPE_Overlay");
-
-            if(content!=null)
-                setMainContent(content);
-        }*/
         else if(slot == MainLayoutPresenter.TYPE_Popup)
         {
             if(content!=null) {  // clearSlot() can cause this
