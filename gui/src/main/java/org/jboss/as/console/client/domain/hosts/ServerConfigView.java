@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.user.client.ui.HTML;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MultiViewImpl;
 import org.jboss.as.console.client.domain.model.Server;
@@ -50,9 +49,6 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
     private PropertyEditor propertyEditor;
 
     private ContentHeaderLabel headline;
-    private NewServerConfigWizard serverWizard;
-    private ConfirmationWindow removeConfirmation;
-    private CopyServerWizard copyServerWizard;
 
     @Override
     public void setPresenter(ServerConfigPresenter presenter) {
@@ -153,28 +149,8 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
         // server-config, we shouldn't be able to edit the JVM settings either.
         jvmEditor.setSecurityContextFilter("/{selected.host}/server-config=*");
 
-
-        serverWizard = new NewServerConfigWizard(presenter);
-        removeConfirmation = new ConfirmationWindow(
-                "Remove server",
-                "Do you really want to remove this server?",
-                new ConfirmationWindow.Handler() {
-                    @Override
-                    public void onConfirmation(boolean isConfirmed) {
-                        if(isConfirmed)
-                            presenter.tryDelete(presenter.getSelectedServer());
-                        else {
-                            presenter.closeApplicationView();
-                        }
-                    }
-                });
-
-        copyServerWizard = new CopyServerWizard(presenter);
-
         register("edit",editor.build());
-        register("new", serverWizard.asWidget());
-        register("remove", removeConfirmation.asWidget());
-        register("copy", copyServerWizard.asWidget());
+
     }
 
 
@@ -218,18 +194,17 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
         else
             System.out.println("<<< view not correctly initialized! >>>");
 
-        serverWizard.updateGroups(result);
+
 
     }
 
     @Override
     public void setSelectedServer(Server selectServer) {
-        copyServerWizard.setCurrentServerSelection(selectServer);
+
     }
 
     @Override
     public void setHosts(Set<String> hostNames, String selectedHost) {
-        serverWizard.updateHosts(hostNames);
-        copyServerWizard.setHosts(hostNames, selectedHost);
+
     }
 }

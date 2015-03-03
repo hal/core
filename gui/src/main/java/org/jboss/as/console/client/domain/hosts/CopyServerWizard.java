@@ -24,8 +24,8 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -37,8 +37,6 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,12 +45,12 @@ import java.util.Set;
  */
 public class CopyServerWizard {
 
-    private ServerConfigPresenter presenter;
+    private DomainRuntimePresenter presenter;
     private ComboBoxItem hostItem;
     private TextBoxItem nameItem;
     private Server origServer;
 
-    public CopyServerWizard(final ServerConfigPresenter presenter)
+    public CopyServerWizard(final DomainRuntimePresenter presenter)
     {
         this.presenter = presenter;
     }
@@ -138,7 +136,7 @@ public class CopyServerWizard {
         ClickHandler cancelHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.closeApplicationView();
+                presenter.closeWindow();
             }
         };
 

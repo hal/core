@@ -20,6 +20,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.hosts.ConfirmationWindow;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -35,6 +36,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -233,10 +235,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        //presenter.launchNewConfigDialoge();
-                        placeManager.revealRelativePlace(
-                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "new")
-                        );
+                        presenter.launchNewConfigDialoge();
                     }
                 })
         );
@@ -271,19 +270,27 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(final Server server) {
 
-                        placeManager.revealRelativePlace(
-                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "remove")
-                        );
+                        Feedback.confirm(
+                                "Remove server",
+                                "Do you really want to remove server "+server.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.tryDelete(presenter.getSelectedServer());
+                                        else {
+                                            presenter.closeWindow();
+                                        }
+                                    }
+                                });
                     }
                 }),
                 new MenuDelegate<Server>(
                         "Copy", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        //presenter.onLaunchCopyWizard(server);
-                        placeManager.revealRelativePlace(
-                                new PlaceRequest(NameTokens.ServerPresenter).with("action", "copy")
-                        );
+                        presenter.onLaunchCopyWizard(server);
                     }
                 }),
                 new MenuDelegate<Server>(

@@ -3,6 +3,9 @@ package org.jboss.as.console.client.domain.runtime;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -21,12 +24,15 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.hosts.CopyServerWizard;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
+import org.jboss.as.console.client.domain.hosts.NewServerConfigWizard;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
 import org.jboss.as.console.client.domain.topology.ServerInstanceOp;
@@ -38,8 +44,10 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerRef;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
+import org.jboss.as.console.client.v3.stores.domain.actions.CopyServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
@@ -47,7 +55,11 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -60,12 +72,17 @@ import org.jboss.gwt.flow.client.PushFlowCallback;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+
 /**
  * @author Heiko Braun
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
         implements Finder, UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
+
+
+    private DefaultWindow window;
 
 
     @ProxyCodeSplit
@@ -157,6 +174,7 @@ public class DomainRuntimePresenter
                                 || (action instanceof HostSelection)
                                 || (action instanceof RemoveServer)
                                 || (action instanceof AddServer)
+                                || (action instanceof CopyServer)
                                 || (action instanceof RefreshServer)
                         ) {
 
@@ -287,5 +305,136 @@ public class DomainRuntimePresenter
         serverInstanceOp.run();
 
     }
+
+    public void launchNewConfigDialoge() {
+
+        // TODO: server group store (circuit)
+        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+            @Override
+            public void onSuccess(List<ServerGroupRecord> serverGroups) {
+                window = new DefaultWindow(Console.MESSAGES.createTitle("New Server Configuration"));
+                window.setWidth(640);
+                window.setHeight(480);
+
+                NewServerConfigWizard wizard = new NewServerConfigWizard(DomainRuntimePresenter.this);
+                Widget w = wizard.asWidget();
+
+
+
+                wizard.updateGroups(serverGroups);
+                wizard.updateHosts(hostStore.getHostNames());
+                window.trapWidget(w);
+
+                window.setGlassEnabled(true);
+                window.center();
+            }
+        });
+
+
+    }
+
+
+    public void onCreateServerConfig(final Server newServer) {
+
+        circuit.dispatch(new AddServer(newServer));
+        if(window!=null)
+            window.hide();
+    }
+
+
+    public void tryDelete(final ServerRef server) {
+
+        closeWindow();
+
+        // check if instance exist
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).add("host", server.getHostName());
+        operation.get(ADDRESS).add("server-config", server.getServerName());
+        operation.get(INCLUDE_RUNTIME).set(true);
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
+
+        //System.out.println(operation);
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+
+            @Override
+            public void onFailure(Throwable throwable) {
+                Console.error("Failed to delete server", throwable.getMessage());
+            }
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                String outcome = response.get(OUTCOME).asString();
+
+                Boolean serverIsRunning = Boolean.FALSE;
+
+                // 2.0.x
+                if (outcome.equals(SUCCESS)) {
+                    serverIsRunning = response.get(RESULT).get("status").asString().equalsIgnoreCase("started");
+                }
+
+                if (!serverIsRunning)
+                {
+                    performDeleteOperation(server);
+                }
+                else
+                {
+                    Console.error(
+                            Console.MESSAGES.deletionFailed("Server Configuration"),
+                            Console.MESSAGES.server_config_stillRunning(server.getServerName())
+                    );
+                }
+            }
+        });
+
+
+    }
+
+    private void performDeleteOperation(final ServerRef server) {
+
+        circuit.dispatch(new RemoveServer(server));
+    }
+
+    public void closeWindow() {
+        window.hide();
+    }
+
+    public String getSelectedGroup() {
+        return serverStore.getSelectedGroup();
+    }
+
+    public ServerRef getSelectedServer() {
+        return serverStore.getSelectServer();
+    }
+
+
+    public String getSelectedHost() {
+        return hostStore.getSelectedHost();
+    }
+
+    public void onLaunchCopyWizard(final Server server) {
+
+        window = new DefaultWindow("Copy Server Configuration");
+        window.setWidth(480);
+        window.setHeight(380);
+
+        CopyServerWizard wizard = new CopyServerWizard(DomainRuntimePresenter.this);
+        Widget widget = wizard.asWidget();
+
+        wizard.setCurrentServerSelection(server);
+        wizard.setHosts(hostStore.getHostNames(), hostStore.getSelectedHost());
+        window.trapWidget(widget);
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public void onSaveCopy(final String targetHost, final Server original, final Server newServer) {
+        closeWindow();
+        circuit.dispatch(new CopyServer(targetHost, original, newServer));
+
+    }
+
+
 
 }
