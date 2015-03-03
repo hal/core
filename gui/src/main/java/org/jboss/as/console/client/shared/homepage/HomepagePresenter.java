@@ -30,6 +30,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.*;
+import org.jboss.as.console.client.v3.presenter.Finder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,7 +41,8 @@ import static org.jboss.as.console.client.ProductConfig.Profile.PRODUCT;
 /**
  * @author Harald Pehl
  */
-public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy> {
+public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy>
+    implements Finder {
 
     @NoGatekeeper
     @ProxyCodeSplit

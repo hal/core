@@ -36,6 +36,7 @@ import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.AddServer;
@@ -64,8 +65,7 @@ import java.util.List;
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
-
+        implements Finder, UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
 
 
     @ProxyCodeSplit

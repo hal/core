@@ -117,7 +117,7 @@ public class HostVMMetricPresenter extends CircuitPresenter<VMView, HostVMMetric
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Popup, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     public void loadVMStatus() {

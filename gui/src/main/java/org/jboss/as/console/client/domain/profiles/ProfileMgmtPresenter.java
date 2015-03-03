@@ -49,6 +49,7 @@ import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
@@ -63,7 +64,7 @@ import java.util.List;
  */
 public class ProfileMgmtPresenter
         extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
-        implements ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
+        implements Finder, ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
         UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler   {
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place

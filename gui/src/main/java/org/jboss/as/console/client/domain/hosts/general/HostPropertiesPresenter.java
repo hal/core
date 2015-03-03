@@ -116,7 +116,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
 
      @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_Popup, this);
+        RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
     @Override

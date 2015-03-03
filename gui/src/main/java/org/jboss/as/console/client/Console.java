@@ -141,6 +141,8 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
                 ScriptInjector.TOP_WINDOW).inject();
         ScriptInjector.fromString(ConsoleResources.INSTANCE.protovis().getText()).setWindow(ScriptInjector.TOP_WINDOW)
                 .inject();
+
+        ConsoleResources.INSTANCE.animateCss().ensureInjected();
     }
 
     private void bootstrap(final Widget loadingPanel) {

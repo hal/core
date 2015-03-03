@@ -22,6 +22,10 @@ public interface ConsoleResources extends ClientBundle {
     CssResource communityStyles();
 
     @CssResource.NotStrict
+    @Source("org/jboss/as/console/public/animate.css")
+    CssResource animateCss();
+
+    @CssResource.NotStrict
     @Source("org/jboss/as/console/public/product.css")
     CssResource productStyles();
 
