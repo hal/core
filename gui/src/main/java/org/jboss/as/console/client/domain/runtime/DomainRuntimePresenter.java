@@ -396,7 +396,8 @@ public class DomainRuntimePresenter
     }
 
     public void closeWindow() {
-        window.hide();
+        if(window!=null)
+            window.hide();
     }
 
     public String getSelectedGroup() {
