@@ -129,7 +129,7 @@ public class Header implements ValueChangeHandler<String> {
         builder.appendHtmlConstant("&nbsp;");
         builder.appendHtmlConstant("Back to overview");
         backLink.setHTML(builder.toSafeHtml());
-        backLink.getElement().setAttribute("style", "font-size:16px; padding:10px;cursor:pointer;background-color:#F9F9F9;padding-left:20px");
+        backLink.getElement().setAttribute("style", "font-size:16px; padding:10px;cursor:pointer;background-color:#fcfcfc;padding-left:20px");
         backLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
