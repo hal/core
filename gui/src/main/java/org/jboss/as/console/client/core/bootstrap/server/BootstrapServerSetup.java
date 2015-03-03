@@ -56,11 +56,13 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         } else {
             final String baseUrl = getBaseUrl();
+            // Test whether this console is served from a WildFly / EAP instance
             RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, baseUrl + "/management");
             requestBuilder.setCallback(new RequestCallback() {
                 @Override
                 public void onResponseReceived(final Request request, final Response response) {
                     int statusCode = response.getStatusCode();
+                    // anything but 404 is considered successful
                     if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
                         setUrls(baseUrl);
                         control.proceed();
@@ -90,9 +92,9 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     }
 
     void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getServerUrl(server)+"/management");
+        final String managementEndpoint = getServerUrl(server) + "/management";
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, managementEndpoint);
         requestBuilder.setIncludeCredentials(true);
-        //requestBuilder.setTimeoutMillis(2000);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(final Request request, final Response response) {
@@ -100,21 +102,21 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
                 if (statusCode == 200) {
                     callback.onSuccess(null);
                 } else {
-                    Log.error("Wrong status " + statusCode + " when pinging '" + getServerUrl(server) + "'");
+                    Log.error("Wrong status " + statusCode + " when pinging '" + managementEndpoint + "'");
                     callback.onFailure(new IllegalStateException());
                 }
             }
 
             @Override
             public void onError(final Request request, final Throwable exception) {
-                Log.error("Ping.onError(): '" + getServerUrl(server) + "': " + exception.getMessage());
+                Log.error("Ping.onError(): '" + managementEndpoint + "': " + exception.getMessage());
                 callback.onFailure(new IllegalStateException());
             }
         });
         try {
             requestBuilder.send();
         } catch (RequestException e) {
-            Log.error("Failed to ping '" + getServerUrl(server) + "': " + e.getMessage());
+            Log.error("Failed to ping '" + managementEndpoint + "': " + e.getMessage());
             callback.onFailure(new IllegalStateException());
         }
     }
