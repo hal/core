@@ -90,8 +90,9 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     }
 
     void pingServer(final BootstrapServer server, final AsyncCallback<Void> callback) {
-        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getServerUrl(server));
-        requestBuilder.setTimeoutMillis(2000);
+        RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, getServerUrl(server)+"/management");
+        requestBuilder.setIncludeCredentials(true);
+        //requestBuilder.setTimeoutMillis(2000);
         requestBuilder.setCallback(new RequestCallback() {
             @Override
             public void onResponseReceived(final Request request, final Response response) {
