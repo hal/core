@@ -37,6 +37,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.deployment.*;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.SearchIndex;
@@ -59,7 +60,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @date 3/1/11
  */
 public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
-        implements DeployCommandExecutor
+        implements Finder, DeployCommandExecutor
 {
     @ProxyCodeSplit
     @NameToken(NameTokens.DeploymentsPresenter)

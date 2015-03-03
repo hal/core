@@ -37,12 +37,14 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.presenter.Finder;
 
 /**
  * @author Harald Pehl
  */
 public class AdministrationPresenter
-        extends PerspectivePresenter<AdministrationPresenter.MyView, AdministrationPresenter.MyProxy> {
+        extends PerspectivePresenter<AdministrationPresenter.MyView, AdministrationPresenter.MyProxy>
+    implements Finder {
 
     @NoGatekeeper
     @ProxyCodeSplit

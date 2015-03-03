@@ -23,6 +23,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.user.client.ui.DeckLayoutPanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -31,9 +32,11 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.ViewImpl;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.core.message.MessageCenter;
+import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 /**
@@ -44,21 +47,27 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 public class MainLayoutViewImpl extends ViewImpl
         implements MainLayoutPresenter.MainLayoutView {
 
+    private static final String INACTIVE_CSS = "fadeOut";
+    private static final String ACTIVE_CSS = "fadeIn";
     private DockLayoutPanel panel;
 
     private LayoutPanel headerPanel;
     private LayoutPanel mainContentPanel;
+
     private LayoutPanel footerPanel;
 
     private Header header;
+    private final PlaceManager placeManager;
     private MessageCenter messageCenter;
     private DefaultWindow window;
     private MainLayoutPresenter presenter;
 
     @Inject
-    public MainLayoutViewImpl(Header header, Footer footer, MessageCenter messageCenter) {
+    public MainLayoutViewImpl(final Header header, Footer footer, MessageCenter messageCenter, PlaceManager placeManager) {
 
         this.messageCenter = messageCenter;
+        this.header = header;
+        this.placeManager = placeManager;
 
         mainContentPanel = new LayoutPanel();
         mainContentPanel.setStyleName("main-content-panel");
@@ -88,13 +97,13 @@ public class MainLayoutViewImpl extends ViewImpl
 
         // the application window
         window = new DefaultWindow("");
+       // window.addStyleName("animated");
 
         window.addCloseHandler(new CloseHandler<PopupPanel>() {
             @Override
             public void onClose(CloseEvent<PopupPanel> event) {
+
                 Console.getPlaceManager().revealRelativePlace(-1);
-
-
                 // clearing the slot:
                 // this is necessary to signal GWTP that the slot is not used
                 // without subsequent attempts to reveal the same place twice would not succeed
@@ -102,8 +111,12 @@ public class MainLayoutViewImpl extends ViewImpl
                     @Override
                     public void execute() {
                         presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
+                        header.toggleNavigation(false);
                     }
                 });
+
+               /* window.removeStyleName(ACTIVE_CSS);
+                window.addStyleName(INACTIVE_CSS);*/
             }
         });
 
@@ -113,6 +126,9 @@ public class MainLayoutViewImpl extends ViewImpl
         //window.setGlassStyleName("application-panel-glass");
         window.setGlassEnabled(true);
     }
+
+
+
 
     public Widget asWidget() {
         return panel;
@@ -131,23 +147,40 @@ public class MainLayoutViewImpl extends ViewImpl
 
             // necessary to prevent onReset() callbacks
             // GWTP (correctly) assumes the presenters are still visible
+
             presenter.clearSlot(MainLayoutPresenter.TYPE_Popup);
             presenter.clearSlot(MainLayoutPresenter.TYPE_Hidden);
+
+            if(content instanceof Finder)
+                header.toggleNavigation(false);
+            else
+                header.toggleNavigation(true);
+
 
             if(content!=null)
                 setMainContent(content);
         }
+       /* else if (slot == MainLayoutPresenter.TYPE_Overlay) {
+            if(null == content) System.out.println("clear TYPE_Overlay");
+
+            if(content!=null)
+                setMainContent(content);
+        }*/
         else if(slot == MainLayoutPresenter.TYPE_Popup)
         {
             if(content!=null) {  // clearSlot() can cause this
 
                 window.setWidget(content);
+               /* window.removeStyleName(INACTIVE_CSS);
+                window.addStyleName(ACTIVE_CSS);*/
                 window.center();
+
+                header.toggleNavigation(true);
             }
         }
         else if(slot == MainLayoutPresenter.TYPE_Hidden)
         {
-            System.out.println("<<< hidden widget >>>");
+            //System.out.println("<<< hidden widget >>>");
         }
         else {
             messageCenter.notify(
@@ -167,6 +200,7 @@ public class MainLayoutViewImpl extends ViewImpl
     }
 
     public void setMainContent(IsWidget content) {
+
         mainContentPanel.clear();
 
         if (content != null) {

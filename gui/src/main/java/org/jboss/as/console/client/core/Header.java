@@ -80,6 +80,9 @@ public class Header implements ValueChangeHandler<String> {
     private String currentHighlightedSection = null;
     private CustomerSupportLauncher cspLauncher;
     private SearchTool searchTool;
+    private LayoutPanel bottom;
+    private LayoutPanel outerLayout;
+    private LayoutPanel alternateSubNav;
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -99,7 +102,7 @@ public class Header implements ValueChangeHandler<String> {
 
     public Widget asWidget() {
 
-        LayoutPanel outerLayout = new LayoutPanel();
+        outerLayout = new LayoutPanel();
         outerLayout.addStyleName("page-header");
 
         Widget logo = getProductSection();
@@ -109,22 +112,49 @@ public class Header implements ValueChangeHandler<String> {
         line.setStyleName("header-line");
         LayoutPanel top = new LayoutPanel();
         top.setStyleName("header-top");
-        LayoutPanel bottom = new LayoutPanel();
+        bottom = new LayoutPanel();
         bottom.setStyleName("header-bottom");
+
+
+        alternateSubNav = new LayoutPanel();
+        alternateSubNav.setStyleName("fill-layout");
+
+
+        HTML backLink = new HTML();
+        backLink.addStyleName("link-bar-first");
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendHtmlConstant("<i class='icon-chevron-left'></i>");
+        builder.appendHtmlConstant("&nbsp;");
+        builder.appendHtmlConstant("Back to overview");
+        backLink.setHTML(builder.toSafeHtml());
+        backLink.getElement().setAttribute("style", "font-size:16px; padding:10px;cursor:pointer;background-color:#F9F9F9;padding-left:20px");
+        backLink.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                placeManager.revealRelativePlace(1);
+            }
+        });
+
+        alternateSubNav.add(backLink);
 
         outerLayout.add(line);
         outerLayout.add(top);
         outerLayout.add(bottom);
+        outerLayout.add(alternateSubNav);
 
         outerLayout.setWidgetTopHeight(line, 0, Style.Unit.PX, 4, Style.Unit.PX);
         outerLayout.setWidgetTopHeight(top, 4, Style.Unit.PX, 32, Style.Unit.PX);
         outerLayout.setWidgetTopHeight(bottom, 36, Style.Unit.PX, 44, Style.Unit.PX);
+        outerLayout.setWidgetTopHeight(alternateSubNav, 36, Style.Unit.PX, 44, Style.Unit.PX);
+        outerLayout.setWidgetVisible(alternateSubNav, false);
 
         top.add(logo);
         top.setWidgetLeftWidth(logo, 15, Style.Unit.PX, 700, Style.Unit.PX);
         top.setWidgetTopHeight(logo, 0, Style.Unit.PX, 32, Style.Unit.PX);
 
         bottom.add(links);
+
+
 
         // Debug tools
         VerticalPanel debugTools = new VerticalPanel();
@@ -316,6 +346,13 @@ public class Header implements ValueChangeHandler<String> {
         panel.getElement().setAttribute("aria-hidden", "true");
 
         final Image logo = new Image();
+        logo.getElement().setAttribute("style", "cursor:pointer");
+        logo.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                placeManager.revealPlace(new PlaceRequest(NameTokens.HomepagePresenter));
+            }
+        });
         logo.setStyleName("logo");
         panel.add(logo);
 
@@ -473,6 +510,20 @@ public class Header implements ValueChangeHandler<String> {
         if(cspLauncher!=null)
             cspLauncher.highlight(name);
 
+    }
+
+    public void toggleNavigation(boolean supressed) {
+        if(supressed)
+        {
+            outerLayout.setWidgetVisible(bottom, false);
+            outerLayout.setWidgetVisible(alternateSubNav, true);
+
+        }
+        else
+        {
+            outerLayout.setWidgetVisible(alternateSubNav, false);
+            outerLayout.setWidgetVisible(bottom, true);
+        }
     }
 
     private void toggleSubnavigation(String name) {
