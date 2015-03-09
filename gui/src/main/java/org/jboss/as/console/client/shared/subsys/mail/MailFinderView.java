@@ -70,7 +70,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
         mailSessions = new FinderColumn<MailSession>(
                 FinderColumn.FinderId.CONFIGURATION,
-                "Mail Sessions",
+                "Mail Session",
                 new FinderColumn.Display<MailSession>() {
 
                     @Override
