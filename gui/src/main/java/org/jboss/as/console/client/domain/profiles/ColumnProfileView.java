@@ -78,6 +78,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         columnManager = new ColumnManager(splitlayout);
 
         config = new FinderColumn<FinderItem>(
+                FinderColumn.FinderId.CONFIGURATION,
                 "Configuration",
                 new FinderColumn.Display<FinderItem>() {
 
@@ -173,6 +174,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         );
 
         profiles = new FinderColumn<ProfileRecord>(
+                FinderColumn.FinderId.CONFIGURATION,
                 "Profiles",
                 new FinderColumn.Display<ProfileRecord>() {
                     @Override
@@ -200,6 +202,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         profileColWidget = profiles.asWidget();
 
         subsystems = new FinderColumn<SubsystemLink>(
+                FinderColumn.FinderId.CONFIGURATION,
                 "Subsystems",
                 new FinderColumn.Display<SubsystemLink>() {
 

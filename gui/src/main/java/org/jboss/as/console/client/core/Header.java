@@ -51,11 +51,15 @@ import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.shared.model.PerspectiveStore;
+import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderSelectionEvent;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.Stack;
 
 import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
 
@@ -65,7 +69,7 @@ import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
  * @author Heiko Braun
  * @date 1/28/11
  */
-public class Header implements ValueChangeHandler<String> {
+public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.Handler {
 
     private final FeatureSet featureSet;
     private final ToplevelTabs toplevelTabs;
@@ -85,6 +89,9 @@ public class Header implements ValueChangeHandler<String> {
     private LayoutPanel outerLayout;
     private LayoutPanel alternateSubNav;
     private ArrayList<PlaceRequest> places = new ArrayList<>();
+    private FinderColumn.FinderId lastFinderType;
+    private Stack<FinderSelectionEvent> navigationStack = new Stack<>();
+    private HTML breadcrumb;
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -100,6 +107,8 @@ public class Header implements ValueChangeHandler<String> {
         this.index = index;
         this.perspectiveStore = perspectiveStore;
         History.addValueChangeHandler(this);
+
+        placeManager.getEventBus().addHandler(FinderSelectionEvent.TYPE, this);
     }
 
     public Widget asWidget() {
@@ -127,7 +136,7 @@ public class Header implements ValueChangeHandler<String> {
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
         builder.appendHtmlConstant("<i class='icon-chevron-left'></i>");
         builder.appendHtmlConstant("&nbsp;");
-        builder.appendHtmlConstant("Back to overview");
+        builder.appendHtmlConstant("Back");
         backLink.setHTML(builder.toSafeHtml());
         backLink.getElement().setAttribute("style", "font-size:16px; padding:10px;cursor:pointer;background-color:#fcfcfc;padding-left:20px");
         backLink.addClickHandler(new ClickHandler() {
@@ -150,6 +159,12 @@ public class Header implements ValueChangeHandler<String> {
         });
 
         alternateSubNav.add(backLink);
+        breadcrumb = new HTML();
+        breadcrumb.setStyleName("header-breadcrumb");
+        alternateSubNav.add(breadcrumb);
+
+        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 90, Style.Unit.PX);
+        alternateSubNav.setWidgetLeftWidth(breadcrumb, 90, Style.Unit.PX, 100, Style.Unit.PCT);
 
         outerLayout.add(line);
         outerLayout.add(top);
@@ -536,6 +551,20 @@ public class Header implements ValueChangeHandler<String> {
 
             places = new ArrayList(placeManager.getCurrentPlaceHierarchy());
 
+            // update the breadcrumb
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendEscaped("/").appendHtmlConstant("&nbsp;");
+            for(int i=0; i<navigationStack.size(); i++)
+            {
+                FinderSelectionEvent item = navigationStack.get(i);
+                //html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
+                html.appendEscaped(item.getValue());
+                if(i<navigationStack.size()-1)
+                    html.appendHtmlConstant("&nbsp;").appendEscaped("/").appendHtmlConstant("&nbsp;");
+            }
+            breadcrumb.setHTML(html.toSafeHtml());
+
+            // swap sub-navigation
             outerLayout.setWidgetVisible(bottom, false);
             outerLayout.setWidgetVisible(alternateSubNav, true);
 
@@ -549,6 +578,66 @@ public class Header implements ValueChangeHandler<String> {
 
     private void toggleSubnavigation(String name) {
 
+    }
+
+    @Override
+    public void onSelectionEvent(FinderSelectionEvent event) {
+
+        if(event.getCorrelationId()!=lastFinderType)
+        {
+            navigationStack.clear();
+        }
+
+        if(event.isSelected())
+        {
+
+            int eventIndex = stackContains(event, true);
+            boolean isDuplicateType = !navigationStack.isEmpty() && eventIndex !=-1;
+
+
+            if(!isDuplicateType)
+            {
+                navigationStack.push(event);
+            }
+            else if (eventIndex<=navigationStack.size()-1)
+            {
+                // need to trim
+                int numElements = navigationStack.size() - eventIndex;
+                for(int i=0; i<numElements; i++)
+                    navigationStack.pop();
+
+                navigationStack.push(event);
+            }
+
+
+        }
+        else if(!navigationStack.isEmpty() && !event.isSelected())
+        {
+            FinderSelectionEvent peek = navigationStack.peek();
+            if(peek.equals(event))
+                navigationStack.pop();
+        }
+
+        lastFinderType = event.getCorrelationId();
+    }
+
+    private int stackContains(FinderSelectionEvent event, boolean typeComparison) {
+        int index = -1;
+
+        for(int i=0; i<navigationStack.size(); i++)
+        {
+            boolean equals = typeComparison ?
+                    navigationStack.get(i).typeEquals(event) :
+                    navigationStack.get(i).equals(event);
+
+            if(equals)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
     }
 
     public DeckPanel createSubnavigation() {

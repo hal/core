@@ -67,6 +67,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
         columnManager = new ColumnManager(layout);
 
         mailSessions = new FinderColumn<MailSession>(
+                FinderColumn.FinderId.CONFIGURATION,
                 "Mail Sessions",
                 new FinderColumn.Display<MailSession>() {
 
