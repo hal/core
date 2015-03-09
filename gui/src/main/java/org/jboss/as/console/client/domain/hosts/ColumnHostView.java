@@ -84,6 +84,7 @@ public class ColumnHostView extends SuspendableViewImpl
         layout = new SplitLayoutPanel(2);
 
         hosts = new FinderColumn<String>(
+                FinderColumn.FinderId.RUNTIME,
                 "Hosts",
                 new FinderColumn.Display<String>() {
 
@@ -110,6 +111,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 }).setPlain(true);
 
         groups = new FinderColumn<ServerGroupRecord>(
+                FinderColumn.FinderId.RUNTIME,
                 "Server Groups",
                 new FinderColumn.Display<ServerGroupRecord>() {
 

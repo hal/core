@@ -195,6 +195,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     public Widget createWidget() {
 
         serverColumn = new FinderColumn<Server>(
+                FinderColumn.FinderId.RUNTIME,
                 "Server",
                 new FinderColumn.Display<Server>() {
 
@@ -314,6 +315,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         serverColWidget = serverColumn.asWidget();
 
         statusColumn = new FinderColumn<FinderItem>(
+                FinderColumn.FinderId.RUNTIME,
                 "Status",
                 new FinderColumn.Display<FinderItem>() {
 
@@ -352,6 +354,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         statusColWidget = statusColumn.asWidget();
 
         subsystemColumn = new FinderColumn<PlaceLink>(
+                FinderColumn.FinderId.RUNTIME,
                 "Subsystems",
                 new FinderColumn.Display<PlaceLink>() {
 

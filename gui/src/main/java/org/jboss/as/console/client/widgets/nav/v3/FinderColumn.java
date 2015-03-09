@@ -29,6 +29,7 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
@@ -44,6 +45,7 @@ public class FinderColumn<T> {
     private static final String CLICK = "click";
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
+    private final FinderId correlationId;
     private final String title;
     private final Display display;
     private final ProvidesKey keyProvider;
@@ -52,6 +54,8 @@ public class FinderColumn<T> {
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
+
+    public enum FinderId { CONFIGURATION, RUNTIME}
 
     /**
      * Thje default finder preview
@@ -68,7 +72,8 @@ public class FinderColumn<T> {
 
     private PreviewFactory<T> previewFactory = DEFAULT_PREVIEW;
 
-    public FinderColumn(String title, final Display display, final ProvidesKey keyProvider) {
+    public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider) {
+        this.correlationId = correlationId;
         this.title = title;
         this.display = display;
         this.keyProvider = keyProvider;
@@ -197,14 +202,27 @@ public class FinderColumn<T> {
                     public void execute() {
 
                         // preview
-                        T selectedObject = selectionModel.getSelectedObject();
-                        if(selectedObject!=null)
-                            PreviewEvent.fire(Console.MODULES.getPlaceManager(), getPreview(selectedObject));
+                        PlaceManager placeManager = Console.MODULES.getPlaceManager();
+                        final T selectedObject = selectionModel.getSelectedObject();
+                        if(selectedObject!=null) {
+                            PreviewEvent.fire(placeManager, getPreview(selectedObject));
+                            FinderSelectionEvent.fire(placeManager, correlationId, title, selectedObject!=null,
+                                    String.valueOf(keyProvider.getKey(selectedObject)));
+                        }
+                        else
+                        {
+                            FinderSelectionEvent.fire(placeManager, correlationId, title, selectedObject!=null, "");
+                        }
+
 
                     }
                 });
             }
         });
+    }
+
+    public FinderId getCorrelationId() {
+        return correlationId;
     }
 
     private void openContextMenu(final NativeEvent event, final T object) {
