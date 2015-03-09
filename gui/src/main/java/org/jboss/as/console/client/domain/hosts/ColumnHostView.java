@@ -85,7 +85,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts = new FinderColumn<String>(
                 FinderColumn.FinderId.RUNTIME,
-                "Hosts",
+                "Host",
                 new FinderColumn.Display<String>() {
 
                     @Override
@@ -112,7 +112,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         groups = new FinderColumn<ServerGroupRecord>(
                 FinderColumn.FinderId.RUNTIME,
-                "Server Groups",
+                "Server Group",
                 new FinderColumn.Display<ServerGroupRecord>() {
 
                     @Override

@@ -54,6 +54,7 @@ public class FinderColumn<T> {
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
+    private ValueProvider<T> valueProvider;
 
     public enum FinderId { CONFIGURATION, RUNTIME}
 
@@ -207,8 +208,13 @@ public class FinderColumn<T> {
                         final T selectedObject = selectionModel.getSelectedObject();
                         if(selectedObject!=null) {
                             PreviewEvent.fire(placeManager, getPreview(selectedObject));
+
+                            // delegate to value provider if given, otherwise the keyprovider will do fine
+                            String value = valueProvider!=null ? valueProvider.get(selectedObject) :
+                                    String.valueOf(keyProvider.getKey(selectedObject));
+
                             FinderSelectionEvent.fire(placeManager, correlationId, title, selectedObject!=null,
-                                    String.valueOf(keyProvider.getKey(selectedObject)));
+                                    value);
                         }
                         else
                         {
@@ -289,6 +295,11 @@ public class FinderColumn<T> {
 
     public FinderColumn<T> setPreviewFactory(PreviewFactory<T> previewFactory) {
         this.previewFactory = previewFactory;
+        return this;
+    }
+
+    public FinderColumn<T> setValueProvider(ValueProvider<T> valueProvider) {
+        this.valueProvider = valueProvider;
         return this;
     }
 
@@ -382,7 +393,7 @@ public class FinderColumn<T> {
         String rowCss(T data);
     }
 
-    public void selectByKey(Object key) {
+    /*public void selectByKey(Object key) {
         selectionModel.clear();
         int i=0;
         for(T item : cellTable.getVisibleItems()) {
@@ -393,7 +404,7 @@ public class FinderColumn<T> {
             }
             i++;
         }
-    }
+    }*/
 
     public SafeHtml getPreview(T data) {
         return previewFactory.createPreview(data);

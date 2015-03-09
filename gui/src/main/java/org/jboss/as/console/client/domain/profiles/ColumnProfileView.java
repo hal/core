@@ -28,6 +28,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
 import java.util.ArrayList;
@@ -175,7 +176,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         profiles = new FinderColumn<ProfileRecord>(
                 FinderColumn.FinderId.CONFIGURATION,
-                "Profiles",
+                "Profile",
                 new FinderColumn.Display<ProfileRecord>() {
                     @Override
                     public boolean isFolder(ProfileRecord data) {
@@ -203,7 +204,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         subsystems = new FinderColumn<SubsystemLink>(
                 FinderColumn.FinderId.CONFIGURATION,
-                "Subsystems",
+                "Subsystem",
                 new FinderColumn.Display<SubsystemLink>() {
 
                     @Override
@@ -227,6 +228,13 @@ public class ColumnProfileView extends SuspendableViewImpl
                         return item.getToken();
                     }
                 });
+
+        subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
+            @Override
+            public String get(SubsystemLink item) {
+                return item.getTitle();
+            }
+        });
 
         subsystems.setMenuItems(new MenuDelegate<SubsystemLink>("View", new ContextualCommand<SubsystemLink>() {
             @Override

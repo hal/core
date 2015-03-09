@@ -34,6 +34,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
+import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -221,6 +222,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     }
                 });
 
+        serverColumn.setValueProvider(new ValueProvider<Server>() {
+            @Override
+            public String get(Server item) {
+                return item.getName();
+            }
+        });
 
         MenuDelegate<Server> editServerCmd = new MenuDelegate<Server>("Edit", new ContextualCommand<Server>() {
             @Override
@@ -314,7 +321,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         statusColumn = new FinderColumn<FinderItem>(
                 FinderColumn.FinderId.RUNTIME,
-                "Status",
+                "Monitor",
                 new FinderColumn.Display<FinderItem>() {
 
                     @Override
@@ -353,7 +360,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         subsystemColumn = new FinderColumn<PlaceLink>(
                 FinderColumn.FinderId.RUNTIME,
-                "Subsystems",
+                "Subsystem",
                 new FinderColumn.Display<PlaceLink>() {
 
                     @Override
