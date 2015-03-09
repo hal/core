@@ -553,20 +553,21 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
 
             // update the breadcrumb
             SafeHtmlBuilder html = new SafeHtmlBuilder();
-            html.appendHtmlConstant("<div class='console-DeploymentBreadcrumb'>");
+
+            //html.appendHtmlConstant("<div class='console-DeploymentBreadcrumb'>");
             for(int i=0; i<navigationStack.size(); i++)
             {
                 FinderSelectionEvent item = navigationStack.get(i);
-                html.appendHtmlConstant("<span class='console-DeploymentBreadcrumb-label'>");
+                //html.appendHtmlConstant("<span class='console-DeploymentBreadcrumb-label'>");
                 html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
 
                 if(i<navigationStack.size()-1) {
-                    //html.appendHtmlConstant("&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;");
+                    html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
                 }
 
-                html.appendHtmlConstant("</span>");
+                //html.appendHtmlConstant("</span>");
             }
-            html.appendHtmlConstant("</div>");
+            //html.appendHtmlConstant("</div>");
             breadcrumb.setHTML(html.toSafeHtml());
 
             // swap sub-navigation
