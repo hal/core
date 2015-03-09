@@ -103,6 +103,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
         return "FinderSelectionEvent{" +
                 "key=" + key +
                 ", type='" + type + '\'' +
+                ", selected='" + isSelected()+ '\'' +
                 '}';
     }
 }
