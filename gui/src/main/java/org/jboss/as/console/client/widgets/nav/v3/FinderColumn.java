@@ -170,6 +170,9 @@ public class FinderColumn<T> {
                 boolean isClick = CLICK.equals(event.getNativeEvent().getType());
                 if(isClick && 1==event.getColumn())
                 {
+                    // update breadcrumb navigation
+                    triggerBreadcrumbEvent();
+
                     event.getNativeEvent().preventDefault();
                     final Element element = Element.as(event.getNativeEvent().getEventTarget());
                     String action = element.getAttribute("action");
@@ -181,7 +184,6 @@ public class FinderColumn<T> {
                     {
                         openContextMenu(event.getNativeEvent(), event.getValue());
                     }
-
 
                 }
             }
@@ -200,34 +202,45 @@ public class FinderColumn<T> {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-
-                        // preview
-                        PlaceManager placeManager = Console.MODULES.getPlaceManager();
-                        final T selectedObject = selectionModel.getSelectedObject();
-                        if(selectedObject!=null) {
-                            PreviewEvent.fire(placeManager, getPreview(selectedObject));
-
-                            String typeIdentifier = type != null ? type : title;
-
-                            // delegate to value provider if given, otherwise the keyprovider will do fine
-                            String value = valueProvider!=null ? valueProvider.get(selectedObject) :
-                                    String.valueOf(keyProvider.getKey(selectedObject));
-
-                            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, value);
-                        }
-                        else
-                        {
-                            FinderSelectionEvent.fire(placeManager, correlationId, "", title, selectedObject!=null, "");
-                        }
-
-
-                    }
-                });
+                triggerPreviewEvent();
             }
         });
+    }
+
+    private void triggerPreviewEvent() {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+
+                // preview events
+                PlaceManager placeManager = Console.MODULES.getPlaceManager();
+                final T selectedObject = selectionModel.getSelectedObject();
+
+                if(selectedObject!=null) {
+                    PreviewEvent.fire(placeManager, getPreview(selectedObject));
+                }
+            }
+        });
+    }
+
+    private void triggerBreadcrumbEvent() {
+        // preview
+        PlaceManager placeManager = Console.MODULES.getPlaceManager();
+        final T selectedObject = selectionModel.getSelectedObject();
+        String typeIdentifier = type != null ? type : title;
+        if(selectedObject!=null) {
+
+            // delegate to value provider if given, otherwise the keyprovider will do fine
+            String value = valueProvider!=null ? valueProvider.get(selectedObject) :
+                    String.valueOf(keyProvider.getKey(selectedObject));
+
+            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, value);
+        }
+        else
+        {
+            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, "");
+        }
+
     }
 
     private void openContextMenu(final NativeEvent event, final T object) {
