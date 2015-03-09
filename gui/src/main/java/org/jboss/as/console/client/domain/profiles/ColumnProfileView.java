@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -20,6 +21,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
@@ -28,6 +30,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
@@ -102,6 +105,17 @@ public class ColumnProfileView extends SuspendableViewImpl
                         return item.getTitle();
                     }
                 });
+
+        config.setPreviewFactory(new PreviewFactory<FinderItem>() {
+            @Override
+            public SafeHtml createPreview(FinderItem data) {
+
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<h2>").appendEscaped(data.getTitle()).appendHtmlConstant("</h2>");
+                html.appendEscaped(resolveDescriptionFor(data.getTitle()));
+                return html.toSafeHtml();
+            }
+        });
 
         config.setMenuItems(new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
             @Override
@@ -198,7 +212,18 @@ public class ColumnProfileView extends SuspendableViewImpl
                     }
                 });
 
+        profiles.setPreviewFactory(new PreviewFactory<ProfileRecord>() {
+            @Override
+            public SafeHtml createPreview(ProfileRecord data) {
+
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<h2>").appendEscaped("Configuration Profile").appendHtmlConstant("</h2>");
+                html.appendEscaped(resolveDescriptionFor("Profiles"));
+                return html.toSafeHtml();
+            }
+        });
         profileColWidget = profiles.asWidget();
+
 
         subsystems = new FinderColumn<SubsystemLink>(
                 FinderColumn.FinderId.CONFIGURATION,
@@ -503,5 +528,24 @@ public class ColumnProfileView extends SuspendableViewImpl
             });
         }
 
+    }
+
+    private String resolveDescriptionFor(String title) {
+        if("Paths".equals(title))
+            return "A logical name for a filesystem path. The domain.xml, host.xml and standalone.xml configurations all include a section where paths can be declared. Other sections of the configuration can then reference those paths by their logical name, rather than having to include the full details of the path (which may vary on different machines). For example, the logging subsystem configuration includes a reference to the \"jboss.server.log.dir\" path that points to the server's \"log\" directory.";
+
+        else if("Profiles".equals(title))
+            return "\"A profile is a named set of subsystem configurations. A subsystem is an added set of capabilities added to the core server by an extension. A subsystem provides servlet handling capabilities; a subsystem provides an EJB container; a subsystem provides JTA, etc. A profile is a named list of subsystems, along with the details of each subsystem's configuration. A profile with a large number of subsystems results in a server with a large set of capabilities. A profile with a small, focused set of subsystems will have fewer capabilities but a smaller footprint.\"";
+
+        else if("Socket Binding".equals(title))
+            return "A socket binding is a named configuration for a socket. The domain.xml and standalone.xml configurations both include a section where named socket configurations can be declared. Other sections of the configuration can then reference those sockets by their logical name, rather than having to include the full details of the socket configuration (which may vary on different machines). See Interfaces and ports for full details.";
+
+        else if("Interfaces".equals(title))
+            return "A logical name for a network interface/IP address/host name to which sockets can be bound. The domain.xml, host.xml and standalone.xml configurations all include a section where interfaces can be declared. Other sections of the configuration can then reference those interfaces by their logical name, rather than having to include the full details of the interface (which may vary on different machines). An interface configuration includes the logical name of the interface as well as information specifying the criteria to use for resolving the actual physical address to use. See Interfaces and ports for further details.";
+
+        else if("System Properties".equals(title))
+                   return "System property values can be set in a number of places in domain.xml, host.xml and standalone.xml. The values in standalone.xml are set as part of the server boot process. Values in domain.xml and host.xml are applied to servers when they are launched.";
+
+        return "";
     }
 }
