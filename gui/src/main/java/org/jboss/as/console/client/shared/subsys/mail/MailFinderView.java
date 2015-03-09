@@ -1,8 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -148,5 +150,20 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
         columnManager.add(previewCanvas);
 
         return layout;
+    }
+
+    @Override
+    public void setPreview(final SafeHtml html) {
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                previewCanvas.clear();
+                HTML widget = new HTML(html);
+                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
+                previewCanvas.add(widget);
+            }
+        });
+
     }
 }
