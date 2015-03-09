@@ -553,4 +553,6 @@
     background-color: #FCFCFC;
     font-size:16px;
     padding-top: 10px;
+    white-space: nowrap;
+    overflow: hidden;
 }
