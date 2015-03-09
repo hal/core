@@ -53,7 +53,6 @@ public class ColumnProfileView extends SuspendableViewImpl
     private final Widget subsystColWidget;
     private final Widget configColWidget;
     private final PlaceManager placeManager;
-    private final LayoutPanel previewCanvas;
 
     private SplitLayoutPanel splitlayout;
     private LayoutPanel contentCanvas;
@@ -73,7 +72,6 @@ public class ColumnProfileView extends SuspendableViewImpl
         this.placeManager = placeManager;
 
         contentCanvas = new LayoutPanel();
-        previewCanvas = new LayoutPanel(); // TODO remove
 
         splitlayout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(splitlayout);
@@ -494,15 +492,16 @@ public class ColumnProfileView extends SuspendableViewImpl
     @Override
     public void setPreview(final SafeHtml html) {
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                previewCanvas.clear();
-                HTML widget = new HTML(html);
-                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
-                previewCanvas.add(widget);
-            }
-        });
+        if(contentCanvas.getWidgetCount()==0) {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    HTML widget = new HTML(html);
+                    widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
+                    contentCanvas.add(widget);
+                }
+            });
+        }
 
     }
 }

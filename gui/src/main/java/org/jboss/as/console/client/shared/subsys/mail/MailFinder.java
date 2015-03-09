@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.mail;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -21,6 +22,7 @@ import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -39,7 +41,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Heiko Braun
  */
-public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy> {
+public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
+    implements PreviewEvent.Handler {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MailFinder)
@@ -51,6 +54,8 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
     public interface MyView extends View {
         void setPresenter(MailFinder presenter);
         void updateFrom(List<MailSession> list);
+
+        void setPreview(SafeHtml html);
     }
 
 
@@ -85,6 +90,7 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
     @Override
     protected void onBind() {
         super.onBind();
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
         getView().setPresenter(this);
     }
 
@@ -233,5 +239,11 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
                 loadMailSessions(false);
             }
         });
+    }
+
+    @Override
+    public void onPreview(PreviewEvent event) {
+        if(isVisible())
+            getView().setPreview(event.getHtml());
     }
 }
