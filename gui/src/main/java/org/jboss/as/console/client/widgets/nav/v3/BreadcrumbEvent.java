@@ -8,7 +8,7 @@ import com.google.gwt.event.shared.HasHandlers;
  * @author Heiko Braun
  * @since 13/02/15
  */
-public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler> {
+public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
 
     public static final Type TYPE = new Type<Handler>();
     private final String value;
@@ -17,7 +17,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
     private final FinderColumn.FinderId key;
     private final boolean isSelected;
 
-    private FinderSelectionEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value) {
+    private BreadcrumbEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value) {
         this.key = correlationId;
         this.type = type;
         this.title = title;
@@ -26,7 +26,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
     }
 
     public static void fire(final HasHandlers source, FinderColumn.FinderId id, String type, String title, boolean isSelected, String value) {
-        source.fireEvent(new FinderSelectionEvent(id, type, title, isSelected, value));
+        source.fireEvent(new BreadcrumbEvent(id, type, title, isSelected, value));
     }
 
     public FinderColumn.FinderId getCorrelationId() {
@@ -60,7 +60,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
     }
 
     public interface Handler extends EventHandler {
-        void onSelectionEvent(FinderSelectionEvent event);
+        void onSelectionEvent(BreadcrumbEvent event);
     }
 
 
@@ -68,7 +68,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FinderSelectionEvent that = (FinderSelectionEvent) o;
+        BreadcrumbEvent that = (BreadcrumbEvent) o;
 
         if (key != that.key) return false;
         if (!type.equals(that.type)) return false;
@@ -81,7 +81,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FinderSelectionEvent that = (FinderSelectionEvent) o;
+        BreadcrumbEvent that = (BreadcrumbEvent) o;
 
         if (key != that.key) return false;
         if (!type.equals(that.type)) return false;
@@ -100,7 +100,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
 
     @Override
     public String toString() {
-        return "FinderSelectionEvent{" +
+        return "BreadcrumbEvent{" +
                 "key=" + key +
                 ", type='" + type + '\'' +
                 ", selected='" + isSelected()+ '\'' +

@@ -51,9 +51,8 @@ import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.shared.model.PerspectiveStore;
-import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
-import org.jboss.as.console.client.widgets.nav.v3.FinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbEvent;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -69,7 +68,7 @@ import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
  * @author Heiko Braun
  * @date 1/28/11
  */
-public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.Handler {
+public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handler {
 
     private final FeatureSet featureSet;
     private final ToplevelTabs toplevelTabs;
@@ -90,7 +89,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
     private LayoutPanel alternateSubNav;
     private ArrayList<PlaceRequest> places = new ArrayList<>();
     private FinderColumn.FinderId lastFinderType;
-    private Stack<FinderSelectionEvent> navigationStack = new Stack<>();
+    private Stack<BreadcrumbEvent> navigationStack = new Stack<>();
     private HTML breadcrumb;
 
     @Inject
@@ -108,7 +107,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         this.perspectiveStore = perspectiveStore;
         History.addValueChangeHandler(this);
 
-        placeManager.getEventBus().addHandler(FinderSelectionEvent.TYPE, this);
+        placeManager.getEventBus().addHandler(BreadcrumbEvent.TYPE, this);
     }
 
     public Widget asWidget() {
@@ -557,7 +556,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
             //html.appendHtmlConstant("<div class='console-DeploymentBreadcrumb'>");
             for(int i=0; i<navigationStack.size(); i++)
             {
-                FinderSelectionEvent item = navigationStack.get(i);
+                BreadcrumbEvent item = navigationStack.get(i);
                 //html.appendHtmlConstant("<span class='console-DeploymentBreadcrumb-label'>");
                 html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
 
@@ -587,7 +586,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
     }
 
     @Override
-    public void onSelectionEvent(FinderSelectionEvent event) {
+    public void onSelectionEvent(BreadcrumbEvent event) {
 
         if(event.getCorrelationId()!=lastFinderType)
         {
@@ -619,7 +618,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         }
         else if(!navigationStack.isEmpty() && !event.isSelected())
         {
-            FinderSelectionEvent peek = navigationStack.peek();
+            BreadcrumbEvent peek = navigationStack.peek();
             if(peek.equals(event))
                 navigationStack.pop();
         }
@@ -627,7 +626,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         lastFinderType = event.getCorrelationId();
     }
 
-    private int stackContains(FinderSelectionEvent event, boolean typeComparison) {
+    private int stackContains(BreadcrumbEvent event, boolean typeComparison) {
         int index = -1;
 
         for(int i=0; i<navigationStack.size(); i++)

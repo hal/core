@@ -202,6 +202,8 @@ public class FinderColumn<T> {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+
+                triggerBreadcrumbEvent();
                 triggerPreviewEvent();
             }
         });
@@ -234,11 +236,11 @@ public class FinderColumn<T> {
             String value = valueProvider!=null ? valueProvider.get(selectedObject) :
                     String.valueOf(keyProvider.getKey(selectedObject));
 
-            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, value);
+            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, value);
         }
         else
         {
-            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, "");
+            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, "");
         }
 
     }
