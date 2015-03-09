@@ -12,23 +12,29 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
 
     public static final Type TYPE = new Type<Handler>();
     private final String value;
+    private final String type;
     private final String title;
     private final FinderColumn.FinderId key;
     private final boolean isSelected;
 
-    private FinderSelectionEvent(FinderColumn.FinderId correlationId, String title, boolean isSelected, String value) {
+    private FinderSelectionEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value) {
         this.key = correlationId;
+        this.type = type;
         this.title = title;
         this.isSelected = isSelected;
         this.value = value;
     }
 
-    public static void fire(final HasHandlers source, FinderColumn.FinderId id, String title, boolean isSelected, String value) {
-        source.fireEvent(new FinderSelectionEvent(id, title, isSelected, value));
+    public static void fire(final HasHandlers source, FinderColumn.FinderId id, String type, String title, boolean isSelected, String value) {
+        source.fireEvent(new FinderSelectionEvent(id, type, title, isSelected, value));
     }
 
     public FinderColumn.FinderId getCorrelationId() {
         return key;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getKey() {
@@ -65,7 +71,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
         FinderSelectionEvent that = (FinderSelectionEvent) o;
 
         if (key != that.key) return false;
-        if (!title.equals(that.title)) return false;
+        if (!type.equals(that.type)) return false;
 
         return true;
     }
@@ -78,7 +84,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
         FinderSelectionEvent that = (FinderSelectionEvent) o;
 
         if (key != that.key) return false;
-        if (!title.equals(that.title)) return false;
+        if (!type.equals(that.type)) return false;
         if (!value.equals(that.value)) return false;
 
         return true;
@@ -96,7 +102,7 @@ public class FinderSelectionEvent extends GwtEvent<FinderSelectionEvent.Handler>
     public String toString() {
         return "FinderSelectionEvent{" +
                 "key=" + key +
-                ", title='" + title + '\'' +
+                ", type='" + type + '\'' +
                 '}';
     }
 }

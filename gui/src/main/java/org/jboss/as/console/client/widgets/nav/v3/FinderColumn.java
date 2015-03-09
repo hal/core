@@ -55,6 +55,7 @@ public class FinderColumn<T> {
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
     private ValueProvider<T> valueProvider;
+    private String type = null;
 
     public enum FinderId { CONFIGURATION, RUNTIME}
 
@@ -209,16 +210,17 @@ public class FinderColumn<T> {
                         if(selectedObject!=null) {
                             PreviewEvent.fire(placeManager, getPreview(selectedObject));
 
+                            String typeIdentifier = type != null ? type : title;
+
                             // delegate to value provider if given, otherwise the keyprovider will do fine
                             String value = valueProvider!=null ? valueProvider.get(selectedObject) :
                                     String.valueOf(keyProvider.getKey(selectedObject));
 
-                            FinderSelectionEvent.fire(placeManager, correlationId, title, selectedObject!=null,
-                                    value);
+                            FinderSelectionEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject!=null, value);
                         }
                         else
                         {
-                            FinderSelectionEvent.fire(placeManager, correlationId, title, selectedObject!=null, "");
+                            FinderSelectionEvent.fire(placeManager, correlationId, "", title, selectedObject!=null, "");
                         }
 
 
@@ -226,10 +228,6 @@ public class FinderColumn<T> {
                 });
             }
         });
-    }
-
-    public FinderId getCorrelationId() {
-        return correlationId;
     }
 
     private void openContextMenu(final NativeEvent event, final T object) {
@@ -278,26 +276,63 @@ public class FinderColumn<T> {
         popupPanel.show();
     }
 
+    /**
+     * the top level menu items (part of the header)
+     * @param items
+     * @return
+     */
     public FinderColumn<T> setTopMenuItems(MenuDelegate... items) {
         this.topMenuItems = items;
         return this;
     }
 
+    /**
+     * row level menu items. the first item act's as the default action.
+     * @param items
+     * @return
+     */
     public FinderColumn<T> setMenuItems(MenuDelegate... items) {
         this.menuItems = items;
         return this;
     }
 
+    /**
+     * renders the column without a header
+     * @param plain
+     * @return
+     */
     public FinderColumn<T> setPlain(boolean plain) {
         this.plain = plain;
         return this;
     }
 
+    /**
+     * see default selection handler and the related FinderSelectionEvent
+     * @param type
+     * @return
+     *
+     */
+    public FinderColumn<T> setComparisonType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    /**
+     * factory for content previews
+     * @param previewFactory
+     * @return
+     */
     public FinderColumn<T> setPreviewFactory(PreviewFactory<T> previewFactory) {
         this.previewFactory = previewFactory;
         return this;
     }
 
+    /**
+     * provides the value part of a key/value breadcrumb tuple.
+     * if this is not given (default) then the column title will be used as the value.
+     * @param valueProvider
+     * @return
+     */
     public FinderColumn<T> setValueProvider(ValueProvider<T> valueProvider) {
         this.valueProvider = valueProvider;
         return this;
@@ -387,6 +422,10 @@ public class FinderColumn<T> {
         }
     }
 
+    /**
+     * renderer for the column content
+     * @param <T>
+     */
     public interface Display<T> {
         boolean isFolder(T data);
         SafeHtml render(String baseCss, T data);

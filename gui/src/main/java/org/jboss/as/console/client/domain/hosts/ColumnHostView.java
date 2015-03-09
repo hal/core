@@ -110,6 +110,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }).setPlain(true);
 
+        hosts.setComparisonType("filter");
+
         groups = new FinderColumn<ServerGroupRecord>(
                 FinderColumn.FinderId.RUNTIME,
                 "Server Group",
@@ -136,6 +138,8 @@ public class ColumnHostView extends SuspendableViewImpl
                         return item.getName();
                     }
                 }).setPlain(true);
+
+        groups.setComparisonType("filter");
 
         groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
             @Override
