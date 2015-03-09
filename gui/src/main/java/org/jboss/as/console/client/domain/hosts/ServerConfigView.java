@@ -136,7 +136,6 @@ public class ServerConfigView extends MultiViewImpl implements ServerConfigPrese
         headline = new ContentHeaderLabel();
 
         OneToOneLayout editor = new OneToOneLayout()
-                .setPlain(true)
                 .setTitle("Server Configuration")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverConfig_desc())
