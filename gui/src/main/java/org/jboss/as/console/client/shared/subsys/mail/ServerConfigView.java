@@ -158,7 +158,7 @@ public class ServerConfigView {
         formlayout.add(form.asWidget());
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
-                .setPlain(true)
+                .setTitle("Mail Session")
                 .setHeadlineWidget(headline)
                 .setDescription(description)
                 .setMaster(Console.MESSAGES.available("Mail Server"), table)
