@@ -182,7 +182,6 @@ public class ServerGroupView extends MultiViewImpl implements ServerGroupPresent
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setTitle(Console.CONSTANTS.common_label_serverGroupConfigurations())
-                .setPlain(true)
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.common_serverGroups_desc())
                 .addDetail("Attributes", details.asWidget())
