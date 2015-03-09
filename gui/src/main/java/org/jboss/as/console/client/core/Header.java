@@ -138,7 +138,7 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         builder.appendHtmlConstant("&nbsp;");
         builder.appendHtmlConstant("Back");
         backLink.setHTML(builder.toSafeHtml());
-        backLink.getElement().setAttribute("style", "font-size:16px; padding:10px;cursor:pointer;background-color:#fcfcfc;padding-left:20px");
+        backLink.getElement().setAttribute("style", "font-size:16px; padding-top:10px;cursor:pointer;background-color:#fcfcfc;");
         backLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -163,8 +163,8 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         breadcrumb.setStyleName("header-breadcrumb");
         alternateSubNav.add(breadcrumb);
 
-        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 100, Style.Unit.PX);
-        alternateSubNav.setWidgetLeftWidth(breadcrumb, 100, Style.Unit.PX, 100, Style.Unit.PCT);
+        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 75, Style.Unit.PX);
+        alternateSubNav.setWidgetLeftWidth(breadcrumb, 75, Style.Unit.PX, 100, Style.Unit.PCT);
 
         outerLayout.add(line);
         outerLayout.add(top);
@@ -553,15 +553,20 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
 
             // update the breadcrumb
             SafeHtmlBuilder html = new SafeHtmlBuilder();
-            html.appendEscaped("/").appendHtmlConstant("&nbsp;");
+            html.appendHtmlConstant("<div class='console-DeploymentBreadcrumb'>");
             for(int i=0; i<navigationStack.size(); i++)
             {
                 FinderSelectionEvent item = navigationStack.get(i);
+                html.appendHtmlConstant("<span class='console-DeploymentBreadcrumb-label'>");
                 html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
-                //html.appendEscaped(item.getValue());
-                if(i<navigationStack.size()-1)
-                    html.appendHtmlConstant("&nbsp;").appendEscaped("/").appendHtmlConstant("&nbsp;");
+
+                if(i<navigationStack.size()-1) {
+                    //html.appendHtmlConstant("&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;");
+                }
+
+                html.appendHtmlConstant("</span>");
             }
+            html.appendHtmlConstant("</div>");
             breadcrumb.setHTML(html.toSafeHtml());
 
             // swap sub-navigation
