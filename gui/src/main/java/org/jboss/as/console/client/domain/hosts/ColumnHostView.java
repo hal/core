@@ -236,17 +236,15 @@ public class ColumnHostView extends SuspendableViewImpl
                     final String selectedHost = hosts.getSelectedItem();
                     groupsColWidget.getElement().removeClassName("active");
                     hostColWidget.getElement().addClassName("active");
-                    if(!hostStore.getSelectedHost().equals(selectedHost)) {
 
-                        Scheduler.get().scheduleDeferred(
-                                new Scheduler.ScheduledCommand() {
-                                    @Override
-                                    public void execute() {
-                                        Console.getCircuit().dispatch(new HostSelection(selectedHost));
-                                    }
+                    Scheduler.get().scheduleDeferred(
+                            new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    Console.getCircuit().dispatch(new HostSelection(selectedHost));
                                 }
-                        );
-                    }
+                            }
+                    );
 
                 }
             }
@@ -413,7 +411,7 @@ public class ColumnHostView extends SuspendableViewImpl
     @Override
     public void updateHosts(String selectedHost, Set<String> hostNames) {
         // TODO API Compatibility: remove need for list wrapper
-        hosts.updateFrom(new ArrayList<String>(hostNames), true);
+        hosts.updateFrom(new ArrayList<String>(hostNames), false);
     }
 
     @Override
@@ -427,8 +425,8 @@ public class ColumnHostView extends SuspendableViewImpl
     }
 
     @Override
-    public void setServerGroups(List<ServerGroupRecord> serverGroups) {
-        groups.updateFrom(serverGroups, true);
+    public void updateServerGroups(List<ServerGroupRecord> serverGroups) {
+        groups.updateFrom(serverGroups, false);
     }
 }
 

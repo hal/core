@@ -20,7 +20,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.hosts.ConfirmationWindow;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -29,7 +28,6 @@ import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
-import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -40,8 +38,8 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * @author Heiko Braun
@@ -530,6 +528,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     public void updateServerList(List<Server> serverModel) {
         columnManager.reduceColumnsTo(1);
         serverColumn.updateFrom(serverModel, false);
+        previewCanvas.clear();
+    }
+
+    @Override
+    public void clearServerList() {
+        columnManager.reduceColumnsTo(1);
+        serverColumn.updateFrom(Collections.EMPTY_LIST, false);
+        previewCanvas.clear();
     }
 
     private class PlaceLink extends FinderItem {
