@@ -29,6 +29,7 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
+import org.jboss.as.console.client.domain.topology.ServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
@@ -110,6 +111,18 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }).setPlain(true);
 
+
+        hosts.setPreviewFactory(new PreviewFactory<String>() {
+            @Override
+            public SafeHtml createPreview(String data) {
+
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<h2>").appendEscaped("Host Configuration").appendHtmlConstant("</h2>");
+                html.appendEscaped("One of the primary new features of WildFly 8 is the ability to manage multiple WildFly instances from a single control point. A collection of such servers is referred to as the members of a \"domain\" with a single Domain Controller process acting as the central management control point. All of the WildFly 8 instances in the domain share a common management policy, with the Domain Controller acting to ensure that each server is configured according to that policy. Domains can span multiple physical (or virtual) machines, with all WildFly 8 instances on a given host under the control of a special Host Controller process. One Host Controller instance is configured to act as the central Domain Controller. The Host Controller on each host interacts with the Domain Controller to control the lifecycle of the application server instances running on its host and to assist the Domain Controller in managing them.");
+                return html.toSafeHtml();
+            }
+        });
+
         hosts.setComparisonType("filter");
 
         groups = new FinderColumn<ServerGroupRecord>(
@@ -144,14 +157,11 @@ public class ColumnHostView extends SuspendableViewImpl
         groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
             @Override
             public SafeHtml createPreview(ServerGroupRecord data) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-sitemap' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getName()+"</span></center>");
-                builder.appendHtmlConstant("<ul style='font-size:14px;'>");
-                builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfileName()).appendHtmlConstant("</li>");
-                builder.appendHtmlConstant("<li>").appendEscaped("Socket Binding: "+data.getSocketBinding()).appendHtmlConstant("</li>");
-                builder.appendHtmlConstant("</ul>");
-                builder.appendHtmlConstant("<p>A server group is a collection of server instances that are managed and configured as one. In a managed domain, every application server instance belongs to a server group, even if it is the only member. The server instances in a group share the same profile configuration and deployed content. </p>");
-                return builder.toSafeHtml();
+
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<h2>").appendEscaped("Server Groups").appendHtmlConstant("</h2>");
+                html.appendEscaped("A server group is set of server instances that will be managed and configured as one. In a managed domain each application server instance is a member of a server group. (Even if the group only has a single server, the server is still a member of a group.) It is the responsibility of the Domain Controller and the Host Controllers to ensure that all servers in a server group have a consistent configuration. They should all be configured with the same profile and they should have the same deployment content deployed.");
+                return html.toSafeHtml();
             }
         });
 

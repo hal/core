@@ -21,6 +21,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
@@ -249,17 +250,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         serverColumn.setPreviewFactory(new PreviewFactory<Server>() {
             @Override
             public SafeHtml createPreview(Server data) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-hdd' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getName()+"</span></center>");
-                builder.appendHtmlConstant("<ul style='font-size:14px;'>");
-                builder.appendHtmlConstant("<li>").appendEscaped("Active?: "+data.isStarted()).appendHtmlConstant("</li>");
-                builder.appendHtmlConstant("<li>").appendEscaped("Profile: "+data.getProfile()).appendHtmlConstant("</li>");
-                builder.appendHtmlConstant("<li>").appendEscaped("Port Offset: "+data.getPortOffset()).appendHtmlConstant("</li>");
-                builder.appendHtmlConstant("</ul>");
-                builder.appendHtmlConstant("<p>An individual application server processes that run on a host. It's configuration and deployments are determined by the server group the server belongs to.</p>");
-                return builder.toSafeHtml();
+
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<h2>").appendEscaped("Server Configuration").appendHtmlConstant("</h2>");
+                html.appendEscaped("Each \"Server\" in the above diagram represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. (In a managed domain the end user cannot directly launch a server process from the command line.)");
+                return html.toSafeHtml();
             }
         });
+
 
         serverColumn.setMenuItems(
                 new MenuDelegate<Server>(          // TODO permissions
