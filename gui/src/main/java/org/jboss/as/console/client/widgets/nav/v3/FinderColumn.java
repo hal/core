@@ -77,11 +77,12 @@ public class FinderColumn<T> {
         this.title = title;
         this.display = display;
         this.keyProvider = keyProvider;
-        selectionModel = new SingleSelectionModel<T>();
+        selectionModel = new SingleSelectionModel<T>(keyProvider);
 
         cellTable = new CellTable<T>(200, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
         cellTable.setStyleName("navigation-cell-table");
         cellTable.getElement().setAttribute("style", "border:none!important");
+        cellTable.setLoadingIndicator(new HTML());
 
         Column<T, SafeHtml> titleColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
             @Override
@@ -194,7 +195,7 @@ public class FinderColumn<T> {
         });
 
 
-        cellTable.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

@@ -65,6 +65,7 @@ import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
+import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
@@ -115,7 +116,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         void updateHosts(String selectedHost, Set<String> hostNames);
         void updateProfiles(List<ProfileRecord> result);
         void updateSocketBindings(List<String> result);
-        void setServerGroups(List<ServerGroupRecord> result);
+        void updateServerGroups(List<ServerGroupRecord> result);
 
         void preview(SafeHtml html);
     }
@@ -167,7 +168,9 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
                 if (!isVisible()) return;
 
-                getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
+                if(action instanceof RefreshHosts) {
+                    getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
+                }
 
             }
         });
@@ -229,7 +232,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             @Override
             public void onSuccess(List<ServerGroupRecord> result) {
 
-                getView().setServerGroups(result);
+                getView().updateServerGroups(result);
             }
         });
     }

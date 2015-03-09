@@ -97,6 +97,8 @@ public class DomainRuntimePresenter
         void updateServerList(List<Server> serverModel);
 
         void setPreview(SafeHtml html);
+
+        void clearServerList();
     }
 
 
@@ -164,10 +166,17 @@ public class DomainRuntimePresenter
                     }
                 }
 
+                // clear the view
+                else if(action instanceof FilterType)
+                {
+                    getView().clearServerList();
+                }
+
                 // Refresh the server list when:
                 // - changes to host/group filter refresh the server list
                 // - group and host selection events
                 // - server's are added or removed
+
                 else if(
                         (action instanceof FilterType)
                                 || (action instanceof GroupSelection)
@@ -217,7 +226,7 @@ public class DomainRuntimePresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        circuit.dispatch(new RefreshServer());
+        //circuit.dispatch(new RefreshServer());
     }
 
     @Override
