@@ -163,8 +163,8 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
         breadcrumb.setStyleName("header-breadcrumb");
         alternateSubNav.add(breadcrumb);
 
-        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 90, Style.Unit.PX);
-        alternateSubNav.setWidgetLeftWidth(breadcrumb, 90, Style.Unit.PX, 100, Style.Unit.PCT);
+        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 100, Style.Unit.PX);
+        alternateSubNav.setWidgetLeftWidth(breadcrumb, 100, Style.Unit.PX, 100, Style.Unit.PCT);
 
         outerLayout.add(line);
         outerLayout.add(top);
@@ -557,8 +557,8 @@ public class Header implements ValueChangeHandler<String>, FinderSelectionEvent.
             for(int i=0; i<navigationStack.size(); i++)
             {
                 FinderSelectionEvent item = navigationStack.get(i);
-                //html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
-                html.appendEscaped(item.getValue());
+                html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
+                //html.appendEscaped(item.getValue());
                 if(i<navigationStack.size()-1)
                     html.appendHtmlConstant("&nbsp;").appendEscaped("/").appendHtmlConstant("&nbsp;");
             }
