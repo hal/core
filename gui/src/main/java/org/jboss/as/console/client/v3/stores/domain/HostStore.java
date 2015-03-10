@@ -217,8 +217,8 @@ public class HostStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveServer.class)
-    public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
-        if(server.getName().equals(selectedServer)) {
+    public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
+        if(action.getServer().getName().equals(selectedServer)) {
             this.selectedServer = null;
             channel.ack(true);
         }
@@ -251,9 +251,9 @@ public class HostStore extends ChangeSupport {
     }
 
     @Process(actionType = HostSelection.class)
-    public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
+    public void onSelectHost(HostSelection action, final Dispatcher.Channel channel) {
 
-        selectedHost = hostName;
+        selectedHost = action.getHostName();
 
         defaultServerSelection();
 
@@ -262,8 +262,8 @@ public class HostStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectServerInstance.class)
-    public void onSelectedServer(final String server, final Dispatcher.Channel channel) {
-        this.selectedServer = server;
+    public void onSelectedServer(final SelectServerInstance action, final Dispatcher.Channel channel) {
+        this.selectedServer = action.getServer()    ;
         channel.ack();
     }
 

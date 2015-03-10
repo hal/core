@@ -39,7 +39,6 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -68,15 +67,16 @@ public class BufferPoolStore extends ChangeSupport {
     // ------------------------------------------------------ process methods
 
     @Process(actionType = AddBufferPool.class)
-    public void add(final ModelNode bufferPool, final Dispatcher.Channel channel) {
-        lastModifiedBufferPool = bufferPool.get(NAME).asString();
-        operationDelegate.onCreateResource(RESOURCE_ADDRESS, bufferPool, new RefreshCallback(channel));
+    public void add(final AddBufferPool action, final Dispatcher.Channel channel) {
+        lastModifiedBufferPool = action.getBufferPool().get(NAME).asString();
+        operationDelegate.onCreateResource(RESOURCE_ADDRESS, action.getBufferPool(), new RefreshCallback(channel));
     }
 
     @Process(actionType = ModifyBufferPool.class)
-    public void modify(final String name, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        lastModifiedBufferPool = name;
-        operationDelegate.onSaveResource(RESOURCE_ADDRESS, name, changedValues, new RefreshCallback(channel));
+    public void modify(final ModifyBufferPool action, final Dispatcher.Channel channel) {
+        lastModifiedBufferPool = action.getName();
+        operationDelegate.onSaveResource(RESOURCE_ADDRESS, lastModifiedBufferPool, action.getChangedValues(),
+                new RefreshCallback(channel));
     }
 
     @Process(actionType = RefreshBufferPools.class)
@@ -108,9 +108,9 @@ public class BufferPoolStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveBufferPool.class)
-    public void remove(final String name, final Dispatcher.Channel channel) {
+    public void remove(final RemoveBufferPool action, final Dispatcher.Channel channel) {
         lastModifiedBufferPool = null;
-        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, name, new RefreshCallback(channel));
+        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, action.getName(), new RefreshCallback(channel));
     }
 
 

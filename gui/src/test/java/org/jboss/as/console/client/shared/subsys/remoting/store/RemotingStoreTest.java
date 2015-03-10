@@ -11,12 +11,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-import static org.jboss.as.console.client.v3.stores.CrudAction.Crud.DELETE;
-import static org.jboss.as.console.client.v3.stores.CrudAction.Crud.READ;
-import static org.jboss.as.console.client.v3.stores.CrudAction.Crud.UPDATE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Harald Pehl
@@ -47,7 +42,8 @@ public class RemotingStoreTest {
         endpointConfiguration.get("foo").set("bar");
         dispatcher.push(StaticDmrResponse.ok(endpointConfiguration));
         dispatcher.push(StaticDmrResponse.ok(new ModelNode()));
-        store.modifyEndpointConfiguration(Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.modifyEndpointConfiguration(new ModifyEndpointConfiguration(Collections.<String, Object>emptyMap()),
+                NoopChannel.INSTANCE);
 
         assertEquals(endpointConfiguration, store.getEndpointConfiguration());
     }
@@ -55,8 +51,8 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteConnector() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudRemoteConnector(READ, AddressTemplate.of("/subsystem=remoting/connector=*"),
-                null, new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudRemoteConnector(new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/connector=*")),
+                NoopChannel.INSTANCE);
 
         assertEquals(3, store.getRemoteConnectors().size());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -68,8 +64,8 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteHttpConnector() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudRemoteConnector(READ, AddressTemplate.of("/subsystem=remoting/http-connector=*"),
-                null, new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudRemoteConnector(new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/http-connector=*")),
+                NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertEquals(3, store.getRemoteHttpConnectors().size());
@@ -81,8 +77,9 @@ public class RemotingStoreTest {
     @Test
     public void readLocalOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(READ, AddressTemplate.of("/subsystem=remoting/local-outbound-connection=*"),
-                null, new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudOutboundConnection(
+                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/local-outbound-connection=*")),
+                NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -94,8 +91,9 @@ public class RemotingStoreTest {
     @Test
     public void readOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(READ, AddressTemplate.of("/subsystem=remoting/outbound-connection=*"),
-                null, new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudOutboundConnection(
+                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/outbound-connection=*")),
+                NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -107,8 +105,9 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(READ, AddressTemplate.of("/subsystem=remoting/remote-outbound-connection=*"),
-                null, new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudOutboundConnection(
+                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/remote-outbound-connection=*")),
+                NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -125,8 +124,11 @@ public class RemotingStoreTest {
         // Verify the name of the last modified instance
         dispatcher.push(StaticDmrResponse.ok(propertyList(1, "foo")));
         dispatcher.push(StaticDmrResponse.ok(new ModelNode()));
-        store.crudRemoteConnector(UPDATE, AddressTemplate.of("/subsystem=remoting/remote-connector=*"),
-                "foo", new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudRemoteConnector(
+                new CrudRemoteConnector(
+                        AddressTemplate.of("/subsystem=remoting/remote-connector=*"), "foo",
+                        Collections.<String, Object>emptyMap()),
+                NoopChannel.INSTANCE);
 
         assertEquals("foo", store.getLastModifiedInstance());
     }
@@ -141,8 +143,9 @@ public class RemotingStoreTest {
         // 2. Refresh
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
         dispatcher.push(StaticDmrResponse.ok(new ModelNode()));
-        store.crudRemoteConnector(DELETE, AddressTemplate.of("/subsystem=remoting/connector=*"),
-                "foo", new ModelNode(), Collections.<String, Object>emptyMap(), NoopChannel.INSTANCE);
+        store.crudRemoteConnector(
+                new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/connector=*"), "foo"),
+                NoopChannel.INSTANCE);
 
         assertNull(store.getLastModifiedInstance());
         assertEquals(3, store.getRemoteConnectors().size());

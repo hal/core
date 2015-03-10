@@ -21,9 +21,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * TODO Change the signatures to use ResourceAddress
  * TODO Use a common ResourceAddress as constructor parameter (the statement context is already shared)?
  *
+ * @deprecated Replace with {@link org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate}
  * @author Heiko Braun
  * @since 08/09/14
  */
+@Deprecated
 public class CrudOperationDelegate {
 
     public interface Callback {
