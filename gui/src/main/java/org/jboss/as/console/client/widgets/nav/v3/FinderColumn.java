@@ -171,7 +171,7 @@ public class FinderColumn<T> {
                 if(isClick && 1==event.getColumn())
                 {
                     // update breadcrumb navigation
-                    triggerBreadcrumbEvent();
+                    triggerBreadcrumbEvent(true);
 
                     event.getNativeEvent().preventDefault();
                     final Element element = Element.as(event.getNativeEvent().getEventTarget());
@@ -203,7 +203,7 @@ public class FinderColumn<T> {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
-                triggerBreadcrumbEvent();
+                triggerBreadcrumbEvent(false);
                 triggerPreviewEvent();
             }
         });
@@ -225,8 +225,8 @@ public class FinderColumn<T> {
         });
     }
 
-    private void triggerBreadcrumbEvent() {
-        // preview
+    private void triggerBreadcrumbEvent(boolean isMenuEvent) {
+
         PlaceManager placeManager = Console.MODULES.getPlaceManager();
         final T selectedObject = selectionModel.getSelectedObject();
         String typeIdentifier = type != null ? type : title;
@@ -236,11 +236,11 @@ public class FinderColumn<T> {
             String value = valueProvider!=null ? valueProvider.get(selectedObject) :
                     String.valueOf(keyProvider.getKey(selectedObject));
 
-            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, value);
+            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, value, isMenuEvent);
         }
         else
         {
-            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, "");
+            BreadcrumbEvent.fire(placeManager, correlationId, typeIdentifier, title, selectedObject != null, "", isMenuEvent);
         }
 
     }

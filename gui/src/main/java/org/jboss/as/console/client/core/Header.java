@@ -51,12 +51,15 @@ import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.shared.model.PerspectiveStore;
+import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbMgr;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbEvent;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -88,9 +91,8 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     private LayoutPanel outerLayout;
     private LayoutPanel alternateSubNav;
     private ArrayList<PlaceRequest> places = new ArrayList<>();
-    private FinderColumn.FinderId lastFinderType;
-    private Stack<BreadcrumbEvent> navigationStack = new Stack<>();
     private HTML breadcrumb;
+    private Map<String,BreadcrumbMgr> breadcrumbs = new HashMap<>();
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
@@ -549,24 +551,22 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             // hence we need to capture the actual place hierarchy so we can safely navigate back
 
             places = new ArrayList(placeManager.getCurrentPlaceHierarchy());
+            String nameToken = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
+            BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(nameToken);
 
             // update the breadcrumb
             SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-            //html.appendHtmlConstant("<div class='console-DeploymentBreadcrumb'>");
-            for(int i=0; i<navigationStack.size(); i++)
+            for(int i=0; i<=breadcrumbMgr.getBreadcrumbCursor(); i++)
             {
-                BreadcrumbEvent item = navigationStack.get(i);
-                //html.appendHtmlConstant("<span class='console-DeploymentBreadcrumb-label'>");
+                BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
                 html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
 
-                if(i<navigationStack.size()-1) {
+                if(i<=breadcrumbMgr.getBreadcrumbCursor()-1) {
                     html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
                 }
-
-                //html.appendHtmlConstant("</span>");
             }
-            //html.appendHtmlConstant("</div>");
+
             breadcrumb.setHTML(html.toSafeHtml());
 
             // swap sub-navigation
@@ -586,9 +586,18 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     }
 
     @Override
-    public void onSelectionEvent(BreadcrumbEvent event) {
+    public void onBreadcrumbEvent(BreadcrumbEvent event) {
 
-        if(event.getCorrelationId()!=lastFinderType)
+        final String token = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
+
+        // lazy init
+        if(!breadcrumbs.containsKey(token))
+            breadcrumbs.put(token, new BreadcrumbMgr());
+
+        BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(token);
+        Stack<BreadcrumbEvent> navigationStack = breadcrumbMgr.getNavigationStack();
+
+        if(event.getCorrelationId()!= breadcrumbMgr.getLastFinderType())
         {
             navigationStack.clear();
         }
@@ -596,22 +605,29 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         if(event.isSelected())
         {
 
-            int eventIndex = stackContains(event, true);
-            boolean isDuplicateType = !navigationStack.isEmpty() && eventIndex !=-1;
+            int stackIndex = stackContains(navigationStack, event, true);
+            boolean isDuplicateType = !navigationStack.isEmpty() && stackIndex !=-1;
 
 
             if(!isDuplicateType)
             {
                 navigationStack.push(event);
             }
-            else if (eventIndex<=navigationStack.size()-1)
+            else if (stackIndex<=navigationStack.size()-1)
             {
-                // need to trim
-                int numElements = navigationStack.size() - eventIndex;
-                for(int i=0; i<numElements; i++)
-                    navigationStack.pop();
 
-                navigationStack.push(event);
+                if(!event.isMenuEvent()) { // selection events reduce the stack
+                    int numElements = navigationStack.size() - stackIndex;
+                    for (int i = 0; i < numElements; i++)
+                        navigationStack.pop();
+
+                    navigationStack.push(event);
+                    breadcrumbMgr.setBreadcrumbCursor(navigationStack.size()-1);
+                }
+                else  // menu events simply move the cursor
+                {
+                    breadcrumbMgr.setBreadcrumbCursor(stackIndex);
+                }
             }
 
 
@@ -619,14 +635,17 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         else if(!navigationStack.isEmpty() && !event.isSelected())
         {
             BreadcrumbEvent peek = navigationStack.peek();
-            if(peek.equals(event))
+            if(peek.equals(event)) {
                 navigationStack.pop();
+                // TODO cursor?
+            }
+
         }
 
-        lastFinderType = event.getCorrelationId();
+        breadcrumbMgr.setLastFinderType(event.getCorrelationId());
     }
 
-    private int stackContains(BreadcrumbEvent event, boolean typeComparison) {
+    private int stackContains(Stack<BreadcrumbEvent> navigationStack, BreadcrumbEvent event, boolean typeComparison) {
         int index = -1;
 
         for(int i=0; i<navigationStack.size(); i++)

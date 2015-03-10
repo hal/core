@@ -12,21 +12,30 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
 
     public static final Type TYPE = new Type<Handler>();
     private final String value;
+    private final boolean isMenuEvent;
     private final String type;
     private final String title;
     private final FinderColumn.FinderId key;
     private final boolean isSelected;
 
-    private BreadcrumbEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value) {
+    private BreadcrumbEvent(FinderColumn.FinderId correlationId, String type, String title, boolean isSelected, String value, boolean isMenuEvent) {
         this.key = correlationId;
         this.type = type;
         this.title = title;
         this.isSelected = isSelected;
         this.value = value;
+        this.isMenuEvent = isMenuEvent;
     }
 
-    public static void fire(final HasHandlers source, FinderColumn.FinderId id, String type, String title, boolean isSelected, String value) {
-        source.fireEvent(new BreadcrumbEvent(id, type, title, isSelected, value));
+    public static void fire(
+            final HasHandlers source,
+            FinderColumn.FinderId id,
+            String type, String title,
+            boolean isSelected,
+            String value,
+            boolean isMenuEvent) {
+
+        source.fireEvent(new BreadcrumbEvent(id, type, title, isSelected, value, isMenuEvent));
     }
 
     public FinderColumn.FinderId getCorrelationId() {
@@ -45,6 +54,10 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
         return isSelected;
     }
 
+    public boolean isMenuEvent() {
+        return isMenuEvent;
+    }
+
     @Override
     public Type<Handler> getAssociatedType() {
         return TYPE;
@@ -52,7 +65,7 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
 
     @Override
     protected void dispatch(Handler listener) {
-        listener.onSelectionEvent(this);
+        listener.onBreadcrumbEvent(this);
     }
 
     public String getValue() {
@@ -60,7 +73,7 @@ public class BreadcrumbEvent extends GwtEvent<BreadcrumbEvent.Handler> {
     }
 
     public interface Handler extends EventHandler {
-        void onSelectionEvent(BreadcrumbEvent event);
+        void onBreadcrumbEvent(BreadcrumbEvent event);
     }
 
 
