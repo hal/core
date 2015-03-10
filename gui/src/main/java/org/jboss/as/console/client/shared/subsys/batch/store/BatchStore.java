@@ -39,7 +39,6 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -137,8 +136,8 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyBatch.class)
-    public void modifyBatch(final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        operationDelegate.onSaveResource(BATCH_ADDRESS, null, changedValues,
+    public void modifyBatch(final ModifyBatch action, final Dispatcher.Channel channel) {
+        operationDelegate.onSaveResource(BATCH_ADDRESS, null, action.getChangedValues(),
                 new ReloadModelNodeCallback(BATCH_ADDRESS, channel) {
                     @Override
                     protected void onPayload(ModelNode node) {
@@ -148,8 +147,8 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyThreadPool.class)
-    public void modifyThreadPool(final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        operationDelegate.onSaveResource(THREAD_POOL_ADDRESS, null, changedValues,
+    public void modifyThreadPool(final ModifyThreadPool action, final Dispatcher.Channel channel) {
+        operationDelegate.onSaveResource(THREAD_POOL_ADDRESS, null, action.getChangedValues(),
                 new ReloadModelNodeCallback(THREAD_POOL_ADDRESS, channel) {
                     @Override
                     protected void onPayload(ModelNode node) {
@@ -159,8 +158,8 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyJobRepository.class)
-    public void modifyJobRepository(final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        operationDelegate.onSaveResource(JOB_REPOSITORY_ADDRESS, null, changedValues,
+    public void modifyJobRepository(final ModifyJobRepository action, final Dispatcher.Channel channel) {
+        operationDelegate.onSaveResource(JOB_REPOSITORY_ADDRESS, null, action.getChangedValues(),
                 new ReloadModelNodeCallback(JOB_REPOSITORY_ADDRESS, channel) {
                     @Override
                     protected void onPayload(ModelNode node) {
@@ -170,15 +169,16 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = AddThreadFactory.class)
-    public void addThreadFactory(final ModelNode threadFactory, final Dispatcher.Channel channel) {
-        lastModifiedThreadFactory = threadFactory.get(NAME).asString();
-        operationDelegate.onCreateResource(THREAD_FACTORIES_ADDRESS, threadFactory, new RefreshThreadFactoriesCallback(channel));
+    public void addThreadFactory(final AddThreadFactory action, final Dispatcher.Channel channel) {
+        lastModifiedThreadFactory = action.getThreadFactory().get(NAME).asString();
+        operationDelegate.onCreateResource(THREAD_FACTORIES_ADDRESS, action.getThreadFactory(),
+                new RefreshThreadFactoriesCallback(channel));
     }
 
     @Process(actionType = ModifyThreadFactory.class)
-    public void modifyThreadFactory(final String name, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        lastModifiedThreadFactory = name;
-        operationDelegate.onSaveResource(THREAD_FACTORIES_ADDRESS, name, changedValues,
+    public void modifyThreadFactory(final ModifyThreadFactory action, final Dispatcher.Channel channel) {
+        lastModifiedThreadFactory = action.getName();
+        operationDelegate.onSaveResource(THREAD_FACTORIES_ADDRESS, lastModifiedThreadFactory, action.getChangedValues(),
                 new RefreshThreadFactoriesCallback(channel));
     }
 
@@ -207,9 +207,10 @@ public class BatchStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveThreadFactory.class)
-    public void removeThreadFactory(final String name, final Dispatcher.Channel channel) {
+    public void removeThreadFactory(final RemoveThreadFactory action, final Dispatcher.Channel channel) {
         lastModifiedThreadFactory = null;
-        operationDelegate.onRemoveResource(THREAD_FACTORIES_ADDRESS, name, new RefreshThreadFactoriesCallback(channel));
+        operationDelegate.onRemoveResource(THREAD_FACTORIES_ADDRESS, action.getName(),
+                new RefreshThreadFactoriesCallback(channel));
     }
 
 

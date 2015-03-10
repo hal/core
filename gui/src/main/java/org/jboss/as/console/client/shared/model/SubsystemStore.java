@@ -29,10 +29,10 @@ public class SubsystemStore extends ChangeSupport {
     }
 
     @Process(actionType = LoadProfile.class)
-    public void onLoadProfile(final String profile, final Dispatcher.Channel channel) {
+    public void onLoadProfile(final LoadProfile action, final Dispatcher.Channel channel) {
 
 
-        if(profileMap.containsKey(profile))
+        if(profileMap.containsKey(action.getProfile()))
         {
             // return cached data
             channel.ack();
@@ -40,7 +40,7 @@ public class SubsystemStore extends ChangeSupport {
         else {
 
             // load data and cache
-            subsystemLoader.loadSubsystems(profile, new AsyncCallback<List<SubsystemRecord>>() {
+            subsystemLoader.loadSubsystems(action.getProfile(), new AsyncCallback<List<SubsystemRecord>>() {
                 @Override
                 public void onFailure(Throwable caught) {
                     channel.nack(caught);
@@ -48,7 +48,7 @@ public class SubsystemStore extends ChangeSupport {
 
                 @Override
                 public void onSuccess(List<SubsystemRecord> result) {
-                    profileMap.put(profile, result);
+                    profileMap.put(action.getProfile(), result);
                     channel.ack(true);
                 }
             });

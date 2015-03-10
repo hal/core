@@ -22,7 +22,11 @@
 package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -41,10 +45,17 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.meta.Process;
 import org.jboss.gwt.circuit.meta.Store;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.gwt.http.client.URL.encode;
 import static java.lang.Math.max;
+import static org.jboss.as.console.client.shared.runtime.logging.viewer.Direction.TAIL;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -57,7 +68,6 @@ public class LogStore extends ChangeSupport {
 
     public final static String FILE_NAME = "file-name";
     public final static String FILE_SIZE = "file-size";
-    public final static String LAST_MODIFIED_TIME = "last-modified-time";
     public final static String LAST_MODIFIED_TIMESTAMP = "last-modified-timestamp";
 
     private final static int PAGE_SIZE = 25;
@@ -151,7 +161,7 @@ public class LogStore extends ChangeSupport {
                     }
 
                     // mark outdated log views as stale
-                    Set<String> names = new HashSet<String>();
+                    Set<String> names = new HashSet<>();
                     for (ModelNode logFile : logFiles) {
                         names.add(logFile.get(FILE_NAME).asString());
                     }
@@ -167,11 +177,11 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = OpenLogFile.class)
-    public void openLogFile(final String name, final Dispatcher.Channel channel) {
-        final LogFile logFile = states.get(name);
+    public void openLogFile(final OpenLogFile action, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(action.getName());
 
         if (logFile == null) {
-            final ModelNode op = readLogFileOp(name);
+            final ModelNode op = readLogFileOp(action.getName());
             op.get("tail").set(true);
             dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
                 @Override
@@ -183,13 +193,14 @@ public class LogStore extends ChangeSupport {
                 public void onSuccess(DMRResponse result) {
                     ModelNode response = result.get();
                     if (response.isFailure()) {
-                        channel.nack(new RuntimeException("Failed to open " + name + " using " + op + ": " +
+                        channel.nack(new RuntimeException("Failed to open " + action.getName() + " using " + op + ": " +
                                 response.getFailureDescription()));
                     } else {
                         ModelNode compResult = response.get(RESULT);
-                        LogFile newLogFile = new LogFile(name, readLines(compResult), readFileSize(name, compResult));
+                        LogFile newLogFile = new LogFile(action.getName(), readLines(compResult), 
+                                readFileSize(action.getName(), compResult));
                         newLogFile.setFollow(true);
-                        states.put(name, newLogFile);
+                        states.put(action.getName(), newLogFile);
                         activate(newLogFile);
                         channel.ack();
                     }
@@ -204,36 +215,38 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = StreamLogFile.class)
-    public void streamLogFile(final String name, final Dispatcher.Channel channel) {
-        final LogFile logFile = states.get(name);
+    public void streamLogFile(final StreamLogFile action, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(action.getName());
 
         if (logFile == null) {
-            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(name)));
+            RequestBuilder requestBuilder = new RequestBuilder(RequestBuilder.GET, encode(streamUrl(action.getName())));
             requestBuilder.setHeader("Accept", "text/plain");
             requestBuilder.setHeader("Content-Type", "text/plain");
             requestBuilder.setIncludeCredentials(true);
             try {
                 // store the request in order to cancel it later
-                pendingStreamingRequest = new PendingStreamingRequest(name, requestBuilder.sendRequest(null, new RequestCallback() {
-                    @Override
-                    public void onResponseReceived(Request request, Response response) {
-                        if (response.getStatusCode() >= 400) {
-                            channel.nack(new IllegalStateException("Failed to stream log file " + name + ": " +
-                                    response.getStatusCode() + " - " + response.getStatusText()));
-                        } else {
-                            LogFile newLogFile = new LogFile(name, response.getText());
-                            newLogFile.setFollow(false);
-                            states.put(name, newLogFile);
-                            activate(newLogFile);
-                            channel.ack();
-                        }
-                    }
+                pendingStreamingRequest = new PendingStreamingRequest(action.getName(),
+                        requestBuilder.sendRequest(null, new RequestCallback() {
+                            @Override
+                            public void onResponseReceived(Request request, Response response) {
+                                if (response.getStatusCode() >= 400) {
+                                    channel.nack(new IllegalStateException("Failed to stream log file " +
+                                            action.getName() + ": " + response.getStatusCode() + " - " +
+                                            response.getStatusText()));
+                                } else {
+                                    LogFile newLogFile = new LogFile(action.getName(), response.getText());
+                                    newLogFile.setFollow(false);
+                                    states.put(action.getName(), newLogFile);
+                                    activate(newLogFile);
+                                    channel.ack();
+                                }
+                            }
 
-                    @Override
-                    public void onError(Request request, Throwable exception) {
-                        channel.nack(exception);
-                    }
-                }), channel);
+                            @Override
+                            public void onError(Request request, Throwable exception) {
+                                channel.nack(exception);
+                            }
+                        }), channel);
             } catch (RequestException e) {
                 channel.nack(e);
             }
@@ -246,14 +259,14 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = DownloadLogFile.class)
-    public void downloadLogFile(final String name, final Dispatcher.Channel channel) {
-        Window.open(streamUrl(name), "", "");
+    public void downloadLogFile(final DownloadLogFile action, final Dispatcher.Channel channel) {
+        Window.open(streamUrl(action.getName()), "", "");
         channel.ack();
     }
 
     @Process(actionType = CloseLogFile.class)
-    public void closeLogFile(final String name, final Dispatcher.Channel channel) {
-        LogFile removed = states.remove(name);
+    public void closeLogFile(final CloseLogFile action, final Dispatcher.Channel channel) {
+        LogFile removed = states.remove(action.getName());
         if (removed == activeLogFile) {
             activeLogFile = null;
             pauseFollow = true;
@@ -262,10 +275,10 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = SelectLogFile.class)
-    public void selectLogFile(final String name, final Dispatcher.Channel channel) {
-        final LogFile logFile = states.get(name);
+    public void selectLogFile(final SelectLogFile action, final Dispatcher.Channel channel) {
+        final LogFile logFile = states.get(action.getName());
         if (logFile == null) {
-            channel.nack(new IllegalStateException("Cannot select unknown log file " + name + ". " +
+            channel.nack(new IllegalStateException("Cannot select unknown log file " + action.getName() + ". " +
                     "Please open the log file first!"));
             return;
         }
@@ -274,7 +287,7 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = NavigateInLogFile.class)
-    public void navigate(final Direction direction, final Dispatcher.Channel channel) {
+    public void navigate(final NavigateInLogFile action, final Dispatcher.Channel channel) {
         if (activeLogFile == null) {
             channel.nack(new IllegalStateException("Unable to navigate: No active log file!"));
             return;
@@ -282,7 +295,7 @@ public class LogStore extends ChangeSupport {
 
         final int skipped;
         final ModelNode op = readLogFileOp(activeLogFile.getName());
-        if (prepareNavigation(activeLogFile, direction, op)) {
+        if (prepareNavigation(activeLogFile, action.getDirection(), op)) {
             skipped = op.get("skip").asInt();
             dispatcher.execute(new DMRAction(wrapInComposite(op)), new AsyncCallback<DMRResponse>() {
                 @Override
@@ -300,7 +313,7 @@ public class LogStore extends ChangeSupport {
                         ModelNode compResult = response.get(RESULT);
                         int fileSize = readFileSize(activeLogFile.getName(), compResult);
                         List<String> lines = readLines(compResult);
-                        finishNavigation(activeLogFile, direction, skipped, lines, fileSize);
+                        finishNavigation(activeLogFile, action.getDirection(), skipped, lines, fileSize);
                         channel.ack();
                     }
                 }
@@ -392,13 +405,13 @@ public class LogStore extends ChangeSupport {
     }
 
     @Process(actionType = ChangePageSize.class)
-    public void changePageSize(final int pageSize, final Dispatcher.Channel channel) {
-        if (pageSize == this.pageSize) {
+    public void changePageSize(final ChangePageSize action, final Dispatcher.Channel channel) {
+        if (action.getPageSize() == pageSize) {
             // noop
             channel.ack();
 
         } else {
-            this.pageSize = pageSize;
+            pageSize = action.getPageSize();
             if (activeLogFile != null) {
                 final ModelNode op = readLogFileOp(activeLogFile.getName());
                 switch (activeLogFile.getPosition()) {
@@ -446,7 +459,7 @@ public class LogStore extends ChangeSupport {
             return;
         }
 
-        navigate(Direction.TAIL, channel);
+        navigate(new NavigateInLogFile(TAIL), channel);
         activeLogFile.setFollow(true);
         startFollowing(activeLogFile);
     }

@@ -83,10 +83,10 @@ public class ServerStore extends ChangeSupport {
     // action processing
 
     @Process(actionType = HostSelection.class, dependencies = {HostStore.class})
-    public void onSelectHost(String hostName, final Dispatcher.Channel channel) {
+    public void onSelectHost(final HostSelection action, final Dispatcher.Channel channel) {
 
         // load the server data on demand
-        if(!serverModel.containsKey(hostName))
+        if(!serverModel.containsKey(action.getHostName()))
             onRefresh(channel);
         else {
 
@@ -181,9 +181,9 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = AddServer.class)
-    public void onAddServer(final Server server, final Dispatcher.Channel channel) {
+    public void onAddServer(final AddServer action, final Dispatcher.Channel channel) {
 
-        hostInfo.createServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+        hostInfo.createServerConfig(hostStore.getSelectedHost(), action.getServer(), new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -200,9 +200,9 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveServer.class, dependencies = {HostStore.class})
-    public void onRemoveServer(final Server server, final Dispatcher.Channel channel) {
+    public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
 
-        hostInfo.deleteServerConfig(hostStore.getSelectedHost(), server, new SimpleCallback<Boolean>() {
+        hostInfo.deleteServerConfig(hostStore.getSelectedHost(), action.getServer(), new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -218,13 +218,16 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = UpdateServer.class)
-    public void onUpdateServer(final Server server, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
+    public void onUpdateServer(final UpdateServer action, final Dispatcher.Channel channel) {
 
-        if (changedValues.containsKey("portOffset")) { changedValues.put("socketBinding", server.getSocketBinding()); }
+        if (action.getChangedValues().containsKey("portOffset")) {
+            action.getChangedValues().put("socketBinding", action.getServer().getSocketBinding());
+        }
+        if (action.getChangedValues().containsKey("socketBinding")) {
+            action.getChangedValues().put("portOffset", action.getServer().getPortOffset());
+        }
 
-        if (changedValues.containsKey("socketBinding")) { changedValues.put("portOffset", server.getPortOffset()); }
-
-        final String name = server.getName();
+        final String name = action.getServer().getName();
 
         ModelNode proto = new ModelNode();
         proto.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -232,7 +235,7 @@ public class ServerStore extends ChangeSupport {
         proto.get(ADDRESS).add(ModelDescriptionConstants.SERVER_CONFIG, name);
 
         List<PropertyBinding> bindings = propertyMetaData.getBindingsForType(Server.class);
-        ModelNode operation = ModelAdapter.detypedFromChangeset(proto, changedValues, bindings);
+        ModelNode operation = ModelAdapter.detypedFromChangeset(proto, action.getChangedValues(), bindings);
 
         // TODO: https://issues.jboss.org/browse/AS7-3643
 
@@ -261,20 +264,19 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = CopyServer.class)
-    public void onSaveCopy(final String targetHost, final Server original, final Server newServer,
-                           final Dispatcher.Channel channel) {
+    public void onSaveCopy(final CopyServer action, final Dispatcher.Channel channel) {
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).setEmptyList();
         operation.get(ADDRESS).add("host", hostStore.getSelectedHost());
-        operation.get(ADDRESS).add("server-config", original.getName());
+        operation.get(ADDRESS).add("server-config", action.getOriginal().getName());
         operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(Throwable caught) {
-                Console.error("Failed to read server-config: " + original.getName(), caught.getMessage());
+                Console.error("Failed to read server-config: " + action.getOriginal().getName(), caught.getMessage());
                 channel.nack(caught);
             }
 
@@ -284,12 +286,13 @@ public class ServerStore extends ChangeSupport {
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Console.error("Failed to read server-config: " + original.getName(), response.getFailureDescription());
+                    Console.error("Failed to read server-config: " + action.getOriginal().getName(),
+                            response.getFailureDescription());
                 } else {
                     ModelNode model = response.get("result").asObject();
 
                     // required attribute changes: portOffset & serverGroup
-                    model.get("socket-binding-port-offset").set(newServer.getPortOffset());
+                    model.get("socket-binding-port-offset").set(action.getNewServer().getPortOffset());
                     model.remove("name");
 
                     // re-create node
@@ -302,8 +305,8 @@ public class ServerStore extends ChangeSupport {
 
                     final ModelNode rootResourceOp = new ModelNode();
                     rootResourceOp.get(OP).set(ADD);
-                    rootResourceOp.get(ADDRESS).add("host", targetHost);
-                    rootResourceOp.get(ADDRESS).add("server-config", newServer.getName());
+                    rootResourceOp.get(ADDRESS).add("host", action.getTargetHost());
+                    rootResourceOp.get(ADDRESS).add("server-config", action.getNewServer().getName());
 
                     steps.add(rootResourceOp);
 
@@ -319,7 +322,7 @@ public class ServerStore extends ChangeSupport {
                             if (response.isFailure()) {
                                 Console.error("Failed to copy server-config", response.getFailureDescription());
                             } else {
-                                Console.info("Successfully copied server-config '" + newServer.getName() + "'");
+                                Console.info("Successfully copied server-config '" + action.getNewServer().getName() + "'");
                             }
 
                             onRefresh(channel);

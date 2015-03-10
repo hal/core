@@ -69,15 +69,16 @@ public class WorkerStore extends ChangeSupport {
     // ------------------------------------------------------ process methods
 
     @Process(actionType = AddWorker.class)
-    public void add(final ModelNode worker, final Dispatcher.Channel channel) {
-        lastModifiedWorker = worker.get(NAME).asString();
-        operationDelegate.onCreateResource(RESOURCE_ADDRESS, worker, new RefreshCallback(channel));
+    public void add(final AddWorker action, final Dispatcher.Channel channel) {
+        lastModifiedWorker = action.getWorker().get(NAME).asString();
+        operationDelegate.onCreateResource(RESOURCE_ADDRESS, action.getWorker(), new RefreshCallback(channel));
     }
 
     @Process(actionType = ModifyWorker.class)
-    public void modify(final String name, final Map<String, Object> changedValues, final Dispatcher.Channel channel) {
-        lastModifiedWorker = name;
-        operationDelegate.onSaveResource(RESOURCE_ADDRESS, name, changedValues, new RefreshCallback(channel));
+    public void modify(final ModifyWorker action, final Dispatcher.Channel channel) {
+        lastModifiedWorker = action.getName();
+        operationDelegate.onSaveResource(RESOURCE_ADDRESS, lastModifiedWorker, action.getChangedValues(),
+                new RefreshCallback(channel));
     }
 
     @Process(actionType = RefreshWorkers.class)
@@ -109,9 +110,9 @@ public class WorkerStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveWorker.class)
-    public void remove(final String name, final Dispatcher.Channel channel) {
+    public void remove(final RemoveWorker action, final Dispatcher.Channel channel) {
         lastModifiedWorker = null;
-        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, name, new RefreshCallback(channel));
+        operationDelegate.onRemoveResource(RESOURCE_ADDRESS, action.getName(), new RefreshCallback(channel));
     }
 
 

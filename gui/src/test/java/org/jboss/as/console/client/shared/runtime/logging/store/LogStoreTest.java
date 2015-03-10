@@ -2,7 +2,6 @@ package org.jboss.as.console.client.shared.runtime.logging.store;
 
 import com.google.gwt.core.client.Scheduler;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.as.console.client.shared.runtime.logging.viewer.Direction;
 import org.jboss.as.console.client.shared.runtime.logging.viewer.Position;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.StaticDispatcher;
@@ -15,6 +14,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.jboss.as.console.client.shared.runtime.logging.viewer.Direction.*;
 import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -63,7 +63,7 @@ public class LogStoreTest {
     public void openLogFile() {
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
         store.logFiles.add(logFileNode("server.log"));
-        store.openLogFile("server.log", NoopChannel.INSTANCE);
+        store.openLogFile(new OpenLogFile("server.log"), NoopChannel.INSTANCE);
 
         assertFalse(store.pauseFollow);
         LogFile activeLogFile = store.getActiveLogFile();
@@ -85,7 +85,7 @@ public class LogStoreTest {
 
         assertFalse(store.pauseFollow);
         // Must not dispatch a DMR operation
-        store.openLogFile("server.log", NoopChannel.INSTANCE);
+        store.openLogFile(new OpenLogFile("server.log"), NoopChannel.INSTANCE);
         LogFile activeLogFile = store.getActiveLogFile();
         assertSame(logFile, activeLogFile);
     }
@@ -98,7 +98,7 @@ public class LogStoreTest {
 
         assertFalse(store.pauseFollow);
         // Must not dispatch a DMR operation
-        store.selectLogFile("server.log", NoopChannel.INSTANCE);
+        store.selectLogFile(new SelectLogFile("server.log"), NoopChannel.INSTANCE);
         LogFile activeLogFile = store.getActiveLogFile();
         assertSame(logFile, activeLogFile);
     }
@@ -111,7 +111,7 @@ public class LogStoreTest {
         store.states.put(bar.getName(), bar);
         store.activate(foo);
 
-        store.closeLogFile("bar.log", NoopChannel.INSTANCE);
+        store.closeLogFile(new CloseLogFile("bar.log"), NoopChannel.INSTANCE);
 
         assertFalse(store.pauseFollow);
         LogFile activeLogFile = store.getActiveLogFile();
@@ -127,7 +127,7 @@ public class LogStoreTest {
         store.states.put(logFile.getName(), logFile);
         store.activate(logFile);
 
-        store.closeLogFile("server.log", NoopChannel.INSTANCE);
+        store.closeLogFile(new CloseLogFile("server.log"), NoopChannel.INSTANCE);
 
         assertTrue(store.pauseFollow);
         assertNull(store.getActiveLogFile());
@@ -141,7 +141,7 @@ public class LogStoreTest {
         store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.HEAD, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(HEAD), NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -170,7 +170,7 @@ public class LogStoreTest {
         store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.TAIL, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(TAIL), NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -199,7 +199,7 @@ public class LogStoreTest {
         store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(PREVIOUS), NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -229,11 +229,11 @@ public class LogStoreTest {
 
         // Prev (1)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(PREVIOUS), NoopChannel.INSTANCE);
 
         // Prev (2)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(PREVIOUS), NoopChannel.INSTANCE);
 
         // 1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -255,7 +255,7 @@ public class LogStoreTest {
 
         // Next
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(NEXT), NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -285,7 +285,7 @@ public class LogStoreTest {
 
         // Prev
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(PREVIOUS), NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -307,7 +307,7 @@ public class LogStoreTest {
 
         // Head
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.HEAD, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(HEAD), NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -329,7 +329,7 @@ public class LogStoreTest {
 
         // Next
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(NEXT), NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -359,7 +359,7 @@ public class LogStoreTest {
         store.activate(logFile);
 
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(NEXT), NoopChannel.INSTANCE);
 
         // 1. verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -390,7 +390,7 @@ public class LogStoreTest {
 
         // Next (1)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(NEXT), NoopChannel.INSTANCE);
 
         // 1.1 verify DMR operation
         ModelNode operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -412,7 +412,7 @@ public class LogStoreTest {
 
         // Next (2)
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.NEXT, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(NEXT), NoopChannel.INSTANCE);
 
         // 2.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -434,7 +434,7 @@ public class LogStoreTest {
 
         // Previous
         dispatcher.push(StaticDmrResponse.ok(comp(logFileNodes("server.log"), linesNode(2))));
-        store.navigate(Direction.PREVIOUS, NoopChannel.INSTANCE);
+        store.navigate(new NavigateInLogFile(PREVIOUS), NoopChannel.INSTANCE);
 
         // 3.1 verify DMR operation
         operation = dispatcher.getLastOperation().get("steps").asList().get(1);
@@ -457,7 +457,7 @@ public class LogStoreTest {
 
     @Test
     public void changePageSize() {
-        store.changePageSize(42, NoopChannel.INSTANCE);
+        store.changePageSize(new ChangePageSize(42), NoopChannel.INSTANCE);
         assertEquals(42, store.pageSize);
     }
 
