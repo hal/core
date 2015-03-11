@@ -37,7 +37,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Harald Pehl
  */
-public class CreateConnector implements Function<FunctionContext> {
+public class CreateConnectorFn implements Function<FunctionContext> {
 
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
@@ -45,8 +45,8 @@ public class CreateConnector implements Function<FunctionContext> {
     private final String connectorName;
     private final ModelNode newModel;
 
-    public CreateConnector(DispatchAsync dispatcher, StatementContext statementContext,
-                           AddressTemplate connectorAddress, String connectorName, ModelNode newModel) {
+    public CreateConnectorFn(DispatchAsync dispatcher, StatementContext statementContext,
+                             AddressTemplate connectorAddress, String connectorName, ModelNode newModel) {
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
         this.connectorAddress = connectorAddress;

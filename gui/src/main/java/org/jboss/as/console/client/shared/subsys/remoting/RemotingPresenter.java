@@ -32,12 +32,7 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.remoting.store.CrudOutboundConnection;
-import org.jboss.as.console.client.shared.subsys.remoting.store.CrudRemoteConnector;
-import org.jboss.as.console.client.shared.subsys.remoting.store.InitRemoting;
-import org.jboss.as.console.client.shared.subsys.remoting.store.ModifyEndpointConfiguration;
-import org.jboss.as.console.client.shared.subsys.remoting.store.ModifySaslSingleton;
-import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.*;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.CrudAction;
 import org.jboss.as.console.client.v3.widgets.AddressableResourceView;
@@ -56,12 +51,14 @@ import static org.jboss.as.console.client.shared.subsys.remoting.store.RemotingS
 
 /**
  * TODO Human friendly error messages
+ *
  * @author Harald Pehl
  */
 public class RemotingPresenter extends CircuitPresenter<RemotingPresenter.MyView, RemotingPresenter.MyProxy>
         implements PropertyAddedHandler, PropertyRemovedHandler {
 
-    public interface MyView extends View, AddressableResourceView, HasPresenter<RemotingPresenter> {}
+    public interface MyView extends View, AddressableResourceView, HasPresenter<RemotingPresenter> {
+    }
 
     @ProxyCodeSplit
     @NameToken(NameTokens.Remoting)
@@ -71,7 +68,8 @@ public class RemotingPresenter extends CircuitPresenter<RemotingPresenter.MyView
             "{selected.profile}/subsystem=remoting/local-outbound-connection=*",
             "{selected.profile}/subsystem=remoting/outbound-connection=*",
             "{selected.profile}/subsystem=remoting/remote-outbound-connection=*"})
-    public interface MyProxy extends Proxy<RemotingPresenter>, Place {}
+    public interface MyProxy extends Proxy<RemotingPresenter>, Place {
+    }
 
 
     private final Dispatcher circuit;
@@ -117,11 +115,41 @@ public class RemotingPresenter extends CircuitPresenter<RemotingPresenter.MyView
         } else if (action instanceof ModifyEndpointConfiguration) {
             getView().update(ENDPOINT_CONFIGURATION_ADDRESS, remotingStore.getEndpointConfiguration());
 
-        } else if (action instanceof CrudRemoteConnector || action instanceof CrudOutboundConnection) {
-            AddressTemplate addressTemplate = ((CrudAction) action).getAddressTemplate();
-            List<Property> models = remotingStore.getModelsFor(addressTemplate);
-            getView().update(addressTemplate, models);
+        } else if (action instanceof CreateConnector) {
+            AddressTemplate addressTemplate = ((CreateConnector) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
             getView().select(addressTemplate, remotingStore.getLastModifiedInstance());
+
+        } else if (action instanceof ReadConnector) {
+            AddressTemplate addressTemplate = ((ReadConnector) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+
+        } else if (action instanceof UpdateConnector) {
+            AddressTemplate addressTemplate = ((UpdateConnector) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+            getView().select(addressTemplate, remotingStore.getLastModifiedInstance());
+
+        } else if (action instanceof DeleteConnector) {
+            AddressTemplate addressTemplate = ((DeleteConnector) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+
+        } else if (action instanceof CreateConnection) {
+            AddressTemplate addressTemplate = ((CreateConnection) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+            getView().select(addressTemplate, remotingStore.getLastModifiedInstance());
+
+        } else if (action instanceof ReadConnection) {
+            AddressTemplate addressTemplate = ((ReadConnection) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+
+        } else if (action instanceof UpdateConnection) {
+            AddressTemplate addressTemplate = ((UpdateConnection) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
+            getView().select(addressTemplate, remotingStore.getLastModifiedInstance());
+
+        } else if (action instanceof DeleteConnection) {
+            AddressTemplate addressTemplate = ((DeleteConnection) action).getAddressTemplate();
+            getView().update(addressTemplate, remotingStore.getModelsFor(addressTemplate));
 
         } else if (action instanceof ModifySaslSingleton) {
             String connectorName = ((ModifySaslSingleton) action).getConnectorName();
@@ -151,19 +179,13 @@ public class RemotingPresenter extends CircuitPresenter<RemotingPresenter.MyView
         AddressTemplate resourceAddress = addressTemplate.subTemplate(0, 3);
         switch (resourceAddress.getResourceType()) {
             case REMOTE_CONNECTOR:
-                circuit.dispatch(new CrudRemoteConnector(REMOTE_CONNECTOR_ADDRESS));
-                break;
             case REMOTE_HTTP_CONNECTOR:
-                circuit.dispatch(new CrudRemoteConnector(REMOTE_HTTP_CONNECTOR_ADDRESS));
+                circuit.dispatch(new ReadConnector(resourceAddress));
                 break;
             case LOCAL_OUTBOUND_CONNECTION:
-                circuit.dispatch(new CrudOutboundConnection(LOCAL_OUTBOUND_CONNECTION_ADDRESS));
-                break;
             case OUTBOUND_CONNECTION:
-                circuit.dispatch(new CrudOutboundConnection(OUTBOUND_CONNECTION_ADDRESS));
-                break;
             case REMOTE_OUTBOUND_CONNECTION:
-                circuit.dispatch(new CrudOutboundConnection(REMOTE_OUTBOUND_CONNECTION_ADDRESS));
+                circuit.dispatch(new ReadConnection(resourceAddress));
                 break;
         }
     }

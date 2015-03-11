@@ -25,7 +25,10 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.subsys.remoting.store.CrudOutboundConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.CreateConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.DeleteConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.UpdateConnection;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
@@ -43,17 +46,20 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 /**
+ * Editor for {@link RemotingStore#LOCAL_OUTBOUND_CONNECTION}, {@link RemotingStore#OUTBOUND_CONNECTION} and
+ * {@link RemotingStore#REMOTE_OUTBOUND_CONNECTION}.
+ *
  * @author Harald Pehl
  */
-class OutboundEditor extends RemotingEditor {
+class ConnectionEditor extends RemotingEditor {
 
     private final Dispatcher circuit;
     private final AddressTemplate addressTemplate;
     private final String title;
 
-    OutboundEditor(DispatchAsync dispatcher, Dispatcher circuit, SecurityContext securityContext,
-                   StatementContext statementContext, AddressTemplate addressTemplate,
-                   ResourceDescription resourceDescription, String title) {
+    ConnectionEditor(DispatchAsync dispatcher, Dispatcher circuit, SecurityContext securityContext,
+                     StatementContext statementContext, AddressTemplate addressTemplate,
+                     ResourceDescription resourceDescription, String title) {
         super(dispatcher, securityContext, statementContext, addressTemplate, resourceDescription);
         this.circuit = circuit;
         this.addressTemplate = addressTemplate;
@@ -81,7 +87,7 @@ class OutboundEditor extends RemotingEditor {
             public void onAdd(ModelNode payload) {
                 // The instance name must be part of the model node!
                 String instanceName = payload.get(NAME).asString();
-                circuit.dispatch(new CrudOutboundConnection(addressTemplate, instanceName, payload));
+                circuit.dispatch(new CreateConnection(addressTemplate, instanceName, payload));
                 dialog.hide();
             }
 
@@ -105,7 +111,7 @@ class OutboundEditor extends RemotingEditor {
                     @Override
                     public void onConfirmation(boolean isConfirmed) {
                         if (isConfirmed) {
-                            circuit.dispatch(new CrudOutboundConnection(addressTemplate, name));
+                            circuit.dispatch(new DeleteConnection(addressTemplate, name));
                         }
                     }
                 });
@@ -113,6 +119,6 @@ class OutboundEditor extends RemotingEditor {
 
     @Override
     protected void onModify(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new CrudOutboundConnection(addressTemplate, name, changedValues));
+        circuit.dispatch(new UpdateConnection(addressTemplate, name, changedValues));
     }
 }

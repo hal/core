@@ -24,7 +24,7 @@ package org.jboss.as.console.client.shared.subsys.remoting.store;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.shared.subsys.remoting.functions.CreateConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.functions.CreateConnectorFn;
 import org.jboss.as.console.client.shared.subsys.remoting.functions.CreateSaslSingleton;
 import org.jboss.as.console.client.shared.subsys.remoting.functions.ModifySaslSingleton;
 import org.jboss.as.console.client.shared.subsys.remoting.functions.VerifySaslSingleton;
@@ -229,49 +229,49 @@ public class RemotingStore extends ChangeSupport {
 
     // ------------------------------------------------------ connectors
 
-    @Process(actionType = CrudRemoteConnector.class)
-    public void crudRemoteConnector(final CrudRemoteConnector action, final Dispatcher.Channel channel) {
+    @Process(actionType = CreateConnector.class)
+    public void createConnector(final CreateConnector action, final Dispatcher.Channel channel) {
 
         final List<Property> connectors = getModelsFor(action.getAddressTemplate());
-        switch (action.getCrud()) {
-            case CREATE:
-                // First create the connector, then create the security=sasl singleton and finally
-                // create the sasl-policy=policy singleton
-                Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
-                    @Override
-                    public void onFailure(FunctionContext context) {
-                        channel.nack(context.getError());
-                    }
+        // First create the connector, then create the security=sasl singleton and finally
+        // create the sasl-policy=policy singleton
+        Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
+            @Override
+            public void onFailure(FunctionContext context) {
+                channel.nack(context.getError());
+            }
 
-                    @Override
-                    public void onSuccess(FunctionContext context) {
-                        lastModifiedInstance = action.getInstanceName();
-                        read(action.getAddressTemplate().getResourceType(), connectors, channel);
-                    }
-                };
+            @Override
+            public void onSuccess(FunctionContext context) {
+                lastModifiedInstance = action.getInstanceName();
+                read(action.getAddressTemplate().getResourceType(), remoteConnectors, channel);
+            }
+        };
 
-                AddressTemplate securityAddress = action.getAddressTemplate().append("security=" + SASL_SINGLETON);
-                AddressTemplate policyAddress = securityAddress.append("sasl-policy=" + POLICY_SINGLETON);
-                new Async<FunctionContext>(new Progress.Nop()).waterfall(new FunctionContext(), outcome,
-                        new CreateConnector(dispatcher, statementContext, action.getAddressTemplate(), 
-                                action.getInstanceName(), action.getNewModel()),
-                        new CreateSaslSingleton(dispatcher, statementContext, action.getInstanceName(), securityAddress),
-                        new CreateSaslSingleton(dispatcher, statementContext, action.getInstanceName(), policyAddress));
-                break;
+        AddressTemplate securityAddress = action.getAddressTemplate().append("security=" + SASL_SINGLETON);
+        AddressTemplate policyAddress = securityAddress.append("sasl-policy=" + POLICY_SINGLETON);
+        new Async<FunctionContext>(new Progress.Nop()).waterfall(new FunctionContext(), outcome,
+                new CreateConnectorFn(dispatcher, statementContext, action.getAddressTemplate(),
+                        action.getInstanceName(), action.getNewModel()),
+                new CreateSaslSingleton(dispatcher, statementContext, action.getInstanceName(), securityAddress),
+                new CreateSaslSingleton(dispatcher, statementContext, action.getInstanceName(), policyAddress));
+    }
 
-            case READ:
-                read(action.getAddressTemplate().getResourceType(), connectors, channel);
-                break;
+    @Process(actionType = ReadConnector.class)
+    public void readConnector(final ReadConnector action, final Dispatcher.Channel channel) {
+        read(action.getAddressTemplate().getResourceType(), getModelsFor(action.getAddressTemplate()), channel);
+    }
 
-            case UPDATE:
-                update(action.getAddressTemplate(), action.getInstanceName(), action.getChangedValues(), 
-                        connectors, channel);
-                break;
+    @Process(actionType = UpdateConnector.class)
+    public void updateConnector(final UpdateConnector action, final Dispatcher.Channel channel) {
+        update(action.getAddressTemplate(), action.getInstanceName(), action.getChangedValues(),
+                getModelsFor(action.getAddressTemplate()), channel);
+    }
 
-            case DELETE:
-                delete(action.getAddressTemplate(), action.getInstanceName(), connectors, channel);
-                break;
-        }
+    @Process(actionType = DeleteConnector.class)
+    public void deleteConnector(final DeleteConnector action, final Dispatcher.Channel channel) {
+        delete(action.getAddressTemplate(), action.getInstanceName(), getModelsFor(action.getAddressTemplate()),
+                channel);
     }
 
 
@@ -365,30 +365,29 @@ public class RemotingStore extends ChangeSupport {
     }
 
 
-    // ------------------------------------------------------ outbound connections
+    // ------------------------------------------------------ connections
 
-    @Process(actionType = CrudOutboundConnection.class)
-    public void crudOutboundConnection(final CrudOutboundConnection action, final Dispatcher.Channel channel) {
+    @Process(actionType = CreateConnection.class)
+    public void createConnection(final CreateConnection action, final Dispatcher.Channel channel) {
+        create(action.getAddressTemplate(), action.getInstanceName(), action.getNewModel(),
+                getModelsFor(action.getAddressTemplate()), channel);
+    }
 
-        List<Property> connections = getModelsFor(action.getAddressTemplate());
-        switch (action.getCrud()) {
-            case CREATE:
-                create(action.getAddressTemplate(), action.getInstanceName(), action.getNewModel(), connections, channel);
-                break;
+    @Process(actionType = ReadConnection.class)
+    public void readConnection(final ReadConnection action, final Dispatcher.Channel channel) {
+        read(action.getAddressTemplate().getResourceType(), getModelsFor(action.getAddressTemplate()), channel);
+    }
 
-            case READ:
-                read(action.getAddressTemplate().getResourceType(), connections, channel);
-                break;
+    @Process(actionType = UpdateConnection.class)
+    public void updateConnection(final UpdateConnection action, final Dispatcher.Channel channel) {
+        update(action.getAddressTemplate(), action.getInstanceName(), action.getChangedValues(),
+                getModelsFor(action.getAddressTemplate()), channel);
+    }
 
-            case UPDATE:
-                update(action.getAddressTemplate(), action.getInstanceName(), action.getChangedValues(),
-                        connections, channel);
-                break;
-
-            case DELETE:
-                delete(action.getAddressTemplate(), action.getInstanceName(), connections, channel);
-                break;
-        }
+    @Process(actionType = DeleteConnection.class)
+    public void deleteConnection(final DeleteConnection action, final Dispatcher.Channel channel) {
+        delete(action.getAddressTemplate(), action.getInstanceName(), getModelsFor(action.getAddressTemplate()),
+                channel);
     }
 
 

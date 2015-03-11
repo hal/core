@@ -22,29 +22,13 @@
 package org.jboss.as.console.client.shared.subsys.remoting.store;
 
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.client.v3.stores.CrudAction;
-import org.jboss.dmr.client.ModelNode;
-
-import java.util.Map;
+import org.jboss.as.console.client.v3.stores.DeleteAction;
 
 /**
- * CRUD action for all kind of remote connectors.
  * @author Harald Pehl
  */
-public class CrudRemoteConnector extends CrudAction {
-    public CrudRemoteConnector(AddressTemplate addressTemplate, String instanceName) {
+public class DeleteConnection extends DeleteAction {
+    public DeleteConnection(AddressTemplate addressTemplate, String instanceName) {
         super(addressTemplate, instanceName);
-    }
-
-    public CrudRemoteConnector(AddressTemplate addressTemplate, String instanceName, Map<String, Object> changedValues) {
-        super(addressTemplate, instanceName, changedValues);
-    }
-
-    public CrudRemoteConnector(AddressTemplate addressTemplate, String instanceName, ModelNode newModel) {
-        super(addressTemplate, instanceName, newModel);
-    }
-
-    public CrudRemoteConnector(AddressTemplate addressTemplate) {
-        super(addressTemplate);
     }
 }
