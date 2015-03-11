@@ -32,9 +32,19 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.remoting.store.*;
+import org.jboss.as.console.client.shared.subsys.remoting.store.CreateConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.CreateConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.DeleteConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.DeleteConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.InitRemoting;
+import org.jboss.as.console.client.shared.subsys.remoting.store.ModifyEndpointConfiguration;
+import org.jboss.as.console.client.shared.subsys.remoting.store.ModifySaslSingleton;
+import org.jboss.as.console.client.shared.subsys.remoting.store.ReadConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.ReadConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.UpdateConnection;
+import org.jboss.as.console.client.shared.subsys.remoting.store.UpdateConnector;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.client.v3.stores.CrudAction;
 import org.jboss.as.console.client.v3.widgets.AddressableResourceView;
 import org.jboss.as.console.client.v3.widgets.PropertyAddedEvent;
 import org.jboss.as.console.client.v3.widgets.PropertyAddedEvent.PropertyAddedHandler;
@@ -90,11 +100,12 @@ public class RemotingPresenter extends CircuitPresenter<RemotingPresenter.MyView
     // ------------------------------------------------------ lifecycle
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void onBind() {
         super.onBind();
         addChangeHandler(remotingStore);
 
-        // property management is not handled by the store, but using DefaultPropertyManager
+        // property management is not handled by the store, but using SubResourcePropertyManager
         // so register handlers to get notified about property modifications
         addRegisteredHandler(PropertyAddedEvent.TYPE, this);
         addRegisteredHandler(PropertyRemovedEvent.TYPE, this);

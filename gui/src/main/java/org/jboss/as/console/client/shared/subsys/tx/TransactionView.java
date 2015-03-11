@@ -11,9 +11,6 @@ import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState;
-import static org.jboss.as.console.client.shared.subsys.tx.TransactionPresenter.JacorbState.VALID;
-
 /**
  * @author Heiko Braun
  * @date 10/25/11
@@ -72,22 +69,7 @@ public class TransactionView extends SuspendableViewImpl implements TransactionP
 
         //  ---
 
-        defaultForm = new TXModelForm(presenter, enableStatistics, enableTsm, jts, useHornetq, defaultTimeout, nodeId) {
-            @Override
-            protected FormValidation validateTx(final FormValidation formValidation) {
-                // TODO HAL-594: Should this be replaced with a JDK ORB equivalent?
-                JacorbState jacorbState = VALID; // presenter.getJacorbState();
-
-                if (jts.getValue() && jacorbState != VALID) {
-                    getFormValidationError().setText(jacorbState.getMessage());
-                    getFormValidationError().setVisible(true);
-                    formValidation.addError(jts.getName());
-                    return formValidation;
-                }
-                getFormValidationError().setVisible(false);
-                return super.validateTx(formValidation);
-            }
-        };
+        defaultForm = new TXModelForm(presenter, enableStatistics, enableTsm, jts, useHornetq, defaultTimeout, nodeId);
         pathForm = new TXModelForm(presenter, path, relativeTo, objectStorePath, objectStorePathRelativeTo);
         processIDForm = new TXModelForm(presenter, processIdUUID, processIdSocket, processIdPortMax) {
             @Override

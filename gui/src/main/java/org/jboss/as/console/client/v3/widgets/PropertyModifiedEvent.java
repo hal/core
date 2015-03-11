@@ -39,10 +39,16 @@ public class PropertyModifiedEvent extends GwtEvent<PropertyModifiedEvent.Proper
     }
 
     private final AddressTemplate addressTemplate;
+    private final String attribute;
     private final Property property;
 
     public PropertyModifiedEvent(AddressTemplate addressTemplate, Property property) {
+        this(addressTemplate, null, property);
+    }
+
+    public PropertyModifiedEvent(AddressTemplate addressTemplate, String attribute, Property property) {
         this.addressTemplate = addressTemplate;
+        this.attribute = attribute;
         this.property = property;
     }
 
@@ -63,6 +69,10 @@ public class PropertyModifiedEvent extends GwtEvent<PropertyModifiedEvent.Proper
 
     public Property getProperty() {
         return property;
+    }
+
+    public String getAttribute() {
+        return attribute;
     }
 
     public interface PropertyModifiedHandler extends EventHandler {

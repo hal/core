@@ -39,10 +39,16 @@ public class PropertyAddedEvent extends GwtEvent<PropertyAddedEvent.PropertyAdde
     }
 
     private final AddressTemplate addressTemplate;
+    private final String attribute;
     private final Property property;
 
     public PropertyAddedEvent(AddressTemplate addressTemplate, Property property) {
+        this(addressTemplate, null, property);
+    }
+
+    public PropertyAddedEvent(AddressTemplate addressTemplate, String attribute, Property property) {
         this.addressTemplate = addressTemplate;
+        this.attribute = attribute;
         this.property = property;
     }
 
@@ -63,6 +69,10 @@ public class PropertyAddedEvent extends GwtEvent<PropertyAddedEvent.PropertyAdde
 
     public Property getProperty() {
         return property;
+    }
+
+    public String getAttribute() {
+        return attribute;
     }
 
     public interface PropertyAddedHandler extends EventHandler {

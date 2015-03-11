@@ -35,36 +35,31 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.as.console.client.v3.dmr.ResourceDescription;
-import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultEditTextCell;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
-import org.useware.kernel.gui.behaviour.StatementContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE;
 
 /**
  * Generic editor for properties which are saved as {@code "key" => {value => "value"}}. The key and the value are both
  * saved as strings in the DMR resource.
- * <p/>
+ * <p>
  * The property editor relies on a set of dependencies:
  * <dl>
  * <dt>{@link PropertyManager}</dt>
  * <dd>The {@linkplain PropertyManager property manager} defines a set of callback methods which are invoked if a
  * property is added / modified or removed. Depending on the constructor, you can either use a
- * {@link DefaultPropertyManager} or provide a custom one. Please note that if you use a custom implementation,
+ * {@link SubResourcePropertyManager} or provide a custom one. Please note that if you use a custom implementation,
  * there won't be any ootb support for {@code PropertyXXXEvent}s.</dd>
  * <dt>{@link AddResourceDialog}</dt>
  * <dd>If not specified otherwise, this property editor uses a predefined {@link AddResourceDialog} which is
@@ -73,19 +68,18 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  *
  * @author Heiko Braun
  * @author David Bosschaert
+ * @author Harald Pehl
  * @date 4/20/11
  */
 public class PropertyEditor implements IsWidget {
 
     // ------------------------------------------------------ builder
 
-    @SuppressWarnings("unused")
+
     public static class Builder {
+
         // mandatory parameter
         private final PropertyManager propertyManager;
-        private final SecurityContext securityContext;
-        private final AddressTemplate addressTemplate;
-        private final ResourceDescription resourceDescription;
 
         // optional parameter
         private AddressTemplate operationAddress;
@@ -93,41 +87,28 @@ public class PropertyEditor implements IsWidget {
         private boolean hideTools;
         private int numRows;
         private String addLabel;
-        private DefaultWindow addDialog;
+        private AddPropertyDialog addDialog;
         private String removeLabel;
 
         /**
-         * Builder for a new {@link PropertyEditor} using the {@link DefaultPropertyManager}.
+         * Builder for a new {@link PropertyEditor}.
          */
-        public Builder(DispatchAsync dispatcher, StatementContext statementContext, SecurityContext securityContext,
-                       AddressTemplate addressTemplate, ResourceDescription resourceDescription) {
-            this(new DefaultPropertyManager(dispatcher, statementContext),
-                    securityContext, addressTemplate, resourceDescription);
-        }
-
-        /**
-         * Builder for a new {@link PropertyEditor} using a custom {@link PropertyManager}.
-         */
-        public Builder(PropertyManager propertyManager, SecurityContext securityContext,
-                       AddressTemplate addressTemplate, ResourceDescription resourceDescription) {
+        public Builder(PropertyManager propertyManager) {
             this.propertyManager = propertyManager;
-            this.securityContext = securityContext;
-            this.addressTemplate = addressTemplate;
-            this.resourceDescription = resourceDescription;
             this.operationAddress = null;
             this.inlineEditing = false;
             this.hideTools = false;
             this.numRows = 5;
             this.addLabel = Console.CONSTANTS.common_label_add();
-            this.addDialog = new AddDialog(propertyManager, securityContext, addressTemplate, resourceDescription);
             this.removeLabel = Console.CONSTANTS.common_label_delete();
         }
 
         /**
-         * Overwrite the address template for the add / remove operations. By default the address template given at
-         * creation time is used for the add / remove operations.
+         * Overwrite the address template for the add / remove operations. By default the address template of the
+         * property manager is used for the add / remove operations.
          *
          * @param operationAddress the address
+         *
          * @return this builder
          */
         public Builder operationAddress(AddressTemplate operationAddress) {
@@ -155,7 +136,7 @@ public class PropertyEditor implements IsWidget {
             return this;
         }
 
-        public Builder addDialog(DefaultWindow addDialog) {
+        public Builder addDialog(AddPropertyDialog addDialog) {
             this.addDialog = addDialog;
             return this;
         }
@@ -166,34 +147,11 @@ public class PropertyEditor implements IsWidget {
         }
 
         public PropertyEditor build() {
+            if (addDialog == null && !inlineEditing) {
+                throw new IllegalStateException("Unable to create property editor for " + propertyManager.getAddress() +
+                        ": You have to specify an add dialog if inline editing is disabled");
+            }
             return new PropertyEditor(this);
-        }
-    }
-
-
-    // ------------------------------------------------------ add dialog
-
-    public static class AddDialog extends DefaultWindow {
-
-        private final AddResourceDialog dialog;
-
-        public AddDialog(final PropertyManager propertyManager, final SecurityContext securityContext,
-                         final AddressTemplate addressTemplate, final ResourceDescription resourceDescription) {
-            super(Console.CONSTANTS.common_label_add());
-            this.dialog = new AddResourceDialog(securityContext, resourceDescription,
-                    new AddResourceDialog.Callback() {
-                        @Override
-                        public void onAdd(ModelNode payload) {
-                            Property property = new Property(payload.get(NAME).asString(), payload);
-                            propertyManager.onAdd(addressTemplate, property, AddDialog.this);
-                        }
-
-                        @Override
-                        public void onCancel() {
-                            hide();
-                        }
-                    });
-            setWidget(dialog);
         }
     }
 
@@ -201,14 +159,13 @@ public class PropertyEditor implements IsWidget {
     // ------------------------------------------------------ property editor
 
     private final PropertyManager propertyManager;
-    private final AddressTemplate addressTemplate;
     private final ProvidesKey<Property> keyProvider;
     private final AddressTemplate operationAddress;
     private final boolean inlineEditing;
     private final boolean hideTools;
     private final int numRows;
     private final String addLabel;
-    private final DefaultWindow addDialog;
+    private final AddPropertyDialog addDialog;
     private final String removeLabel;
 
     private DefaultCellTable<Property> table;
@@ -216,7 +173,6 @@ public class PropertyEditor implements IsWidget {
 
     private PropertyEditor(Builder builder) {
         this.propertyManager = builder.propertyManager;
-        this.addressTemplate = builder.addressTemplate;
         this.keyProvider = new ProvidesKey<Property>() {
             @Override
             public Object getKey(Property property) {
@@ -249,9 +205,9 @@ public class PropertyEditor implements IsWidget {
             public void onSelectionChange(SelectionChangeEvent event) {
                 Property selection = selectionModel.getSelectedObject();
                 if (selection == null) {
-                    propertyManager.onDeselect(addressTemplate);
+                    propertyManager.onDeselect();
                 } else {
-                    propertyManager.onSelect(addressTemplate, selection);
+                    propertyManager.onSelect(selection);
                 }
             }
         });
@@ -271,7 +227,7 @@ public class PropertyEditor implements IsWidget {
                     setFieldUpdater(new FieldUpdater<Property, String>() {
                         @Override
                         public void update(int index, Property property, String value) {
-                            property.getValue().get(VALUE).set(value);
+                            getPropertyValue(property).set(value);
                         }
                     });
                 }
@@ -285,7 +241,7 @@ public class PropertyEditor implements IsWidget {
             valueColumn = new TextColumn<Property>() {
                 @Override
                 public String getValue(Property property) {
-                    return property.getValue().get(VALUE).asString();
+                    return getPropertyValue(property).asString();
                 }
             };
         }
@@ -309,10 +265,8 @@ public class PropertyEditor implements IsWidget {
             ToolButton addButton = new ToolButton(addLabel, new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    if (addDialog instanceof AddDialog) {
-                        ((AddDialog) addDialog).dialog.clearValues();
-                    }
-                    propertyManager.openAddDialog(addressTemplate, addDialog);
+                    addDialog.clearValues();
+                    propertyManager.openAddDialog(addDialog);
                 }
             });
             ToolButton removeButton = new ToolButton(removeLabel, new ClickHandler() {
@@ -326,17 +280,19 @@ public class PropertyEditor implements IsWidget {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
                                         if (isConfirmed) {
-                                            propertyManager.onRemove(addressTemplate, selection);
+                                            propertyManager.onRemove(selection);
                                         }
                                     }
                                 });
                     }
                 }
             });
-            AddressTemplate effectiveAddress = operationAddress != null ? operationAddress : addressTemplate;
+            AddressTemplate effectiveAddress = operationAddress != null ? operationAddress : propertyManager
+                    .getAddress();
             if (effectiveAddress != null) {
-                addButton.setOperationAddress(effectiveAddress.getTemplate(), ADD);
-                removeButton.setOperationAddress(effectiveAddress.getTemplate(), REMOVE);
+                addButton.setOperationAddress(effectiveAddress.getTemplate(), propertyManager.getAddOperationName());
+                removeButton
+                        .setOperationAddress(effectiveAddress.getTemplate(), propertyManager.getRemoveOperationName());
             }
             tools.addToolButtonRight(addButton);
             tools.addToolButtonRight(removeButton);
@@ -363,5 +319,15 @@ public class PropertyEditor implements IsWidget {
 
     public void clearValues() {
         dataProvider.setList(new ArrayList<Property>());
+    }
+
+    private ModelNode getPropertyValue(Property property) {
+        ModelNode value;
+        if (property.getValue().hasDefined(VALUE)) {
+            value = property.getValue().get(VALUE);
+        } else {
+            value = property.getValue();
+        }
+        return value;
     }
 }

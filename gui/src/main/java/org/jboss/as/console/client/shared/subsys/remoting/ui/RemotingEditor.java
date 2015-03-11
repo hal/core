@@ -35,6 +35,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
+import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
+import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -164,13 +166,17 @@ abstract class RemotingEditor implements IsWidget {
         AddressTemplate propertyAddress = addressTemplate.replaceWildcards(SELECTED_ENTITY).append("property=*");
         ResourceDescription propertyDescription = resourceDescription.getChildDescription("property");
 
-        propertyEditor = new PropertyEditor.Builder(dispatcher, propertyContext, securityContext, propertyAddress,
-                propertyDescription)
+        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(propertyAddress, propertyContext,
+                dispatcher);
+        SubResourceAddPropertyDialog addDialog = new SubResourceAddPropertyDialog(propertyManager, securityContext,
+                propertyDescription);
+        propertyEditor = new PropertyEditor.Builder(propertyManager)
                 // using propertyAddress would cause an exception when looking for
                 // "{selected.profile}/subsystem=remoting/connector={selected.entity}/property=*"
                 // so we have to use the original address and append "property=*" which results in
                 // "{selected.profile}/subsystem=remoting/connector=*/property=*"
                 .operationAddress(addressTemplate.append("property=*"))
+                .addDialog(addDialog)
                 .build();
         return propertyEditor;
     }
