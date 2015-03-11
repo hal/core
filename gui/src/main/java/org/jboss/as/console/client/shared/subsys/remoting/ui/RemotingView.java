@@ -57,9 +57,9 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
     private EndpointConfigurationEditor endpointConfigurationEditor;
     private RemotingEditor remoteConnectorEditor;
     private RemotingEditor remoteHttpConnectorEditor;
-    private OutboundEditor localOutboundEditor;
-    private OutboundEditor outboundEditor;
-    private OutboundEditor remoteOutboundEditor;
+    private ConnectionEditor localOutboundConnectionEditor;
+    private ConnectionEditor outboundConnectionEditor;
+    private ConnectionEditor remoteOutboundConnectionEditor;
 
     @Inject
     public RemotingView(DispatchAsync dispatcher, Dispatcher circuit, SecurityFramework securityFramework,
@@ -88,13 +88,13 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
         remoteHttpConnectorEditor = new ConnectorEditor(dispatcher, circuit, securityContext, statementContext,
                 REMOTE_HTTP_CONNECTOR_ADDRESS, descriptionRegistry.lookup(REMOTE_HTTP_CONNECTOR_ADDRESS), "Remote HTTP Connector");
 
-        localOutboundEditor = new OutboundEditor(dispatcher, circuit, securityContext, statementContext,
+        localOutboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
                 LOCAL_OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(LOCAL_OUTBOUND_CONNECTION_ADDRESS),
                 "Local Outbound Connection");
-        outboundEditor = new OutboundEditor(dispatcher, circuit, securityContext, statementContext,
+        outboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
                 OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(OUTBOUND_CONNECTION_ADDRESS),
                 "Outbound Connection");
-        remoteOutboundEditor = new OutboundEditor(dispatcher, circuit, securityContext, statementContext,
+        remoteOutboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
                 REMOTE_OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(REMOTE_OUTBOUND_CONNECTION_ADDRESS),
                 "Remote Outbound Connection");
 
@@ -104,9 +104,9 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
         remoteConnectorPages.showPage(0);
 
         PagedView outboundConnectionPages = new PagedView(true);
-        outboundConnectionPages.addPage("Local Outbound Connections", localOutboundEditor.asWidget());
-        outboundConnectionPages.addPage("Outbound Connections", outboundEditor.asWidget());
-        outboundConnectionPages.addPage("Remote Outbound Connections", remoteOutboundEditor.asWidget());
+        outboundConnectionPages.addPage("Local Outbound Connections", localOutboundConnectionEditor.asWidget());
+        outboundConnectionPages.addPage("Outbound Connections", outboundConnectionEditor.asWidget());
+        outboundConnectionPages.addPage("Remote Outbound Connections", remoteOutboundConnectionEditor.asWidget());
         outboundConnectionPages.showPage(0);
 
         DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
@@ -129,13 +129,13 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
                 remoteHttpConnectorEditor.select(name);
                 break;
             case LOCAL_OUTBOUND_CONNECTION:
-                localOutboundEditor.select(name);
+                localOutboundConnectionEditor.select(name);
                 break;
             case OUTBOUND_CONNECTION:
-                outboundEditor.select(name);
+                outboundConnectionEditor.select(name);
                 break;
             case REMOTE_OUTBOUND_CONNECTION:
-                remoteOutboundEditor.select(name);
+                remoteOutboundConnectionEditor.select(name);
                 break;
         }
     }
@@ -157,13 +157,13 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
                 remoteHttpConnectorEditor.updateMaster(model);
                 break;
             case LOCAL_OUTBOUND_CONNECTION:
-                localOutboundEditor.updateMaster(model);
+                localOutboundConnectionEditor.updateMaster(model);
                 break;
             case OUTBOUND_CONNECTION:
-                outboundEditor.updateMaster(model);
+                outboundConnectionEditor.updateMaster(model);
                 break;
             case REMOTE_OUTBOUND_CONNECTION:
-                remoteOutboundEditor.updateMaster(model);
+                remoteOutboundConnectionEditor.updateMaster(model);
                 break;
         }
     }

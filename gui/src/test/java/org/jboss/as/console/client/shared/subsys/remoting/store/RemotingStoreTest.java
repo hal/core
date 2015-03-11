@@ -1,7 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.remoting.store;
 
 import org.jboss.as.console.client.EchoContext;
-import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.StaticDispatcher;
 import org.jboss.dmr.client.StaticDmrResponse;
@@ -11,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 
+import static org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore.*;
 import static org.junit.Assert.*;
 
 /**
@@ -51,8 +51,7 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteConnector() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudRemoteConnector(new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/connector=*")),
-                NoopChannel.INSTANCE);
+        store.readConnector(new ReadConnector(REMOTE_CONNECTOR_ADDRESS), NoopChannel.INSTANCE);
 
         assertEquals(3, store.getRemoteConnectors().size());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -64,8 +63,7 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteHttpConnector() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudRemoteConnector(new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/http-connector=*")),
-                NoopChannel.INSTANCE);
+        store.readConnector(new ReadConnector(REMOTE_HTTP_CONNECTOR_ADDRESS), NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertEquals(3, store.getRemoteHttpConnectors().size());
@@ -77,9 +75,7 @@ public class RemotingStoreTest {
     @Test
     public void readLocalOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(
-                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/local-outbound-connection=*")),
-                NoopChannel.INSTANCE);
+        store.readConnection(new ReadConnection(LOCAL_OUTBOUND_CONNECTION_ADDRESS), NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -91,9 +87,7 @@ public class RemotingStoreTest {
     @Test
     public void readOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(
-                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/outbound-connection=*")),
-                NoopChannel.INSTANCE);
+        store.readConnection(new ReadConnection(OUTBOUND_CONNECTION_ADDRESS), NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -105,9 +99,7 @@ public class RemotingStoreTest {
     @Test
     public void readRemoteOutboundConnection() {
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
-        store.crudOutboundConnection(
-                new CrudOutboundConnection(AddressTemplate.of("/subsystem=remoting/remote-outbound-connection=*")),
-                NoopChannel.INSTANCE);
+        store.readConnection(new ReadConnection(REMOTE_OUTBOUND_CONNECTION_ADDRESS), NoopChannel.INSTANCE);
 
         assertTrue(store.getRemoteConnectors().isEmpty());
         assertTrue(store.getRemoteHttpConnectors().isEmpty());
@@ -124,10 +116,7 @@ public class RemotingStoreTest {
         // Verify the name of the last modified instance
         dispatcher.push(StaticDmrResponse.ok(propertyList(1, "foo")));
         dispatcher.push(StaticDmrResponse.ok(new ModelNode()));
-        store.crudRemoteConnector(
-                new CrudRemoteConnector(
-                        AddressTemplate.of("/subsystem=remoting/remote-connector=*"), "foo",
-                        Collections.<String, Object>emptyMap()),
+        store.updateConnector(new UpdateConnector(REMOTE_CONNECTOR_ADDRESS, "foo", Collections.<String, Object>emptyMap()),
                 NoopChannel.INSTANCE);
 
         assertEquals("foo", store.getLastModifiedInstance());
@@ -143,9 +132,7 @@ public class RemotingStoreTest {
         // 2. Refresh
         dispatcher.push(StaticDmrResponse.ok(propertyList(3, "a", "b", "c")));
         dispatcher.push(StaticDmrResponse.ok(new ModelNode()));
-        store.crudRemoteConnector(
-                new CrudRemoteConnector(AddressTemplate.of("/subsystem=remoting/connector=*"), "foo"),
-                NoopChannel.INSTANCE);
+        store.deleteConnector(new DeleteConnector(REMOTE_CONNECTOR_ADDRESS, "foo"), NoopChannel.INSTANCE);
 
         assertNull(store.getLastModifiedInstance());
         assertEquals(3, store.getRemoteConnectors().size());

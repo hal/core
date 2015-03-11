@@ -25,7 +25,10 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.subsys.remoting.store.CrudRemoteConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.CreateConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.DeleteConnector;
+import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
+import org.jboss.as.console.client.shared.subsys.remoting.store.UpdateConnector;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
@@ -47,6 +50,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.DESCRIPTION;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
 
 /**
+ * Editor for {@link RemotingStore#REMOTE_CONNECTOR} and {@link RemotingStore#REMOTE_HTTP_CONNECTOR}.
+ *
  * @author Harald Pehl
  */
 class ConnectorEditor extends RemotingEditor {
@@ -103,7 +108,7 @@ class ConnectorEditor extends RemotingEditor {
             public void onAdd(ModelNode payload) {
                 // The instance name must be part of the model node!
                 String instanceName = payload.get(NAME).asString();
-                circuit.dispatch(new CrudRemoteConnector(addressTemplate, instanceName, payload));
+                circuit.dispatch(new CreateConnector(addressTemplate, instanceName, payload));
                 dialog.hide();
             }
 
@@ -127,7 +132,7 @@ class ConnectorEditor extends RemotingEditor {
                     @Override
                     public void onConfirmation(boolean isConfirmed) {
                         if (isConfirmed) {
-                            circuit.dispatch(new CrudRemoteConnector(addressTemplate, name));
+                            circuit.dispatch(new DeleteConnector(addressTemplate, name));
                         }
                     }
                 });
@@ -135,7 +140,7 @@ class ConnectorEditor extends RemotingEditor {
 
     @Override
     protected void onModify(String name, Map<String, Object> changedValues) {
-        circuit.dispatch(new CrudRemoteConnector(addressTemplate, name, changedValues));
+        circuit.dispatch(new UpdateConnector(addressTemplate, name, changedValues));
     }
 
     @Override
