@@ -117,6 +117,15 @@ public class AddressTemplateTest {
     @Test
     public void replaceWildcards() {
         AddressTemplate at = AddressTemplate.of("a=b");
+        at = at.replaceWildcards(null);
+        assertEquals("a=b", at.getTemplate());
+
+        at = AddressTemplate.of("a=b");
+        //noinspection NullArgumentToVariableArgMethod
+        at = at.replaceWildcards(null, null);
+        assertEquals("a=b", at.getTemplate());
+
+        at = AddressTemplate.of("a=b");
         at = at.replaceWildcards("foo");
         assertEquals("a=b", at.getTemplate());
 
