@@ -30,7 +30,9 @@ import javax.tools.StandardLocation;
 
 /**
  * @author Harald Pehl
+ * @deprecated No longer necessary. Only used by {@link org.jboss.as.console.spi.SPIProcessor}.
  */
+@Deprecated
 public class ModuleConfig {
 
     static final String MODULE_PACKAGE = "org.jboss.as.console.composite";

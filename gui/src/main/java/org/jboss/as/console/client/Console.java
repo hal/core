@@ -46,6 +46,7 @@ import org.jboss.as.console.client.shared.state.ReloadNotification;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.state.ServerState;
 import org.jboss.as.console.client.widgets.progress.ProgressPolyfill;
+import org.jboss.as.console.spi.Entrypoint;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.notify.Notifications;
@@ -62,6 +63,7 @@ import java.util.Map;
  *
  * @author Heiko Braun
  */
+@Entrypoint
 public class Console implements EntryPoint, ReloadNotification.Handler {
 
     public final static Composite MODULES = GWT.create(Composite.class);

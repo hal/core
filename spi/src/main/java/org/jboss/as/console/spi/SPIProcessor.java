@@ -1,17 +1,12 @@
 package org.jboss.as.console.spi;
 
-import static javax.lang.model.SourceVersion.RELEASE_7;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.gwtplatform.mvp.client.annotations.NameToken;
+import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
+import org.jboss.as.console.client.plugins.BootstrapOperation;
+import org.jboss.as.console.client.plugins.RequiredResourcesMetaData;
+import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
+import org.jboss.as.console.client.plugins.SearchIndexMetaData;
+import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -27,20 +22,17 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.*;
 
-import com.gwtplatform.mvp.client.annotations.NameToken;
-import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
-import org.jboss.as.console.client.plugins.RequiredResourcesMetaData;
-import org.jboss.as.console.client.plugins.BootstrapOperation;
-import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
-import org.jboss.as.console.client.plugins.SearchIndexMetaData;
-import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
+import static javax.lang.model.SourceVersion.RELEASE_7;
 
 /**
  * @author Heiko Braun
+ * @deprecated Replaced by processors in module 'hal-processors'.
  */
-
-
+@Deprecated
 @SupportedSourceVersion(RELEASE_7)
 public class SPIProcessor extends AbstractProcessor {
 
@@ -225,14 +217,12 @@ public class SPIProcessor extends AbstractProcessor {
                     System.out.println("WARNING: Detected both @" + RequiredResources.class.getSimpleName() +
                             " and @" + AccessControl.class.getSimpleName() + " on #" + nameToken
                             + "! Only @" + RequiredResources.class.getSimpleName() + " will be processed.");
-                }
-                else if (requiredResources != null) {
+                } else if (requiredResources != null) {
                     String[] resources = requiredResources.resources();
                     boolean recursive = requiredResources.recursive();
                     String[] operations = requiredResources.operations();
                     addRequiredResource(nameToken.value()[0], resources, recursive, operations);
-                }
-                else if (accessControl != null) {
+                } else if (accessControl != null) {
                     String[] resources = accessControl.resources();
                     boolean recursive = accessControl.recursive();
                     String[] operations = accessControl.operations();
@@ -329,11 +319,6 @@ public class SPIProcessor extends AbstractProcessor {
         for (AnnotationMirror mirror : annotationMirrors) {
             final String annotationType = mirror.getAnnotationType().toString();
             if (annotationType.equals(GinExtension.class.getName())) {
-                GinExtension comps = element.getAnnotation(GinExtension.class);
-                final String module = comps.value();
-                if (module != null && module.length() > 0) {
-                    modules.add(module);
-                }
                 PackageElement packageElement = processingEnv.getElementUtils().getPackageOf(element);
                 String fqn = packageElement.getQualifiedName().toString() + "." +
                         element.getSimpleName().toString();

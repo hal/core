@@ -182,15 +182,7 @@ public class ProductConfigGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        // console.dev.host - mandatory
-        String devHost = failFastGetProperty(propertyOracle, "console.dev.host");
-        sourceWriter.println("public String getDevHost() { ");
-        sourceWriter.indent();
-        sourceWriter.println("return \"" + devHost + "\";");
-        sourceWriter.outdent();
-        sourceWriter.println("}");
-
-        // console.dev.host - mandatory
+        // supported locales
         LocaleUtils localeUtils = LocaleUtils.getInstance(logger, context.getPropertyOracle(), context);
         Set<GwtLocale> locales = localeUtils.getAllCompileLocales();
         sourceWriter.println("public List<String> getLocales() { ");

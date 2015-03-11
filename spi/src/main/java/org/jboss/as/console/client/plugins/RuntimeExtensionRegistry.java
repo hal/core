@@ -8,5 +8,5 @@ import java.util.List;
  */
 public interface RuntimeExtensionRegistry {
 
-    public List<RuntimeExtensionMetaData> getExtensions();
+    List<RuntimeExtensionMetaData> getExtensions();
 }

@@ -18,54 +18,44 @@
   -->
 
 <module rename-to="app">
-
-
     <inherits name="com.google.gwt.i18n.I18N"/>
     <inherits name="com.google.gwt.json.JSON"/>
     <inherits name='com.google.gwt.visualization.Visualization'/>
-    <inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT"/>
     <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+    <inherits name="com.google.gwt.user.Debug"/>
 
     <inherits name="org.jboss.ballroom.Framework"/>
     <inherits name="org.jboss.dmr.DMR"/>
-    <inherits name="org.useware.kernel.Main"/>
-
-    <inherits name="org.jboss.gwt.flow.Flow" />
-
-    <inherits name="com.allen_sauer.gwt.log.gwt-log-ERROR" />
-
-    <inherits name="edu.ycp.cs.dh.acegwt.AceGWT"/>
-
     <inherits name="org.jboss.gwt.Circuit"/>
     <inherits name="org.jboss.gwt.circuit.Meta"/>
+    <inherits name="org.jboss.gwt.flow.Flow" />
 
-    <!--
-       https://issues.jboss.org/browse/AS7-3977
-       inherits name="com.google.gwt.precompress.Precompress"/-->
-
-    <!-- Enable debug ID. -->
-    <inherits name="com.google.gwt.user.Debug"/>
-    <set-property name="gwt.enableDebugId" value="true"/>
-
+    <inherits name="org.useware.kernel.Main"/>
+    <inherits name="edu.ycp.cs.dh.acegwt.AceGWT"/>
+    <inherits name="com.allen_sauer.gwt.log.gwt-log-ERROR" />
+    <inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT"/>
 
     <define-configuration-property name="gin.ginjector" is-multi-valued="false" />
-    <set-configuration-property name="gin.ginjector"
-                                value="org.jboss.as.console.client.core.gin.Composite" />
+    <define-configuration-property name="console.profile" is-multi-valued="false"/>
 
+    <set-property name="gwt.enableDebugId" value="true"/>
     <set-property name="log_ConsoleLogger" value="ENABLED" />
     <set-property name="log_GWTLogger" value="ENABLED" />
     <set-property name="log_SystemLogger" value="ENABLED" />
-
-    <!-- Loggers Disabled by default -->
     <set-property name="log_DivLogger" value="DISABLED" />
     <set-property name="log_FirebugLogger" value="DISABLED" />
     <set-property name="log_WindowLogger" value="DISABLED" />
+    <set-property name="compiler.stackMode" value="strip"/>
+
     <set-configuration-property name="log_pattern" value="%d [%-5p] %m%n" />
+    <set-configuration-property name="user.agent.runtimeWarning" value="true"/>
+    <set-configuration-property name="compiler.enum.name.obfuscate" value="true"/>﻿
+    <set-configuration-property name="CssResource.obfuscationPrefix" value="empty" />
+    <set-configuration-property name="gin.ginjector" value="org.jboss.as.console.client.core.gin.Composite" />
 
     <generate-with class="org.jboss.as.console.rebind.forms.ApplicationMetaDataGenerator">
         <when-type-assignable class="org.jboss.as.console.client.widgets.forms.ApplicationMetaData" />
     </generate-with>
-
     <generate-with class="org.jboss.as.console.rebind.ProductConfigGenerator">
         <when-type-assignable class="org.jboss.as.console.client.ProductConfig" />
     </generate-with>
@@ -73,12 +63,9 @@
     <replace-with class="org.jboss.as.console.client.ConsoleFramework">
         <when-type-is class="org.jboss.ballroom.client.spi.Framework"/>
     </replace-with>
-
-    <!-- Dispatch API Configuration-->
     <replace-with class="org.jboss.dmr.client.dispatch.impl.LMSDiagnostics">
         <when-type-is class="org.jboss.dmr.client.dispatch.Diagnostics"/>
     </replace-with>
-
     <replace-with class="org.jboss.as.console.client.core.BootstrappedEndpointConfig">
         <when-type-is class="org.jboss.dmr.client.dispatch.impl.DMREndpointConfig"/>
     </replace-with>
@@ -103,30 +90,9 @@
         return locale_value;
     </property-provider>
 
-    <!--removes client-side stack trace info (can reduce size up to 15%)-->
-    <set-property name="compiler.stackMode" value="strip"/>
-
-    <set-configuration-property name="compiler.enum.name.obfuscate" value="true"/>﻿
-
-    <!-- used for minimal-length selector names -->
-    <set-configuration-property name="CssResource.obfuscationPrefix" value="empty" />
-
-    <!-- Set to false to avoid runtime warnings for mismatched runtime and -->
-    <!-- compile time user.agent values -->
-    <set-configuration-property name="user.agent.runtimeWarning" value="true"/>
-
     <stylesheet src="lab.css" />
-
     <source path="client" />
     <source path="mbui" />
 
-    <!--
-
-    This would move the left over fragment beyond the loading indicator.
-
-    extend-configuration-property name="compiler.splitpoint.initial.sequence"
-        value="@org.jboss.as.console.client.Console::onModuleLoad2()" /-->
-
     <entry-point class='org.jboss.as.console.client.Console'/>
-
 </module>

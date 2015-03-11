@@ -216,6 +216,7 @@ import org.useware.kernel.gui.behaviour.StatementContext;
 @GinExtensionBinding
 public class CoreUIModule extends AbstractPresenterModule {
 
+    @Override
     protected void configure() {
         // sign in
         bindPresenter(SignInPagePresenter.class, SignInPagePresenter.MyView.class,

@@ -34,7 +34,13 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
-import org.jboss.as.console.client.core.*;
+import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.FeatureSet;
+import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.Header;
+import org.jboss.as.console.client.core.MainLayoutPresenter;
+import org.jboss.as.console.client.core.RequiredResourcesProcessor;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -78,9 +84,7 @@ import org.jboss.as.console.client.shared.general.PropertiesPresenter;
 import org.jboss.as.console.client.shared.general.SocketBindingPresenter;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
-import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
-import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.runtime.RuntimeBaseAddress;
 import org.jboss.as.console.client.shared.runtime.ds.DataSourceMetricPresenter;
@@ -88,8 +92,6 @@ import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesPresenter;
-import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
-import org.jboss.as.console.client.shared.runtime.logging.store.LogStoreAdapter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXMetricPresenter;
@@ -98,20 +100,18 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
-import org.jboss.as.console.client.shared.subsys.batch.store.BatchStore;
-import org.jboss.as.console.client.shared.subsys.batch.store.BatchStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
-import org.jboss.as.console.client.shared.subsys.infinispan.*;
+import org.jboss.as.console.client.shared.subsys.infinispan.CacheContainerPresenter;
+import org.jboss.as.console.client.shared.subsys.infinispan.DistributedCachePresenter;
+import org.jboss.as.console.client.shared.subsys.infinispan.InvalidationCachePresenter;
+import org.jboss.as.console.client.shared.subsys.infinispan.LocalCachePresenter;
+import org.jboss.as.console.client.shared.subsys.infinispan.ReplicatedCachePresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
-import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStore;
-import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStoreAdapter;
-import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStore;
-import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
@@ -131,8 +131,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClustering
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
-import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
-import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
@@ -152,10 +150,6 @@ import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
 import org.jboss.as.console.client.tools.ToolsPresenter;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryPresenter;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.HostStoreAdapter;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.GinExtension;
@@ -173,7 +167,7 @@ import org.jboss.gwt.circuit.Dispatcher;
  * @author Heiko Braun
  * @date 1/31/11
  */
-@GinExtension("org.jboss.as.console.App")
+@GinExtension
 public interface CoreUI {
 
 
@@ -261,7 +255,7 @@ public interface CoreUI {
     AsyncProvider<ServerGroupPresenter> getServerGroupsPresenter();
 
     ProfileStore getProfileStore();
-    SubsystemLoader getSubsystemStore();
+    SubsystemLoader getSubsystemLoader();
     ServerGroupStore getServerGroupStore();
     HostInformationStore getHostInfoStore();
 
@@ -391,27 +385,6 @@ public interface CoreUI {
 
     Dispatcher getCircuitDispatcher();
 
-    BufferPoolStore getBufferPoolStore();
-    BufferPoolStoreAdapter getBufferPoolStoreAdapter();
-
-    WorkerStore getWorkerStore();
-    WorkerStoreAdapter getWorkerStoreAdapter();
-
-    BatchStore getBatchStore();
-    BatchStoreAdapter getBatchStoreAdapter();
-
-    LogStore getLogStore();
-    LogStoreAdapter getLogStoreAdapter();
-
-    HostStore getHostStore();
-    HostStoreAdapter getHostStoreAdapter();
-
-    RemotingStore getRemotingStore();
-    RemotingStoreAdapter getRemotingStoreAdapter();
-
-    ServerStore getServerStore();
-    ServerStoreAdapter getServerStoreAdapter();
-
     AsyncProvider<CSPPresenter> getCSPPresenter();
 
     CoreGUIContext getCoreGUIContext();
@@ -419,10 +392,6 @@ public interface CoreUI {
     AsyncProvider<HttpPresenter> getHttpPresenter();
     AsyncProvider<ServletPresenter> getServletPresenter();
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
-
-    SubsystemStoreAdapter getSubsystemStoreAdapter();
-
-    PerspectiveStoreAdapter getPerspectiveStoreAdapter();
 
     RequiredResourcesProcessor getRequiredResourcesProcessor();
 }

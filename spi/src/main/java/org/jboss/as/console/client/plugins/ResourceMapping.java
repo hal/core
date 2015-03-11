@@ -9,7 +9,9 @@ import java.util.Set;
 /**
  * @author Heiko Braun
  * @date 7/2/13
+ * @deprecated No longer necessary. Only used by {@{@link org.jboss.as.console.spi.SPIProcessor}}.
  */
+@Deprecated
 public class ResourceMapping {
     private Map<String, Set<String>> token2address = new HashMap<String, Set<String>>();
     private Map<String, MetaData> mappings = new HashMap<String, MetaData>();

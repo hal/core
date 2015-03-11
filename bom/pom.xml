@@ -9,7 +9,6 @@
         providing extensions to the console. It provides dependency management for the developer APIs and SPIs.
     </description>
 
-
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
@@ -19,8 +18,11 @@
 
     <properties>
         <maven.min.version>3.1.0</maven.min.version>
+        <auto-service.version>1.0-rc2</auto-service.version>
+        <auto-common.version>1.0-SNAPSHOT</auto-common.version>
         <ballroom.version>2.2.3</ballroom.version>
-        <circuit.version>0.0.9</circuit.version>
+        <circuit.version>0.1.1</circuit.version>
+        <freemarker.version>2.3.22</freemarker.version>
         <gin.version>2.1.2</gin.version>
         <guice.version>3.0</guice.version>
         <gwt.version>2.7.0</gwt.version>
@@ -54,6 +56,11 @@
             <dependency>
                 <groupId>org.jboss.as</groupId>
                 <artifactId>jboss-as-console-flow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.as</groupId>
+                <artifactId>hal-processors</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -242,6 +249,23 @@
                 <groupId>com.google.gwt.inject</groupId>
                 <artifactId>gin</artifactId>
                 <version>${gin.version}</version>
+            </dependency>
+
+            <!-- APT Processors -->
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${auto-service.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auto</groupId>
+                <artifactId>auto-common</artifactId>
+                <version>${auto-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
 
             <!-- Test -->

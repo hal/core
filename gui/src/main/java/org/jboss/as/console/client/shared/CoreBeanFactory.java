@@ -151,8 +151,8 @@ import org.jboss.as.console.spi.BeanFactoryExtension;
  * @author Heiko Braun
  * @date 2/22/11
  */
-@AutoBeanFactory.Category(PropertyRecordCategory.class)
 @BeanFactoryExtension
+@AutoBeanFactory.Category(PropertyRecordCategory.class)
 public interface CoreBeanFactory {
 
     AutoBean<BootstrapServer> bootstrapServer();

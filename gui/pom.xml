@@ -95,6 +95,10 @@
             <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>hal-processors</artifactId>
+        </dependency>
 
         <!-- GWT -->
         <dependency>
@@ -195,7 +199,7 @@
                 <directory>src/main/java</directory>
             </resource>
             <resource>
-                <directory>${project.build.directory}/generated-sources/apt</directory>
+                <directory>${project.build.directory}/generated-sources/annotations</directory>
             </resource>
         </resources>
 
@@ -212,25 +216,26 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <outputDiagnostics>false</outputDiagnostics>
-                            <addCompileSourceRoots>false</addCompileSourceRoots>
-                            <appendSourceArtifacts>false</appendSourceArtifacts>
-                            <processors>
-                                <processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>
-                                <processor>org.jboss.as.console.spi.SPIProcessor</processor>
-                            </processors>
                             <options>
                                 <!--
                                     All properties prefixed with 'gwt.' are written into the
                                     generated GWT module (without the 'gwt.' prefix)
                                 -->
                                 <gwt.console.core.version>${project.version}</gwt.console.core.version>
-                                <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
-                                <gwt.console.dev.port>${gwt.bindPort}</gwt.console.dev.port>
+                                <!-- Uncomment to get more messages from the annotation processors -->
+                                <!--<debug>true</debug>-->
                             </options>
+                            <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -245,8 +250,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-
             <plugin>
                 <groupId>org.lesscss</groupId>
                 <artifactId>lesscss-maven-plugin</artifactId>
@@ -269,7 +272,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>

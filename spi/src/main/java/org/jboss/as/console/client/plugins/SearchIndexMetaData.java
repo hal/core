@@ -8,7 +8,9 @@ import java.util.Set;
 
 /**
  * @author Harald Pehl
+ * @deprecated No longer necessary. Only used by {@{@link org.jboss.as.console.spi.SPIProcessor}}.
  */
+@Deprecated
 public class SearchIndexMetaData {
 
     private final String token;

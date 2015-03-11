@@ -46,18 +46,11 @@ public interface ProductConfig {
     String getProductVersion();
 
     /**
-     * The hostname / ip address of the dev host (only relevant in dev mode).
-     *
-     * @return the hostname
-     */
-    String getDevHost();
-
-    /**
      * The configured locales in the GWT module.
      *
      * @return the list of supported locales
      */
     List<String> getLocales();
 
-    public enum Profile {COMMUNITY, PRODUCT}
+    enum Profile {COMMUNITY, PRODUCT}
 }

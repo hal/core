@@ -34,6 +34,7 @@
                                 <source>../../dmr/src/main/java</source>
                                 <source>../../flow/core/src/main/java</source>
                                 <source>../../gui/src/main/java</source>
+                                <source>../../gui/target/generated-sources/annotations</source>
                                 <source>./../../ballroom/widgets/src/main/java</source>
                             </sources>
                         </configuration>

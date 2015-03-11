@@ -9,11 +9,12 @@
 
     <!-- Parent -->
     <parent>
-            <groupId>org.jboss.as</groupId>
-            <artifactId>jboss-as-console-bom</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
-            <relativePath>../bom/pom.xml</relativePath>
-        </parent>
+        <groupId>org.jboss.as</groupId>
+        <artifactId>jboss-as-console-bom</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../bom/pom.xml</relativePath>
+    </parent>
+
 
     <!--
     ~  USAGE:
@@ -60,7 +61,6 @@
             <classifier>sources</classifier>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-core</artifactId>
@@ -106,7 +106,6 @@
             <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.hal</groupId>
             <artifactId>redhat-support-plugin</artifactId>
@@ -163,7 +162,6 @@
                                 <artifactId>jboss-as-console-dialogs</artifactId>
                                 <type>war</type>
                             </overlay>
-
                             <overlay>
                                 <groupId>org.jboss.hal</groupId>
                                 <artifactId>redhat-support-plugin</artifactId>
@@ -210,15 +208,10 @@
                     <sourceLevel>1.7</sourceLevel>
                     <localWorkers>4</localWorkers>
                     <compileReport>false</compileReport>
-                    <module>org.jboss.as.console.composite.App_WF</module>
+                    <module>org.jboss.as.console.composite.WildFly</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <enableClosureCompiler>true</enableClosureCompiler>
-                  <!--  <compileSourcesArtifacts>
-                        <artifact>org.jgrapht:jgrapht-core</artifact>
-                        <artifact>org.jboss.gwt.circuit:circuit-core</artifact>
-                        <artifact>org.jboss.gwt.circuit:circuit-meta</artifact>
-                    </compileSourcesArtifacts>-->
                 </configuration>
                 <executions>
                     <execution>
@@ -229,35 +222,11 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>process-spi</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <outputDiagnostics>false</outputDiagnostics>
-                            <addCompileSourceRoots>false</addCompileSourceRoots>
-                            <appendSourceArtifacts>true</appendSourceArtifacts>
-                            <processors>
-                                <!--<processor>org.jboss.gwt.circuit.processor.StoreProcessor</processor>-->
-                                <processor>org.jboss.as.console.spi.SPIProcessor</processor>
-                            </processors>
-                            <options>
-                                <!--
-                                    All properties prefixed with 'gwt' are written into the
-                                    generated GWT module (without the 'gwt.' prefix)
-                                -->
-                                <gwt.console.core.version>${project.version}</gwt.console.core.version>
-                                <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
-                                <gwt.console.dev.port>${gwt.bindPort}</gwt.console.dev.port>
-                            </options>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -292,7 +261,6 @@
             </activation>
         </profile>
 
-
         <profile>
             <!-- Develop profile for quick turnaround times -->
             <id>dev</id>
@@ -307,7 +275,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <module>org.jboss.as.console.composite.App_WF_dev</module>
+                            <module>org.jboss.as.console.composite.WildFlyDev</module>
                             <!--style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler-->
                         </configuration>
@@ -323,7 +291,6 @@
             </build>
         </profile>
 
-
         <profile>
             <!-- Full community profile with all languages and browsers -->
             <id>full</id>
@@ -338,7 +305,7 @@
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>true</disableClassMetadata>
-                            <module>org.jboss.as.console.composite.App_WF_full</module>
+                            <module>org.jboss.as.console.composite.WildFlyFull</module>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -363,7 +330,6 @@
             </build>
         </profile>
 
-
         <profile>
             <!-- Red Hat look & feel -->
             <id>eap</id>
@@ -378,13 +344,12 @@
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>true</disableClassMetadata>
-                            <module>org.jboss.as.console.composite.App_RH</module>
+                            <module>org.jboss.as.console.composite.EAP</module>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
-
 
         <profile>
             <id>eapdev</id>
@@ -399,7 +364,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <module>org.jboss.as.console.composite.App_RH_dev</module>
+                            <module>org.jboss.as.console.composite.EAPDev</module>
                             <style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler>
                         </configuration>
@@ -444,7 +409,6 @@
                 </plugins>
             </reporting>
         </profile>
-
 
         <profile>
             <id>xxl</id>

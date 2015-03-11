@@ -3,7 +3,9 @@ package org.jboss.as.console.client.plugins;
 /**
  * @author Heiko Braun
  * @date 9/30/13
+ * @deprecated No longer necessary. Only used by {@{@link org.jboss.as.console.spi.SPIProcessor}}.
  */
+@Deprecated
 public class BootstrapOperation {
 
     String token;

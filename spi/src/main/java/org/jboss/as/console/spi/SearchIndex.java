@@ -18,22 +18,23 @@
  */
 package org.jboss.as.console.spi;
 
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
- * Search index meta data for presenters. This annotation works as add-on for {@link
- * org.jboss.as.console.spi.AccessControl} which is the primarily source for the search index. Without specifying
- * {@code SearchIndex} on a presenter, the presenter is indexed using the defaults specified here. Only use
- * {@code SearchIndex} on a presenter if you want to exclude the presenter or if you want to boost the presenter by
- * setting keywords.
+ * Search index meta data for presenters. This annotation works as add-on for
+ * {@link org.jboss.as.console.spi.RequiredResources} which is the primarily source for the search index.
+ * Without specifying {@code SearchIndex} on a presenter, the presenter is indexed using the defaults specified here.
+ * Only use {@code SearchIndex} on a presenter if you want to exclude the presenter or if you want to boost the
+ * presenter by setting keywords.
  *
  * @author Harald Pehl
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target(TYPE)
+@Retention(RUNTIME)
 public @interface SearchIndex {
 
     /**

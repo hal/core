@@ -1,11 +1,17 @@
 package org.jboss.as.console.spi;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 /**
  * @author Heiko Braun
  * @date 3/28/12
  */
-@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE})
+@Target(TYPE)
+@Retention(RUNTIME)
 public @interface BeanFactoryExtension {
 
 }
