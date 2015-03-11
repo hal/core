@@ -188,6 +188,8 @@ import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EESubsystemView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3View;
+import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
+import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkView;
 import org.jboss.as.console.client.shared.subsys.infinispan.CacheContainerPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.CacheContainerView;
 import org.jboss.as.console.client.shared.subsys.infinispan.DistributedCachePresenter;
@@ -660,6 +662,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 PatchManagementView.class,
                 PatchManagementPresenter.MyProxy.class);
 
+        bindPresenter(IiopOpenJdkPresenter.class,
+                IiopOpenJdkPresenter.MyView.class,
+                IiopOpenJdkView.class,
+                IiopOpenJdkPresenter.MyProxy.class);
+
         // Administration
         bindPresenter(AdministrationPresenter.class,
                 AdministrationPresenter.MyView.class,
@@ -728,6 +735,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         // ------------------------------------------------------ circuit
 
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
+
 
         // ------------------------------------------------------ no circuit stores yet!
 

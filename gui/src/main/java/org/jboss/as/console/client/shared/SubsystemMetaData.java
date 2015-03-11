@@ -103,6 +103,7 @@ public class SubsystemMetaData {
 
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JPA", "jpa"));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("JacORB", "jacorb"));
+        groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("IIOP", NameTokens.IiopOpenJdk));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batch", "batch", NameTokens.Batch));
 
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));

@@ -23,10 +23,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static java.util.Arrays.asList;
 
 /**
  * @author Heiko Braun
@@ -38,7 +41,8 @@ public class ModelNodeFormBuilder {
     private SecurityContext securityContext;
     private String address;
     private ModelNode modelDescription;
-    private String[] attributeNames;
+    private Set<String> attributeNames = new LinkedHashSet<>();
+    private Set<String> excludes = new HashSet<>();
     private SafeHtml help;
 
 
@@ -77,7 +81,16 @@ public class ModelNodeFormBuilder {
     }
 
     public ModelNodeFormBuilder setFields(String... attributeName) {
-        this.attributeNames = attributeName;
+        if (attributeName != null && attributeName.length !=  0) {
+            this.attributeNames.addAll(asList(attributeName));
+        }
+        return this;
+    }
+
+    public ModelNodeFormBuilder exclude(String... attributeName) {
+        if (attributeName != null && attributeName.length !=  0) {
+            this.excludes.addAll(asList(attributeName));
+        }
         return this;
     }
 
@@ -112,14 +125,13 @@ public class ModelNodeFormBuilder {
         });
 
         // catch-all directive, if no explicit attributes given
-        if (null == attributeNames) {
-            attributeNames = new String[attributeDescriptions.size()];
-            int i = 0;
+        if (attributeNames.isEmpty()) {
             for (Property attr : attributeDescriptions) {
-                attributeNames[i] = attr.getName();
-                i++;
+                attributeNames.add(attr.getName());
             }
         }
+        // in any case remove attributes marked for exclusion
+        attributeNames.removeAll(excludes);
 
 
         LinkedList<FormItem> requiredItems = new LinkedList<FormItem>();

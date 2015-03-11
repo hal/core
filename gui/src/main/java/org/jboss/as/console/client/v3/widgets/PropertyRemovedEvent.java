@@ -39,10 +39,16 @@ public class PropertyRemovedEvent extends GwtEvent<PropertyRemovedEvent.Property
     }
 
     private final AddressTemplate addressTemplate;
+    private final String attribute;
     private final Property property;
 
     public PropertyRemovedEvent(AddressTemplate addressTemplate, Property property) {
+        this(addressTemplate, null, property);
+    }
+
+    public PropertyRemovedEvent(AddressTemplate addressTemplate, String attribute, Property property) {
         this.addressTemplate = addressTemplate;
+        this.attribute = attribute;
         this.property = property;
     }
 
@@ -63,6 +69,10 @@ public class PropertyRemovedEvent extends GwtEvent<PropertyRemovedEvent.Property
 
     public Property getProperty() {
         return property;
+    }
+
+    public String getAttribute() {
+        return attribute;
     }
 
     public interface PropertyRemovedHandler extends EventHandler {

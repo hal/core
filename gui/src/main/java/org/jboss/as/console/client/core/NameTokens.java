@@ -60,6 +60,7 @@ public class NameTokens {
     public static final String PropertiesPresenter = "properties";
     public static final String ResourceAdapterPresenter ="resource-adapters";
     public static final String Remoting = "remoting";
+    public static final String IiopOpenJdk = "iiop-openjdk";
     public static final String ReplicatedCachePresenter = "replicated-cache";
     public static final String SecurityDomainsPresenter = "security-domains";
     public static final String SecuritySubsystemPresenter = "security";

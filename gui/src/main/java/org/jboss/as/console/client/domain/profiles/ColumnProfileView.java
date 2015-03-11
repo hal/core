@@ -558,6 +558,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
             for(SubsystemExtensionMetaData candidate : items)
             {
+                boolean match = false;
                 for(SubsystemRecord actual: subsystems)
                 {
                     if(actual.getKey().equals(candidate.getKey()))
@@ -582,8 +583,11 @@ public class ColumnProfileView extends SuspendableViewImpl
                         matches.add(
                                 new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder)
                         );
-
+                        match = true;
                     }
+                }
+                if (!match) {
+                    System.out.println("Skip subsystem " + candidate.getKey() + ", " + candidate.getName() + ", #" + candidate.getToken());
                 }
             }
 

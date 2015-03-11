@@ -33,6 +33,8 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.v3.widgets.PropertyEditor;
+import org.jboss.as.console.client.v3.widgets.SubResourceAddPropertyDialog;
+import org.jboss.as.console.client.v3.widgets.SubResourcePropertyManager;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -64,8 +66,8 @@ class ConnectorEditor extends RemotingEditor {
     private final SaslPolicyEditor saslPolicyEditor;
 
     ConnectorEditor(DispatchAsync dispatcher, Dispatcher circuit, SecurityContext securityContext,
-                    StatementContext statementContext, AddressTemplate addressTemplate,
-                    ResourceDescription resourceDescription, String title) {
+            StatementContext statementContext, AddressTemplate addressTemplate,
+            ResourceDescription resourceDescription, String title) {
         super(dispatcher, securityContext, statementContext, addressTemplate, resourceDescription);
         this.circuit = circuit;
         this.addressTemplate = addressTemplate;
@@ -79,8 +81,14 @@ class ConnectorEditor extends RemotingEditor {
         RemotingSelectionAwareContext context = new RemotingSelectionAwareContext(statementContext, this);
         AddressTemplate address = addressTemplate.replaceWildcards(SELECTED_ENTITY).append("security=sasl/property=*");
         ResourceDescription description = securityDescription.getChildDescription("property");
-        securityProperties = new PropertyEditor.Builder(dispatcher, context, securityContext, address, description)
-                .operationAddress(addressTemplate.append("security=*/property=*")) // this address is used in the security context
+
+        SubResourcePropertyManager propertyManager = new SubResourcePropertyManager(address, context, dispatcher);
+        SubResourceAddPropertyDialog addDialog = new SubResourceAddPropertyDialog(propertyManager, securityContext,
+                description);
+        securityProperties = new PropertyEditor.Builder(propertyManager)
+                .addDialog(addDialog)
+                .operationAddress(
+                        addressTemplate.append("security=*/property=*")) // this address is used in the security context
                 .build();
     }
 
@@ -103,20 +111,21 @@ class ConnectorEditor extends RemotingEditor {
     @Override
     protected void onAdd() {
         final DefaultWindow dialog = new DefaultWindow(title);
-        AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription, new AddResourceDialog.Callback() {
-            @Override
-            public void onAdd(ModelNode payload) {
-                // The instance name must be part of the model node!
-                String instanceName = payload.get(NAME).asString();
-                circuit.dispatch(new CreateConnector(addressTemplate, instanceName, payload));
-                dialog.hide();
-            }
+        AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        // The instance name must be part of the model node!
+                        String instanceName = payload.get(NAME).asString();
+                        circuit.dispatch(new CreateConnector(addressTemplate, instanceName, payload));
+                        dialog.hide();
+                    }
 
-            @Override
-            public void onCancel() {
-                dialog.hide();
-            }
-        });
+                    @Override
+                    public void onCancel() {
+                        dialog.hide();
+                    }
+                });
         dialog.setWidth(480);
         dialog.setHeight(360);
         dialog.setWidget(addDialog);

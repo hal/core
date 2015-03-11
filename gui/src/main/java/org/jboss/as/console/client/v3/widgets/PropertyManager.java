@@ -20,7 +20,6 @@
 package org.jboss.as.console.client.v3.widgets;
 
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.Property;
 
 /**
@@ -28,21 +27,25 @@ import org.jboss.dmr.client.Property;
  */
 public interface PropertyManager {
 
-    void onSelect(final AddressTemplate addressTemplate, final Property property);
-    void onDeselect(final AddressTemplate addressTemplate);
+    AddressTemplate getAddress();
 
-    void openAddDialog(final AddressTemplate addressTemplate, DefaultWindow window);
-    void closeAddDialog(final AddressTemplate addressTemplate, DefaultWindow window);
+    void onSelect(final Property property);
+    void onDeselect();
 
-    void onAdd(final AddressTemplate addressTemplate, final Property property, DefaultWindow window);
-    void onAddSuccess(final AddressTemplate addressTemplate, final Property property);
-    void onAddFailed(final AddressTemplate addressTemplate, final Property property, Throwable t);
+    void openAddDialog(final AddPropertyDialog addDialog);
+    void closeAddDialog(final AddPropertyDialog addDialog);
+
+    String getAddOperationName();
+    void onAdd(final Property property, AddPropertyDialog window);
+    void onAddSuccess(final Property property);
+    void onAddFailed(final Property property, Throwable t);
     
-    void onModify(final AddressTemplate addressTemplate, final Property property);
-    void onModifySuccess(final AddressTemplate addressTemplate, final Property property);
-    void onModifyFailed(final AddressTemplate addressTemplate, final Property property, Throwable t);
-    
-    void onRemove(final AddressTemplate addressTemplate, final Property property);
-    void onRemoveSuccess(final AddressTemplate addressTemplate, final Property property);
-    void onRemoveFailed(final AddressTemplate addressTemplate, final Property property, Throwable t);
+    void onModify(final Property property);
+    void onModifySuccess(final Property property);
+    void onModifyFailed(final Property property, Throwable t);
+
+    String getRemoveOperationName();
+    void onRemove(final Property property);
+    void onRemoveSuccess(final Property property);
+    void onRemoveFailed(final Property property, Throwable t);
 }

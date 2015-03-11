@@ -107,6 +107,7 @@ import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresente
 import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
+import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.CacheContainerPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.DistributedCachePresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.InvalidationCachePresenter;
@@ -389,6 +390,8 @@ public interface CoreUI {
     AsyncProvider<DialogPresenter> getDialogPresenter();
 
     AsyncProvider<NoServerPresenter> getNoServerPresenter();
+
+    AsyncProvider<IiopOpenJdkPresenter> getIiopOpenJdkPresenter();
 
     Dispatcher getCircuitDispatcher();
 
