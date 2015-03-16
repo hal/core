@@ -202,10 +202,10 @@
                     <logLevel>INFO</logLevel>
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
-                    <extraJvmArgs>-Xmx1024m -DDEBUG -XX:MaxPermSize=512M</extraJvmArgs>
+                    <extraJvmArgs>-Xmx1024m -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
                     <hostedWebapp>war</hostedWebapp>
-                    <sourceLevel>1.7</sourceLevel>
+                    <sourceLevel>1.8</sourceLevel>
                     <localWorkers>4</localWorkers>
                     <compileReport>false</compileReport>
                     <module>org.jboss.as.console.composite.WildFly</module>

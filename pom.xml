@@ -84,7 +84,9 @@
 
 
     <properties>
-        <version.gwt.maven.plugin>2.7.0</version.gwt.maven.plugin>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <version.gwt.maven.plugin>2.8.0-SNAPSHOT</version.gwt.maven.plugin>
         <version.org.zanata.plugin>3.1.1</version.org.zanata.plugin>
         <version.maven.processor.plugin>3.1.0-beta1</version.maven.processor.plugin>
     </properties>
@@ -160,7 +162,7 @@
                                     To disable this enforcer, build with -Denforcer.skip=true
                                 -->
                                 <requireJavaVersion>
-                                    <version>[,1.8)</version>
+                                    <version>[1.8,]</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -207,6 +209,17 @@
             </releases>
             <snapshots>
                 <updatePolicy>never</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/google-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
             </snapshots>
         </repository>
     </repositories>

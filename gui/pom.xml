@@ -103,12 +103,12 @@
         <!-- GWT -->
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
+            <artifactId>gwt-dev</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-dev</artifactId>
-            <scope>provided</scope>
+            <artifactId>gwt-user</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code</groupId>
