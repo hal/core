@@ -76,12 +76,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
     public void onModuleLoad() {
         Log.setUncaughtExceptionHandler();
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                onModuleLoad2();
-            }
-        });
+        Scheduler.get().scheduleDeferred(Console.this::onModuleLoad2);
     }
 
     public void onModuleLoad2() {
@@ -202,7 +197,7 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
                 // bootstrap functions
                 new BootstrapServerSetup(),
-                new StoreAdapterInit(),
+                new StoreInit(),
                 new LoadGoogleViz(),
                 new ExecutionMode(MODULES.getDispatchAsync()),
                 new TrackExecutionMode(MODULES.getAnalytics()),

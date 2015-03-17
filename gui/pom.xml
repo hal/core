@@ -98,6 +98,7 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>hal-processors</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- GWT -->
