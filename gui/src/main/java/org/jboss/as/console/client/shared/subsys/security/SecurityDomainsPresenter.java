@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.security;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Command;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -100,6 +101,7 @@ public class SecurityDomainsPresenter
     private final DispatchAsync dispatcher;
     private final BeanFactory factory;
     private final RevealStrategy revealStrategy;
+    private final Scheduler scheduler;
     private final EntityAdapter<SecurityDomain> entityAdapter;
     private PlaceManager placeManager;
 
@@ -108,12 +110,13 @@ public class SecurityDomainsPresenter
     @Inject
     public SecurityDomainsPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                                     DispatchAsync dispatcher, BeanFactory factory, RevealStrategy revealStrategy,
-                                    ApplicationMetaData appMetaData, PlaceManager placeManager) {
+                                    ApplicationMetaData appMetaData, PlaceManager placeManager, Scheduler scheduler) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.revealStrategy = revealStrategy;
+        this.scheduler = scheduler;
         this.entityAdapter = new EntityAdapter<SecurityDomain>(SecurityDomain.class, appMetaData);
 
         this.placeManager = placeManager;
@@ -139,13 +142,7 @@ public class SecurityDomainsPresenter
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
-
-        Console.schedule(new Command() {
-            @Override
-            public void execute() {
-                loadAuthFlagValues();
-            }
-        });
+        scheduler.scheduleDeferred(this::loadAuthFlagValues);
     }
 
     @Override

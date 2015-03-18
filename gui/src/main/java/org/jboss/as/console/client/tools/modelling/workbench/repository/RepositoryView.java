@@ -21,6 +21,7 @@ package org.jboss.as.console.client.tools.modelling.workbench.repository;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.vfs.Entry;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
@@ -39,15 +40,16 @@ public class RepositoryView extends SuspendableViewImpl implements RepositoryPre
 
     //private SimplePanel contentCanvas;
     private RepositoryNavigation lhsNavigation;
-    private ModelEditor editor = new ModelEditor();
+    private ModelEditor editor;
     private Widget nav;
     private DefaultSplitLayoutPanel layout;
 
     @Inject
-    public RepositoryView(final SampleRepository sampleRepository) {
+    public RepositoryView(final EventBus eventBus, final SampleRepository sampleRepository) {
         super();
         this.sampleRepository = sampleRepository;
         this.lhsNavigation = new RepositoryNavigation();
+        this.editor = new ModelEditor(eventBus);
 
     }
 

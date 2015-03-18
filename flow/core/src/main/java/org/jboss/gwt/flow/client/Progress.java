@@ -33,7 +33,7 @@ public interface Progress {
 
     void finish();
 
-    static final class Nop implements Progress {
+    final class Nop implements Progress {
 
         @Override
         public void reset() {}

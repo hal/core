@@ -25,7 +25,7 @@ package org.jboss.as.console.client.shared;
 import com.google.web.bindery.autobean.shared.AutoBean;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import org.jboss.as.console.client.administration.audit.AuditLogItem;
-import org.jboss.as.console.client.core.bootstrap.server.BootstrapServer;
+import org.jboss.as.console.client.core.bootstrap.cors.BootstrapServer;
 import org.jboss.as.console.client.core.settings.CommonSettings;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.ProfileRecord;

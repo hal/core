@@ -10,14 +10,13 @@ import org.jboss.as.console.spi.GinExtensionBinding;
  * @date 3/23/12
  */
 @GinExtensionBinding
-public class ExampleExtensionBinding extends AbstractPresenterModule {
+public class ExampleExtensionModule extends AbstractPresenterModule {
+
     @Override
     protected void configure() {
-
         bindPresenter(TransactionPresenter.class,
                 TransactionPresenter.MyView.class,
                 TransactionView.class,
                 TransactionPresenter.MyProxy.class);
-
     }
 }

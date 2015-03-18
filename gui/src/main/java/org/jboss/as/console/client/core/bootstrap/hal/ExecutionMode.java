@@ -17,10 +17,11 @@
  * MA  02110-1301, USA.
  */
 
-package org.jboss.as.console.client.core.bootstrap;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.Preferences;
 import org.jboss.dmr.client.ModelNode;
@@ -41,10 +42,11 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 5/19/11
  */
-public class ExecutionMode implements Function<BootstrapContext> {
+public class ExecutionMode implements BootstrapStep {
 
-    private DispatchAsync dispatcher;
+    private final  DispatchAsync dispatcher;
 
+    @Inject
     public ExecutionMode(DispatchAsync dispatcher) {
         this.dispatcher = dispatcher;
     }

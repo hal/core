@@ -22,7 +22,6 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -62,22 +61,17 @@ public class GwtModuleProcessor extends AbstractHalProcessor {
     protected boolean onLastRound(RoundEnvironment roundEnv) {
         final Map<String, String> gwtProperties = new HashMap<>();
         Map<String, String> options = processingEnv.getOptions();
-        for (String key : options.keySet()) {
-            if (key.startsWith(GWT_PREFIX)) {
-                String gwtProperty = key.substring(GWT_PREFIX.length());
-                debug("Discovered GWT property [%s]", gwtProperty);
-                gwtProperties.put(gwtProperty, options.get(key));
-            }
-        }
+        options.keySet().stream().filter(key -> key.startsWith(GWT_PREFIX)).forEach(key -> {
+            String gwtProperty = key.substring(GWT_PREFIX.length());
+            debug("Discovered GWT property [%s]", gwtProperty);
+            gwtProperties.put(gwtProperty, options.get(key));
+        });
 
         for (GwtModule gwtModule : GwtModule.values()) {
-            resource(gwtModule.template, PACKAGE_NAME, gwtModule.module, new Supplier<Map<String, Object>>() {
-                @Override
-                public Map<String, Object> get() {
-                    Map<String, Object> context = new HashMap<>();
-                    context.put("properties", gwtProperties);
-                    return context;
-                }
+            resource(gwtModule.template, PACKAGE_NAME, gwtModule.module, () -> {
+                Map<String, Object> context = new HashMap<>();
+                context.put("properties", gwtProperties);
+                return context;
             });
             info("Successfully generated GWT module [%s]", gwtModule.module);
         }

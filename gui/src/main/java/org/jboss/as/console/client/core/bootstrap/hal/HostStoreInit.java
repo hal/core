@@ -1,11 +1,11 @@
-package org.jboss.as.console.client.core.bootstrap;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
 
 import java.util.Set;
 
@@ -13,9 +13,11 @@ import java.util.Set;
  * @author Heiko Braun
  * @date 15/07/14
  */
-public class HostStoreInit implements Function<BootstrapContext> {
+public class HostStoreInit implements BootstrapStep {
+
     private final HostStore hostStore;
 
+    @Inject
     public HostStoreInit(HostStore hostStore) {
         this.hostStore = hostStore;
     }
@@ -24,11 +26,8 @@ public class HostStoreInit implements Function<BootstrapContext> {
     public void execute(final Control<BootstrapContext> control) {
         final BootstrapContext context = control.getContext();
 
-
         if (!context.isStandalone()) {
-
             hostStore.init(new SimpleCallback<Set<String>>() {
-
                 @Override
                 public void onFailure(Throwable caught) {
                     if (caught instanceof HostStore.NoHostsAvailable) {

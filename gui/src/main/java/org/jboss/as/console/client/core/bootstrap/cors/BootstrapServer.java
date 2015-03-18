@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.core.bootstrap.server;
+package org.jboss.as.console.client.core.bootstrap.cors;
 
 /**
  * AutoBean which represents a server instance used when the console starts.

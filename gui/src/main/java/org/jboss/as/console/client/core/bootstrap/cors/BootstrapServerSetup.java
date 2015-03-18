@@ -1,39 +1,45 @@
-package org.jboss.as.console.client.core.bootstrap.server;
+package org.jboss.as.console.client.core.bootstrap.cors;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.http.client.*;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.as.console.client.Console;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
-import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
+import org.jboss.as.console.client.core.LoadingPanel;
 
 import static org.jboss.as.console.client.core.ApplicationProperties.*;
 
 /**
- * Class which connects to a running JBoss management interface or triggers the selection of an arbitrary management
+ * Class which connects to a running management interface or triggers the selection of an arbitrary management
  * interface. By default this class first tries to connect to the management interface this console was loaded from.
- * If no server was found or if running dev mode, the selection is triggered by {@link BootstrapServerDialog}.
- * <p/>
- * <p>Please note: This class must run <em>before</em> any other bootstrap steps!</p>
+ * If no server was found, the selection is triggered by {@link BootstrapServerDialog}.
+ * <p>
+ * Please note: This class must run <em>before</em> any other bootstrap steps!
  *
  * @author Harald Pehl
  */
-public class BootstrapServerSetup implements Function<BootstrapContext> {
+public class BootstrapServerSetup {
 
     public final static String CONNECT_PARAMETER = "connect";
 
-    private Control<BootstrapContext> control;
-    private BootstrapContext context;
+    private final BootstrapContext context;
     private BootstrapServerDialog dialog;
+    private ScheduledCommand andThen;
 
-    @Override
-    public void execute(final Control<BootstrapContext> control) {
-        this.control = control;
-        this.context = control.getContext();
+    @Inject
+    public BootstrapServerSetup(BootstrapContext context) {
+        this.context = context;
+    }
 
+    public void select(ScheduledCommand andThen) {
+        this.andThen = andThen;
         String connect = Window.Location.getParameter(CONNECT_PARAMETER);
         if (connect != null) {
             // Connect to a server given as a request parameter
@@ -65,7 +71,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
                     // anything but 404 is considered successful
                     if (statusCode == 0 || statusCode == 200 || statusCode == 401) {
                         setUrls(baseUrl);
-                        control.proceed();
+                        andThen.execute();
                     } else {
                         openDialog();
                     }
@@ -86,7 +92,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
     }
 
     private void openDialog() {
-        Console.hideLoadingPanel();
+        LoadingPanel.get().off();
         dialog = new BootstrapServerDialog(this);
         dialog.open();
     }
@@ -127,7 +133,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         if (dialog != null) {
             dialog.hide();
-            Console.showLoadingPanel();
+            LoadingPanel.get().on();
         }
         String serverUrl = getServerUrl(server);
         context.setSameOrigin(serverUrl.equals(getBaseUrl()));
@@ -137,7 +143,7 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
 
         // Trigger authentication using a hidden iframe. This way also Safari will show the login dialog
         setUrls(serverUrl);
-        control.proceed();
+        andThen.execute();
     }
 
     private void setUrls(String baseUrl) {
@@ -152,7 +158,6 @@ public class BootstrapServerSetup implements Function<BootstrapContext> {
         String cspApi = localBaseUrl + "console/csp";
 
         System.out.println("Domain API Endpoint: " + domainApi);
-
         context.setProperty(DOMAIN_API, domainApi);
         context.setProperty(DEPLOYMENT_API, deploymentApi);
         context.setProperty(LOGOUT_API, logoutApi);

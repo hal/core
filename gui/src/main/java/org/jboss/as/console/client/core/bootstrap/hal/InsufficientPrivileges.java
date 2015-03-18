@@ -1,9 +1,8 @@
-package org.jboss.as.console.client.core.bootstrap;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Command;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.web.bindery.event.shared.EventBus;
 import org.jboss.as.console.client.core.LogoutCmd;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
@@ -13,7 +12,7 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  * @author Heiko Braun
  * @date 9/17/13
  */
-public class InsufficientPrivileges implements Command {
+public class InsufficientPrivileges implements ScheduledCommand {
 
     @Override
     public void execute() {
@@ -24,22 +23,13 @@ public class InsufficientPrivileges implements Command {
 
         DialogueOptions options = new DialogueOptions(
                 "Logout",
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        window.hide();
-                        new LogoutCmd().execute();
-                    }
+                event -> {
+                    window.hide();
+                    new LogoutCmd().execute();
                 },
                 "Cancel",
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-
-                    }
-                }
+                event -> {}
         );
-
         options.showCancel(false);
 
         window.trapWidget(new WindowContentBuilder(message, options).build());

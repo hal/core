@@ -22,7 +22,6 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import org.jboss.gwt.circuit.meta.Store;
 
 import javax.annotation.processing.Processor;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Processor which automates initialization of stores and their adapters. The processor generates the following
@@ -61,17 +61,13 @@ public class StoreInitProcessor extends AbstractHalProcessor {
 
     static final String ADAPTER_SUFFIX = "Adapter";
 
-    static final String STORE_BINDINGS_TEMPLATE = "StoreBindings.ftl";
-    static final String STORE_BINDINGS_PACKAGE = "org.jboss.as.console.client.core.gin";
-    static final String STORE_BINDINGS_CLASS = "StoreBindings";
+    static final String STORE_GINJECTOR_TEMPLATE = "StoreGinjector.ftl";
+    static final String STORE_GINJECTOR_PACKAGE = "org.jboss.as.console.client.core.gin";
+    static final String STORE_GINJECTOR_CLASS = "StoreGinjector";
 
     static final String STORE_MODULE_TEMPLATE = "StoreModule.ftl";
     static final String STORE_MODULE_PACKAGE = "org.jboss.as.console.client.core.gin";
     static final String STORE_MODULE_CLASS = "StoreModule";
-
-    static final String STORE_BOOTSTRAP_TEMPLATE = "StoreBootstrap.ftl";
-    static final String STORE_BOOTSTRAP_PACKAGE = "org.jboss.as.console.client.core.bootstrap";
-    static final String STORE_BOOTSTRAP_CLASS = "StoreInit";
 
     private final Set<StoreInfo> storeInfos;
 
@@ -92,38 +88,31 @@ public class StoreInitProcessor extends AbstractHalProcessor {
             debug("Discovered store / store adapter [%s]", storeInfo);
         }
 
-        // Don't generate files in onLastRound, since the generated GIN bindings and modules
-        // need to be picked up by the GinProcessor!
+        // Don't generate files in onLastRound, since the generated GIN module
+        // needs to be picked up by the GinProcessor!
         if (!storeInfos.isEmpty()) {
-            debug("Generating code for store bindings");
-            code(STORE_BINDINGS_TEMPLATE, STORE_BINDINGS_PACKAGE, STORE_BINDINGS_CLASS,
-                    context(STORE_BINDINGS_PACKAGE, STORE_BINDINGS_CLASS));
+            debug("Generating code for store ginjector");
+            code(STORE_GINJECTOR_TEMPLATE, STORE_GINJECTOR_PACKAGE, STORE_GINJECTOR_CLASS,
+                    context(STORE_GINJECTOR_PACKAGE, STORE_GINJECTOR_CLASS));
 
             debug("Generating code for store module");
             code(STORE_MODULE_TEMPLATE, STORE_MODULE_PACKAGE, STORE_MODULE_CLASS,
                     context(STORE_MODULE_PACKAGE, STORE_MODULE_CLASS));
 
-            debug("Generating code for store bootstrap");
-            code(STORE_BOOTSTRAP_TEMPLATE, STORE_BOOTSTRAP_PACKAGE, STORE_BOOTSTRAP_CLASS,
-                    context(STORE_BOOTSTRAP_PACKAGE, STORE_BOOTSTRAP_CLASS));
-
-            info("Successfully generated store initialization classes [%s], [%s] and [%s].",
-                    STORE_BINDINGS_CLASS, STORE_MODULE_CLASS, STORE_BOOTSTRAP_CLASS);
+            info("Successfully generated store initialization classes [%s] and [%s].",
+                    STORE_GINJECTOR_CLASS, STORE_MODULE_CLASS);
             storeInfos.clear();
         }
         return false;
     }
 
     private Supplier<Map<String, Object>> context(final String packageName, final String className) {
-        return new Supplier<Map<String, Object>>() {
-            @Override
-            public Map<String, Object> get() {
-                Map<String, Object> context = new HashMap<>();
-                context.put("packageName", packageName);
-                context.put("className", className);
-                context.put("storeInfos", storeInfos);
-                return context;
-            }
+        return () -> {
+            Map<String, Object> context = new HashMap<>();
+            context.put("packageName", packageName);
+            context.put("className", className);
+            context.put("storeInfos", storeInfos);
+            return context;
         };
     }
 

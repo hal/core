@@ -22,7 +22,6 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
@@ -41,6 +40,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static java.util.Arrays.asList;
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
@@ -136,15 +136,12 @@ public class NameTokenProcessor extends AbstractHalProcessor {
     }
 
     private Supplier<Map<String, Object>> context(final String packageName, final String className) {
-        return new Supplier<Map<String, Object>>() {
-            @Override
-            public Map<String, Object> get() {
-                Map<String, Object> context = new HashMap<>();
-                context.put("packageName", packageName);
-                context.put("className", className);
-                context.put("tokenInfos", tokenInfos);
-                return context;
-            }
+        return () -> {
+            Map<String, Object> context = new HashMap<>();
+            context.put("packageName", packageName);
+            context.put("className", className);
+            context.put("tokenInfos", tokenInfos);
+            return context;
         };
     }
 

@@ -21,19 +21,14 @@
  */
 package org.jboss.as.console.client.core.gin;
 
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.Singleton;
 import org.jboss.as.console.client.core.StatefulResultAnalyzer;
-import org.jboss.as.console.spi.GinExtensionBinding;
+import org.jboss.as.console.spi.GinExtension;
 
 /**
  * @author Harald Pehl
  */
-@GinExtensionBinding
-public class TestModule extends AbstractGinModule {
+@GinExtension
+public interface TestGinjector {
 
-    @Override
-    protected void configure() {
-        bind(StatefulResultAnalyzer.class).in(Singleton.class);
-    }
+    StatefulResultAnalyzer getDependency();
 }

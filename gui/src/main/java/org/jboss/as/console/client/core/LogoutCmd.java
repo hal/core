@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.core;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
@@ -12,7 +13,7 @@ import org.jboss.as.console.client.Console;
  */
 public class LogoutCmd implements Command {
 
-    private EventBus bus;
+    private final EventBus bus;
 
     public LogoutCmd() {
         this.bus = Console.MODULES.getEventBus();
@@ -33,13 +34,9 @@ public class LogoutCmd implements Command {
         });
     }
 
-
-
     public static native String clearMsie() /*-{
         try {
             document.execCommand('ClearAuthenticationCache');
-        } catch (error) {
-        }
-
+        } catch (error) {}
     }-*/;
 }

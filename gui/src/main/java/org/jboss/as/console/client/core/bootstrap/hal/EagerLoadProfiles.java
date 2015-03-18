@@ -1,12 +1,12 @@
-package org.jboss.as.console.client.core.bootstrap;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.gwt.flow.client.Control;
-import org.jboss.gwt.flow.client.Function;
 
 import java.util.List;
 
@@ -18,11 +18,12 @@ import java.util.List;
  * @author Heiko Braun
  * @date 1/13/12
  */
-public class EagerLoadProfiles implements Function<BootstrapContext> {
+public class EagerLoadProfiles implements BootstrapStep {
 
-    private ProfileStore profileStore;
-    private CurrentProfileSelection profileSelection;
+    private final ProfileStore profileStore;
+    private final CurrentProfileSelection profileSelection;
 
+    @Inject
     public EagerLoadProfiles(ProfileStore profileStore, CurrentProfileSelection profileSelection) {
         this.profileStore = profileStore;
         this.profileSelection = profileSelection;
@@ -32,11 +33,8 @@ public class EagerLoadProfiles implements Function<BootstrapContext> {
     public void execute(final Control<BootstrapContext> control) {
 
         final BootstrapContext context = control.getContext();
-
-        if(!context.isStandalone())
-        {
+        if (!context.isStandalone()) {
             profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
-
                 @Override
                 public void onFailure(Throwable caught) {
                     context.setlastError(caught);
@@ -50,23 +48,18 @@ public class EagerLoadProfiles implements Function<BootstrapContext> {
                     if (!result.isEmpty()) {
                         selectDefaultProfile(result);
                     }
-
                     control.proceed();
                 }
             });
 
-        }
-        else
-        {
+        } else {
             // standalone
             control.proceed();
         }
-
     }
 
     private void selectDefaultProfile(List<ProfileRecord> result) {
-
-        if(!profileSelection.isSet()) {
+        if (!profileSelection.isSet()) {
             String match = null;
             String pref = "full";
             for (ProfileRecord record : result) {
@@ -81,5 +74,4 @@ public class EagerLoadProfiles implements Function<BootstrapContext> {
             profileSelection.setName(match);
         }
     }
-
 }

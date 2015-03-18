@@ -21,20 +21,22 @@
  */
 package org.jboss.hal.processors;
 
+import com.google.auto.common.AnnotationMirrors;
+import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
+import com.google.common.base.Optional;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import org.jboss.as.console.spi.BeanFactoryExtension;
+import org.jboss.gwt.circuit.meta.*;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Processor for the composite AutoBean factory.
@@ -66,22 +68,21 @@ public class BeanFactoryProcessor extends AbstractHalProcessor {
         }
 
         for (Element e : roundEnv.getElementsAnnotatedWith(AutoBeanFactory.Category.class)) {
-            TypeElement categoryElement = (TypeElement) e;
-            categories.add(categoryElement.getQualifiedName().toString());
+            AnnotationMirror categoryAnnotation = MoreElements.getAnnotationMirror(e, AutoBeanFactory.Category.class).get();
+            AnnotationValue value = AnnotationMirrors.getAnnotationValue(categoryAnnotation, "value");
+            Collection<String> categories = extractValue(value);
+            this.categories.addAll(categories);
         }
 
         if (!factories.isEmpty()) {
             debug("Generating composite bean factory");
-            code(BEAN_FACTORY_TEMPLATE, BEAN_FACTORY_PACKAGE, BEAN_FACTORY_CLASS, new Supplier<Map<String, Object>>() {
-                @Override
-                public Map<String, Object> get() {
-                    Map<String, Object> context = new HashMap<>();
-                    context.put("packageName", BEAN_FACTORY_PACKAGE);
-                    context.put("className", BEAN_FACTORY_CLASS);
-                    context.put("factories", factories);
-                    context.put("categories", categories);
-                    return context;
-                }
+            code(BEAN_FACTORY_TEMPLATE, BEAN_FACTORY_PACKAGE, BEAN_FACTORY_CLASS, () -> {
+                Map<String, Object> context = new HashMap<>();
+                context.put("packageName", BEAN_FACTORY_PACKAGE);
+                context.put("className", BEAN_FACTORY_CLASS);
+                context.put("factories", factories);
+                context.put("categories", categories);
+                return context;
             });
 
             info("Successfully generated composite bean factory [%s].", BEAN_FACTORY_CLASS);
@@ -89,5 +90,17 @@ public class BeanFactoryProcessor extends AbstractHalProcessor {
             categories.clear();
         }
         return false;
+    }
+
+    private Collection<String> extractValue(final AnnotationValue value) {
+        if (value.getValue() instanceof Collection) {
+            final Collection<?> varray = (List<?>) value.getValue();
+            final ArrayList<String> result = new ArrayList<>(varray.size());
+            for (final Object active : varray) {
+                result.addAll(extractValue((AnnotationValue) active));
+            }
+            return result;
+        }
+        return Collections.singleton(value.getValue().toString());
     }
 }

@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.core.bootstrap.server;
+package org.jboss.as.console.client.core.bootstrap.cors;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;

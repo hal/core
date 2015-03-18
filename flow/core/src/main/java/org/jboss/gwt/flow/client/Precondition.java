@@ -24,6 +24,7 @@ package org.jboss.gwt.flow.client;
  * @author Heiko Braun
  * @date 3/11/13
  */
+@FunctionalInterface
 public interface Precondition {
     boolean isMet();
 }

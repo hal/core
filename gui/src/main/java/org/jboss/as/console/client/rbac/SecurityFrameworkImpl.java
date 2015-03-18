@@ -5,6 +5,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
@@ -81,7 +82,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
         this.statementContext = statementContext;
         this.coreGUIContext = coreGUIContext;
         this.keyResolver = new PlaceSecurityResolver();
-        this.contextAwareWidgets = new HashMap<String, SecurityContextAware>();
+        this.contextAwareWidgets = new HashMap<>();
         this.filteringStatementContext = new FilteringStatementContext(
                 statementContext,
                 new FilteringStatementContext.Filter() {

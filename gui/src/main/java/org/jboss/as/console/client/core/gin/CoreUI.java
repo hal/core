@@ -41,6 +41,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.RequiredResourcesProcessor;
+import org.jboss.as.console.client.core.bootstrap.Bootstrapper;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
@@ -93,6 +94,7 @@ import org.jboss.as.console.client.shared.runtime.env.EnvironmentPresenter;
 import org.jboss.as.console.client.shared.runtime.jms.JMSMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesPresenter;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
 import org.jboss.as.console.client.shared.runtime.tx.TXMetricPresenter;
@@ -284,6 +286,7 @@ public interface CoreUI {
 
     AsyncProvider<LoggingPresenter> getLoggingPresenter();
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
+    AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
 
     HandlerListManager getHandlerListManager();
 
@@ -403,4 +406,5 @@ public interface CoreUI {
 
     PreviewContentFactory getPreviewContentFactory();
 
+    Bootstrapper getBootstrapper();
 }

@@ -19,21 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.core.gin;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
-import com.google.gwt.inject.client.AbstractGinModule;
-import com.google.inject.Singleton;
-import org.jboss.as.console.client.core.StatefulResultAnalyzer;
-import org.jboss.as.console.spi.GinExtensionBinding;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.gwt.flow.client.Function;
 
 /**
+ * Just a marker interface for HAL's bootstrap steps.
+ *
  * @author Harald Pehl
  */
-@GinExtensionBinding
-public class TestBindings extends AbstractGinModule {
-
-    @Override
-    protected void configure() {
-        bind(StatefulResultAnalyzer.class).in(Singleton.class);
-    }
+public interface BootstrapStep extends Function<BootstrapContext> {
 }

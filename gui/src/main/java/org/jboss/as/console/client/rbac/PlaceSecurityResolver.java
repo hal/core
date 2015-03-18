@@ -9,6 +9,7 @@ import org.jboss.as.console.client.Console;
  * @date 8/12/13
  */
 public class PlaceSecurityResolver implements ContextKeyResolver {
+
     @Override
     public String resolveKey() {
         return Console.MODULES.getPlaceManager().getCurrentPlaceRequest().getNameToken();

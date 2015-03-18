@@ -21,7 +21,6 @@
  */
 package org.jboss.hal.processors;
 
-import com.google.common.base.Supplier;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapperBuilder;
 import freemarker.template.Template;
@@ -47,6 +46,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static javax.tools.Diagnostic.Kind.*;
 
@@ -95,7 +95,7 @@ public abstract class AbstractHalProcessor extends AbstractProcessor {
      *
      * @param processingEnv the processing environment
      */
-    protected void afterInit(ProcessingEnvironment processingEnv) {
+    protected void afterInit(@SuppressWarnings("UnusedParameters") ProcessingEnvironment processingEnv) {
     }
 
 

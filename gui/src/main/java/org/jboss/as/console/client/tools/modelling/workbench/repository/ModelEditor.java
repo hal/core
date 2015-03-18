@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.xml.client.Document;
 import com.google.gwt.xml.client.XMLParser;
+import com.google.web.bindery.event.shared.EventBus;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditor;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorMode;
 import edu.ycp.cs.dh.acegwt.client.ace.AceEditorTheme;
@@ -36,8 +37,12 @@ public class ModelEditor {
     private MenuBar menu;
     private MenuItem fullScreenItem;
     private VerticalPanel editorPanel;
-
     private Presenter presenter;
+    private EventBus eventBus;
+
+    public ModelEditor(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     public String getText() {
         return editor.getText();
@@ -73,9 +78,7 @@ public class ModelEditor {
             @Override
             public void execute() {
                 boolean fullScreen = fullScreenItem.getText().equals("Full Screen");
-                Console.MODULES.getEventBus().fireEvent(
-                        new EditorResizeEvent(fullScreen)
-                );
+                eventBus.fireEvent(new EditorResizeEvent(fullScreen));
 
                 if(fullScreen)
                     fullScreenItem.setText("Exit Full Screen");

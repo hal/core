@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.bootstrap.GlobalShortcuts;
+import org.jboss.as.console.client.core.bootstrap.hal.GlobalShortcuts;
 
 /**
  * The global search tool. Some kind of 'presenter' which takes care of both on demand indexing and searching.

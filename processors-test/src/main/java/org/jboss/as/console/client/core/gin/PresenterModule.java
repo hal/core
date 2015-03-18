@@ -35,7 +35,7 @@ import org.jboss.as.console.spi.GinExtensionBinding;
  * @author Harald Pehl
  */
 @GinExtensionBinding
-public class PresenterBindings extends AbstractPresenterModule {
+public class PresenterModule extends AbstractPresenterModule {
 
     @Override
     protected void configure() {

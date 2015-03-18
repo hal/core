@@ -11,8 +11,6 @@ import com.google.gwt.resources.client.TextResource;
  */
 public interface ConsoleResources extends ClientBundle {
 
-    ConsoleResources INSTANCE =  GWT.create(ConsoleResources.class);
-
     @CssResource.NotStrict
     @Source("org/jboss/as/console/public/console.css")
     CssResource css();

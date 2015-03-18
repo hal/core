@@ -32,6 +32,7 @@ import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
+import org.jboss.as.console.client.ResourceLoader;
 import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.administration.AdministrationView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
@@ -55,6 +56,18 @@ import org.jboss.as.console.client.core.NameTokenRegistry;
 import org.jboss.as.console.client.core.NewTokenFormatter;
 import org.jboss.as.console.client.core.RequiredResourcesProcessor;
 import org.jboss.as.console.client.core.ToplevelTabs;
+import org.jboss.as.console.client.core.bootstrap.Bootstrapper;
+import org.jboss.as.console.client.core.bootstrap.cors.BootstrapServerSetup;
+import org.jboss.as.console.client.core.bootstrap.hal.BootstrapSteps;
+import org.jboss.as.console.client.core.bootstrap.hal.EagerLoadGroups;
+import org.jboss.as.console.client.core.bootstrap.hal.EagerLoadProfiles;
+import org.jboss.as.console.client.core.bootstrap.hal.ExecutionMode;
+import org.jboss.as.console.client.core.bootstrap.hal.HostStoreInit;
+import org.jboss.as.console.client.core.bootstrap.hal.LoadCompatMatrix;
+import org.jboss.as.console.client.core.bootstrap.hal.LoadGoogleViz;
+import org.jboss.as.console.client.core.bootstrap.hal.RegisterSubsystems;
+import org.jboss.as.console.client.core.bootstrap.hal.ServerStoreInit;
+import org.jboss.as.console.client.core.bootstrap.hal.TrackExecutionMode;
 import org.jboss.as.console.client.core.message.MessageBar;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterImpl;
@@ -135,11 +148,7 @@ import org.jboss.as.console.client.shared.general.SocketBindingView;
 import org.jboss.as.console.client.shared.help.HelpSystem;
 import org.jboss.as.console.client.shared.homepage.HomepagePresenter;
 import org.jboss.as.console.client.shared.homepage.HomepageView;
-import org.jboss.as.console.client.shared.model.PerspectiveStore;
-import org.jboss.as.console.client.shared.model.PerspectiveStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
-import org.jboss.as.console.client.shared.model.SubsystemStore;
-import org.jboss.as.console.client.shared.model.SubsystemStoreAdapter;
 import org.jboss.as.console.client.shared.model.SubsystemStoreImpl;
 import org.jboss.as.console.client.shared.patching.PatchManagementPresenter;
 import org.jboss.as.console.client.shared.patching.PatchManager;
@@ -155,8 +164,8 @@ import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.jpa.JPAMetricsView;
 import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesPresenter;
 import org.jboss.as.console.client.shared.runtime.logging.files.LogFilesView;
-import org.jboss.as.console.client.shared.runtime.logging.store.LogStore;
-import org.jboss.as.console.client.shared.runtime.logging.store.LogStoreAdapter;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerPresenter;
+import org.jboss.as.console.client.shared.runtime.logging.viewer.LogViewerView;
 import org.jboss.as.console.client.shared.runtime.naming.JndiPresenter;
 import org.jboss.as.console.client.shared.runtime.naming.JndiView;
 import org.jboss.as.console.client.shared.runtime.tx.TXLogPresenter;
@@ -170,8 +179,6 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
-import org.jboss.as.console.client.shared.subsys.batch.store.BatchStore;
-import org.jboss.as.console.client.shared.subsys.batch.store.BatchStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.batch.ui.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
@@ -197,10 +204,6 @@ import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStor
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStoreImpl;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOView;
-import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStore;
-import org.jboss.as.console.client.shared.subsys.io.bufferpool.BufferPoolStoreAdapter;
-import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStore;
-import org.jboss.as.console.client.shared.subsys.io.worker.WorkerStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbView;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
@@ -236,8 +239,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnec
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
-import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStore;
-import org.jboss.as.console.client.shared.subsys.remoting.store.RemotingStoreAdapter;
 import org.jboss.as.console.client.shared.subsys.remoting.ui.RemotingView;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsView;
@@ -278,10 +279,6 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.as.console.client.v3.stores.domain.HostStore;
-import org.jboss.as.console.client.v3.stores.domain.HostStoreAdapter;
-import org.jboss.as.console.client.v3.stores.domain.ServerStore;
-import org.jboss.as.console.client.v3.stores.domain.ServerStoreAdapter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.GinExtensionBinding;
@@ -305,6 +302,8 @@ public class CoreUIModule extends AbstractPresenterModule {
 
     @Override
     protected void configure() {
+        // ------------------------------------------------------ GWTP presenters
+
         // sign in
         bindPresenter(SignInPagePresenter.class, SignInPagePresenter.MyView.class,
                 SignInPageView.class, SignInPagePresenter.MyProxy.class);
@@ -449,6 +448,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LoggingView.class,
                 LoggingPresenter.MyProxy.class);
 
+        bindPresenter(LogViewerPresenter.class,
+                LogViewerPresenter.MyView.class,
+                LogViewerView.class,
+                LogViewerPresenter.MyProxy.class);
+
         bindPresenter(LogFilesPresenter.class,
                 LogFilesPresenter.MyView.class,
                 LogFilesView.class,
@@ -590,11 +594,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 MailPresenter.MyView.class,
                 MailSubsystemView.class,
                 MailPresenter.MyProxy.class);
-        
+
         bindPresenter(MailFinder.class,
-                       MailFinder.MyView.class,
-                       MailFinderView.class,
-                       MailFinder.MyProxy.class);
+                MailFinder.MyView.class,
+                MailFinderView.class,
+                MailFinder.MyProxy.class);
 
         bindPresenter(ModclusterPresenter.class,
                 ModclusterPresenter.MyView.class,
@@ -676,7 +680,9 @@ public class CoreUIModule extends AbstractPresenterModule {
                 RepositoryView.class,
                 RepositoryPresenter.MyProxy.class);
 
-        bindPresenterWidget(UnauthorisedPresenter.class, UnauthorisedPresenter.MyView.class, UnauthorisedView.class);
+        bindPresenterWidget(UnauthorisedPresenter.class,
+                UnauthorisedPresenter.MyView.class,
+                UnauthorisedView.class);
 
         bindPresenter(DialogPresenter.class,
                 DialogView.class,
@@ -719,36 +725,9 @@ public class CoreUIModule extends AbstractPresenterModule {
                 RemotingPresenter.MyProxy.class);
 
 
-        // ------------------------------------------------------ circuit & stores
+        // ------------------------------------------------------ circuit
 
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
-
-        bind(BatchStore.class).in(Singleton.class);
-        bind(BatchStoreAdapter.class).in(Singleton.class);
-
-        bind(BufferPoolStore.class).in(Singleton.class);
-        bind(BufferPoolStoreAdapter.class).in(Singleton.class);
-
-        bind(WorkerStore.class).in(Singleton.class);
-        bind(WorkerStoreAdapter.class).in(Singleton.class);
-
-        bind(LogStore.class).in(Singleton.class);
-        bind(LogStoreAdapter.class).in(Singleton.class);
-
-        bind(HostStore.class).in(Singleton.class);
-        bind(HostStoreAdapter.class).in(Singleton.class);
-
-        bind(ServerStore.class).in(Singleton.class);
-        bind(ServerStoreAdapter.class).in(Singleton.class);
-
-        bind(SubsystemStore.class).in(Singleton.class);
-        bind(SubsystemStoreAdapter.class).in(Singleton.class);
-
-        bind(PerspectiveStore.class).in(Singleton.class);
-        bind(PerspectiveStoreAdapter.class).in(Singleton.class);
-
-        bind(RemotingStore.class).in(Singleton.class);
-        bind(RemotingStoreAdapter.class).in(Singleton.class);
 
         // ------------------------------------------------------ no circuit stores yet!
 
@@ -783,8 +762,22 @@ public class CoreUIModule extends AbstractPresenterModule {
         requestStaticInjection(RuntimeBaseAddress.class);
         requestStaticInjection(Baseadress.class);
 
-        bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);
+        // bootstrapping
+        bind(BootstrapContext.class).in(Singleton.class);
+        bind(BootstrapServerSetup.class).in(Singleton.class);
+        bind(LoadGoogleViz.class).in(Singleton.class);
+        bind(ExecutionMode.class).in(Singleton.class);
+        bind(TrackExecutionMode.class).in(Singleton.class);
+        bind(LoadCompatMatrix.class).in(Singleton.class);
+        bind(RegisterSubsystems.class).in(Singleton.class);
+        bind(EagerLoadProfiles.class).in(Singleton.class);
+        bind(HostStoreInit.class).in(Singleton.class);
+        bind(ServerStoreInit.class).in(Singleton.class);
+        bind(EagerLoadGroups.class).in(Singleton.class);
+        bind(BootstrapSteps.class).in(Singleton.class);
+        bind(Bootstrapper.class).in(Singleton.class);
 
+        bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);
         bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
         bind(PlaceRequestSecurityFramework.class).in(Singleton.class);
 
@@ -824,9 +817,7 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // mobile:
         // bindConstant().annotatedWith(GaAccount.class).to("UA-36590267-1");
-
         bindConstant().annotatedWith(GaAccount.class).to("UA-35829315-1");
-
         bind(GoogleAnalytics.class).toProvider(AnalyticsProvider.class).in(Singleton.class);
         bind(NavigationTracker.class).asEagerSingleton();
 
@@ -848,11 +839,13 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(DomainRuntimegateKeeper.class).in(Singleton.class);
 
         bind(CurrentUser.class).in(Singleton.class);
-        bind(BootstrapContext.class).in(Singleton.class);
         bind(ApplicationProperties.class).to(BootstrapContext.class).in(Singleton.class);
         bind(ApplicationMetaData.class).in(Singleton.class);
 
         bind(PreviewContentFactory.class).to(PreviewContentFactoryImpl.class).in(Singleton.class);
+
+        // Load and inject CSS resources
+        bind(ResourceLoader.class).asEagerSingleton();
     }
 
     @Provides Scheduler provideScheduler() {

@@ -22,7 +22,6 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.as.console.spi.GinExtensionBinding;
 
@@ -37,7 +36,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Processor for GIN bindings and modules.
+ * Processor for GIN modules and modules.
  *
  * @author Harald Pehl
  */
@@ -45,70 +44,64 @@ import java.util.Set;
 @SupportedAnnotationTypes({"org.jboss.as.console.spi.GinExtension", "org.jboss.as.console.spi.GinExtensionBinding"})
 public class GinProcessor extends AbstractHalProcessor {
 
-    static final String BINDING_TEMPLATE = "CompositeBinding.ftl";
-    static final String BINDING_PACKAGE = "org.jboss.as.console.client.core.gin";
-    static final String BINDING_CLASS = "CompositeBinding";
+    static final String GINJECTOR_TEMPLATE = "CompositeGinjector.ftl";
+    static final String GINJECTOR_PACKAGE = "org.jboss.as.console.client.core.gin";
+    static final String GINJECTOR_CLASS = "CompositeGinjector";
 
     static final String MODULE_TEMPLATE = "CompositeModule.ftl";
     static final String MODULE_PACKAGE = "org.jboss.as.console.client.core.gin";
-    static final String MODULE_CLASS = "Composite";
+    static final String MODULE_CLASS = "CompositeModule";
 
     /**
-     * Other processors like {@code StoreInitProcessor} generate code which contains {@code @GinExtensionBinding}.
+     * Other processors like {@code StoreInitProcessor} generate code which contains {@code @GinExtensionBinding} annotations.
      * This processor needs to post pone code generation until all other processors finished their code generation.
      * However we cannot use {@link #onLastRound(RoundEnvironment)}, because code which is generated on last round
      * will not be processed by the compiler.
      */
     static final int GENERATE_AT_ROUND = 1;
 
-    private final Set<String> bindings;
+    private final Set<String> ginjectors;
     private final Set<String> modules;
 
     public GinProcessor() {
-        bindings = new HashSet<>();
+        ginjectors = new HashSet<>();
         modules = new HashSet<>();
     }
 
     @Override
     protected boolean onProcess(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (Element e : roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class)) {
-            TypeElement bindingElement = (TypeElement) e;
-            bindings.add(bindingElement.getQualifiedName().toString());
-        }
-
         for (Element e : roundEnv.getElementsAnnotatedWith(GinExtension.class)) {
+            TypeElement moduleElement = (TypeElement) e;
+            ginjectors.add(moduleElement.getQualifiedName().toString());
+        }
+        for (Element e : roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class)) {
             TypeElement moduleElement = (TypeElement) e;
             modules.add(moduleElement.getQualifiedName().toString());
         }
 
         if (round() == GENERATE_AT_ROUND) {
-            if (!bindings.isEmpty()) {
-                debug("Generating composite GIN binding");
-                code(BINDING_TEMPLATE, BINDING_PACKAGE, BINDING_CLASS, new Supplier<Map<String, Object>>() {
-                    @Override
-                    public Map<String, Object> get() {
-                        Map<String, Object> context = new HashMap<>();
-                        context.put("packageName", BINDING_PACKAGE);
-                        context.put("className", BINDING_CLASS);
-                        context.put("bindings", bindings);
-                        return context;
-                    }
+            if (!ginjectors.isEmpty()) {
+                debug("Generating composite ginjector interface");
+                code(GINJECTOR_TEMPLATE, GINJECTOR_PACKAGE, GINJECTOR_CLASS, () -> {
+                    Map<String, Object> context = new HashMap<>();
+                    context.put("packageName", GINJECTOR_PACKAGE);
+                    context.put("className", GINJECTOR_CLASS);
+                    context.put("ginjectors", ginjectors);
+                    context.put("compositeBinding", MODULE_CLASS);
+                    return context;
                 });
-                info("Successfully generated composite GIN binding [%s].", BINDING_CLASS);
-                bindings.clear();
+                info("Successfully generated composite ginjector interface [%s].", GINJECTOR_CLASS);
+                ginjectors.clear();
             }
+
             if (!modules.isEmpty()) {
                 debug("Generating composite GIN module");
-                code(MODULE_TEMPLATE, MODULE_PACKAGE, MODULE_CLASS, new Supplier<Map<String, Object>>() {
-                    @Override
-                    public Map<String, Object> get() {
-                        Map<String, Object> context = new HashMap<>();
-                        context.put("packageName", MODULE_PACKAGE);
-                        context.put("className", MODULE_CLASS);
-                        context.put("modules", modules);
-                        context.put("compositeBinding", BINDING_CLASS);
-                        return context;
-                    }
+                code(MODULE_TEMPLATE, MODULE_PACKAGE, MODULE_CLASS, () -> {
+                    Map<String, Object> context = new HashMap<>();
+                    context.put("packageName", MODULE_PACKAGE);
+                    context.put("className", MODULE_CLASS);
+                    context.put("modules", modules);
+                    return context;
                 });
                 info("Successfully generated composite GIN module [%s].", MODULE_CLASS);
                 modules.clear();

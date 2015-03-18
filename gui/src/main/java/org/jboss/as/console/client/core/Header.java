@@ -38,11 +38,12 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
+import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
-import org.jboss.as.console.client.core.bootstrap.server.BootstrapServerSetup;
+import org.jboss.as.console.client.core.bootstrap.cors.BootstrapServerSetup;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.csp.CustomerSupportLauncher;
@@ -79,6 +80,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     private final BootstrapContext bootstrap;
     private final MessageCenter messageCenter;
     private final PlaceManager placeManager;
+    private final EventBus eventBus;
     private final Harvest harvest;
     private final Index index;
     private final PerspectiveStore perspectiveStore;
@@ -96,14 +98,15 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
-            ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, Harvest harvest, Index index,
-            PerspectiveStore perspectiveStore) {
+                  ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, EventBus eventBus,
+                  Harvest harvest, Index index, PerspectiveStore perspectiveStore) {
         this.featureSet = featureSet;
         this.toplevelTabs = toplevelTabs;
         this.messageCenter = messageCenter;
         this.productConfig = productConfig;
         this.bootstrap = bootstrap;
         this.placeManager = placeManager;
+        this.eventBus = eventBus;
         this.harvest = harvest;
         this.index = index;
         this.perspectiveStore = perspectiveStore;

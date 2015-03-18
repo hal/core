@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.rbac;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.gwtplatform.mvp.client.annotations.DefaultGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
@@ -14,6 +15,7 @@ import javax.inject.Singleton;
  * @author Heiko Braun
  */
 @Singleton
+@DefaultGatekeeper
 public class RBACGatekeeper implements Gatekeeper {
 
     private final RequiredResourcesRegistry requiredResourcesRegistry;

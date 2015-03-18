@@ -1,8 +1,9 @@
-package org.jboss.as.console.client.core.bootstrap;
+package org.jboss.as.console.client.core.bootstrap.hal;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.Command;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.History;
+import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
@@ -18,10 +19,10 @@ import java.util.Set;
  *
  * @author Heiko Braun
  */
-public class LoadMainApp implements Command {
+public class LoadMainApp implements ScheduledCommand {
 
-    // blackisted token can not be linked externally...
-    private static Set<String> BLACK_LIST = new HashSet<String>();
+    // blacklisted token can not be linked externally...
+    private static Set<String> BLACK_LIST = new HashSet<>();
 
     static {
         BLACK_LIST.add(NameTokens.SettingsPresenter);
@@ -41,9 +42,9 @@ public class LoadMainApp implements Command {
         return match;
     }
 
-    private PlaceManager placeManager;
-    private TokenFormatter formatter;
-    private BootstrapContext bootstrapContext;
+    private final PlaceManager placeManager;
+    private final TokenFormatter formatter;
+    private final BootstrapContext bootstrapContext;
 
     public LoadMainApp(BootstrapContext bootstrapContext, PlaceManager placeManager, TokenFormatter formatter) {
         this.bootstrapContext = bootstrapContext;
@@ -58,12 +59,7 @@ public class LoadMainApp implements Command {
             List<PlaceRequest> hierarchy = formatter.toPlaceRequestHierarchy(initialToken);
             final PlaceRequest placeRequest = hierarchy.get(hierarchy.size() - 1);
 
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    placeManager.revealPlace(placeRequest, true);
-                }
-            });
+            Scheduler.get().scheduleDeferred(() -> placeManager.revealPlace(placeRequest, true));
             bootstrapContext.setInitialPlace(placeRequest.getNameToken());
         } else {
             placeManager.revealDefaultPlace();

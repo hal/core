@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.web;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
@@ -94,6 +95,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
     private final DispatchAsync dispatcher;
     private final ApplicationMetaData metaData;
     private final RevealStrategy revealStrategy;
+    private final Scheduler scheduler;
     private final EntityAdapter<JSPContainerConfiguration> containerAdapter;
     private final LoadConnectorCmd loadConnectorCmd;
     private final LoadSocketBindingsCmd socketBinding;
@@ -108,13 +110,14 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
 
     @Inject
     public WebPresenter(EventBus eventBus, MyView view, MyProxy proxy, BeanFactory factory, DispatchAsync dispatcher,
-            ApplicationMetaData metaData, RevealStrategy revealStrategy, CoreGUIContext statementContext) {
+            ApplicationMetaData metaData, RevealStrategy revealStrategy, CoreGUIContext statementContext, Scheduler scheduler) {
         super(eventBus, view, proxy);
 
         this.factory = factory;
         this.dispatcher = dispatcher;
         this.metaData = metaData;
         this.revealStrategy = revealStrategy;
+        this.scheduler = scheduler;
 
         this.containerAdapter = new EntityAdapter<JSPContainerConfiguration>(JSPContainerConfiguration.class, metaData);
         this.loadConnectorCmd = new LoadConnectorCmd(dispatcher, factory, false);
@@ -339,13 +342,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Connector " + name), response.getFailureDescription());
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadConnectors();
-                    }
-                });
-
+                scheduler.scheduleDeferred(WebPresenter.this::loadConnectors);
             }
         });
     }
@@ -394,12 +391,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                 else
                     Console.error(Console.MESSAGES.addingFailed("Connector " + entity.getName()), response.getFailureDescription());
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadConnectors();
-                    }
-                });
+                scheduler.scheduleDeferred(WebPresenter.this::loadConnectors);
             }
         });
     }
@@ -437,13 +429,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                 else
                     Console.error(Console.MESSAGES.added("Virtual Server " + server.getName()), response.getFailureDescription());
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadVirtualServer();
-                    }
-                });
-
+                scheduler.scheduleDeferred(WebPresenter.this::loadVirtualServer);
             }
         });
     }
@@ -486,12 +472,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                 else
                     Console.error(Console.MESSAGES.modificationFailed("Virtual Server " + name));
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadVirtualServer();
-                    }
-                });
+                scheduler.scheduleDeferred(WebPresenter.this::loadVirtualServer);
             }
         });
     }
@@ -514,13 +495,7 @@ public class WebPresenter extends Presenter<WebPresenter.MyView, WebPresenter.My
                 else
                     Console.error(Console.MESSAGES.deletionFailed("Virtual Server " + name));
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadVirtualServer();
-                    }
-                });
-
+                scheduler.scheduleDeferred(WebPresenter.this::loadVirtualServer);
             }
         });
     }

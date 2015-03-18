@@ -19,6 +19,7 @@
 
 package org.jboss.as.console.client.shared.subsys.messaging;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.Command;
@@ -111,6 +112,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
 
     private final PlaceManager placeManager;
     private final CoreGUIContext statementContext;
+    private final Scheduler scheduler;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private MessagingProvider providerEntity;
@@ -136,7 +138,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
             BeanFactory factory, RevealStrategy revealStrategy,
-            ApplicationMetaData propertyMetaData, CoreGUIContext statementContext) {
+            ApplicationMetaData propertyMetaData, CoreGUIContext statementContext, Scheduler scheduler) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -145,6 +147,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         this.revealStrategy = revealStrategy;
         this.metaData = propertyMetaData;
         this.statementContext = statementContext;
+        this.scheduler = scheduler;
 
         /* this.queueAdapter = new EntityAdapter<Queue>(
                 Queue.class,
@@ -742,13 +745,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
                 else
                     Console.error(Console.MESSAGES.addingFailed("Queue " + entity.getName()), response.toString());
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadJMSConfig();
-                    }
-                });
-
+                scheduler.scheduleDeferred(MsgDestinationsPresenter.this::loadJMSConfig);
             }
         });
 
@@ -907,13 +904,7 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
                 else
                     Console.error(Console.MESSAGES.addingFailed("Topic " + entity.getName()), response.toString());
 
-                Console.schedule(new Command() {
-                    @Override
-                    public void execute() {
-                        loadJMSConfig();
-                    }
-                });
-
+                scheduler.scheduleDeferred(MsgDestinationsPresenter.this::loadJMSConfig);
             }
         });
     }

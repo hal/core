@@ -64,6 +64,12 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.as</groupId>
+                <artifactId>hal-processors</artifactId>
+                <version>${project.version}</version>
+                <classifier>sources</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.as</groupId>
                 <artifactId>console-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>

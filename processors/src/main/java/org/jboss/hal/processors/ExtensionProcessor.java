@@ -22,7 +22,6 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
@@ -92,15 +91,12 @@ public class ExtensionProcessor extends AbstractHalProcessor {
         if (!subsytemExtensions.isEmpty()) {
             debug("Generating subsystem extension registry");
             code(SUBSYSTEM_EXTENSION_TEMPLATE, SUBSYSTEM_EXTENSION_PACKAGE, SUBSYSTEM_EXTENSION_CLASS,
-                    new Supplier<Map<String, Object>>() {
-                        @Override
-                        public Map<String, Object> get() {
-                            Map<String, Object> context = new HashMap<>();
-                            context.put("packageName", SUBSYSTEM_EXTENSION_PACKAGE);
-                            context.put("className", SUBSYSTEM_EXTENSION_CLASS);
-                            context.put("subsystemExtensions", subsytemExtensions);
-                            return context;
-                        }
+                    () -> {
+                        Map<String, Object> context = new HashMap<>();
+                        context.put("packageName", SUBSYSTEM_EXTENSION_PACKAGE);
+                        context.put("className", SUBSYSTEM_EXTENSION_CLASS);
+                        context.put("subsystemExtensions", subsytemExtensions);
+                        return context;
                     });
             info("Successfully generated subsystem extension registry [%s].", SUBSYSTEM_EXTENSION_CLASS);
             subsytemExtensions.clear();
@@ -109,15 +105,12 @@ public class ExtensionProcessor extends AbstractHalProcessor {
         if (!runtimeExtensions.isEmpty()) {
             debug("Generating runtime extension registry");
             code(RUNTIME_EXTENSION_TEMPLATE, RUNTIME_EXTENSION_PACKAGE, RUNTIME_EXTENSION_CLASS,
-                    new Supplier<Map<String, Object>>() {
-                        @Override
-                        public Map<String, Object> get() {
-                            Map<String, Object> context = new HashMap<>();
-                            context.put("packageName", RUNTIME_EXTENSION_PACKAGE);
-                            context.put("className", RUNTIME_EXTENSION_CLASS);
-                            context.put("runtimeExtensions", runtimeExtensions);
-                            return context;
-                        }
+                    () -> {
+                        Map<String, Object> context = new HashMap<>();
+                        context.put("packageName", RUNTIME_EXTENSION_PACKAGE);
+                        context.put("className", RUNTIME_EXTENSION_CLASS);
+                        context.put("runtimeExtensions", runtimeExtensions);
+                        return context;
                     });
             info("Successfully generated runtime extension registry [%s].", RUNTIME_EXTENSION_CLASS);
             runtimeExtensions.clear();

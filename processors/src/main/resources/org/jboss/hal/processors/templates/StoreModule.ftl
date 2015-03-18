@@ -5,17 +5,22 @@ package ${packageName};
 
 import javax.annotation.Generated;
 
-import org.jboss.as.console.spi.GinExtension;
+import com.google.inject.Singleton;
+import com.google.gwt.inject.client.AbstractGinModule;
+import org.jboss.as.console.spi.GinExtensionBinding;
 
 /*
 * WARNING! This class is generated. Do not modify.
 */
-@GinExtension
+@GinExtensionBinding
 @Generated("org.jboss.hal.processors.StoreInitProcessor")
-public interface ${className} {
+public class ${className} extends AbstractGinModule {
 
-    <#list storeInfos as storeInfo>
-    ${storeInfo.packageName}.${storeInfo.storeDelegate} get${storeInfo.storeDelegate}();
-    ${storeInfo.packageName}.${storeInfo.storeAdapter} get${storeInfo.storeAdapter}();
-    </#list>
+    @Override
+    protected void configure() {
+        <#list storeInfos as storeInfo>
+        bind(${storeInfo.packageName}.${storeInfo.storeDelegate}.class).in(Singleton.class);
+        bind(${storeInfo.packageName}.${storeInfo.storeAdapter}.class).asEagerSingleton();
+        </#list>
+    }
 }

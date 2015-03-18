@@ -24,6 +24,7 @@ package org.jboss.gwt.flow.client;
  * @author Heiko Braun
  * @date 3/8/13
  */
+@FunctionalInterface
 public interface Function<C> {
     void execute(Control<C> control);
 }
