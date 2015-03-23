@@ -24,7 +24,6 @@ package org.jboss.as.console.client.v3.dmr;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -73,7 +72,7 @@ public class ResourceDescription extends ModelNode {
      * @param resourceName The name of the child resource
      * @return the description of the child resource or {@link #EMPTY} if no such resource exists.
      */
-    public ResourceDescription getChildDescription(@NotNull String resourceName) {
+    public ResourceDescription getChildDescription(String resourceName) {
         return getChildDescription(resourceName, "*");
     }
 
@@ -83,7 +82,7 @@ public class ResourceDescription extends ModelNode {
      * @param instanceName The name of the instance
      * @return the description of the specific child resource or {@link #EMPTY} if no such resource exists.
      */
-    public ResourceDescription getChildDescription(@NotNull String resourceName, @NotNull String instanceName) {
+    public ResourceDescription getChildDescription(String resourceName, String instanceName) {
         if (hasChildren()) {
             List<Property> children = get("children").asPropertyList();
             for (Property child : children) {

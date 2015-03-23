@@ -84,6 +84,7 @@
 
 
     <properties>
+        <gwt.version>2.8.0.jboss1</gwt.version>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <version.gwt.maven.plugin>2.8.0-SNAPSHOT</version.gwt.maven.plugin>
@@ -120,6 +121,23 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>gwt-maven-plugin</artifactId>
                     <version>${version.gwt.maven.plugin}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-user</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-dev</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.google.gwt</groupId>
+                            <artifactId>gwt-codeserver</artifactId>
+                            <version>${gwt.version}</version>
+                        </dependency>
+                    </dependencies>                    
                 </plugin>
                 <plugin>
                     <groupId>org.zanata</groupId>

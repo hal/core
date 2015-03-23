@@ -26,7 +26,6 @@ import com.google.common.base.Joiner;
 import org.jboss.dmr.client.ModelNode;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 /**
@@ -61,7 +60,7 @@ public class AddressTemplate {
 
     // ------------------------------------------------------ factory
 
-    public static AddressTemplate of(@NotNull String template) {
+    public static AddressTemplate of(String template) {
         return new AddressTemplate(template);
     }
 
@@ -141,7 +140,7 @@ public class AddressTemplate {
      * @param template the template to append (makes no difference whether it starts with "/" or not)
      * @return a new template
      */
-    public AddressTemplate append(@NotNull String template) {
+    public AddressTemplate append(String template) {
         String slashTemplate = template.startsWith("/") ? template : "/" + template;
         return AddressTemplate.of(this.template + slashTemplate);
     }
