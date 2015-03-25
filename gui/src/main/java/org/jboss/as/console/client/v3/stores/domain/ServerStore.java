@@ -102,15 +102,15 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = GroupSelection.class)
-    public void onSelectGroup(String groupName, final Dispatcher.Channel channel) {
-        this.selectedGroup = groupName;
+    public void onSelectGroup(GroupSelection selection, final Dispatcher.Channel channel) {
+        this.selectedGroup = selection.getGroupName();
         channel.ack();
     }
 
     @Process(actionType = SelectServer.class)
-    public void onSelectServer(String server, String host, final Dispatcher.Channel channel) {
+    public void onSelectServer(SelectServer selection, final Dispatcher.Channel channel) {
 
-        this.selectServer = new ServerRef(host, server);
+        this.selectServer = new ServerRef(selection.getHost(), selection.getServer());
         channel.ack();
 
     }
@@ -300,8 +300,8 @@ public class ServerStore extends ChangeSupport {
     }
 
     @Process(actionType = FilterType.class)
-    public void onSetFilter(final String filter, final Dispatcher.Channel channel) {
-        this.filter = filter;
+    public void onSetFilter(final FilterType filter, final Dispatcher.Channel channel) {
+        this.filter = filter.getFilter();
         channel.ack();
     }
 

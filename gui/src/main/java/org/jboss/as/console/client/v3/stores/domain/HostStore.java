@@ -226,7 +226,7 @@ public class HostStore extends ChangeSupport {
 
     @Process(actionType = RemoveServer.class)
     public void onRemoveServer(final RemoveServer action, final Dispatcher.Channel channel) {
-        if(action.getServer().getServerName().equals(selectedServer)) {
+        if(action.getServerRef().getServerName().equals(selectedServer)) {
             this.selectedServer = null;
             channel.ack(true);
         }
