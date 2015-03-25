@@ -19,6 +19,7 @@ import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.BeanMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -170,7 +171,10 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
 
     @Override
     protected void revealInParent() {
-        RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
+        if(Console.getBootstrapContext().isStandalone())
+            RevealContentEvent.fire(this, ServerMgmtApplicationPresenter.TYPE_MainContent, this);
+        else
+            RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
     }
 
     public void closeDialoge() {

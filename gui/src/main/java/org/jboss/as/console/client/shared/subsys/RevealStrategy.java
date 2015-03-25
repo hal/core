@@ -48,7 +48,7 @@ public class RevealStrategy {
 
     public void revealInParent(final Presenter presenter) {
          if(bootstrap.isStandalone())
-            RevealContentEvent.fire(presenter, ServerMgmtApplicationPresenter.TYPE_MainContent, presenter);
+            RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_MainContent, presenter);
         else
             RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_MainContent, presenter);
     }

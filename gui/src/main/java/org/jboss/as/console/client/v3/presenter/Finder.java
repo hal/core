@@ -1,7 +1,7 @@
 package org.jboss.as.console.client.v3.presenter;
 
 /**
- * Currently a simple marker interface
+ * A marker interface used to instruct MainLayoutImpl to displays specific options
  *
  * @author Heiko Braun
  * @since 03/03/15

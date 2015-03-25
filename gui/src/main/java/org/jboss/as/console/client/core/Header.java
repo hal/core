@@ -560,7 +560,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
                 for (int i = 0; i <= breadcrumbMgr.getBreadcrumbCursor(); i++) {
                     BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
-                    html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
+                    html.appendEscaped(item.getKey()).appendEscaped(":").appendHtmlConstant("&nbsp;").appendEscaped(item.getValue());
 
                     if (i <= breadcrumbMgr.getBreadcrumbCursor() - 1) {
                         html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");

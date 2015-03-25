@@ -87,8 +87,8 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
         tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
             tabs.add(new Config(NameTokens.DeploymentBrowserPresenter, "Deployments", true));
-            tabs.add(new Config(NameTokens.ServerProfile, "Configuration", false));
-            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", false));
+            tabs.add(new Config(NameTokens.ServerProfile, "Configuration", true));
+            tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", true));
         } else {
             tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", true));
             tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "Configuration", true));
