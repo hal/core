@@ -554,24 +554,25 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
             String nameToken = placeManager.getCurrentPlaceHierarchy().get(0).getNameToken();
             BreadcrumbMgr breadcrumbMgr = breadcrumbs.get(nameToken);
 
-            // update the breadcrumb
-            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            if(breadcrumbMgr!=null) {
+                // update the breadcrumb
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
 
-            for(int i=0; i<=breadcrumbMgr.getBreadcrumbCursor(); i++)
-            {
-                BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
-                html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
+                for (int i = 0; i <= breadcrumbMgr.getBreadcrumbCursor(); i++) {
+                    BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
+                    html.appendEscaped(item.getKey()).appendEscaped("=").appendEscaped(item.getValue());
 
-                if(i<=breadcrumbMgr.getBreadcrumbCursor()-1) {
-                    html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
+                    if (i <= breadcrumbMgr.getBreadcrumbCursor() - 1) {
+                        html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
+                    }
                 }
+
+                breadcrumb.setHTML(html.toSafeHtml());
+
+                // swap sub-navigation
+                outerLayout.setWidgetVisible(bottom, false);
+                outerLayout.setWidgetVisible(alternateSubNav, true);
             }
-
-            breadcrumb.setHTML(html.toSafeHtml());
-
-            // swap sub-navigation
-            outerLayout.setWidgetVisible(bottom, false);
-            outerLayout.setWidgetVisible(alternateSubNav, true);
 
         }
         else
