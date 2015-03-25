@@ -63,13 +63,12 @@ public class ServerMgmtApplicationPresenter extends
 
     private PlaceManager placeManager;
     private SubsystemStore subsysStore;
+    private final Header header;
     private final UnauthorisedPresenter unauthorisedPresenter;
     private final Dispatcher circuit;
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
-
-
 
     @NoGatekeeper
     @ProxyCodeSplit
@@ -94,6 +93,7 @@ public class ServerMgmtApplicationPresenter extends
 
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
+        this.header = header;
 
         this.unauthorisedPresenter = unauthorisedPresenter;
         this.circuit = circuit;
@@ -114,6 +114,12 @@ public class ServerMgmtApplicationPresenter extends
                 getView().updateFrom(subsystems);
             }
         });
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        header.highlight(getProxy().getNameToken());
     }
 
     @Override

@@ -48,7 +48,7 @@ import static org.jboss.as.console.client.shared.util.IdHelper.setId;
  */
 public class LogFilePanel extends Composite implements LogFilesId {
 
-    private final static int HEADER_HEIGHT = 48 + 35;
+    private final static int HEADER_HEIGHT = 48 + 35+20;
     private final static int TOOLS_HEIGHT = 32;
     private final static int MARGIN_BOTTOM = 20;
 
