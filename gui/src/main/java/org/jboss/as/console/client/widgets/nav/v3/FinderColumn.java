@@ -189,6 +189,10 @@ public class FinderColumn<T> {
                     }
 
                 }
+                else if(isClick && 0==event.getColumn())
+                {
+                    triggerPreviewEvent();
+                }
             }
         });
 
@@ -228,8 +232,8 @@ public class FinderColumn<T> {
                             PreviewEvent.fire(placeManager, content);
                         }
                     });
-
                 }
+
             }
         });
     }
