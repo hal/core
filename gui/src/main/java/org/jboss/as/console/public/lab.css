@@ -556,3 +556,11 @@
     white-space: nowrap;
     overflow: hidden;
 }
+
+.preview-content {
+    max-width: 600px;
+    height:100%;
+    padding-left:50px;
+    padding-right:50px;
+    padding-top:20px;
+}

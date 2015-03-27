@@ -106,6 +106,8 @@ import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SearchIndexRegistryImpl;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
+import org.jboss.as.console.client.preview.PreviewContentFactoryImpl;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
@@ -842,6 +844,8 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(BootstrapContext.class).in(Singleton.class);
         bind(ApplicationProperties.class).to(BootstrapContext.class).in(Singleton.class);
         bind(ApplicationMetaData.class).in(Singleton.class);
+
+        bind(PreviewContentFactory.class).to(PreviewContentFactoryImpl.class).in(Singleton.class);
     }
 
     @Provides Scheduler provideScheduler() {

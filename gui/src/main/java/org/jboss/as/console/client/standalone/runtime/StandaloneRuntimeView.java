@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -248,10 +249,11 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override
-            public SafeHtml createPreview(PlaceLink data) {
+            public void createPreview(PlaceLink data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
-                return builder.toSafeHtml();
+                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
+                builder.appendHtmlConstant("</div>");
+                callback.onSuccess(builder.toSafeHtml());
             }
         });
 
@@ -346,9 +348,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             @Override
             public void execute() {
                 previewCanvas.clear();
-                HTML widget = new HTML(html);
-                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
-                previewCanvas.add(widget);
+                previewCanvas.add(new HTML(html));
             }
         });
 

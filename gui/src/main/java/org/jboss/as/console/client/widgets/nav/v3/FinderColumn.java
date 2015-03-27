@@ -17,6 +17,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -31,6 +32,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
 import java.util.List;
@@ -64,11 +66,12 @@ public class FinderColumn<T> {
      */
     private final PreviewFactory DEFAULT_PREVIEW = new PreviewFactory() {
         @Override
-        public SafeHtml createPreview(Object data) {
+        public void createPreview(Object data, AsyncCallback callback) {
             SafeHtmlBuilder builder = new SafeHtmlBuilder();
             String icon = display.isFolder(data) ? "icon-folder-close-alt" : "icon-file-text-alt";
             builder.appendHtmlConstant("<center><i class='"+icon+"' style='font-size:48px;top:100px;position:relative'></i></center>");
-            return builder.toSafeHtml();
+
+            callback.onSuccess(builder.toSafeHtml());
         }
     };
 
@@ -219,7 +222,13 @@ public class FinderColumn<T> {
                 final T selectedObject = selectionModel.getSelectedObject();
 
                 if(selectedObject!=null) {
-                    PreviewEvent.fire(placeManager, getPreview(selectedObject));
+                    previewFactory.createPreview(selectedObject, new SimpleCallback<SafeHtml>() {
+                        @Override
+                        public void onSuccess(SafeHtml content) {
+                            PreviewEvent.fire(placeManager, content);
+                        }
+                    });
+
                 }
             }
         });
@@ -460,7 +469,4 @@ public class FinderColumn<T> {
         }
     }*/
 
-    public SafeHtml getPreview(T data) {
-        return previewFactory.createPreview(data);
-    }
 }

@@ -69,6 +69,7 @@ import org.jboss.as.console.client.plugins.RequiredResourcesRegistry;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFramework;
@@ -396,4 +397,6 @@ public interface CoreUI {
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
 
     RequiredResourcesProcessor getRequiredResourcesProcessor();
+
+    PreviewContentFactory getPreviewContentFactory();
 }

@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -248,14 +249,16 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<Server>() {
-            @Override
-            public SafeHtml createPreview(Server data) {
 
+            @Override
+            public void createPreview(Server data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<h2>").appendEscaped("Server Configuration").appendHtmlConstant("</h2>");
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Server Configuration").appendHtmlConstant("</h2>");
                 html.appendEscaped("Each \"Server\" in the above diagram represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. (In a managed domain the end user cannot directly launch a server process from the command line.)");
-                return html.toSafeHtml();
+                html.appendHtmlConstant("</div>");
+                callback.onSuccess(html.toSafeHtml());
             }
+
         });
 
 
@@ -386,10 +389,11 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override
-            public SafeHtml createPreview(PlaceLink data) {
+            public void createPreview(PlaceLink data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<center><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
-                return builder.toSafeHtml();
+                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
+                builder.appendHtmlConstant("</div>");
+                callback.onSuccess(builder.toSafeHtml());
             }
         });
 
@@ -515,9 +519,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
             @Override
             public void execute() {
                 previewCanvas.clear();
-                HTML widget = new HTML(html);
-                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
-                previewCanvas.add(widget);
+                previewCanvas.add(new HTML(html));
             }
         });
 

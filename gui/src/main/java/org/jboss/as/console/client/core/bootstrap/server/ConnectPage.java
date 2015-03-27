@@ -74,7 +74,7 @@ public class ConnectPage implements IsWidget {
                         Window.Location.replace(GWT.getHostPageBaseURL());
                     }
                 }
-        );
+        ).showCancel(false);
 
         return new WindowContentBuilder(content, options).build();
     }

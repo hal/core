@@ -6,6 +6,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -105,12 +106,12 @@ public class ColumnServerView extends SuspendableViewImpl
 
         config.setPreviewFactory(new PreviewFactory<FinderItem>() {
             @Override
-            public SafeHtml createPreview(FinderItem data) {
-
+            public void createPreview(FinderItem data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<h2>").appendEscaped(data.getTitle()).appendHtmlConstant("</h2>");
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped(data.getTitle()).appendHtmlConstant("</h2>");
                 html.appendEscaped(resolveDescriptionFor(data.getTitle()));
-                return html.toSafeHtml();
+                html.appendHtmlConstant("</div>");
+                callback.onSuccess(html.toSafeHtml());
             }
         });
 
@@ -442,9 +443,7 @@ public class ColumnServerView extends SuspendableViewImpl
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
-                    HTML widget = new HTML(html);
-                    widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
-                    contentCanvas.add(widget);
+                    contentCanvas.add(new HTML(html));
                 }
             });
         }

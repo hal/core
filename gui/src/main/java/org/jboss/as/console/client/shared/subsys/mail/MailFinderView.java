@@ -159,9 +159,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
             @Override
             public void execute() {
                 previewCanvas.clear();
-                HTML widget = new HTML(html);
-                widget.getElement().setAttribute("style", "position:relative;top:100px;margin:0 auto;width:350px;overflow:hidden;padding-top:100px");
-                previewCanvas.add(widget);
+                previewCanvas.add(new HTML(html));
             }
         });
 

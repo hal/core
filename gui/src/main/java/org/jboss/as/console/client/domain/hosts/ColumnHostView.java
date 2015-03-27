@@ -11,6 +11,7 @@ import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -114,12 +115,12 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts.setPreviewFactory(new PreviewFactory<String>() {
             @Override
-            public SafeHtml createPreview(String data) {
-
+            public void createPreview(String data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<h2>").appendEscaped("Host Configuration").appendHtmlConstant("</h2>");
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Host Configuration").appendHtmlConstant("</h2>");
                 html.appendEscaped("One of the primary new features of WildFly 8 is the ability to manage multiple WildFly instances from a single control point. A collection of such servers is referred to as the members of a \"domain\" with a single Domain Controller process acting as the central management control point. All of the WildFly 8 instances in the domain share a common management policy, with the Domain Controller acting to ensure that each server is configured according to that policy. Domains can span multiple physical (or virtual) machines, with all WildFly 8 instances on a given host under the control of a special Host Controller process. One Host Controller instance is configured to act as the central Domain Controller. The Host Controller on each host interacts with the Domain Controller to control the lifecycle of the application server instances running on its host and to assist the Domain Controller in managing them.");
-                return html.toSafeHtml();
+                html.appendHtmlConstant("</div>");
+                callback.onSuccess(html.toSafeHtml());
             }
         });
 
@@ -156,12 +157,12 @@ public class ColumnHostView extends SuspendableViewImpl
 
         groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
             @Override
-            public SafeHtml createPreview(ServerGroupRecord data) {
-
+            public void createPreview(ServerGroupRecord data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<h2>").appendEscaped("Server Groups").appendHtmlConstant("</h2>");
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Server Groups").appendHtmlConstant("</h2>");
                 html.appendEscaped("A server group is set of server instances that will be managed and configured as one. In a managed domain each application server instance is a member of a server group. (Even if the group only has a single server, the server is still a member of a group.) It is the responsibility of the Domain Controller and the Host Controllers to ensure that all servers in a server group have a consistent configuration. They should all be configured with the same profile and they should have the same deployment content deployed.");
-                return html.toSafeHtml();
+                html.appendHtmlConstant("</div>");
+                callback.onSuccess(html.toSafeHtml());
             }
         });
 

@@ -17,7 +17,7 @@ public class PreviewContentFactoryImpl implements PreviewContentFactory {
     @Override
     public void createContent(final ExternalTextResource resource, AsyncCallback<SafeHtml> callback) {
         try {
-            PreviewContent.INSTANCE.profiles_empty().getText(
+            resource.getText(
                     new ResourceCallback<TextResource>() {
                         @Override
                         public void onError(ResourceException e) {

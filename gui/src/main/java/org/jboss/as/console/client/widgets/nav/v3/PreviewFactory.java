@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
  * @author Heiko Braun
@@ -8,5 +9,5 @@ import com.google.gwt.safehtml.shared.SafeHtml;
  */
 public interface PreviewFactory<T> {
 
-    SafeHtml createPreview(T data);
+    void createPreview(T data, AsyncCallback<SafeHtml> callback);
 }
