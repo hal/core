@@ -2,8 +2,11 @@ package org.jboss.as.console.client.domain.profiles;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
+import com.google.gwt.resources.client.ResourcePrototype;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
@@ -253,16 +256,18 @@ public class ColumnProfileView extends SuspendableViewImpl
                     }
                 });
 
-       /* profiles.setPreviewFactory(new PreviewFactory<ProfileRecord>() {
-            @Override
-            public SafeHtml createPreview(ProfileRecord data) {
+        profiles.setPreviewFactory(new PreviewFactory<ProfileRecord>() {
 
-                SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<h2>").appendEscaped("Configuration Profile").appendHtmlConstant("</h2>");
-                html.appendEscaped(resolveDescriptionFor("Profiles"));
-                return html.toSafeHtml();
+            @Override
+            public void createPreview(ProfileRecord data, AsyncCallback<SafeHtml> callback) {
+
+                final PreviewContent previewContent = PreviewContent.INSTANCE;
+                contentFactory.createContent(
+                        previewContent.profiles_profile(),
+                        callback
+                );
             }
-        });*/
+        });
 
         profileColWidget = profiles.asWidget();
 
@@ -312,6 +317,24 @@ public class ColumnProfileView extends SuspendableViewImpl
                 });
             }
         }));
+
+        subsystems.setPreviewFactory(new PreviewFactory<SubsystemLink>() {
+            @Override
+            public void createPreview(SubsystemLink data, AsyncCallback<SafeHtml> callback) {
+                PreviewContent content = PreviewContent.INSTANCE;
+                ExternalTextResource resource = (ExternalTextResource)content.getResource(data.getToken());
+                if(resource!=null) {
+                    contentFactory.createContent(resource, callback);
+                }
+                else
+                {
+                    SafeHtmlBuilder html = new SafeHtmlBuilder();
+                    html.appendEscaped("No content for '"+data.getToken()+"'");
+                    callback.onSuccess(html.toSafeHtml());
+                }
+
+            }
+        });
 
         subsystColWidget = subsystems.asWidget();
 

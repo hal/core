@@ -1,14 +1,14 @@
 package org.jboss.as.console.client.preview;
 
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.ClientBundleWithLookup;
 import com.google.gwt.resources.client.ExternalTextResource;
 
 /**
  * @author Heiko Braun
  * @since 27/03/15
  */
-public interface PreviewContent extends ClientBundle {
+public interface PreviewContent extends ClientBundleWithLookup {
     PreviewContent INSTANCE = GWT.create(PreviewContent.class);
 
     @Source("profiles_empty.html")
@@ -28,5 +28,14 @@ public interface PreviewContent extends ClientBundle {
 
     @Source("properties.html")
     ExternalTextResource properties();
+
+
+    // subsystems below (referenced by name token)
+
+    @Source("subsystems/jca.html")
+    ExternalTextResource jca();
+
+    @Source("subsystems/datasources.html")
+    ExternalTextResource datasources();
 
 }
