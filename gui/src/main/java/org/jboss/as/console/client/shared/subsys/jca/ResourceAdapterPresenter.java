@@ -13,8 +13,11 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
+import com.allen_sauer.gwt.log.client.Log;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -364,12 +367,15 @@ public class ResourceAdapterPresenter
         System.out.println(operation);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                super.onFailure(caught);
-                loadAdapter(false);
-            }
+        	
+			@Override
+			public void onFailure(Throwable caught) {
+				Log.error("Unknown error", caught);
+				Console.getMessageCenter().notify(
+						new Message(Console.MESSAGES.failedToAddResourceAdapter(ra
+										.getName()), caught.getMessage(), Message.Severity.Error));
+				loadAdapter(false);
+			}
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
