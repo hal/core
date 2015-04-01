@@ -264,4 +264,6 @@ public interface UIMessages extends Messages {
     String search_popup_description(String shortcut);
 
     String patch_manager_restart_verify(String host);
+
+    String failedToAddResourceAdapter(String name);
 }
