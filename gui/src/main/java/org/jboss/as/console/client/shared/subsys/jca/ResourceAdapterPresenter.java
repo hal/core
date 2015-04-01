@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -11,13 +12,10 @@ import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.client.proxy.Proxy;
-import com.allen_sauer.gwt.log.client.Log;
-
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -290,10 +288,11 @@ public class ResourceAdapterPresenter
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
-                if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.deleted("Resource Adapter "+ra.getName()));
+                if (ModelNodeUtil.indicatesSuccess(result))
+                    Console.info(Console.MESSAGES.deleted("Resource Adapter " + ra.getName()));
                 else
-                    Console.error(Console.MESSAGES.deletionFailed("Resource Adapter "+ra.getName()), result.toString());
+                    Console.error(Console.MESSAGES.deletionFailed("Resource Adapter " + ra.getName()),
+                            result.toString());
 
                 loadAdapter(false);
             }
@@ -324,7 +323,7 @@ public class ResourceAdapterPresenter
                 ModelNode response = result.get();
                 boolean success = response.get(OUTCOME).asString().equals(SUCCESS);
 
-                if(success)
+                if (success)
                     Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getName()));
                 else
                     Console.error(Console.MESSAGES.saveFailed("Resource Adapter " + ra.getName()),
@@ -370,21 +369,19 @@ public class ResourceAdapterPresenter
         	
 			@Override
 			public void onFailure(Throwable caught) {
-				Log.error("Unknown error", caught);
-				Console.getMessageCenter().notify(
-						new Message(Console.MESSAGES.failedToAddResourceAdapter(ra
-										.getName()), caught.getMessage(), Message.Severity.Error));
+				Log.error("Adding resource adapter failed: " + caught.getMessage(), caught);
+                Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), caught.getMessage());
 				loadAdapter(false);
 			}
 
             @Override
             public void onSuccess(DMRResponse dmrResponse) {
                 ModelNode result = dmrResponse.get();
-                if(ModelNodeUtil.indicatesSuccess(result))
+                if (ModelNodeUtil.indicatesSuccess(result)) {
                     Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getName()));
-                else
+                } else {
                     Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), result.toString());
-
+                }
                 loadAdapter(false);
             }
         });
