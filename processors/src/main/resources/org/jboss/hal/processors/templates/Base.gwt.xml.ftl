@@ -26,7 +26,6 @@
 <module>
 
     <inherits name="org.jboss.as.console.App"/>
-    <inherits name="com.google.gwt.core.CompilerParameters"/>
 
 <#assign keys = properties?keys>
 <#list keys as key>
