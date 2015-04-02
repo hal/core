@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface InterfaceManagement {
 
-    public interface Callback {
+    interface Callback {
         void loadInterfaces();
         ModelNode getBaseAddress();
     }

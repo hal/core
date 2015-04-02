@@ -10,7 +10,7 @@ import org.jboss.as.console.client.shared.general.InterfaceManagement;
 import org.jboss.as.console.client.shared.general.model.Interface;
 import org.jboss.as.console.client.shared.general.validation.ValidationResult;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -37,63 +37,44 @@ public class NewInterfaceWizard {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        final Form<Interface> form = new Form(Interface.class);
+        final Form<Interface> form = new Form<>(Interface.class);
         errorMessages.setStyleName("error-panel");
 
         TextBoxItem nameItem = new TextBoxItem("name", "Name");
-
         TextBoxItem inetAddress = new TextBoxItem("inetAddress", "Inet Address", false);
-
-        final ComboBoxItem anyAddress = new ComboBoxItem("addressWildcard", "Address Wildcard") {
-            {
-                isRequired = false;
-            }
-        };
-
-        anyAddress.setDefaultToFirstOption(true);
-        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS, Interface.ANY_IP4, Interface.ANY_IP6});
-
+        CheckBoxItem anyAddress = new CheckBoxItem("anyAddress", "Any Address");
         form.setFields(nameItem, inetAddress, anyAddress);
 
         DialogueOptions options = new DialogueOptions(
-
                 // save
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
 
                         FormValidation validation = form.validate();
-                        if(!validation.hasErrors())
-                        {
+                        if (!validation.hasErrors()) {
                             Interface entity = form.getUpdatedEntity();
 
                             // otherwise the validation rejects it as unmodified
-                            Map<String,Object> changedValues = form.getChangedValues();
+                            Map<String, Object> changedValues = form.getChangedValues();
                             changedValues.put("name", entity.getName());
                             changedValues.put("inetAddress", entity.getInetAddress());
-                            changedValues.put("addressWildcard", entity.getAddressWildcard());
+                            changedValues.put("anyAddress", entity.isAnyAddress());
 
                             errorMessages.setHTML("");
-
                             ValidationResult result = presenter.validateInterfaceConstraints(entity, changedValues);
-
-                            if(result.isValid())
-                            {
+                            if (result.isValid()) {
                                 presenter.createNewInterface(entity);
-                            }
-                            else
-                            {
+                            } else {
                                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                                int i=0;
-                                for(String detail : result.getMessages())
-                                {
-                                    if(i==0) html.appendHtmlConstant("<b>");
+                                int i = 0;
+                                for (String detail : result.getMessages()) {
+                                    if (i == 0) { html.appendHtmlConstant("<b>"); }
                                     html.appendEscaped(detail).appendHtmlConstant("<br/>");
-                                    if(i==0) html.appendHtmlConstant("</b>");
+                                    if (i == 0) { html.appendHtmlConstant("</b>"); }
 
                                     i++;
                                 }
-
                                 errorMessages.setHTML(html.toSafeHtml());
                             }
                         }
@@ -125,9 +106,7 @@ public class NewInterfaceWizard {
                 }, form
         );
         layout.add(helpPanel.asWidget());
-
         layout.add(formWidget);
-
         layout.add(errorMessages);
 
         return new WindowContentBuilder(layout, options).build();

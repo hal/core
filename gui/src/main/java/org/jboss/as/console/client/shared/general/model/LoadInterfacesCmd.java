@@ -73,22 +73,11 @@ public class LoadInterfacesCmd implements AsyncCommand<List<Interface>>{
                 List<Property> payload = response.get(RESULT).asPropertyList();
 
                 List<Interface> interfaces = new ArrayList<Interface>(payload.size());
-                for(Property property : payload)
-                {
+                for (Property property : payload) {
                     ModelNode item = property.getValue();
                     Interface intf = entityAdapter.fromDMR(item);
-
-                    if(intf.isAnyAddress())
-                        intf.setAddressWildcard(Interface.ANY_ADDRESS);
-                    else if(intf.isAnyIP4Address())
-                        intf.setAddressWildcard(Interface.ANY_IP4);
-                    else if(intf.isAnyIP6Address())
-                        intf.setAddressWildcard(Interface.ANY_IP6);
-
                     interfaces.add(intf);
-
                 }
-
                 callback.onSuccess(interfaces);
             }
         });

@@ -17,7 +17,6 @@ import org.jboss.as.console.client.shared.general.validation.ValidationResult;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -44,7 +43,6 @@ public class InterfaceEditor {
     private String description = null;
     private InterfaceManagement presenter;
     private Form<Interface> form;
-    private ComboBoxItem anyAddress;
 
     public InterfaceEditor(String title) {
         this.title = title;
@@ -54,17 +52,17 @@ public class InterfaceEditor {
         this.description = description;
     }
 
+    @SuppressWarnings("unchecked")
     public Widget asWidget() {
 
         MultipleToOneLayout layout = new MultipleToOneLayout()
                 .setTitle(title)
                 .setPlain(true);
 
-        form = new Form<Interface>(Interface.class);
+        form = new Form<>(Interface.class);
 
         ToolStrip topLevelTools = new ToolStrip();
-        ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add() , new ClickHandler() {
-
+        ToolButton addBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 presenter.launchNewInterfaceDialogue();
@@ -73,11 +71,9 @@ public class InterfaceEditor {
         addBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_interfaceEditor());
         topLevelTools.addToolButtonRight(addBtn);
         
-        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_remove(), new ClickHandler() {
-
+        ToolButton removeBtn = new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
                 final Interface editedEntity = form.getEditedEntity();
                 Feedback.confirm(
                         Console.MESSAGES.deleteTitle("Interface"),
@@ -95,19 +91,18 @@ public class InterfaceEditor {
         topLevelTools.addToolButtonRight(removeBtn);
 
         layout.setHeadline("Network Interfaces");
-
-        if(description!=null) {
+        if(description != null) {
             layout.setDescription(description);
         }
 
-        table = new DefaultCellTable<Interface>(8, new ProvidesKey<Interface>() {
+        table = new DefaultCellTable<>(8, new ProvidesKey<Interface>() {
             @Override
             public Object getKey(Interface item) {
                 return item.getName();
             }
         });
 
-        dataProvider = new ListDataProvider<Interface>();
+        dataProvider = new ListDataProvider<>();
         dataProvider.addDataDisplay(table);
 
         TextColumn<Interface> nameColumn = new TextColumn<Interface>() {
@@ -126,22 +121,13 @@ public class InterfaceEditor {
 
         TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem inetAddress = new TextBoxItem("inetAddress", "Inet Address", false);
+        CheckBoxItem anyAddress = new CheckBoxItem("anyAddress", "Any Address");
         TextBoxItem nic = new TextBoxItem("nic", "Nic", false);
         TextBoxItem nicMatch = new TextBoxItem("nicMatch", "Nic Match", false);
 
         CheckBoxItem publicAddress = new CheckBoxItem("publicAddress", "Public Address");
         CheckBoxItem siteLocalAddress = new CheckBoxItem("siteLocal", "Site Local Address");
         CheckBoxItem linkLocalAddress = new CheckBoxItem("linkLocal", "Link Local Address");
-
-        anyAddress = new ComboBoxItem("addressWildcard", "Address Wildcard") {
-            {
-                isRequired = false;
-            }
-        };
-
-        anyAddress.setDefaultToFirstOption(true);
-        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS, Interface.ANY_IP4, Interface.ANY_IP6});
-        anyAddress.setValue("");
 
         CheckBoxItem up = new CheckBoxItem("up", "Up");
         CheckBoxItem virtual = new CheckBoxItem("virtual", "Virtual");
@@ -151,28 +137,41 @@ public class InterfaceEditor {
         CheckBoxItem loopback = new CheckBoxItem("loopback", "Loopback");
         TextBoxItem loopbackAddress = new TextBoxItem("loopbackAddress", "Loopback Address", false);
 
-
-        form.setFields(
-                nameItem,
-                inetAddress, anyAddress,
-                nic, nicMatch,
-                loopback, loopbackAddress);
-
-
+        form.setFields(nameItem, inetAddress, anyAddress, nic, nicMatch, loopback, loopbackAddress);
         form.setFieldsInGroup(
                 Console.CONSTANTS.common_label_advanced(),
                 new DisclosureGroupRenderer(),
-                up, virtual,
-                publicAddress, siteLocalAddress,
-                linkLocalAddress, multicast, p2p
-        );
+                up, virtual, publicAddress, siteLocalAddress, linkLocalAddress, multicast, p2p);
 
-        final FormToolStrip<Interface> toolstrip = new FormToolStrip<Interface>(
+        final HTML errorMessages = new HTML();
+        errorMessages.setStyleName("error-panel");
+
+        final FormToolStrip<Interface> toolstrip = new FormToolStrip<>(
                 form,
                 new FormToolStrip.FormCallback<Interface>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveInterface(form.getUpdatedEntity(), changeset);
+                        ValidationResult validation = presenter.validateInterfaceConstraints(
+                                form.getUpdatedEntity(),
+                                form.getChangedValues()
+                        );
+
+                        errorMessages.setHTML("");
+                        if (!validation.isValid()) {
+                            SafeHtmlBuilder html = new SafeHtmlBuilder();
+                            int i = 0;
+                            for (String detail : validation.getMessages()) {
+                                if (i == 0) { html.appendHtmlConstant("<b>"); }
+                                html.appendEscaped(detail).appendHtmlConstant("<br/>");
+                                if (i == 0) { html.appendHtmlConstant("</b>"); }
+
+                                i++;
+                            }
+                            //Feedback.alert("Invalid Interface Constraints", html.toSafeHtml());
+                            errorMessages.setHTML(html.toSafeHtml());
+                        } else {
+                            presenter.onSaveInterface(form.getUpdatedEntity(), changeset);
+                        }
                     }
 
                     @Override
@@ -181,42 +180,6 @@ public class InterfaceEditor {
                     }
                 });
 
-        final HTML errorMessages = new HTML();
-        errorMessages.setStyleName("error-panel");
-
-        toolstrip.providesDeleteOp(false);
-        toolstrip.setPreValidation(new FormToolStrip.PreValidation() {
-            @Override
-            public boolean isValid() {
-                ValidationResult validation = presenter.validateInterfaceConstraints(
-                        form.getUpdatedEntity(),
-                        form.getChangedValues()
-                );
-
-
-                errorMessages.setHTML("");
-
-                if(!validation.isValid())
-                {
-                    SafeHtmlBuilder html = new SafeHtmlBuilder();
-                    int i=0;
-                    for(String detail : validation.getMessages())
-                    {
-                        if(i==0) html.appendHtmlConstant("<b>");
-                        html.appendEscaped(detail).appendHtmlConstant("<br/>");
-                        if(i==0) html.appendHtmlConstant("</b>");
-
-                        i++;
-                    }
-
-                    //Feedback.alert("Invalid Interface Constraints", html.toSafeHtml());
-                    errorMessages.setHTML(html.toSafeHtml());
-                }
-                return validation.isValid();
-
-
-            }
-        });
         form.bind(table);
         form.setEnabled(false);
 
@@ -251,12 +214,8 @@ public class InterfaceEditor {
     }
 
     public void setInterfaces(List<Interface> interfaces) {
-
-        anyAddress.clearSelection();
         form.clearValues();
-
         dataProvider.setList(interfaces);
-
         table.selectDefaultEntity();
     }
 

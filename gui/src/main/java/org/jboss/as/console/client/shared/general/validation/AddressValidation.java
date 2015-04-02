@@ -15,14 +15,14 @@ import java.util.Set;
 class AddressValidation extends AbstractValidationStep<Interface> {
 
     private static final String INET_ADDRESS = "inetAddress";
-    private static final String ADDRESS_WILDCARD = "addressWildcard";
+    private static final String ADDRESS_WILDCARD = "anyAddress";
 
     @Override
     public boolean doesApplyTo(Interface entity, Map<String, Object> changedValues) {
 
         Map<String, Object> clean = clearChangeset(changedValues);
 
-        boolean hasSetValues = isSet(entity.getInetAddress()) || isSet(entity.getAddressWildcard());
+        boolean hasSetValues = isSet(entity.getInetAddress()) || entity.isAnyAddress();
         boolean relevantChanges = false;
 
         Set<String> keys = clean.keySet();
@@ -41,8 +41,6 @@ class AddressValidation extends AbstractValidationStep<Interface> {
     @Override
     protected DecisionTree<Interface> buildDecisionTree(Interface entity, Map<String,Object> changedValues) {
 
-        final Map<String, Object> changeset = clearChangeset(changedValues);
-
         final DecisionTree<Interface> tree =  new DecisionTree<Interface>(entity);
 
         // INET ADDRESS
@@ -55,7 +53,7 @@ class AddressValidation extends AbstractValidationStep<Interface> {
         tree.yes(1, 2, "Anything conflicts with Inet Address?", new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
-                Map<String,Object> properties = asProperties(entity);
+                Map<String, Object> properties = asProperties(entity);
                 properties.remove(INET_ADDRESS);
                 return !isEmpty(properties);
             }
@@ -63,7 +61,7 @@ class AddressValidation extends AbstractValidationStep<Interface> {
         tree.no(1, 3, "Is address wildcard set?", new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
-                return isSet(entity.getAddressWildcard());
+                return entity.isAnyAddress();
             }
         });
 
@@ -75,9 +73,8 @@ class AddressValidation extends AbstractValidationStep<Interface> {
         tree.yes(3, 6, "Anything conflicts with address wildcard?", new Decision<Interface>() {
             @Override
             public boolean evaluate(Interface entity) {
-                Map<String,Object> properties = asProperties(entity);
-                properties.remove(ADDRESS_WILDCARD);
-                return !isEmpty(properties);
+                // TODO What condition should we evaluate here?
+                return isSet(entity.getInetAddress());
             }
         });
         tree.no(3, 7, Console.CONSTANTS.interfaces_err_wildcard_nor_address_set(), FAILURE);
