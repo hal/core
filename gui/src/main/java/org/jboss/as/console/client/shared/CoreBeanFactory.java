@@ -79,14 +79,11 @@ import org.jboss.as.console.client.shared.subsys.infinispan.model.InvalidationCa
 import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCache;
 import org.jboss.as.console.client.shared.subsys.infinispan.model.ReplicatedCache;
 import org.jboss.as.console.client.shared.subsys.jacorb.model.JacOrbSubsystem;
-import org.jboss.as.console.client.shared.subsys.jca.JcaBeanValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
 import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaArchiveValidation;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaBootstrapContext;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaConnectionManager;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaWorkmanager;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
@@ -278,12 +275,9 @@ public interface CoreBeanFactory {
     AutoBean<JMXSubsystem> jmxSubsystem();
     AutoBean<Module> eeModuleRef();
 
-    AutoBean<JcaArchiveValidation> JcaArchiveValidation();
     AutoBean<JcaBootstrapContext> JcaBootstrapContext();
-    AutoBean<JcaBeanValidation> JcaBeanValidation();
     AutoBean<JcaWorkmanager> JcaWorkmanager();
     AutoBean<WorkmanagerPool> WorkmanagerPool();
-    AutoBean<JcaConnectionManager> JcaConnectionManager();
 
     AutoBean<JacOrbSubsystem> jacORBSubsystem();
     AutoBean<JPADeployment> jpaDeployment();

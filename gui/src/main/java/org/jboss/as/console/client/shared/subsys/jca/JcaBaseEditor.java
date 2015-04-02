@@ -5,16 +5,15 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.OneToOneLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaArchiveValidation;
-import org.jboss.as.console.client.shared.subsys.jca.model.JcaConnectionManager;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.Map;
+
+import static org.jboss.as.console.client.shared.subsys.jca.JcaPresenter.*;
 
 /**
  * @author Heiko Braun
@@ -22,177 +21,115 @@ import java.util.Map;
  */
 public class JcaBaseEditor {
 
-    private Form<JcaArchiveValidation> archiveForm;
-    private Form<JcaBeanValidation> validationForm;
-    private Form<JcaConnectionManager> connectionManagerForm;
+    private final JcaPresenter presenter;
+    private final ResourceDescriptionRegistry descriptionRegistry;
+    private final SecurityContext securityContext;
 
-    private JcaPresenter presenter;
+    private ModelNodeFormBuilder.FormAssets archiveForm;
+    private ModelNodeFormBuilder.FormAssets validationForm;
+    private ModelNodeFormBuilder.FormAssets connectionManagerForm;
 
-    public JcaBaseEditor(JcaPresenter presenter) {
+
+    public JcaBaseEditor(final JcaPresenter presenter, final ResourceDescriptionRegistry descriptionRegistry,
+            final SecurityContext securityContext) {
         this.presenter = presenter;
+        this.descriptionRegistry = descriptionRegistry;
+        this.securityContext = securityContext;
     }
 
     Widget asWidget() {
 
-        archiveForm = new Form<JcaArchiveValidation>(JcaArchiveValidation.class);
-        archiveForm.setNumColumns(2);
-        archiveForm.setEnabled(false);
+        // archive validation
+        ModelNodeFormBuilder formBuilder = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(descriptionRegistry.lookup(ARCHIVE_VALIDATION_ADDRESS))
+                .setSecurityContext(securityContext);
+        archiveForm = formBuilder.build();
+        archiveForm.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                presenter.onSaveArchiveSettings(changeset);
+            }
 
-        CheckBoxItem enabled = new CheckBoxItem("enabled", "Is Enabled?");
-        CheckBoxItem failWarn = new CheckBoxItem("failOnWarn", "Fail on Warn?");
-        CheckBoxItem failError = new CheckBoxItem("failOnError", "Fail On Error?");
-
-        archiveForm.setFields(enabled, failWarn, failError);
-
-        FormToolStrip<JcaArchiveValidation> archiveTools = new FormToolStrip<JcaArchiveValidation>(
-                archiveForm,
-                new FormToolStrip.FormCallback<JcaArchiveValidation>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveArchiveSettings(changeset);
-                    }
-
-                    @Override
-                    public void onDelete(JcaArchiveValidation entity) {
-
-                    }
-                }
-        );
-        archiveTools.providesDeleteOp(false);
-
-        final FormHelpPanel archiveHelpPanel = new FormHelpPanel(
-                       new FormHelpPanel.AddressCallback() {
-                           @Override
-                           public ModelNode getAddress() {
-                               ModelNode address = Baseadress.get();
-                               address.add("subsystem", "jca");
-                               address.add("archive-validation", "archive-validation");
-                               return address;
-                           }
-                       }, archiveForm
-               );
-
-
+            @Override
+            public void onCancel(final Object o) {
+                archiveForm.getForm().cancel();
+            }
+        });
         VerticalPanel archivePanel = new VerticalPanel();
-        archivePanel.add(archiveTools.asWidget());
-        archivePanel.add(archiveHelpPanel.asWidget());
-        archivePanel.add(archiveForm.asWidget());
+        archivePanel.setStyleName("fill-layout-width");
+        archivePanel.add(archiveForm.getHelp().asWidget());
+        archivePanel.add(archiveForm.getForm().asWidget());
 
-        // ----
+        // bean validation
+        formBuilder = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(descriptionRegistry.lookup(BEAN_VALIDATION_ADDRESS))
+                .setSecurityContext(securityContext);
+        validationForm = formBuilder.build();
+        validationForm.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changeset) {
+                presenter.onSaveBeanSettings(changeset);
+            }
 
-
-        validationForm = new Form<JcaBeanValidation>(JcaBeanValidation.class);
-        validationForm.setNumColumns(2);
-        validationForm.setEnabled(false);
-
-        CheckBoxItem validationEnabled = new CheckBoxItem("enabled", "Is Enabled?");
-
-        validationForm.setFields(validationEnabled);
-
-        FormToolStrip<JcaBeanValidation> validationTools = new FormToolStrip<JcaBeanValidation>(
-                validationForm,
-                new FormToolStrip.FormCallback<JcaBeanValidation>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveBeanSettings(changeset);
-                    }
-
-                    @Override
-                    public void onDelete(JcaBeanValidation entity) {
-
-                    }
-                }
-        );
-        validationTools.providesDeleteOp(false);
-
-        final FormHelpPanel validationHelpPanel = new FormHelpPanel(
-                new FormHelpPanel.AddressCallback() {
-                    @Override
-                    public ModelNode getAddress() {
-                        ModelNode address = Baseadress.get();
-                        address.add("subsystem", "jca");
-                        address.add("bean-validation", "bean-validation");
-                        return address;
-                    }
-                }, validationForm
-        );
-
+            @Override
+            public void onCancel(final Object o) {
+                validationForm.getForm().cancel();
+            }
+        });
         VerticalPanel validationPanel = new VerticalPanel();
-        validationPanel.add(validationTools.asWidget());
-        validationPanel.add(validationHelpPanel.asWidget());
-        validationPanel.add(validationForm.asWidget());
+        validationPanel.setStyleName("fill-layout-width");
+        validationPanel.add(validationForm.getHelp().asWidget());
+        validationPanel.add(validationForm.getForm().asWidget());
 
-        // ----
-        // ----
+        // cached connection manager
+        formBuilder = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setFields("debug", "error", "ignore-unknown-connections")
+                .setResourceDescription(descriptionRegistry.lookup(CACHED_CONNECTION_MANAGER_ADDRESS))
+                .setSecurityContext(securityContext);
+        connectionManagerForm = formBuilder.build();
+        connectionManagerForm.getForm().setToolsCallback(new FormCallback() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public void onSave(final Map changedValues) {
+                presenter.onSaveCCMSettings(changedValues);
+            }
 
-
-        connectionManagerForm = new Form<JcaConnectionManager>(JcaConnectionManager.class);
-        connectionManagerForm.setNumColumns(2);
-        connectionManagerForm.setEnabled(false);
-
-        CheckBoxItem errorEnabled = new CheckBoxItem("error", "Error Log Enabled?");
-        CheckBoxItem debugEnabled = new CheckBoxItem("debug", "Debug Log Enabled?");
-
-        connectionManagerForm.setFields(errorEnabled, debugEnabled);
-
-        FormToolStrip<JcaConnectionManager> ccmTools = new FormToolStrip<JcaConnectionManager>(
-                connectionManagerForm,
-                new FormToolStrip.FormCallback<JcaConnectionManager>() {
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveCCMSettings(changeset);
-                    }
-
-                    @Override
-                    public void onDelete(JcaConnectionManager entity) {
-
-                    }
-                }
-        );
-        ccmTools.providesDeleteOp(false);
-
-        final FormHelpPanel helpPanel = new FormHelpPanel(
-                new FormHelpPanel.AddressCallback() {
-                    @Override
-                    public ModelNode getAddress() {
-                        ModelNode address = Baseadress.get();
-                        address.add("subsystem", "jca");
-                        address.add("cached-connection-manager", "cached-connection-manager");
-                        return address;
-                    }
-                }, connectionManagerForm
-        );
-
+            @Override
+            public void onCancel(final Object o) {
+                connectionManagerForm.getForm().cancel();
+            }
+        });
         VerticalPanel ccmPanel = new VerticalPanel();
-        ccmPanel.add(ccmTools.asWidget());
-        ccmPanel.add(helpPanel.asWidget());
-        ccmPanel.add(connectionManagerForm.asWidget());
+        ccmPanel.setStyleName("fill-layout-width");
+        ccmPanel.add(connectionManagerForm.getHelp().asWidget());
+        ccmPanel.add(connectionManagerForm.getForm().asWidget());
 
-
-        Widget panel = new OneToOneLayout()
+        return new OneToOneLayout()
                 .setPlain(true)
                 .setTitle("JCA")
                 .setHeadline("JCA Subsystem")
                 .setDescription(Console.CONSTANTS.subsys_jca_common_config_desc())
                 .setMaster("", new HTML())
-                .addDetail("Connection Manager", ccmPanel)
+                .addDetail("Cached Connection Manager", ccmPanel)
                 .addDetail("Archive Validation", archivePanel)
-                .addDetail("Bean Validaton", validationPanel)
+                .addDetail("Bean Validation", validationPanel)
                 .build();
-
-        return panel;
-
     }
 
-    public void setBeanSettings(JcaBeanValidation jcaBeanValidation) {
-        validationForm.edit(jcaBeanValidation);
+    public void setBeanSettings(ModelNode jcaBeanValidation) {
+        validationForm.getForm().edit(jcaBeanValidation);
     }
 
-    public void setArchiveSettings(JcaArchiveValidation jcaArchiveValidation) {
-        archiveForm.edit(jcaArchiveValidation);
+    public void setArchiveSettings(ModelNode jcaArchiveValidation) {
+        archiveForm.getForm().edit(jcaArchiveValidation);
     }
 
-    public void setCCMSettings(JcaConnectionManager jcaConnectionManager) {
-        connectionManagerForm.edit(jcaConnectionManager);
+    public void setCCMSettings(ModelNode jcaConnectionManager) {
+        connectionManagerForm.getForm().edit(jcaConnectionManager);
     }
 }
