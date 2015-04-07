@@ -54,6 +54,7 @@ public class DataSourceEditor {
     private DataSourceValidationEditor validationEditor;
     private DataSourceConnectionEditor connectionEditor;
     private DataSourceTimeoutEditor<DataSource> timeoutEditor;
+    private DataSourceStatementEditor<DataSource> statementEditor;
     private ToolButton disableBtn;
     private Widget dataSourceTableWidget;
 
@@ -182,6 +183,7 @@ public class DataSourceEditor {
         // ----
 
         timeoutEditor = new DataSourceTimeoutEditor<DataSource>(formCallback, false);
+        statementEditor = new DataSourceStatementEditor<>(formCallback, false);
 
         // --
         ClickHandler disableHandler = new ClickHandler() {
@@ -242,13 +244,15 @@ public class DataSourceEditor {
                 .addDetail("Security", securityEditor.asWidget())
                 .addDetail("Properties", connectionProps.asWidget())
                 .addDetail("Validation", validationEditor.asWidget())
-                .addDetail("Timeouts", timeoutEditor.asWidget());
+                .addDetail("Timeouts", timeoutEditor.asWidget())
+                .addDetail("Statements", statementEditor.asWidget());
 
         connectionEditor.getForm().bind(dataSourceTable.getCellTable());
         securityEditor.getForm().bind(dataSourceTable.getCellTable());
         poolConfig.getForm().bind(dataSourceTable.getCellTable());
         validationEditor.getForm().bind(dataSourceTable.getCellTable());
         timeoutEditor.getForm().bind(dataSourceTable.getCellTable());
+        statementEditor.getForm().bind(dataSourceTable.getCellTable());
 
         return builder.build();
     }

@@ -5,6 +5,7 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.widgets.forms.FormEditor;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.PasswordBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.dmr.client.ModelNode;
@@ -48,8 +49,9 @@ public class DataSourceSecurityEditor extends FormEditor<DataSource>{
                 return false;
             }
         };
+        CheckBoxItem allowMultipleUsers = new CheckBoxItem("allowMultipleUsers", "Allow Multiple Users");
 
-        getForm().setFields(user, pass, securityDomain);
+        getForm().setFields(user, pass, securityDomain, allowMultipleUsers);
 
         return super.asWidget();
     }

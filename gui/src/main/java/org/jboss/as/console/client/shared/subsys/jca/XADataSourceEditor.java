@@ -65,6 +65,7 @@ public class XADataSourceEditor implements PropertyManagement {
     private DataSourceSecurityEditor securityEditor;
     private DataSourceValidationEditor validationEditor;
     private DataSourceTimeoutEditor<XADataSource> timeoutEditor;
+    private DataSourceStatementEditor<XADataSource> statementEditor;
     private ToolButton disableBtn;
 
     public XADataSourceEditor(DataSourcePresenter presenter) {
@@ -257,6 +258,7 @@ public class XADataSourceEditor implements PropertyManagement {
         });
         validationEditor = new DataSourceValidationEditor(dsCallback);
         timeoutEditor = new DataSourceTimeoutEditor<XADataSource>(xaCallback, true);
+        statementEditor = new DataSourceStatementEditor<>(xaCallback, true);
 
         MultipleToOneLayout builder = new MultipleToOneLayout()
                      .setPlain(true)
@@ -270,7 +272,8 @@ public class XADataSourceEditor implements PropertyManagement {
                      .addDetail("Security", securityEditor.asWidget())
                      .addDetail("Properties", propertyEditor.asWidget())
                      .addDetail("Validation", validationEditor.asWidget())
-                     .addDetail("Timeouts", timeoutEditor.asWidget());
+                     .addDetail("Timeouts", timeoutEditor.asWidget())
+                     .addDetail("Statements", statementEditor.asWidget());
 
         // build the overall layout
         Widget widget = builder.build();

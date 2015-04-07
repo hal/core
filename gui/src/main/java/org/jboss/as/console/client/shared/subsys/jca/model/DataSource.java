@@ -48,6 +48,10 @@ public interface DataSource {
     int getMinPoolSize();
     void setMinPoolSize(int i);
 
+    @Binding(detypedName = "initial-pool-size")
+    int getInitialPoolSize();
+    void setInitialPoolSize(int i);
+
     @Binding(detypedName = "max-pool-size")
     int getMaxPoolSize();
     void setMaxPoolSize(int i);
@@ -181,11 +185,23 @@ public interface DataSource {
     void setAllocationRetry(int i);
 
     @Binding(detypedName = "allocation-retry-wait-millis")
-        long getAllocationRetryWaitMillis();
-        void setAllocationRetryWaitMillis(long l);
+    long getAllocationRetryWaitMillis();
+    void setAllocationRetryWaitMillis(long l);
 
     @Binding(detypedName = "statistics-enabled")
     boolean isStatisticsEnabled();
     void setStatisticsEnabled(boolean b);
+
+    @Binding(detypedName = "track-statements")
+    String getTrackStatements();
+    void setTrackStatements(String name);
+
+    @Binding(detypedName = "use-fast-fail")
+    boolean isUseFastFail();
+    void setUseFastFail(boolean b);
+
+    @Binding(detypedName = "allow-multiple-users")
+    boolean isAllowMultipleUsers();
+    void setAllowMultipleUsers(boolean b);
 
 }
