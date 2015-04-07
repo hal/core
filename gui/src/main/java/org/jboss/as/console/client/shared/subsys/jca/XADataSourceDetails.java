@@ -84,12 +84,8 @@ public class XADataSourceDetails {
         StatusItem enabledFlagItem = new StatusItem("enabled", "Is enabled?");
         CheckBoxItem stats = new CheckBoxItem("statisticsEnabled", "Statistics enabled?");
         TextBoxItem driverItem = new TextBoxItem("driverName", "Driver");
-        TextAreaItem dsClass = new TextAreaItem("dataSourceClass", "XA Data Source Class");
 
-        CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
-        NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
-
-        form.setFields(nameItem, jndiItem, dsClass, enabledFlagItem, stats, driverItem, shareStatements, statementCacheSize);
+        form.setFields(nameItem, jndiItem, enabledFlagItem, stats, driverItem);
 
         form.setEnabled(false); // currently not editable
 

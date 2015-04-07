@@ -40,18 +40,27 @@ public class PoolConfigurationView {
 
     Widget asWidget() {
 
-        final NumberBoxItem maxCon = new NumberBoxItem("maxPoolSize", "Max Pool Size");
         final NumberBoxItem minCon = new NumberBoxItem("minPoolSize", "Min Pool Size");
+        NumberBoxItem initialCon = new NumberBoxItem("initialPoolSize", "Initial Pool Size");
+        final NumberBoxItem maxCon = new NumberBoxItem("maxPoolSize", "Max Pool Size");
         CheckBoxItem strictMin = new CheckBoxItem("poolStrictMin", "Strict Minimum");
-        CheckBoxItem prefill = new CheckBoxItem("poolPrefill", "Prefill enabled");
+        CheckBoxItem prefill = new CheckBoxItem("poolPrefill", "Prefill");
 
         ComboBoxItem flushStrategy = new ComboBoxItem("flushStrategy", "Flush Strategy");
-        flushStrategy.setValueMap(new String[] {"FailingConnectionOnly", "IdleConnections", "EntirePool"});
-
-        final NumberBoxItem idleTimeout = new NumberBoxItem("idleTimeout", "Idle Timeout");
+        flushStrategy.setValueMap(new String[] {"FailingConnectionOnly",
+                "InvalidIdleConnections",
+                "IdleConnections",
+                "Gracefully",
+                "EntirePool",
+                "AllInvalidIdleConnections",
+                "AllIdleConnections",
+                "AllGracefully",
+                "AllConnections"});
 
         ComboBoxItem trackStmt = new ComboBoxItem("trackStatements", "Track Statements");
         trackStmt.setValueMap(new String[] {"true", "false", "nowarn"});
+
+        CheckBoxItem useFastFail = new CheckBoxItem("useFastFail", "Use Fast Fail");
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("fill-layout");
@@ -79,7 +88,7 @@ public class PoolConfigurationView {
         form.setNumColumns(2);
         form.setEnabled(false);
 
-        form.setFields(minCon, maxCon, strictMin, prefill, flushStrategy, idleTimeout, trackStmt);
+        form.setFields(minCon, initialCon, maxCon, prefill, flushStrategy, strictMin, useFastFail);
 
         FormToolStrip<PoolConfig> toolStrip = new FormToolStrip<PoolConfig>(
                 form,
