@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -24,8 +25,10 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -48,7 +51,8 @@ public class AdapterList implements PropertyManagement {
     private DefaultCellTable<ResourceAdapter> table;
     private ListDataProvider<ResourceAdapter> dataProvider;
 
-    private Form<ResourceAdapter> form;
+    private Form<ResourceAdapter> attributesForm;
+    private Form<ResourceAdapter> wmForm;
     private PropertyEditor propertyEditor;
     private DefaultWindow window;
 
@@ -136,24 +140,24 @@ public class AdapterList implements PropertyManagement {
         };
 
         table.addColumn(nameColumn, "Name");
-        table.addColumn(numberConnections, "Connection Def.");
+        table.addColumn(numberConnections, "Connection Definition");
         table.addColumn(option, "Option");
 
 
         // -------
 
-        VerticalPanel formpanel = new VerticalPanel();
-        formpanel.setStyleName("fill-layout-width");
+        VerticalPanel attributesFormPanel = new VerticalPanel();
+        attributesFormPanel.setStyleName("fill-layout-width");
 
-        form = new Form<ResourceAdapter>(ResourceAdapter.class);
-        form.setNumColumns(2);
+        attributesForm = new Form<ResourceAdapter>(ResourceAdapter.class);
+        attributesForm.setNumColumns(2);
 
-        FormToolStrip<ResourceAdapter> toolStrip = new FormToolStrip<ResourceAdapter>(
-                form,
+        FormToolStrip<ResourceAdapter> attributesToolStrip = new FormToolStrip<ResourceAdapter>(
+                attributesForm,
                 new FormToolStrip.FormCallback<ResourceAdapter>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
-                        presenter.onSave(form.getEditedEntity(), form.getChangedValues());
+                        presenter.onSave(attributesForm.getEditedEntity(), attributesForm.getChangedValues());
                     }
 
                     @Override
@@ -162,24 +166,27 @@ public class AdapterList implements PropertyManagement {
                     }
                 });
 
-        toolStrip.providesDeleteOp(false);
+        attributesToolStrip.providesDeleteOp(false);
 
 
-        formpanel.add(toolStrip.asWidget());
+        attributesFormPanel.add(attributesToolStrip.asWidget());
 
         // ----
 
         TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem archiveItem = new TextBoxItem("archive", "Archive");
         TextBoxItem moduleItem = new TextBoxItem("module", "Module");
-        ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "TX");
+        ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "Transaction Support");
         txItem.setDefaultToFirstOption(true);
         txItem.setValueMap(new String[]{"NoTransaction", "LocalTransaction", "XATransaction"});
+        CheckBoxItem statisticsEnabled = new CheckBoxItem("statisticsEnabled", "Statistics Enabled");
+        TextBoxItem bootstrapContext = new TextBoxItem("bootstrapContext", "Bootstrap Context");
+        ListItem beanValidationGroups = new ListItem("beanValidationGroups", "Bean Validation Groups");
 
+        attributesForm.setFields(nameItem, archiveItem, moduleItem, txItem, statisticsEnabled, bootstrapContext,
+                beanValidationGroups);
 
-        form.setFields(nameItem, archiveItem, moduleItem, txItem);
-
-        final FormHelpPanel helpPanel = new FormHelpPanel(
+        final FormHelpPanel attributesHelpPanel = new FormHelpPanel(
                 new FormHelpPanel.AddressCallback() {
                     @Override
                     public ModelNode getAddress() {
@@ -188,14 +195,71 @@ public class AdapterList implements PropertyManagement {
                         address.add("resource-adapter", "*");
                         return address;
                     }
-                }, form
+                }, attributesForm
         );
-        formpanel.add(helpPanel.asWidget());
-        form.bind(table);
+        attributesFormPanel.add(attributesHelpPanel.asWidget());
+        attributesForm.bind(table);
 
-        formpanel.add(form.asWidget());
+        attributesFormPanel.add(attributesForm.asWidget());
 
-        form.setEnabled(false);
+        attributesForm.setEnabled(false);
+
+
+
+        // -------
+
+        VerticalPanel wmFormPanel = new VerticalPanel();
+        wmFormPanel.setStyleName("fill-layout-width");
+
+        wmForm = new Form<ResourceAdapter>(ResourceAdapter.class);
+        wmForm.setNumColumns(2);
+
+        FormToolStrip<ResourceAdapter> wmToolStrip = new FormToolStrip<ResourceAdapter>(
+                wmForm,
+                new FormToolStrip.FormCallback<ResourceAdapter>() {
+                    @Override
+                    public void onSave(Map<String, Object> changeset) {
+                        presenter.onSave(wmForm.getEditedEntity(), wmForm.getChangedValues());
+                    }
+
+                    @Override
+                    public void onDelete(ResourceAdapter entity) {
+
+                    }
+                });
+
+        wmToolStrip.providesDeleteOp(false);
+        wmFormPanel.add(wmToolStrip.asWidget());
+
+        // ----
+
+        CheckBoxItem wmEnabled = new CheckBoxItem("wmEnabled", "Enabled");
+        ListItem wmDefaultGroups = new ListItem("wmDefaultGroups", "Default Groups");
+        TextBoxItem wmDefaultPrincipal = new TextBoxItem("wmDefaultPrincipal", "Default Principal");
+        TextBoxItem wmSecurityDomain = new TextBoxItem("wmSecurityDomain", "Security Domain");
+        CheckBoxItem wmMappingRequired = new CheckBoxItem("wmMappingRequired", "Mapping Required");
+
+        wmForm.setFields(wmEnabled, wmDefaultGroups, wmDefaultPrincipal, wmSecurityDomain, wmMappingRequired);
+
+        final FormHelpPanel wmHelpPanel = new FormHelpPanel(
+                new FormHelpPanel.AddressCallback() {
+                    @Override
+                    public ModelNode getAddress() {
+                        ModelNode address = Baseadress.get();
+                        address.add("subsystem", "resource-adapters");
+                        address.add("resource-adapter", "*");
+                        return address;
+                    }
+                }, wmForm
+        );
+        wmFormPanel.add(wmHelpPanel.asWidget());
+        wmForm.bind(table);
+
+        wmFormPanel.add(wmForm.asWidget());
+
+        wmForm.setEnabled(false);
+
+
 
         table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -213,11 +277,12 @@ public class AdapterList implements PropertyManagement {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setTitle("Resource Adapter")
-                .setHeadline("JCA Resource Adapters")
+                .setHeadline("Resource Adapters")
                 .setDescription(Console.CONSTANTS.subsys_jca_resource_adapter_desc())
-                .setMaster(Console.MESSAGES.available("Resource Adapter"), table)
+                .setMaster(Console.MESSAGES.available("Resource Adapters"), table)
                 .setMasterTools(topLevelTools.asWidget())
-                .addDetail("Attributes", formpanel)
+                .addDetail("Attributes", attributesFormPanel)
+                .addDetail("Work Manager Security", wmFormPanel)
                 .addDetail("Properties", propertyEditor.asWidget());
 
         return layoutBuilder.build();
