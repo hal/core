@@ -130,16 +130,21 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
         alternateSubNav = new LayoutPanel();
         alternateSubNav.setStyleName("fill-layout");
+        alternateSubNav.getElement().setAttribute("style", "background-color:#F9F9F9!important");
+
+        breadcrumb = new HTML();
+        breadcrumb.setStyleName("header-breadcrumb");
+        alternateSubNav.add(breadcrumb);
 
 
         HTML backLink = new HTML();
         backLink.addStyleName("link-bar-first");
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        builder.appendHtmlConstant("<i class='icon-chevron-left'></i>");
+        builder.appendHtmlConstant("Close");
         builder.appendHtmlConstant("&nbsp;");
-        builder.appendHtmlConstant("Back");
+        builder.appendHtmlConstant("<i class='icon-remove'></i>");
         backLink.setHTML(builder.toSafeHtml());
-        backLink.getElement().setAttribute("style", "font-size:16px; padding-top:10px;cursor:pointer;background-color:#fcfcfc;");
+        backLink.getElement().setAttribute("style", "font-size:16px; padding-top:10px;cursor:pointer;");
         backLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -158,14 +163,10 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
             }
         });
-
         alternateSubNav.add(backLink);
-        breadcrumb = new HTML();
-        breadcrumb.setStyleName("header-breadcrumb");
-        alternateSubNav.add(breadcrumb);
 
-        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 75, Style.Unit.PX);
-        alternateSubNav.setWidgetLeftWidth(breadcrumb, 75, Style.Unit.PX, 100, Style.Unit.PCT);
+        alternateSubNav.setWidgetLeftWidth(breadcrumb, 15, Style.Unit.PX, 75, Style.Unit.PCT);
+        alternateSubNav.setWidgetRightWidth(backLink, 15, Style.Unit.PX, 70, Style.Unit.PX);
 
         outerLayout.add(line);
         outerLayout.add(top);
