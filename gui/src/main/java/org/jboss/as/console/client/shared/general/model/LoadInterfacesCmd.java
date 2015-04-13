@@ -80,10 +80,6 @@ public class LoadInterfacesCmd implements AsyncCommand<List<Interface>>{
 
                     if(intf.isAnyAddress())
                         intf.setAddressWildcard(Interface.ANY_ADDRESS);
-                    else if(intf.isAnyIP4Address())
-                        intf.setAddressWildcard(Interface.ANY_IP4);
-                    else if(intf.isAnyIP6Address())
-                        intf.setAddressWildcard(Interface.ANY_IP6);
 
                     interfaces.add(intf);
 

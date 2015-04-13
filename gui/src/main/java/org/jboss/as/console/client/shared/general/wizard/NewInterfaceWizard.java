@@ -51,7 +51,7 @@ public class NewInterfaceWizard {
         };
 
         anyAddress.setDefaultToFirstOption(true);
-        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS, Interface.ANY_IP4, Interface.ANY_IP6});
+        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS});
 
         form.setFields(nameItem, inetAddress, anyAddress);
 
