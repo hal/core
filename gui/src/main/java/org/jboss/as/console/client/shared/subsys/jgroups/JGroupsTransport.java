@@ -11,6 +11,9 @@ import java.util.List;
  */
 public interface JGroupsTransport {
 
+    String getName();
+    void setName(String name);
+
     String getType();
     void setType(String type);
 
