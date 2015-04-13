@@ -113,7 +113,7 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
                     ModelNode payload = response.get(RESULT).asObject();
                     JMXSubsystem jmxSubsystem = adapter.fromDMR(payload);
 
-                    // TODO: https://issues.jboss.org/browse/AS7-3566
+
                     if(payload.hasDefined("remoting-connector"))
                     {
                         List<Property> connectorList = payload.get("remoting-connector").asPropertyList();
@@ -121,8 +121,7 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
                         {
                             Property item = connectorList.get(0);
                             ModelNode jmxConnector = item.getValue();
-                            jmxSubsystem.setRegistryBinding(jmxConnector.get("registry-binding").asString());
-                            jmxSubsystem.setServerBinding(jmxConnector.get("server-binding").asString());
+                            jmxSubsystem.setMgmtEndpoint(jmxConnector.get("use-management-endpoint").asBoolean());
                         }
                     }
 
@@ -141,31 +140,17 @@ public class JMXPresenter extends Presenter<JMXPresenter.MyView, JMXPresenter.My
 
         List<ModelNode> extraSteps = new ArrayList<ModelNode>(2);
 
-        if(changeset.containsKey("registryBinding"))
+        if(changeset.containsKey("mgmtEndpoint"))
         {
             ModelNode registry = new ModelNode();
             registry.get(ADDRESS).set(Baseadress.get());
             registry.get(ADDRESS).add("subsystem", "jmx");
             registry.get(ADDRESS).add("remoting-connector", "jmx");
             registry.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-            registry.get(NAME).set("registry-binding");
-            registry.get(VALUE).set((String)changeset.get("registryBinding"));
+            registry.get(NAME).set("use-management-endpoint");
+            registry.get(VALUE).set((Boolean)changeset.get("mgmtEndpoint"));
 
-            changeset.remove("registryBinding");
-            extraSteps.add(registry);
-        }
-
-        if(changeset.containsKey("serverBinding"))
-        {
-            ModelNode registry = new ModelNode();
-            registry.get(ADDRESS).set(Baseadress.get());
-            registry.get(ADDRESS).add("subsystem", "jmx");
-            registry.get(ADDRESS).add("remoting-connector", "jmx");
-            registry.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
-            registry.get(NAME).set("server-binding");
-            registry.get(VALUE).set((String)changeset.get("serverBinding"));
-
-            changeset.remove("serverBinding");
+            changeset.remove("mgmtEndpoint");
             extraSteps.add(registry);
         }
 
