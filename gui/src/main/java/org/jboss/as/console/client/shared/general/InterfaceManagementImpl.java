@@ -82,8 +82,6 @@ public class InterfaceManagementImpl implements InterfaceManagement {
         String wildcard = entity.getAddressWildcard();
 
         entity.setAnyAddress(wildcard.equals(Interface.ANY_ADDRESS));
-        entity.setAnyIP4Address(wildcard.equals(Interface.ANY_IP4));
-        entity.setAnyIP6Address(wildcard.equals(Interface.ANY_IP6));
 
         // TODO: https://issues.jboss.org/browse/AS7-2670
 
@@ -100,10 +98,6 @@ public class InterfaceManagementImpl implements InterfaceManagement {
             operation.get("inet-address").set(entity.getInetAddress());
         else if(entity.isAnyAddress())
             operation.get("any-address").set(true);
-        else if(entity.isAnyIP4Address())
-            operation.get("any-ipv4-address").set(true);
-        else if(entity.isAnyIP6Address())
-            operation.get("any-ipv6-address").set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -207,8 +201,7 @@ public class InterfaceManagementImpl implements InterfaceManagement {
         String wildcard = entity.getAddressWildcard();
 
         changeset.put("anyAddress", wildcard.equals(Interface.ANY_ADDRESS) ? true : FormItem.VALUE_SEMANTICS.UNDEFINED);
-        changeset.put("anyIP4Address", wildcard.equals(Interface.ANY_IP4) ? true : FormItem.VALUE_SEMANTICS.UNDEFINED);
-        changeset.put("anyIP6Address", wildcard.equals(Interface.ANY_IP6) ? true : FormItem.VALUE_SEMANTICS.UNDEFINED);
+
 
         // TODO: https://issues.jboss.org/browse/AS7-2670
         Map<String,Object> workAround = new HashMap<String,Object>(changeset);

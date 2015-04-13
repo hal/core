@@ -20,6 +20,9 @@ import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -121,8 +124,6 @@ public class InterfaceEditor {
         layout.setMasterTools(topLevelTools);
         layout.setMaster("", table);
 
-        form.setNumColumns(2);
-
         TextItem nameItem = new TextItem("name", "Name");
         TextBoxItem inetAddress = new TextBoxItem("inetAddress", "Inet Address", false);
         TextBoxItem nic = new TextBoxItem("nic", "Nic", false);
@@ -139,7 +140,7 @@ public class InterfaceEditor {
         };
 
         anyAddress.setDefaultToFirstOption(true);
-        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS, Interface.ANY_IP4, Interface.ANY_IP6});
+        anyAddress.setValueMap(new String[]{"", Interface.ANY_ADDRESS});
         anyAddress.setValue("");
 
         CheckBoxItem up = new CheckBoxItem("up", "Up");
@@ -184,9 +185,13 @@ public class InterfaceEditor {
         errorMessages.setStyleName("error-panel");
 
         toolstrip.providesDeleteOp(false);
-        toolstrip.setPreValidation(new FormToolStrip.PreValidation() {
+
+        form.bind(table);
+        form.setEnabled(false);
+
+        form.addFormValidator(new FormValidator() {
             @Override
-            public boolean isValid() {
+            public void validate(List<FormItem> formItems, FormValidation outcome) {
                 ValidationResult validation = presenter.validateInterfaceConstraints(
                         form.getUpdatedEntity(),
                         form.getChangedValues()
@@ -201,6 +206,8 @@ public class InterfaceEditor {
                     int i=0;
                     for(String detail : validation.getMessages())
                     {
+                        outcome.addError(detail);
+
                         if(i==0) html.appendHtmlConstant("<b>");
                         html.appendEscaped(detail).appendHtmlConstant("<br/>");
                         if(i==0) html.appendHtmlConstant("</b>");
@@ -211,13 +218,8 @@ public class InterfaceEditor {
                     //Feedback.alert("Invalid Interface Constraints", html.toSafeHtml());
                     errorMessages.setHTML(html.toSafeHtml());
                 }
-                return validation.isValid();
-
-
             }
         });
-        form.bind(table);
-        form.setEnabled(false);
 
         FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
             @Override

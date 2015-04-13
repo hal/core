@@ -24,7 +24,6 @@ public class FormToolStrip<T> {
 
     private List<Widget> additionalButtons = new LinkedList<Widget>();
 
-    private PreValidation preValidation = null;
     private Set<Command> cancelDelegates = new HashSet<Command>();
     private ToolStrip toolStrip;
 
@@ -57,9 +56,6 @@ public class FormToolStrip<T> {
         });
     }
 
-    public void setPreValidation(PreValidation preValidation) {
-        this.preValidation = preValidation;
-    }
 
     /**
      * NOOP
