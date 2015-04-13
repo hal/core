@@ -49,6 +49,7 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -410,7 +411,10 @@ public class SecurityDomainsPresenter
 
             if(pm.getModule()!=null)
             {
-                n.get("module").set(pm.getModule());
+                if(pm.getModule().equals(""))
+                    n.get("module").set(new ModelNode());
+                else
+                    n.get("module").set(pm.getModule());
             }
 
             if (customHandler != null) {
