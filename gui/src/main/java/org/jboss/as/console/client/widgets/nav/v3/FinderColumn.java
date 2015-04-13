@@ -414,7 +414,7 @@ public class FinderColumn<T> {
             layout.add(nav);
 
             layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+            layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 95, Style.Unit.PCT);
 
         }
         else            // embedded mode, w/o header

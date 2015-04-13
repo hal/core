@@ -41,7 +41,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @since 05/09/14
  */
 public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
-        implements DefaultPresenterContract {
+        implements DefaultPresenterContract, CommonHttpPresenter {
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -58,8 +58,10 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
             if(address.getResourceType().equals("server"))
                 loadServer();
-            else
+            else {
                 loadDetails();
+                loadGeneralSettings();
+            }
         }
 
         @Override
@@ -91,6 +93,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         void setHttpsListener(List<Property> httpsListener);
 
         void setHosts(List<Property> hosts);
+
+        void setConfig(ModelNode data);
     }
 
     @Inject
@@ -129,6 +133,11 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     }
 
     @Override
+    public String getNameToken() {
+        return getProxy().getNameToken();
+    }
+
+    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
@@ -138,6 +147,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     @Override
     protected void onReset() {
         super.onReset();
+        loadGeneralSettings();
         loadServer();
     }
 
@@ -171,6 +181,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         revealStrategy.revealInParent(this);
     }
 
+    @Override
     public PlaceManager getPlaceManager() {
         return placeManager;
     }
@@ -179,6 +190,35 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     public void prepareFromRequest(PlaceRequest request) {
         currentServer = request.getParameter("name", null);
     }
+
+    public void loadGeneralSettings() {
+
+
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "undertow");
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if(response.isFailure())
+                {
+                    Log.error("Failed to load undertow configuration", response.getFailureDescription());
+                }
+                else
+                {
+                    ModelNode data = response.get(RESULT);
+                    getView().setConfig(data);
+                }
+
+            }
+        });
+    }
+
 
     public void loadDetails() {
 

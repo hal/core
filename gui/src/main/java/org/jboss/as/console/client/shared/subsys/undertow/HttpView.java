@@ -1,12 +1,15 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -24,6 +27,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
     private HttpsListenerView httpsView;
     private AJPListenerView ajpView;
     private HostView hostView;
+    private SubsystemView subsystemView;
 
     @Override
     public void setPresenter(HttpPresenter presenter) {
@@ -32,14 +36,13 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
 
     @Override
     public Widget createWidget() {
-        LayoutPanel layout = new LayoutPanel();
 
-        FakeTabPanel titleBar = new FakeTabPanel("HTTP Server");
-        layout.add(titleBar);
+        DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabLayoutpanel.addStyleName("default-tabpanel");
 
         panel = new PagedView();
 
-        serverList = new ServerList(presenter);
+        serverList = new ServerList(presenter, true);
         httpView = new HttpListenerView(presenter);
         httpsView = new HttpsListenerView(presenter);
         ajpView = new AJPListenerView(presenter);
@@ -54,13 +57,18 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
         // default page
         panel.showPage(0);
 
-        Widget panelWidget = panel.asWidget();
-        layout.add(panelWidget);
 
-        layout.setWidgetTopHeight(titleBar, 0, Style.Unit.PX, 40, Style.Unit.PX);
-        layout.setWidgetTopHeight(panelWidget, 40, Style.Unit.PX, 100, Style.Unit.PCT);
+        subsystemView = new SubsystemView(presenter);
 
-        return layout;
+        tabLayoutpanel.add(subsystemView.asWidget(), "General Config");
+        tabLayoutpanel.add(panel.asWidget(), "HTTP Server");
+
+        return tabLayoutpanel;
+    }
+
+    @Override
+    public void setConfig(ModelNode data) {
+        subsystemView.updateFrom(data);
     }
 
     @Override

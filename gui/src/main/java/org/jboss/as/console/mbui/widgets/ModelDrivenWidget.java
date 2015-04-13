@@ -130,4 +130,6 @@ public abstract class ModelDrivenWidget extends LazyPanel {
     public String getAddressTemplate() {
         return addressTemplate;
     }
+
+
 }

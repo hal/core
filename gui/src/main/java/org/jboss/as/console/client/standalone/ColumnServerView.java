@@ -407,12 +407,12 @@ public class ColumnServerView extends SuspendableViewImpl
                     if(actual.getKey().equals(candidate.getKey()))
                     {
 
-                        final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
+                       /* final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
                         link.setKey(candidate.getKey());
                         link.getElement().setAttribute("title", candidate.getName()+" "+
                                 actual.getMajor()+"."+
                                 actual.getMinor()+"."+
-                                actual.getMicro());
+                                actual.getMicro());*/
 
 
                         boolean isFolder = false;

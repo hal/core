@@ -136,6 +136,7 @@ import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
@@ -395,8 +396,11 @@ public interface CoreUI {
     AsyncProvider<HttpPresenter> getHttpPresenter();
     AsyncProvider<ServletPresenter> getServletPresenter();
     AsyncProvider<UndertowPresenter> getUndertowPresenter();
+    AsyncProvider<HttpMetricPresenter> getHttpMetricPresenter();
+
 
     RequiredResourcesProcessor getRequiredResourcesProcessor();
 
     PreviewContentFactory getPreviewContentFactory();
+
 }
