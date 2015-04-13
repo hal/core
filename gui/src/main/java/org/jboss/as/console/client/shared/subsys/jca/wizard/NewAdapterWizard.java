@@ -47,7 +47,7 @@ public class NewAdapterWizard {
         final TextBoxItem archiveItem = new TextBoxItem("archive", "Archive", false);
         final TextBoxItem moduleItem = new TextBoxItem("module", "Module", false);
 
-        ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "TX");
+        ComboBoxItem txItem = new ComboBoxItem("transactionSupport", "Transaction Support");
         txItem.setDefaultToFirstOption(true);
         txItem.setValueMap(new String[]{"NoTransaction", "LocalTransaction", "XATransaction"});
 

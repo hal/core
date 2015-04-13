@@ -65,10 +65,10 @@ public class XADataSourceConnection {
         }
         );
 
-        CheckBoxItem rmOverride = new CheckBoxItem("enableRMOverride", "Same RM Override");
-        CheckBoxItem interleave = new CheckBoxItem("enableInterleave", "Interleave");
+        CheckBoxItem rmOverride = new CheckBoxItem("enableRMOverride", "IsSameRM Override");
+        CheckBoxItem interleave = new CheckBoxItem("enableInterleave", "Interleaving");
         CheckBoxItem padXid = new CheckBoxItem("padXid", "Pad XID");
-        CheckBoxItem wrap = new CheckBoxItem("wrapXaResource", "Wrap XA");
+        CheckBoxItem wrap = new CheckBoxItem("wrapXaResource", "Wrap XAResource");
 
 
         ToolButton verifyBtn = new ToolButton(Console.CONSTANTS.subsys_jca_dataSource_verify(), new ClickHandler() {

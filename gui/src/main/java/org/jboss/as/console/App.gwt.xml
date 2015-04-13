@@ -18,11 +18,12 @@
   -->
 
 <module rename-to="app">
+    <inherits name="com.google.gwt.core.CompilerParameters"/>
     <inherits name="com.google.gwt.i18n.I18N"/>
     <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.gwt.user.Debug"/>
     <inherits name='com.google.gwt.visualization.Visualization'/>
     <inherits name="com.google.web.bindery.autobean.AutoBean"/>
-    <inherits name="com.google.gwt.user.Debug"/>
 
     <inherits name="org.jboss.ballroom.Framework"/>
     <inherits name="org.jboss.dmr.DMR"/>
@@ -35,7 +36,6 @@
     <inherits name="com.allen_sauer.gwt.log.gwt-log-ERROR" />
     <inherits name="org.thechiselgroup.choosel.protovis.ProtovisGWT"/>
 
-    <define-configuration-property name="gin.ginjector" is-multi-valued="false" />
     <define-configuration-property name="console.profile" is-multi-valued="false"/>
 
     <set-property name="gwt.enableDebugId" value="true"/>
@@ -43,13 +43,11 @@
     <set-property name="log_GWTLogger" value="ENABLED" />
     <set-property name="log_SystemLogger" value="ENABLED" />
     <set-property name="log_DivLogger" value="DISABLED" />
-    <set-property name="log_FirebugLogger" value="DISABLED" />
     <set-property name="log_WindowLogger" value="DISABLED" />
     <set-property name="compiler.stackMode" value="strip"/>
 
     <set-configuration-property name="log_pattern" value="%d [%-5p] %m%n" />
     <set-configuration-property name="user.agent.runtimeWarning" value="true"/>
-    <set-configuration-property name="compiler.enum.name.obfuscate" value="true"/>﻿
     <set-configuration-property name="CssResource.obfuscationPrefix" value="empty" />
     <set-configuration-property name="gin.ginjector" value="org.jboss.as.console.client.core.gin.Composite" />
 

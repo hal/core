@@ -50,8 +50,7 @@ public class RoleEditor implements IsWidget {
             VerticalPanel panel = new VerticalPanel();
             panel.setStyleName("rhs-content-panel");
 
-            panel.add(new ContentHeaderLabel("Role Mangement"));
-            //panel.add(new ContentDescription(Console.CONSTANTS.subys_tx_desc()));
+            panel.add(new ContentHeaderLabel("Role Management"));
 
             TabPanel tabs = new TabPanel();
             tabs.setStyleName("default-tabpanel");

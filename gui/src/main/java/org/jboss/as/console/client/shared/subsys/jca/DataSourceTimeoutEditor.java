@@ -14,7 +14,7 @@ import org.jboss.dmr.client.ModelNode;
  * @author Philippe Marschall
  * @date 04/06/14
  */
-public class DataSourceTimeoutEditor<T extends DataSource> extends FormEditor<T>{
+public class DataSourceTimeoutEditor<T extends DataSource> extends FormEditor<T> {
 
     private final boolean isXa;
 
@@ -38,7 +38,7 @@ public class DataSourceTimeoutEditor<T extends DataSource> extends FormEditor<T>
     @Override
     public Widget asWidget() {
 
-        NumberBoxItem useTryLock = new NumberBoxItem("useTryLock", "Use tryLock()") {
+        NumberBoxItem useTryLock = new NumberBoxItem("useTryLock", "Use Try Lock") {
             @Override
             public boolean isRequired() {
                 return false;
@@ -59,7 +59,7 @@ public class DataSourceTimeoutEditor<T extends DataSource> extends FormEditor<T>
             }
         };
 
-        CheckBoxItem setTxQueryTimeout = new CheckBoxItem("setTxQueryTimeout", "Set Tx Query Timeout") {
+        CheckBoxItem setTxQueryTimeout = new CheckBoxItem("setTxQueryTimeout", "Set Transaction Query Timeout") {
             @Override
             public boolean isRequired() {
                 return false;
