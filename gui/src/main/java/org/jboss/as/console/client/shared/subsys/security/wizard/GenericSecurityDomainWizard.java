@@ -113,7 +113,7 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
         String defaultChoice = codes.isEmpty() ? "" : codes.get(0);
         code.setChoices(codes, defaultChoice);
 
-        TextBoxItem moduleItem = new TextBoxItem("module", "Module");
+        TextBoxItem moduleItem = new TextBoxItem("module", "Module", false);
 
         FormItem<?>[] customFields = getCustomFields();
         form.setFields(new FormItem [] {code,  moduleItem}, customFields);
