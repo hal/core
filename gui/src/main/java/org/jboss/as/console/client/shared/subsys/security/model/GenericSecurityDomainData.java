@@ -29,6 +29,9 @@ public interface GenericSecurityDomainData  {
     String getCode();
     void setCode(String code);
 
+    String getModule();
+    void setModule(String module);
+
     List<PropertyRecord> getProperties();
     void setProperties(List<PropertyRecord> properties);
 

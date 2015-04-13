@@ -265,6 +265,10 @@ public class SecurityDomainsPresenter
                     T pm = factory.create(cls).as();
 
                     pm.setCode(node.get("code").asString());
+
+                    if(node.hasDefined("module"))
+                        pm.setModule(node.get("module").asString());
+
                     customHandler.readFromModel(node, pm);
 
                     if (node.hasDefined("module-options")) {
@@ -403,6 +407,11 @@ public class SecurityDomainsPresenter
         for (T pm : list) {
             ModelNode n = new ModelNode();
             n.get("code").set(pm.getCode());
+
+            if(pm.getModule()!=null)
+            {
+                n.get("module").set(pm.getModule());
+            }
 
             if (customHandler != null) {
                 customHandler.setInModel(n, pm);

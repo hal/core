@@ -113,8 +113,10 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
         String defaultChoice = codes.isEmpty() ? "" : codes.get(0);
         code.setChoices(codes, defaultChoice);
 
+        TextBoxItem moduleItem = new TextBoxItem("module", "Module");
+
         FormItem<?>[] customFields = getCustomFields();
-        form.setFields(new FormItem [] {code}, customFields);
+        form.setFields(new FormItem [] {code,  moduleItem}, customFields);
 
         final Command saveCmd = new Command() {
             @Override
@@ -125,6 +127,7 @@ public class GenericSecurityDomainWizard <T extends GenericSecurityDomainData> i
                         T original = form.getEditedEntity();
                         T edited = form.getUpdatedEntity();
                         original.setCode(edited.getCode());
+                        original.setModule(edited.getModule());
                         original.setProperties(properties);
 
                         copyCustomFields(original, edited);
