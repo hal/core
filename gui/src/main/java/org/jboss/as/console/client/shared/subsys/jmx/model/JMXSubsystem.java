@@ -10,13 +10,14 @@ import org.jboss.as.console.client.widgets.forms.Binding;
 @Address("/subsystem=jmx")
 public interface JMXSubsystem {
 
-    @Binding(detypedName = "registry-binding")
-    String getRegistryBinding();
-    void setRegistryBinding(String binding);
+    @Binding(detypedName = "non-core-mbean-sensitivity")
+    boolean isSensitive();
+    void setSensitive(boolean sensitive);
 
-    @Binding(detypedName = "server-binding")
-    String getServerBinding();
-    void setServerBinding(String binding);
+
+    @Binding(detypedName = "use-management-endpoint")
+    boolean isMgmtEndpoint();
+    void setMgmtEndpoint(boolean useMgmtEndpint);
 
     @Binding(detypedName = "show-model")
     boolean isShowModel();
