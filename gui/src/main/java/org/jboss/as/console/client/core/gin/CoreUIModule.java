@@ -169,7 +169,16 @@ import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPrese
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
 import org.jboss.as.console.client.shared.subsys.threads.ThreadsView;
-import org.jboss.as.console.client.shared.subsys.undertow.*;
+
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricView;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowView;
+
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebSubsystemView;
 import org.jboss.as.console.client.shared.subsys.ws.*;
@@ -614,6 +623,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 UndertowPresenter.MyView.class,
                 UndertowView.class,
                 UndertowPresenter.MyProxy.class);
+
+        bindPresenter(HttpMetricPresenter.class,
+                HttpMetricPresenter.MyView.class,
+                HttpMetricView.class,
+                HttpMetricPresenter.MyProxy.class);
 
         bindPresenter(RemotingPresenter.class,
                 RemotingPresenter.MyView.class,

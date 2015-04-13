@@ -66,6 +66,7 @@ public class StandaloneRuntimeNavigation implements LHSHighlightEvent.NavItemSel
         LHSNavTreeItem web = new LHSNavTreeItem("Web", NameTokens.WebMetricPresenter);
         LHSNavTreeItem jpa = new LHSNavTreeItem("JPA", NameTokens.JPAMetricPresenter);
         LHSNavTreeItem ws = new LHSNavTreeItem("Webservices", NameTokens.WebServiceRuntimePresenter);
+        LHSNavTreeItem http = new LHSNavTreeItem("HTTP", NameTokens.HttpMetrics);
         LHSNavTreeItem naming = new LHSNavTreeItem("JNDI View", NameTokens.JndiPresenter);
 
         metricPredicates.add(new Predicate("datasources", datasources));
@@ -73,6 +74,7 @@ public class StandaloneRuntimeNavigation implements LHSHighlightEvent.NavItemSel
         metricPredicates.add(new Predicate("web", web));
         metricPredicates.add(new Predicate("jpa", jpa));
         metricPredicates.add(new Predicate("webservices", ws));
+        metricPredicates.add(new Predicate("undertow", http));
         metricPredicates.add(new Predicate("naming", naming));
 
 

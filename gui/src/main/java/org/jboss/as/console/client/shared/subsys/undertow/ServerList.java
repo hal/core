@@ -8,13 +8,13 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.client.shared.subsys.messaging.MessagingProviderEditor;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
@@ -38,18 +38,27 @@ import java.util.Map;
 public class ServerList extends ModelDrivenWidget {
 
     private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=undertow/server=*";
-    private HttpPresenter presenter;
+    private CommonHttpPresenter presenter;
+    private final boolean supportsEditing;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
-    private MessagingProviderEditor providerEditor;
 
-    public ServerList(HttpPresenter presenter) {
+    public ServerList(CommonHttpPresenter presenter, boolean supportsEditing) {
         super(RESOURCE_ADDRESS);
         this.presenter = presenter;
-        this.table = new DefaultCellTable(5);
+        this.supportsEditing = supportsEditing;
+
+        ProvidesKey<Property> keyProvider = new ProvidesKey<Property>() {
+            @Override
+            public Object getKey(Property property) {
+                return property.getName();
+            }
+        };
+
+        this.table = new DefaultCellTable(5, keyProvider);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
-        this.table.setSelectionModel(new SingleSelectionModel<Property>());
+        this.table.setSelectionModel(new SingleSelectionModel<Property>(keyProvider));
     }
 
     @Override
@@ -67,7 +76,7 @@ public class ServerList extends ModelDrivenWidget {
                     @Override
                     public void execute(String selection) {
                         presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest(NameTokens.HttpPresenter).with("name", selection)
+                                new PlaceRequest(presenter.getNameToken()).with("name", selection)
                         );
                     }
                 })
@@ -104,7 +113,7 @@ public class ServerList extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getNameToken());
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
@@ -138,8 +147,13 @@ public class ServerList extends ModelDrivenWidget {
                 .setHeadline("HTTP Server ")
                 .setDescription("Please chose a server from below for further settings.")
                         //.setMasterTools(tools) // TODO: implement add/remove ops
-                .setMaster(Console.MESSAGES.available("HTTP Server "), table)
-                .addDetail("Attributes", formPanel);
+                .setMaster(Console.MESSAGES.available("HTTP Server "), table);
+
+
+        if(supportsEditing)
+        {
+            layoutBuilder.addDetail("Attributes", formPanel);
+        }
 
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
