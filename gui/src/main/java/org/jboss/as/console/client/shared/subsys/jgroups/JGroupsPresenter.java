@@ -107,7 +107,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         this.selectedStack = request.getParameter("name", null);
     }
 
-    private void loadStacks(final boolean refreshDetails) {
+    void loadStacks(final boolean refreshDetails) {
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(Baseadress.get());
@@ -147,11 +147,11 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                                 jGroupsProtocol.setName(protocolName);
                                 jGroupsProtocol.setProperties(new ArrayList<PropertyRecord>());
                                 // protocol properties
-                                if (protocolModel.hasDefined("property")) {
-                                    List<Property> propItems = protocolModel.get("property").asPropertyList();
+                                if (protocolModel.hasDefined("properties")) {
+                                    List<Property> propItems = protocolModel.get("properties").asPropertyList();
                                     for (Property p : propItems) {
                                         String name = p.getName();
-                                        String value = p.getValue().asObject().get("value").asString();
+                                        String value = p.getValue().asString();
                                         PropertyRecord propertyRecord = factory.property().as();
                                         propertyRecord.setKey(name);
                                         propertyRecord.setValue(value);
@@ -168,7 +168,6 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                         stack.setProtocols(protocols);
 
                         // TODO: parse transport
-
                         if (model.hasDefined("transport")) {
                             List<Property> transportList = model.get("transport").asPropertyList();
                             if (transportList.isEmpty()) {
@@ -177,6 +176,19 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                             } else {
                                 ModelNode transportDef = transportList.get(0).getValue();
                                 JGroupsTransport transport = transportAdapter.fromDMR(transportDef);
+                                transport.setProperties(new ArrayList<>());
+                                if (transportDef.hasDefined("properties")) {
+                                    List<Property> propItems = transportDef.get("properties").asPropertyList();
+                                    for (Property p : propItems) {
+                                        String name = p.getName();
+                                        String value = p.getValue().asString();
+                                        PropertyRecord propertyRecord = factory.property().as();
+                                        propertyRecord.setKey(name);
+                                        propertyRecord.setValue(value);
+                                        transport.getProperties().add(propertyRecord);
+                                    }
+                                }
+                                transport.setName(transportList.get(0).getName());
                                 stack.setTransport(transport);
                             }
                         }
@@ -401,6 +413,8 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
     }
 
 
+    // ------------------------------------------------------ property management for protocols
+
     @Override
     public void onCreateProperty(String reference, PropertyRecord prop) {
         closePropertyDialoge();
@@ -412,9 +426,10 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         operation.get(ADDRESS).add("subsystem", "jgroups");
         operation.get(ADDRESS).add("stack", tokens[0]);
         operation.get(ADDRESS).add("protocol", tokens[1]);
-        operation.get(ADDRESS).add("property", prop.getKey());
-        operation.get(OP).set(ADD);
-        operation.get(VALUE).set(prop.getValue());
+        operation.get(OP).set("map-put");
+        operation.get(NAME).set("properties");
+        operation.get("key").set(prop.getKey());
+        operation.get("value").set(prop.getValue());
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -441,8 +456,9 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
         operation.get(ADDRESS).add("subsystem", "jgroups");
         operation.get(ADDRESS).add("stack", tokens[0]);
         operation.get(ADDRESS).add("protocol", tokens[1]);
-        operation.get(ADDRESS).add("property", prop.getKey());
-        operation.get(OP).set(REMOVE);
+        operation.get(OP).set("map-remove");
+        operation.get(NAME).set("properties");
+        operation.get("key").set(prop.getKey());
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
@@ -510,5 +526,9 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                 }
             }
         });
+    }
+
+    DispatchAsync getDispatcher() {
+        return dispatcher;
     }
 }

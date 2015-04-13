@@ -3,9 +3,11 @@ package org.jboss.as.console.client.shared.subsys.jgroups;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.layout.FormLayout;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
+import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
@@ -16,9 +18,18 @@ import org.jboss.ballroom.client.widgets.forms.DisclosureGroupRenderer;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
 
 /**
  * @author Heiko Braun
@@ -30,6 +41,7 @@ public class TransportEditor implements PropertyManagement {
     private JGroupsPresenter presenter;
     private PropertyEditor properyEditor;
     private Form<JGroupsTransport> form;
+    private DefaultWindow propertyWindow;
 
     public TransportEditor(JGroupsPresenter presenter) {
         this.presenter = presenter;
@@ -113,34 +125,95 @@ public class TransportEditor implements PropertyManagement {
     }
 
     public void setStack(JGroupsStack stack) {
-        headline.setText("Transport: Stack "+stack.getName());
-
+        headline.setText("Transport: Stack " + stack.getName());
+        List<PropertyRecord> transportProperties = stack.getTransport().getProperties();
+        if (transportProperties != null) {
+            properyEditor.setProperties(stack.getName() + "_#_" + stack.getTransport().getName(), transportProperties);
+        } else {
+            properyEditor.setProperties(stack.getName() + "_#_" + stack.getTransport().getName(), Collections.<PropertyRecord>emptyList());
+        }
         form.edit(stack.getTransport());
 
     }
 
     @Override
     public void onCreateProperty(String reference, PropertyRecord prop) {
-        
+        closePropertyDialoge();
+
+        String[] tokens = reference.split("_#_");
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "jgroups");
+        operation.get(ADDRESS).add("stack", tokens[0]);
+        operation.get(ADDRESS).add("transport", tokens[1]);
+        operation.get(OP).set("map-put");
+        operation.get(NAME).set("properties");
+        operation.get("key").set(prop.getKey());
+        operation.get("value").set(prop.getValue());
+
+        presenter.getDispatcher().execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.addingFailed("Transport Property"),
+                            response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.added("Transport Property"));
+                    presenter.loadStacks(true);
+                }
+            }
+        });
     }
 
     @Override
     public void onDeleteProperty(String reference, PropertyRecord prop) {
-        
+        String[] tokens = reference.split("_#_");
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "jgroups");
+        operation.get(ADDRESS).add("stack", tokens[0]);
+        operation.get(ADDRESS).add("transport", tokens[1]);
+        operation.get(OP).set("map-remove");
+        operation.get(NAME).set("properties");
+        operation.get("key").set(prop.getKey());
+
+        presenter.getDispatcher().execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.deletionFailed("Transport Property"), response.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.deleted("Transport Property"));
+                    presenter.loadStacks(true);
+                }
+            }
+        });
     }
 
     @Override
     public void onChangeProperty(String reference, PropertyRecord prop) {
-        
+        // not supported
     }
 
     @Override
     public void launchNewPropertyDialoge(String reference) {
-        
+        propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Transport Property"));
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
+        propertyWindow.trapWidget(new NewPropertyWizard(this, reference).asWidget());
+        propertyWindow.setGlassEnabled(true);
+        propertyWindow.center();
     }
 
     @Override
     public void closePropertyDialoge() {
-        
+        if (propertyWindow != null) {
+            propertyWindow.hide();
+        }
     }
 }
