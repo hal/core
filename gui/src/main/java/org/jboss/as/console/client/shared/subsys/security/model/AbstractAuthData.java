@@ -25,4 +25,5 @@ package org.jboss.as.console.client.shared.subsys.security.model;
 public interface AbstractAuthData extends GenericSecurityDomainData {
     String getFlag();
     void setFlag(String flag);
+
 }
