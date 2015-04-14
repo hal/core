@@ -176,7 +176,7 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
                             } else {
                                 ModelNode transportDef = transportList.get(0).getValue();
                                 JGroupsTransport transport = transportAdapter.fromDMR(transportDef);
-                                transport.setProperties(new ArrayList<>());
+                                transport.setProperties(new ArrayList<PropertyRecord>());
                                 if (transportDef.hasDefined("properties")) {
                                     List<Property> propItems = transportDef.get("properties").asPropertyList();
                                     for (Property p : propItems) {
