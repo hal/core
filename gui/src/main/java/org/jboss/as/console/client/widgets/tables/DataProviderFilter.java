@@ -28,12 +28,13 @@ public class DataProviderFilter<T> {
     private TextBox filter;
     private Range origVisibleRange;
 
+
     public interface Predicate<T> {
+
         boolean apply(String prefix, T candiate);
     }
 
     /**
-     *
      * @param delegate
      * @param predicate
      */
@@ -44,15 +45,14 @@ public class DataProviderFilter<T> {
     }
 
     private void clearSelection() {
-        for(HasData<T> table : delegate.getDataDisplays())
-        {
+        for (HasData<T> table : delegate.getDataDisplays()) {
             SelectionModel<? super T> selectionModel = table.getSelectionModel();
-            if(selectionModel instanceof SingleSelectionModel)
-            {
-                SingleSelectionModel<T> sm = (SingleSelectionModel<T>)selectionModel;
+            if (selectionModel instanceof SingleSelectionModel) {
+                SingleSelectionModel<T> sm = (SingleSelectionModel<T>) selectionModel;
                 T selectedObject = sm.getSelectedObject();
-                if(selectedObject!=null)
+                if (selectedObject != null) {
                     ((SingleSelectionModel<T>) selectionModel).setSelected(selectedObject, false);
+                }
             }
         }
     }
@@ -60,15 +60,10 @@ public class DataProviderFilter<T> {
     /**
      * a new backup if the data provider list will be made. <br/>
      * you need to do it when the data provider gets new records.
-     *
      */
     public void reset() {
         snapshot();
-
-        // flush
         clearFilter();
-
-        // clear input
         filter.setText("");
     }
 
@@ -78,8 +73,8 @@ public class DataProviderFilter<T> {
      */
     private void snapshot() {
         // backup original
-        this.origValues.clear();
-        this.origValues.addAll(delegate.getList());
+        origValues.clear();
+        origValues.addAll(delegate.getList());
         origVisibleRange = delegate.getDataDisplays().iterator().next().getVisibleRange();
     }
 
@@ -125,18 +120,16 @@ public class DataProviderFilter<T> {
         clearSelection();
         delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
 
-        final List<T> next  = new ArrayList<T>();
-        for(T item : origValues)
-        {
-            if(predicate.apply(prefix, item))
-                next.add(item);
+        final List<T> next = new ArrayList<T>();
+        for (T item : origValues) {
+            if (predicate.apply(prefix, item)) { next.add(item); }
         }
 
 
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(next);
 
-        if(next.size()<origVisibleRange.getLength()) {
+        if (next.size() < origVisibleRange.getLength()) {
             for (HasData table : delegate.getDataDisplays()) {
                 table.setVisibleRange(0, next.size());
             }
@@ -145,14 +138,12 @@ public class DataProviderFilter<T> {
 
     }
 
-    private void clearFilter() {
-
+    public void clearFilter() {
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(origValues);
-
-        delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
-
+        if (origVisibleRange != null) {
+            delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
+        }
         delegate.flush();
-
     }
 }

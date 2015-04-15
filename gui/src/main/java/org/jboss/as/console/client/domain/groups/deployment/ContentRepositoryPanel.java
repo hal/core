@@ -238,6 +238,7 @@ public class ContentRepositoryPanel implements IsWidget
 
     void reset(final ContentRepository contentRepository)
     {
+        filter.clearFilter(); // Fix fo HAL-561
         this.contentRepository = contentRepository;
         List<DeploymentRecord> _deployments = contentRepository.getDeployments();
         Collections.sort(_deployments, new Comparator<DeploymentRecord>() {
