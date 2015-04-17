@@ -48,6 +48,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -61,7 +62,7 @@ import java.util.List;
 public class ProfileMgmtPresenter
         extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
         implements Finder, ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
-        UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler   {
+        UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
@@ -75,6 +76,8 @@ public class ProfileMgmtPresenter
         void setPreview(SafeHtml html);
 
         void clearActiveSelection();
+
+        void toogleScrolling(boolean enforceScrolling, int requiredSize);
     }
 
     @ContentSlot
@@ -103,6 +106,11 @@ public class ProfileMgmtPresenter
         this.unauthorisedPresenter = unauthorisedPresenter;
         this.circuit = circuit;
         this.header = header;
+    }
+
+    @Override
+    public void onToggleScrolling(FinderScrollEvent event) {
+        getView().toogleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 
     /**
@@ -134,6 +142,8 @@ public class ProfileMgmtPresenter
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
         getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
+        getEventBus().addHandler(FinderScrollEvent.TYPE, this);
+
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {

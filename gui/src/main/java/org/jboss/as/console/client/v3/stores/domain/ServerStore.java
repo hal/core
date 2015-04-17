@@ -312,7 +312,7 @@ public class ServerStore extends ChangeSupport {
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).setEmptyList();
         operation.get(ADDRESS).add("host", action.getNewServer().getHostName());
-        operation.get(ADDRESS).add("server-config", action.getNewServer().getName());
+        operation.get(ADDRESS).add("server-config", action.getOriginal().getName());
         operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation, false), new AsyncCallback<DMRResponse>() {

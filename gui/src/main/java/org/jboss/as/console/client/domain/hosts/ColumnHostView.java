@@ -2,23 +2,18 @@ package org.jboss.as.console.client.domain.hosts;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.CustomScrollPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
-import com.google.gwt.user.client.ui.StackLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -27,24 +22,24 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
-import org.jboss.as.console.client.domain.topology.ServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
-import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -58,15 +53,15 @@ public class ColumnHostView extends SuspendableViewImpl
 
     private final FinderColumn<String> hosts;
     private final FinderColumn<ServerGroupRecord> groups;
-    private final HorizontalPanel groupsHeader;
-    private final HTML headerTitle;
-    private final HTML addGroupBtn;
     private final Widget hostColWidget;
     private final Widget groupsColWidget;
+    private final FinderColumn<FinderItem> browseColumn;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
     private HostMgmtPresenter presenter;
+
+    private ColumnManager columnManager;
 
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
@@ -74,6 +69,13 @@ public class ColumnHostView extends SuspendableViewImpl
     }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
+
+    interface StatusTemplate extends SafeHtmlTemplates {
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
+        SafeHtml item(String cssClass, String icon, String title);
+    }
+
+    private static final StatusTemplate STATUS_TEMPLATE = GWT.create(StatusTemplate.class);
 
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore) {
@@ -84,6 +86,8 @@ public class ColumnHostView extends SuspendableViewImpl
         contentCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
+
+        columnManager = new ColumnManager(layout);
 
         hosts = new FinderColumn<String>(
                 FinderColumn.FinderId.RUNTIME,
@@ -110,7 +114,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(String item) {
                         return item;
                     }
-                }).setPlain(true);
+                });
 
 
         hosts.setPreviewFactory(new PreviewFactory<String>() {
@@ -151,9 +155,19 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(ServerGroupRecord item) {
                         return item.getName();
                     }
-                }).setPlain(true);
+                });
 
         groups.setComparisonType("filter");
+
+        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
+                        new ContextualCommand<ServerGroupRecord>() {
+                            @Override
+                            public void executeOn(ServerGroupRecord group) {
+                                // TODO "/server-group=*", "add" permission
+                                presenter.launchNewGroupDialog();
+                            }
+                        })
+        );
 
         groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
             @Override
@@ -166,80 +180,96 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
-
-        StackLayoutPanel stack = new StackLayoutPanel(Style.Unit.PX);
-        stack.setAnimationDuration(0);
-
-        HTML hostsHeader = new HTML("Hosts");
-        hostsHeader.addStyleName("server-picker-section-header");
-
-        groupsHeader = new HorizontalPanel();
-        groupsHeader.addStyleName("fill-layout-width");
-        groupsHeader.addStyleName("server-picker-section-header");
-        groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
-
-        headerTitle = new HTML("Server Groups");
-        headerTitle.getElement().setAttribute("style", "height:25px");
-        groupsHeader.add(headerTitle);
-
-        // add server groups
-        addGroupBtn = new HTML("<i class=\"icon-plus\" style='color:black'></i>&nbsp;New");
-        addGroupBtn.getElement().setAttribute("style", "color:#0099D3; cursor:pointer;padding-right:5px");
-        addGroupBtn.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-
-                // TODO "/server-group=*", "add" permission
-
-                presenter.launchNewGroupDialog();
-            }
-        });
-
-        addGroupBtn.setVisible(false);
-        groupsHeader.add(addGroupBtn);
-        addGroupBtn.getElement().getParentElement().setAttribute("align", "right");
-
-
         hostColWidget = hosts.asWidget();
         groupsColWidget = groups.asWidget();
 
-        stack.add(hostColWidget, hostsHeader, 40);
-        stack.add(groupsColWidget, groupsHeader, 40);
+        browseColumn = new FinderColumn<FinderItem>(
+                FinderColumn.FinderId.RUNTIME,
+                "Browse Domain By",
+                new FinderColumn.Display<FinderItem>() {
 
-        stack.addSelectionHandler(new SelectionHandler<Integer>() {
+                    @Override
+                    public boolean isFolder(FinderItem data) {
+                        return data.isFolder();
+                    }
+
+                    @Override
+                    public SafeHtml render(String baseCss, FinderItem data) {
+                        String icon = data.isFolder() ? "icon-folder-close-alt" : "icon-file-alt";
+                        return STATUS_TEMPLATE.item(baseCss, icon, data.getTitle());
+                    }
+
+                    @Override
+                    public String rowCss(FinderItem data) {
+                        return "";
+                    }
+                },
+                new ProvidesKey<FinderItem>() {
+                    @Override
+                    public Object getKey(FinderItem item) {
+                        return item.getTitle();
+                    }
+                });
+
+
+
+        Widget browseWidget = browseColumn.asWidget();
+        columnManager.addWest(browseWidget);
+        columnManager.addWest(hostColWidget);
+        columnManager.addWest(groupsColWidget);
+
+        columnManager.setInitialVisible(1);
+
+
+        browseColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                if(event.getSelectedItem()>0)
+            public void onSelectionChange(SelectionChangeEvent event) {
+                if(browseColumn.hasSelectedItem())
                 {
-                    // server groups selected
-                    groupsHeader.getElement().removeAttribute("style");
-                    Console.getCircuit().dispatch(new FilterType(FilterType.GROUP));
 
-                    Scheduler.get().scheduleDeferred(
-                            new Scheduler.ScheduledCommand() {
-                                @Override
-                                public void execute() {
-                                    addGroupBtn.setVisible(true);
-                                }
-                            }
+                    columnManager.updateActiveSelection(browseWidget);
+
+                    clearNestedPresenter();
+
+                    presenter.getPlaceManager().revealPlace(
+                            new PlaceRequest(NameTokens.HostMgmtPresenter)
                     );
 
-                }
-                else {
-
-                    // hosts selected
-                    groupsHeader.getElement().setAttribute("style", "border-top: 1px solid #CFCFCF");
-                    Console.getCircuit().dispatch(new FilterType(FilterType.HOST));
-                    addGroupBtn.setVisible(false);
-
+                    browseColumn.getSelectedItem().getCmd().execute();
                 }
             }
         });
 
-        layout.addWest(stack, 217);
-        layout.add(contentCanvas);
+        List<FinderItem> defaults = new ArrayList<>();
+        defaults.add(
+                new FinderItem(
+                        "Hosts",
+                        new Command() {
+                            @Override
+                            public void execute() {
+                                columnManager.reduceColumnsTo(1);
+                                columnManager.appendColumn(hostColWidget);
+                                Console.getCircuit().dispatch(new FilterType(FilterType.HOST));
+                            }
+                        },
+                        true)
+        );
 
+        defaults.add(
+                new FinderItem(
+                        "Server Groups", new Command() {
+                    @Override
+                    public void execute() {
+                        columnManager.reduceColumnsTo(1);
+                        columnManager.appendColumn(groupsColWidget);
+                        Console.getCircuit().dispatch(new FilterType(FilterType.GROUP));
+                    }
+                }, true)
+        );
+
+        browseColumn.updateFrom(defaults);
+
+        layout.add(contentCanvas);
 
         // selection handling
         hosts.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -249,8 +279,11 @@ public class ColumnHostView extends SuspendableViewImpl
                 if (hosts.hasSelectedItem()) {
 
                     final String selectedHost = hosts.getSelectedItem();
-                    groupsColWidget.getElement().removeClassName("active");
-                    hostColWidget.getElement().addClassName("active");
+                    columnManager.updateActiveSelection(hostColWidget);
+
+                    presenter.getPlaceManager().revealPlace(
+                            new PlaceRequest(NameTokens.DomainRuntimePresenter)
+                    );
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
@@ -305,14 +338,18 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     final ServerGroupRecord selectedGroup = groups.getSelectedItem();
 
-                    hostColWidget.getElement().removeClassName("active");
-                    groupsColWidget.getElement().addClassName("active");
+                    columnManager.updateActiveSelection(groupsColWidget);
+
+                    presenter.getPlaceManager().revealPlace(
+                            new PlaceRequest(NameTokens.DomainRuntimePresenter)
+                    );
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
                                     Console.getCircuit().dispatch(new GroupSelection(selectedGroup.getName()));
+
                                 }
                             }
                     );
@@ -396,7 +433,20 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Override
     public Widget createWidget() {
-        return layout.asWidget();
+
+        /*ScrollPanel scroll = new ScrollPanel();
+        scroll.setSize( "100%", "100%" );
+        //scroll.getElement().setAttribute("style", "overflow-x:auto");
+        scroll.getElement().setId("scrolling");
+
+        scroll.setWidget(layout);
+        return scroll;*/
+
+        //layout.getElement().setAttribute("style", "overflow-x:auto");
+        //layout.getElement().setId("scrolling");
+        //layout.setWidth("2000px");
+        return layout;
+
     }
 
     @Override
@@ -404,12 +454,27 @@ public class ColumnHostView extends SuspendableViewImpl
         if (slot == HostMgmtPresenter.TYPE_MainContent) {
             if(content!=null)
                 setContent(content);
+            else
+                contentCanvas.clear();
         }
     }
 
     private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
+    }
+
+    private void clearNestedPresenter() {
+
+        presenter.clearSlot(HostMgmtPresenter.TYPE_MainContent);
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                if(presenter.getPlaceManager().getHierarchyDepth()>1)
+                    presenter.getPlaceManager().revealRelativePlace(1);
+            }
+        });
     }
 
     @Override
@@ -442,6 +507,11 @@ public class ColumnHostView extends SuspendableViewImpl
     @Override
     public void updateServerGroups(List<ServerGroupRecord> serverGroups) {
         groups.updateFrom(serverGroups, false);
+    }
+
+    @Override
+    public void toggleScrolling(boolean enforceScrolling, int requiredWidth) {
+        columnManager.toogleScrolling(enforceScrolling, requiredWidth);
     }
 }
 

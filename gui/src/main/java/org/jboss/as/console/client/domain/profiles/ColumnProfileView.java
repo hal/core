@@ -2,6 +2,7 @@ package org.jboss.as.console.client.domain.profiles;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourcePrototype;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
@@ -34,6 +35,7 @@ import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
+import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
@@ -57,9 +59,11 @@ public class ColumnProfileView extends SuspendableViewImpl
     private static final String SOCKET_BINDING = "Socket Binding";
     private static final String PATHS = "Paths";
     private static final String SYSTEM_PROPERTIES = "System Properties";
+
     private final FinderColumn<ProfileRecord> profiles;
-    private final FinderColumn<SubsystemLink> subsystems;
     private final FinderColumn<FinderItem> config;
+    private final FinderColumn<SubsystemLink> subsystems;
+
     private final ArrayList<FinderItem> configLinks;
     private final ColumnManager columnManager;
     private final Widget profileColWidget;
@@ -609,5 +613,10 @@ public class ColumnProfileView extends SuspendableViewImpl
             });
         }
 
+    }
+
+    @Override
+    public void toogleScrolling(boolean enforceScrolling, int requiredSize) {
+        columnManager.toogleScrolling(enforceScrolling, requiredSize);
     }
 }
