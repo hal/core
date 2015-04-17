@@ -187,28 +187,32 @@ public class DomainRuntimePresenter
                                 || (action instanceof RefreshServer)
                         ) {
 
-                    if(FilterType.HOST.equals(serverStore.getFilter()))
-                    {
-                        String selectedHost = hostStore.getSelectedHost();
-
-                        List<Server> serverModel = Collections.EMPTY_LIST;
-                        if (selectedHost != null) {
-                            serverModel = serverStore.getServerForHost(
-                                    hostStore.getSelectedHost()
-                            );
-
-                        }
-
-                        getView().updateServerList(serverModel);
-                    }
-                    else if(FilterType.GROUP.equals(serverStore.getFilter()))
-                    {
-                        List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
-                        getView().updateServerList(serverModel);
-                    }
+                    refreshServerList();
                 }
             }
         });
+    }
+
+    private void refreshServerList() {
+        if(FilterType.HOST.equals(serverStore.getFilter()))
+        {
+            String selectedHost = hostStore.getSelectedHost();
+
+            List<Server> serverModel = Collections.EMPTY_LIST;
+            if (selectedHost != null) {
+                serverModel = serverStore.getServerForHost(
+                        hostStore.getSelectedHost()
+                );
+
+            }
+
+            getView().updateServerList(serverModel);
+        }
+        else if(FilterType.GROUP.equals(serverStore.getFilter()))
+        {
+            List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
+            getView().updateServerList(serverModel);
+        }
     }
 
     @Override
@@ -276,6 +280,12 @@ public class DomainRuntimePresenter
             }
         });
 
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        refreshServerList();
     }
 
     public String getFilter() {

@@ -69,6 +69,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
@@ -91,7 +92,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  */
 public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.MyView, HostMgmtPresenter.MyProxy>
-        implements Finder, PropertyManagement, PreviewEvent.Handler {
+        implements Finder, PropertyManagement, PreviewEvent.Handler, FinderScrollEvent.Handler {
 
 
     private DefaultWindow window;
@@ -99,6 +100,10 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private ApplicationMetaData propertyMetaData;
+
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -119,6 +124,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         void updateServerGroups(List<ServerGroupRecord> result);
 
         void preview(SafeHtml html);
+
+        void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
 
 
@@ -129,6 +136,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private final ServerStore serverStore;
     private final ServerGroupStore serverGroupStore;
     private final ProfileStore profileStore;
+    private final PlaceManager placeManager;
     private BootstrapContext bootstrap;
     private final HostStore hostStore;
     private HandlerRegistration hostHandler;
@@ -144,6 +152,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
+        this.placeManager = placeManager;
 
         this.bootstrap = bootstrap;
         this.hostStore = hostStore;
@@ -161,6 +170,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
+        getEventBus().addHandler(FinderScrollEvent.TYPE, this);
 
         hostHandler = hostStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
@@ -500,4 +510,8 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     }
 
+    @Override
+    public void onToggleScrolling(FinderScrollEvent event) {
+        getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+    }
 }

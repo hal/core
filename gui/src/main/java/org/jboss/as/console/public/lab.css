@@ -564,3 +564,11 @@
     padding-right:50px;
     padding-top:20px;
 }
+
+.force-overflow {
+    overflow: auto!important;
+}
+
+.scrolling {
+
+}

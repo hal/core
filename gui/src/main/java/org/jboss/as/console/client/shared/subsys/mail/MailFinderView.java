@@ -149,6 +149,8 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
         columnManager.addWest(mailSessCol);
         columnManager.add(previewCanvas);
 
+        columnManager.setInitialVisible(1);
+
         return layout;
     }
 
