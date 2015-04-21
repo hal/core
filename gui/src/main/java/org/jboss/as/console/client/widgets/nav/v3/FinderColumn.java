@@ -62,6 +62,7 @@ public class FinderColumn<T> {
     private String type = null;
 
     public enum FinderId { CONFIGURATION, RUNTIME}
+    private boolean showSize = false;
 
     /**
      * Thje default finder preview
@@ -216,6 +217,11 @@ public class FinderColumn<T> {
                 triggerPreviewEvent();
             }
         });
+    }
+
+    public FinderColumn<T> setShowSize(boolean b) {
+        this.showSize = b;
+        return this;
     }
 
     private void triggerPreviewEvent() {
@@ -393,9 +399,10 @@ public class FinderColumn<T> {
             header.addStyleName("server-picker-section-header");
 
             headerTitle = new HTML(title);
-            headerTitle.getElement().setAttribute("style", "height:25px");
+            headerTitle.addStyleName("finder-col-title");
             header.add(headerTitle);
             ScrollPanel nav = new ScrollPanel(cellTable);
+            nav.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
 
 
             for (final MenuDelegate menuItem : topMenuItems) {
@@ -422,6 +429,7 @@ public class FinderColumn<T> {
         else            // embedded mode, w/o header
         {
             ScrollPanel nav = new ScrollPanel(cellTable);
+            nav.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
 
             layout.add(nav);
             layout.setWidgetTopHeight(nav, 0, Style.Unit.PX, 100, Style.Unit.PCT);
@@ -440,7 +448,13 @@ public class FinderColumn<T> {
         cellTable.setRowCount(records.size(), true);
         cellTable.setRowData(0, records);
 
-        if(!plain) headerTitle.setHTML(title+" ("+records.size()+")");
+        if(!plain) {
+            if(showSize)
+                headerTitle.setHTML(title+" ("+records.size()+")");
+            else
+                headerTitle.setHTML(title);
+        }
+
         if(selectDefault && records.size()>0)
         {
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

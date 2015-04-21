@@ -557,13 +557,7 @@
     overflow: hidden;
 }
 
-.preview-content {
-    max-width: 600px;
-    height:100%;
-    padding-left:50px;
-    padding-right:50px;
-    padding-top:20px;
-}
+
 
 .force-overflow {
     overflow: auto!important;
@@ -571,4 +565,35 @@
 
 .scrolling {
 
+}
+
+.finder-col-title {
+    font-size: 12px;
+    font-weight: BOLD;
+    height:25px;
+}
+
+.preview-content {
+    max-width: 600px;
+    height:100%;
+    padding-left:30px;
+    padding-right:30px;
+    padding-top:20px;
+}
+
+.preview-content h1 {
+    font-size: 22px;
+    font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+    font-weight: 400;
+}
+
+
+.preview-content h2 {
+    font-size: 18px;
+    font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
+    font-weight: 400;
+}
+
+.preview-content a {
+    font-weight: BOLD;
 }

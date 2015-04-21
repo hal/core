@@ -255,7 +255,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(ProfileRecord item) {
                         return item.getName();
                     }
-                });
+                }).setShowSize(true);
 
         profiles.setPreviewFactory(new PreviewFactory<ProfileRecord>() {
 
@@ -298,7 +298,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(SubsystemLink item) {
                         return item.getToken();
                     }
-                });
+                }).setShowSize(true);
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override
