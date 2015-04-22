@@ -92,6 +92,8 @@ public class FinderColumn<T> {
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
 
+        cellTable.setEmptyTableWidget(new HTML("<div class='empty-finder-column'>No Items!</div>"));
+
         Column<T, SafeHtml> titleColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(T data) {
@@ -228,9 +230,11 @@ public class FinderColumn<T> {
     }
 
     private void triggerPreviewEvent() {
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+        // preview and place management sometimes compete, hence the timed event
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
-            public void execute() {
+            public boolean execute() {
 
                 // preview events
                 PlaceManager placeManager = Console.MODULES.getPlaceManager();
@@ -245,8 +249,10 @@ public class FinderColumn<T> {
                     });
                 }
 
+                return false;
             }
-        });
+        }, 200);
+
     }
 
     private void triggerBreadcrumbEvent(boolean isMenuEvent) {

@@ -535,14 +535,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     public void updateServerList(List<Server> serverModel) {
         columnManager.reduceColumnsTo(1);
         serverColumn.updateFrom(serverModel, false);
-        previewCanvas.clear();
+        //previewCanvas.clear();
     }
 
     @Override
     public void clearServerList() {
         columnManager.reduceColumnsTo(1);
         serverColumn.updateFrom(Collections.EMPTY_LIST, false);
-        previewCanvas.clear();
+        //previewCanvas.clear();
     }
 
     private class PlaceLink extends FinderItem {

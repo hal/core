@@ -567,6 +567,14 @@
 
 }
 
+.empty-finder-column {
+    color: #CCCCCC;
+    height: 50px;
+    padding-top: 22px;
+    text-align: center;
+    width: 100%;
+}
+
 .finder-col-title {
     font-size: 12px;
     font-weight: BOLD;
