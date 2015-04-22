@@ -275,6 +275,8 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.deployment.ServerGroupDeploymentPresenter;
+import org.jboss.as.console.client.v3.deployment.ServerGroupDeploymentView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.GinExtensionBinding;
@@ -404,6 +406,12 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DomainDeploymentView.class,
                 DomainDeploymentPresenter.MyProxy.class);
 
+        // domain / server-group-deployments
+        bindPresenter(ServerGroupDeploymentPresenter.class,
+                ServerGroupDeploymentPresenter.MyView.class,
+                ServerGroupDeploymentView.class,
+                ServerGroupDeploymentPresenter.MyProxy.class);
+
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,
                 ColumnHostView.class,
@@ -469,6 +477,27 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ConfigAdminView.class,
                 ConfigAdminPresenter.MyProxy.class);
 
+        // Infinispan
+        bindPresenter(CacheContainerPresenter.class,
+                CacheContainerPresenter.MyView.class,
+                CacheContainerView.class,
+                CacheContainerPresenter.MyProxy.class);
+        bindPresenter(LocalCachePresenter.class,
+                LocalCachePresenter.MyView.class,
+                LocalCacheView.class,
+                LocalCachePresenter.MyProxy.class);
+        bindPresenter(InvalidationCachePresenter.class,
+                InvalidationCachePresenter.MyView.class,
+                InvalidationCacheView.class,
+                InvalidationCachePresenter.MyProxy.class);
+        bindPresenter(ReplicatedCachePresenter.class,
+                ReplicatedCachePresenter.MyView.class,
+                ReplicatedCacheView.class,
+                ReplicatedCachePresenter.MyProxy.class);
+        bindPresenter(DistributedCachePresenter.class,
+                DistributedCachePresenter.MyView.class,
+                DistributedCacheView.class,
+                DistributedCachePresenter.MyProxy.class);
 
         bindPresenter(SocketBindingPresenter.class,
                 SocketBindingPresenter.MyView.class,
