@@ -31,7 +31,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -72,11 +72,11 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
     private final RoleAssignmentPresenter presenter;
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInformationStore;
-    private final ServerGroupStore serverGroupStore;
+    private final ServerGroupDAO serverGroupStore;
     private boolean pending;
 
     public LoadRoleAssignmentsOp(final RoleAssignmentPresenter presenter, final DispatchAsync dispatcher,
-            final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
+            final HostInformationStore hostInformationStore, ServerGroupDAO serverGroupStore) {
         this.presenter = presenter;
         this.dispatcher = dispatcher;
         this.hostInformationStore = hostInformationStore;

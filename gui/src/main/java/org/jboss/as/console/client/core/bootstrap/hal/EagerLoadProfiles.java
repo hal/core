@@ -1,11 +1,14 @@
 package org.jboss.as.console.client.core.bootstrap.hal;
 
 import com.google.inject.Inject;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ProfileDAO;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshProfiles;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshSocketBindings;
 import org.jboss.gwt.flow.client.Control;
 
 import java.util.List;
@@ -20,11 +23,11 @@ import java.util.List;
  */
 public class EagerLoadProfiles implements BootstrapStep {
 
-    private final ProfileStore profileStore;
+    private final ProfileDAO profileStore;
     private final CurrentProfileSelection profileSelection;
 
     @Inject
-    public EagerLoadProfiles(ProfileStore profileStore, CurrentProfileSelection profileSelection) {
+    public EagerLoadProfiles(ProfileDAO profileStore, CurrentProfileSelection profileSelection) {
         this.profileStore = profileStore;
         this.profileSelection = profileSelection;
     }
@@ -34,6 +37,12 @@ public class EagerLoadProfiles implements BootstrapStep {
 
         final BootstrapContext context = control.getContext();
         if (!context.isStandalone()) {
+
+            // self referencing actions are not possible with circuit
+            // hence the double initialisation
+            Console.MODULES.getCircuitDispatcher().dispatch(new RefreshProfiles());
+            Console.MODULES.getCircuitDispatcher().dispatch(new RefreshSocketBindings());
+
             profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
                 @Override
                 public void onFailure(Throwable caught) {

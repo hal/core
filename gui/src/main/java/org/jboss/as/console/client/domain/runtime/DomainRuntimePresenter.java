@@ -3,7 +3,6 @@ package org.jboss.as.console.client.domain.runtime;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
-import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -13,7 +12,6 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
-import com.gwtplatform.mvp.client.annotations.UseGatekeeper;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
@@ -30,7 +28,7 @@ import org.jboss.as.console.client.domain.hosts.NewServerConfigWizard;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
@@ -115,12 +113,12 @@ public class DomainRuntimePresenter
     private final HostStore hostStore;
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
-    private final ServerGroupStore serverGroupStore;
+    private final ServerGroupDAO serverGroupStore;
 
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                                   HostStore hostStore, SubsystemLoader subsysStore,
-                                  ServerGroupStore serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
+                                  ServerGroupDAO serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
                                   Dispatcher circuit, ServerStore serverStore, HostInformationStore hostInfoStore, DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,

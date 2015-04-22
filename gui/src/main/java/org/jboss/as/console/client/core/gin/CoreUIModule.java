@@ -96,11 +96,11 @@ import org.jboss.as.console.client.domain.hosts.general.HostJVMView;
 import org.jboss.as.console.client.domain.hosts.general.HostPropertiesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostPropertiesView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ProfileStore;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ProfileDAO;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.impl.HostInfoStoreImpl;
-import org.jboss.as.console.client.domain.model.impl.ProfileStoreImpl;
-import org.jboss.as.console.client.domain.model.impl.ServerGroupStoreImpl;
+import org.jboss.as.console.client.domain.model.impl.ProfileDAOImpl;
+import org.jboss.as.console.client.domain.model.impl.ServerGroupDAOImpl;
 import org.jboss.as.console.client.domain.profiles.ColumnProfileView;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
@@ -735,9 +735,9 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(CacheContainerStore.class).to(CacheContainerStoreImpl.class).in(Singleton.class);
         bind(LocalCacheStore.class).to(LocalCacheStoreImpl.class).in(Singleton.class);
         bind(DataSourceStore.class).to(DataSourceStoreImpl.class).in(Singleton.class);
-        bind(ProfileStore.class).to(ProfileStoreImpl.class).in(Singleton.class);
+        bind(ProfileDAO.class).to(ProfileDAOImpl.class).in(Singleton.class);
         bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);
-        bind(ServerGroupStore.class).to(ServerGroupStoreImpl.class).in(Singleton.class);
+        bind(ServerGroupDAO.class).to(ServerGroupDAOImpl.class).in(Singleton.class);
         bind(HostInformationStore.class).to(HostInfoStoreImpl.class).in(Singleton.class);
         bind(PatchManager.class).in(Singleton.class);
 

@@ -27,6 +27,7 @@ import java.util.List;
  * @author Heiko Braun
  * @date 2/11/11
  */
-public interface ProfileStore {
+public interface ProfileDAO {
+    @Deprecated
     void loadProfiles(AsyncCallback<List<ProfileRecord>> callback);
 }

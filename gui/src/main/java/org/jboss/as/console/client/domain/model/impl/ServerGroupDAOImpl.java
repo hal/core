@@ -22,7 +22,7 @@ package org.jboss.as.console.client.domain.model.impl;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -49,7 +49,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 3/18/11
  */
-public class ServerGroupStoreImpl implements ServerGroupStore {
+public class ServerGroupDAOImpl implements ServerGroupDAO {
 
     private DispatchAsync dispatcher;
     private BeanFactory factory;
@@ -57,7 +57,7 @@ public class ServerGroupStoreImpl implements ServerGroupStore {
     private EntityAdapter<Jvm> jvmAdapter;
 
     @Inject
-    public ServerGroupStoreImpl(
+    public ServerGroupDAOImpl(
             DispatchAsync dispatcher,
             BeanFactory factory,
             ApplicationMetaData propertyMetaData) {

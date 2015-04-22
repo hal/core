@@ -23,7 +23,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ProfileDAO;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.dmr.client.ModelDescriptionConstants;
@@ -41,7 +41,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
  * @author Heiko Braun
  * @date 3/18/11
  */
-public class ProfileStoreImpl implements ProfileStore {
+public class ProfileDAOImpl implements ProfileDAO {
 
     private DispatchAsync dispatcher;
     private BeanFactory factory;
@@ -50,7 +50,7 @@ public class ProfileStoreImpl implements ProfileStore {
     private List<ProfileRecord> cachedRecords = null;
 
     @Inject
-    public ProfileStoreImpl(DispatchAsync dispatcher, BeanFactory factory, CurrentProfileSelection currentProfile) {
+    public ProfileDAOImpl(DispatchAsync dispatcher, BeanFactory factory, CurrentProfileSelection currentProfile) {
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.currentProfile = currentProfile;
@@ -91,7 +91,7 @@ public class ProfileStoreImpl implements ProfileStore {
                             records.add(record);
                         }
 
-                        ProfileStoreImpl.this.cachedRecords = records;
+                        ProfileDAOImpl.this.cachedRecords = records;
                         callback.onSuccess(records);
                     }
                 }

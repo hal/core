@@ -4,7 +4,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.gwt.flow.client.Control;
 
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.TreeSet;
 
 public class EagerLoadGroups implements BootstrapStep {
 
-    private final ServerGroupStore groupStore;
+    private final ServerGroupDAO groupStore;
 
     @Inject
-    public EagerLoadGroups(ServerGroupStore groupStore) {
+    public EagerLoadGroups(ServerGroupDAO groupStore) {
         this.groupStore = groupStore;
     }
 

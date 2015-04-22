@@ -58,8 +58,8 @@ import org.jboss.as.console.client.domain.hosts.general.HostInterfacesPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostJVMPresenter;
 import org.jboss.as.console.client.domain.hosts.general.HostPropertiesPresenter;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ProfileStore;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ProfileDAO;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
@@ -259,9 +259,9 @@ public interface CoreUI {
     AsyncProvider<TopologyPresenter> getServerGroupHostMatrixPresenter();
     AsyncProvider<ServerGroupPresenter> getServerGroupsPresenter();
 
-    ProfileStore getProfileStore();
+    ProfileDAO getProfileDAO();
     SubsystemLoader getSubsystemLoader();
-    ServerGroupStore getServerGroupStore();
+    ServerGroupDAO getServerGroupDAO();
     HostInformationStore getHostInfoStore();
 
 

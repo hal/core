@@ -45,9 +45,8 @@ import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.groups.CopyGroupWizard;
 import org.jboss.as.console.client.domain.groups.NewServerGroupWizard;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
@@ -63,12 +62,16 @@ import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.shared.util.DMRUtil;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
+import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.client.v3.stores.domain.SocketBindingStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.CreateServerGroup;
+import org.jboss.as.console.client.v3.stores.domain.actions.DeleteServerGroup;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
-import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshHosts;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServerGroups;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
@@ -83,6 +86,7 @@ import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -99,7 +103,10 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     private DefaultWindow propertyWindow;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
-    private ApplicationMetaData propertyMetaData;
+
+    private final ServerGroupDAO serverGroupDAO;
+    private final ServerGroupStore serverGroupStore;
+    private final SocketBindingStore socketBindingStore;
 
     public PlaceManager getPlaceManager() {
         return placeManager;
@@ -119,10 +126,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public interface MyView extends View {
         void setPresenter(HostMgmtPresenter presenter);
         void updateHosts(String selectedHost, Set<String> hostNames);
-        void updateProfiles(List<ProfileRecord> result);
-        void updateSocketBindings(List<String> result);
         void updateServerGroups(List<ServerGroupRecord> result);
-
         void preview(SafeHtml html);
 
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
@@ -134,21 +138,19 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     private final Dispatcher circuit;
     private final ServerStore serverStore;
-    private final ServerGroupStore serverGroupStore;
     private final ProfileStore profileStore;
     private final PlaceManager placeManager;
     private BootstrapContext bootstrap;
     private final HostStore hostStore;
     private HandlerRegistration hostHandler;
     private List<ProfileRecord> existingProfiles;
-    private List<String> existingSockets;
 
     @Inject
     public HostMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                              BootstrapContext bootstrap, Header header, HostStore hostStore, Dispatcher circuit,
-                             UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore, ServerGroupStore serverGroupStore,
+                             UnauthorisedPresenter unauthorisedPresenter,  ServerStore serverStore,
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
-                             ApplicationMetaData propertyMetaData) {
+                             ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore) {
 
         super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
                 TYPE_MainContent);
@@ -158,11 +160,13 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         this.hostStore = hostStore;
         this.circuit = circuit;
         this.serverStore = serverStore;
-        this.serverGroupStore = serverGroupStore;
+
         this.profileStore = profileStore;
         this.dispatcher = dispatcher;
         this.factory = factory;
-        this.propertyMetaData = propertyMetaData;
+        this.serverGroupDAO = serverGroupDAO;
+        this.serverGroupStore = serverGroupStore;
+        this.socketBindingStore = socketBindingStore;
     }
 
     @Override
@@ -185,6 +189,13 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
             }
         });
 
+        serverGroupStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Action action) {
+                getView().updateServerGroups(serverGroupStore.getServerGroups());
+            }
+        });
+
         // switching between host/group views
         serverStore.addChangeHandler(FilterType.class, new PropagatesChange.Handler() {
             @Override
@@ -194,9 +205,11 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                 if(serverStore.getFilter().equals(FilterType.HOST))
                     getView().updateHosts(hostStore.getSelectedHost(), hostStore.getHostNames());
                 else
-                    loadServerGroupData();
+                    loadServerGroups();
             }
         });
+
+
 
     }
 
@@ -214,43 +227,15 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         HostMgmtPresenter.super.onReset();
     }
 
-    // TODO: should be moved to circuit
-    private void loadServerGroupData() {
-        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
-            @Override
-            public void onSuccess(List<ProfileRecord> result) {
-                existingProfiles = result;
-                getView().updateProfiles(result);
-            }
-        });
-
-        serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
-            @Override
-            public void onSuccess(List<String> result) {
-                existingSockets = result;
-
-                getView().updateSocketBindings(result);
-            }
-        });
-
-        loadServerGroups();
-    }
-
     private void loadServerGroups() {
 
-        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
-            @Override
-            public void onSuccess(List<ServerGroupRecord> result) {
-
-                getView().updateServerGroups(result);
-            }
-        });
+        circuit.dispatch(new RefreshServerGroups());
     }
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
         circuit.dispatch(new RefreshHosts());
-        loadServerGroupData(); // move to circuit store
+        loadServerGroups();
     }
 
     private void clearInitialPlace() {
@@ -280,43 +265,13 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     public void onDeleteGroup(final ServerGroupRecord group) {
 
-        serverGroupStore.delete(group, new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean wasSuccessful) {
-                if (wasSuccessful) {
-                    Console.info(Console.MESSAGES.deleted(group.getName()));
-                } else {
-                    Console.error(Console.MESSAGES.deletionFailed(group.getName()));
-                }
-
-                staleModel();
-
-                loadServerGroups();
-            }
-        });
+        circuit.dispatch(new DeleteServerGroup(group.getName()));
     }
 
-    public void createNewGroup(final ServerGroupRecord newGroup) {
+    public void createNewGroup(final ServerGroupRecord group) {
 
         closeDialoge();
-
-        serverGroupStore.create(newGroup, new SimpleCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean success) {
-
-                if (success) {
-
-                    Console.info(Console.MESSAGES.added(newGroup.getName()));
-                    loadServerGroups();
-
-                } else {
-                    Console.error(Console.MESSAGES.addingFailed(newGroup.getName()));
-                }
-
-                staleModel();
-
-            }
-        });
+        circuit.dispatch(new CreateServerGroup(group));
     }
 
     public void launchNewGroupDialog() {
@@ -326,7 +281,11 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         window.setHeight(360);
 
         window.trapWidget(
-                new NewServerGroupWizard(this, existingProfiles, existingSockets).asWidget()
+                new NewServerGroupWizard(
+                        this,
+                        profileStore.getProfiles(),
+                        socketBindingStore.getGroupNames()
+                ).asWidget()
         );
 
         window.setGlassEnabled(true);
@@ -504,7 +463,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                 Console.error("Server " + op.name() + " failed", caught.getMessage());
                 circuit.dispatch(new RefreshServer());
             }
-        }, dispatcher, serverGroupStore, group,  serverStore.getServerForGroup(group));
+        }, dispatcher, serverGroupDAO, group,  serverStore.getServerForGroup(group));
 
         serverGroupOp.run();
 

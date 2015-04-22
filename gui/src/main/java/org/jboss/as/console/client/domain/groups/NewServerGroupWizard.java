@@ -37,6 +37,7 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Heiko Braun
@@ -47,12 +48,12 @@ public class NewServerGroupWizard {
     private HostMgmtPresenter presenter;
 
     private List<ProfileRecord> existingProfiles;
-    private List<String> existingSockets;
+    private Set<String> existingSockets;
 
     public NewServerGroupWizard(
             final HostMgmtPresenter presenter,
             List<ProfileRecord> existingProfiles,
-            List<String> existingSockets) {
+            Set<String> existingSockets) {
         this.presenter = presenter;
         this.existingProfiles = existingProfiles;
         this.existingSockets = existingSockets;

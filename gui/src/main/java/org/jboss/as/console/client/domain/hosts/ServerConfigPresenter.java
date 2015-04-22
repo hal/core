@@ -36,7 +36,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
@@ -118,7 +118,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     private final ServerStore serverStore;
     private final Dispatcher circuit;
     private HostInformationStore hostInfoStore;
-    private ServerGroupStore serverGroupStore;
+    private ServerGroupDAO serverGroupDAO;
 
     private DefaultWindow propertyWindow;
     private DispatchAsync dispatcher;
@@ -132,7 +132,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
     @Inject
     public ServerConfigPresenter(EventBus eventBus, MyView view, MyProxy proxy,
-                                 HostInformationStore hostInfoStore, ServerGroupStore serverGroupStore,
+                                 HostInformationStore hostInfoStore, ServerGroupDAO serverGroupStore,
                                  DispatchAsync dispatcher, ApplicationMetaData propertyMetaData,
                                  BeanFactory factory, PlaceManager placeManager, HostStore hostStore,
                                  ServerStore serverStore, Dispatcher circuit) {
@@ -140,7 +140,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
         super(eventBus, view, proxy, circuit);
 
         this.hostInfoStore = hostInfoStore;
-        this.serverGroupStore = serverGroupStore;
+        this.serverGroupDAO = serverGroupStore;
         this.dispatcher = dispatcher;
         this.propertyMetaData = propertyMetaData;
         this.factory = factory;
@@ -248,7 +248,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     private void loadSocketBindings(final Command cmd) {
-        serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
+        serverGroupDAO.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
             @Override
             public void onSuccess(List<String> result) {
                 getView().updateSocketBindings(result);
@@ -258,7 +258,7 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
     }
 
     private void loadServerGroups(final Command cmd) {
-        serverGroupStore.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
+        serverGroupDAO.loadServerGroups(new SimpleCallback<List<ServerGroupRecord>>() {
             @Override
             public void onSuccess(List<ServerGroupRecord> serverGroups) {
                 getView().setGroups(serverGroups);

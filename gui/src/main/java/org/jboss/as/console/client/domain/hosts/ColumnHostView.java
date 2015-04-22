@@ -6,13 +6,9 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.CustomScrollPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -21,7 +17,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -39,7 +34,6 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -159,7 +153,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         groups.setComparisonType("filter");
 
-        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
+        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add",
                         new ContextualCommand<ServerGroupRecord>() {
                             @Override
                             public void executeOn(ServerGroupRecord group) {
@@ -494,15 +488,7 @@ public class ColumnHostView extends SuspendableViewImpl
         hosts.updateFrom(new ArrayList<String>(hostNames), false);
     }
 
-    @Override
-    public void updateProfiles(List<ProfileRecord> profiles) {
 
-    }
-
-    @Override
-    public void updateSocketBindings(List<String> socketBindings) {
-
-    }
 
     @Override
     public void updateServerGroups(List<ServerGroupRecord> serverGroups) {

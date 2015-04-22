@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 2/15/11
  */
-public interface ServerGroupStore {
+public interface ServerGroupDAO {
 
     void startServerGroup(String nme, final AsyncCallback<Boolean> callback);
     void stopServerGroup(String nme, final AsyncCallback<Boolean> callback);

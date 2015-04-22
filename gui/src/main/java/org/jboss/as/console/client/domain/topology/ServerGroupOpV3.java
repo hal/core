@@ -3,7 +3,7 @@ package org.jboss.as.console.client.domain.topology;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.Server;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -22,18 +22,18 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ServerGroupOpV3 extends TopologyOp {
 
     private final DispatchAsync dispatcher;
-    private final ServerGroupStore serverGroupStore;
+    private final ServerGroupDAO serverGroupDAO;
     private final String group;
     private final ModelNode node;
 
     public ServerGroupOpV3(final LifecycleOperation op, final LifecycleCallback callback, final DispatchAsync dispatcher,
-                           final ServerGroupStore serverGroupStore, final String group,
+                           final ServerGroupDAO serverGroupDAO, final String group,
                            final List<Server> server) {
 
         super(op, callback);
 
         this.dispatcher = dispatcher;
-        this.serverGroupStore = serverGroupStore;
+        this.serverGroupDAO = serverGroupDAO;
         this.group = group;
 
         this.node = new ModelNode();
@@ -57,13 +57,13 @@ public class ServerGroupOpV3 extends TopologyOp {
         BooleanCallback bc = new BooleanCallback();
         switch (op) {
             case START:
-                serverGroupStore.startServerGroup(group, bc);
+                serverGroupDAO.startServerGroup(group, bc);
                 break;
             case STOP:
-                serverGroupStore.stopServerGroup(group, bc);
+                serverGroupDAO.stopServerGroup(group, bc);
                 break;
             case RESTART:
-                serverGroupStore.restartServerGroup(group, bc);
+                serverGroupDAO.restartServerGroup(group, bc);
                 break;
             case KILL:
             case RELOAD:

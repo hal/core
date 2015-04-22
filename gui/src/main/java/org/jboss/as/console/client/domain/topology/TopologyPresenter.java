@@ -39,7 +39,7 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
@@ -94,7 +94,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     private final org.jboss.gwt.circuit.Dispatcher circuit;
     private final RevealStrategy revealStrategy;
     private final PlaceManager placeManager;
-    private final ServerGroupStore serverGroupStore;
+    private final ServerGroupDAO serverGroupStore;
     private final HostInformationStore hostInfoStore;
     private final BeanFactory beanFactory;
     private final DispatchAsync dispatcher;
@@ -106,7 +106,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     @Inject
     public TopologyPresenter(final EventBus eventBus, final MyView view,
             final MyProxy proxy, final RevealStrategy revealStrategy, final PlaceManager placeManager,
-            final HostInformationStore hostInfoStore, final ServerGroupStore serverGroupStore,
+            final HostInformationStore hostInfoStore, final ServerGroupDAO serverGroupStore,
             final BeanFactory beanFactory, DispatchAsync dispatcher, org.jboss.gwt.circuit.Dispatcher circuit) {
         super(eventBus, view, proxy);
         this.revealStrategy = revealStrategy;

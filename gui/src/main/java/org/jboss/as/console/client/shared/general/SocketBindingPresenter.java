@@ -44,6 +44,7 @@ import org.jboss.as.console.client.shared.general.wizard.NewRemoteSocketWizard;
 import org.jboss.as.console.client.shared.general.wizard.NewSocketWizard;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshSocketBindings;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.spi.AccessControl;
@@ -54,6 +55,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,6 +94,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
     private DefaultWindow window;
     private List<String> bindingGroups;
     private ApplicationMetaData metaData;
+    private final Dispatcher circuit;
     private EntityAdapter<SocketBinding> entityAdapter;
     private LoadInterfacesCmd loadInterfacesCmd;
     private EntityAdapter<SocketGroup> socketGroupAdapter;
@@ -104,7 +107,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
             BeanFactory factory, RevealStrategy revealStrategy,
-            ApplicationMetaData propertyMetaData) {
+            ApplicationMetaData propertyMetaData, Dispatcher circuit) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -112,6 +115,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
         this.factory = factory;
         this.revealStrategy = revealStrategy;
         this.metaData = propertyMetaData;
+        this.circuit = circuit;
 
         this.entityAdapter = new EntityAdapter<SocketBinding>(SocketBinding.class, metaData);
         this.remoteSocketAdapter = new EntityAdapter<RemoteSocketBinding>(RemoteSocketBinding.class, metaData);
@@ -285,6 +289,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
             public void onFailure(Throwable caught) {
                 super.onFailure(caught);
                 loadBindings(group);
+                refreshStore();
             }
         });
     }
@@ -305,6 +310,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error(Console.MESSAGES.deletionFailed("Socket binding " + editedEntity.getName()), response.getFailureDescription());
 
                 reload();
+                refreshStore();
             }
         });
     }
@@ -424,6 +430,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.info(Console.MESSAGES.modified("Remote Socket Binding " + name));
 
                 loadRemoteSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }
@@ -457,6 +464,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error(Console.MESSAGES.deletionFailed("Remote Socket Binding " + name), response.getFailureDescription());
 
                 loadRemoteSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }
@@ -480,6 +488,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error(Console.MESSAGES.addingFailed("Remote Socket Binding " + entity.getName()), response.getFailureDescription());
 
                 loadRemoteSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }
@@ -510,6 +519,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.info(Console.MESSAGES.modified("Local Socket Binding " + name));
 
                 loadLocalSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }
@@ -545,10 +555,14 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error(Console.MESSAGES.addingFailed("Local Socket Binding " + entity.getName()), response.getFailureDescription());
 
                 loadLocalSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }
 
+    private void refreshStore() {
+        circuit.dispatch(new RefreshSocketBindings());
+    }
 
     public void onDeleteLocalSocketBinding(final String name) {
         ModelNode operation = new ModelNode();
@@ -566,6 +580,7 @@ public class SocketBindingPresenter extends Presenter<SocketBindingPresenter.MyV
                     Console.error(Console.MESSAGES.deletionFailed("Local Socket Binding " + name), response.getFailureDescription());
 
                 loadLocalSockets(selectedSocketGroup);
+                refreshStore();
             }
         });
     }

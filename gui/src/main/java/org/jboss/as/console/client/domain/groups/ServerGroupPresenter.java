@@ -34,9 +34,8 @@ import org.jboss.as.console.client.core.MultiView;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.CreateJvmCmd;
@@ -49,6 +48,7 @@ import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.spi.AccessControl;
@@ -105,33 +105,31 @@ public class ServerGroupPresenter
     }
 
 
-    private ServerGroupStore serverGroupStore;
-    private ProfileStore profileStore;
+    private ServerGroupDAO serverGroupDAO;
 
     private DefaultWindow window;
     private DefaultWindow propertyWindow;
 
+    private final ProfileStore profileStore;
     private DispatchAsync dispatcher;
     private BeanFactory factory;
     private ApplicationMetaData propertyMetaData;
     private final ServerStore serverStore;
     private final PlaceManager placeManager;
 
-    private List<ProfileRecord> existingProfiles;
-    private List<String> existingSockets;
-    private String preselection;
 
     @Inject
     public ServerGroupPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            ServerGroupStore serverGroupStore,
+            ServerGroupDAO serverGroupStore,
             ProfileStore profileStore,
             DispatchAsync dispatcher, BeanFactory factory,
             ApplicationMetaData propertyMetaData, ServerStore serverStore, PlaceManager placeManager) {
         super(eventBus, view, proxy);
 
-        this.serverGroupStore = serverGroupStore;
+        this.serverGroupDAO = serverGroupStore;
         this.profileStore = profileStore;
+
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.propertyMetaData = propertyMetaData;
@@ -150,43 +148,34 @@ public class ServerGroupPresenter
 
         super.onReset();
 
-
         // (1)
-        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
+        getView().updateProfiles(profileStore.getProfiles());
+
+        // (2)
+        serverGroupDAO.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
             @Override
-            public void onSuccess(List<ProfileRecord> result) {
-                existingProfiles = result;
-                getView().updateProfiles(result);
+            public void onSuccess(List<String> result) {
 
-                // (2)
-                serverGroupStore.loadSocketBindingGroupNames(new SimpleCallback<List<String>>() {
+                getView().updateSocketBindings(result);
+
+                // (3)
+                serverGroupDAO.loadServerGroup(serverStore.getSelectedGroup(), new SimpleCallback<ServerGroupRecord>() {
                     @Override
-                    public void onSuccess(List<String> result) {
-                        existingSockets = result;
+                    public void onSuccess(ServerGroupRecord result) {
 
-                        getView().updateSocketBindings(result);
+                        getView().updateFrom(result);
 
-                        // (3)
-                        serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(), new SimpleCallback<ServerGroupRecord>() {
-                            @Override
-                            public void onSuccess(ServerGroupRecord result) {
-
-                                getView().updateFrom(result);
-
-                                // (4)
-                                getView().toggle(
-                                        placeManager.getCurrentPlaceRequest().getParameter("action", "none")
-                                );
-                            }
-                        });
-
+                        // (4)
+                        getView().toggle(
+                                placeManager.getCurrentPlaceRequest().getParameter("action", "none")
+                        );
                     }
                 });
+
             }
-
         });
-
     }
+
 
     private void staleModel() {
         fireEvent(new StaleModelEvent(StaleModelEvent.SERVER_GROUPS));
@@ -194,7 +183,7 @@ public class ServerGroupPresenter
 
     @Deprecated
     private void loadServerGroup() {
-        /*serverGroupStore.loadServerGroup(serverStore.getSelectedGroup(),
+        /*serverGroupDAO.loadServerGroup(serverStore.getSelectedGroup(),
                 new SimpleCallback<ServerGroupRecord>() {
                     @Override
                     public void onSuccess(ServerGroupRecord group) {
@@ -213,7 +202,7 @@ public class ServerGroupPresenter
 
     public void onDeleteGroup(final ServerGroupRecord group) {
 
-        serverGroupStore.delete(group, new SimpleCallback<Boolean>() {
+        serverGroupDAO.delete(group, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean wasSuccessful) {
                 if (wasSuccessful) {
@@ -233,7 +222,7 @@ public class ServerGroupPresenter
 
         closeDialoge();
 
-        serverGroupStore.create(newGroup, new SimpleCallback<Boolean>() {
+        serverGroupDAO.create(newGroup, new SimpleCallback<Boolean>() {
             @Override
             public void onSuccess(Boolean success) {
 
@@ -254,16 +243,13 @@ public class ServerGroupPresenter
 
     public void onSaveChanges(final ServerGroupRecord group, Map<String,Object> changeset) {
 
-        serverGroupStore.save(group.getName(), changeset, new SimpleCallback<Boolean>() {
+        serverGroupDAO.save(group.getName(), changeset, new SimpleCallback<Boolean>() {
 
             @Override
             public void onSuccess(Boolean wasSuccessful) {
-                if(wasSuccessful)
-                {
+                if (wasSuccessful) {
                     Console.info(Console.MESSAGES.modified(group.getName()));
-                }
-                else
-                {
+                } else {
                     Console.info(Console.MESSAGES.modificationFailed(group.getName()));
                 }
 
@@ -384,7 +370,7 @@ public class ServerGroupPresenter
     }
 
     public void loadJVMConfiguration(final ServerGroupRecord group) {
-        serverGroupStore.loadJVMConfiguration(group, new SimpleCallback<Jvm>() {
+        serverGroupDAO.loadJVMConfiguration(group, new SimpleCallback<Jvm>() {
             @Override
             public void onSuccess(Jvm jvm) {
                 getView().setJvm(group, jvm);
@@ -393,7 +379,7 @@ public class ServerGroupPresenter
     }
 
     public void loadProperties(final ServerGroupRecord group) {
-        serverGroupStore.loadProperties(group, new SimpleCallback<List<PropertyRecord>>() {
+        serverGroupDAO.loadProperties(group, new SimpleCallback<List<PropertyRecord>>() {
             @Override
             public void onSuccess(List<PropertyRecord> properties) {
                 getView().setProperties(group, properties);

@@ -39,14 +39,14 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.domain.model.ProfileStore;
-import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.RefreshProfiles;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
@@ -151,15 +151,17 @@ public class ProfileMgmtPresenter
                 getView().setSubsystems(subsystems);
             }
         });
+
+        profileStore.addChangeHandler(new PropagatesChange.Handler() {
+            @Override
+            public void onChange(Action action) {
+                 getView().setProfiles(profileStore.getProfiles());
+            }
+        });
     }
 
     public void loadProfiles() {
-        profileStore.loadProfiles(new SimpleCallback<List<ProfileRecord>>() {
-            @Override
-            public void onSuccess(final List<ProfileRecord> result) {
-                getView().setProfiles(result);
-            }
-        });
+        circuit.dispatch(new RefreshProfiles());
     }
 
     @Override

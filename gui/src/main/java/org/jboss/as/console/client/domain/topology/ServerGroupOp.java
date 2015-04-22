@@ -20,7 +20,7 @@ package org.jboss.as.console.client.domain.topology;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.core.Footer;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.dmr.client.ModelNode;
@@ -44,12 +44,12 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ServerGroupOp extends TopologyOp {
 
     private final DispatchAsync dispatcher;
-    private final ServerGroupStore serverGroupStore;
+    private final ServerGroupDAO serverGroupStore;
     private final String group;
     private final ModelNode node;
 
     public ServerGroupOp(final LifecycleOperation op, final LifecycleCallback callback, final DispatchAsync dispatcher,
-            final ServerGroupStore serverGroupStore, final String group,
+            final ServerGroupDAO serverGroupStore, final String group,
             final Map<HostInfo, List<ServerInstance>> serversPerHost) {
 
         super(op, callback);

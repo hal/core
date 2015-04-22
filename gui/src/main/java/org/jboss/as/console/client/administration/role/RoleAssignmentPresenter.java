@@ -46,7 +46,7 @@ import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ServerGroupStore;
+import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.spi.AccessControl;
@@ -153,7 +153,7 @@ public class RoleAssignmentPresenter
     @Inject
     public RoleAssignmentPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final RevealStrategy revealStrategy, final DispatchAsync dispatcher,
-            final HostInformationStore hostInformationStore, ServerGroupStore serverGroupStore) {
+            final HostInformationStore hostInformationStore, ServerGroupDAO serverGroupStore) {
         super(eventBus, view, proxy);
 
         this.standalone = Console.getBootstrapContext().isStandalone();
