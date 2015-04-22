@@ -38,4 +38,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("subsystems/datasources.html")
     ExternalTextResource datasources();
 
+    @Source("subsystems/resource-adapters.html")
+    ExternalTextResource resource_adapters();
+
 }

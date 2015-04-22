@@ -323,7 +323,7 @@ public class ColumnProfileView extends SuspendableViewImpl
             @Override
             public void createPreview(SubsystemLink data, AsyncCallback<SafeHtml> callback) {
                 PreviewContent content = PreviewContent.INSTANCE;
-                ExternalTextResource resource = (ExternalTextResource)content.getResource(data.getToken());
+                ExternalTextResource resource = (ExternalTextResource)content.getResource(data.getToken().replace("-", "_"));
                 if(resource!=null) {
                     contentFactory.createContent(resource, callback);
                 }
