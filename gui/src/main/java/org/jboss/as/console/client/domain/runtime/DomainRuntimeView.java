@@ -73,7 +73,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\" style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
+        @Template("<div class=\"{0}\" title='{2}' style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 

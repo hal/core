@@ -145,7 +145,10 @@ public class FinderColumn<T> {
         cellTable.addColumn(menuColumn);
         cellTable.addColumn(iconColumn);
 
-        cellTable.setColumnWidth(menuColumn, 50, Style.Unit.PX);
+        // width constraints, overflow, etc
+        cellTable.getElement().getStyle().setTableLayout(Style.TableLayout.FIXED);
+        cellTable.setColumnWidth(titleColumn, 150, Style.Unit.PX);
+        cellTable.setColumnWidth(menuColumn, 80, Style.Unit.PX);
         cellTable.setColumnWidth(iconColumn, 16, Style.Unit.PX);
 
         cellTable.setSelectionModel(selectionModel);

@@ -21,7 +21,7 @@ import java.util.Stack;
  */
 public class ColumnManager {
 
-    private static final int DEFAULT_COLUMN_WIDTH = 217;
+    private static final int DEFAULT_COLUMN_WIDTH = 250;
     private static final int DEFAULT_PREVIEW_WIDTH = 500;
     private static final int CONTAINER_WIDTH = 1500;
 

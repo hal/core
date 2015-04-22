@@ -58,7 +58,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private ColumnManager columnManager;
 
     interface Template extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='icon-folder-close-alt' style='display:none'></i>&nbsp;{1}</div>")
+        @Template("<div class=\"{0}\" title='{1}'>{1}</div>")
         SafeHtml item(String cssClass, String title);
     }
 
@@ -294,7 +294,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         hosts.setMenuItems(
                 new MenuDelegate<String>(          // TODO permissions
-                        "JVM Settings", new ContextualCommand<String>() {
+                        "JVM", new ContextualCommand<String>() {
                     @Override
                     public void executeOn(final String host) {
                         Console.getPlaceManager().revealRelativePlace(
