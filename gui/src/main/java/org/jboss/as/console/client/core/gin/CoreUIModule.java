@@ -477,6 +477,7 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ConfigAdminView.class,
                 ConfigAdminPresenter.MyProxy.class);
 
+
         // Infinispan
         bindPresenter(CacheContainerPresenter.class,
                 CacheContainerPresenter.MyView.class,
