@@ -231,7 +231,6 @@ public class Async<C> {
 
         @Override
         public void abort() {
-            new RuntimeException("").printStackTrace();
             this.aborted = true;
             this.pending = false;
         }

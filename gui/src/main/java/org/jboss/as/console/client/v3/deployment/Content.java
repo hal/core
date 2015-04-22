@@ -19,28 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.dmr;
+package org.jboss.as.console.client.v3.deployment;
 
 import org.jboss.dmr.client.ModelNode;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+
 /**
- * Represents a fully qualified DMR address ready to be put into a DMR operation.
+ * An uploaded deployment blob w/o any relation to servers or server groups.
+ *
  * @author Harald Pehl
  */
-public class ResourceAddress extends ModelNode {
+public class Content extends ModelNode {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
-
-    public ResourceAddress() {
-        super();
+    public Content(final ModelNode node) {
+        set(node);
     }
 
-    public ResourceAddress(ModelNode address) {
-        set(address);
+    public String getName() {
+        ModelNode name = get(NAME);
+        return name.isDefined() ? name.asString() : null;
     }
 
-    public ResourceAddress add(final String propertyName, final String propertyValue) {
-        add().set(propertyName, propertyValue);
-        return this;
+    public String getRuntimeName() {
+        ModelNode runtimeName = get("runtime-name");
+        return runtimeName.isDefined() ? runtimeName.asString() : null;
+    }
+
+    @Override
+    public String toString() {
+        return "Content{" + getName() + "}";
     }
 }

@@ -58,8 +58,15 @@ public interface DeploymentRecord extends DeploymentData
     String getSha();
     void setSha(String sha);
 
+    /**
+     * Cannot reliably be used and should be removed
+     * See https://issues.jboss.org/browse/HAL-659
+     * @return
+     */
+    @Deprecated
     @Binding(skip = true)
     String getServerGroup();
+    @Deprecated
     void setServerGroup(String groupName);
 
     boolean isEnabled();

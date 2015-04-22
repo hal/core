@@ -10,7 +10,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -18,7 +17,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowHoverEvent;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -61,7 +59,7 @@ public class FinderColumn<T> {
     private ValueProvider<T> valueProvider;
     private String type = null;
 
-    public enum FinderId { CONFIGURATION, RUNTIME}
+    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME}
     private boolean showSize = false;
 
     /**
@@ -326,7 +324,7 @@ public class FinderColumn<T> {
      * @param items
      * @return
      */
-    public FinderColumn<T> setTopMenuItems(MenuDelegate... items) {
+    public FinderColumn<T> setTopMenuItems(MenuDelegate<T>... items) {
         this.topMenuItems = items;
         return this;
     }
@@ -336,7 +334,7 @@ public class FinderColumn<T> {
      * @param items
      * @return
      */
-    public FinderColumn<T> setMenuItems(MenuDelegate... items) {
+    public FinderColumn<T> setMenuItems(MenuDelegate<T>... items) {
         this.menuItems = items;
         return this;
     }

@@ -36,6 +36,7 @@ import org.jboss.as.console.client.shared.deployment.model.DeploymentEjbSubsyste
 import org.jboss.as.console.client.shared.deployment.model.DeploymentJpaSubsystem;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystem;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystemElement;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentWebSubsystem;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentWebserviceSubsystem;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
@@ -60,10 +61,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * Responsible for loading deployment data
  * and turning it a usable representation.
  *
+ * TODO Move all deployment related code to the new deployment store: org.jboss.as.console.client.v3.deployment.DeploymentStore
+ *
+ * @deprecated
  * @author Heiko Braun
  * @author Stan Silvert
  * @date 1/31/11
  */
+@Deprecated
 public class DeploymentStore
 {
     private final boolean isStandalone;
@@ -189,7 +194,7 @@ public class DeploymentStore
                         String groupName = node.get(ADDRESS).asList().get(0).get("server-group").asString();
                         String deploymentName = node.get(ADDRESS).asList().get(1).get("deployment").asString();
                         DeploymentRecord dr = contentRepository.getDeployment(deploymentName);
-                        dr.setServerGroup(groupName);
+                        contentRepository.assignDeploymentToServerGroup(deploymentName, groupName);
                         // The state of the deployment (enabled/disabled) is taken from this step!
                         dr.setEnabled(node.get(RESULT).get("enabled").asBoolean());
                         dr.setAddress(addressFor("server-group", groupName, "deployment", deploymentName));
@@ -396,10 +401,10 @@ public class DeploymentStore
         });
     }
 
-    public void loadEjbs(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeployedEjb>> callback)
+    public void loadEjbs(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeploymentSubsystemElement>> callback)
     {
         final int stepCount = 5;
-        final List<DeployedEjb> ejbs = new ArrayList<DeployedEjb>();
+        final List<DeploymentSubsystemElement> ejbs = new ArrayList<>();
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(COMPOSITE);
@@ -489,9 +494,9 @@ public class DeploymentStore
     }
 
     public void loadPersistenceUnits(final DeploymentSubsystem subsystem,
-                                     final AsyncCallback<List<DeployedPersistenceUnit>> callback)
+                                     final AsyncCallback<List<DeploymentSubsystemElement>> callback)
     {
-        final List<DeployedPersistenceUnit> pus = new ArrayList<DeployedPersistenceUnit>();
+        final List<DeploymentSubsystemElement> pus = new ArrayList<>();
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(addressFor(subsystem.getDeployment().getServer()));
@@ -565,9 +570,9 @@ public class DeploymentStore
         });
     }
 
-    public void loadServlets(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeployedServlet>> callback)
+    public void loadServlets(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeploymentSubsystemElement>> callback)
     {
-        final List<DeployedServlet> servlets = new ArrayList<DeployedServlet>();
+        final List<DeploymentSubsystemElement> servlets = new ArrayList<>();
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(addressFor(subsystem.getDeployment().getServer()));
@@ -614,9 +619,9 @@ public class DeploymentStore
         });
     }
 
-    public void loadEndpoints(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeployedEndpoint>> callback)
+    public void loadEndpoints(final DeploymentSubsystem subsystem, final AsyncCallback<List<DeploymentSubsystemElement>> callback)
     {
-        final List<DeployedEndpoint> endpoints = new ArrayList<DeployedEndpoint>();
+        final List<DeploymentSubsystemElement> endpoints = new ArrayList<>();
 
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(addressFor(subsystem.getDeployment().getServer()));

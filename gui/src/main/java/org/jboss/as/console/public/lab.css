@@ -406,8 +406,8 @@
     border-left:4px solid #DC9F2E!important;
 }
 
-.navigation-cell-table .inactive .cellTableFirstColumn {
-    border-left:4px solid #DC9F2E!important;
+.navigation-cell-table .noReferenceServer .cellTableFirstColumn {
+    border-left:4px solid #993333!important;
 }
 
 .active .cellTableSelectedRow {

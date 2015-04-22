@@ -137,6 +137,9 @@ public class NameTokens {
 
     public static final String DeploymentBrowserPresenter = "deployments";
 
+    public static final String DeploymentFinder = "deployment-finder";
+    public static final String DeploymentContentFinder = "deployment-content";
+
 
     // ------------------------------------------------------
     // administration tokens below

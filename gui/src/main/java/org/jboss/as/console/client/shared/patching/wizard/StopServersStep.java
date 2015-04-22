@@ -42,11 +42,11 @@ public abstract class StopServersStep<C extends CommonPatchContext, S extends En
         body.add(intro(context));
         yes = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_yes());
         yes.getElement().setId(asId(PREFIX, getClass(), "_Yes"));
-        yes.addStyleName("patch-radio");
+        yes.addStyleName("radio-block");
         yes.setValue(true);
         RadioButton no = new RadioButton("stop_servers", Console.CONSTANTS.patch_manager_stop_server_no());
         no.getElement().setId(asId(PREFIX, getClass(), "_No"));
-        no.addStyleName("patch-radio");
+        no.addStyleName("radio-block");
         body.add(yes);
         body.add(no);
         return body;

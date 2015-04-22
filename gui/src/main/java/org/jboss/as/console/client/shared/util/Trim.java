@@ -19,28 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.dmr;
-
-import org.jboss.dmr.client.ModelNode;
+package org.jboss.as.console.client.shared.util;
 
 /**
- * Represents a fully qualified DMR address ready to be put into a DMR operation.
  * @author Harald Pehl
  */
-public class ResourceAddress extends ModelNode {
+public final class Trim {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
+    private static final int MAX_LENGTH = 15;
+    private static final String ELLIPSIS = "...";
 
-    public ResourceAddress() {
-        super();
+    private Trim() {
     }
 
-    public ResourceAddress(ModelNode address) {
-        set(address);
+    public static String abbreviateMiddle(String str) {
+        return abbreviateMiddle(str, MAX_LENGTH);
     }
 
-    public ResourceAddress add(final String propertyName, final String propertyValue) {
-        add().set(propertyName, propertyValue);
-        return this;
+    public static String abbreviateMiddle(String str, int maxLength) {
+        if (str == null || maxLength >= str.length()) {
+            return str;
+        }
+
+        final int targetSting = maxLength - ELLIPSIS.length();
+        final int startOffset = targetSting / 2 + targetSting % 2;
+        final int endOffset = str.length() - targetSting / 2;
+
+        return str.substring(0, startOffset) + ELLIPSIS + str.substring(endOffset);
     }
 }

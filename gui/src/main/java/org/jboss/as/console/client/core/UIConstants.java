@@ -1347,4 +1347,6 @@ public interface UIConstants extends Constants {
     String bs_connect_interface_no_selection();
 
     String subsys_iiop_openjdk_desc();
+
+    String wizard_back();
 }

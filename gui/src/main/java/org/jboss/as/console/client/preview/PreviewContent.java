@@ -77,6 +77,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/security.html")
     ExternalTextResource security();
 
+    @Source("content/server-group.html")
+    ExternalTextResource server_group();
+
     @Source("content/servlet.html")
     ExternalTextResource servlet();
 

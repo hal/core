@@ -73,9 +73,9 @@ public class ContentRepository
                 .put(serverGroup.getName(), new TreeSet<DeploymentRecord>(new HasNameComparator<DeploymentRecord>()));
     }
 
-    public void assignDeploymentToServerGroup(String depoymentName, String serverGroupName)
+    public void assignDeploymentToServerGroup(String deploymentName, String serverGroupName)
     {
-        DeploymentRecord deployment = nameToDeployment.get(depoymentName);
+        DeploymentRecord deployment = nameToDeployment.get(deploymentName);
         ServerGroupRecord serverGroup = nameToServerGroup.get(serverGroupName);
         if (deployment != null && serverGroup != null)
         {
@@ -100,7 +100,13 @@ public class ContentRepository
 
     public List<DeploymentRecord> getDeployments(ServerGroupRecord serverGroup)
     {
-        SortedSet<DeploymentRecord> deployments = deploymentsOfGroup.get(serverGroup.getName());
+        return getDeployments(serverGroup.getName());
+    }
+
+    public List<DeploymentRecord> getDeployments(String serverGroup)
+    {
+        SortedSet<DeploymentRecord> deployments = deploymentsOfGroup.get(serverGroup);
+
         if (deployments != null)
         {
             return new LinkedList<DeploymentRecord>(deployments);

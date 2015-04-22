@@ -71,7 +71,7 @@ public class FunctionContext {
 
     public String getErrorMessage() {
         //noinspection ThrowableResultOfMethodCallIgnored
-        return hasError() ? null : getError().getMessage();
+        return hasError() ? getError().getMessage() : null;
     }
 
     public boolean isForbidden() {

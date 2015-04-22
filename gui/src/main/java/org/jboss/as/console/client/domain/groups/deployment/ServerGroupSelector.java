@@ -36,6 +36,7 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.shared.deployment.DeployCommandExecutor;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
@@ -58,7 +59,7 @@ import java.util.Set;
 public class ServerGroupSelector {
 
     private List<ServerGroupSelection> selections;
-    private DomainDeploymentPresenter presenter;
+    private DeployCommandExecutor presenter;
     private DeploymentRecord deployment;
     private MultiSelectionModel<ServerGroupSelection> selectionModel;
     private HTML errorMessages;
@@ -69,7 +70,7 @@ public class ServerGroupSelector {
      * @param presenter The presenter that will get the request for server group assignment.
      * @param deployment The deployment to be assigned to one or more server groups.
      */
-    public ServerGroupSelector(DomainDeploymentPresenter presenter, DeploymentRecord deployment) {
+    public ServerGroupSelector(DeployCommandExecutor presenter, DeploymentRecord deployment) {
         this.presenter = presenter;
         this.deployment = deployment;
 

@@ -19,28 +19,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.dmr;
+package org.jboss.as.console.client.v3.deployment;
 
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Represents a fully qualified DMR address ready to be put into a DMR operation.
  * @author Harald Pehl
  */
-public class ResourceAddress extends ModelNode {
+public class Subdeployment extends ModelNode {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
+    private final String name;
+    private final List<Subsystem> subsystems;
 
-    public ResourceAddress() {
-        super();
+    public Subdeployment(final String name, final ModelNode node) {
+        this.name = name;
+        this.subsystems = new ArrayList<>();
+        set(node);
+
+        if (node.hasDefined("subsystem")) {
+            Deployment.parseSubsystems(node, subsystems);
+        }
     }
 
-    public ResourceAddress(ModelNode address) {
-        set(address);
+    @Override
+    public String toString() {
+        return "Subdeployment{" + name + "}";
     }
 
-    public ResourceAddress add(final String propertyName, final String propertyValue) {
-        add().set(propertyName, propertyValue);
-        return this;
+    public String getName() {
+        return name;
+    }
+
+    public List<Subsystem> getSubsystems() {
+        return subsystems;
     }
 }

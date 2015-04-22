@@ -19,28 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.dmr;
+package org.jboss.as.console.client.v3.deployment;
 
 import org.jboss.dmr.client.ModelNode;
 
 /**
- * Represents a fully qualified DMR address ready to be put into a DMR operation.
  * @author Harald Pehl
  */
-public class ResourceAddress extends ModelNode {
+public class Subsystem extends ModelNode {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
+    private final String name;
+    private final ModelNode node;
 
-    public ResourceAddress() {
-        super();
+    public Subsystem(final String name, final ModelNode node) {
+        this.name = name;
+        this.node = node;
+        set(node);
     }
 
-    public ResourceAddress(ModelNode address) {
-        set(address);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof Subsystem)) { return false; }
+        if (!super.equals(o)) { return false; }
+
+        Subsystem subsystem = (Subsystem) o;
+        //noinspection SimplifiableIfStatement
+        if (!name.equals(subsystem.name)) { return false; }
+        return node.equals(subsystem.node);
     }
 
-    public ResourceAddress add(final String propertyName, final String propertyValue) {
-        add().set(propertyName, propertyValue);
-        return this;
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + node.hashCode();
+        return result;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Subsystem{" + name + "}";
     }
 }

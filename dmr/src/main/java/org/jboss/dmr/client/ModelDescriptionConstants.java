@@ -32,6 +32,7 @@ public class ModelDescriptionConstants {
     public static final String ADD = "add";
     public static final String ADD_OPERATION = "add-operation";
     public static final String ADDRESS = "address";
+    public static final String ALLOW_RESOURCE_SERVICE_RESTART = "allow-resource-service-restart";
     public static final String ALLOWED = "allowed";
     public static final String ANY = "any";
     public static final String ANY_ADDRESS = "any-address";
@@ -109,9 +110,10 @@ public class ModelDescriptionConstants {
     public static final String OP = "operation";
     /** Use this standard operation address field in the operation *request* ModelNode */
     public static final String OP_ADDR = "address";
-    public static final String OPERATIONS = "operations";
     /** Use this standard operation address field in the operation *description* ModelNode */
+    public static final String OPERATION_HEADERS = "operation-headers";
     public static final String OPERATION_NAME = "operation-name";
+    public static final String OPERATIONS = "operations";
     public static final String OUTCOME = "outcome";
     public static final String PATH = "path";
     public static final String PORT = "port";
@@ -140,6 +142,7 @@ public class ModelDescriptionConstants {
     public static final String REQUIRED = "required";
     public static final String RESPONSE = "response";
     public static final String RESULT = "result";
+    public static final String ROLES = "header_roles";
     public static final String ROLLBACK_ACROSS_GROUPS = "rollback-across-groups";
     public static final String ROLLBACK_FAILURE_DESCRIPTION = "rollback-failure-description";
     public static final String ROLLBACK_ON_RUNTIME_FAILURE = "rollback-on-runtime-failure";
@@ -163,7 +166,6 @@ public class ModelDescriptionConstants {
     public static final String SOCKET_BINDING_PORT_OFFSET = "socket-binding-port-offset";
     public static final String START = "start";
     public static final String STEPS = "steps";
-
     public static final String STORAGE = "storage";
     public static final String SUBSYSTEM = "subsystem";
     public static final String SUCCESS = "success";
@@ -175,8 +177,7 @@ public class ModelDescriptionConstants {
     public static final String URL = "url";
     public static final String VALUE = "value";
     public static final String VALUE_TYPE = "value-type";
+    public static final String WHOAMI = "whoami";
     public static final String WRITE_ATTRIBUTE_OPERATION = "write-attribute";
-    public static final String OPERATION_HEADERS = "operation-headers";
-    public static final String ALLOW_RESOURCE_SERVICE_RESTART = "allow-resource-service-restart";
 }
 

@@ -23,24 +23,37 @@ package org.jboss.as.console.client.v3.dmr;
 
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.COMPOSITE;
+import static org.jboss.dmr.client.ModelDescriptionConstants.STEPS;
+
 /**
- * Represents a fully qualified DMR address ready to be put into a DMR operation.
  * @author Harald Pehl
  */
-public class ResourceAddress extends ModelNode {
+public class Composite extends Operation {
 
-    public static final ResourceAddress ROOT = new ResourceAddress();
-
-    public ResourceAddress() {
-        super();
+    public Composite(Operation first, Operation... rest) {
+        super(COMPOSITE, ResourceAddress.ROOT, new ModelNode(), null);
+        List<Operation> operations = new ArrayList<>();
+        operations.add(first);
+        if (rest != null) {
+            Collections.addAll(operations, rest);
+        }
+        addSteps(operations);
     }
 
-    public ResourceAddress(ModelNode address) {
-        set(address);
+    public Composite(List<Operation> operations) {
+        super(COMPOSITE, ResourceAddress.ROOT, new ModelNode(), null);
+        addSteps(operations);
     }
 
-    public ResourceAddress add(final String propertyName, final String propertyValue) {
-        add().set(propertyName, propertyValue);
-        return this;
+    private void addSteps(final List<Operation> operations) {
+        assert !operations.isEmpty() : "Steps for a composite operation must not be empty";
+        for (Operation operation : operations) {
+            get(STEPS).add(operation);
+        }
     }
 }
