@@ -33,12 +33,18 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
+import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.v3.deployment.DeploymentFinder.ServerGroupAssignment;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.gwt.circuit.Dispatcher;
 
 import java.util.List;
@@ -47,7 +53,7 @@ import java.util.List;
  * @author Harald Pehl
  */
 public class DeploymentFinderView extends SuspendableViewImpl
-        implements DeploymentFinderPresenter.MyView, ClearFinderSelectionEvent.Handler {
+        implements DeploymentFinder.MyView, ClearFinderSelectionEvent.Handler {
 
     interface Template extends SafeHtmlTemplates {
 
@@ -58,7 +64,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     private static final Template TEMPLATE = GWT.create(Template.class);
 
-    private DeploymentFinderPresenter presenter;
+    private DeploymentFinder presenter;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -66,7 +72,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     private FinderColumn<DeploymentRecord> deploymentsColumn;
     private Widget deploymentsColumnWidget;
-    private FinderColumn<String> assignedGroupsColumn;
+    private FinderColumn<ServerGroupAssignment> assignedGroupsColumn;
     private Widget assignedGroupsColumnWidget;
 
 
@@ -74,6 +80,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
     // ------------------------------------------------------ view lifecycle
 
     @Inject
+    @SuppressWarnings("unchecked")
     public DeploymentFinderView(final Dispatcher circuit) {
 
         // deployments column
@@ -100,9 +107,18 @@ public class DeploymentFinderView extends SuspendableViewImpl
                         return item.getName();
                     }
                 });
-
         deploymentsColumn.setShowSize(true);
+
+        deploymentsColumn.setTopMenuItems(
+                new MenuDelegate<>("Add", item -> presenter.launchNewDeploymentDialoge(null, false)),
+                new MenuDelegate<>("Refresh", item -> presenter.refreshDeployments()));
+
+        //noinspection Convert2MethodRef
+        deploymentsColumn.setMenuItems(new MenuDelegate<>("Remove", item -> presenter.onRemoveContent(item)));
+
         deploymentsColumn.addSelectionChangeHandler(event -> {
+            clearNestedPresenter();
+            columnManager.reduceColumnsTo(1);
             if (deploymentsColumn.hasSelectedItem()) {
                 columnManager.appendColumn(assignedGroupsColumnWidget);
                 DeploymentRecord selectedItem = deploymentsColumn.getSelectedItem();
@@ -115,29 +131,35 @@ public class DeploymentFinderView extends SuspendableViewImpl
         assignedGroupsColumn = new FinderColumn<>(
                 FinderColumn.FinderId.RUNTIME,
                 "Server Group",
-                new FinderColumn.Display<String>() {
+                new FinderColumn.Display<ServerGroupAssignment>() {
 
                     @Override
-                    public boolean isFolder(String data) {
+                    public boolean isFolder(ServerGroupAssignment data) {
                         return true;
                     }
 
                     @Override
-                    public SafeHtml render(String baseCss, String data) {
-                        return TEMPLATE.item(baseCss, data);
+                    public SafeHtml render(String baseCss, ServerGroupAssignment data) {
+                        return TEMPLATE.item(baseCss, data.serverGroup);
                     }
 
                     @Override
-                    public String rowCss(String data) {
-                        return "";
+                    public String rowCss(ServerGroupAssignment data) {
+                        return data.deployment.isEnabled() ? "active" : "inactive";
                     }
                 },
-                new ProvidesKey<String>() {
+                new ProvidesKey<ServerGroupAssignment>() {
                     @Override
-                    public Object getKey(String item) {
-                        return item;
+                    public Object getKey(ServerGroupAssignment item) {
+                        return item.serverGroup;
                     }
                 });
+
+        assignedGroupsColumn.setTopMenuItems(
+                new MenuDelegate<>("Add", item ->
+                        new DeploymentCommandDelegate(presenter,
+                                DeploymentCommand.ADD_TO_GROUP).execute(deploymentsColumn.getSelectedItem()))
+        );
 
         assignedGroupsColumn.setShowSize(true);
         assignedGroupsColumn.setComparisonType("filter");
@@ -152,11 +174,17 @@ public class DeploymentFinderView extends SuspendableViewImpl
         });
 
         assignedGroupsColumn.addSelectionChangeHandler(event -> {
+            columnManager.reduceColumnsTo(2);
             if (assignedGroupsColumn.hasSelectedItem()) {
                 columnManager.updateActiveSelection(assignedGroupsColumnWidget);
-                String selectedGroup = assignedGroupsColumn.getSelectedItem();
-                // TODO Place request for nested deployment finder
-                Scheduler.get().scheduleDeferred(() -> circuit.dispatch(new GroupSelection(selectedGroup)));
+                ServerGroupAssignment selectedAssignment = assignedGroupsColumn.getSelectedItem();
+                Scheduler.get().scheduleDeferred(() -> {
+                    circuit.dispatch(new DeploymentSelection(selectedAssignment.deployment));
+                    circuit.dispatch(new GroupSelection(selectedAssignment.serverGroup));
+                    PlaceRequest placeRequest = new PlaceRequest.Builder().nameToken(NameTokens.DeploymentContentFinder)
+                            .build();
+                    presenter.getPlaceManager().revealRelativePlace(placeRequest);
+                });
             }
         });
         assignedGroupsColumnWidget = assignedGroupsColumn.asWidget();
@@ -179,7 +207,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
 
     @Override
-    public void setPresenter(final DeploymentFinderPresenter presenter) {
+    public void setPresenter(final DeploymentFinder presenter) {
         this.presenter = presenter;
     }
 
@@ -188,20 +216,20 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     @Override
     public void updateDeployments(final List<DeploymentRecord> deployments) {
-        this.deploymentsColumn.updateFrom(deployments);
+        deploymentsColumn.updateFrom(deployments);
     }
 
     @Override
-    public void updateServerGroups(final List<String> serverGroups) {
-        this.assignedGroupsColumn.updateFrom(serverGroups);
+    public void updateServerGroups(final List<ServerGroupAssignment> assignments) {
+        assignedGroupsColumn.updateFrom(assignments);
     }
 
 
     // ------------------------------------------------------ slot management
 
     @Override
-   public void setInSlot(final Object slot, final IsWidget content) {
-        if (slot == DeploymentFinderPresenter.TYPE_MainContent) {
+    public void setInSlot(final Object slot, final IsWidget content) {
+        if (slot == DeploymentFinder.TYPE_MainContent) {
             if (content != null) { setContent(content); } else { contentCanvas.clear(); }
         }
     }
@@ -229,5 +257,13 @@ public class DeploymentFinderView extends SuspendableViewImpl
     @Override
     public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
         deploymentsColumnWidget.getElement().removeClassName("active");
+    }
+
+    private void clearNestedPresenter() {
+        presenter.clearSlot(DeploymentFinder.TYPE_MainContent);
+        Scheduler.get().scheduleDeferred(() -> {
+            if (presenter.getPlaceManager().getHierarchyDepth() > 1)
+                presenter.getPlaceManager().revealRelativePlace(1);
+        });
     }
 }
