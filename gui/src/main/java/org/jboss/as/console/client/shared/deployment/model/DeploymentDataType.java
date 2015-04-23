@@ -40,5 +40,4 @@ public enum DeploymentDataType
     servlet,
     webserviceEndpoint,
     unknown
-
 }

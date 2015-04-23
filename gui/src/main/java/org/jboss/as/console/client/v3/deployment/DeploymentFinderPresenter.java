@@ -23,6 +23,7 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
@@ -37,41 +38,50 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.shared.deployment.DeploymentStore;
+import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
+import java.util.List;
+
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
+ * TODO Remove dependency to PerspectivePresenter
  * @author Harald Pehl
  */
-public class ServerGroupDeploymentPresenter
-        extends PerspectivePresenter<ServerGroupDeploymentPresenter.MyView, ServerGroupDeploymentPresenter.MyProxy>
+public class DeploymentFinderPresenter
+        extends PerspectivePresenter<DeploymentFinderPresenter.MyView, DeploymentFinderPresenter.MyProxy>
         implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
 
     // @formatter:off --------------------------------------- proxy & view
 
     @ProxyCodeSplit
     @OperationMode(DOMAIN)
-    @NameToken(NameTokens.ServerGroupDeployments)
+    @NameToken(NameTokens.DeploymentFinderPresenter)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             "/deployment=*",
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={selected.group}/deployment=*"
     }, recursive = false)
-    public interface MyProxy extends ProxyPlace<ServerGroupDeploymentPresenter> {
+    public interface MyProxy extends ProxyPlace<DeploymentFinderPresenter> {
     }
 
-    public interface MyView extends View, HasPresenter<ServerGroupDeploymentPresenter> {
+    public interface MyView extends View, HasPresenter<DeploymentFinderPresenter> {
         void preview(SafeHtml html);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
+        void setDeployments(List<DeploymentRecord> deployments);
     }
 
 
@@ -79,15 +89,21 @@ public class ServerGroupDeploymentPresenter
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private final ServerGroupStore serverGroupStore;
+    private final DeploymentStore deploymentStore;
 
 
     // ------------------------------------------------------ presenter lifecycle
 
-    public ServerGroupDeploymentPresenter(final EventBus eventBus,
+    @Inject
+    public DeploymentFinderPresenter(final EventBus eventBus,
             final MyView view, final MyProxy proxy, final PlaceManager placeManager,
-            final Header header, final UnauthorisedPresenter unauthorisedPresenter) {
-        super(eventBus, view, proxy, placeManager, header, NameTokens.ServerGroupDeployments,
+            final Header header, final UnauthorisedPresenter unauthorisedPresenter,
+            final ServerGroupStore serverGroupStore, final DeploymentStore deploymentStore) {
+        super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinderPresenter,
                 unauthorisedPresenter, TYPE_MainContent);
+        this.serverGroupStore = serverGroupStore;
+        this.deploymentStore = deploymentStore;
     }
 
     @Override
@@ -110,6 +126,16 @@ public class ServerGroupDeploymentPresenter
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }
 
+    @Override
+    protected void onReset() {
+        super.onReset();
+        deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
+            @Override
+            public void onSuccess(final ContentRepository result) {
+                getView().setDeployments(result.getDeployments());
+            }
+        });
+    }
 
     // ------------------------------------------------------ finder related methods
 

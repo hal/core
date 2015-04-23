@@ -61,7 +61,7 @@ public class FinderColumn<T> {
     private ValueProvider<T> valueProvider;
     private String type = null;
 
-    public enum FinderId { CONFIGURATION, RUNTIME}
+    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME}
     private boolean showSize = false;
 
     /**
