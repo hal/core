@@ -471,6 +471,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @Override
     public void onToggleScrolling(FinderScrollEvent event) {
-        getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if(isVisible())
+            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 }

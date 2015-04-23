@@ -110,7 +110,8 @@ public class ProfileMgmtPresenter
 
     @Override
     public void onToggleScrolling(FinderScrollEvent event) {
-        getView().toogleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if(isVisible())
+            getView().toogleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 
     /**
