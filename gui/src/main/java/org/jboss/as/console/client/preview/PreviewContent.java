@@ -30,44 +30,56 @@ public interface PreviewContent extends ClientBundleWithLookup {
     ExternalTextResource properties();
 
 
-    // subsystems below (referenced by name token)
+    // content below (referenced by name token)
 
-    @Source("subsystems/datasources.html")
+    @Source("content/datasources.html")
     ExternalTextResource datasources();
 
-    @Source("subsystems/ee.html")
+    @Source("content/ee.html")
     ExternalTextResource ee();
 
-    @Source("subsystems/ejb3.html")
+    @Source("content/ejb3.html")
     ExternalTextResource ejb3();
 
-    @Source("subsystems/jacorb.html")
+    @Source("content/jacorb.html")
     ExternalTextResource jacorb();
 
-    @Source("subsystems/jca.html")
+    @Source("content/jca.html")
     ExternalTextResource jca();
 
-    @Source("subsystems/jmx.html")
+    @Source("content/jmx.html")
         ExternalTextResource jmx();
 
-    @Source("subsystems/jpa.html")
+    @Source("content/jpa.html")
     ExternalTextResource jpa();
 
-    @Source("subsystems/logging.html")
+    @Source("content/logging.html")
     ExternalTextResource logging();
 
-    @Source("subsystems/mail.html")
+    @Source("content/mail.html")
     ExternalTextResource mail();
 
-    @Source("subsystems/resource-adapters.html")
+    @Source("content/resource-adapters.html")
     ExternalTextResource resource_adapters();
 
-    @Source("subsystems/threads.html")
+    @Source("content/threads.html")
     ExternalTextResource threads();
 
-    @Source("subsystems/transactions.html")
+    @Source("content/transactions.html")
     ExternalTextResource transactions();
 
+    @Source("content/security-domains.html")
+    ExternalTextResource security_domains();
 
+    @Source("content/security.html")
+    ExternalTextResource security();
 
+    @Source("content/servlet.html")
+    ExternalTextResource servlet();
+
+    @Source("content/webservices.html")
+    ExternalTextResource webservices();
+
+    @Source("content/http.html")
+    ExternalTextResource http();
 }
