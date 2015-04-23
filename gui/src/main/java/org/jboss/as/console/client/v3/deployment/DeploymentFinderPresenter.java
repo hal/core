@@ -79,9 +79,10 @@ public class DeploymentFinderPresenter
     }
 
     public interface MyView extends View, HasPresenter<DeploymentFinderPresenter> {
-        void preview(SafeHtml html);
+        void setPreview(SafeHtml html);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
-        void setDeployments(List<DeploymentRecord> deployments);
+        void updateDeployments(List<DeploymentRecord> deployments);
+        void updateServerGroups(List<String> serverGroups);
     }
 
 
@@ -89,7 +90,6 @@ public class DeploymentFinderPresenter
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
-    private final ServerGroupStore serverGroupStore;
     private final DeploymentStore deploymentStore;
 
 
@@ -102,7 +102,6 @@ public class DeploymentFinderPresenter
             final ServerGroupStore serverGroupStore, final DeploymentStore deploymentStore) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinderPresenter,
                 unauthorisedPresenter, TYPE_MainContent);
-        this.serverGroupStore = serverGroupStore;
         this.deploymentStore = deploymentStore;
     }
 
@@ -129,19 +128,38 @@ public class DeploymentFinderPresenter
     @Override
     protected void onReset() {
         super.onReset();
+        loadContentRepository();
+    }
+
+
+    // ------------------------------------------------------ deployment related methods
+
+    private void loadContentRepository() {
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
             @Override
             public void onSuccess(final ContentRepository result) {
-                getView().setDeployments(result.getDeployments());
+                getView().updateDeployments(result.getDeployments());
             }
         });
     }
 
+    public void loadAssignmentsFor(final DeploymentRecord selectedItem) {
+        // TODO Reduce duplicate code
+        deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
+            @Override
+            public void onSuccess(final ContentRepository result) {
+                List<String> serverGroups = result.getServerGroups(selectedItem);
+                getView().updateServerGroups(serverGroups);
+            }
+        });
+    }
+
+
     // ------------------------------------------------------ finder related methods
 
     @Override
-    public void onPreview(final PreviewEvent event) {
-        getView().preview(event.getHtml());
+    public void onPreview(PreviewEvent event) {
+        getView().setPreview(event.getHtml());
     }
 
     @Override
