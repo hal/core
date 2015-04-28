@@ -35,6 +35,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/datasources.html")
     ExternalTextResource datasources();
 
+    @Source("content/mail_sessions.html")
+    ExternalTextResource mail_sessions();
+
     @Source("content/ee.html")
     ExternalTextResource ee();
 
@@ -82,4 +85,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("content/http.html")
     ExternalTextResource http();
+
+    @Source("content/batch.html")
+    ExternalTextResource batch();
 }
