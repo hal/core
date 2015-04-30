@@ -19,8 +19,10 @@
 
 package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
-import com.google.gwt.user.client.ui.DeckPanel;
-import com.google.gwt.user.client.ui.Widget;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
@@ -28,7 +30,8 @@ import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 
-import java.util.List;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * @author Heiko Braun
@@ -69,7 +72,7 @@ public class NewXADatasourceWizard {
     }
 
     public Widget asWidget() {
-       deck = new DeckPanel() {
+        deck = new DeckPanel() {
             @Override
             public void showWidget(int index) {
                 super.showWidget(index);
@@ -133,13 +136,34 @@ public class NewXADatasourceWizard {
         updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
         updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
         updatedEntity.setProperties(properties);
-        updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
+        updatedEntity.setPoolName(baseAttributes.getName() + "_Pool");
+    }
+
+    private static Map<String, PropertyRecord> indexProperties(List<PropertyRecord> properties) {
+        Map<String, PropertyRecord> indexedProperties = new HashMap<String, PropertyRecord>();
+        for (PropertyRecord record : properties) {
+            if (!indexedProperties.containsKey(record.getKey()))
+                indexedProperties.put(record.getKey(), record);
+            else
+                throw new IllegalArgumentException("Duplicate property name:" + record.getKey());
+        }
+        return indexedProperties;
+    }
+
+    private List<PropertyRecord> ensureUniqueProperty(List<PropertyRecord> newProperties) {
+        Map<String, PropertyRecord> indexedProperties = indexProperties(newProperties);
+        if (properties != null)
+            for (PropertyRecord record : properties)
+                if (indexedProperties.containsKey(record.getKey()))
+                    throw new IllegalArgumentException("Property " + record.getKey() + " has already been defined with value:"
+                            + record.getValue());
+        return newProperties;
     }
 
     public void onConfigureProperties(List<PropertyRecord> properties) {
         // merge it right away
 
-        this.properties = properties;
+        this.properties = ensureUniqueProperty(properties);
 
         step4.edit(driverAttributes);
         deck.showWidget(3);

@@ -97,7 +97,7 @@ public class XADatasourceStep3 implements PropertyManagement {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
 
-        layout.add(new HTML("<h3>"+ Console.CONSTANTS.subsys_jca_xadataSource_step3()+"</h3>"));
+        layout.add(new HTML("<h3>" + Console.CONSTANTS.subsys_jca_xadataSource_step3() + "</h3>"));
 
         propEditor = new PropertyEditor(this, true, true);
 
@@ -116,10 +116,16 @@ public class XADatasourceStep3 implements PropertyManagement {
 
                 boolean hasProperties = propEditor.getPropertyTable().getRowCount() > 0;
 
-                if(!hasProperties)
+                if (!hasProperties)
                     errorMessages.setVisible(true);
-                else
-                    wizard.onConfigureProperties(properties);
+                else {
+                    try {
+                        wizard.onConfigureProperties(properties);
+                    } catch (IllegalArgumentException e) {
+                        errorMessages.setVisible(true);
+                        errorMessages.setText(e.getMessage());
+                    }
+                }
             }
         };
 
