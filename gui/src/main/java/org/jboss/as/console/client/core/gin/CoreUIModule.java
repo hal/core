@@ -484,29 +484,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ConfigAdminView.class,
                 ConfigAdminPresenter.MyProxy.class);
 
-
-        // Infinispan
-        bindPresenter(CacheContainerPresenter.class,
-                CacheContainerPresenter.MyView.class,
-                CacheContainerView.class,
-                CacheContainerPresenter.MyProxy.class);
-        bindPresenter(LocalCachePresenter.class,
-                LocalCachePresenter.MyView.class,
-                LocalCacheView.class,
-                LocalCachePresenter.MyProxy.class);
-        bindPresenter(InvalidationCachePresenter.class,
-                InvalidationCachePresenter.MyView.class,
-                InvalidationCacheView.class,
-                InvalidationCachePresenter.MyProxy.class);
-        bindPresenter(ReplicatedCachePresenter.class,
-                ReplicatedCachePresenter.MyView.class,
-                ReplicatedCacheView.class,
-                ReplicatedCachePresenter.MyProxy.class);
-        bindPresenter(DistributedCachePresenter.class,
-                DistributedCachePresenter.MyView.class,
-                DistributedCacheView.class,
-                DistributedCachePresenter.MyProxy.class);
-
         bindPresenter(SocketBindingPresenter.class,
                 SocketBindingPresenter.MyView.class,
                 SocketBindingView.class,
