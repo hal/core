@@ -275,7 +275,9 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.Reposito
 import org.jboss.as.console.client.tools.modelling.workbench.repository.RepositoryView;
 import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRepository;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
-import org.jboss.as.console.client.v3.deployment.DeploymentFinderPresenter;
+import org.jboss.as.console.client.v3.deployment.DeploymentContentFinder;
+import org.jboss.as.console.client.v3.deployment.DeploymentContentFinderView;
+import org.jboss.as.console.client.v3.deployment.DeploymentFinder;
 import org.jboss.as.console.client.v3.deployment.DeploymentFinderView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
@@ -407,10 +409,15 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DomainDeploymentPresenter.MyProxy.class);
 
         // domain / server-group-deployments
-        bindPresenter(DeploymentFinderPresenter.class,
-                DeploymentFinderPresenter.MyView.class,
+        bindPresenter(DeploymentFinder.class,
+                DeploymentFinder.MyView.class,
                 DeploymentFinderView.class,
-                DeploymentFinderPresenter.MyProxy.class);
+                DeploymentFinder.MyProxy.class);
+
+        bindPresenter(DeploymentContentFinder.class,
+                DeploymentContentFinder.MyView.class,
+                DeploymentContentFinderView.class,
+                DeploymentContentFinder.MyProxy.class);
 
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,

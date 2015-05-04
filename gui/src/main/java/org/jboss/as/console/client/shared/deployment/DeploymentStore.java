@@ -60,10 +60,14 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * Responsible for loading deployment data
  * and turning it a usable representation.
  *
+ * TODO Move all deployment related code to the new deployment store: org.jboss.as.console.client.v3.deployment.DeploymentStore
+ *
+ * @deprecated
  * @author Heiko Braun
  * @author Stan Silvert
  * @date 1/31/11
  */
+@Deprecated
 public class DeploymentStore
 {
     private final boolean isStandalone;

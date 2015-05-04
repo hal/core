@@ -200,7 +200,8 @@ public class NameTokens {
         return DeploymentBrowserPresenter;
     }
 
-    public static final String DeploymentFinderPresenter = "deployments-finder";
+    public static final String DeploymentFinder = "deployment-finder";
+    public static final String DeploymentContentFinder = "deployment-content";
 
 
     // ------------------------------------------------------

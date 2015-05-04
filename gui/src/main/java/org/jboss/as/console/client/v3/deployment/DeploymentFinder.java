@@ -45,63 +45,65 @@ import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
-import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 
 /**
  * TODO Remove dependency to PerspectivePresenter
+ *
  * @author Harald Pehl
  */
-public class DeploymentFinderPresenter
-        extends PerspectivePresenter<DeploymentFinderPresenter.MyView, DeploymentFinderPresenter.MyProxy>
+public class DeploymentFinder
+        extends PerspectivePresenter<DeploymentFinder.MyView, DeploymentFinder.MyProxy>
         implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
 
     // @formatter:off --------------------------------------- proxy & view
 
     @ProxyCodeSplit
     @OperationMode(DOMAIN)
-    @NameToken(NameTokens.DeploymentFinderPresenter)
+    @NameToken(NameTokens.DeploymentFinder)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             "/deployment=*",
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={selected.group}/deployment=*"
     }, recursive = false)
-    public interface MyProxy extends ProxyPlace<DeploymentFinderPresenter> {
+    public interface MyProxy extends ProxyPlace<DeploymentFinder> {
     }
 
-    public interface MyView extends View, HasPresenter<DeploymentFinderPresenter> {
+    public interface MyView extends View, HasPresenter<DeploymentFinder> {
         void setPreview(SafeHtml html);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
         void updateDeployments(List<DeploymentRecord> deployments);
-        void updateServerGroups(List<String> serverGroups);
+        void updateServerGroups(List<ServerGroupAssignment> assignments);
     }
-
 
     // @formatter:on ---------------------------------------- instance data
 
+
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private final PlaceManager placeManager;
     private final DeploymentStore deploymentStore;
 
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
-    public DeploymentFinderPresenter(final EventBus eventBus,
-            final MyView view, final MyProxy proxy, final PlaceManager placeManager,
-            final Header header, final UnauthorisedPresenter unauthorisedPresenter,
-            final ServerGroupStore serverGroupStore, final DeploymentStore deploymentStore) {
-        super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinderPresenter,
+    public DeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
+            final PlaceManager placeManager, final Header header, final UnauthorisedPresenter unauthorisedPresenter,
+            final DeploymentStore deploymentStore) {
+        super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinder,
                 unauthorisedPresenter, TYPE_MainContent);
+        this.placeManager = placeManager;
         this.deploymentStore = deploymentStore;
     }
 
@@ -117,7 +119,8 @@ public class DeploymentFinderPresenter
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
             final boolean revealDefault) {
-
+        // TODO Migrate to store / change events!
+        loadContentRepository();
     }
 
     @Override
@@ -128,9 +131,11 @@ public class DeploymentFinderPresenter
     @Override
     protected void onReset() {
         super.onReset();
-        loadContentRepository();
     }
 
+    public PlaceManager getPlaceManager() {
+        return placeManager;
+    }
 
     // ------------------------------------------------------ deployment related methods
 
@@ -143,13 +148,17 @@ public class DeploymentFinderPresenter
         });
     }
 
-    public void loadAssignmentsFor(final DeploymentRecord selectedItem) {
+    public void loadAssignmentsFor(final DeploymentRecord selectedDeployment) {
         // TODO Reduce duplicate code
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
             @Override
             public void onSuccess(final ContentRepository result) {
-                List<String> serverGroups = result.getServerGroups(selectedItem);
-                getView().updateServerGroups(serverGroups);
+                List<String> serverGroups = result.getServerGroups(selectedDeployment);
+                List<ServerGroupAssignment> assignments = new ArrayList<>();
+                for (String serverGroup : serverGroups) {
+                    assignments.add(new ServerGroupAssignment(selectedDeployment, serverGroup));
+                }
+                getView().updateServerGroups(assignments);
             }
         });
     }
@@ -165,5 +174,16 @@ public class DeploymentFinderPresenter
     @Override
     public void onToggleScrolling(final FinderScrollEvent event) {
         getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+    }
+
+
+    static class ServerGroupAssignment {
+        final DeploymentRecord deployment;
+        final String serverGroup;
+
+        ServerGroupAssignment(final DeploymentRecord deployment, final String serverGroup) {
+            this.deployment = deployment;
+            this.serverGroup = serverGroup;
+        }
     }
 }
