@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.ballroom.client.widgets.InlineLink;
 
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public class LinkBar {
 
-    private HorizontalPanel bar;
+    private VerticalPanel bar;
     private int numLinks = 0;
     private List<HTML> links = new LinkedList<HTML>();
     private final boolean navOnFirstPage;
@@ -26,7 +27,7 @@ public class LinkBar {
     }
 
     public LinkBar(boolean navOnFirstPage) {
-        this.bar = new HorizontalPanel();
+        this.bar = new VerticalPanel();
         this.navOnFirstPage = navOnFirstPage;
     }
 

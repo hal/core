@@ -609,3 +609,30 @@
 .preview-content a {
     font-weight: BOLD;
 }
+
+
+/*paged applictions*/
+
+.paged-view-navigation {
+    border-right: none!important;
+    border-bottom:none!important;
+    margin-top:25px;
+}
+
+.link-bar-first {
+    left: -10px;
+    position: relative;
+}
+
+.link-bar-active {
+    border: 1px solid #0099D3 !important;
+}
+
+.link-bar {
+    text-align: left!important;
+    line-height: 25px;
+}
+
+#PagedView .gwt-SplitLayoutPanel-HDragger {
+    border: medium none !important;
+}

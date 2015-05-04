@@ -7,6 +7,7 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
@@ -25,6 +26,7 @@ public class PagedView {
     private boolean navOnFirstPage = false;
     private Widget navigationBar;
     private List<PageCallback> callbacks = new LinkedList<PageCallback>();
+    private SplitLayoutPanel layout;
 
     public PagedView(boolean navOnFirstPage) {
         this.navOnFirstPage = navOnFirstPage;
@@ -40,16 +42,18 @@ public class PagedView {
 
     public Widget asWidget() {
 
-        FlowPanel layout = new FlowPanel();
+        layout = new SplitLayoutPanel(2);
         layout.getElement().setId("PagedView");
-        layout.setStyleName("fill-layout-width");
+        layout.setStyleName("fill-layout");
+
 
         navigationBar = bar.asWidget();
         navigationBar.addStyleName("paged-view-navigation");
-        layout.add(navigationBar);
+        layout.addWest(navigationBar, 180);
         layout.add(deck);
 
-        navigationBar.setVisible(navOnFirstPage);
+
+        layout.setWidgetHidden(navigationBar, !navOnFirstPage);
 
         return layout;
     }
@@ -80,11 +84,12 @@ public class PagedView {
             // navigation only on subsequent pages
             if(index>0)
             {
-                navigationBar.setVisible(true);
+
+                layout.setWidgetHidden(navigationBar, false);
             }
             else
             {
-                navigationBar.setVisible(false);
+                layout.setWidgetHidden(navigationBar, true);
             }
         }
 
