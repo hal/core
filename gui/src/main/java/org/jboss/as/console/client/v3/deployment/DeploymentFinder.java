@@ -159,6 +159,7 @@ public class DeploymentFinder
         return placeManager;
     }
 
+
     // ------------------------------------------------------ deployment related methods
 
     private void loadContentRepository() {
@@ -184,25 +185,6 @@ public class DeploymentFinder
                 getView().updateServerGroups(assignments);
             }
         });
-    }
-
-    public void closeDialogue() {
-        window.hide();
-    }
-
-    @Override
-    public void enableDisableDeployment(final DeploymentRecord record) {
-
-    }
-
-    @Override
-    public void updateDeployment(final DeploymentRecord record) {
-
-    }
-
-    @Override
-    public void removeDeploymentFromGroup(final DeploymentRecord record) {
-
     }
 
     @Override
@@ -239,6 +221,21 @@ public class DeploymentFinder
                 refreshDeployments();
             }
         });
+    }
+
+    @Override
+    public void enableDisableDeployment(final DeploymentRecord record) {
+
+    }
+
+    @Override
+    public void updateDeployment(final DeploymentRecord record) {
+
+    }
+
+    @Override
+    public void removeDeploymentFromGroup(final DeploymentRecord record) {
+
     }
 
     @Override
