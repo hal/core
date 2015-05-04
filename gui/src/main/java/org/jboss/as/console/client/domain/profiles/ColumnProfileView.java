@@ -79,7 +79,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     }
 
     interface SubsystemTemplate extends SafeHtmlTemplates {
-            @Template("<div class=\"{0}\"><span style='font-size:8px'>{2}</span><br/>{1}</div>")
+            @Template("<div class=\"{0}\">{1}</div>")
             SafeHtml item(String cssClass, String title, String group);
         }
 
