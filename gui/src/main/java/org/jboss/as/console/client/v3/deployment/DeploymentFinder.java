@@ -23,6 +23,7 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -34,13 +35,19 @@ import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelection;
+import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelector;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.shared.deployment.DeployCommandExecutor;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
+import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
@@ -50,11 +57,21 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * TODO Remove dependency to PerspectivePresenter
@@ -63,7 +80,7 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  */
 public class DeploymentFinder
         extends PerspectivePresenter<DeploymentFinder.MyView, DeploymentFinder.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
+        implements DeployCommandExecutor, Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
 
     // @formatter:off --------------------------------------- proxy & view
 
@@ -91,18 +108,23 @@ public class DeploymentFinder
 
     @ContentSlot
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
+    private final DispatchAsync dispatcher;
     private final PlaceManager placeManager;
     private final DeploymentStore deploymentStore;
+    private ContentRepository contentRepository;
+    private DefaultWindow window;
 
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public DeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final Header header, final UnauthorisedPresenter unauthorisedPresenter,
+            final DispatchAsync dispatcher, final PlaceManager placeManager,
+            final Header header, final UnauthorisedPresenter unauthorisedPresenter,
             final DeploymentStore deploymentStore) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinder,
                 unauthorisedPresenter, TYPE_MainContent);
+        this.dispatcher = dispatcher;
         this.placeManager = placeManager;
         this.deploymentStore = deploymentStore;
     }
@@ -143,6 +165,7 @@ public class DeploymentFinder
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
             @Override
             public void onSuccess(final ContentRepository result) {
+                contentRepository = result;
                 getView().updateDeployments(result.getDeployments());
             }
         });
@@ -163,6 +186,140 @@ public class DeploymentFinder
         });
     }
 
+    public void closeDialogue() {
+        window.hide();
+    }
+
+    @Override
+    public void enableDisableDeployment(final DeploymentRecord record) {
+
+    }
+
+    @Override
+    public void updateDeployment(final DeploymentRecord record) {
+
+    }
+
+    @Override
+    public void removeDeploymentFromGroup(final DeploymentRecord record) {
+
+    }
+
+    @Override
+    public void onAssignToServerGroup(final DeploymentRecord deployment, final boolean enable,
+            final Set<ServerGroupSelection> selectedGroups) {
+
+        final PopupPanel loading = Feedback.loading(
+                Console.CONSTANTS.common_label_plaseWait(),
+                Console.CONSTANTS.common_label_requestProcessed(),
+                () -> {});
+
+        Set<String> names = new HashSet<>();
+        for (ServerGroupSelection group : selectedGroups) { names.add(group.getName()); }
+
+        deploymentStore.addToServerGroups(names, enable, deployment, new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                loading.hide();
+                Console.error(Console.MESSAGES.addingFailed("Deployment " + deployment.getRuntimeName()),
+                        caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(DMRResponse response) {
+                loading.hide();
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error(Console.MESSAGES.addingFailed("Deployment " + deployment.getRuntimeName()),
+                            result.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES
+                            .added("Deployment " + deployment.getRuntimeName() + " to group " + selectedGroups));
+                }
+                refreshDeployments();
+            }
+        });
+    }
+
+    @Override
+    public void onRemoveContent(final DeploymentRecord deployment) {
+        List<String> assignedGroups = contentRepository.getServerGroups(deployment);
+
+        final PopupPanel loading = Feedback.loading(
+                Console.CONSTANTS.common_label_plaseWait(),
+                Console.CONSTANTS.common_label_requestProcessed(),
+                () -> {});
+
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set(COMPOSITE);
+        operation.get(ADDRESS).setEmptyList();
+
+        List<ModelNode> steps = new LinkedList<>();
+        for (String group : assignedGroups) {
+            ModelNode groupOp = new ModelNode();
+            groupOp.get(OP).set(REMOVE);
+            groupOp.get(ADDRESS).add("server-group", group);
+            groupOp.get(ADDRESS).add("deployment", deployment.getName());
+            steps.add(groupOp);
+        }
+
+        ModelNode removeContentOp = new ModelNode();
+        removeContentOp.get(OP).set(REMOVE);
+        removeContentOp.get(ADDRESS).add("deployment", deployment.getName());
+        steps.add(removeContentOp);
+        operation.get(STEPS).set(steps);
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                loading.hide();
+
+                ModelNode result = dmrResponse.get();
+
+                if (result.isFailure()) {
+                    Console.error(Console.MESSAGES.deletionFailed("Deployment " + deployment.getRuntimeName()),
+                            result.getFailureDescription());
+                } else {
+                    Console.info(Console.MESSAGES.deleted("Deployment " + deployment.getRuntimeName()));
+                }
+                refreshDeployments();
+            }
+        });
+    }
+
+    @Override
+    public List<ServerGroupRecord> getPossibleGroupAssignments(final DeploymentRecord record) {
+        return contentRepository.getPossibleServerGroupAssignments(record);
+    }
+
+    @Override
+    public void launchGroupSelectionWizard(final DeploymentRecord record) {
+        new ServerGroupSelector(this, record);
+    }
+
+    @Override
+    public void onCreateUnmanaged(final DeploymentRecord entity) {
+
+    }
+
+    @Override
+    public void refreshDeployments() {
+        loadContentRepository();
+    }
+
+    public void launchNewDeploymentDialoge(DeploymentRecord record, boolean isUpdate) {
+        launchDeploymentDialoge(Console.MESSAGES.createTitle("Deployment"), record, isUpdate);
+    }
+
+    public void launchDeploymentDialoge(String title, DeploymentRecord record, boolean isUpdate) {
+        window = new DefaultWindow(title);
+        window.setWidth(480);
+        window.setHeight(480);
+        window.trapWidget(
+                new NewDeploymentWizard(this, window, isUpdate, record).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
 
     // ------------------------------------------------------ finder related methods
 
@@ -178,6 +335,7 @@ public class DeploymentFinder
 
 
     static class ServerGroupAssignment {
+
         final DeploymentRecord deployment;
         final String serverGroup;
 

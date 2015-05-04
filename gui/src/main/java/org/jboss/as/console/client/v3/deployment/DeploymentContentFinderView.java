@@ -80,7 +80,12 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
         );
         subdeploymentColumn.setShowSize(true);
         subdeploymentColumn.addSelectionChangeHandler(
-                event -> System.out.println("Selected subdeployment: " + subdeploymentColumn.getSelectedItem().getName()));
+                event -> {
+                    if (subdeploymentColumn.hasSelectedItem()) {
+                        System.out
+                                .println("Selected subdeployment: " + subdeploymentColumn.getSelectedItem().getName());
+                    }
+                });
         subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
         // subsystems
@@ -112,7 +117,11 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
         );
         subsystemColumn.setShowSize(true);
         subsystemColumn.addSelectionChangeHandler(
-                event -> System.out.println("Selected subsystem: " + subsystemColumn.getSelectedItem().getName()));
+                event -> {
+                    if (subsystemColumn.hasSelectedItem()) {
+                        System.out.println("Selected subsystem: " + subsystemColumn.getSelectedItem().getName());
+                    }
+                });
         subsystemColumnWidget = subsystemColumn.asWidget();
 
         // setup UI

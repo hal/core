@@ -10,7 +10,7 @@ public  class ServerGroupSelection implements CheckboxColumn.Selectable {
     private ServerGroupRecord group;
     private boolean isSelected = false;
 
-    ServerGroupSelection(ServerGroupRecord group) {
+    public ServerGroupSelection(ServerGroupRecord group) {
         this.group = group;
     }
 
