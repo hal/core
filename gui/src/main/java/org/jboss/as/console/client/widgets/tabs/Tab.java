@@ -51,6 +51,9 @@ class Tab extends Composite {
         this.index = index;
         this.lastTab = index == PAGE_LIMIT - 1;
 
+        selector = new OffPageSelector(tabLayout);
+        selector.setVisible(false); // will be displayed when the first off page is added
+
         Widget content;
         if (index == 0) {
             // first tab: under no circumstances closable
@@ -58,20 +61,15 @@ class Tab extends Composite {
             content = label;
 
         } else if (lastTab) {
-            // last tab: contains close icon (in case closable == true) and hidden selector icon
-            if (tabLayout.isCloseable()) {
-                FlowPanel panel = new FlowPanel();
-                label = new TabLabel(Document.get().createSpanElement(), text, truncate);
-                selector = new OffPageSelector(tabLayout);
-                selector.setVisible(false); // will be displayed when the first off page is added
-                panel.add(label);
+            // last tab: contains (an optional) close icon and hidden selector icon
+            FlowPanel panel = new FlowPanel();
+            label = new TabLabel(Document.get().createSpanElement(), text, truncate);
+
+            panel.add(label);
+            if(tabLayout.isCloseable())
                 panel.add(new CloseIcon());
-                panel.add(selector);
-                content = panel;
-            } else {
-                label = new TabLabel(Document.get().createDivElement(), text, truncate);
-                content = label;
-            }
+            panel.add(selector);
+            content = panel;
 
         } else {
             // 'middle' tabs contains close icons (if closable == true)

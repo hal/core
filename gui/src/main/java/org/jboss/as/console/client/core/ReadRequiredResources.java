@@ -146,12 +146,16 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
         public void onFailure(Throwable caught) {
             control.getContext().makeReadonly();
             control.getContext().setError(caught);
+
+            caught.printStackTrace();
+
             control.abort();
         }
 
         @Override
         public void onSuccess(DMRResponse dmrResponse) {
             ModelNode response = dmrResponse.get();
+
             if (response.isFailure()) {
                 Log.error("Failed to retrieve access control meta data, fallback to temporary read-only context: ",
                         response.getFailureDescription());

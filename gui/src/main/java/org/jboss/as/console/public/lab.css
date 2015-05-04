@@ -336,14 +336,17 @@
 }
 
 .navigation-cell-table .cellTableCell {
-    padding: 5px;
-    padding-left: 10px;
+    padding: 5px 0 5px 0;
     border:none!important;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     max-width: 250px;
     line-height: 20px;
+}
+
+.navigation-cell-table .cellTableFirstColumn {
+    padding: 5px 0 5px 10px!important;
 }
 
 .navigation-cell-table .cellTableLastColumn {

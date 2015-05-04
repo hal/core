@@ -43,7 +43,16 @@ public class ResourceDescriptionRegistry {
     }
 
     public ResourceDescription lookup(AddressTemplate addressTemplate) {
-        return registry.get(addressTemplate);
+
+        ResourceDescription resourceDescription = registry.get(addressTemplate);
+        if(null==resourceDescription)
+            throw new RuntimeException("Failed to lookup resource description for "+addressTemplate.toString());
+
+        return resourceDescription;
+    }
+
+    public boolean has(AddressTemplate addressTemplate) {
+        return registry.containsKey(addressTemplate);
     }
 
     public boolean contains(AddressTemplate addressTemplate) {

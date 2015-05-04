@@ -109,6 +109,8 @@ public class NameTokens {
     public static final String  UndertowPresenter = "undertow";
     public static final String MailFinder = "mail-sessions";
     public static final String HttpMetrics = "http-metrics";
+    public static final String CacheFinderPresenter = "cache-container";
+    public static final String CachesPresenter = "caches";
 
     public static String getMainLayout() {
         return mainLayout;

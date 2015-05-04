@@ -408,7 +408,7 @@ public class ModelNodeFormBuilder {
     }
 
     /**
-     * a more lenient way to update calues by type
+     * a more lenient way to update values by type
      */
     public static void setValue(ModelNode target, ModelType type, Object propValue ) {
 
@@ -458,7 +458,8 @@ public class ModelNodeFormBuilder {
         }
         else
         {
-            throw new RuntimeException("Type conversion not implemented for "+type);
+            Log.warn("Type conversionnot supported for "+ type);
+            target.setEmptyObject();
         }
 
     }

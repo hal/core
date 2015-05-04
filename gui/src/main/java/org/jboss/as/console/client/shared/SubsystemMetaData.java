@@ -109,12 +109,7 @@ public class SubsystemMetaData {
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));
 
-        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Cache Containers", NameTokens.Infinispan, NameTokens.CacheContainerPresenter));
-        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Local Caches", NameTokens.Infinispan, NameTokens.LocalCachePresenter));
-        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Invalidation Caches", NameTokens.Infinispan, NameTokens.InvalidationCachePresenter));
-        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Replicated Caches", NameTokens.Infinispan, NameTokens.ReplicatedCachePresenter));
-        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Distributed Caches", NameTokens.Infinispan, NameTokens.DistributedCachePresenter));
-
+        groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));
     }
 
     public static void bootstrap(SubsystemRegistry registry) {

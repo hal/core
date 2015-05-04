@@ -144,7 +144,7 @@ public class StackOverview {
             }
 
             @Override
-            public void onDelete(JGroupsStack entity) {
+            public void onRemove(JGroupsStack entity) {
 
             }
         });

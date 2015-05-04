@@ -1,0 +1,23 @@
+@external gwt-TabLayoutPanel;
+.gwt-TabLayoutPanel>div {
+    position: static !important;
+}
+.gwt-TabLayoutPanel {
+    margin-left: 30px;
+}
+@external gwt-TabLayoutPanelTabs;
+.gwt-TabLayoutPanelTabs {
+    top: 0 !important;
+    width: 140px !important;
+}
+@external gwt-TabLayoutPanelTab;
+.gwt-TabLayoutPanelTab {
+    display: block !important;
+    margin-top: 2px;
+    padding: 8px 6px !important;
+}
+@external gwt-TabLayoutPanelContentContainer;
+.gwt-TabLayoutPanelContentContainer {
+    left: 150px !important;
+    top: 0 !important;
+}

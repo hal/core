@@ -82,6 +82,9 @@ public class RequiredResourcesProcessor {
 
             } else {
                 List<ReadRequiredResources> functions = partition(requiredResources, recursive, BATCH_SIZE);
+
+                System.out.println("Num partitions: "+functions.size());
+
                 RequiredResourcesContext context = new RequiredResourcesContext(token, requiredResources,
                         resourceDescriptionRegistry);
                 Outcome<RequiredResourcesContext> outcome = new Outcome<RequiredResourcesContext>() {

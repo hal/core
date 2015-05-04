@@ -42,5 +42,10 @@ public interface ConsoleResources extends ClientBundle {
 
     @Source("org/jboss/as/console/public/protovis-d3.2-PATCHED-COMPRESSED.js")
     TextResource protovis();
+
+    @CssResource.NotStrict
+    @Source("org/jboss/as/console/public/verticaltabs.css")
+    CssResource verticalTabPanelStyles();
+
 }
 

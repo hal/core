@@ -4,6 +4,7 @@ import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
 import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.PlainFormView;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
@@ -28,6 +29,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     private ModelNode editedEntity = null;
     private Map<String, ModelNode> defaults = Collections.EMPTY_MAP;
     private boolean hasWritableAttributes;
+    private final static ModelNode UNDEFINED = new ModelNode();
 
     public ModelNodeForm(String address, SecurityContext securityContext) {
         this.address = address;
@@ -48,6 +50,10 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
             throw new IllegalArgumentException("Invalid entity: null");
 
         this.editedEntity = bean;
+
+        // prevent modification of the source
+        // the DMR getter otherwise mutate the bean
+        this.editedEntity.protect();
 
         final Map<String, String> exprMap = getExpressions(editedEntity);
 
@@ -155,6 +161,11 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
 
         // plain views
         refreshPlainView();
+    }
+
+    protected void refreshPlainView() {
+        for(PlainFormView view : plainViews)
+            view.refresh(getEditedEntity()!=null && getEditedEntity().isDefined());
     }
 
     /**
@@ -341,7 +352,10 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                     @Override
                     public boolean visitValueProperty(String propertyName, ModelNode value, PropertyContext ctx) {
 
-                        if(!src.get(propertyName).equals(dest.get(propertyName))) {
+                        // protected mode (see edit() ) requires us to prevent mutation
+                        ModelNode modelNode = src.hasDefined(propertyName) ?  src.get(propertyName) : UNDEFINED;
+
+                        if(!modelNode.equals(dest.get(propertyName))) {
                             Object castedValue = downCast(dest.get(propertyName), getAttributeMetaData(propertyName));
                             changedValues.put(propertyName, castedValue);
                         }

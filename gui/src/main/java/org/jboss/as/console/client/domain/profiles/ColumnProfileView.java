@@ -78,7 +78,14 @@ public class ColumnProfileView extends SuspendableViewImpl
         SafeHtml item(String cssClass, String title);
     }
 
+    interface SubsystemTemplate extends SafeHtmlTemplates {
+            @Template("<div class=\"{0}\"><span style='font-size:8px'>{2}</span><br/>{1}</div>")
+            SafeHtml item(String cssClass, String title, String group);
+        }
+
     private static final Template TEMPLATE = GWT.create(Template.class);
+
+    private static final SubsystemTemplate SUBSYS_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
 
     @Inject
@@ -285,7 +292,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
-                        return TEMPLATE.item(baseCss, data.getTitle());
+                        return SUBSYS_TEMPLATE.item(baseCss, data.getTitle(), data.getGroupName());
                     }
 
                     @Override
@@ -504,11 +511,13 @@ public class ColumnProfileView extends SuspendableViewImpl
         String title;
         String token;
         private final boolean isFolder;
+        private final String groupName;
 
-        public SubsystemLink(String title, String token, boolean isFolder) {
+        public SubsystemLink(String title, String token, boolean isFolder, String groupName) {
             this.title = title;
             this.token = token;
             this.isFolder = isFolder;
+            this.groupName = groupName;
         }
 
         public String getTitle() {
@@ -519,6 +528,10 @@ public class ColumnProfileView extends SuspendableViewImpl
             return token;
         }
 
+        public String getGroupName() {
+            return groupName;
+        }
+
         public boolean isFolder() {
             return isFolder;
         }
@@ -526,7 +539,8 @@ public class ColumnProfileView extends SuspendableViewImpl
 
 
     private final static String[] subsystemFolders = new String[] {
-            NameTokens.MailFinder
+            NameTokens.MailFinder,
+            NameTokens.CacheFinderPresenter
     };
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
@@ -581,7 +595,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                         }
 
                         matches.add(
-                                new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder)
+                                new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder, groupName)
                         );
                         match = true;
                     }
