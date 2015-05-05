@@ -23,6 +23,7 @@ package org.jboss.as.console.client.v3.deployment;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -43,14 +44,19 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelection;
 import org.jboss.as.console.client.domain.groups.deployment.ServerGroupSelector;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.deployment.DeployCommandExecutor;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
@@ -65,9 +71,12 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -103,7 +112,10 @@ public class DeploymentFinder
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
         void updateDeployments(List<DeploymentRecord> deployments);
         void updateServerGroups(List<ServerGroupAssignment> assignments);
-        void clearActiveSelection(final ClearFinderSelectionEvent event);
+        void toggleSubdeployments(boolean hasSubdeployments);
+        void updateSubdeployments(List<DeploymentRecord> subdeployments);
+        void updateAssignment(ServerGroupAssignment assignment);
+        void clearActiveSelection(ClearFinderSelectionEvent event);
     }
 
     // @formatter:on ---------------------------------------- instance data
@@ -113,6 +125,7 @@ public class DeploymentFinder
     public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent = new GwtEvent.Type<RevealContentHandler<?>>();
     private final DispatchAsync dispatcher;
     private final PlaceManager placeManager;
+    private final BeanFactory beanFactory;
     private final DeploymentStore deploymentStore;
     private ContentRepository contentRepository;
     private DefaultWindow window;
@@ -123,12 +136,13 @@ public class DeploymentFinder
     @Inject
     public DeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final DispatchAsync dispatcher, final PlaceManager placeManager,
-            final Header header, final UnauthorisedPresenter unauthorisedPresenter,
+            final BeanFactory beanFactory, final Header header, final UnauthorisedPresenter unauthorisedPresenter,
             final DeploymentStore deploymentStore) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinder,
                 unauthorisedPresenter, TYPE_MainContent);
         this.dispatcher = dispatcher;
         this.placeManager = placeManager;
+        this.beanFactory = beanFactory;
         this.deploymentStore = deploymentStore;
     }
 
@@ -367,6 +381,90 @@ public class DeploymentFinder
                 new NewDeploymentWizard(this, window, isUpdate, record).asWidget());
         window.setGlassEnabled(true);
         window.center();
+    }
+
+    public void loadDeployment(final ServerGroupAssignment assignment) {
+        // TODO Check whether the deployment is enabled for that specific group
+        if (assignment.deployment.isEnabled()) {
+            Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
+                @Override
+                public void onFailure(final FunctionContext context) {
+                    Console.error("Unable to load deployment content", context.getErrorMessage()); // TODO i18n
+                }
+
+                @Override
+                public void onSuccess(final FunctionContext context) {
+                    ServerInstance referenceServer = null;
+                    List<HostInfo> hosts = context.pop();
+                    for (Iterator<HostInfo> i = hosts.iterator(); i.hasNext() && referenceServer == null; ) {
+                        HostInfo host = i.next();
+                        List<ServerInstance> serverInstances = host.getServerInstances();
+                        for (Iterator<ServerInstance> j = serverInstances.iterator();
+                                j.hasNext() && referenceServer == null; ) {
+                            ServerInstance server = j.next();
+                            if (server.isRunning() && server.getGroup().equals(assignment.deployment.getServerGroup())) {
+                                referenceServer = server;
+                            }
+                        }
+                    }
+                    if (referenceServer != null) {
+                        loadDeployments(assignment, referenceServer);
+                        System.out.println("Found reference server " + referenceServer.getName() + " on " + referenceServer.getGroup() + " / " + referenceServer.getHost());
+                    } else {
+                        System.out.println("No reference server found!");
+                        // TODO No reference server found
+                    }
+                }
+            };
+            new Async<FunctionContext>().waterfall(new FunctionContext(), outcome,
+                    new TopologyFunctions.HostsAndGroups(dispatcher),
+                    new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
+                    new TopologyFunctions.RunningServerInstances(dispatcher));
+        }
+    }
+
+    private void loadDeployments(final ServerGroupAssignment assignment, ServerInstance referenceServer) {
+        // TODO Should be replaced with a :read-resource(recursive=true)
+        deploymentStore.loadDeployments(referenceServer, new AsyncCallback<List<DeploymentRecord>>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to load deployment content", caught.getMessage()); // TODO i18n
+            }
+
+            @Override
+            public void onSuccess(final List<DeploymentRecord> result) {
+                DeploymentRecord referenceDeployment = null;
+                for (DeploymentRecord deploymentRecord : result) {
+                    if (deploymentRecord.getName().equals(assignment.deployment.getName())) {
+                        referenceDeployment = deploymentRecord;
+                        break;
+                    }
+                }
+                if (referenceDeployment != null) {
+                    getView().toggleSubdeployments(referenceDeployment.isHasSubdeployments());
+                    if (referenceDeployment.isHasSubdeployments()) {
+                        deploymentStore.loadSubdeployments(referenceDeployment,
+                                new AsyncCallback<List<DeploymentRecord>>() {
+                                    @Override
+                                    public void onFailure(final Throwable caught) {
+                                        Console.error("Unable to load deployment content",
+                                                caught.getMessage()); // TODO i18n
+                                    }
+
+                                    @Override
+                                    public void onSuccess(final List<DeploymentRecord> result) {
+                                        getView().updateSubdeployments(result);
+                                    }
+                                });
+                    } else {
+                        getView().updateAssignment(
+                                new ServerGroupAssignment(referenceDeployment, assignment.serverGroup));
+                    }
+                } else {
+                    // TODO No reference deployment found
+                }
+            }
+        });
     }
 
 

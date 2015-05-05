@@ -85,7 +85,6 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 }
         );
         subdeploymentColumn.setShowSize(true);
-        subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
         subdeploymentColumn.setPreviewFactory((data, callback) -> {
             SafeHtmlBuilder html = new SafeHtmlBuilder();
@@ -135,7 +134,6 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 }
         );
         subsystemColumn.setShowSize(true);
-        subsystemColumnWidget = subsystemColumn.asWidget();
 
         subsystemColumn.setPreviewFactory((data, callback) -> {
             SafeHtmlBuilder html = new SafeHtmlBuilder();
@@ -185,7 +183,6 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 }
         );
         resourceColumn.setShowSize(true);
-        resourceColumnWidget = resourceColumn.asWidget();
 
         resourceColumn.setPreviewFactory((data, callback) -> {
             SafeHtmlBuilder html = new SafeHtmlBuilder();
@@ -204,6 +201,10 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
         });
 
         // setup UI
+        subdeploymentColumnWidget = subdeploymentColumn.asWidget();
+        subsystemColumnWidget = subsystemColumn.asWidget();
+        resourceColumnWidget = resourceColumn.asWidget();
+
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
 
