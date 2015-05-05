@@ -46,6 +46,7 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.deployment.DeployCommandExecutor;
+import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.deployment.NewDeploymentWizard;
 import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
@@ -167,7 +168,7 @@ public class DeploymentFinder
             @Override
             public void onSuccess(final ContentRepository result) {
                 contentRepository = result;
-                getView().updateDeployments(result.getDeployments());
+                getView().updateDeployments(contentRepository.getDeployments());
             }
         });
     }
@@ -177,9 +178,11 @@ public class DeploymentFinder
         deploymentStore.loadContentRepository(new SimpleCallback<ContentRepository>() {
             @Override
             public void onSuccess(final ContentRepository result) {
+                contentRepository = result;
                 List<String> serverGroups = result.getServerGroups(selectedDeployment);
                 List<ServerGroupAssignment> assignments = new ArrayList<>();
                 for (String serverGroup : serverGroups) {
+                    // TODO We need the enabled / disabled state per *server-group*
                     assignments.add(new ServerGroupAssignment(selectedDeployment, serverGroup));
                 }
                 getView().updateServerGroups(assignments);
@@ -224,18 +227,64 @@ public class DeploymentFinder
     }
 
     @Override
-    public void enableDisableDeployment(final DeploymentRecord record) {
+    public void enableDisableDeployment(final DeploymentRecord deployment) {
+        final String success;
+        final String failed;
+        if (deployment.isEnabled()) {
+            success = Console.MESSAGES.successDisabled(deployment.getRuntimeName());
+            failed = Console.MESSAGES.failedToDisable(deployment.getRuntimeName());
+        } else {
+            success = Console.MESSAGES.successEnabled(deployment.getRuntimeName());
+            failed = Console.MESSAGES.failedToEnable(deployment.getRuntimeName());
+        }
+        final PopupPanel loading = Feedback.loading(
+                Console.CONSTANTS.common_label_plaseWait(),
+                Console.CONSTANTS.common_label_requestProcessed(),
+                () -> {});
+
+        deploymentStore.enableDisableDeployment(deployment, new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                loading.hide();
+                Console.error(failed, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(DMRResponse response) {
+                loading.hide();
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error(failed, result.getFailureDescription());
+                } else {
+                    Console.info(success);
+                }
+                refreshDeployments();
+            }
+        });
+    }
+
+    @Override
+    public void updateDeployment(final DeploymentRecord deployment) {
 
     }
 
     @Override
-    public void updateDeployment(final DeploymentRecord record) {
+    public void removeDeploymentFromGroup(final DeploymentRecord deployment) {
+        deploymentStore.removeDeploymentFromGroup(deployment, new SimpleCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse response) {
+                refreshDeployments();
+                DeploymentCommand.REMOVE_FROM_GROUP.displaySuccessMessage(DeploymentFinder.this, deployment);
+            }
 
-    }
-
-    @Override
-    public void removeDeploymentFromGroup(final DeploymentRecord record) {
-
+            @Override
+            public void onFailure(Throwable t) {
+                super.onFailure(t);
+                refreshDeployments();
+                DeploymentCommand.REMOVE_FROM_GROUP
+                        .displayFailureMessage(DeploymentFinder.this, deployment, t);
+            }
+        });
     }
 
     @Override

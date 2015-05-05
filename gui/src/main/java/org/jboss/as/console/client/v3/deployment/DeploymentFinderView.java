@@ -34,11 +34,13 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommand;
 import org.jboss.as.console.client.shared.deployment.DeploymentCommandDelegate;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.v3.deployment.DeploymentFinder.ServerGroupAssignment;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
@@ -57,8 +59,8 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     interface Template extends SafeHtmlTemplates {
 
-        @Template("<div class=\"{0}\" title='{1}'>{1}</div>")
-        SafeHtml item(String cssClass, String title);
+        @Template("<div class=\"{0}\" title='{2}'>{1}</div>")
+        SafeHtml item(String cssClass, String shortName, String fullName);
     }
 
 
@@ -74,7 +76,6 @@ public class DeploymentFinderView extends SuspendableViewImpl
     private Widget deploymentsColumnWidget;
     private FinderColumn<ServerGroupAssignment> assignedGroupsColumn;
     private Widget assignedGroupsColumnWidget;
-
 
 
     // ------------------------------------------------------ view lifecycle
@@ -93,7 +94,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(final String baseCss, final DeploymentRecord data) {
-                        return TEMPLATE.item(baseCss, data.getName());
+                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.getName()), data.getName());
                     }
 
                     @Override
@@ -110,11 +111,24 @@ public class DeploymentFinderView extends SuspendableViewImpl
         deploymentsColumn.setShowSize(true);
 
         deploymentsColumn.setTopMenuItems(
-                new MenuDelegate<>("Add", item -> presenter.launchNewDeploymentDialoge(null, false)),
-                new MenuDelegate<>("Refresh", item -> presenter.refreshDeployments()));
+                new MenuDelegate<>("<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add",
+                        item -> presenter.launchNewDeploymentDialoge(null, false)),
+                new MenuDelegate<>("<i class=\"icon-refresh\" style='color:black'></i>&nbsp;Refresh",
+                        item -> presenter.refreshDeployments()));
 
         //noinspection Convert2MethodRef
-        deploymentsColumn.setMenuItems(new MenuDelegate<>("Remove", item -> presenter.onRemoveContent(item)));
+        deploymentsColumn.setMenuItems(
+                new MenuDelegate<>("Remove", item -> presenter.onRemoveContent(item)),
+                new MenuDelegate<>("Replace", item1 -> Console.warning("Not yet implemented")));
+
+        deploymentsColumn.setPreviewFactory((data, callback) -> {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Deployment")
+                    .appendHtmlConstant("</h2>");
+            html.appendEscaped("Something about the selected deployment...");
+            html.appendHtmlConstant("</div>");
+            callback.onSuccess(html.toSafeHtml());
+        });
 
         deploymentsColumn.addSelectionChangeHandler(event -> {
             clearNestedPresenter();
@@ -140,7 +154,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, ServerGroupAssignment data) {
-                        return TEMPLATE.item(baseCss, data.serverGroup);
+                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.serverGroup), data.serverGroup);
                     }
 
                     @Override
@@ -154,21 +168,27 @@ public class DeploymentFinderView extends SuspendableViewImpl
                         return item.serverGroup;
                     }
                 });
+        assignedGroupsColumn.setShowSize(true);
+        assignedGroupsColumn.setComparisonType("filter");
 
         assignedGroupsColumn.setTopMenuItems(
-                new MenuDelegate<>("Add", item ->
+                new MenuDelegate<>("Assign", item ->
                         new DeploymentCommandDelegate(presenter,
                                 DeploymentCommand.ADD_TO_GROUP).execute(deploymentsColumn.getSelectedItem()))
         );
 
-        assignedGroupsColumn.setShowSize(true);
-        assignedGroupsColumn.setComparisonType("filter");
+        assignedGroupsColumn.setMenuItems(
+                new MenuDelegate<>("E / D",
+                        item -> presenter.enableDisableDeployment(item.deployment)),
+                new MenuDelegate<>("Remove",
+                        item -> presenter.removeDeploymentFromGroup(item.deployment))
+        );
+
         assignedGroupsColumn.setPreviewFactory((data, callback) -> {
             SafeHtmlBuilder html = new SafeHtmlBuilder();
-            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Server Groups")
+            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Assigned Deployment")
                     .appendHtmlConstant("</h2>");
-            html.appendEscaped(
-                    "A server group is set of server instances that will be managed and configured as one. In a managed domain each application server instance is a member of a server group. (Even if the group only has a single server, the server is still a member of a group.) It is the responsibility of the Domain Controller and the Host Controllers to ensure that all servers in a server group have a consistent configuration. They should all be configured with the same profile and they should have the same deployment content deployed.");
+            html.appendEscaped("Something about the selected assigned deployment...");
             html.appendHtmlConstant("</div>");
             callback.onSuccess(html.toSafeHtml());
         });
@@ -178,13 +198,16 @@ public class DeploymentFinderView extends SuspendableViewImpl
             if (assignedGroupsColumn.hasSelectedItem()) {
                 columnManager.updateActiveSelection(assignedGroupsColumnWidget);
                 ServerGroupAssignment selectedAssignment = assignedGroupsColumn.getSelectedItem();
-                Scheduler.get().scheduleDeferred(() -> {
-                    circuit.dispatch(new DeploymentSelection(selectedAssignment.deployment));
-                    circuit.dispatch(new GroupSelection(selectedAssignment.serverGroup));
-                    PlaceRequest placeRequest = new PlaceRequest.Builder().nameToken(NameTokens.DeploymentContentFinder)
-                            .build();
-                    presenter.getPlaceManager().revealRelativePlace(placeRequest);
-                });
+                if (selectedAssignment.deployment.isEnabled()) {
+                    Scheduler.get().scheduleDeferred(() -> {
+                        circuit.dispatch(new DeploymentSelection(selectedAssignment.deployment));
+                        circuit.dispatch(new GroupSelection(selectedAssignment.serverGroup));
+                        PlaceRequest placeRequest = new PlaceRequest.Builder()
+                                .nameToken(NameTokens.DeploymentContentFinder)
+                                .build();
+                        presenter.getPlaceManager().revealRelativePlace(placeRequest);
+                    });
+                }
             }
         });
         assignedGroupsColumnWidget = assignedGroupsColumn.asWidget();
@@ -262,8 +285,9 @@ public class DeploymentFinderView extends SuspendableViewImpl
     private void clearNestedPresenter() {
         presenter.clearSlot(DeploymentFinder.TYPE_MainContent);
         Scheduler.get().scheduleDeferred(() -> {
-            if (presenter.getPlaceManager().getHierarchyDepth() > 1)
+            if (presenter.getPlaceManager().getHierarchyDepth() > 1) {
                 presenter.getPlaceManager().revealRelativePlace(1);
+            }
         });
     }
 }

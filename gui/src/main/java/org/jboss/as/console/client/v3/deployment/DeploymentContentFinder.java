@@ -132,7 +132,9 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
                     }
                     if (referenceServer != null) {
                         loadDeployments(selectedDeployment, referenceServer);
+                        System.out.println("Found reference server " + referenceServer.getName() + " on " + referenceServer.getGroup() + " / " + referenceServer.getHost());
                     } else {
+                        System.out.println("No reference server found!");
                         // TODO No reference server found
                     }
                 }

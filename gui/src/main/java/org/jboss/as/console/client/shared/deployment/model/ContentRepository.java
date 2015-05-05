@@ -100,7 +100,12 @@ public class ContentRepository
 
     public List<DeploymentRecord> getDeployments(ServerGroupRecord serverGroup)
     {
-        SortedSet<DeploymentRecord> deployments = deploymentsOfGroup.get(serverGroup.getName());
+        return getDeployments(serverGroup.getName());
+    }
+
+    public List<DeploymentRecord> getDeployments(String serverGroup)
+    {
+        SortedSet<DeploymentRecord> deployments = deploymentsOfGroup.get(serverGroup);
         if (deployments != null)
         {
             return new LinkedList<DeploymentRecord>(deployments);

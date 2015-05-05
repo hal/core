@@ -90,7 +90,7 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
             tabs.add(new Config(NameTokens.ServerProfile, "Configuration", true));
             tabs.add(new Config(NameTokens.StandaloneRuntimePresenter, "Runtime", true));
         } else {
-            tabs.add(new Config(NameTokens.DeploymentFinder, "New Deployments", true));
+            tabs.add(new Config(NameTokens.DeploymentFinder, "Deployment Finder", true));
             tabs.add(new Config(NameTokens.DeploymentsPresenter, "Deployments", true));
             tabs.add(new Config(NameTokens.ProfileMgmtPresenter, "Configuration", true));
             //tabs.add(new Config(NameTokens.ServerPresenter, "Domain", false));
