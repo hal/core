@@ -55,7 +55,7 @@ import java.util.List;
  * @author Harald Pehl
  */
 public class DeploymentFinderView extends SuspendableViewImpl
-        implements DeploymentFinder.MyView, ClearFinderSelectionEvent.Handler {
+        implements DeploymentFinder.MyView {
 
     interface Template extends SafeHtmlTemplates {
 
@@ -85,7 +85,9 @@ public class DeploymentFinderView extends SuspendableViewImpl
     public DeploymentFinderView(final Dispatcher circuit) {
 
         // deployments column
-        deploymentsColumn = new FinderColumn<>(FinderColumn.FinderId.DEPLOYMENT, "Deployments",
+        deploymentsColumn = new FinderColumn<>(
+                FinderColumn.FinderId.DEPLOYMENT,
+                "Deployments",
                 new FinderColumn.Display<DeploymentRecord>() {
                     @Override
                     public boolean isFolder(final DeploymentRecord data) {
@@ -94,7 +96,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(final String baseCss, final DeploymentRecord data) {
-                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.getName()), data.getName());
+                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.getName(), 20), data.getName());
                     }
 
                     @Override
@@ -107,8 +109,10 @@ public class DeploymentFinderView extends SuspendableViewImpl
                     public Object getKey(DeploymentRecord item) {
                         return item.getName();
                     }
-                });
+                }
+        );
         deploymentsColumn.setShowSize(true);
+        deploymentsColumnWidget = deploymentsColumn.asWidget();
 
         deploymentsColumn.setTopMenuItems(
                 new MenuDelegate<>("<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add",
@@ -133,18 +137,19 @@ public class DeploymentFinderView extends SuspendableViewImpl
         deploymentsColumn.addSelectionChangeHandler(event -> {
             clearNestedPresenter();
             columnManager.reduceColumnsTo(1);
+
             if (deploymentsColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(deploymentsColumnWidget);
                 columnManager.appendColumn(assignedGroupsColumnWidget);
                 DeploymentRecord selectedItem = deploymentsColumn.getSelectedItem();
                 presenter.loadAssignmentsFor(selectedItem);
             }
         });
-        deploymentsColumnWidget = deploymentsColumn.asWidget();
 
         // assigned groups column
         assignedGroupsColumn = new FinderColumn<>(
-                FinderColumn.FinderId.RUNTIME,
-                "Server Group",
+                FinderColumn.FinderId.DEPLOYMENT,
+                "Server Groups",
                 new FinderColumn.Display<ServerGroupAssignment>() {
 
                     @Override
@@ -154,7 +159,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, ServerGroupAssignment data) {
-                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.serverGroup), data.serverGroup);
+                        return TEMPLATE.item(baseCss, Trim.abbreviateMiddle(data.serverGroup, 20), data.serverGroup);
                     }
 
                     @Override
@@ -167,9 +172,10 @@ public class DeploymentFinderView extends SuspendableViewImpl
                     public Object getKey(ServerGroupAssignment item) {
                         return item.serverGroup;
                     }
-                });
+                }
+        );
         assignedGroupsColumn.setShowSize(true);
-        assignedGroupsColumn.setComparisonType("filter");
+        assignedGroupsColumnWidget = assignedGroupsColumn.asWidget();
 
         assignedGroupsColumn.setTopMenuItems(
                 new MenuDelegate<>("Assign", item ->
@@ -194,7 +200,9 @@ public class DeploymentFinderView extends SuspendableViewImpl
         });
 
         assignedGroupsColumn.addSelectionChangeHandler(event -> {
+            clearNestedPresenter();
             columnManager.reduceColumnsTo(2);
+
             if (assignedGroupsColumn.hasSelectedItem()) {
                 columnManager.updateActiveSelection(assignedGroupsColumnWidget);
                 ServerGroupAssignment selectedAssignment = assignedGroupsColumn.getSelectedItem();
@@ -210,7 +218,6 @@ public class DeploymentFinderView extends SuspendableViewImpl
                 }
             }
         });
-        assignedGroupsColumnWidget = assignedGroupsColumn.asWidget();
 
         // setup UI
         contentCanvas = new LayoutPanel();
@@ -268,7 +275,10 @@ public class DeploymentFinderView extends SuspendableViewImpl
     @Override
     public void setPreview(final SafeHtml html) {
         if (contentCanvas.getWidgetCount() == 0) {
-            Scheduler.get().scheduleDeferred(() -> contentCanvas.add(new HTML(html)));
+            Scheduler.get().scheduleDeferred(() -> {
+                contentCanvas.clear();
+                contentCanvas.add(new HTML(html));
+            });
         }
     }
 
@@ -277,9 +287,9 @@ public class DeploymentFinderView extends SuspendableViewImpl
         columnManager.toogleScrolling(enforceScrolling, requiredWidth);
     }
 
-    @Override
-    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
+    public void clearActiveSelection(final ClearFinderSelectionEvent event) {
         deploymentsColumnWidget.getElement().removeClassName("active");
+        assignedGroupsColumnWidget.getElement().removeClassName("active");
     }
 
     private void clearNestedPresenter() {

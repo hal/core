@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -12,6 +13,8 @@ import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystem;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystemElement;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
@@ -32,6 +35,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
 
     private static final Template TEMPLATE = GWT.create(Template.class);
 
+    private boolean hasSubdeployments;
     private DeploymentContentFinder presenter;
 
     private SplitLayoutPanel layout;
@@ -42,6 +46,8 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
     private Widget subdeploymentColumnWidget;
     private FinderColumn<DeploymentSubsystem> subsystemColumn;
     private Widget subsystemColumnWidget;
+    private FinderColumn<DeploymentSubsystemElement> resourceColumn;
+    private Widget resourceColumnWidget;
 
 
     @Override
@@ -58,7 +64,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 new FinderColumn.Display<DeploymentRecord>() {
                     @Override
                     public boolean isFolder(final DeploymentRecord data) {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -68,7 +74,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
 
                     @Override
                     public String rowCss(final DeploymentRecord data) {
-                        return null;
+                        return "";
                     }
                 },
                 new ProvidesKey<DeploymentRecord>() {
@@ -79,16 +85,27 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 }
         );
         subdeploymentColumn.setShowSize(true);
+        subdeploymentColumnWidget = subdeploymentColumn.asWidget();
+
+        subdeploymentColumn.setPreviewFactory((data, callback) -> {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Subdeployment")
+                    .appendHtmlConstant("</h2>");
+            html.appendEscaped("Something about the selected subdeployment '");
+            html.appendEscaped(data.getName()).appendEscaped("'");
+            html.appendHtmlConstant("</div>");
+            callback.onSuccess(html.toSafeHtml());
+        });
+
         subdeploymentColumn.addSelectionChangeHandler(
                 event -> {
                     columnManager.reduceColumnsTo(1);
                     if (subdeploymentColumn.hasSelectedItem()) {
+                        columnManager.updateActiveSelection(subdeploymentColumnWidget);
                         columnManager.appendColumn(subsystemColumnWidget);
-                        DeploymentRecord subdeployment = subdeploymentColumn.getSelectedItem();
-                        presenter.loadSubsystems(subdeployment);
+                        presenter.loadSubsystems(subdeploymentColumn.getSelectedItem());
                     }
                 });
-        subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
         // subsystems
         subsystemColumn = new FinderColumn<>(
@@ -97,7 +114,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 new FinderColumn.Display<DeploymentSubsystem>() {
                     @Override
                     public boolean isFolder(final DeploymentSubsystem data) {
-                        return false;
+                        return true;
                     }
 
                     @Override
@@ -107,7 +124,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
 
                     @Override
                     public String rowCss(final DeploymentSubsystem data) {
-                        return null;
+                        return "";
                     }
                 },
                 new ProvidesKey<DeploymentSubsystem>() {
@@ -118,13 +135,73 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
                 }
         );
         subsystemColumn.setShowSize(true);
+        subsystemColumnWidget = subsystemColumn.asWidget();
+
+        subsystemColumn.setPreviewFactory((data, callback) -> {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Subsystem")
+                    .appendHtmlConstant("</h2>");
+            html.appendEscaped("Something about the selected subsystem '");
+            html.appendEscaped(data.getName()).appendEscaped("'");
+            html.appendHtmlConstant("</div>");
+            callback.onSuccess(html.toSafeHtml());
+        });
+
         subsystemColumn.addSelectionChangeHandler(
                 event -> {
+                    columnManager.reduceColumnsTo(hasSubdeployments ? 2 : 1);
                     if (subsystemColumn.hasSelectedItem()) {
-                        System.out.println("Selected subsystem: " + subsystemColumn.getSelectedItem().getName());
+                        columnManager.updateActiveSelection(subsystemColumnWidget);
+                        columnManager.appendColumn(resourceColumnWidget);
+                        presenter.loadDeploymentResources(subsystemColumn.getSelectedItem());
                     }
                 });
-        subsystemColumnWidget = subsystemColumn.asWidget();
+
+        // deployment resources
+        resourceColumn = new FinderColumn<>(
+                FinderColumn.FinderId.DEPLOYMENT,
+                "Resources",
+                new FinderColumn.Display<DeploymentSubsystemElement>() {
+                    @Override
+                    public boolean isFolder(final DeploymentSubsystemElement data) {
+                        return false;
+                    }
+
+                    @Override
+                    public SafeHtml render(final String baseCss, final DeploymentSubsystemElement data) {
+                        return TEMPLATE.item(baseCss, data.getName());
+                    }
+
+                    @Override
+                    public String rowCss(final DeploymentSubsystemElement data) {
+                        return "";
+                    }
+                },
+                new ProvidesKey<DeploymentSubsystemElement>() {
+                    @Override
+                    public Object getKey(final DeploymentSubsystemElement item) {
+                        return item.getName();
+                    }
+                }
+        );
+        resourceColumn.setShowSize(true);
+        resourceColumnWidget = resourceColumn.asWidget();
+
+        resourceColumn.setPreviewFactory((data, callback) -> {
+            SafeHtmlBuilder html = new SafeHtmlBuilder();
+            html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Resource")
+                    .appendHtmlConstant("</h2>");
+            html.appendEscaped("Something about the selected deployment resource '");
+            html.appendEscaped(data.getName()).appendEscaped("'");
+            html.appendHtmlConstant("</div>");
+            callback.onSuccess(html.toSafeHtml());
+        });
+
+        resourceColumn.addSelectionChangeHandler(event -> {
+            if (resourceColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(resourceColumnWidget);
+            }
+        });
 
         // setup UI
         contentCanvas = new LayoutPanel();
@@ -133,6 +210,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
         columnManager = new ColumnManager(layout);
         columnManager.addWest(subdeploymentColumnWidget);
         columnManager.addWest(subsystemColumnWidget);
+        columnManager.addWest(resourceColumnWidget);
         columnManager.add(contentCanvas);
         columnManager.setInitialVisible(1);
 
@@ -141,6 +219,7 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
 
     @Override
     public void toggleSubdeployments(final boolean hasSubdeployments) {
+        this.hasSubdeployments = hasSubdeployments;
         columnManager.reduceColumnsTo(0);
         if (hasSubdeployments) {
             columnManager.appendColumn(subdeploymentColumnWidget);
@@ -160,14 +239,20 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
     }
 
     @Override
-    public void setPreview(final SafeHtml html) {
-        if (contentCanvas.getWidgetCount() == 0) {
-            Scheduler.get().scheduleDeferred(() -> contentCanvas.add(new HTML(html)));
-        }
+    public void updateResources(final List<DeploymentSubsystemElement> resources) {
+        resourceColumn.updateFrom(resources);
     }
 
     @Override
-    public void toggleScrolling(final boolean enforceScrolling, final int requiredWidth) {
-        columnManager.toogleScrolling(enforceScrolling, requiredWidth);
+    public void setPreview(final SafeHtml html) {
+        Scheduler.get().scheduleDeferred(() -> {
+            contentCanvas.clear();
+            contentCanvas.add(new HTML(html));
+        });
+    }
+
+    public void clearActiveSelection(final ClearFinderSelectionEvent event) {
+        subdeploymentColumnWidget.getElement().removeClassName("active");
+        subsystemColumnWidget.getElement().removeClassName("active");
     }
 }

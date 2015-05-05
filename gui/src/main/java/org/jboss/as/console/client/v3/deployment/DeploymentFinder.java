@@ -53,6 +53,7 @@ import org.jboss.as.console.client.shared.deployment.model.ContentRepository;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.OperationMode;
@@ -81,7 +82,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class DeploymentFinder
         extends PerspectivePresenter<DeploymentFinder.MyView, DeploymentFinder.MyProxy>
-        implements DeployCommandExecutor, Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
+        implements DeployCommandExecutor, Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
 
     // @formatter:off --------------------------------------- proxy & view
 
@@ -102,6 +103,7 @@ public class DeploymentFinder
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
         void updateDeployments(List<DeploymentRecord> deployments);
         void updateServerGroups(List<ServerGroupAssignment> assignments);
+        void clearActiveSelection(final ClearFinderSelectionEvent event);
     }
 
     // @formatter:on ---------------------------------------- instance data
@@ -137,6 +139,7 @@ public class DeploymentFinder
         getView().setPresenter(this);
         registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
         registerHandler(getEventBus().addHandler(FinderScrollEvent.TYPE, this));
+        registerHandler(getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this));
     }
 
     @Override
@@ -389,5 +392,10 @@ public class DeploymentFinder
             this.deployment = deployment;
             this.serverGroup = serverGroup;
         }
+    }
+
+    @Override
+    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
+        getView().clearActiveSelection(event);
     }
 }

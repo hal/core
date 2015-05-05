@@ -37,11 +37,11 @@ public final class Trim {
     }
 
     public static String abbreviateMiddle(String str, int maxLength) {
-        if (str == null || MAX_LENGTH >= str.length()) {
+        if (str == null || maxLength >= str.length()) {
             return str;
         }
 
-        final int targetSting = MAX_LENGTH - ELLIPSIS.length();
+        final int targetSting = maxLength - ELLIPSIS.length();
         final int startOffset = targetSting / 2 + targetSting % 2;
         final int endOffset = str.length() - targetSting / 2;
 

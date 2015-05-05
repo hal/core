@@ -21,9 +21,10 @@ import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystem;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentSubsystemElement;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.presenter.Finder;
-import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -37,7 +38,7 @@ import java.util.List;
  * @author Heiko Braun
  */
 public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.MyView, DeploymentContentFinder.MyProxy>
-        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler  {
+        implements Finder, PreviewEvent.Handler, ClearFinderSelectionEvent.Handler  {
 
     // @formatter:off --------------------------------------- proxy & view
 
@@ -50,10 +51,11 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
 
     public interface MyView extends View, HasPresenter<DeploymentContentFinder> {
         void setPreview(SafeHtml html);
-        void toggleSubdeployments( boolean hasSubdeployments);
-        void updateSubdeployments( List<DeploymentRecord> subdeployments);
-        void updateSubsystems( List<DeploymentSubsystem> subsystems);
-        void toggleScrolling( boolean enforceScrolling, int requiredWidth);
+        void toggleSubdeployments(boolean hasSubdeployments);
+        void updateSubdeployments(List<DeploymentRecord> subdeployments);
+        void updateSubsystems(List<DeploymentSubsystem> subsystems);
+        void updateResources(List<DeploymentSubsystemElement> resources);
+        void clearActiveSelection(final ClearFinderSelectionEvent event);
     }
 
     // @formatter:on ---------------------------------------- instance data
@@ -87,7 +89,7 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
         super.onBind();
         getView().setPresenter(this);
         registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
-        registerHandler(getEventBus().addHandler(FinderScrollEvent.TYPE, this));
+        registerHandler(getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this));
     }
 
     @Override
@@ -218,6 +220,36 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
         });
     }
 
+    public void loadDeploymentResources(final DeploymentSubsystem subsystem) {
+        AsyncCallback<List<DeploymentSubsystemElement>> callback = new AsyncCallback<List<DeploymentSubsystemElement>>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to load deployment content", caught.getMessage()); // TODO i18n
+            }
+
+            @Override
+            public void onSuccess(final List<DeploymentSubsystemElement> result) {
+                getView().updateResources(result);
+            }
+        };
+
+        switch (subsystem.getType()) {
+            case ejb3:
+                deployments.loadEjbs(subsystem, callback);
+                break;
+            case jpa:
+                deployments.loadPersistenceUnits(subsystem, callback);
+                break;
+            case undertow:
+            case web:
+                deployments.loadServlets(subsystem, callback);
+                break;
+            case webservices:
+                deployments.loadEndpoints(subsystem, callback);
+                break;
+        }
+    }
+
 
     // ------------------------------------------------------ finder related
 
@@ -229,7 +261,18 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
     }
 
     @Override
-    public void onToggleScrolling(final FinderScrollEvent event) {
-        getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
+        getView().clearActiveSelection(event);
+    }
+
+
+    // ------------------------------------------------------ callbacks
+
+    abstract class ResourcesCallback<T extends DeploymentSubsystemElement> implements AsyncCallback<List<T>>
+    {
+        @Override
+        public void onFailure(final Throwable caught) {
+            Console.error("Unable to load deployment content", caught.getMessage()); // TODO i18n
+        }
     }
 }
