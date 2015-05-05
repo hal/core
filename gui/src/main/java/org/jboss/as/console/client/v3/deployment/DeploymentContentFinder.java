@@ -107,6 +107,9 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
         }
     }
 
+
+    // ------------------------------------------------------ deployment related
+
     private void findReferenceServer(final DeploymentRecord selectedDeployment) {
         if (selectedDeployment.isEnabled()) {
             Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
@@ -200,6 +203,23 @@ public class DeploymentContentFinder extends Presenter<DeploymentContentFinder.M
             }
         });
     }
+
+    public void loadSubsystems(final DeploymentRecord subdeployment) {
+        deployments.loadSubsystems(subdeployment, new AsyncCallback<List<DeploymentSubsystem>>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to load deployment content", caught.getMessage()); // TODO i18n
+            }
+
+            @Override
+            public void onSuccess(final List<DeploymentSubsystem> result) {
+                getView().updateSubsystems(result);
+            }
+        });
+    }
+
+
+    // ------------------------------------------------------ finder related
 
     @Override
     public void onPreview(PreviewEvent event) {

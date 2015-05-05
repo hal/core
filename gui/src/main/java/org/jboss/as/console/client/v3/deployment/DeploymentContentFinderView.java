@@ -81,9 +81,11 @@ public class DeploymentContentFinderView extends SuspendableViewImpl implements 
         subdeploymentColumn.setShowSize(true);
         subdeploymentColumn.addSelectionChangeHandler(
                 event -> {
+                    columnManager.reduceColumnsTo(1);
                     if (subdeploymentColumn.hasSelectedItem()) {
-                        System.out
-                                .println("Selected subdeployment: " + subdeploymentColumn.getSelectedItem().getName());
+                        columnManager.appendColumn(subsystemColumnWidget);
+                        DeploymentRecord subdeployment = subdeploymentColumn.getSelectedItem();
+                        presenter.loadSubsystems(subdeployment);
                     }
                 });
         subdeploymentColumnWidget = subdeploymentColumn.asWidget();
