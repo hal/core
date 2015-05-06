@@ -81,6 +81,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singletonList;
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -110,11 +111,11 @@ public class DeploymentFinder
     public interface MyView extends View, HasPresenter<DeploymentFinder> {
         void setPreview(SafeHtml html);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
-        void updateDeployments(List<DeploymentRecord> deployments);
-        void updateServerGroups(List<ServerGroupAssignment> assignments);
+        void updateContentRepository(List<DeploymentRecord> deployments);
+        void updateAssignments(List<ServerGroupAssignment> assignments);
         void toggleSubdeployments(boolean hasSubdeployments);
         void updateSubdeployments(List<DeploymentRecord> subdeployments);
-        void updateAssignment(ServerGroupAssignment assignment);
+        void updateDeployments(List<DeploymentRecord> deployments);
         void clearActiveSelection(ClearFinderSelectionEvent event);
     }
 
@@ -185,7 +186,7 @@ public class DeploymentFinder
             @Override
             public void onSuccess(final ContentRepository result) {
                 contentRepository = result;
-                getView().updateDeployments(contentRepository.getDeployments());
+                getView().updateContentRepository(contentRepository.getDeployments());
             }
         });
     }
@@ -202,7 +203,7 @@ public class DeploymentFinder
                     // TODO We need the enabled / disabled state per *server-group*
                     assignments.add(new ServerGroupAssignment(selectedDeployment, serverGroup));
                 }
-                getView().updateServerGroups(assignments);
+                getView().updateAssignments(assignments);
             }
         });
     }
@@ -238,7 +239,7 @@ public class DeploymentFinder
                     Console.info(Console.MESSAGES
                             .added("Deployment " + deployment.getRuntimeName() + " to group " + selectedGroups));
                 }
-                refreshDeployments();
+                loadAssignmentsFor(deployment);
             }
         });
     }
@@ -275,7 +276,7 @@ public class DeploymentFinder
                 } else {
                     Console.info(success);
                 }
-                refreshDeployments();
+                loadAssignmentsFor(deployment);
             }
         });
     }
@@ -290,14 +291,14 @@ public class DeploymentFinder
         deploymentStore.removeDeploymentFromGroup(deployment, new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse response) {
-                refreshDeployments();
+                loadAssignmentsFor(deployment);
                 DeploymentCommand.REMOVE_FROM_GROUP.displaySuccessMessage(DeploymentFinder.this, deployment);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 super.onFailure(t);
-                refreshDeployments();
+                loadAssignmentsFor(deployment);
                 DeploymentCommand.REMOVE_FROM_GROUP
                         .displayFailureMessage(DeploymentFinder.this, deployment, t);
             }
@@ -408,6 +409,7 @@ public class DeploymentFinder
                         }
                     }
                     if (referenceServer != null) {
+                        assignment.referenceServer = referenceServer;
                         loadDeployments(assignment, referenceServer);
                         System.out.println("Found reference server " + referenceServer.getName() + " on " + referenceServer.getGroup() + " / " + referenceServer.getHost());
                     } else {
@@ -457,11 +459,8 @@ public class DeploymentFinder
                                     }
                                 });
                     } else {
-                        getView().updateAssignment(
-                                new ServerGroupAssignment(referenceDeployment, assignment.serverGroup));
+                        getView().updateDeployments(singletonList(referenceDeployment));
                     }
-                } else {
-                    // TODO No reference deployment found
                 }
             }
         });
@@ -485,6 +484,7 @@ public class DeploymentFinder
 
         final DeploymentRecord deployment;
         final String serverGroup;
+        ServerInstance referenceServer;
 
         ServerGroupAssignment(final DeploymentRecord deployment, final String serverGroup) {
             this.deployment = deployment;
