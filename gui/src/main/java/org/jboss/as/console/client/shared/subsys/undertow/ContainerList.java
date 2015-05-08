@@ -12,13 +12,11 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.subsys.messaging.MessagingProviderEditor;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -35,16 +33,18 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 1/17/12
  */
-public class ContainerList extends ModelDrivenWidget {
+public class ContainerList {
 
-    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=undertow/servlet-container=*";
+    private static final AddressTemplate ADDRESS = AddressTemplate.of(
+            "{selected.profile}/subsystem=undertow/servlet-container=*");
+
     private ServletPresenter presenter;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
     private MessagingProviderEditor providerEditor;
 
     public ContainerList(ServletPresenter presenter) {
-        super(RESOURCE_ADDRESS);
+
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
@@ -52,8 +52,7 @@ public class ContainerList extends ModelDrivenWidget {
         this.table.setSelectionModel(new SingleSelectionModel<Property>());
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
 
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
@@ -104,7 +103,9 @@ public class ContainerList extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
@@ -115,8 +116,8 @@ public class ContainerList extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeset) {
-                presenter.onSaveResource(
-                        RESOURCE_ADDRESS, getCurrentSelection().getName(), changeset
+                presenter.onSaveContainer(
+                        ADDRESS, getCurrentSelection().getName(), changeset
                 );
             }
 

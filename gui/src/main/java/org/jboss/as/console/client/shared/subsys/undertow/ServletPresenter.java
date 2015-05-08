@@ -14,14 +14,17 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -35,14 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class ServletPresenter extends Presenter<ServletPresenter.MyView, ServletPresenter.MyProxy>
-        implements DefaultPresenterContract {
+public class ServletPresenter extends Presenter<ServletPresenter.MyView, ServletPresenter.MyProxy> {
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -55,7 +56,7 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
-        public void onSuccess(ResourceAddress address, String name) {
+        public void onSuccess(AddressTemplate address, String name) {
             if(address.getResourceType().equals("servlet-container"))
                 loadContainer();
             else
@@ -63,12 +64,37 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
         }
 
         @Override
-        public void onFailure(ResourceAddress address, String name, Throwable t) {
-            // noop
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+
         }
     };
 
-    @AccessControl(resources = {"{selected.profile}/subsystem=undertow/servlet-container=*"})
+    private SecurityFramework securityFramework;
+    private ResourceDescriptionRegistry descriptionRegistry;
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    public void clearContainer() {
+        currentContainer = null;
+    }
+
+
+
+    @RequiredResources(
+            resources = {
+                    "{selected.profile}/subsystem=undertow/servlet-container=*",
+                    "{selected.profile}/subsystem=undertow/servlet-container=*/setting=jsp",
+                    "{selected.profile}/subsystem=undertow/servlet-container=*/setting=websockets",
+                    "{selected.profile}/subsystem=undertow/servlet-container=*/setting=persistent-sessions",
+                    "{selected.profile}/subsystem=undertow/servlet-container=*/setting=session-cookie"
+            }
+    )
     @ProxyCodeSplit
     @NameToken(NameTokens.ServletPresenter)
     public interface MyProxy extends Proxy<ServletPresenter>, Place {
@@ -79,18 +105,26 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
         void setServletContainer(List<Property> container);
         void setServerSelection(String name) ;
         void setJSPSettings(ModelNode data) ;
+        void setWSSettings(ModelNode modelNode);
+
+        void setCookieSettings(ModelNode setting);
+
+        void setSessionSettings(ModelNode setting);
     }
 
     @Inject
     public ServletPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, RevealStrategy revealStrategy,
-            DispatchAsync dispatcher, CoreGUIContext statementContext) {
+            DispatchAsync dispatcher, CoreGUIContext statementContext,
+            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
 
         this.statementContext =  new FilteringStatementContext(
                 statementContext,
@@ -175,7 +209,7 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "undertow");
         operation.get(ADDRESS).add("servlet-container", currentContainer);
-        operation.get(ADDRESS).add("setting", "jsp");
+        operation.get(RECURSIVE).set(true);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
@@ -190,7 +224,10 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
                 else
                 {
                     ModelNode data = response.get(RESULT);
-                    getView().setJSPSettings(data);
+                    getView().setJSPSettings(data.get("setting").get("jsp"));
+                    getView().setWSSettings(data.get("setting").get("websockets"));
+                    getView().setSessionSettings(data.get("setting").get("persistent-sessions"));
+                    getView().setCookieSettings(data.get("setting").get("session-cookie"));
                 }
 
             }
@@ -199,29 +236,35 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
 
     // -----------------------
 
-    @Override
-    public void onLaunchAddResourceDialog(final String addressString) {
+    /*public void onLaunchAddResourceDialog(final AddressTemplate address) {
 
-        ResourceAddress address = new ResourceAddress(addressString, statementContext);
+
         String type = address.getResourceType();
 
         window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
         window.setWidth(480);
         window.setHeight(360);
 
+        SecurityContext securityContext =
+                Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter);
+
         window.setWidget(
                 new AddResourceDialog(
-                        addressString,
-                        statementContext,
-                        Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                        securityContext,
+                        descriptionRegistry.lookup(address),
                         new AddResourceDialog.Callback() {
+
                             @Override
-                            public void onAddResource(ResourceAddress address, ModelNode payload) {
-                                operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
+                            public void onAdd(ModelNode payload) {
+                                operationDelegate.onCreateResource(
+                                        address,
+                                        payload.get("name").asString(),
+                                        payload, defaultOpCallbacks
+                                );
                             }
 
                             @Override
-                            public void closeDialogue() {
+                            public void onCancel() {
                                 window.hide();
                             }
                         }
@@ -231,18 +274,44 @@ public class ServletPresenter extends Presenter<ServletPresenter.MyView, Servlet
         window.setGlassEnabled(true);
         window.center();
 
+    }*/
+
+    public void onRemoveResource(final AddressTemplate address, final String name) {
+
+        operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
     }
 
-    @Override
-    public void onRemoveResource(final String addressString, final String name) {
+    public void onCreateContainerSettings(AddressTemplate address, ModelNode entity) {
+        ResourceAddress fqAddress = address.resolve(statementContext, currentContainer);
 
-        operationDelegate.onRemoveResource(addressString, name, defaultOpCallbacks);
+        entity.get(OP).set(ADD);
+        entity.get(ADDRESS).set(fqAddress);
+
+        dispatcher.execute(new DMRAction(entity), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to create resource " + fqAddress, response.getFailureDescription());
+                } else {
+
+                    Console.info("Successfully created " + fqAddress);
+                }
+
+                loadContainer();
+            }
+        });
     }
 
-    @Override
-    public void onSaveResource(final String addressString, String name, Map<String, Object> changeset) {
+    public void onSaveContainerSettings(final AddressTemplate address, Map<String, Object> changeset) {
 
-        operationDelegate.onSaveResource(addressString, name, changeset, defaultOpCallbacks);
+        operationDelegate.onSaveResource(address, currentContainer, changeset, defaultOpCallbacks);
+    }
+
+    public void onSaveContainer(AddressTemplate address, String name, Map changeset) {
+        operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 
     public PlaceManager getPlaceManager() {

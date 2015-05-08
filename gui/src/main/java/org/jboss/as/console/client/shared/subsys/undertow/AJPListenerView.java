@@ -11,9 +11,8 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -30,9 +29,10 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class AJPListenerView extends ModelDrivenWidget {
+public class AJPListenerView {
 
-    private static final String BASE_ADDRESS = "{selected.profile}/subsystem=undertow/server={selected.server}/ajp-listener=*";
+    private static final AddressTemplate BASE_ADDRESS = AddressTemplate.of(
+            "{selected.profile}/subsystem=undertow/server=*/ajp-listener=*");
 
     private final HttpPresenter presenter;
     private final DefaultCellTable table;
@@ -40,7 +40,7 @@ public class AJPListenerView extends ModelDrivenWidget {
     private List<Property> data;
 
     public AJPListenerView(HttpPresenter presenter) {
-        super(BASE_ADDRESS);
+
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
@@ -48,8 +48,7 @@ public class AJPListenerView extends ModelDrivenWidget {
         this.table.setSelectionModel(new SingleSelectionModel<Property>());
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -74,6 +73,7 @@ public class AJPListenerView extends ModelDrivenWidget {
                 presenter.onLaunchAddResourceDialog(BASE_ADDRESS);
             }
         }));
+
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -92,7 +92,8 @@ public class AJPListenerView extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter);
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter);
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()

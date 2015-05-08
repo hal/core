@@ -8,6 +8,7 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 08/09/14
  */
+@Deprecated
 public interface DefaultPresenterContract {
 
     void onLaunchAddResourceDialog(String addressString);

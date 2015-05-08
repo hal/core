@@ -15,6 +15,8 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
@@ -35,16 +37,18 @@ import java.util.Map;
  * @author Heiko Braun
  * @date 1/17/12
  */
-public class ServerList extends ModelDrivenWidget {
+public class ServerList {
 
-    private static final String RESOURCE_ADDRESS = "{selected.profile}/subsystem=undertow/server=*";
+    private static final AddressTemplate RESOURCE_ADDRESS =
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*");
+
     private CommonHttpPresenter presenter;
     private final boolean supportsEditing;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
 
     public ServerList(CommonHttpPresenter presenter, boolean supportsEditing) {
-        super(RESOURCE_ADDRESS);
+
         this.presenter = presenter;
         this.supportsEditing = supportsEditing;
 
@@ -61,8 +65,7 @@ public class ServerList extends ModelDrivenWidget {
         this.table.setSelectionModel(new SingleSelectionModel<Property>(keyProvider));
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
 
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
@@ -114,6 +117,7 @@ public class ServerList extends ModelDrivenWidget {
         }));
 
         SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(RESOURCE_ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()

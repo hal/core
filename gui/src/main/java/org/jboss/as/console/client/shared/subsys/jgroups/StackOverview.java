@@ -117,7 +117,7 @@ public class StackOverview {
         CheckBoxItem debug = new CheckBoxItem("debug", "Debug Enabled?");
         TextBoxItem from = new TextBoxItem("from", "Default From");
 
-        form.setFields(jndi, debug, from);
+        form.include(jndi, debug, from);
         form.setEnabled(false);
 
 

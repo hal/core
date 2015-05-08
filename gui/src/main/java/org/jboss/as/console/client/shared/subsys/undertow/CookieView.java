@@ -16,27 +16,20 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 08/09/14
  */
-public class JSPView {
+public class CookieView {
 
     final static AddressTemplate ADDRESS =
-            AddressTemplate.of("{selected.profile}/subsystem=undertow/servlet-container=*/setting=jsp");
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/servlet-container=*/setting=session-cookie");
 
     private final ServletPresenter presenter;
     private ModelNodeForm commonForm;
-    private ModelNodeForm devForm;
 
-    private static String[] DEV_ATTRIBUTES = new String[] {
-            "development", "keep-generated", "modification-test-interval", "recompile-on-fail",
-            "error-on-use-bean-invalid-class-attribute", "display-source-fragment",
-            "check-interval"
-    };
-    public JSPView(ServletPresenter presenter) {
+    public CookieView(ServletPresenter presenter) {
         this.presenter = presenter;
     }
 
     public void setData(ModelNode data) {
         commonForm.edit(data);
-        devForm.edit(data);
     }
 
     public Widget asWidget() {
@@ -52,22 +45,14 @@ public class JSPView {
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext)
-                .exclude(DEV_ATTRIBUTES)
-                .build();
-
-        final ModelNodeFormBuilder.FormAssets devAssets = new ModelNodeFormBuilder()
-                .setConfigOnly()
-                .setResourceDescription(definition)
-                .setSecurityContext(securityContext)
-                .include(DEV_ATTRIBUTES)
                 .build();
 
         commonForm = commonAssets.getForm();
-        devForm = devAssets.getForm();
 
         FormCallback callback = new FormCallback() {
             @Override
             public void onSave(Map changeset) {
+
                 if(commonForm.getEditedEntity().isDefined()) {
                     presenter.onSaveContainerSettings(ADDRESS, changeset);
                 }
@@ -84,15 +69,13 @@ public class JSPView {
         };
 
         commonAssets.getForm().setToolsCallback(callback);
-        devAssets.getForm().setToolsCallback(callback);
 
         // ----
         OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
-                .setHeadline("JSP Settings")
+                .setHeadline("SessionCookie Settings")
                 .setDescription(definition.get("description").asString())
-                .addDetail("Attributes", commonAssets.asWidget())
-                .addDetail("Development", devAssets.asWidget());
+                .addDetail("Attributes", commonAssets.asWidget());
 
         return layoutBuilder.build();
     }

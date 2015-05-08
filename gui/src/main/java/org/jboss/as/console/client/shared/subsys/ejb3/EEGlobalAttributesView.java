@@ -4,7 +4,6 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.dmr.ResourceDefinition;
 import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
@@ -52,7 +51,7 @@ public class EEGlobalAttributesView extends ModelDrivenWidget {
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
-                .setFields(
+                .include(
                         "annotation-property-replacement",
                         "ear-subdeployments-isolated",
                         "jboss-descriptor-property-replacement",

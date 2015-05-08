@@ -14,14 +14,20 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
+
 import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
 import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.widgets.AddResourceDialog;
+
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -41,7 +47,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @since 05/09/14
  */
 public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter.MyProxy>
-        implements DefaultPresenterContract, CommonHttpPresenter {
+        implements CommonHttpPresenter {
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -54,8 +60,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
-        public void onSuccess(ResourceAddress address, String name) {
-
+        public void onSuccess(AddressTemplate address, String name) {
             if(address.getResourceType().equals("server"))
                 loadServer();
             else {
@@ -65,14 +70,23 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
         }
 
         @Override
-        public void onFailure(ResourceAddress address, String name, Throwable t) {
-            // noop
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+
         }
     };
 
-    @AccessControl(
+    private SecurityFramework securityFramework;
+    private ResourceDescriptionRegistry descriptionRegistry;
+
+
+    @RequiredResources(
             resources = {
-                    "{selected.profile}/subsystem=undertow/server=*"
+                    "{selected.profile}/subsystem=undertow",
+                    "{selected.profile}/subsystem=undertow/server=*",
+                    "{selected.profile}/subsystem=undertow/server=*/host=*",
+                    "{selected.profile}/subsystem=undertow/server=*/http-listener=*",
+                    "{selected.profile}/subsystem=undertow/server=*/https-listener=*",
+                    "{selected.profile}/subsystem=undertow/server=*/ajp-listener=*"
             })
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpPresenter)
@@ -101,13 +115,16 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     public HttpPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, RevealStrategy revealStrategy,
-            DispatchAsync dispatcher, CoreGUIContext statementContext) {
+            DispatchAsync dispatcher, CoreGUIContext statementContext,
+            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
 
         this.dispatcher = dispatcher;
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
 
         this.statementContext =  new FilteringStatementContext(
                 statementContext,
@@ -131,6 +148,15 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
 
     @Override
     public String getNameToken() {
@@ -265,10 +291,8 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     // -----------------------
 
-    @Override
-    public void onLaunchAddResourceDialog(final String addressString) {
+    public void onLaunchAddResourceDialog(final AddressTemplate address) {
 
-        ResourceAddress address = new ResourceAddress(addressString, statementContext);
         String type = address.getResourceType();
 
         window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
@@ -277,18 +301,18 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         window.setWidget(
                 new AddResourceDialog(
-                        addressString,
-                        statementContext,
                         Console.MODULES.getSecurityFramework().getSecurityContext(NameTokens.HttpPresenter),
+                        descriptionRegistry.lookup(address),
                         new AddResourceDialog.Callback() {
                             @Override
-                            public void onAddResource(ResourceAddress address, ModelNode payload) {
+                            public void onAdd(ModelNode payload) {
                                 window.hide();
-                                operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
+                                operationDelegate.onCreateResource(
+                                        address, payload.get("name").asString(), payload, defaultOpCallbacks);
                             }
 
                             @Override
-                            public void closeDialogue() {
+                            public void onCancel() {
                                 window.hide();
                             }
                         }
@@ -300,16 +324,14 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
     }
 
-    @Override
-    public void onRemoveResource(final String addressString, final String name) {
+    public void onRemoveResource(final AddressTemplate address, final String name) {
 
-        operationDelegate.onRemoveResource(addressString, name, defaultOpCallbacks);
+        operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
     }
 
-    @Override
-    public void onSaveResource(final String addressString, String name, Map<String, Object> changeset) {
+    public void onSaveResource(final AddressTemplate address, String name, Map<String, Object> changeset) {
 
-        operationDelegate.onSaveResource(addressString, name, changeset, defaultOpCallbacks);
+        operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 
 }

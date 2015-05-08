@@ -3,6 +3,8 @@ package org.jboss.as.console.mbui.widgets;
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -41,7 +43,7 @@ public class ModelNodeFormBuilder {
     private SecurityContext securityContext;
     private String address;
     private ModelNode modelDescription;
-    private Set<String> attributeNames = new LinkedHashSet<>();
+    private Set<String> includes = new LinkedHashSet<>();
     private Set<String> excludes = new HashSet<>();
     private SafeHtml help;
 
@@ -80,9 +82,9 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
-    public ModelNodeFormBuilder setFields(String... attributeName) {
+    public ModelNodeFormBuilder include(String... attributeName) {
         if (attributeName != null && attributeName.length !=  0) {
-            this.attributeNames.addAll(asList(attributeName));
+            this.includes.addAll(asList(attributeName));
         }
         return this;
     }
@@ -125,13 +127,13 @@ public class ModelNodeFormBuilder {
         });
 
         // catch-all directive, if no explicit attributes given
-        if (attributeNames.isEmpty()) {
+        if (includes.isEmpty()) {
             for (Property attr : attributeDescriptions) {
-                attributeNames.add(attr.getName());
+                includes.add(attr.getName());
             }
         }
         // in any case remove attributes marked for exclusion
-        attributeNames.removeAll(excludes);
+        includes.removeAll(excludes);
 
 
         LinkedList<FormItem> requiredItems = new LinkedList<FormItem>();
@@ -160,7 +162,7 @@ public class ModelNodeFormBuilder {
         }
 
         Set<String[]> unsupportedTypes = new HashSet<>();
-        for (String attribute : attributeNames) {
+        for (String attribute : includes) {
             for (Property attr : attributeDescriptions) {
 
                 boolean isRuntime = attr.getValue().get("storage").asString().equals("runtime");
@@ -404,6 +406,15 @@ public class ModelNodeFormBuilder {
 
         public Set<String[]> getUnsupportedTypes() {
             return unsupportedTypes;
+        }
+
+        public Widget asWidget() {
+
+            VerticalPanel formPanel = new VerticalPanel();
+            formPanel.setStyleName("fill-layout-width");
+            formPanel.add(getHelp().asWidget());
+            formPanel.add(getForm().asWidget());
+            return formPanel;
         }
     }
 

@@ -88,7 +88,7 @@ public class JcaBaseEditor {
         // cached connection manager
         formBuilder = new ModelNodeFormBuilder()
                 .setConfigOnly()
-                .setFields("debug", "error", "ignore-unknown-connections")
+                .include("debug", "error", "ignore-unknown-connections")
                 .setResourceDescription(descriptionRegistry.lookup(CACHED_CONNECTION_MANAGER_ADDRESS))
                 .setSecurityContext(securityContext);
         connectionManagerForm = formBuilder.build();

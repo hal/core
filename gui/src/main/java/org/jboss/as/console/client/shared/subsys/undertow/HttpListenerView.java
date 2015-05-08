@@ -9,11 +9,9 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -30,16 +28,16 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 05/09/14
  */
-public class HttpListenerView extends ModelDrivenWidget {
+public class HttpListenerView {
 
-    private static final String BASE_ADDRESS = "{selected.profile}/subsystem=undertow/server={selected.server}/http-listener=*";
+    private static final AddressTemplate BASE_ADDRESS =
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*/http-listener=*");
 
     private final HttpPresenter presenter;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
 
     public HttpListenerView(HttpPresenter presenter) {
-        super(BASE_ADDRESS);
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
@@ -47,8 +45,7 @@ public class HttpListenerView extends ModelDrivenWidget {
         this.table.setSelectionModel(new SingleSelectionModel<Property>());
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -91,7 +88,8 @@ public class HttpListenerView extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()

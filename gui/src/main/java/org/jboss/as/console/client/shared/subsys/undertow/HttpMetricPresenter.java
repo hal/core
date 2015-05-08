@@ -15,6 +15,8 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 
 /**
@@ -42,6 +43,7 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
         HttpMetricPresenter.MyProxy> implements CommonHttpPresenter {
 
     private String currentServer;
+    private ResourceDescriptionRegistry descriptionRegistry;
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpMetrics)
@@ -75,7 +77,7 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
     public HttpMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager,  DispatchAsync dispatcher, Dispatcher circuit,
-            RevealStrategy revealStrategy, ServerStore serverStore) {
+            RevealStrategy revealStrategy, ServerStore serverStore, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy, circuit);
 
         this.placeManager = placeManager;
@@ -84,6 +86,7 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
         this.revealStrategy = revealStrategy;
         this.serverStore = serverStore;
 
+        this.descriptionRegistry = descriptionRegistry;
     }
 
 
@@ -201,7 +204,12 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
     }
 
     @Override
-    public void onSaveResource(String addressString, String name, Map<String, Object> changeset) {
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    @Override
+    public void onSaveResource(AddressTemplate resourceAddress, String name, Map changeset) {
 
     }
 }

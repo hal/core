@@ -82,7 +82,7 @@ class ModelDrivenPanel extends ModelDrivenWidget {
                 .setResourceDescription(definition)
                 .setSecurityContext(securityContext);
         if (attributes != null && attributes.length != 0) {
-            builder.setFields(attributes);
+            builder.include(attributes);
         }
         final ModelNodeFormBuilder.FormAssets formAssets = builder.build();
 

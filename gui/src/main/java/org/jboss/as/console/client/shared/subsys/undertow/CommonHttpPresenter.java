@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 
 import java.util.Map;
 
@@ -14,5 +16,7 @@ public interface CommonHttpPresenter {
 
     PlaceManager getPlaceManager();
 
-    void onSaveResource(String addressString, String name, Map<String, Object> changeset);
+    ResourceDescriptionRegistry getDescriptionRegistry();
+
+    void onSaveResource(AddressTemplate resourceAddress, String name, Map<String, Object> changeset);
 }

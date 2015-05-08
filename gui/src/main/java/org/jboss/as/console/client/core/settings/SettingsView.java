@@ -102,7 +102,7 @@ public class SettingsView extends PopupViewImpl implements SettingsPresenterWidg
         CheckBoxItem enableSecurityContextCache = new CheckBoxItem(Preferences.Key.SECURITY_CONTEXT.getToken(),
                 Preferences.Key.SECURITY_CONTEXT.getTitle());
 
-        //form.setFields(localeItem, enableAnalytics, enableSecurityContextCache);
+        //form.include(localeItem, enableAnalytics, enableSecurityContextCache);
 
         Widget formWidget = form.asWidget();
         formWidget.getElement().setAttribute("style", "margin:15px");
