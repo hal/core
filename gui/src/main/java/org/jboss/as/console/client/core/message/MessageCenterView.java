@@ -268,8 +268,10 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
                 int width = 250;
                 int height = numMessages*35;
 
+                int btnRight = messageButton.getAbsoluteLeft()+messageButton.getOffsetWidth();
+
                 messagePopup.setPopupPosition(
-                        messageButton.getAbsoluteLeft(),// - (width+10- messageButton.getOffsetWidth()) ,
+                        btnRight-width,// - (width+10- messageButton.getOffsetWidth()) ,
                         messageButton.getAbsoluteTop() + 25
                 );
 
