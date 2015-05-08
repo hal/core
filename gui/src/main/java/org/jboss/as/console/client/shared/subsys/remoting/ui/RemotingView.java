@@ -84,9 +84,9 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
                 descriptionRegistry.lookup(ENDPOINT_CONFIGURATION_ADDRESS));
 
         remoteConnectorEditor = new ConnectorEditor(dispatcher, circuit, securityContext, statementContext,
-                REMOTE_CONNECTOR_ADDRESS, descriptionRegistry.lookup(REMOTE_CONNECTOR_ADDRESS), "Remote Connector");
+                REMOTE_CONNECTOR_ADDRESS, descriptionRegistry.lookup(REMOTE_CONNECTOR_ADDRESS), "Connector");
         remoteHttpConnectorEditor = new ConnectorEditor(dispatcher, circuit, securityContext, statementContext,
-                REMOTE_HTTP_CONNECTOR_ADDRESS, descriptionRegistry.lookup(REMOTE_HTTP_CONNECTOR_ADDRESS), "Remote HTTP Connector");
+                REMOTE_HTTP_CONNECTOR_ADDRESS, descriptionRegistry.lookup(REMOTE_HTTP_CONNECTOR_ADDRESS), "HTTP Connector");
 
         localOutboundConnectionEditor = new ConnectionEditor(dispatcher, circuit, securityContext, statementContext,
                 LOCAL_OUTBOUND_CONNECTION_ADDRESS, descriptionRegistry.lookup(LOCAL_OUTBOUND_CONNECTION_ADDRESS),
@@ -99,14 +99,14 @@ public class RemotingView extends SuspendableViewImpl implements RemotingPresent
                 "Remote Outbound Connection");
 
         PagedView remoteConnectorPages = new PagedView(true);
-        remoteConnectorPages.addPage("Remote Connectors", remoteConnectorEditor.asWidget());
-        remoteConnectorPages.addPage("Remote HTTP Connectors", remoteHttpConnectorEditor.asWidget());
+        remoteConnectorPages.addPage("Connectors", remoteConnectorEditor.asWidget());
+        remoteConnectorPages.addPage("HTTP Connectors", remoteHttpConnectorEditor.asWidget());
         remoteConnectorPages.showPage(0);
 
         PagedView outboundConnectionPages = new PagedView(true);
-        outboundConnectionPages.addPage("Local Outbound Connections", localOutboundConnectionEditor.asWidget());
-        outboundConnectionPages.addPage("Outbound Connections", outboundConnectionEditor.asWidget());
-        outboundConnectionPages.addPage("Remote Outbound Connections", remoteOutboundConnectionEditor.asWidget());
+        outboundConnectionPages.addPage("Local Outbound", localOutboundConnectionEditor.asWidget());
+        outboundConnectionPages.addPage("Outbound", outboundConnectionEditor.asWidget());
+        outboundConnectionPages.addPage("Remote Outbound", remoteOutboundConnectionEditor.asWidget());
         outboundConnectionPages.showPage(0);
 
         DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);

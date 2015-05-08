@@ -89,9 +89,32 @@ public class ModelNodeFormBuilder {
         return this;
     }
 
+    public ModelNodeFormBuilder include(String[]... attributes) {
+        if (attributes != null && attributes.length !=  0) {
+
+            for (String[] group : attributes) {
+                this.includes.addAll(asList(group));
+            }
+
+        }
+        return this;
+    }
+
+
     public ModelNodeFormBuilder exclude(String... attributeName) {
         if (attributeName != null && attributeName.length !=  0) {
             this.excludes.addAll(asList(attributeName));
+        }
+        return this;
+    }
+
+    public ModelNodeFormBuilder exclude(String[]... attributes) {
+        if (attributes != null && attributes.length !=  0) {
+
+            for (String[] group : attributes) {
+                this.excludes.addAll(asList(group));
+            }
+
         }
         return this;
     }

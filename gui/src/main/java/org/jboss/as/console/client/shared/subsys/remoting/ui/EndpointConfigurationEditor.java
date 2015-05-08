@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.shared.subsys.remoting.ui;
 
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.subsys.remoting.store.ModifyEndpointConfiguration;
@@ -45,7 +44,26 @@ class EndpointConfigurationEditor implements IsWidget {
     private final Dispatcher circuit;
     private final SecurityContext securityContext;
     private final ResourceDescription resourceDescription;
-    private ModelNodeFormBuilder.FormAssets formAssets;
+    private ModelNodeFormBuilder.FormAssets commonForm;
+
+
+    private final String[] SECURITY = new String[] {
+            "auth-realm",
+            "authentication-retries",
+            "authorize-id",
+            "sasl-protocol"
+    };
+
+    private final String[] CHANNELS = new String[] {
+            "max-inbound-channels",
+            "max-inbound-message-size",
+            "max-inbound-messages",
+            "max-outbound-channels",
+            "max-outbound-message-size",
+            "max-outbound-messages",
+    };
+    private ModelNodeFormBuilder.FormAssets channelForm;
+    private ModelNodeFormBuilder.FormAssets secForm;
 
     public EndpointConfigurationEditor(Dispatcher circuit, SecurityContext securityContext,
                                        ResourceDescription resourceDescription) {
@@ -56,12 +74,8 @@ class EndpointConfigurationEditor implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
-                .setConfigOnly()
-                .setResourceDescription(resourceDescription)
-                .setSecurityContext(securityContext);
-        formAssets = builder.build();
-        formAssets.getForm().setToolsCallback(new FormCallback() {
+
+        final FormCallback callback = new FormCallback() {
             @Override
             @SuppressWarnings("unchecked")
             public void onSave(Map changeSet) {
@@ -70,24 +84,55 @@ class EndpointConfigurationEditor implements IsWidget {
 
             @Override
             public void onCancel(Object entity) {
-                formAssets.getForm().cancel();
+                commonForm.getForm().cancel();
             }
-        });
+        };
 
-        VerticalPanel formPanel = new VerticalPanel();
-        formPanel.setStyleName("fill-layout-width");
-        formPanel.add(formAssets.getHelp().asWidget());
-        formPanel.add(formAssets.getForm().asWidget());
+        // commmon
+        ModelNodeFormBuilder commonAtts = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .exclude(SECURITY, CHANNELS)
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext);
+
+        commonForm = commonAtts.build();
+        commonForm.getForm().setToolsCallback(callback);
+
+        // channel
+        ModelNodeFormBuilder channelAtts = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(CHANNELS)
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext);
+
+        channelForm = channelAtts.build();
+        channelForm.getForm().setToolsCallback(callback);
+
+
+         // security
+        ModelNodeFormBuilder secAtts = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .include(SECURITY)
+                .setResourceDescription(resourceDescription)
+                .setSecurityContext(securityContext);
+
+        secForm = secAtts.build();
+        secForm.getForm().setToolsCallback(callback);
 
         OneToOneLayout layout = new OneToOneLayout()
                 .setPlain(true)
                 .setHeadline("Endpoint Configuration")
                 .setDescription(resourceDescription.get(DESCRIPTION).asString())
-                .setMaster("", formPanel);
+                .addDetail("Attributes", commonForm.asWidget())
+                .addDetail("Security", secForm.asWidget())
+                .addDetail("Channels", channelForm.asWidget());
+
         return layout.build();
     }
 
     void update(ModelNode model) {
-        formAssets.getForm().edit(model);
+        commonForm.getForm().edit(model);
+        secForm.getForm().edit(model);
+        channelForm.getForm().edit(model);
     }
 }
