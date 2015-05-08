@@ -1,6 +1,8 @@
 package org.jboss.as.console.client.shared.subsys.messaging;
 
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
+import org.jboss.as.console.client.rbac.SecurityFramework;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 
 import java.util.Map;
@@ -19,4 +21,11 @@ public interface CommonMsgPresenter extends AddResourceDialog.Callback {
     void onSaveProvider(String name, Map<String, Object> changedValues);
 
     void closeDialogue();
+
+
+    SecurityFramework getSecurityFramework();
+
+    ResourceDescriptionRegistry getDescriptionRegistry();
+
+    String getNameToken();
 }

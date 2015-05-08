@@ -14,6 +14,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
@@ -25,6 +26,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.CommonMsgPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadHornetQServersCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.model.*;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
@@ -84,6 +86,8 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     private BeanFactory factory;
     private DefaultWindow window = null;
     private RevealStrategy revealStrategy;
+    private final SecurityFramework securityFramework;
+    private final ResourceDescriptionRegistry descriptionRegistry;
     private String currentServer = null;
     private EntityAdapter<Acceptor> acceptorAdapter;
     private EntityAdapter<Connector> connectorAdapter;
@@ -93,16 +97,20 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     private DefaultWindow propertyWindow;
 
     @Inject
-    public MsgConnectionsPresenter( EventBus eventBus, MyView view, MyProxy proxy,
-                                    PlaceManager placeManager, DispatchAsync dispatcher,
-                                    BeanFactory factory, RevealStrategy revealStrategy,
-                                    ApplicationMetaData propertyMetaData) {
+    public MsgConnectionsPresenter(
+            EventBus eventBus, MyView view, MyProxy proxy,
+            PlaceManager placeManager, DispatchAsync dispatcher,
+            BeanFactory factory, RevealStrategy revealStrategy,
+            ApplicationMetaData propertyMetaData, SecurityFramework securityFramework,
+            ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.dispatcher = dispatcher;
         this.factory = factory;
         this.revealStrategy = revealStrategy;
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
 
         acceptorAdapter = new EntityAdapter<Acceptor>(Acceptor.class, propertyMetaData);
         connectorAdapter = new EntityAdapter<Connector>(Connector.class, propertyMetaData);
@@ -1119,4 +1127,18 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
         });
     }
 
+    @Override
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    @Override
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    @Override
+    public String getNameToken() {
+        return getProxy().getNameToken();
+    }
 }

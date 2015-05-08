@@ -38,6 +38,7 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
@@ -51,6 +52,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvid
 import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.shared.subsys.messaging.model.SecurityPattern;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Topic;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.AddressBinding;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -131,6 +133,8 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
     private EntityAdapter<Queue> queueAdapter;
     private EntityAdapter<Topic> topicAdapter;
 
+    private SecurityFramework securityFramework;
+    private ResourceDescriptionRegistry descriptionRegistry;
 
 
     @Inject
@@ -138,7 +142,8 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
             BeanFactory factory, RevealStrategy revealStrategy,
-            ApplicationMetaData propertyMetaData, CoreGUIContext statementContext, Scheduler scheduler) {
+            ApplicationMetaData propertyMetaData, CoreGUIContext statementContext, Scheduler scheduler,
+            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
@@ -148,6 +153,8 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         this.metaData = propertyMetaData;
         this.statementContext = statementContext;
         this.scheduler = scheduler;
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
 
         /* this.queueAdapter = new EntityAdapter<Queue>(
                 Queue.class,
@@ -1284,4 +1291,18 @@ public class MsgDestinationsPresenter extends Presenter<MsgDestinationsPresenter
         });
     }
 
+    @Override
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    @Override
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    @Override
+    public String getNameToken() {
+        return getProxy().getNameToken();
+    }
 }

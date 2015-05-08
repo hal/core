@@ -14,6 +14,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.messaging.CommonMsgPresenter;
@@ -21,6 +22,7 @@ import org.jboss.as.console.client.shared.subsys.messaging.LoadHornetQServersCmd
 import org.jboss.as.console.client.shared.subsys.messaging.model.BroadcastGroup;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ClusterConnection;
 import org.jboss.as.console.client.shared.subsys.messaging.model.DiscoveryGroup;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
@@ -74,20 +76,26 @@ public class MsgClusteringPresenter
     private DispatchAsync dispatcher;
     private DefaultWindow window = null;
     private RevealStrategy revealStrategy;
+    private final SecurityFramework securityFramework;
+    private final ResourceDescriptionRegistry descriptionRegistry;
     private String currentServer = null;
     private EntityAdapter<BroadcastGroup> bcastGroupAdapter;
     private EntityAdapter<DiscoveryGroup> discGroupAdapter;
     private EntityAdapter<ClusterConnection> clusterConnectionsAdapter;
 
     @Inject
-    public MsgClusteringPresenter( EventBus eventBus, MyView view, MyProxy proxy,
-                                   PlaceManager placeManager, DispatchAsync dispatcher,
-                                   RevealStrategy revealStrategy, ApplicationMetaData propertyMetaData) {
+    public MsgClusteringPresenter(
+            EventBus eventBus, MyView view, MyProxy proxy,
+            PlaceManager placeManager, DispatchAsync dispatcher,
+            RevealStrategy revealStrategy, ApplicationMetaData propertyMetaData,
+            SecurityFramework securityFramework, ResourceDescriptionRegistry descriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.dispatcher = dispatcher;
         this.revealStrategy = revealStrategy;
+        this.securityFramework = securityFramework;
+        this.descriptionRegistry = descriptionRegistry;
 
         bcastGroupAdapter = new EntityAdapter<BroadcastGroup>(BroadcastGroup.class, propertyMetaData);
         discGroupAdapter = new EntityAdapter<DiscoveryGroup>(DiscoveryGroup.class, propertyMetaData);
@@ -716,4 +724,18 @@ public class MsgClusteringPresenter
         });
     }
 
+    @Override
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    @Override
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    @Override
+    public String getNameToken() {
+        return getProxy().getNameToken();
+    }
 }
