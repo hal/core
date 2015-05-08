@@ -226,6 +226,8 @@ import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinderView;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailSubsystemView;
+import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
+import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsView;
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
@@ -714,6 +716,13 @@ public class CoreUIModule extends AbstractPresenterModule {
                 CachesPresenter.MyView.class,
                 CachesView.class,
                 CachesPresenter.MyProxy.class);
+
+
+
+        bindPresenter(HornetqFinder.class,
+                HornetqFinder.MyView.class,
+                HornetqFinderView.class,
+                HornetqFinder.MyProxy.class);
 
         // ------------------------------------------------------ circuit
 

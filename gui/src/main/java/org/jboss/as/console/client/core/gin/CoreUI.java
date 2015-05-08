@@ -126,6 +126,7 @@ import org.jboss.as.console.client.shared.subsys.logging.HandlerListManager;
 import org.jboss.as.console.client.shared.subsys.logging.LoggingPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
+import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
@@ -399,4 +400,6 @@ public interface CoreUI {
 
     AsyncProvider<CacheFinderPresenter> getCachePresenter();
     AsyncProvider<CachesPresenter> getCachesPresenter();
+
+    AsyncProvider<HornetqFinder> getHornetqFinderPresenter();
 }

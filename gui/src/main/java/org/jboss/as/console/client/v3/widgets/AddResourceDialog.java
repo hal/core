@@ -40,6 +40,8 @@ import org.jboss.dmr.client.ModelNode;
  */
 public class AddResourceDialog implements IsWidget {
 
+    private String[] includes = null;
+
     public interface Callback {
         void onAdd(ModelNode payload);
 
@@ -57,6 +59,11 @@ public class AddResourceDialog implements IsWidget {
         this.callback = callback;
     }
 
+    public AddResourceDialog include(String... attributes) {
+        this.includes = attributes;
+        return this;
+    }
+
     @Override
     public Widget asWidget() {
         ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
@@ -64,6 +71,9 @@ public class AddResourceDialog implements IsWidget {
                 .setResourceDescription(resourceDescription)
                 .setRequiredOnly(true)
                 .setSecurityContext(securityContext);
+
+        if(includes!=null)
+            builder.include(includes);
 
         ModelNodeFormBuilder.FormAssets assets = builder.build();
         form = assets.getForm();

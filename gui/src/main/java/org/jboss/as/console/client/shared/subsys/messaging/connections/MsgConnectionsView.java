@@ -3,17 +3,13 @@ package org.jboss.as.console.client.shared.subsys.messaging.connections;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.messaging.ProviderList;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Connector;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorService;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -26,7 +22,7 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
 
     private PagedView panel;
     private MsgConnectionsPresenter presenter;
-    private ProviderList providerList;
+
     private AcceptorOverview acceptorOverview;
     private ConnectorOverview connectorOverview;
     private ConnectorServiceList connectorServiceList;
@@ -41,15 +37,13 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
         FakeTabPanel titleBar = new FakeTabPanel("Messaging Connections");
         layout.add(titleBar);
 
-        panel = new PagedView();
+        panel = new PagedView(true);
 
-        providerList = new ProviderList(presenter, NameTokens.MsgConnectionsPresenter);
         acceptorOverview = new AcceptorOverview(presenter);
         connectorOverview = new ConnectorOverview(presenter);
         connectorServiceList = new ConnectorServiceList(presenter);
         bridgesList = new BridgesList(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), providerList.asWidget());
         panel.addPage("Acceptor", acceptorOverview.asWidget()) ;
         panel.addPage("Connector", connectorOverview.asWidget()) ;
         panel.addPage("Connector Services", connectorServiceList.asWidget()) ;
@@ -77,23 +71,12 @@ public class MsgConnectionsView extends SuspendableViewImpl implements MsgConnec
     public void setSelectedProvider(String selectedProvider) {
 
 
-        if(null==selectedProvider)
-        {
-            panel.showPage(0);
-        }
-        else{
-
-            presenter.loadDetails(selectedProvider);
-
-            // move to first page if still showing topology
-            if(0==panel.getPage())
-                panel.showPage(1);
-        }
+        presenter.loadDetails(selectedProvider);
     }
 
     @Override
     public void setProvider(List<Property> provider) {
-        providerList.setProvider(provider);
+
     }
 
     @Override

@@ -84,8 +84,6 @@ public class SubsystemMetaData {
         groups.get(WEB).getItems().add(new SubsystemGroupItem("HTTP", "undertow", NameTokens.HttpPresenter));
         //groups.get(WEB).getItems().add(new SubsystemGroupItem("Undertow Core", "undertow", NameTokens.UndertowPresenter));
 
-        groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Destinations", "messaging"));
-
         //groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", "threads", Boolean.TRUE));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.IO));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging"));
@@ -110,6 +108,7 @@ public class SubsystemMetaData {
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));
 
         groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));
+        groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging", "messaging", NameTokens.HornetqFinder));
     }
 
     public static void bootstrap(SubsystemRegistry registry) {

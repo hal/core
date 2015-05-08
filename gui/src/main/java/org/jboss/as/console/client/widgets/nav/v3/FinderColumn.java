@@ -150,7 +150,7 @@ public class FinderColumn<T> {
         // width constraints, overflow, etc
         cellTable.getElement().getStyle().setTableLayout(Style.TableLayout.FIXED);
         cellTable.setColumnWidth(titleColumn, 150, Style.Unit.PX);
-        cellTable.setColumnWidth(menuColumn, 70, Style.Unit.PX);
+        cellTable.setColumnWidth(menuColumn, 120, Style.Unit.PX);
         cellTable.setColumnWidth(iconColumn, 30, Style.Unit.PX);
 
         cellTable.setSelectionModel(selectionModel);

@@ -3,16 +3,12 @@ package org.jboss.as.console.client.shared.subsys.messaging.cluster;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.messaging.ProviderList;
 import org.jboss.as.console.client.shared.subsys.messaging.model.BroadcastGroup;
 import org.jboss.as.console.client.shared.subsys.messaging.model.ClusterConnection;
 import org.jboss.as.console.client.shared.subsys.messaging.model.DiscoveryGroup;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.ballroom.client.widgets.tabs.FakeTabPanel;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 
 import java.util.List;
@@ -24,7 +20,6 @@ import java.util.List;
 public class MsgClusteringView extends SuspendableViewImpl implements MsgClusteringPresenter.MyView {
     private MsgClusteringPresenter presenter;
     private PagedView panel;
-    private ProviderList providerList;
     private BroadcastGroupList broadcastGroupList;
     private DiscoveryGroupList discoveryGroupList;
     private ClusterConnectionList clusterConnectionList;
@@ -41,14 +36,12 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
         FakeTabPanel titleBar = new FakeTabPanel("Messaging Clustering");
         layout.add(titleBar);
 
-        panel = new PagedView();
+        panel = new PagedView(true);
 
-        providerList = new ProviderList(presenter, NameTokens.MsgClusteringPresenter);
         broadcastGroupList = new BroadcastGroupList(presenter);
         discoveryGroupList = new DiscoveryGroupList(presenter);
         clusterConnectionList = new ClusterConnectionList(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), providerList.asWidget());
         panel.addPage("Broadcast", broadcastGroupList.asWidget()) ;
         panel.addPage("Discovery", discoveryGroupList.asWidget()) ;
         panel.addPage("Connections", clusterConnectionList.asWidget()) ;
@@ -69,25 +62,12 @@ public class MsgClusteringView extends SuspendableViewImpl implements MsgCluster
 
     @Override
     public void setSelectedProvider(String selectedProvider) {
-
-
-        if(null==selectedProvider)
-        {
-            panel.showPage(0);
-        }
-        else{
-
-            presenter.loadDetails(selectedProvider);
-
-            // move to first page if still showing topology
-            if(0==panel.getPage())
-                panel.showPage(1);
-        }
+        presenter.loadDetails(selectedProvider);
     }
 
     @Override
     public void setProvider(List<Property> provider) {
-        providerList.setProvider(provider);
+
     }
 
     @Override

@@ -112,6 +112,8 @@ public class NameTokens {
     public static final String CacheFinderPresenter = "cache-container";
     public static final String CachesPresenter = "caches";
 
+    public static final String HornetqFinder = "hornetq";
+
     public static String getMainLayout() {
         return mainLayout;
     }

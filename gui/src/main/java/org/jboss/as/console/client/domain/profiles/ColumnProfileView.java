@@ -540,7 +540,8 @@ public class ColumnProfileView extends SuspendableViewImpl
 
     private final static String[] subsystemFolders = new String[] {
             NameTokens.MailFinder,
-            NameTokens.CacheFinderPresenter
+            NameTokens.CacheFinderPresenter,
+            NameTokens.HornetqFinder
     };
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)

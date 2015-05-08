@@ -25,7 +25,14 @@ import org.jboss.as.console.client.shared.subsys.messaging.AggregatedJMSModel;
 import org.jboss.as.console.client.shared.subsys.messaging.CommonMsgPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadHornetQServersCmd;
 import org.jboss.as.console.client.shared.subsys.messaging.LoadJMSCmd;
-import org.jboss.as.console.client.shared.subsys.messaging.model.*;
+import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
+import org.jboss.as.console.client.shared.subsys.messaging.model.AcceptorType;
+import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
+import org.jboss.as.console.client.shared.subsys.messaging.model.Connector;
+import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorService;
+import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectorType;
+import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
+import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
@@ -34,7 +41,6 @@ import org.jboss.as.console.mbui.dmr.ResourceAddress;
 import org.jboss.as.console.mbui.widgets.AddResourceDialog;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.as.console.spi.SubsystemExtension;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -58,7 +64,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
     @ProxyCodeSplit
     @NameToken(NameTokens.MsgConnectionsPresenter)
-    @SubsystemExtension(name="Connections", group = "Messaging", key="messaging")
+    //@SubsystemExtension(name="Connections", group = "Messaging", key="messaging")
     @AccessControl(resources = {
             "{selected.profile}/subsystem=messaging/hornetq-server=*",
             "{selected.profile}/subsystem=messaging/jms-bridge=*"})
