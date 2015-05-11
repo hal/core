@@ -71,7 +71,6 @@ import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.RemoteService;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.StrictMaxBeanPool;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.TimerService;
-import org.jboss.as.console.client.shared.subsys.jacorb.model.JacOrbSubsystem;
 import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
 import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
@@ -247,7 +246,6 @@ public interface CoreBeanFactory {
     AutoBean<JcaWorkmanager> JcaWorkmanager();
     AutoBean<WorkmanagerPool> WorkmanagerPool();
 
-    AutoBean<JacOrbSubsystem> jacORBSubsystem();
     AutoBean<JPADeployment> jpaDeployment();
 
     AutoBean<JGroupsStack> jGroupsStack();

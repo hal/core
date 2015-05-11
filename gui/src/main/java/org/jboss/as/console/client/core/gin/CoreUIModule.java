@@ -194,8 +194,6 @@ import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesView;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOView;
-import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
-import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbView;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DatasourceView;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
@@ -543,11 +541,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 JpaPresenter.MyView.class,
                 JpaView.class,
                 JpaPresenter.MyProxy.class);
-
-        bindPresenter(JacOrbPresenter.class,
-                JacOrbPresenter.MyView.class,
-                JacOrbView.class,
-                JacOrbPresenter.MyProxy.class);
 
         bindPresenter(MailPresenter.class,
                 MailPresenter.MyView.class,

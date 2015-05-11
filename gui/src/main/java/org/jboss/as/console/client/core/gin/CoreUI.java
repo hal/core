@@ -110,7 +110,6 @@ import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresente
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
-import org.jboss.as.console.client.shared.subsys.jacorb.JacOrbPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
@@ -321,7 +320,6 @@ public interface CoreUI {
     AsyncProvider<TXMetricPresenter> getTXMetricPresenter();
     AsyncProvider<TXLogPresenter> getTXLogPresenter();
 
-    AsyncProvider<JacOrbPresenter> getJacOrbPresenter();
     AsyncProvider<JpaPresenter> getJpaPresenter();
     AsyncProvider<MailPresenter> getMailPresenter();
     AsyncProvider<MailFinder> getMailFinder();
