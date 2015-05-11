@@ -185,7 +185,7 @@ import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EESubsystemView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
-import org.jboss.as.console.client.shared.subsys.ejb3.EJB3View;
+import org.jboss.as.console.client.shared.subsys.ejb3.EJBView;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkView;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinder;
@@ -410,11 +410,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DataSourcePresenter.MyView.class,
                 DatasourceView.class,
                 DataSourcePresenter.MyProxy.class);
-
-        bindPresenter(EJB3Presenter.class,
-                EJB3Presenter.MyView.class,
-                EJB3View.class,
-                EJB3Presenter.MyProxy.class);
 
         bindPresenter(MsgDestinationsPresenter.class,
                 MsgDestinationsPresenter.MyView.class,
@@ -698,6 +693,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 HornetqFinder.MyView.class,
                 HornetqFinderView.class,
                 HornetqFinder.MyProxy.class);
+
+        bindPresenter(EJB3Presenter.class,
+                EJB3Presenter.MyView.class,
+                EJBView.class,
+                EJB3Presenter.MyProxy.class);
 
         // ------------------------------------------------------ circuit
 

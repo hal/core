@@ -273,7 +273,6 @@ public interface CoreUI {
     StandaloneDriverStrategy getStandloneDriverStrategy();
     DriverRegistry getDriverRegistry();
 
-    AsyncProvider<EJB3Presenter> getEJB3Presenter();
     AsyncProvider<MsgDestinationsPresenter> getMsgDestinationsPresenter();
     AsyncProvider<MsgConnectionsPresenter> getMsgConnectionsPresenter();
     AsyncProvider<MsgClusteringPresenter> getMsgClusteringPresenter();
@@ -395,4 +394,6 @@ public interface CoreUI {
     AsyncProvider<CachesPresenter> getCachesPresenter();
 
     AsyncProvider<HornetqFinder> getHornetqFinderPresenter();
+
+    AsyncProvider<EJB3Presenter> getEJBPresenter();
 }

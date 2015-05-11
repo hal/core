@@ -40,7 +40,6 @@ public class NameTokens {
     public static final String HostPropertiesPresenter = "host-properties";
     public static final String Infinispan = "infinispan";
     public static final String InterfacePresenter = "interfaces";
-    public static final String JacOrbPresenter = "jacorb";
     public static final String JMSPresenter = "jms";
     public static final String JndiPresenter = "naming";
     public static final String Logger = "logging";
@@ -50,8 +49,6 @@ public class NameTokens {
     public static final String MessagingPresenter = "messaging";
     public static final String MetricsPresenter = "invocation-metrics";
     public static final String ModelBrowserPresenter = "model-browser";
-    public static final String OSGiConfigurationPresenter = "osgi-configuration";
-    public static final String OSGiRuntimePresenter = "osgi-runtime";
     public static final String PropertiesPresenter = "properties";
     public static final String ResourceAdapterPresenter ="resource-adapters";
     public static final String Remoting = "remoting";
@@ -108,111 +105,48 @@ public class NameTokens {
 
     public static final String HornetqFinder = "hornetq";
 
-    public static String getMainLayout() {
-        return mainLayout;
-    }
-
     public static final String signInPage = "login";
-    public static String getSignInPage() {
-        return signInPage;
-    }
-
     public static final String errorPage = "err";
-    public static String getErrorPage() {
-        return errorPage;
-    }
-
     public static final String ServerProfile = "profile";
-    public static String getServerProfile() {
-        return ServerProfile;
-    }
 
     public static final String StandloneDeployments = "server-deployments";
-    public static String getStandloneDeployments() {
-        return StandloneDeployments;
-    }
 
     public static final String systemApp = "system";
-    public static String getSystemApp() {
-        return systemApp;
-    }
 
     public final static String InterfaceToolPresenter = "server-interfaces";
-    public static String getInterfaceToolPresenter() {
-        return InterfaceToolPresenter;
-    }
 
     public final static String PathToolPresenter = "server-paths";
-    public static String getPathToolPresenter() {
-        return PathToolPresenter;
-    }
 
     public final static String SubsystemToolPresenter = "subsys";
-    public static String getSubsystemToolPresenter() {
-        return SubsystemToolPresenter;
-    }
 
     public static final String ThreadManagementPresenter = "threading";
-    public static String getThreadManagementPresenter() {
-        return ThreadManagementPresenter;
-    }
-
 
     // ------------------------------------------------------
     // domain tokens below
 
     public static final String ProfileMgmtPresenter = "profiles";
-    public static String getProfileMgmtPresenter() {
-        return ProfileMgmtPresenter;
-    }
 
     public static final String Topology = "topology";
-    public static String getTopology() {
-        return Topology;
-    }
 
     public static final String ServerGroupPresenter = "server-groups";
-    public static String getServerGroupPresenter() {
-        return ServerGroupPresenter;
-    }
 
     public static final String DeploymentsPresenter  = "domain-deployments";
-    public static String getDeploymentsPresenter() {
-        return DeploymentsPresenter;
-    }
 
     public static final String HostMgmtPresenter = "hosts";
-    public static String getHostMgmtPresenter() {
-        return HostMgmtPresenter;
-    }
 
     public final static String ServerPresenter = "server-config";
-    public static String getServerPresenter() {
-        return ServerPresenter;
-    }
 
     public static final String DeploymentBrowserPresenter = "deployments";
-    public static String getDeploymentBrowserPresenter() {
-        return DeploymentBrowserPresenter;
-    }
 
 
     // ------------------------------------------------------
     // administration tokens below
 
     public static final String AdministrationPresenter = "administration";
-    public static String getAdministrationPresenter() {
-        return AdministrationPresenter;
-    }
 
     public static final String RoleAssignmentPresenter = "role-assignment";
-    public static String getRoleAssignmentPresenter() {
-        return RoleAssignmentPresenter;
-    }
 
     public static final String AuditLogPresenter = "audit-log";
-    public static String getAuditLogPresenter() {
-        return AuditLogPresenter;
-    }
 }
+
 

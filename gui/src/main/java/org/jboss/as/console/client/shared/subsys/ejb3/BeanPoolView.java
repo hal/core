@@ -10,9 +10,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -27,31 +26,26 @@ import java.util.Map;
 
 /**
  * @author Heiko Braun
- * @since 10/09/14
+ * @since 05/09/14
  */
-public class ServiceViewTemplate extends ModelDrivenWidget {
+public class BeanPoolView {
 
-    private final EEPresenter presenter;
+    private static final AddressTemplate BASE_ADDRESS =
+            AddressTemplate.of("{selected.profile}/subsystem=ejb3/strict-max-bean-instance-pool=*");
 
-    private final String addressString;
+    private final EJB3Presenter presenter;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
-
-    private String title;
     private SingleSelectionModel<Property> selectionModel;
 
-    public ServiceViewTemplate(EEPresenter presenter, String title, String addressString) {
-        super(addressString);
-        this.title = title;
+    public BeanPoolView(EJB3Presenter presenter) {
         this.presenter = presenter;
-        this.addressString = addressString;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
     }
 
-    @Override
-    public Widget buildWidget(final ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -59,26 +53,34 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
             }
         };
 
+        TextColumn<Property> enabledColumn = new TextColumn<Property>() {
+            @Override
+            public String getValue(Property node) {
+                return String.valueOf(node.getValue().get("max-pool-size").asString());
+            }
+        };
+
         table.addColumn(nameColumn, "Name");
+        table.addColumn(enabledColumn, "Pool Size");
 
         ToolStrip tools = new ToolStrip();
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddResourceDialog(addressString);
+                presenter.onLaunchAddResourceDialog(BASE_ADDRESS);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                Feedback.confirm(Console.MESSAGES.deleteTitle(title),
-                        Console.MESSAGES.deleteConfirm(title +" "+ getCurrentSelection().getName()),
+                Feedback.confirm(Console.MESSAGES.deleteTitle("Bean Pool"),
+                        Console.MESSAGES.deleteConfirm("Bean Pool '" + getCurrentSelection().getName() + "'"),
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
                                     presenter.onRemoveResource(
-                                            addressString, getCurrentSelection().getName()
+                                            BASE_ADDRESS, getCurrentSelection().getName()
                                     );
                                 }
                             }
@@ -86,7 +88,8 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
             }
         }));
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
@@ -97,7 +100,7 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeset) {
-                presenter.onSaveResource(addressString, getCurrentSelection().getName(), changeset);
+                presenter.onSaveResource(BASE_ADDRESS, getCurrentSelection().getName(), changeset);
             }
 
             @Override
@@ -112,13 +115,12 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
         formPanel.add(formAssets.getForm().asWidget());
 
         // ----
-
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
-                .setHeadline(title)
-                .setDescription("")
+                .setHeadline("Bean Pools")
+                .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
-                .setMaster(Console.MESSAGES.available(title), table)
+                .setMaster(Console.MESSAGES.available("Bean Pools"), table)
                 .addDetail("Attributes", formPanel);
 
 
@@ -126,10 +128,10 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                Property selection = selectionModel.getSelectedObject();
-                if(selection!=null)
+                Property server = selectionModel.getSelectedObject();
+                if(server!=null)
                 {
-                    formAssets.getForm().edit(selection.getValue());
+                    formAssets.getForm().edit(server.getValue());
                 }
                 else
                 {

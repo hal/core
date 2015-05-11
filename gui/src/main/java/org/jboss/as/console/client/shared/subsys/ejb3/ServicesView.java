@@ -1,83 +1,68 @@
-/*
- * JBoss, Home of Professional Open Source
- * Copyright 2011 Red Hat Inc. and/or its affiliates and other contributors
- * as indicated by the @author tags. All rights reserved.
- * See the copyright.txt in the distribution for a
- * full listing of individual contributors.
- *
- * This copyrighted material is made available to anyone wishing to use,
- * modify, copy, or redistribute it subject to the terms and conditions
- * of the GNU Lesser General Public License, v. 2.1.
- * This program is distributed in the hope that it will be useful, but WITHOUT A
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public License,
- * v.2.1 along with this distribution; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA  02110-1301, USA.
- */
 package org.jboss.as.console.client.shared.subsys.ejb3;
 
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.TabPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.widgets.ContentDescription;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
-import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
+
 /**
- * @author David Bosschaert
+ * @author Heiko Braun
+ * @since 05/09/14
  */
-public class ServicesView extends SuspendableViewImpl {
-    private final AsyncServiceView asyncServiceView;
-    private final TimerServiceView timerServiceView;
-    private final RemoteServiceView remoteServiceView;
+public class ServicesView {
 
-    public ServicesView(ApplicationMetaData propertyMetaData, DispatchAsync dispatcher) {
-        asyncServiceView = new AsyncServiceView(propertyMetaData, dispatcher);
-        timerServiceView = new TimerServiceView(propertyMetaData, dispatcher);
-        remoteServiceView = new RemoteServiceView(propertyMetaData, dispatcher);
+    private EJB3Presenter presenter;
+
+    private PagedView panel;
+    private AsyncSvcView asyncSvcView;
+    private TimerSvcView timerSvcView;
+    private RemotingSvcView remotingSvcView;
+    private IIOPSvcView iiopSvcView;
+
+
+    public ServicesView(EJB3Presenter presenter) {
+        this.presenter = presenter;
     }
 
-    @Override
-    public Widget createWidget() {
-
-        VerticalPanel vpanel = new VerticalPanel();
-        vpanel.setStyleName("rhs-content-panel");
-
-        vpanel.add(new ContentHeaderLabel(Console.CONSTANTS.subsys_ejb3_ejbServices()));
-        vpanel.add(new ContentDescription(Console.CONSTANTS.subsys_ejb3_services_desc()));
-
-        TabPanel bottomPanel = new TabPanel();
-        bottomPanel.setStyleName("default-tabpanel");
-        bottomPanel.addStyleName("master_detail-detail");
-
-        bottomPanel.add(timerServiceView.asWidget(), timerServiceView.getEntityDisplayName());
-        bottomPanel.add(asyncServiceView.asWidget(), asyncServiceView.getEntityDisplayName());
-        bottomPanel.add(remoteServiceView.asWidget(), remoteServiceView.getEntityDisplayName());
-        bottomPanel.selectTab(0);
-
-        vpanel.add(bottomPanel);
+    public Widget asWidget() {
 
 
-        return new ScrollPanel(vpanel);
+        asyncSvcView = new AsyncSvcView(presenter);
+        timerSvcView = new TimerSvcView(presenter);
+        remotingSvcView = new RemotingSvcView(presenter);
+        iiopSvcView = new IIOPSvcView(presenter);
+
+        panel = new PagedView(true);
+
+        panel.addPage("Remoting Service", remotingSvcView.asWidget());
+        panel.addPage("IIOP", iiopSvcView.asWidget());
+        panel.addPage("Async", asyncSvcView.asWidget());
+        panel.addPage("Timer", timerSvcView.asWidget());
+
+        // default page
+        panel.showPage(0);
+
+        return panel.asWidget();
     }
 
-    public void initialLoad() {
-        asyncServiceView.initialLoad();
-        timerServiceView.initialLoad();
-        remoteServiceView.initialLoad();
+
+    public void updateAsyncSvc(ModelNode payload) {
+        asyncSvcView.setData(payload);
     }
 
-    public void setThreadPoolNames(List<String> threadPoolNames) {
-        asyncServiceView.setThreadPoolNames(threadPoolNames);
-        timerServiceView.setThreadPoolNames(threadPoolNames);
-        remoteServiceView.setThreadPoolNames(threadPoolNames);
+    public void updateTimerSvc(ModelNode service) {
+        timerSvcView.setData(service);
+    }
+
+    public void updateRemoteSvc(ModelNode service) {
+        remotingSvcView.setData(service);
+    }
+
+    public void updateIIOPSvc(ModelNode service) {
+        iiopSvcView.setData(service);
     }
 }

@@ -30,6 +30,7 @@ public class EEModulesView {
     private final EEPresenter presenter;
     ListDataProvider<ModelNode> dataProvider;
     DefaultCellTable<ModelNode> table;
+    private SingleSelectionModel<ModelNode> selectionModel;
 
     public EEModulesView(EEPresenter presenter) {
 
@@ -47,7 +48,8 @@ public class EEModulesView {
 
         dataProvider = new ListDataProvider<ModelNode>();
         dataProvider.addDataDisplay(table);
-        table.setSelectionModel(new SingleSelectionModel<ModelNode>());
+        selectionModel = new SingleSelectionModel<>();
+        table.setSelectionModel(selectionModel);
         DefaultPager pager = new DefaultPager();
         pager.setDisplay(table);
 
@@ -118,6 +120,7 @@ public class EEModulesView {
     }
 
     public void setModules(List<ModelNode> modules) {
+        selectionModel.clear();
         dataProvider.setList(modules);
         table.selectDefaultEntity();
     }

@@ -1,6 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import org.jboss.as.console.client.shared.subsys.ejb3.threads.ThreadPool;
+import org.jboss.as.console.client.shared.subsys.jca.ThreadPool;
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
 import org.jboss.as.console.client.widgets.forms.FormItem;

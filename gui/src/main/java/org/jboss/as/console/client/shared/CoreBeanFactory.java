@@ -64,13 +64,7 @@ import org.jboss.as.console.client.shared.runtime.jpa.model.JPADeployment;
 import org.jboss.as.console.client.shared.runtime.tx.TXParticipant;
 import org.jboss.as.console.client.shared.runtime.tx.TXRecord;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.AsyncService;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3Subsystem;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3ThreadPool;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.RemoteService;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.StrictMaxBeanPool;
-import org.jboss.as.console.client.shared.subsys.ejb3.model.TimerService;
 import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
 import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
@@ -176,13 +170,6 @@ public interface CoreBeanFactory {
     AutoBean<BroadcastGroup> BroadcastGroup();
     AutoBean<DiscoveryGroup> DiscoveryGroup();
     AutoBean<ClusterConnection> ClusterConnection();
-
-    AutoBean<EJB3Subsystem> ejb3Subsystem();
-    AutoBean<StrictMaxBeanPool> strictMaxBeanPool();
-    AutoBean<AsyncService> asyncService();
-    AutoBean<TimerService> timerService();
-    AutoBean<RemoteService> remoteService();
-    AutoBean<EJB3ThreadPool> ejb3ThreadPool();
 
     // logging subsystem
     AutoBean<RootLogger> rootLogger();

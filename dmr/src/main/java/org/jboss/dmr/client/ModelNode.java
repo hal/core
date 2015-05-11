@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -250,7 +251,10 @@ public class ModelNode implements Cloneable, Exportable {
      * @throws IllegalArgumentException if no conversion is possible
      */
     public List<Property> asPropertyList() throws IllegalArgumentException {
-        return value.asPropertyList();
+        if(ModelValue.UNDEFINED == value)
+            return Collections.EMPTY_LIST;
+        else
+            return value.asPropertyList();
     }
 
     /**
