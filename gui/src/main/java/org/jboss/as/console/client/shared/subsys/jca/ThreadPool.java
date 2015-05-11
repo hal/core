@@ -18,14 +18,25 @@
  */
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import org.jboss.as.console.client.shared.viewframework.NamedEntity;
+import org.jboss.as.console.client.widgets.forms.Binding;
+import org.jboss.as.console.client.widgets.forms.FormItem;
 
 /**
  * Interface common to all Thread Pools
  *
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  */
-public interface ThreadPool extends NamedEntity {
+public interface ThreadPool{
+
+
+    @Binding(detypedName="name", key=true)
+    @FormItem(defaultValue="",
+            label="Name",
+            required=true,
+            formItemTypeForEdit="TEXT",
+            formItemTypeForAdd="TEXT_BOX")
+    public String getName();
+    public void setName(String name);
 
     Integer getMaxThreads();
 
