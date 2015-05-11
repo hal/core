@@ -283,7 +283,7 @@ public class ChildView {
             ModelNode opDescription = description.get("operations").get("add").get("description");
             ContentDescription text = new ContentDescription(opDescription.asString());
             layout.add(text);
-            layout.add(form.asWidget());
+            layout.add(assets.asWidget());
 
             WindowContentBuilder content = new WindowContentBuilder(layout, options);
             window.trapWidget(content.build());
