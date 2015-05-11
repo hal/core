@@ -21,7 +21,7 @@ package org.jboss.as.console.client.shared.subsys.ejb3;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3ThreadPool;
-import org.jboss.as.console.client.shared.subsys.threads.UnboundedQueueThreadPoolView;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.UnboundedQueueThreadPoolView;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridge;
 import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridgeImpl;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;

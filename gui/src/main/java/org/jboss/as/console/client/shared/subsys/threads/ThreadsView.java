@@ -22,6 +22,7 @@ package org.jboss.as.console.client.shared.subsys.threads;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.UnboundedQueueThreadPoolView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;

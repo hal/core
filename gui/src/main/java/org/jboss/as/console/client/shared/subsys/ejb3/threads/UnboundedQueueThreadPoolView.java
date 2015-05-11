@@ -16,10 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.shared.subsys.threads;
+package org.jboss.as.console.client.shared.subsys.ejb3.threads;
 
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.subsys.threads.model.UnboundedQueueThreadPool;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;

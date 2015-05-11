@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.shared.subsys.ejb3.model;
 
-import org.jboss.as.console.client.shared.subsys.threads.model.UnboundedQueueThreadPool;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.UnboundedQueueThreadPool;
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
 import org.jboss.as.console.client.widgets.forms.FormItem;

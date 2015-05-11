@@ -127,7 +127,7 @@ import org.jboss.as.console.client.shared.subsys.threads.model.BoundedQueueThrea
 import org.jboss.as.console.client.shared.subsys.threads.model.QueuelessThreadPool;
 import org.jboss.as.console.client.shared.subsys.threads.model.ScheduledThreadPool;
 import org.jboss.as.console.client.shared.subsys.threads.model.ThreadFactory;
-import org.jboss.as.console.client.shared.subsys.threads.model.UnboundedQueueThreadPool;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.UnboundedQueueThreadPool;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.shared.subsys.web.model.JSPContainerConfiguration;
 import org.jboss.as.console.client.shared.subsys.web.model.VirtualServer;

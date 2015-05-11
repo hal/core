@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.shared.subsys.threads;
 
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.AbstractThreadPoolView;
 import org.jboss.as.console.client.shared.subsys.threads.model.QueuelessThreadPool;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.ballroom.client.widgets.forms.Form;

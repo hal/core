@@ -20,6 +20,7 @@ package org.jboss.as.console.client.shared.subsys.threads;
 
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.shared.subsys.ejb3.threads.AbstractThreadPoolView;
 import org.jboss.as.console.client.shared.subsys.threads.model.ThreadFactory;
 import org.jboss.as.console.client.shared.viewframework.AbstractEntityView;
 import org.jboss.as.console.client.shared.viewframework.Columns.NameColumn;
