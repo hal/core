@@ -190,10 +190,6 @@ import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3View;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkView;
-import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStore;
-import org.jboss.as.console.client.shared.subsys.infinispan.model.CacheContainerStoreImpl;
-import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStore;
-import org.jboss.as.console.client.shared.subsys.infinispan.model.LocalCacheStoreImpl;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinder;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
@@ -226,8 +222,8 @@ import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinderView;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailSubsystemView;
-import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
+import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsView;
 import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
@@ -732,8 +728,6 @@ public class CoreUIModule extends AbstractPresenterModule {
         // ------------------------------------------------------ no circuit stores yet!
 
         bind(DeploymentStore.class).in(Singleton.class);
-        bind(CacheContainerStore.class).to(CacheContainerStoreImpl.class).in(Singleton.class);
-        bind(LocalCacheStore.class).to(LocalCacheStoreImpl.class).in(Singleton.class);
         bind(DataSourceStore.class).to(DataSourceStoreImpl.class).in(Singleton.class);
         bind(ProfileDAO.class).to(ProfileDAOImpl.class).in(Singleton.class);
         bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);
