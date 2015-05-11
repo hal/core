@@ -182,8 +182,6 @@ import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.batch.ui.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminView;
-import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
-import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EESubsystemView;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
@@ -451,11 +449,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LogFilesPresenter.MyView.class,
                 LogFilesView.class,
                 LogFilesPresenter.MyProxy.class);
-
-        bindPresenter(ScannerPresenter.class,
-                ScannerPresenter.MyView.class,
-                ScannerView.class,
-                ScannerPresenter.MyProxy.class);
 
         bindPresenter(ThreadsPresenter.class,
                 ThreadsPresenter.MyView.class,

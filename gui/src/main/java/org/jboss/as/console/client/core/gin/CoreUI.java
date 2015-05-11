@@ -104,7 +104,6 @@ import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
-import org.jboss.as.console.client.shared.subsys.deploymentscanner.ScannerPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EJB3Presenter;
 import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresenter;
@@ -287,7 +286,6 @@ public interface CoreUI {
 
     HandlerListManager getHandlerListManager();
 
-    AsyncProvider<ScannerPresenter> getScannerPresenter();
     AsyncProvider<ConfigAdminPresenter> getConfigAdminPresenter();
     AsyncProvider<SocketBindingPresenter> getSocketBindingPresenter();
 

@@ -64,7 +64,6 @@ import org.jboss.as.console.client.shared.runtime.jpa.model.JPADeployment;
 import org.jboss.as.console.client.shared.runtime.tx.TXParticipant;
 import org.jboss.as.console.client.shared.runtime.tx.TXRecord;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
-import org.jboss.as.console.client.shared.subsys.deploymentscanner.model.DeploymentScanner;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.AsyncService;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3Subsystem;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.EJB3ThreadPool;
@@ -205,7 +204,6 @@ public interface CoreBeanFactory {
     AutoBean<SizeRotatingFileHandler> sizeRotatingFileHandler();
     AutoBean<CustomHandler> customHandler();
 
-    AutoBean<DeploymentScanner> deploymentScanner();
     AutoBean<SocketBinding> socketBinding();
     AutoBean<RemoteSocketBinding> RemoteSocketBinding();
     AutoBean<LocalSocketBinding> LocalSocketBinding();
