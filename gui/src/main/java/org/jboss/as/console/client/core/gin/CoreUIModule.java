@@ -236,8 +236,6 @@ import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresent
 import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsView;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
 import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
-import org.jboss.as.console.client.shared.subsys.threads.ThreadsPresenter;
-import org.jboss.as.console.client.shared.subsys.threads.ThreadsView;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricView;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
@@ -449,11 +447,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 LogFilesPresenter.MyView.class,
                 LogFilesView.class,
                 LogFilesPresenter.MyProxy.class);
-
-        bindPresenter(ThreadsPresenter.class,
-                ThreadsPresenter.MyView.class,
-                ThreadsView.class,
-                ThreadsPresenter.MyProxy.class);
 
         bindPresenter(ConfigAdminPresenter.class,
                 ConfigAdminPresenter.MyView.class,

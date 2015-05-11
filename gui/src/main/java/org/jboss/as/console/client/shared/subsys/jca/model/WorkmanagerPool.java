@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.jca.model;
 
-import org.jboss.as.console.client.shared.subsys.threads.model.BoundedQueueThreadPool;
 import org.jboss.as.console.client.widgets.forms.Binding;
 
 /**
