@@ -42,7 +42,6 @@ public class NameTokens {
     public static final String InterfacePresenter = "interfaces";
     public static final String JMSPresenter = "jms";
     public static final String JndiPresenter = "naming";
-    public static final String Logger = "logging";
     public static final String LogViewer = "logviewer";
     public static final String LogFiles = "logfiles";
     public static final String LogHandler = "log-handler";
@@ -147,6 +146,7 @@ public class NameTokens {
     public static final String RoleAssignmentPresenter = "role-assignment";
 
     public static final String AuditLogPresenter = "audit-log";
+    public static final String Logging = "logging";
 }
 
 

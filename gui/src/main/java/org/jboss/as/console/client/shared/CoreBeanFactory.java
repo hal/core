@@ -80,16 +80,6 @@ import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsStack;
 import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsTransport;
 import org.jboss.as.console.client.shared.subsys.jmx.model.JMXSubsystem;
 import org.jboss.as.console.client.shared.subsys.jpa.model.JpaSubsystem;
-import org.jboss.as.console.client.shared.subsys.logging.model.AsyncHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.ConsoleHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.CustomHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.FileHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.Logger;
-import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicRotatingFileHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.PeriodicSizeRotatingFileHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.RootLogger;
-import org.jboss.as.console.client.shared.subsys.logging.model.SizeRotatingFileHandler;
-import org.jboss.as.console.client.shared.subsys.logging.model.SyslogHandler;
 import org.jboss.as.console.client.shared.subsys.mail.MailServerDefinition;
 import org.jboss.as.console.client.shared.subsys.mail.MailSession;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Acceptor;
@@ -170,18 +160,6 @@ public interface CoreBeanFactory {
     AutoBean<BroadcastGroup> BroadcastGroup();
     AutoBean<DiscoveryGroup> DiscoveryGroup();
     AutoBean<ClusterConnection> ClusterConnection();
-
-    // logging subsystem
-    AutoBean<RootLogger> rootLogger();
-    AutoBean<Logger> logger();
-    AutoBean<AsyncHandler> asyncHandler();
-    AutoBean<ConsoleHandler> consoleHanlder();
-    AutoBean<SyslogHandler> syslogHandler();
-    AutoBean<FileHandler> fileHandler();
-    AutoBean<PeriodicRotatingFileHandler> periodicRotatingFileHandler();
-    AutoBean<PeriodicSizeRotatingFileHandler> periodicSizeRotatingFileHandler();
-    AutoBean<SizeRotatingFileHandler> sizeRotatingFileHandler();
-    AutoBean<CustomHandler> customHandler();
 
     AutoBean<SocketBinding> socketBinding();
     AutoBean<RemoteSocketBinding> RemoteSocketBinding();

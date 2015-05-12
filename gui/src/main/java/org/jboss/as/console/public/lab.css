@@ -617,7 +617,7 @@
 .paged-view-navigation {
     border-right: none!important;
     border-bottom:none!important;
-    margin-top:25px;
+    margin-top:30px;
 }
 
 .link-bar-first {
@@ -632,6 +632,7 @@
 .link-bar {
     text-align: left!important;
     line-height: 25px;
+    min-width:100px!important;
 }
 
 #PagedView .gwt-SplitLayoutPanel-HDragger {

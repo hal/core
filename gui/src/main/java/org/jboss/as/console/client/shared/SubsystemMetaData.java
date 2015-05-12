@@ -86,7 +86,7 @@ public class SubsystemMetaData {
 
         //groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", "threads", Boolean.TRUE));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("IO", "io", NameTokens.IO));
-        groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging"));
+        groups.get(CORE).getItems().add(new SubsystemGroupItem("Logging", "logging", "logging"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Deployment Scanners", "deployment-scanner"));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("Threads", NameTokens.BoundedQueueThreadPoolPresenter));
         groups.get(CORE).getItems().add(new SubsystemGroupItem("JMX", "jmx"));

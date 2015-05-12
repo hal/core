@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.shared.subsys.ejb3;
+package org.jboss.as.console.client.shared.subsys.logger;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
@@ -31,6 +31,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +39,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
- * @since 05/09/14
  */
-public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter.MyProxy> {
+public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPresenter.MyProxy> {
 
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
@@ -53,69 +53,73 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
-
-            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
-            loadContainer();
+            Console.info("Successfully saved resource "+address.resolve(statementContext));
+            loadData();
         }
 
         @Override
         public void onFailure(AddressTemplate address, String name, Throwable t) {
-            Console.info("Failed to save resource "+address.resolve(statementContext, name)+": "+t.getMessage());
+            Console.error("Failed to save resource " + address.resolve(statementContext) + ": " + t.getMessage());
         }
     };
 
     private SecurityFramework securityFramework;
     private ResourceDescriptionRegistry descriptionRegistry;
 
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
 
     @RequiredResources(
             resources = {
-                    "{selected.profile}/subsystem=ejb3",
-                    "{selected.profile}/subsystem=ejb3/remoting-profile=*",
-                    "{selected.profile}/subsystem=ejb3/thread-pool=*",
-                    "{selected.profile}/subsystem=ejb3/service=timer-service",
-                    "{selected.profile}/subsystem=ejb3/service=remote",
-                    "{selected.profile}/subsystem=ejb3/service=iiop",
-                    "{selected.profile}/subsystem=ejb3/service=async",
-                    "{selected.profile}/subsystem=ejb3/cache=*",
-                    "{selected.profile}/subsystem=ejb3/file-passivation-store=*",
-                    "{selected.profile}/subsystem=ejb3/cluster-passivation-store=*",
-                    "{selected.profile}/subsystem=ejb3/passivation-store=*",
-                    "{selected.profile}/subsystem=ejb3/strict-max-bean-instance-pool=*"
+                    "{selected.profile}/subsystem=logging",
+                    "{selected.profile}/subsystem=logging/root-logger=ROOT",
+                    "{selected.profile}/subsystem=logging/logger=*",
+                    "{selected.profile}/subsystem=logging/console-handler=*",
+                    "{selected.profile}/subsystem=logging/custom-handler=*",
+                    "{selected.profile}/subsystem=logging/file-handler=*",
+                    "{selected.profile}/subsystem=logging/periodic-rotating-file-handler=*",
+                    "{selected.profile}/subsystem=logging/periodic-size-rotating-file-handler=*",
+                    "{selected.profile}/subsystem=logging/size-rotating-file-handler=*",
+                    "{selected.profile}/subsystem=logging/syslog-handler=*",
+                    "{selected.profile}/subsystem=logging/async-handler=*",
+                    "{selected.profile}/subsystem=logging/pattern-formatter=*",
+                    "{selected.profile}/subsystem=logging/custom-formatter=*"
             }
     )
     @ProxyCodeSplit
-    @NameToken(NameTokens.EJB3Presenter)
-    public interface MyProxy extends Proxy<EJB3Presenter>, Place {
+    @NameToken(NameTokens.Logging)
+    public interface MyProxy extends Proxy<LoggerPresenter>, Place {
     }
 
     public interface MyView extends View {
-        void setPresenter(EJB3Presenter presenter);
-        void updateContainer(ModelNode container);
-        void updateBeanPools(List<Property> properties);
-        void updateThreadPools(List<Property> properties);
+        void setPresenter(LoggerPresenter presenter);
+        void updateRootLogger(ModelNode payload);
+        void updateLogger(List<Property> items);
+        void updateHandler(List<Property> items);
 
-        void updateRemotingProfiles(List<Property> properties);
+        void updatePeriodicSizeHandler(List<Property> items);
 
-        void updateTimerSvc(ModelNode service);
+        void updateConsoleHandler(List<Property> items);
+        void updateFileHandler(List<Property> items);
+        void updatePeriodicHandler(List<Property> items);
+        void updateSizeHandlerHandler(List<Property> items);
+        void updateAsyncHandler(List<Property> items);
+        void updateCustomHandler(List<Property> items);
+        void updateSyslogHandler(List<Property> items);
 
-        void updateRemoteSvc(ModelNode modelNode);
+        void updatePatternFormatter(List<Property> items);
 
-        void updateIIOPSvc(ModelNode modelNode);
-
-        void updateAsyncSvc(ModelNode modelNode);
-
-        void updateCaches(List<Property> properties);
-
-        void updatePassivationStores(List<Property> properties);
-
-        void updateFilePassivationStore(List<Property> properties);
-
-        void updateClusterPassivationStore(List<Property> properties);
+        void updateCustomFormatter(List<Property> items);
     }
 
     @Inject
-    public EJB3Presenter(
+    public LoggerPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, RevealStrategy revealStrategy,
             DispatchAsync dispatcher, CoreGUIContext statementContext,
@@ -128,7 +132,7 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         this.securityFramework = securityFramework;
         this.descriptionRegistry = descriptionRegistry;
 
-        this.statementContext = statementContext;
+        this.statementContext =  statementContext;
 
         this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
 
@@ -144,14 +148,14 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
     @Override
     protected void onReset() {
         super.onReset();
-        loadContainer();
+        loadData();
     }
 
-    private void loadContainer() {
+    private void loadData() {
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "ejb3");
+        operation.get(ADDRESS).add("subsystem", "logging");
         operation.get("recursive-depth").set(2);
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
@@ -161,42 +165,27 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Log.error("Failed to load ejb container ", response.getFailureDescription());
+                    Log.error("Failed to load logging resources", response.getFailureDescription());
+
                 } else {
-                    ModelNode payload = response.get(RESULT);
-                    getView().updateContainer(payload);
+                    ModelNode logging = response.get(RESULT);
 
-                    getView().updateBeanPools(payload.get("strict-max-bean-instance-pool").asPropertyList());
-                    getView().updateThreadPools(payload.get("thread-pool").asPropertyList());
-                    getView().updateRemotingProfiles(payload.get("remoting-profile").asPropertyList());
-                    getView().updateCaches(payload.get("cache").asPropertyList());
-                    getView().updatePassivationStores(payload.get("passivation-store").asPropertyList());
-                    getView().updateFilePassivationStore(payload.get("file-passivation-store").asPropertyList());
-                    getView().updateClusterPassivationStore(payload.get("cluster-passivation-store").asPropertyList());
+                    getView().updateRootLogger(logging.get("root-logger").get("ROOT"));
+                    getView().updateLogger(logging.get("logger").asPropertyList());
+                    getView().updateConsoleHandler(logging.get("console-handler").asPropertyList());
 
-                    // singleton resources
-                    ModelNode service = payload.get("service");
-                    if(service.hasDefined("timer-service"))
-                        getView().updateTimerSvc(service.get("timer-service"));
-                    else
-                        getView().updateTimerSvc(new ModelNode());
+                    getView().updateConsoleHandler(logging.get("console-handler").asPropertyList());
+                    getView().updateFileHandler(logging.get("file-handler").asPropertyList());
+                    getView().updatePeriodicHandler(logging.get("periodic-rotating-file-handler").asPropertyList());
+                    getView().updatePeriodicSizeHandler(logging.get("periodic-size-rotating-file-handler").asPropertyList());
+                    getView().updateSizeHandlerHandler(logging.get("size-rotating-file-handler").asPropertyList());
+                    getView().updateAsyncHandler(logging.get("async-handler").asPropertyList());
+                    getView().updateCustomHandler(logging.get("custom-handler").asPropertyList());
+                    getView().updateSyslogHandler(logging.get("syslog-handler").asPropertyList());
 
-                    if(service.hasDefined("remote"))
-                        getView().updateRemoteSvc(service.get("remote"));
-                    else
-                        getView().updateRemoteSvc(new ModelNode());
-
-                    if(service.hasDefined("iiop"))
-                        getView().updateIIOPSvc(service.get("iiop"));
-                    else
-                        getView().updateIIOPSvc(new ModelNode());
-
-                    if(service.hasDefined("async"))
-                        getView().updateAsyncSvc(service.get("async"));
-                    else
-                        getView().updateAsyncSvc(new ModelNode());
+                    getView().updateCustomFormatter(logging.get("custom-formatter").asPropertyList());
+                    getView().updatePatternFormatter(logging.get("pattern-formatter").asPropertyList());
                 }
-
             }
         });
     }
@@ -206,16 +195,13 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         revealStrategy.revealInParent(this);
     }
 
-
-    // -----------------------
-
     public void onRemoveResource(final AddressTemplate address, final String name) {
 
         operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
     }
 
-    public void onCreateResource(AddressTemplate address, String name, ModelNode entity) {
-        ResourceAddress fqAddress = address.resolve(statementContext, name);
+    public void onCreateResource(AddressTemplate address, ModelNode entity) {
+        ResourceAddress fqAddress = address.resolve(statementContext);
 
         entity.get(OP).set(ADD);
         entity.get(ADDRESS).set(fqAddress);
@@ -233,7 +219,7 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
                     Console.info("Successfully created " + fqAddress);
                 }
 
-                loadContainer();
+                loadData();
             }
         });
     }
@@ -243,20 +229,12 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         operationDelegate.onSaveResource(address, null, changeset, defaultOpCallbacks);
     }
 
-    public void onSaveResource(AddressTemplate address, String name, Map changeset) {
+    public void onSaveNamedResource(AddressTemplate address, String name, Map changeset) {
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 
     public PlaceManager getPlaceManager() {
         return placeManager;
-    }
-
-    public SecurityFramework getSecurityFramework() {
-        return securityFramework;
-    }
-
-    public ResourceDescriptionRegistry getDescriptionRegistry() {
-        return descriptionRegistry;
     }
 
     public void onLaunchAddResourceDialog(AddressTemplate address) {
@@ -289,5 +267,6 @@ public class EJB3Presenter extends Presenter<EJB3Presenter.MyView, EJB3Presenter
         window.setGlassEnabled(true);
         window.center();
     }
+
 
 }

@@ -120,8 +120,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.StandaloneDriverStrat
 import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsPresenter;
 import org.jboss.as.console.client.shared.subsys.jmx.JMXPresenter;
 import org.jboss.as.console.client.shared.subsys.jpa.JpaPresenter;
-import org.jboss.as.console.client.shared.subsys.logging.HandlerListManager;
-import org.jboss.as.console.client.shared.subsys.logging.LoggingPresenter;
+import org.jboss.as.console.client.shared.subsys.logger.LoggerPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
@@ -277,11 +276,8 @@ public interface CoreUI {
     AsyncProvider<MsgConnectionsPresenter> getMsgConnectionsPresenter();
     AsyncProvider<MsgClusteringPresenter> getMsgClusteringPresenter();
 
-    AsyncProvider<LoggingPresenter> getLoggingPresenter();
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
     AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
-
-    HandlerListManager getHandlerListManager();
 
     AsyncProvider<ConfigAdminPresenter> getConfigAdminPresenter();
     AsyncProvider<SocketBindingPresenter> getSocketBindingPresenter();
@@ -396,4 +392,6 @@ public interface CoreUI {
     AsyncProvider<HornetqFinder> getHornetqFinderPresenter();
 
     AsyncProvider<EJB3Presenter> getEJBPresenter();
+
+    AsyncProvider<LoggerPresenter> getLoggerPresenter();
 }

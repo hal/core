@@ -358,6 +358,31 @@ public class ModelNodeFormBuilder {
             }
         }
 
+        // some resources already contain a name attribute
+
+        FormItem nameItem = null;
+        if(createMode) {
+            for (FormItem item : requiredItems) {
+                if ("name".equals(item.getName())) {
+                    nameItem = item;
+                    break;
+                }
+            }
+            for (FormItem item : optionalItems) {
+                if ("name".equals(item.getName())) {
+                    nameItem = item;
+                    break;
+                }
+            }
+        }
+
+        // remove so it can be prepended
+        if(nameItem!=null)
+        {
+            requiredItems.remove(nameItem);
+            optionalItems.remove(nameItem);
+        }
+
         // distinguish required and optional fields (createMode)
         if (requiredItems.isEmpty()) {
             // no required fields explicitly given, treat all fields as required

@@ -211,9 +211,8 @@ import org.jboss.as.console.client.shared.subsys.jmx.JMXPresenter;
 import org.jboss.as.console.client.shared.subsys.jmx.JMXSubsystemView;
 import org.jboss.as.console.client.shared.subsys.jpa.JpaPresenter;
 import org.jboss.as.console.client.shared.subsys.jpa.JpaView;
-import org.jboss.as.console.client.shared.subsys.logging.HandlerListManager;
-import org.jboss.as.console.client.shared.subsys.logging.LoggingPresenter;
-import org.jboss.as.console.client.shared.subsys.logging.LoggingView;
+import org.jboss.as.console.client.shared.subsys.logger.LoggerPresenter;
+import org.jboss.as.console.client.shared.subsys.logger.LoggerView;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinderView;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
@@ -425,11 +424,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 MsgClusteringPresenter.MyView.class,
                 MsgClusteringView.class,
                 MsgClusteringPresenter.MyProxy.class);
-
-        bindPresenter(LoggingPresenter.class,
-                LoggingPresenter.MyView.class,
-                LoggingView.class,
-                LoggingPresenter.MyProxy.class);
 
         bindPresenter(LogViewerPresenter.class,
                 LogViewerPresenter.MyView.class,
@@ -699,6 +693,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 EJBView.class,
                 EJB3Presenter.MyProxy.class);
 
+        bindPresenter(LoggerPresenter.class,
+                      LoggerPresenter.MyView.class,
+                      LoggerView.class,
+                      LoggerPresenter.MyProxy.class);
+
         // ------------------------------------------------------ circuit
 
         bind(Dispatcher.class).to(DAGDispatcher.class).in(Singleton.class);
@@ -771,7 +770,6 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(CurrentProfileSelection.class).in(Singleton.class);
 
         bind(DataSourceTemplates.class).in(Singleton.class);
-        bind(HandlerListManager.class).in(Singleton.class);
 
         bind(Baseadress.class).in(Singleton.class);
         bind(RuntimeBaseAddress.class).in(Singleton.class);
