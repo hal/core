@@ -64,11 +64,8 @@ public class DeploymentStep2 {
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
         CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
-        if (Console.getBootstrapContext().isStandalone()) {
-            form.setFields(nameField, runtimeNameField, enable);
-        } else {
-            form.setFields(nameField, runtimeNameField);
-        }
+        form.setFields(nameField, runtimeNameField, enable);
+
         layout.add(form.asWidget());
 
         ClickHandler cancelHandler = new ClickHandler() {
