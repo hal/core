@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.subsys.jca.wizard;
 
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
@@ -123,6 +124,13 @@ public class NewXADatasourceWizard {
     }
 
     private void mergeAttributes(final XADataSource updatedEntity) {
+
+        if (updatedEntity.getProperties() == null) {
+            updatedEntity.setProperties(new ArrayList<PropertyRecord>());
+        }
+        updatedEntity.getProperties().clear();
+        updatedEntity.getProperties().addAll(properties);
+
         // merge previous attributes into single entity
         updatedEntity.setName(baseAttributes.getName());
         updatedEntity.setJndiName(baseAttributes.getJndiName());
@@ -132,12 +140,11 @@ public class NewXADatasourceWizard {
         updatedEntity.setDriverClass(driverAttributes.getDriverClass());
         updatedEntity.setMajorVersion(driverAttributes.getMajorVersion());
         updatedEntity.setMinorVersion(driverAttributes.getMinorVersion());
-        updatedEntity.setProperties(properties);
+
         updatedEntity.setPoolName(baseAttributes.getName()+"_Pool");
     }
 
     public void onConfigureProperties(List<PropertyRecord> properties) {
-        // merge it right away
 
         this.properties = properties;
 

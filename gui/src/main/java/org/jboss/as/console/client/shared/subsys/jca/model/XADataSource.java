@@ -45,22 +45,34 @@ public interface XADataSource extends DataSource {
     void setJta(boolean b);
 
     @Binding(detypedName = "pad-xid")
-    boolean isPadXid();
-    void setPadXid(boolean b);
+    Boolean isPadXid();
+    void setPadXid(Boolean b);
 
     @Binding(detypedName = "wrap-xa-resource")
-    boolean isWrapXaResource();
-    void setWrapXaResource(boolean b);
+    Boolean isWrapXaResource();
+    void setWrapXaResource(Boolean b);
 
     @Binding(detypedName = "same-rm-override")
-    boolean isEnableRMOverride();
-    void setEnableRMOverride(boolean b);
+    Boolean isEnableRMOverride();
+    void setEnableRMOverride(Boolean b);
 
     @Binding(detypedName = "interleaving")
-    boolean isEnableInterleave();
-    void setEnableInterleave(boolean b);
+    Boolean isEnableInterleave();
+    void setEnableInterleave(Boolean b);
 
     @Binding(detypedName = "xa-resource-timeout")
-    int getXaResourceTimeout();
-    void setXaResourceTimeout(int i);
+    Integer getXaResourceTimeout();
+    void setXaResourceTimeout(Integer i);
+
+    @Binding(detypedName = "no-tx-separate-pool")
+    Boolean isNoTxSeparatePool();
+    void setNoTxSeparatePool(Boolean b);
+
+    @Binding(detypedName = "same-rm-override")
+    Boolean isSameRmOverride();
+    void setSameRmOverride(Boolean b);
+
+    @Binding(detypedName = "recovery-plugin-class-name")
+    String getRecoveryPluginClassName();
+    void setRecoveryPluginClassName(String s);
 }
