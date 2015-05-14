@@ -45,16 +45,16 @@ public interface DataSource {
     void setPoolName(String name);
 
     @Binding(detypedName = "min-pool-size")
-    int getMinPoolSize();
-    void setMinPoolSize(int i);
+    Integer getMinPoolSize();
+    void setMinPoolSize(Integer i);
 
     @Binding(detypedName = "initial-pool-size")
-    int getInitialPoolSize();
-    void setInitialPoolSize(int i);
+    Integer getInitialPoolSize();
+    void setInitialPoolSize(Integer i);
 
     @Binding(detypedName = "max-pool-size")
-    int getMaxPoolSize();
-    void setMaxPoolSize(int i);
+    Integer getMaxPoolSize();
+    void setMaxPoolSize(Integer i);
 
     // --
 
@@ -108,16 +108,16 @@ public interface DataSource {
     void setCheckValidSql(String sql);
 
     @Binding(detypedName = "background-validation")
-    boolean isBackgroundValidation();
-    void setBackgroundValidation(boolean b);
+    Boolean isBackgroundValidation();
+    void setBackgroundValidation(Boolean b);
 
     @Binding(detypedName = "background-validation-millis")
     Long getBackgroundValidationMillis();
     void setBackgroundValidationMillis(Long millis);
 
     @Binding(detypedName = "validate-on-match")
-    boolean isValidateOnMatch();
-    void setValidateOnMatch(boolean b);
+    Boolean isValidateOnMatch();
+    void setValidateOnMatch(Boolean b);
 
     @Binding(detypedName = "stale-connection-checker-class-name")
     String getStaleConnectionChecker();
@@ -134,8 +134,8 @@ public interface DataSource {
     void setPrepareStatementCacheSize(Long size);
 
     @Binding(detypedName = "share-prepared-statements")
-    boolean isSharePreparedStatements();
-    void setSharePreparedStatements(boolean b);
+    Boolean isSharePreparedStatements();
+    void setSharePreparedStatements(Boolean b);
 
     // --
 
@@ -161,47 +161,47 @@ public interface DataSource {
     // --
 
     @Binding(detypedName = "use-try-lock")
-    long getUseTryLock();
-    void setUseTryLock(long l);
+    Long getUseTryLock();
+    void setUseTryLock(Long l);
 
     @Binding(detypedName = "blocking-timeout-wait-millis")
-    long getBlockingTimeoutWaitMillis();
-    void setBlockingTimeoutWaitMillis(long l);
+    Long getBlockingTimeoutWaitMillis();
+    void setBlockingTimeoutWaitMillis(Long l);
 
     @Binding(detypedName = "idle-timeout-minutes")
-    long getIdleTimeoutMinutes();
-    void setIdleTimeoutMinutes(long l);
+    Long getIdleTimeoutMinutes();
+    void setIdleTimeoutMinutes(Long l);
 
     @Binding(detypedName = "set-tx-query-timeout")
-    boolean isSetTxQueryTimeout();
-    void setSetTxQueryTimeout(boolean b);
+    Boolean isSetTxQueryTimeout();
+    void setSetTxQueryTimeout(Boolean b);
 
     @Binding(detypedName = "query-timeout")
-    long getQueryTimeout();
-    void setQueryTimeout(long l);
+    Long getQueryTimeout();
+    void setQueryTimeout(Long l);
 
     @Binding(detypedName = "allocation-retry")
-    int getAllocationRetry();
-    void setAllocationRetry(int i);
+    Integer getAllocationRetry();
+    void setAllocationRetry(Integer i);
 
     @Binding(detypedName = "allocation-retry-wait-millis")
-    long getAllocationRetryWaitMillis();
-    void setAllocationRetryWaitMillis(long l);
+    Long getAllocationRetryWaitMillis();
+    void setAllocationRetryWaitMillis(Long l);
 
     @Binding(detypedName = "statistics-enabled")
-    boolean isStatisticsEnabled();
-    void setStatisticsEnabled(boolean b);
+    Boolean isStatisticsEnabled();
+    void setStatisticsEnabled(Boolean b);
 
     @Binding(detypedName = "track-statements")
     String getTrackStatements();
     void setTrackStatements(String name);
 
     @Binding(detypedName = "use-fast-fail")
-    boolean isUseFastFail();
-    void setUseFastFail(boolean b);
+    Boolean isUseFastFail();
+    void setUseFastFail(Boolean b);
 
     @Binding(detypedName = "allow-multiple-users")
-    boolean isAllowMultipleUsers();
-    void setAllowMultipleUsers(boolean b);
+    Boolean isAllowMultipleUsers();
+    void setAllowMultipleUsers(Boolean b);
 
 }
