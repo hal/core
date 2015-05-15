@@ -22,6 +22,7 @@ package org.jboss.as.console.client.shared.subsys.jca.wizard;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
+import java.util.ArrayList;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
@@ -153,6 +154,9 @@ public class NewXADatasourceWizard {
     }
 
     public void onConfigureProperties(List<PropertyRecord> properties) {
+        if (xaDataSource.getProperties() == null) {
+            xaDataSource.setProperties(new ArrayList<PropertyRecord>());
+        }
         xaDataSource.getProperties().clear();
         xaDataSource.getProperties().addAll(properties);
         deck.showWidget(4);
