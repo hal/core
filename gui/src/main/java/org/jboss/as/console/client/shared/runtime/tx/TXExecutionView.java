@@ -38,7 +38,7 @@ public class TXExecutionView implements Sampler {
 
         Column[] cols = new Column[] {
                 total.setBaseline(true),
-                new NumberColumn("number-of-committed-transactions","Commited").setComparisonColumn(total),
+                new NumberColumn("number-of-committed-transactions","Committed").setComparisonColumn(total),
                 new NumberColumn("number-of-aborted-transactions","Aborted").setComparisonColumn(total),
                 new NumberColumn("number-of-timed-out-transactions", "Timed Out").setComparisonColumn(total)
         };
