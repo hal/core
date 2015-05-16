@@ -178,7 +178,7 @@ public class NewXADatasourceWizard {
     
     public void onConfigureProperties(List<PropertyRecord> properties) {
         if (xaDataSource.getProperties() == null) {
-            xaDataSource.setProperties(new ArrayList<>());
+            xaDataSource.setProperties(new ArrayList<PropertyRecord>());
         }
         xaDataSource.getProperties().clear();
         xaDataSource.getProperties().addAll(ensureUniqueProperty(properties));
