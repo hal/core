@@ -44,7 +44,6 @@ public class ChooseStep extends
         FlowPanel body = new FlowPanel();
 
         deployNew = new RadioButton("deployment_kind", "Upload and assign a new deployment");
-        deployNew.setValue(true);
         deployNew.addStyleName("radio-block");
         IdHelper.setId(deployNew, id(), "deployNew");
 
@@ -60,6 +59,13 @@ public class ChooseStep extends
         body.add(deployExisting);
         body.add(deployUnmanaged);
         return body;
+    }
+
+    @Override
+    public void reset() {
+        deployNew.setValue(true);
+        deployExisting.setValue(false);
+        deployUnmanaged.setValue(false);
     }
 
     @Override

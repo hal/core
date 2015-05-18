@@ -60,6 +60,11 @@ public class VerifyUploadStep extends
     }
 
     @Override
+    public void reset() {
+        form.clearValues();
+    }
+
+    @Override
     protected void onShow(final AddDeploymentWizard.Context context) {
         form.edit(context.upload);
     }

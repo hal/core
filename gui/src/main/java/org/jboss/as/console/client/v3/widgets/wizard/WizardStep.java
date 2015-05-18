@@ -22,7 +22,6 @@
 package org.jboss.as.console.client.v3.widgets.wizard;
 
 import com.google.common.base.CharMatcher;
-import com.google.common.base.Supplier;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -37,11 +36,19 @@ public abstract class WizardStep<C, S extends Enum<S>> implements IsWidget {
 
     protected final Wizard<C, S> wizard;
     private final String title;
-    private Supplier<Boolean> enableNext;
 
     protected WizardStep(final Wizard<C, S> wizard, final String title) {
         this.wizard = wizard;
         this.title = title;
+    }
+
+    /**
+     * Subclasses should reset their state using this method. This method is called just before the
+     * wizard is opened. Opposed to {@link #onShow(Object)} this method should be used to implement one-time
+     * initialization.
+     */
+    public void reset() {
+
     }
 
     /**

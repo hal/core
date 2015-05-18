@@ -50,7 +50,7 @@ import java.util.LinkedHashMap;
  * Concrete wizards must inherit from this class and
  * <ol>
  * <li>add steps in the constructor using {@link #addStep(Enum, WizardStep)}</li>
- * <li>provide the initial and last step(s) by overriding {@link #initialState()} and {@link #lastSteps()}</li>
+ * <li>provide the initial and last step(s) by overriding {@link #initialState()} and {@link #lastStates()}</li>
  * <li>decide how to move back and forth when {@link #back(Enum)} and {@link #next(Enum)} are called</li>
  * </ol>
  *
@@ -181,6 +181,9 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
             window.setGlassEnabled(true);
         }
         resetContext();
+        for (WizardStep<C, S> step : steps.values()) {
+            step.reset();
+        }
         state = initialState();
         pushState(state);
         window.center();
@@ -244,7 +247,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
         body.showWidget(state.ordinal()); // will call onShow(C) for the current step
         footer.back.setEnabled(state != initialState());
         footer.next
-                .setHTML(lastSteps().contains(state) ? CONSTANTS.common_label_finish() : CONSTANTS.common_label_next());
+                .setHTML(lastStates().contains(state) ? CONSTANTS.common_label_finish() : CONSTANTS.common_label_next());
     }
 
     /**
@@ -258,10 +261,9 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
     /**
      * @return the last state(s) which is the state of the last added step by default.
      */
-    protected EnumSet<S> lastSteps() {
+    protected EnumSet<S> lastStates() {
         assertSteps();
-        final S last = Iterables.getLast(steps.keySet());
-        return EnumSet.of(last);
+        return EnumSet.of(Iterables.getLast(steps.keySet()));
     }
 
     /**

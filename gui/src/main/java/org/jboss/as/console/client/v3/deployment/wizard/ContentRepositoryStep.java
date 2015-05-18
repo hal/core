@@ -105,6 +105,11 @@ public class ContentRepositoryStep extends
     }
 
     @Override
+    public void reset() {
+        selection.clear();
+    }
+
+    @Override
     protected void onShow(final AddDeploymentWizard.Context context) {
         List<SelectableContent> data = new ArrayList<>();
         for (Content content : context.contentRepository) {

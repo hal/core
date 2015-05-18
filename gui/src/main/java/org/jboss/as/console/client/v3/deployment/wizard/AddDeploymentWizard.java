@@ -120,7 +120,7 @@ public class AddDeploymentWizard extends Wizard<AddDeploymentWizard.Context, Add
     }
 
     @Override
-    protected EnumSet<State> lastSteps() {
+    protected EnumSet<State> lastStates() {
         //noinspection NonJREEmulationClassesInClientCode
         return EnumSet.of(VERIFY_UPLOAD, CONTENT_REPOSITORY, UNMANAGED);
     }

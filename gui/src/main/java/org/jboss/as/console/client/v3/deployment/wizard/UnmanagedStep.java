@@ -67,6 +67,11 @@ public class UnmanagedStep extends
     }
 
     @Override
+    public void reset() {
+        form.clearValues();
+    }
+
+    @Override
     protected boolean onNext(final AddDeploymentWizard.Context context) {
         FormValidation validation = form.validate();
         if (validation.hasErrors()) {
