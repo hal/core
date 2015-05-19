@@ -36,11 +36,11 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
  * @author Harald Pehl
  */
 public class UnmanagedStep extends
-        WizardStep<AddDeploymentWizard.Context, AddDeploymentWizard.State> {
+        WizardStep<Context, State> {
 
     private Form<DeploymentRecord> form;
 
-    public UnmanagedStep(final AddDeploymentWizard wizard) {super(wizard, "Unmanaged");}
+    public UnmanagedStep(final DeploymentWizard wizard) {super(wizard, "Unmanaged");}
 
     @Override
     public Widget asWidget() {
@@ -72,12 +72,12 @@ public class UnmanagedStep extends
     }
 
     @Override
-    protected boolean onNext(final AddDeploymentWizard.Context context) {
+    protected boolean onNext(final Context context) {
         FormValidation validation = form.validate();
         if (validation.hasErrors()) {
             return false;
         }
         context.unmanagedDeployment = form.getUpdatedEntity();
-        return true; // actual upload is done in AddDeploymentWizard.finish()
+        return true; // actual upload is done in AddDomainDeploymentWizard.finish()
     }
 }

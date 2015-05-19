@@ -31,13 +31,13 @@ import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
  * @author Harald Pehl
  */
 public class ChooseStep extends
-        WizardStep<AddDeploymentWizard.Context, AddDeploymentWizard.State> {
+        WizardStep<Context, State> {
 
     private RadioButton deployNew;
     private RadioButton deployExisting;
     private RadioButton deployUnmanaged;
 
-    public ChooseStep(final AddDeploymentWizard wizard) {super(wizard, "Please Choose");}
+    public ChooseStep(final DeploymentWizard wizard) {super(wizard, "Please Choose");}
 
     @Override
     public Widget asWidget() {
@@ -69,7 +69,7 @@ public class ChooseStep extends
     }
 
     @Override
-    protected boolean onNext(final AddDeploymentWizard.Context context) {
+    protected boolean onNext(final Context context) {
         context.deployNew = deployNew.getValue();
         context.deployExisting = deployExisting.getValue();
         context.deployUnmanaged = deployUnmanaged.getValue();

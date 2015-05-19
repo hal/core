@@ -44,10 +44,10 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 /**
  * @author Harald Pehl
  */
-public class DeploymentFinderView extends SuspendableViewImpl
-        implements DeploymentFinder.MyView {
+public class DomainDeploymentFinderView extends SuspendableViewImpl
+        implements DomainDeploymentFinder.MyView {
 
-    private DeploymentFinder presenter;
+    private DomainDeploymentFinder presenter;
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
     private ColumnManager columnManager;
@@ -63,7 +63,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     @Inject
     @SuppressWarnings("unchecked")
-    public DeploymentFinderView(PreviewContentFactory contentFactory) {
+    public DomainDeploymentFinderView(PreviewContentFactory contentFactory) {
 
         // ------------------------------------------------------ server group
 
@@ -157,6 +157,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
         assignmentColumn.setTopMenuItems(
                 new MenuDelegate<>("Add",
                         item -> presenter.launchAddAssignmentWizard(serverGroupColumn.getSelectedItem().getName())),
+                new MenuDelegate<>("Unassigned", item -> presenter.launchUnassignedDialog()),
                 new MenuDelegate<>("Refresh",
                         item -> presenter.loadAssignments(serverGroupColumn.getSelectedItem().getName(), true))
         );
@@ -164,7 +165,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
         //noinspection Convert2MethodRef
         assignmentColumn.setMenuItems(
                 new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableAssignment(item)),
-                new MenuDelegate<>("Update", item -> presenter.launchUpdateAssignmentWizard()),
+                new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item)),
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item))
         );
 
@@ -297,7 +298,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
     }
 
     @Override
-    public void setPresenter(final DeploymentFinder presenter) {
+    public void setPresenter(final DomainDeploymentFinder presenter) {
         this.presenter = presenter;
     }
 
@@ -329,7 +330,7 @@ public class DeploymentFinderView extends SuspendableViewImpl
 
     @Override
     public void setInSlot(final Object slot, final IsWidget content) {
-        if (slot == DeploymentFinder.TYPE_MainContent) {
+        if (slot == DomainDeploymentFinder.TYPE_MainContent) {
             if (content != null) { setContent(content); } else { contentCanvas.clear(); }
         }
     }

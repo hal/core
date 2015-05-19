@@ -32,6 +32,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.deployment.DeploymentReference;
+import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -42,6 +43,9 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
 import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
@@ -56,22 +60,21 @@ public final class DeploymentFunctions {
     private DeploymentFunctions() {
     }
 
-    /**
-     * Expects a {@link DeploymentReference} instance in the context.
-     */
     public static class Upload implements Function<FunctionContext> {
 
         private final UploadForm uploadForm;
         private final FileUpload fileUpload;
+        private final DeploymentReference upload;
 
-        public Upload(final UploadForm uploadForm, final FileUpload fileUpload) {
+        public Upload(final UploadForm uploadForm, final FileUpload fileUpload,
+                final DeploymentReference upload) {
             this.uploadForm = uploadForm;
             this.fileUpload = fileUpload;
+            this.upload = upload;
         }
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-            DeploymentReference upload = control.getContext().pop();
             uploadForm.addUploadCompleteHandler(event -> {
                 String json = event.getPayload();
                 try {
@@ -205,7 +208,7 @@ public final class DeploymentFunctions {
             ResourceAddress address = new ResourceAddress()
                     .add("server-group", serverGroup)
                     .add("deployment", content.getName());
-            final Operation op = new Operation.Builder(ADD, address)
+            Operation op = new Operation.Builder(ADD, address)
                     .param("runtime-name", content.getRuntimeName())
                     .param("enabled", enable)
                     .build();
@@ -219,6 +222,57 @@ public final class DeploymentFunctions {
 
                 @Override
                 public void onSuccess(final DMRResponse result) {
+                    control.proceed();
+                }
+            });
+        }
+    }
+
+
+    public static class AddUnmanaged implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+        private final DeploymentRecord unmanaged;
+
+        public AddUnmanaged(final DispatchAsync dispatcher, final DeploymentRecord unmanaged) {
+            this.dispatcher = dispatcher;
+            this.unmanaged = unmanaged;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+
+            ResourceAddress address = new ResourceAddress().add("deployment", unmanaged.getName());
+
+            List<ModelNode> content = new ArrayList<>(1);
+            ModelNode path = new ModelNode();
+            path.get("path").set(unmanaged.getPath());
+            path.get("archive").set(unmanaged.isArchive());
+            if (unmanaged.getRelativeTo() != null && !unmanaged.getRelativeTo().equals("")) {
+                path.get("relative-to").set(unmanaged.getRelativeTo());
+            }
+            content.add(path);
+
+            Operation op = new Operation.Builder(ADD, address)
+                    .param("name", unmanaged.getName())
+                    .param("runtime-name", unmanaged.getRuntimeName())
+                    .param("enabled", unmanaged.isEnabled())
+                    .param("content", content)
+                    .build();
+
+            dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+                @Override
+                public void onFailure(final Throwable caught) {
+                    control.getContext().setError(new RuntimeException("Unable to add unmanaged deployment"));
+                    control.abort();
+                }
+
+                @Override
+                public void onSuccess(final DMRResponse result) {
+                    ModelNode node = new ModelNode();
+                    node.get(NAME).set(unmanaged.getName());
+                    node.get("runtime-name").set(unmanaged.getRuntimeName());
+                    control.getContext().push(new Content(node));
                     control.proceed();
                 }
             });

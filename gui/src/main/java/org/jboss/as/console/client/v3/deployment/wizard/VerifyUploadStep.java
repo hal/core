@@ -36,24 +36,28 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
  * @author Harald Pehl
  */
 public class VerifyUploadStep extends
-        WizardStep<AddDeploymentWizard.Context, AddDeploymentWizard.State> {
+        WizardStep<Context, State> {
 
     private Form<DeploymentReference> form;
 
-    public VerifyUploadStep(final AddDeploymentWizard wizard) {
+    public VerifyUploadStep(final DeploymentWizard wizard) {
         super(wizard, "Verify Upload");
     }
 
     @Override
     public Widget asWidget() {
         FlowPanel panel = new FlowPanel();
-        panel.add(new StaticHelpPanel(StaticHelp.deployment()).asWidget());
+        panel.add(new StaticHelpPanel(StaticHelp.replace()).asWidget());
 
         form = new Form<>(DeploymentReference.class);
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
         CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
-        form.setFields(nameField, runtimeNameField, enable);
+        if (wizard instanceof AddDomainDeploymentWizard) {
+            form.setFields(nameField, runtimeNameField, enable);
+        } else if (wizard instanceof ReplaceDomainDeploymentWizard) {
+            form.setFields(nameField, runtimeNameField);
+        }
         panel.add(form.asWidget());
 
         return panel;
@@ -65,12 +69,12 @@ public class VerifyUploadStep extends
     }
 
     @Override
-    protected void onShow(final AddDeploymentWizard.Context context) {
+    protected void onShow(final Context context) {
         form.edit(context.upload);
     }
 
     @Override
-    protected boolean onNext(final AddDeploymentWizard.Context context) {
+    protected boolean onNext(final Context context) {
         FormValidation validation = form.validate();
         if (validation.hasErrors()) {
             return false;

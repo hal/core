@@ -32,6 +32,16 @@ final class StaticHelp {
 
     private StaticHelp() {}
 
+    static SafeHtml replace() {
+        // TODO I18n or take from DMR
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendHtmlConstant("<table class='help-attribute-descriptions'>");
+        addHelpTextRow(builder, "Name:", "Unique identifier of the deployment. Must be unique across all deployments.");
+        addHelpTextRow(builder, "Runtime Name:",
+                "Name by which the deployment should be known within a server's runtime. This would be equivalent to the file name of a deployment file, and would form the basis for such things as default Java Enterprise Edition application and module names. This would typically be the same as 'name', but in some cases users may wish to have two deployments with the same 'runtime-name' (e.g. two versions of \\\"foo.war\\\") both available in the deployment content repository, in which case the deployments would need to have distinct 'name' values but would have the same 'runtime-name'.");
+        return builder.toSafeHtml();
+    }
+
     static SafeHtml deployment() {
         // TODO I18n or take from DMR
         SafeHtmlBuilder builder = new SafeHtmlBuilder();

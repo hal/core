@@ -40,7 +40,7 @@ import java.util.List;
  * @author Harald Pehl
  */
 public class ContentRepositoryStep extends
-        WizardStep<AddDeploymentWizard.Context, AddDeploymentWizard.State> {
+        WizardStep<Context, State> {
 
     static class SelectableContent implements CheckboxColumn.Selectable {
 
@@ -72,7 +72,7 @@ public class ContentRepositoryStep extends
     private ListDataProvider<SelectableContent> contentProvider;
     private SingleSelectionModel<SelectableContent> selection;
 
-    public ContentRepositoryStep(final AddDeploymentWizard wizard) {super(wizard, "Uploaded Content");}
+    public ContentRepositoryStep(final DeploymentWizard wizard) {super(wizard, "Uploaded Content");}
 
     @Override
     @SuppressWarnings("unchecked")
@@ -110,7 +110,7 @@ public class ContentRepositoryStep extends
     }
 
     @Override
-    protected void onShow(final AddDeploymentWizard.Context context) {
+    protected void onShow(final Context context) {
         List<SelectableContent> data = new ArrayList<>();
         for (Content content : context.contentRepository) {
             data.add(new SelectableContent(content));
@@ -126,7 +126,7 @@ public class ContentRepositoryStep extends
     }
 
     @Override
-    protected boolean onNext(final AddDeploymentWizard.Context context) {
+    protected boolean onNext(final Context context) {
         if (selection.getSelectedObject() == null) {
             wizard.showError("Please choose an entry!");
             return false;
@@ -134,6 +134,6 @@ public class ContentRepositoryStep extends
         wizard.clearError();
         context.existingContent = selection.getSelectedObject().getContent();
         context.enableExistingContent = selection.getSelectedObject().isSelected();
-        return true; // actual upload is done in AddDeploymentWizard.finish()
+        return true; // actual upload is done in AddDomainDeploymentWizard.finish()
     }
 }

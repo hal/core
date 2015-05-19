@@ -38,13 +38,13 @@ import org.jboss.as.console.client.widgets.forms.UploadForm;
  * @author Harald Pehl
  */
 public class UploadStep extends
-        WizardStep<AddDeploymentWizard.Context, AddDeploymentWizard.State> {
+        WizardStep<Context, State> {
 
     private final BootstrapContext bootstrapContext;
     private UploadForm form;
     private FileUpload fileUpload;
 
-    public UploadStep(final AddDeploymentWizard wizard, final BootstrapContext bootstrapContext) {
+    public UploadStep(final DeploymentWizard wizard, final BootstrapContext bootstrapContext) {
         super(wizard, "Upload");
         this.bootstrapContext = bootstrapContext;
     }
@@ -77,14 +77,14 @@ public class UploadStep extends
     }
 
     @Override
-    protected void onShow(final AddDeploymentWizard.Context context) {
+    protected void onShow(final Context context) {
         form.reset();
         context.uploadForm = form;
         context.fileUpload = fileUpload;
     }
 
     @Override
-    protected boolean onNext(final AddDeploymentWizard.Context context) {
+    protected boolean onNext(final Context context) {
         String filename = fileUpload.getFilename();
         if (Strings.isNullOrEmpty(filename)) {
             wizard.showError("Please choose a file!");

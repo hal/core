@@ -40,8 +40,9 @@ import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * General purpose wizard relying on a context for the common data and an enum representing the states of the different
@@ -65,6 +66,18 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
         @Template("<h3>{0}</h3>")
         SafeHtml header(String text);
+    }
+
+
+    private class StateDeckPanel extends DeckPanel {
+        public void showWidget(final S state) {
+            WizardStep<C, S> step = steps.get(state);
+            Integer index = stateIndex.get(state);
+            if (step != null && index != null && index >= 0 && index < getWidgetCount()) {
+                step.onShow(context);
+                showWidget(stateIndex.get(state));
+            }
+        }
     }
 
 
@@ -109,21 +122,21 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
     private final String id;
     protected final C context;
-    private final String title;
     private final LinkedHashMap<S, WizardStep<C, S>> steps;
+    private final Map<S, Integer> stateIndex;
     private S state;
 
     private DefaultWindow window;
     private HTML header;
     private HTML errorMessages;
-    private DeckPanel body;
+    private StateDeckPanel body;
     private Footer footer;
 
-    protected Wizard(final String id, final C context, final String title) {
+    protected Wizard(final String id, final C context) {
         this.id = id;
-        this.title = title;
         this.context = context;
         this.steps = new LinkedHashMap<>();
+        this.stateIndex = new HashMap<>();
     }
 
     @Override
@@ -138,23 +151,15 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
         errorMessages = new HTML();
         errorMessages.setVisible(false);
         errorMessages.setStyleName("error-panel");
-        body = new DeckPanel() {
-            @Override
-            public void showWidget(final int index) {
-                S state = lookupState(index);
-                if (state != null) {
-                    WizardStep<C, S> step = steps.get(state);
-                    if (step != null) {
-                        step.onShow(context);
-                    }
-                }
-                super.showWidget(index);
-            }
-        };
-        for (WizardStep<C, S> step : steps.values()) {
-            body.add(step);
-        }
+        body = new StateDeckPanel();
         footer = new Footer();
+
+        int index = 0;
+        for (Map.Entry<S, WizardStep<C, S>> entry : steps.entrySet()) {
+            stateIndex.put(entry.getKey(), index);
+            body.add(entry.getValue());
+            index++;
+        }
 
         root.add(header);
         root.add(errorMessages);
@@ -171,7 +176,11 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
     // ------------------------------------------------------ public API
 
-    public void open() {
+    /**
+     * Opens the wizard and reset the state, context and UI. If you override this method please make sure to call
+     * {@code super.open()} <em>before</em> you access or modify the context.
+     */
+    public void open(String title) {
         assertSteps();
         if (window == null) {
             window = new DefaultWindow(title);
@@ -244,10 +253,11 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
         header.setHTML(TEMPLATE.header(currentStep().getTitle()));
         clearError();
-        body.showWidget(state.ordinal()); // will call onShow(C) for the current step
+        body.showWidget(state); // will call onShow(C) for the current step
         footer.back.setEnabled(state != initialState());
         footer.next
-                .setHTML(lastStates().contains(state) ? CONSTANTS.common_label_finish() : CONSTANTS.common_label_next());
+                .setHTML(
+                        lastStates().contains(state) ? CONSTANTS.common_label_finish() : CONSTANTS.common_label_next());
     }
 
     /**
@@ -278,7 +288,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
     /**
      * Subclasses can override this method to reset the context. This method is called just before the
-     * wizard is opened. You don't need to reset the state or the UI though, the {@link #open()} method will take
+     * wizard is opened. You don't need to reset the state or the UI though, the {@link #open(String)} method will take
      * care of this.
      */
     protected void resetContext() {
@@ -289,7 +299,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
      * Closes the wizard.
      */
     protected void finish() {
-            close();
+        close();
     }
 
     /**
@@ -301,17 +311,6 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
 
     // ------------------------------------------------------ helper methods
-
-    private S lookupState(final int index) {
-        int counter = 0;
-        for (Iterator<S> iterator = steps.keySet().iterator(); iterator.hasNext(); counter++) {
-            S s = iterator.next();
-            if (counter == index) {
-                return s;
-            }
-        }
-        return null;
-    }
 
     private WizardStep<C, S> currentStep() {
         assertSteps();

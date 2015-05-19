@@ -51,7 +51,9 @@ import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
-import org.jboss.as.console.client.v3.deployment.wizard.AddDeploymentWizard;
+import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizard;
+import org.jboss.as.console.client.v3.deployment.wizard.ReplaceDomainDeploymentWizard;
+import org.jboss.as.console.client.v3.deployment.wizard.UnassignedContentDialog;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -88,8 +90,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Harald Pehl
  */
-public class DeploymentFinder
-        extends PerspectivePresenter<DeploymentFinder.MyView, DeploymentFinder.MyProxy>
+public class DomainDeploymentFinder
+        extends PerspectivePresenter<DomainDeploymentFinder.MyView, DomainDeploymentFinder.MyProxy>
         implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
 
 
@@ -104,10 +106,10 @@ public class DeploymentFinder
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
             "/server-group={selected.group}/deployment=*"
     }, recursive = false)
-    public interface MyProxy extends ProxyPlace<DeploymentFinder> {
+    public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {
     }
 
-    public interface MyView extends View, HasPresenter<DeploymentFinder> {
+    public interface MyView extends View, HasPresenter<DomainDeploymentFinder> {
         void updateServerGroups(Iterable<ServerGroupRecord> serverGroups);
         void updateAssignments(Iterable<Assignment> assignments);
         void updateDeployments(Iterable<Deployment> deployments);
@@ -128,13 +130,15 @@ public class DeploymentFinder
     private final Dispatcher circuit;
     private final ServerGroupStore serverGroupStore;
     private final Map<String, ReferenceServer> referenceServers;
-    private final AddDeploymentWizard wizard;
+    private final AddDomainDeploymentWizard addWizard;
+    private final ReplaceDomainDeploymentWizard replaceWizard;
+    private final UnassignedContentDialog unassignedDialog;
 
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
-    public DeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
+    public DomainDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
             final BeanFactory beanFactory, final DispatchAsync dispatcher, final Dispatcher circuit,
             final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext, final Header header) {
@@ -145,7 +149,12 @@ public class DeploymentFinder
         this.circuit = circuit;
         this.serverGroupStore = serverGroupStore;
         this.referenceServers = new HashMap<>();
-        this.wizard = new AddDeploymentWizard(bootstrapContext, beanFactory, dispatcher, this);
+
+        this.addWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
+                context -> loadAssignments(context.serverGroup, false));
+        this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
+                context -> loadAssignments(context.serverGroup, false));
+        this.unassignedDialog = new UnassignedContentDialog(this);
     }
 
     @Override
@@ -179,6 +188,48 @@ public class DeploymentFinder
 
     // ------------------------------------------------------ deployment methods
 
+    public void launchUnassignedDialog() {
+        loadUnassignedContent("*", new AsyncCallback<List<Content>>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                // TODO Error handling
+            }
+
+            @Override
+            public void onSuccess(final List<Content> result) {
+                if (result.isEmpty()) {
+                    Console.info("No unassigned content found.");
+                } else {
+                    unassignedDialog.open(result);
+                }
+            }
+        });
+    }
+
+    public void removeContent(final Set<Content> content) {
+        List<Operation> ops = new ArrayList<>(content.size());
+        for (Content c : content) {
+            ops.add(new Operation.Builder(REMOVE, new ResourceAddress().add("deployment", c.getName())).build());
+        }
+
+        dispatcher.execute(new DMRAction(new Composite(ops)), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to remove content", caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error("Unable to remove content", result.getFailureDescription());
+                } else {
+                    Console.info("Successfully removed " + content.size() + " artifacts.");
+                }
+            }
+        });
+    }
+
     public void launchAddAssignmentWizard(final String serverGroup) {
         loadUnassignedContent(serverGroup, new AsyncCallback<List<Content>>() {
             @Override
@@ -188,7 +239,7 @@ public class DeploymentFinder
 
             @Override
             public void onSuccess(final List<Content> result) {
-                wizard.open(result, serverGroup);
+                addWizard.open(result, serverGroup);
             }
         });
     }
@@ -197,10 +248,10 @@ public class DeploymentFinder
         Operation content = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, ResourceAddress.ROOT)
                 .param(CHILD_TYPE, "deployment")
                 .build();
-        ResourceAddress address = new ResourceAddress().add("server-group", serverGroup);
-        Operation assignments = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
-                .param(CHILD_TYPE, "deployment")
-                .build();
+        ResourceAddress address = new ResourceAddress()
+                .add("server-group", serverGroup)
+                .add("deployment", "*");
+        Operation assignments = new Operation.Builder(READ_RESOURCE_OPERATION, address).build();
 
         dispatcher.execute(new DMRAction(new Composite(content, assignments)), new AsyncCallback<DMRResponse>() {
             @Override
@@ -215,13 +266,14 @@ public class DeploymentFinder
                     callback.onFailure(new RuntimeException(result.getFailureDescription()));
                 } else {
                     Set<String> assignemnts = new HashSet<>();
-                    List<Property> properties = result.get(RESULT).get("step-2").get(RESULT).asPropertyList();
-                    for (Property property : properties) {
-                        assignemnts.add(property.getName());
+                    List<ModelNode> assignmentNodes = result.get(RESULT).get("step-2").get(RESULT).asList();
+                    for (ModelNode assignmentNode : assignmentNodes) {
+                        ModelNode node = assignmentNode.get(RESULT);
+                        assignemnts.add(node.get(NAME).asString());
                     }
 
                     List<Content> contentRepository = new ArrayList<>();
-                    properties = result.get(RESULT).get("step-1").get(RESULT).asPropertyList();
+                    List<Property> properties = result.get(RESULT).get("step-1").get(RESULT).asPropertyList();
                     for (Property property : properties) {
                         if (assignemnts.contains(property.getName())) {
                             continue; // skip already assigned content
@@ -234,8 +286,8 @@ public class DeploymentFinder
         });
     }
 
-    public void launchUpdateAssignmentWizard() {
-        Console.warning("Update assignment not yet implemented");
+    public void launchReplaceAssignmentWizard(final Assignment assignment) {
+        replaceWizard.open(assignment);
     }
 
     public void verifyEnableDisableAssignment(final Assignment assignment) {
