@@ -21,7 +21,6 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -366,8 +365,7 @@ public class DomainDeploymentFinder
                         assignments.add(new Assignment(serverGroup, property.getValue()));
                     }
                     if (lookupReferenceServer) {
-                        findReferenceServer(serverGroup,
-                                () -> getView().updateAssignments(assignments));
+                        findReferenceServer(serverGroup, assignments);
                     } else {
                         getView().updateAssignments(assignments);
                     }
@@ -376,7 +374,7 @@ public class DomainDeploymentFinder
         });
     }
 
-    private void findReferenceServer(final String serverGroup, final ScheduledCommand andThen) {
+    private void findReferenceServer(final String serverGroup, final List<Assignment> assignments) {
         Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
             public void onFailure(final FunctionContext context) {
@@ -402,7 +400,7 @@ public class DomainDeploymentFinder
                 if (referenceServer != null) {
                     referenceServers.put(serverGroup, referenceServer);
                 }
-                andThen.execute();
+                getView().updateAssignments(assignments);
             }
         };
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
