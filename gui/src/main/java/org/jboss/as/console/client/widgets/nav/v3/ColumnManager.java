@@ -63,7 +63,7 @@ public class ColumnManager {
             public void onAttachOrDetach(AttachEvent event) {
                 if(!event.isAttached())
                 {
-                    System.out.println("Detach finder");
+                    //System.out.println("Detach finder");
                     totalColumnsVisible -= visibleColumns.size();
 
                     assertVisibleColumns();
@@ -75,7 +75,7 @@ public class ColumnManager {
 
                     if(initialized) {
 
-                        System.out.println("Attach finder");
+                       // System.out.println("Attach finder");
 
                         if (visibleColumns.size() > 0) {
                             totalColumnsVisible += visibleColumns.size();
@@ -93,7 +93,7 @@ public class ColumnManager {
     }
 
     private static void assertVisibleColumns() {
-        System.out.println("Num Visible: "+ totalColumnsVisible);
+        //System.out.println("Num Visible: "+ totalColumnsVisible);
 
         if(totalColumnsVisible<0)
             new RuntimeException("Assertion error").printStackTrace();
@@ -146,8 +146,8 @@ public class ColumnManager {
         if(requiredWidth>widthConstraint)
         {
             FinderScrollEvent.fire(Console.getPlaceManager(), true, requiredWidth);
-            System.out.println("Scrolling necessary!");
-            System.out.println(widthConstraint+"/"+requiredWidth);
+            //System.out.println("Scrolling necessary!");
+            //System.out.println(widthConstraint+"/"+requiredWidth);
 
         }
         else

@@ -153,7 +153,7 @@ public class HornetqFinder extends Presenter<HornetqFinder.MyView, HornetqFinder
                         if(providerDialog!=null && providerDialog.isVisible())
                         {
                             for (Property item: result) {
-                                if(name.equals(item.getName()))
+                                if(item.getName().equals(name))
                                 {
                                     providerView.updateFrom(item);
                                     break;

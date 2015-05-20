@@ -101,7 +101,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
 
         cacheContainer.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add", new ContextualCommand<Property>() {
+                        "Add", new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property container) {
                         presenter.onLauchAddContainer();

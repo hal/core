@@ -19,6 +19,7 @@ import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
@@ -52,7 +53,7 @@ public class FinderColumn<T> {
     private final String title;
     private final Display display;
     private final ProvidesKey keyProvider;
-    private HorizontalPanel header;
+    private LayoutPanel header;
     private boolean plain = false;
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
@@ -276,6 +277,52 @@ public class FinderColumn<T> {
 
     }
 
+    private void openTopContextMenu(Element anchor, final NativeEvent event) {
+
+           Element el = Element.as(event.getEventTarget());
+           //Element anchor = el.getParentElement().getParentElement();
+
+           final PopupPanel popupPanel = new PopupPanel(true);
+           final MenuBar popupMenuBar = new MenuBar(true);
+           popupMenuBar.setStyleName("dropdown-menu");
+
+           int i=0;
+           for (final MenuDelegate menuitem : topMenuItems) {
+
+               if(i>0) {     // skip the "default" action
+                   MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
+
+                       @Override
+                       public void execute() {
+                           Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                               @Override
+                               public void execute() {
+                                   menuitem.getCommand().executeOn(null);
+                               }
+                           });
+
+                           popupPanel.hide();
+                       }
+
+                   });
+
+                   popupMenuBar.addItem(cmd);
+               }
+               i++;
+           }
+
+           popupMenuBar.setVisible(true);
+
+
+           popupPanel.setWidget(popupMenuBar);
+           int left = anchor.getAbsoluteLeft();
+           int top = anchor.getAbsoluteTop() + 30;
+
+           popupPanel.setPopupPosition(left, top);
+           popupPanel.setAutoHideEnabled(true);
+           popupPanel.show();
+       }
+
     private void openContextMenu(final NativeEvent event, final T object) {
 
         Element el = Element.as(event.getEventTarget());
@@ -404,9 +451,9 @@ public class FinderColumn<T> {
 
         if(!plain) {     // including the header
 
-            header = new HorizontalPanel();
-            header.addStyleName("fill-layout-width");
-            header.addStyleName("server-picker-section-header");
+            header = new LayoutPanel();
+            header.addStyleName("fill-layout");
+            header.addStyleName("finder-col-header");
 
             headerTitle = new HTML(title);
             headerTitle.addStyleName("finder-col-title");
@@ -414,26 +461,61 @@ public class FinderColumn<T> {
             ScrollPanel nav = new ScrollPanel(cellTable);
             nav.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
 
+            String groupId = HTMLPanel.createUniqueId();
 
-            for (final MenuDelegate menuItem : topMenuItems) {
-                HTML item = new HTML(menuItem.getTitle());
-                item.getElement().setAttribute("style", "color:#0099D3; cursor:pointer;padding-right:5px");
+            SafeHtmlBuilder sb = new SafeHtmlBuilder();
+            sb.appendHtmlConstant("<div class='nav-headerMenu'>");
+            sb.appendHtmlConstant("<div id="+groupId+" class='btn-group' style='float:right;padding-right:10px;padding-top:8px'>");
+            sb.appendHtmlConstant("</div>");
+            sb.appendHtmlConstant("</div>");
+
+            final HTMLPanel headerMenu = new HTMLPanel(sb.toSafeHtml());
+            headerMenu.setStyleName("fill-layout");
+
+            if(topMenuItems.length>0) {
+
+                HTML item = new HTML(topMenuItems[0].getTitle());
+                item.setStyleName("btn");
                 item.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        menuItem.getCommand().executeOn(null);
+                        topMenuItems[0].getCommand().executeOn(null);
                     }
                 });
-                header.add(item);
-                item.getElement().getParentElement().setAttribute("align", "right");
+                headerMenu.add(item, groupId);
+
+                 // remaining menu items move into dropdown
+                if(topMenuItems.length>1)
+                {
+
+                    HTML dropDown = new HTML("<span><i class='icon-caret-down'></i></span>");
+                    dropDown.setStyleName("btn dropdown-toggle");
+                    dropDown.addClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+
+                            openTopContextMenu(headerMenu.getElementById(groupId), event.getNativeEvent());
+                        }
+                    });
+                    headerMenu.add(dropDown, groupId);
+
+                }
+
             }
 
+            header.add(headerMenu);
+
+            header.setWidgetLeftWidth(headerTitle, 0, Style.Unit.PX, 60, Style.Unit.PCT);
+            header.setWidgetRightWidth(headerMenu, 0, Style.Unit.PX, 40, Style.Unit.PCT);
+
+            header.setWidgetTopHeight(headerTitle, 1, Style.Unit.PX, 38, Style.Unit.PX);
+            header.setWidgetTopHeight(headerMenu, 1, Style.Unit.PX, 38, Style.Unit.PX);
 
             layout.add(header);
             layout.add(nav);
 
             layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(nav, 40, Style.Unit.PX, 95, Style.Unit.PCT);
+            layout.setWidgetTopHeight(nav, 41, Style.Unit.PX, 95, Style.Unit.PCT);
 
         }
         else            // embedded mode, w/o header

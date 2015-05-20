@@ -101,7 +101,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
 
         mailSessions.setTopMenuItems(
                 new MenuDelegate<Property>(
-                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<Property>() {
+                        "Add", new ContextualCommand<Property>() {
                     @Override
                     public void executeOn(Property mailSession) {
                         presenter.launchNewProviderWizard();

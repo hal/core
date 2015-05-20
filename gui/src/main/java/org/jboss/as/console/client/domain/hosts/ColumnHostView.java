@@ -153,7 +153,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         groups.setComparisonType("filter");
 
-        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add",
+        groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
                         new ContextualCommand<ServerGroupRecord>() {
                             @Override
                             public void executeOn(ServerGroupRecord group) {

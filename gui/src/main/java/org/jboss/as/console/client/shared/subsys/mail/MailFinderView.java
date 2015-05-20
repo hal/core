@@ -98,7 +98,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
         mailSessions.setTopMenuItems(
                 new MenuDelegate<MailSession>(
-                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;New", new ContextualCommand<MailSession>() {
+                        "Add", new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         presenter.launchNewSessionWizard();

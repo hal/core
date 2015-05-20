@@ -240,7 +240,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         serverColumn.setTopMenuItems(
                 new MenuDelegate<Server>(
-                        "<i class=\"icon-plus\" style='color:black'></i>&nbsp;Add", new ContextualCommand<Server>() {
+                        "Add", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.launchNewConfigDialoge();
