@@ -51,6 +51,16 @@ import java.util.Map;
 public class ColumnProfileView extends SuspendableViewImpl
         implements ProfileMgmtPresenter.MyView {
 
+    /**
+     * These items will reveal a nested finder contribution
+     */
+    private final static String[] subsystemFolders = new String[] {
+            NameTokens.MailFinder,
+            NameTokens.CacheFinderPresenter,
+            NameTokens.HornetqFinder,
+            NameTokens.SecDomains
+    };
+
     private static final String PROFILES = "Profiles";
     private static final String INTERFACES = "Interfaces";
     private static final String SOCKET_BINDING = "Socket Binding";
@@ -536,13 +546,6 @@ public class ColumnProfileView extends SuspendableViewImpl
             return isFolder;
         }
     }
-
-
-    private final static String[] subsystemFolders = new String[] {
-            NameTokens.MailFinder,
-            NameTokens.CacheFinderPresenter,
-            NameTokens.HornetqFinder
-    };
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
     {

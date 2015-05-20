@@ -104,8 +104,7 @@ public class SubsystemMetaData {
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("IIOP", NameTokens.IiopOpenJdk));
         groups.get(CONTAINER).getItems().add(new SubsystemGroupItem("Batch", "batch", NameTokens.Batch));
 
-        groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Subsystem", "security", NameTokens.SecuritySubsystemPresenter));
-        groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security Domains", "security", NameTokens.SecurityDomainsPresenter));
+        groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security", "security", NameTokens.SecDomains));
 
         groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));
         groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging", "messaging", NameTokens.HornetqFinder));

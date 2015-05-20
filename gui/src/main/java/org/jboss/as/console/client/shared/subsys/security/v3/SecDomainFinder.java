@@ -1,4 +1,4 @@
-package org.jboss.as.console.client.shared.subsys.infinispan.v3;
+package org.jboss.as.console.client.shared.subsys.security.v3;
 
 /*
  * JBoss, Home of Professional Open Source
@@ -37,6 +37,7 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -45,7 +46,7 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -68,45 +69,46 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  *
  * @author Heiko Braun
  */
-public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView, CacheFinderPresenter.MyProxy> {
+public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomainFinder.MyProxy> {
 
-
+    private RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final SecurityFramework securityFramework;
     private final StatementContext statementContext;
 
-    private static AddressTemplate CACHE_CONTAINER = AddressTemplate.of("{selected.profile}/subsystem=infinispan/cache-container=*");
-    private DefaultWindow transportDialog;
-    private TransportView transportView;
-    private DefaultWindow containerDialog;
-    private ContainerView containerView;
-
+    public static AddressTemplate SECURITY_DOMAIN = AddressTemplate.of("{selected.profile}/subsystem=security/security-domain=*");
+    private DefaultWindow domainDialog;
+    private DomainPropertiesView domainView;
+    private String selectedDomain;
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.CacheFinderPresenter)
-    @AccessControl(resources = {
-            "{selected.profile}/subsystem=infinispan",
-            "{selected.profile}/subsystem=infinispan/cache-container=*",
-            "{selected.profile}/subsystem=infinispan/cache-container=*/transport=TRANSPORT"
+    @NameToken(NameTokens.SecDomains)
+    @RequiredResources(resources = {
+            "{selected.profile}/subsystem=security/",
+            "{selected.profile}/subsystem=security/security-domain=*",
     }, recursive = false)
-    @SearchIndex(keywords = {
-            "cache", "ejb", "hibernate", "web", "transport"
-    })
-    public interface MyProxy extends Proxy<CacheFinderPresenter>, Place {
+    @SearchIndex(
+            keywords = {
+                    "security-domain", "authentication", "security", "vault", "authorisation", "jaas", "login-module", "vault"}
+    )
+    public interface MyProxy extends Proxy<SecDomainFinder>, Place {
     }
 
     public interface MyView extends View {
-        void setPresenter(CacheFinderPresenter presenter);
+        void setPresenter(SecDomainFinder presenter);
         public void updateFrom(List<Property> list);
         public void setPreview(final SafeHtml html);
     }
 
     @Inject
-    public CacheFinderPresenter(
-            EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
+    public SecDomainFinder(
+            EventBus eventBus, MyView view, MyProxy proxy,
+            RevealStrategy revealStrategy, DispatchAsync dispatcher,
             ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework, CoreGUIContext delegate) {
         super(eventBus, view, proxy);
+
+        this.revealStrategy = revealStrategy;
 
         this.dispatcher = dispatcher;
         this.descriptionRegistry = descriptionRegistry;
@@ -124,7 +126,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     protected void onReset() {
         super.onReset();
 
-        loadContainer(null);
+        loadDomains(null);
 
     }
 
@@ -136,18 +138,16 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
         return securityFramework;
     }
 
-    private void loadContainer() {
-        loadContainer(null);
+    private void loadDomains() {
+        loadDomains(null);
     }
 
-    private void loadContainer(String pref) {
+    private void loadDomains(String pref) {
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
         operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "infinispan");
-        operation.get(CHILD_TYPE).set("cache-container");
-        operation.get(RECURSIVE).set(true);
-        operation.get("recursive-depth").set("2");
+        operation.get(ADDRESS).add("subsystem", "security");
+        operation.get(CHILD_TYPE).set("security-domain");
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
 
@@ -156,29 +156,24 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                 ModelNode response = result.get();
 
                 if (response.isFailure()) {
-                    Log.error("Failed to load cache container", response.getFailureDescription());
+                    Log.error("Failed to load security domains", response.getFailureDescription());
                     getView().updateFrom(Collections.EMPTY_LIST);
                 } else {
-                    List<Property> containers = response.get(RESULT).asPropertyList();
-                    getView().updateFrom(containers);
+                    List<Property> domains = response.get(RESULT).asPropertyList();
+                    getView().updateFrom(domains);
 
-
-                    // the transport view can still be visible
-                    if(transportView!=null && pref!=null)
+                    if(domainDialog!=null && domainDialog.isVisible())
                     {
-
-                        for (Property container : containers) {
-                            if(container.getName().equals(pref))
+                        for (Property domain : domains) {
+                            if(domain.getName().equals(selectedDomain))
                             {
-                                transportView.updateFrom(container.getValue().get("transport").get("TRANSPORT"));
+                                domainView.updateFrom(domain.getValue());
                                 break;
                             }
                         }
-
                     }
+
                 }
-
-
 
             }
         });
@@ -192,36 +187,8 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
             RevealContentEvent.fire(this, ProfileMgmtPresenter.TYPE_MainContent, this);
     }
 
-    public void onCreateTransport(AddressTemplate address, Property cacheContainer, ModelNode entity) {
-
-        ResourceAddress fqAddress = address.resolve(statementContext, cacheContainer.getName());
-
-        entity.get(OP).set(ADD);
-        entity.get(ADDRESS).set(fqAddress);
-
-        dispatcher.execute(new DMRAction(entity), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                if (response.isFailure())
-                {
-                    Console.error("Failed to create resource "+fqAddress, response.getFailureDescription());
-                }
-                else
-                {
-
-                    Console.info("Successfully created "+fqAddress);
-                }
-
-                loadContainer();
-            }
-        });
-    }
-
     public void onRemove(Property cacheContainer) {
-        ResourceAddress fqAddress = CACHE_CONTAINER.resolve(statementContext, cacheContainer.getName());
+        ResourceAddress fqAddress = SECURITY_DOMAIN.resolve(statementContext, cacheContainer.getName());
 
         ModelNode op = new ModelNode();
         op.get(OP).set(REMOVE);
@@ -232,7 +199,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
             @Override
             public void onFailure(Throwable caught) {
                 super.onFailure(caught);
-                loadContainer();
+                loadDomains();
             }
 
             @Override
@@ -248,19 +215,46 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                     Console.info("Successfully removed " + fqAddress);
                 }
 
-                loadContainer();
+                loadDomains();
             }
         });
 
     }
 
-    public void onLauchAddContainer() {
+    public void onSaveDomain(AddressTemplate address, String name, Map<String, Object> changeset) {
+        ResourceAddress fqAddress = address.resolve(statementContext, name);
+
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+                loadDomains();
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                } else {
+                    Console.info("Successfully modified " + fqAddress);
+                }
+                loadDomains();
+            }
+        });
+    }
+
+
+    public void onLauchAddDomain() {
         final SecurityContext securityContext =
                 securityFramework.getSecurityContext(getProxy().getNameToken());
 
-        final ResourceDescription resourceDescription = descriptionRegistry.lookup(CACHE_CONTAINER);
+        final ResourceDescription resourceDescription = descriptionRegistry.lookup(SECURITY_DOMAIN);
 
-        final DefaultWindow dialog = new DefaultWindow("New Cache Configuration");
+        final DefaultWindow dialog = new DefaultWindow("New Security Domain");
         AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {
                     @Override
@@ -268,7 +262,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                         dialog.hide();
 
                         final ResourceAddress fqAddress =
-                                CACHE_CONTAINER.resolve(statementContext, payload.get("name").asString());
+                                SECURITY_DOMAIN.resolve(statementContext, payload.get("name").asString());
 
                         payload.get(OP).set(ADD);
                         payload.get(ADDRESS).set(fqAddress);
@@ -278,13 +272,13 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
                             @Override
                             public void onFailure(Throwable caught) {
                                 super.onFailure(caught);
-                                loadContainer();
+                                loadDomains();
                             }
 
                             @Override
                             public void onSuccess(DMRResponse dmrResponse) {
                                 Console.info("Successfully added "+fqAddress);
-                                loadContainer();
+                                loadDomains();
                             }
                         });
 
@@ -304,64 +298,22 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
         dialog.center();
     }
 
-    public void onLaunchTransportSettings(Property cacheContainer) {
-        transportDialog = new DefaultWindow("Transport Settings");
+    public void onLaunchDomainSettings(Property domain) {
 
-        transportView = new TransportView(this, cacheContainer);
+        this.selectedDomain= domain.getName();
 
-        transportDialog.setWidth(640);
-        transportDialog.setHeight(480);
-        transportDialog.trapWidget(transportView.asWidget());
-        transportDialog.setGlassEnabled(true);
-        transportDialog.center();
+        domainDialog = new DefaultWindow("Security Domain Settings");
 
-        if(cacheContainer.getValue().hasDefined("transport"))
-            transportView.updateFrom(cacheContainer.getValue().get("transport").get("TRANSPORT"));
-        else
-            transportView.updateFrom(new ModelNode());
+        domainView = new DomainPropertiesView(this, domain);
+
+        domainDialog.setWidth(640);
+        domainDialog.setHeight(480);
+        domainDialog.trapWidget(domainView.asWidget());
+        domainDialog.setGlassEnabled(true);
+        domainDialog.center();
+
+        domainView.updateFrom(domain.getValue());
     }
 
-    public void onSaveTransport(AddressTemplate address, Property cacheContainer, Map<String, Object> changeset) {
-        ResourceAddress fqAddress = address.resolve(statementContext, cacheContainer.getName());
-
-        final ModelNodeAdapter adapter = new ModelNodeAdapter();
-        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
-
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.error("Failed to modify resource "+fqAddress, caught.getMessage());
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode response = dmrResponse.get();
-                if (response.isFailure()) {
-                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
-                }
-                else {
-                    Console.info("Successfully modified "+fqAddress);
-                }
-
-                loadContainer();
-            }
-        });
-    }
-
-    public void onLaunchContainerSettings(Property cacheContainer) {
-        containerDialog = new DefaultWindow("Container Settings");
-
-        containerView = new ContainerView(this, cacheContainer);
-
-        containerDialog.setWidth(640);
-        containerDialog.setHeight(480);
-        containerDialog.trapWidget(containerView.asWidget());
-        containerDialog.setGlassEnabled(true);
-        containerDialog.center();
-
-
-        containerView.updateFrom(cacheContainer.getValue());
-
-    }
 }
 

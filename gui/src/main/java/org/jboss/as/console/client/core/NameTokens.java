@@ -52,8 +52,6 @@ public class NameTokens {
     public static final String ResourceAdapterPresenter ="resource-adapters";
     public static final String Remoting = "remoting";
     public static final String IiopOpenJdk = "iiop-openjdk";
-    public static final String SecurityDomainsPresenter = "security-domains";
-    public static final String SecuritySubsystemPresenter = "security";
     public static final String SettingsPresenter = "settings";
     public static final String SocketBindingPresenter = "socket-bindings";
     public static final String StandaloneServerPresenter = "server-overview";
@@ -150,6 +148,8 @@ public class NameTokens {
 
     public static final String AuditLogPresenter = "audit-log";
     public static final String Logging = "logging";
+    public static final String SecDomains = "security_domains";
+    public static final String SecDomain = "security_domain";
 }
 
 

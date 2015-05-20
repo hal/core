@@ -129,8 +129,8 @@ import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClustering
 import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
-import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
-import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
@@ -307,9 +307,6 @@ public interface CoreUI {
     AsyncProvider<VMMetricsPresenter> getVMMetricsPresenter();
     AsyncProvider<HostVMMetricPresenter> getServerVMMetricPresenter();
 
-    //AsyncProvider<TransactionPresenter> getTransactionPresenter();
-    AsyncProvider<SecuritySubsystemPresenter> getSecuritySubsystemPresenter();
-    AsyncProvider<SecurityDomainsPresenter> getSecurityDomainsPresenter();
 
     AsyncProvider<StandaloneRuntimePresenter> getRuntimePresenter();
     AsyncProvider<DomainRuntimePresenter> getDomainRuntimePresenter();
@@ -396,4 +393,8 @@ public interface CoreUI {
     AsyncProvider<EJB3Presenter> getEJBPresenter();
 
     AsyncProvider<LoggerPresenter> getLoggerPresenter();
+
+    AsyncProvider<SecDomainFinder> getSecDomainFinder();
+
+    AsyncProvider<SecDomainPresenter> getSecDomainPresenter();
 }

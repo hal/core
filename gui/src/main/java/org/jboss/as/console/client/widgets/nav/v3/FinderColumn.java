@@ -19,6 +19,7 @@ import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.MenuBar;
@@ -140,6 +141,8 @@ public class FinderColumn<T> {
                 return builder.toSafeHtml();
             }
         };
+
+        menuColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
         cellTable.addColumn(titleColumn);
         cellTable.addColumn(menuColumn);

@@ -229,10 +229,10 @@ import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.ui.RemotingView;
-import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsPresenter;
-import org.jboss.as.console.client.shared.subsys.security.SecurityDomainsView;
-import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemPresenter;
-import org.jboss.as.console.client.shared.subsys.security.SecuritySubsystemView;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinderView;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
+import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainView;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricView;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
@@ -503,15 +503,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 HostVMMetricView.class,
                 HostVMMetricPresenter.MyProxy.class);
 
-        bindPresenter(SecuritySubsystemPresenter.class,
-                SecuritySubsystemPresenter.MyView.class,
-                SecuritySubsystemView.class,
-                SecuritySubsystemPresenter.MyProxy.class);
-
-        bindPresenter(SecurityDomainsPresenter.class,
-                SecurityDomainsPresenter.MyView.class,
-                SecurityDomainsView.class,
-                SecurityDomainsPresenter.MyProxy.class);
 
         bindPresenter(StandaloneRuntimePresenter.class,
                 StandaloneRuntimePresenter.MyView.class,
@@ -704,6 +695,17 @@ public class CoreUIModule extends AbstractPresenterModule {
                       LoggerPresenter.MyView.class,
                       LoggerView.class,
                       LoggerPresenter.MyProxy.class);
+
+        bindPresenter(SecDomainFinder.class,
+                SecDomainFinder.MyView.class,
+                SecDomainFinderView.class,
+                SecDomainFinder.MyProxy.class);
+
+        bindPresenter(SecDomainPresenter.class,
+                SecDomainPresenter.MyView.class,
+                SecDomainView.class,
+                SecDomainPresenter.MyProxy.class);
+
 
         // ------------------------------------------------------ circuit
 

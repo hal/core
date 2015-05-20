@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.widgets.forms;
 
-import org.jboss.as.console.client.shared.viewframework.FormItemObserver;
-import org.jboss.as.console.client.shared.viewframework.FormItemType;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 
 import java.util.Collections;
@@ -42,8 +40,6 @@ public class PropertyBinding {
     private String defaultValue = null;
     private String label;
     private boolean isRequired;
-    private FormItemType formItemTypeForEdit;
-    private FormItemType formItemTypeForAdd;
     private String subgroup;
     private String tabName;
     private int order;
@@ -74,8 +70,6 @@ public class PropertyBinding {
         }
         this.label = label;
         this.isRequired = isRequired;
-        this.formItemTypeForEdit = FormItemType.valueOf(formItemTypeForEdit);
-        this.formItemTypeForAdd = FormItemType.valueOf(formItemTypeForAdd);
         this.subgroup = subgroup;
         this.tabName = tabName;
         this.order = order;
@@ -139,14 +133,6 @@ public class PropertyBinding {
 
     public EntityAdapter getEntityAdapterForList() {
         return this.entityAdapterForList;
-    }
-
-    public FormItem[] getFormItemForAdd(FormItemObserver... observers) {
-        return formItemTypeForAdd.getFactory().makeFormItem(this, observers);
-    }
-
-    public FormItem[] getFormItemForEdit(FormItemObserver... observers) {
-        return formItemTypeForEdit.getFactory().makeFormItem(this, observers);
     }
 
     public boolean isRequired() {

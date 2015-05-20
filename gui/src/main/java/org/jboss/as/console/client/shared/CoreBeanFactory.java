@@ -98,12 +98,6 @@ import org.jboss.as.console.client.shared.subsys.messaging.model.SecurityPattern
 import org.jboss.as.console.client.shared.subsys.messaging.model.Topic;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.Modcluster;
 import org.jboss.as.console.client.shared.subsys.modcluster.model.SSLConfig;
-import org.jboss.as.console.client.shared.subsys.security.model.AuthenticationLoginModule;
-import org.jboss.as.console.client.shared.subsys.security.model.AuthorizationPolicyProvider;
-import org.jboss.as.console.client.shared.subsys.security.model.GenericSecurityDomainData;
-import org.jboss.as.console.client.shared.subsys.security.model.MappingModule;
-import org.jboss.as.console.client.shared.subsys.security.model.SecurityDomain;
-import org.jboss.as.console.client.shared.subsys.security.model.SecuritySubsystem;
 import org.jboss.as.console.client.shared.subsys.web.model.HttpConnector;
 import org.jboss.as.console.client.shared.subsys.web.model.JSPContainerConfiguration;
 import org.jboss.as.console.client.shared.subsys.web.model.VirtualServer;
@@ -190,14 +184,6 @@ public interface CoreBeanFactory {
     AutoBean<ThreadMetric> threadMetric();
     AutoBean<RuntimeMetric> runtime();
     AutoBean<OSMetric> osmetric();
-
-    AutoBean<SecuritySubsystem> securitySubsystem();
-    AutoBean<SecurityDomain> securityDomain();
-    AutoBean<AuthenticationLoginModule> authenticationLoginModule();
-    AutoBean<AuthorizationPolicyProvider> authorizationPolicyModule();
-
-    AutoBean<MappingModule> mappingModule();
-    AutoBean<GenericSecurityDomainData> genericSecurityDomainData();
 
     AutoBean<JpaSubsystem> jpaSubystem();
     AutoBean<MailSession> mailSession();

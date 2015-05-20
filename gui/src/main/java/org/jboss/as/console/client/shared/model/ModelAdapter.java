@@ -38,6 +38,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 /**
  * @author Heiko Braun
  * @date 4/27/11
+ * @deprecated
  */
 public class ModelAdapter {
 
