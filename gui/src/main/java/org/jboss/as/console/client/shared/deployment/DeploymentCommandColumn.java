@@ -28,6 +28,7 @@ import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
  *
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  */
+@Deprecated
 public class DeploymentCommandColumn extends Column<DeploymentRecord, DeploymentRecord> {
 
     /**

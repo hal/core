@@ -26,6 +26,7 @@ import java.util.List;
 * @author Harald Pehl
 * @date 11/28/2012
 */
+@Deprecated
 public interface DeployedPersistenceUnit extends DeploymentSubsystemElement
 {
     boolean isEnabled();

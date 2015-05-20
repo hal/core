@@ -22,6 +22,7 @@ package org.jboss.as.console.client.shared.deployment.model;
 * @author Harald Pehl
 * @date 11/28/2012
 */
+@Deprecated
 public interface DeploymentSubsystemElement extends DeploymentData
 {
     DeploymentSubsystem getSubsystem();

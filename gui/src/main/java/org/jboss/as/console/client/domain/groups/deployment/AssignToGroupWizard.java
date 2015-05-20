@@ -30,6 +30,7 @@ import java.util.Set;
  * @author Heiko Braun
  * @date 7/31/12
  */
+@Deprecated
 public class AssignToGroupWizard {
 
     private DomainDeploymentPresenter presenter;

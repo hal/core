@@ -16,10 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, 
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.domain.groups.deployment;
+package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.user.cellview.client.Column;
 
 /**
@@ -31,24 +30,17 @@ import com.google.gwt.user.cellview.client.Column;
 public class CheckboxColumn<T extends CheckboxColumn.Selectable> extends Column<T, Boolean> {
     
     public interface Selectable {
-        public boolean isSelected();
-        public void setSelected(boolean isSelected);
+        boolean isSelected();
+        void setSelected(boolean isSelected);
     }
     
     public CheckboxColumn() {
         super(new CheckboxCell());
-        
-        setFieldUpdater(new FieldUpdater<T, Boolean>() {
-            @Override
-            public void update(int index, T object, Boolean value) {
-                object.setSelected(value.booleanValue());
-            }
-        });
+        setFieldUpdater((index, object, value) -> object.setSelected(value));
     }
 
     @Override
     public Boolean getValue(T object) {
-        return Boolean.valueOf(object.isSelected());
+        return object.isSelected();
     }
-    
 }

@@ -46,6 +46,7 @@ import java.util.List;
  * @author Harald Pehl
  * @date 3/14/11
  */
+@Deprecated
 public class StandaloneDeploymentView extends SuspendableViewImpl implements StandaloneDeploymentPresenter.MyView
 {
 

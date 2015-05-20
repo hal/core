@@ -47,6 +47,7 @@ import java.util.List;
  * @author Harald Pehl
  * @date 12/03/2012
  */
+@Deprecated
 public class ServerGroupDeploymentBrowser
 {
 

@@ -59,9 +59,11 @@ import static org.jboss.as.console.spi.OperationMode.Mode.STANDALONE;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
+ * @deprecated Replaced by StandaloneDeploymentFinder
  * @author Harald Pehl
  * @date 3/14/11
  */
+@Deprecated
 public class StandaloneDeploymentPresenter
         extends Presenter<StandaloneDeploymentPresenter.MyView, StandaloneDeploymentPresenter.MyProxy>
         implements DeployCommandExecutor

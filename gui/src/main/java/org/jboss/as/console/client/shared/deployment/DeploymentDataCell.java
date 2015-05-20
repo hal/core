@@ -32,6 +32,7 @@ import static com.google.gwt.dom.client.BrowserEvents.KEYUP;
 * @author Harald Pehl
 * @date 11/28/2012
 */
+@Deprecated
 public class DeploymentDataCell<T extends DeploymentData> extends AbstractCell<T>
 {
     private final DeploymentBrowser deploymentBrowser;

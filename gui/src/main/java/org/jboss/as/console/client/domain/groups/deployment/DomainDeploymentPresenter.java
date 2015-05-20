@@ -59,6 +59,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  * @date 3/1/11
  */
+@Deprecated
 public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresenter.MyView, DomainDeploymentPresenter.MyProxy>
         implements Finder, DeployCommandExecutor
 {

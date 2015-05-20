@@ -21,17 +21,13 @@
  */
 package org.jboss.as.console.client.shared.deployment;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteHandler;
-import org.jboss.as.console.client.Console;
 
 /**
  * @author Harald Pehl
  */
+@Deprecated
 public class ManagedDeploymentHandler implements SubmitCompleteHandler {
 
     private final NewDeploymentWizard wizard;

@@ -37,6 +37,7 @@ import java.util.Map;
  * @author Harald Pehl
  * @date 11/28/2012
  */
+@Deprecated
 public class DeploymentNodeInfoFactory
 {
     private final DeploymentBrowser deploymentBrowser;

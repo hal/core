@@ -27,7 +27,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.domain.groups.deployment.CheckboxColumn;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;

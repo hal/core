@@ -8,6 +8,7 @@ import org.jboss.as.console.client.widgets.tables.DataProviderFilter;
  * @author Heiko Braun
  * @date 7/31/12
  */
+@Deprecated
 public class DeploymentFilter extends DataProviderFilter<DeploymentRecord> {
 
     public DeploymentFilter(ListDataProvider<DeploymentRecord> delegate) {

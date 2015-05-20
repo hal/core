@@ -47,6 +47,7 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
  * @author Harald Pehl
  * @date 12/12/2012
  */
+@Deprecated
 public class ServerGroupDeploymentPanel implements IsWidget
 {
     private final Widget widget;

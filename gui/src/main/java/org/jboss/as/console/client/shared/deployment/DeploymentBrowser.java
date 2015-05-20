@@ -56,6 +56,7 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
+@Deprecated
 public class DeploymentBrowser {
 
     private final DeploymentTreeModel deploymentTreeModel;

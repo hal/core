@@ -40,6 +40,7 @@ import java.util.TreeSet;
  * @author Harald Pehl
  * @date 12/12/2012
  */
+@Deprecated
 public class ContentRepository
 {
     // Keys have to be strings rather then the autobean instances to have proper hash codes

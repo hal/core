@@ -38,6 +38,7 @@ import java.util.List;
 /**
  * @author Harald Pehl
  */
+@Deprecated
 public class DeploymentTreeModel implements TreeViewModel {
     static final DeploymentTemplates DEPLOYMENT_TEMPLATES = GWT.create(DeploymentTemplates.class);
     private final DeploymentNodeInfoFactory nodeInfoFactory;

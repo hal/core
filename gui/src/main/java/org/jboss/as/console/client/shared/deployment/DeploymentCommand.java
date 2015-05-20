@@ -31,6 +31,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
  *
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  */
+@Deprecated
 public enum DeploymentCommand {
 
     ENABLE_DISABLE(new EnableDisableMessageMaker()),

@@ -25,6 +25,7 @@ import org.jboss.dmr.client.ModelNode;
  * @author Harald Pehl
  * @date 11/28/2012
  */
+@Deprecated
 public interface DeploymentData extends HasName
 {
     DeploymentDataType getType();

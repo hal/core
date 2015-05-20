@@ -26,6 +26,7 @@ import java.util.List;
 * @author Harald Pehl
 * @date 11/28/2012
 */
+@Deprecated
 public interface DeployedEjb extends DeploymentSubsystemElement
 {
     @Binding(detypedName = "component-class-name")

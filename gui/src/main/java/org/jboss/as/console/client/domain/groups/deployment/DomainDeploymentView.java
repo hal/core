@@ -33,6 +33,7 @@ import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
  * @author Harald Pehl
  * @date 12/12/2012
  */
+@Deprecated
 public class DomainDeploymentView extends SuspendableViewImpl implements DomainDeploymentPresenter.MyView
 {
 

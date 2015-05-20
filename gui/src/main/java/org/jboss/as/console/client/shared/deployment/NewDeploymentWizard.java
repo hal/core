@@ -21,11 +21,16 @@ package org.jboss.as.console.client.shared.deployment;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -39,6 +44,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
  * @author Heiko Braun
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  */
+@Deprecated
 public class NewDeploymentWizard {
 
     private static final String HEADER_CONTENT_TYPE = "Content-Type";

@@ -35,6 +35,7 @@ import java.util.List;
  * @author Harald Pehl
  * @date 11/29/2012
  */
+@Deprecated
 public class DeploymentBreadcrumb extends Composite
 {
     private final FlowPanel panel;

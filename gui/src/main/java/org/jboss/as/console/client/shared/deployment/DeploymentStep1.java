@@ -42,6 +42,7 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  * @author Heiko Braun
  * @author Stan Silvert <ssilvert@redhat.com> (C) 2011 Red Hat Inc.
  */
+@Deprecated
 public class DeploymentStep1 implements IsWidget {
 
     private final NewDeploymentWizard wizard;

@@ -1,11 +1,13 @@
 package org.jboss.as.console.client.domain.groups.deployment;
 
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.v3.deployment.wizard.CheckboxColumn;
 
 /**
  * @author Heiko Braun
  * @date 8/1/12
  */
+@Deprecated
 public  class ServerGroupSelection implements CheckboxColumn.Selectable {
     private ServerGroupRecord group;
     private boolean isSelected = false;

@@ -26,6 +26,7 @@ import org.jboss.as.console.client.widgets.forms.Binding;
  * @author Stan Silvert
  * @date 4/8/11
  */
+@Deprecated
 public interface DeploymentReference {
 
     @Binding(key = true)

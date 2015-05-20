@@ -55,6 +55,7 @@ import java.util.List;
 /**
  * @author Harald Pehl
  */
+@Deprecated
 public class ContentRepositoryPanel implements IsWidget
 {
     private final Widget widget;

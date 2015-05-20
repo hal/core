@@ -24,6 +24,7 @@ import org.jboss.as.console.client.widgets.forms.Binding;
 * @author Harald Pehl
 * @date 11/28/2012
 */
+@Deprecated
 public interface DeploymentJpaSubsystem extends DeploymentSubsystem
 {
     @Binding(detypedName = "default-datasource")

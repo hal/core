@@ -30,6 +30,7 @@ import java.util.List;
  * @author Harald Pehl
  * @date 11/28/2012
  */
+@Deprecated
 public class DeploymentDataProvider<T extends DeploymentData> extends AsyncDataProvider<T>
 {
     private Command command;
