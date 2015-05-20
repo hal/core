@@ -12,6 +12,7 @@ gwt-unitCache
 *.*~
 *.releaseBackup
 release.properties
+hs_err*
 
 build/app/overlays
 build/app/war
