@@ -129,7 +129,7 @@ public class Deployment extends Content {
         ModelNode statusNode = get("status");
         if (statusNode.isDefined()) {
             try {
-                Status.valueOf(statusNode.asString());
+                status = Status.valueOf(statusNode.asString());
             } catch (IllegalArgumentException e) {
                 // returns UNDEFINED
             }

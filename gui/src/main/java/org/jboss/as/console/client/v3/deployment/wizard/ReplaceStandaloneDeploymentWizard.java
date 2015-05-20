@@ -28,7 +28,7 @@ import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.util.Trim;
-import org.jboss.as.console.client.v3.deployment.Assignment;
+import org.jboss.as.console.client.v3.deployment.Deployment;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -43,11 +43,11 @@ import static org.jboss.as.console.client.v3.deployment.wizard.State.VERIFY_UPLO
 /**
  * @author Harald Pehl
  */
-public class ReplaceDomainDeploymentWizard extends DeploymentWizard implements ReplaceDeploymentWizard {
+public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard implements ReplaceDeploymentWizard {
 
-    private Assignment assignment;
+    private Deployment deployment;
 
-    public ReplaceDomainDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
+    public ReplaceStandaloneDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("replace_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
@@ -55,11 +55,9 @@ public class ReplaceDomainDeploymentWizard extends DeploymentWizard implements R
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
     }
 
-    public void open(final Assignment assignment) {
-        this.assignment = assignment;
-        super.open("Replace '" + Trim.abbreviateMiddle(assignment.getName()) + "' on '" + assignment
-                .getServerGroup() + "'");
-        context.serverGroup = assignment.getServerGroup();
+    public void open(final Deployment deployment) {
+        this.deployment = deployment;
+        super.open("Replace '" + Trim.abbreviateMiddle(deployment.getName()) + "'");
     }
 
     @Override
@@ -105,7 +103,7 @@ public class ReplaceDomainDeploymentWizard extends DeploymentWizard implements R
             }
         };
 
-        context.upload.setEnableAfterDeployment(assignment.isEnabled());
+        context.upload.setEnableAfterDeployment(deployment.isEnabled());
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 new DeploymentFunctions.Upload(context.uploadForm, context.fileUpload, context.upload),
                 new DeploymentFunctions.AddContent(bootstrapContext, true));

@@ -127,7 +127,7 @@ public class NameTokens {
 
     public static final String ServerGroupPresenter = "server-groups";
 
-    public static final String DeploymentsPresenter  = "domain-deployments";
+    public static final String DeploymentsPresenter  = "domain-deployments-old";
 
     public static final String HostMgmtPresenter = "hosts";
 
@@ -135,8 +135,8 @@ public class NameTokens {
 
     public static final String DeploymentBrowserPresenter = "deployments";
 
-    public static final String DeploymentFinder = "deployment-finder";
-    public static final String DeploymentContentFinder = "deployment-content";
+    public static final String DomainDeploymentFinder = "domain-deployments";
+    public static final String StandaloneDeploymentFinder = "standalone-deployments";
 
 
     // ------------------------------------------------------

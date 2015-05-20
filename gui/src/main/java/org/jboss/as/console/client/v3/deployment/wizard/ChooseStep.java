@@ -33,11 +33,15 @@ import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 public class ChooseStep extends
         WizardStep<Context, State> {
 
+    private final boolean standalone;
     private RadioButton deployNew;
     private RadioButton deployExisting;
     private RadioButton deployUnmanaged;
 
-    public ChooseStep(final DeploymentWizard wizard) {super(wizard, "Please Choose");}
+    public ChooseStep(final DeploymentWizard wizard, final boolean standalone) {
+        super(wizard, "Please Choose");
+        this.standalone = standalone;
+    }
 
     @Override
     public Widget asWidget() {
@@ -56,7 +60,9 @@ public class ChooseStep extends
         IdHelper.setId(deployUnmanaged, id(), "deployUnmanaged");
 
         body.add(deployNew);
-        body.add(deployExisting);
+        if (!standalone) {
+            body.add(deployExisting);
+        }
         body.add(deployUnmanaged);
         return body;
     }

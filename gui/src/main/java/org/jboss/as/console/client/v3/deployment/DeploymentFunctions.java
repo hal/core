@@ -221,8 +221,14 @@ public final class DeploymentFunctions {
                 }
 
                 @Override
-                public void onSuccess(final DMRResponse result) {
-                    control.proceed();
+                public void onSuccess(final DMRResponse response) {
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
+                        control.abort();
+                    } else {
+                        control.proceed();
+                    }
                 }
             });
         }
@@ -268,12 +274,18 @@ public final class DeploymentFunctions {
                 }
 
                 @Override
-                public void onSuccess(final DMRResponse result) {
-                    ModelNode node = new ModelNode();
-                    node.get(NAME).set(unmanaged.getName());
-                    node.get("runtime-name").set(unmanaged.getRuntimeName());
-                    control.getContext().push(new Content(node));
-                    control.proceed();
+                public void onSuccess(final DMRResponse response) {
+                    ModelNode result = response.get();
+                    if (result.isFailure()) {
+                        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
+                        control.abort();
+                    } else {
+                        ModelNode node = new ModelNode();
+                        node.get(NAME).set(unmanaged.getName());
+                        node.get("runtime-name").set(unmanaged.getRuntimeName());
+                        control.getContext().push(new Content(node));
+                        control.proceed();
+                    }
                 }
             });
         }

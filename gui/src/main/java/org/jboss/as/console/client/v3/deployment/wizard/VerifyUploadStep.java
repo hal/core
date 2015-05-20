@@ -53,9 +53,9 @@ public class VerifyUploadStep extends
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
         CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
-        if (wizard instanceof AddDomainDeploymentWizard) {
+        if (wizard instanceof AddDeploymentWizard) {
             form.setFields(nameField, runtimeNameField, enable);
-        } else if (wizard instanceof ReplaceDomainDeploymentWizard) {
+        } else if (wizard instanceof ReplaceDeploymentWizard) {
             form.setFields(nameField, runtimeNameField);
         }
         panel.add(form.asWidget());

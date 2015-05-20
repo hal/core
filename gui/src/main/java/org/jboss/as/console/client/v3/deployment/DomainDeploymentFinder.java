@@ -93,20 +93,18 @@ public class DomainDeploymentFinder
         extends PerspectivePresenter<DomainDeploymentFinder.MyView, DomainDeploymentFinder.MyProxy>
         implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
 
-
     // @formatter:off --------------------------------------- proxy & view
 
     @ProxyCodeSplit
     @OperationMode(DOMAIN)
-    @NameToken(NameTokens.DeploymentFinder)
+    @NameToken(NameTokens.DomainDeploymentFinder)
     @SearchIndex(keywords = {"deployment", "war", "ear", "application"})
     @RequiredResources(resources = {
             "/deployment=*",
             //"/{selected.host}/server=*", TODO: https://issues.jboss.org/browse/WFLY-1997
-            "/server-group={selected.group}/deployment=*"
-    }, recursive = false)
-    public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {
-    }
+            "/server-group={selected.group}/deployment=*"},
+            recursive = false)
+    public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {}
 
     public interface MyView extends View, HasPresenter<DomainDeploymentFinder> {
         void updateServerGroups(Iterable<ServerGroupRecord> serverGroups);
@@ -141,7 +139,7 @@ public class DomainDeploymentFinder
             final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
             final BeanFactory beanFactory, final DispatchAsync dispatcher, final Dispatcher circuit,
             final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext, final Header header) {
-        super(eventBus, view, proxy, placeManager, header, NameTokens.DeploymentFinder,
+        super(eventBus, view, proxy, placeManager, header, NameTokens.DomainDeploymentFinder,
                 unauthorisedPresenter, TYPE_MainContent);
         this.beanFactory = beanFactory;
         this.dispatcher = dispatcher;
@@ -317,11 +315,12 @@ public class DomainDeploymentFinder
     }
 
     private void modifyAssignment(final Assignment assignment, final String operation) {
-        final String serverGroup = assignment.getServerGroup();
+        String serverGroup = assignment.getServerGroup();
         ResourceAddress address = new ResourceAddress()
                 .add("server-group", serverGroup)
                 .add("deployment", assignment.getName());
-        final Operation op = new Operation.Builder(operation, address).build();
+        Operation op = new Operation.Builder(operation, address).build();
+
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {

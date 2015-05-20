@@ -27,7 +27,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -35,37 +34,28 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.EnumSet;
-import java.util.List;
 
 import static org.jboss.as.console.client.v3.deployment.wizard.State.*;
 
 /**
  * @author Harald Pehl
  */
-public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDeploymentWizard {
+public class AddStandaloneDeploymentWizard extends DeploymentWizard implements AddDeploymentWizard {
 
-    public AddDomainDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
+    public AddStandaloneDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone()));
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
-        addStep(CONTENT_REPOSITORY, new ContentRepositoryStep(this));
         addStep(UNMANAGED, new UnmanagedStep(this));
-    }
-
-    public void open(List<Content> contentRepository, String serverGroup) {
-        super.open("Add Assignment for '" + serverGroup + "'");
-        context.contentRepository.clear();
-        context.contentRepository.addAll(contentRepository);
-        context.serverGroup = serverGroup;
     }
 
     @Override
     protected EnumSet<State> lastStates() {
         //noinspection NonJREEmulationClassesInClientCode
-        return EnumSet.of(VERIFY_UPLOAD, CONTENT_REPOSITORY, UNMANAGED);
+        return EnumSet.of(VERIFY_UPLOAD, UNMANAGED);
     }
 
     @Override
@@ -76,7 +66,6 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
                 previous = null;
                 break;
             case UPLOAD:
-            case CONTENT_REPOSITORY:
             case UNMANAGED:
                 previous = CHOOSE;
                 break;
@@ -94,8 +83,6 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
             case CHOOSE:
                 if (context.deployNew) {
                     next = UPLOAD;
-                } else if (context.deployExisting) {
-                    next = CONTENT_REPOSITORY;
                 } else if (context.deployUnmanaged) {
                     next = UNMANAGED;
                 }
@@ -104,7 +91,6 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
                 next = VERIFY_UPLOAD;
                 break;
             case VERIFY_UPLOAD:
-            case CONTENT_REPOSITORY:
             case UNMANAGED:
                 next = null;
                 break;
@@ -136,37 +122,21 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
         };
 
         if (context.deployNew) {
-            uploadAddContentAndAssign(outcome);
-
-        } else if (context.deployExisting) {
-            addAssignment(outcome);
+            uploadAndAddContent(outcome);
 
         } else if (context.deployUnmanaged) {
             addUnmanaged(outcome);
         }
     }
 
-    private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
+    private void uploadAndAddContent(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 new DeploymentFunctions.Upload(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddContent(bootstrapContext, false),
-                new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
-                        context.upload.isEnableAfterDeployment()));
-    }
-
-    private void addAssignment(final Outcome<FunctionContext> outcome) {
-        final FunctionContext functionContext = new FunctionContext();
-        functionContext.push(context.existingContent);
-
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(functionContext, outcome,
-                new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
-                        context.enableExistingContent));
+                new DeploymentFunctions.AddContent(bootstrapContext, false));
     }
 
     private void addUnmanaged(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.AddUnmanaged(dispatcher, context.unmanagedDeployment),
-                new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
-                        context.unmanagedDeployment.isEnabled()));
+                new DeploymentFunctions.AddUnmanaged(dispatcher, context.unmanagedDeployment));
     }
 }

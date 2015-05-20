@@ -268,6 +268,8 @@ import org.jboss.as.console.client.tools.modelling.workbench.repository.SampleRe
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinderView;
+import org.jboss.as.console.client.v3.deployment.StandaloneDeploymentFinder;
+import org.jboss.as.console.client.v3.deployment.StandaloneDeploymentFinderView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.GinExtensionBinding;
@@ -397,11 +399,15 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DomainDeploymentView.class,
                 DomainDeploymentPresenter.MyProxy.class);
 
-        // domain / server-group-deployments
+        // deployment finders
         bindPresenter(DomainDeploymentFinder.class,
                 DomainDeploymentFinder.MyView.class,
                 DomainDeploymentFinderView.class,
                 DomainDeploymentFinder.MyProxy.class);
+        bindPresenter(StandaloneDeploymentFinder.class,
+                StandaloneDeploymentFinder.MyView.class,
+                StandaloneDeploymentFinderView.class,
+                StandaloneDeploymentFinder.MyProxy.class);
 
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,

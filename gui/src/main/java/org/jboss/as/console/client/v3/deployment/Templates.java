@@ -45,7 +45,7 @@ final class Templates {
         SafeHtml item(String cssClass, String name, String title);
 
         @Template("<div class=\"{0}\">Host: {1}<br/>Server: {2}</div>")
-        SafeHtml deployment(String cssClass, String host, String server);
+        SafeHtml referenceServer(String cssClass, String host, String server);
     }
 
 
@@ -66,7 +66,15 @@ final class Templates {
                 "</ul>" +
                 "{4}" +
                 "</div>")
-        SafeHtml deployment(String name, String runtimeName, String host, String server, SafeHtml summary);
+        SafeHtml domainDeployment(String name, String runtimeName, String host, String server, SafeHtml summary);
+
+        @Template("<div class='preview-content'><h2>{0}</h2>" +
+                "<ul>" +
+                "<li>Runtime Name: {1}</li>" +
+                "</ul>" +
+                "{2}" +
+                "</div>")
+        SafeHtml standaloneDeployment(String name, String runtimeName, SafeHtml summary);
 
         @Template("<div class='preview-content'><h2>{0}</h2>{1}</div>")
         SafeHtml subdeployment(String name, SafeHtml summary);

@@ -24,10 +24,8 @@ package org.jboss.hal.processors;
 import com.google.auto.common.AnnotationMirrors;
 import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
-import com.google.common.base.Optional;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import org.jboss.as.console.spi.BeanFactoryExtension;
-import org.jboss.gwt.circuit.meta.*;
 
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -36,7 +34,14 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Processor for the composite AutoBean factory.
