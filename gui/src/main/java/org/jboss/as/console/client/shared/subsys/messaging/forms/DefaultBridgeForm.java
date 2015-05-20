@@ -8,7 +8,9 @@ import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.messaging.model.Bridge;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
@@ -26,27 +28,8 @@ import java.util.List;
 public class DefaultBridgeForm {
 
 
-    private Form<Bridge> form = new Form<Bridge>(Bridge.class) {
-        @Override
-        public FormValidation validate() {
-            FormValidation validation = super.validate();
+    private Form<Bridge> form = new Form<Bridge>(Bridge.class);
 
-            if(!discoveryGroup.getValue().equals("") && connectors.getValue().size()>0)
-            {
-                discoveryGroup.setErroneous(true);
-                connectors.setErroneous(true);
-
-                String errMessage = "Discovery group or connectors can be defined, not both";
-                discoveryGroup.setErrMessage(errMessage);
-                connectors.setErrMessage(errMessage);
-
-                validation.addError("discoveryGroup");
-                validation.addError("connectors");
-
-            }
-            return validation;
-        }
-    };
     private FormToolStrip.FormCallback<Bridge> callback;
     private boolean provideTools = true;
     private boolean isCreate = false;
@@ -75,6 +58,27 @@ public class DefaultBridgeForm {
 
     public Widget asWidget() {
 
+
+        form.addFormValidator(new FormValidator() {
+            @Override
+            public void validate(List<FormItem> formItems, FormValidation outcome) {
+
+                if(!discoveryGroup.getValue().equals("") && connectors.getValue().size()>0)
+                {
+                    discoveryGroup.setErroneous(true);
+                    connectors.setErroneous(true);
+
+                    String errMessage = "Discovery group or connectors can be defined, not both";
+                    discoveryGroup.setErrMessage(errMessage);
+                    connectors.setErrMessage(errMessage);
+
+                    outcome.addError("discoveryGroup");
+                    outcome.addError("connectors");
+
+                }
+
+            }
+        });
 
         SuggestBoxItem queueName = new SuggestBoxItem("queueName", "Queue Name");
         SuggestBoxItem forward = new SuggestBoxItem("forwardingAddress", "Forward Address");
@@ -139,7 +143,7 @@ public class DefaultBridgeForm {
         return form;
     }
 
-     public void setQueueNames(List<String> queueNames) {
+    public void setQueueNames(List<String> queueNames) {
         oracle.addAll(queueNames);
     }
 }

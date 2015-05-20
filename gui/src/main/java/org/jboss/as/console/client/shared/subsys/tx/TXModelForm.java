@@ -10,8 +10,10 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
@@ -38,12 +40,13 @@ public class TXModelForm {
         layout.setStyleName("fill-layout");
 
 
-        form = new Form<TransactionManager>(TransactionManager.class) {
+        form = new Form<TransactionManager>(TransactionManager.class);
+        form.addFormValidator(new FormValidator() {
             @Override
-            public FormValidation validate() {
-                return validateTx(super.validate());
+            public void validate(List<FormItem> formItems, FormValidation outcome) {
+                validateTx(outcome);
             }
-        };
+        });
         form.setNumColumns(2);
 
         FormToolStrip<TransactionManager> toolstrip =

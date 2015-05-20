@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.administration.role.form;
 
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
-import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 
 import java.util.Collections;
@@ -89,16 +88,6 @@ public class PojoForm<T> extends AbstractForm<T> {
     @Override
     public Class<?> getConversionType() {
         return null;
-    }
-
-    @Override
-    public void addEditListener(final EditListener listener) {
-
-    }
-
-    @Override
-    public void removeEditListener(final EditListener listener) {
-
     }
 
     @Override

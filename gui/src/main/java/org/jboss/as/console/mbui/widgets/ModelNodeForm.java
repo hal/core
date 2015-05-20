@@ -2,7 +2,6 @@ package org.jboss.as.console.mbui.widgets;
 
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.AbstractForm;
-import org.jboss.ballroom.client.widgets.forms.EditListener;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.PlainFormView;
 import org.jboss.dmr.client.ModelNode;
@@ -551,16 +550,6 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     @Override
     public Class<?> getConversionType() {
         throw new RuntimeException("API Incompatible: getConversionType() not supported on "+getClass().getName());
-    }
-
-    @Override
-    public void addEditListener(EditListener listener) {
-        throw new RuntimeException("API Incompatible: addEditListener() not supported on "+getClass().getName());
-    }
-
-    @Override
-    public void removeEditListener(EditListener listener) {
-        throw new RuntimeException("API Incompatible: removeEditListener() not supported on "+getClass().getName());
     }
 
     public void setHasWritableAttributes(boolean hasWritableAttributes) {

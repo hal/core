@@ -11,16 +11,17 @@ import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.common.ButtonDropdown;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
+import org.jboss.ballroom.client.widgets.forms.FormValidator;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolButtonDropdown;
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,11 +65,13 @@ public class PoolConfigurationView {
 
         VerticalPanel panel = new VerticalPanel();
         panel.setStyleName("fill-layout");
-        form = new Form<PoolConfig>(PoolConfig.class) {
+        form = new Form<PoolConfig>(PoolConfig.class);
+
+        form.addFormValidator(new FormValidator() {
             @Override
-            public FormValidation validate() {
-                FormValidation superValidation = super.validate();
-                PoolConfig updatedEntity = this.getUpdatedEntity();
+            public void validate(List<FormItem> formItems, FormValidation outcome) {
+
+                PoolConfig updatedEntity = form.getUpdatedEntity();
 
                 // only works on real values
                 if(ExpressionAdapter.getExpressions(updatedEntity).isEmpty())
@@ -76,15 +79,13 @@ public class PoolConfigurationView {
                     int minPoolSize = updatedEntity.getMinPoolSize();
                     int maxPoolSize = updatedEntity.getMaxPoolSize();
                     if(minPoolSize > maxPoolSize){
-                        superValidation.addError("maxPoolSize");
+                        outcome.addError("maxPoolSize");
                         maxCon.setErroneous(true);
                         maxCon.setErrMessage("Max Pool Size must be greater than Min Pool Size");
                     }
                 }
-                return superValidation;
             }
-
-        };
+        });
         form.setNumColumns(2);
         form.setEnabled(false);
 
