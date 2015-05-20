@@ -198,7 +198,7 @@ public class NewServerConfigWizard {
 
         int i=1;
         for (String group : groups) {
-            if(presenter.getSelectedGroup().equals(group))
+            if(group.equals(presenter.getSelectedGroup()))
             {
                 groupItem.selectItem(i);
                 break;
