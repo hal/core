@@ -95,8 +95,8 @@ public class ColumnManager {
     private static void assertVisibleColumns() {
         //System.out.println("Num Visible: "+ totalColumnsVisible);
 
-        if(totalColumnsVisible<0)
-            new RuntimeException("Assertion error").printStackTrace();
+       /* if(totalColumnsVisible<0)
+            new RuntimeException("Assertion error").printStackTrace();*/
     }
 
     public void updateActiveSelection(Widget widget) {
