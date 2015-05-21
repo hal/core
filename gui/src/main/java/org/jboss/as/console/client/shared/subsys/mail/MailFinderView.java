@@ -66,7 +66,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
         previewCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
 
         mailSessions = new FinderColumn<MailSession>(
                 FinderColumn.FinderId.CONFIGURATION,

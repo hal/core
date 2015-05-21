@@ -69,7 +69,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
         previewCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
 
         securityDomains = new FinderColumn<Property>(
                 FinderColumn.FinderId.CONFIGURATION,

@@ -59,7 +59,6 @@ public class FinderColumn<T> {
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
     private ValueProvider<T> valueProvider;
-    private String type = null;
 
     public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME}
     private boolean showSize = false;
@@ -261,7 +260,7 @@ public class FinderColumn<T> {
 
         PlaceManager placeManager = Console.MODULES.getPlaceManager();
         final T selectedObject = selectionModel.getSelectedObject();
-        String typeIdentifier = type != null ? type : title;
+        String typeIdentifier = title; // not used naymore;
         if(selectedObject!=null) {
 
             // delegate to value provider if given, otherwise the keyprovider will do fine
@@ -396,17 +395,6 @@ public class FinderColumn<T> {
      */
     public FinderColumn<T> setPlain(boolean plain) {
         this.plain = plain;
-        return this;
-    }
-
-    /**
-     * see default selection handler and the related FinderSelectionEvent
-     * @param type
-     * @return
-     *
-     */
-    public FinderColumn<T> setComparisonType(String type) {
-        this.type = type;
         return this;
     }
 

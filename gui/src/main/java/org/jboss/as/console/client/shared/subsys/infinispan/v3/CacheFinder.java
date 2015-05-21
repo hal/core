@@ -69,7 +69,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
         previewCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
 
         cacheContainer = new FinderColumn<Property>(
                 FinderColumn.FinderId.CONFIGURATION,

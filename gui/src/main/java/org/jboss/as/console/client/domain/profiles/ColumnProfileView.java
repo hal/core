@@ -107,7 +107,7 @@ public class ColumnProfileView extends SuspendableViewImpl
         contentCanvas = new LayoutPanel();
 
         splitlayout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(splitlayout);
+        columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.CONFIGURATION);
 
         config = new FinderColumn<FinderItem>(
                 FinderColumn.FinderId.CONFIGURATION,
@@ -604,9 +604,9 @@ public class ColumnProfileView extends SuspendableViewImpl
                         match = true;
                     }
                 }
-                if (!match) {
+                /*if (!match) {
                     System.out.println("Skip subsystem " + candidate.getKey() + ", " + candidate.getName() + ", #" + candidate.getToken());
-                }
+                }*/
             }
 
         }

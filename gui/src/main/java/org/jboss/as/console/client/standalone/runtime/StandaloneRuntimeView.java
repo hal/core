@@ -85,7 +85,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         previewCanvas = new LayoutPanel();
 
         splitlayout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(splitlayout);
+        columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
         PlaceLink jmsQueues = new PlaceLink("JMS Destinations", NameTokens.JmsMetricPresenter);

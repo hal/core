@@ -66,7 +66,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.DEPLOYMENT);
 
 
         // ------------------------------------------------------ server group
@@ -178,8 +178,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
                         Templates.PREVIEWS.assignment(data.getName(), data.isEnabled() ? "Enabled" : "Disabled")));
 
         assignmentColumn.addSelectionChangeHandler(selectionChangeEvent -> {
-            columnManager.reduceColumnsTo(2);
             if (assignmentColumn.hasSelectedItem()) {
+                columnManager.reduceColumnsTo(2);
                 columnManager.updateActiveSelection(assignmentColumnWidget);
                 Assignment assignment = assignmentColumn.getSelectedItem();
                 if (presenter.hasReferenceServer(assignment) && assignment.isEnabled()) {

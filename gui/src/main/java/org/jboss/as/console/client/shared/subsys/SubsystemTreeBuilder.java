@@ -98,9 +98,9 @@ public class SubsystemTreeBuilder {
 
                     }
                 }
-                if (!match) {
+                /*if (!match) {
                     System.out.println("Skip subsystem " + candidate.getKey() + ", " + candidate.getName() + ", #" + candidate.getToken());
-                }
+                }*/
             }
 
 

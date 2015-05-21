@@ -33,6 +33,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
+import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 
 /**
@@ -54,7 +55,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.DEPLOYMENT);
 
         subdeploymentColumn = new SubdeploymentColumn(columnManager, 2,
                 (baseCss, subdeployment) ->

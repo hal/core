@@ -230,16 +230,19 @@ public class StandaloneDeploymentFinder
 
     @Override
     public void onPreview(PreviewEvent event) {
-        getView().setPreview(event.getHtml());
+        if(isVisible())
+            getView().setPreview(event.getHtml());
     }
 
     @Override
     public void onToggleScrolling(final FinderScrollEvent event) {
-        getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if(isVisible())
+            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 
     @Override
     public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
-        getView().clearActiveSelection(event);
+        if(isVisible())
+            getView().clearActiveSelection(event);
     }
 }

@@ -69,7 +69,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
         previewCanvas = new LayoutPanel();
 
         layout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
 
         mailSessions = new FinderColumn<Property>(
                 FinderColumn.FinderId.CONFIGURATION,

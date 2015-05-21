@@ -81,7 +81,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         layout = new SplitLayoutPanel(2);
 
-        columnManager = new ColumnManager(layout);
+        columnManager = new ColumnManager(layout, FinderColumn.FinderId.RUNTIME);
 
         hosts = new FinderColumn<String>(
                 FinderColumn.FinderId.RUNTIME,
@@ -122,8 +122,6 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
 
-        hosts.setComparisonType("filter");
-
         groups = new FinderColumn<ServerGroupRecord>(
                 FinderColumn.FinderId.RUNTIME,
                 "Server Group",
@@ -150,8 +148,6 @@ public class ColumnHostView extends SuspendableViewImpl
                         return item.getName();
                     }
                 });
-
-        groups.setComparisonType("filter");
 
         groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
                         new ContextualCommand<ServerGroupRecord>() {
@@ -220,7 +216,7 @@ public class ColumnHostView extends SuspendableViewImpl
             public void onSelectionChange(SelectionChangeEvent event) {
                 if(browseColumn.hasSelectedItem())
                 {
-
+                    columnManager.reduceColumnsTo(1);
                     columnManager.updateActiveSelection(browseWidget);
 
                     clearNestedPresenter();
@@ -241,7 +237,6 @@ public class ColumnHostView extends SuspendableViewImpl
                         new Command() {
                             @Override
                             public void execute() {
-                                columnManager.reduceColumnsTo(1);
                                 columnManager.appendColumn(hostColWidget);
                                 Console.getCircuit().dispatch(new FilterType(FilterType.HOST));
                             }
@@ -254,7 +249,6 @@ public class ColumnHostView extends SuspendableViewImpl
                         "Server Groups", new Command() {
                     @Override
                     public void execute() {
-                        columnManager.reduceColumnsTo(1);
                         columnManager.appendColumn(groupsColWidget);
                         Console.getCircuit().dispatch(new FilterType(FilterType.GROUP));
                     }
@@ -269,6 +263,8 @@ public class ColumnHostView extends SuspendableViewImpl
         hosts.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+
+                columnManager.reduceColumnsTo(2);
 
                 if (hosts.hasSelectedItem()) {
 
@@ -288,6 +284,10 @@ public class ColumnHostView extends SuspendableViewImpl
                             }
                     );
 
+                }
+                else
+                {
+                    clearNestedPresenter();
                 }
             }
         });
@@ -328,6 +328,8 @@ public class ColumnHostView extends SuspendableViewImpl
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
+                columnManager.reduceColumnsTo(2);
+
                 if (groups.hasSelectedItem()) {
 
                     final ServerGroupRecord selectedGroup = groups.getSelectedItem();
@@ -348,6 +350,10 @@ public class ColumnHostView extends SuspendableViewImpl
                             }
                     );
 
+                }
+                else
+                {
+                    clearNestedPresenter();
                 }
             }
         });

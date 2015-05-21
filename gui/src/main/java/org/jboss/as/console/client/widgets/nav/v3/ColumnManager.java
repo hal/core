@@ -11,8 +11,10 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 /**
@@ -31,32 +33,24 @@ public class ColumnManager {
     private SplitLayoutPanel splitlayout;
     private final HasHandlers eventBus;
     private List<Widget> westWidgets = new LinkedList<>();
-
-    static {
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent resizeEvent) {
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        scrollIfNecessary();
-                    }
-                });
-            }
-        });
-    }
+    private final FinderColumn.FinderId finderId;
 
     /**
      * number of columns visible across all finders (and contributions)
      */
-    private static int totalColumnsVisible = 0;
-    //private Widget centerWidget;
+    private static Map<FinderColumn.FinderId, Integer> totalColumnsVisible = new HashMap<>();
 
-    public ColumnManager(SplitLayoutPanel delegate) {
+
+    public ColumnManager(SplitLayoutPanel delegate, FinderColumn.FinderId finderId) {
         this.splitlayout = delegate;
+        this.finderId = finderId;
         this.eventBus = Console.MODULES.getPlaceManager();
 
         this.initialized = false;
+
+        // default state
+        if(null==totalColumnsVisible.get(finderId))
+            totalColumnsVisible.put(finderId, 0);
 
         this.splitlayout.addAttachHandler(new AttachEvent.Handler() {
             @Override
@@ -64,7 +58,7 @@ public class ColumnManager {
                 if(!event.isAttached())
                 {
                     //System.out.println("Detach finder");
-                    totalColumnsVisible -= visibleColumns.size();
+                    decreaseTotalVisibleBy(ColumnManager.this.visibleColumns.size());
 
                     assertVisibleColumns();
                 }
@@ -78,7 +72,8 @@ public class ColumnManager {
                        // System.out.println("Attach finder");
 
                         if (visibleColumns.size() > 0) {
-                            totalColumnsVisible += visibleColumns.size();
+                            increaseTotalVisibleBy(ColumnManager.this.visibleColumns.size());
+
                             assertVisibleColumns();
                         }
                     }
@@ -87,16 +82,44 @@ public class ColumnManager {
                         initialized = true;
                     }
 
+                    scrollIfNecessary();
+
                 }
+            }
+        });
+
+
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent resizeEvent) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        scrollIfNecessary();
+                    }
+                });
             }
         });
     }
 
-    private static void assertVisibleColumns() {
+    private void increaseTotalVisibleBy(int amount) {
+        Integer visibleColumns = totalColumnsVisible.get(finderId);
+        totalColumnsVisible.put(finderId, (visibleColumns += amount));
+    }
+
+    private void decreaseTotalVisibleBy(int amount) {
+        Integer visibleColumns = totalColumnsVisible.get(finderId);
+        Integer target = visibleColumns -= amount;
+        Integer value = target < 0 ? 0 : target;
+        totalColumnsVisible.put(finderId, value);
+    }
+
+    private void assertVisibleColumns() {
         //System.out.println("Num Visible: "+ totalColumnsVisible);
 
-       /* if(totalColumnsVisible<0)
-            new RuntimeException("Assertion error").printStackTrace();*/
+        Integer visibleColumns = totalColumnsVisible.get(finderId);
+        if(visibleColumns <0)
+            new RuntimeException("Illegal number of visible columns in finder "+finderId+": "+visibleColumns).printStackTrace();
     }
 
     public void updateActiveSelection(Widget widget) {
@@ -111,48 +134,58 @@ public class ColumnManager {
 
     }
 
-    public static int getTotalColumnsVisible() {
-        return totalColumnsVisible;
-    }
-
     public void appendColumn(final Widget columnWidget) {
+
         splitlayout.setWidgetHidden(columnWidget, false);
         visibleColumns.push(columnWidget);
 
-        totalColumnsVisible++;
+        increaseTotalVisibleBy(1);
 
         scrollIfNecessary();
     }
 
     public void reduceColumnsTo(int level) {
 
-
         for(int i=visibleColumns.size()-1; i>=level; i--)
         {
             final Widget widget = visibleColumns.pop();
             splitlayout.setWidgetHidden(widget, true);
-            totalColumnsVisible--;
+            decreaseTotalVisibleBy(1);
         }
 
         scrollIfNecessary();
 
     }
 
-    private static void scrollIfNecessary() {
+    private void scrollIfNecessary() {
         assertVisibleColumns();
 
         int widthConstraint = Window.getClientWidth()<CONTAINER_WIDTH ? Window.getClientWidth() : CONTAINER_WIDTH;
-        int requiredWidth = totalColumnsVisible * DEFAULT_COLUMN_WIDTH + DEFAULT_PREVIEW_WIDTH;
+
+        Integer visibleColumns = totalColumnsVisible.get(finderId);
+        int requiredWidth = visibleColumns * DEFAULT_COLUMN_WIDTH + DEFAULT_PREVIEW_WIDTH;
+
         if(requiredWidth>widthConstraint)
         {
-            FinderScrollEvent.fire(Console.getPlaceManager(), true, requiredWidth);
-            //System.out.println("Scrolling necessary!");
-            //System.out.println(widthConstraint+"/"+requiredWidth);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    FinderScrollEvent.fire(Console.getPlaceManager(), true, requiredWidth);
+                }
+            });
+
+            /*System.out.println("Scrolling necessary!");
+            System.out.println(widthConstraint+"/"+requiredWidth);*/
 
         }
         else
         {
-            FinderScrollEvent.fire(Console.getPlaceManager(), false, 0);
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    FinderScrollEvent.fire(Console.getPlaceManager(), false, 0);
+                }
+            });
         }
     }
 
@@ -199,7 +232,7 @@ public class ColumnManager {
             if(i<index) {
 
                 visibleColumns.push(widget);
-                totalColumnsVisible++;
+                increaseTotalVisibleBy(1);
             }
             else {
                 splitlayout.setWidgetHidden(widget, true);
