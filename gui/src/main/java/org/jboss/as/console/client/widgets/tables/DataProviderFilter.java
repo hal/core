@@ -63,6 +63,7 @@ public class DataProviderFilter<T> {
      *
      */
     public void reset() {
+        origVisibleRange = new Range(0, this.delegate.getList().size());
         snapshot();
 
         // flush
@@ -80,7 +81,6 @@ public class DataProviderFilter<T> {
         // backup original
         this.origValues.clear();
         this.origValues.addAll(delegate.getList());
-        origVisibleRange = delegate.getDataDisplays().iterator().next().getVisibleRange();
     }
 
     public Widget asWidget() {
@@ -149,7 +149,6 @@ public class DataProviderFilter<T> {
 
         delegate.getList().clear(); // cannot call setList() as that breaks the sort handler
         delegate.getList().addAll(origValues);
-
         delegate.getDataDisplays().iterator().next().setVisibleRange(origVisibleRange);
 
         delegate.flush();
