@@ -28,27 +28,31 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
 import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.domain.model.ServerInstance;
+import org.jboss.as.console.client.domain.topology.HostInfo;
+import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.deployment.DeploymentReference;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.widgets.forms.UploadForm;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
-import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * Collection of deployment related functions under a common namespace.
@@ -57,16 +61,21 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
  */
 public final class DeploymentFunctions {
 
-    private DeploymentFunctions() {
-    }
+    public static final String ASSIGNMENTS = DeploymentFunctions.class.getName() + ".assignments";
 
-    public static class Upload implements Function<FunctionContext> {
+    private DeploymentFunctions() {}
+
+    /**
+     * Uploads a deployment, sets the deployment hash and pushes the updated {@link DeploymentReference} instance into
+     * the context.
+     */
+    public static class UploadContent implements Function<FunctionContext> {
 
         private final UploadForm uploadForm;
         private final FileUpload fileUpload;
         private final DeploymentReference upload;
 
-        public Upload(final UploadForm uploadForm, final FileUpload fileUpload,
+        public UploadContent(final UploadForm uploadForm, final FileUpload fileUpload,
                 final DeploymentReference upload) {
             this.uploadForm = uploadForm;
             this.fileUpload = fileUpload;
@@ -95,9 +104,11 @@ public final class DeploymentFunctions {
 
 
     /**
-     * Expects a {@link DeploymentReference} instance in the context.
+     * Adds or replaces an uploaded deployment to/in the content repository.
+     * Expects a {@link DeploymentReference} instance on top of the context stack.
+     * Pushes an {@link Content} instance into the context.
      */
-    public static class AddContent implements Function<FunctionContext> {
+    public static class AddOrReplaceContent implements Function<FunctionContext> {
 
         static final String HEADER_CONTENT_TYPE = "Content-Type";
         static final String APPLICATION_JSON = "application/json";
@@ -105,7 +116,7 @@ public final class DeploymentFunctions {
         private final BootstrapContext bootstrapContext;
         private final boolean replace;
 
-        public AddContent(final BootstrapContext bootstrapContext, final boolean replace) {
+        public AddOrReplaceContent(final BootstrapContext bootstrapContext, final boolean replace) {
             this.bootstrapContext = bootstrapContext;
             this.replace = replace;
         }
@@ -187,7 +198,59 @@ public final class DeploymentFunctions {
 
 
     /**
-     * Expects a {@link Content} instance in the context.
+     * Adds an unmanaged deployment to the content repository. Pushes an {@link Content} instance into the context.
+     */
+    public static class AddUnmanagedContent implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+        private final DeploymentRecord unmanaged;
+
+        public AddUnmanagedContent(final DispatchAsync dispatcher, final DeploymentRecord unmanaged) {
+            this.dispatcher = dispatcher;
+            this.unmanaged = unmanaged;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            ResourceAddress address = new ResourceAddress().add("deployment", unmanaged.getName());
+
+            List<ModelNode> content = new ArrayList<>(1);
+            ModelNode path = new ModelNode();
+            path.get("path").set(unmanaged.getPath());
+            path.get("archive").set(unmanaged.isArchive());
+            if (unmanaged.getRelativeTo() != null && !unmanaged.getRelativeTo().equals("")) {
+                path.get("relative-to").set(unmanaged.getRelativeTo());
+            }
+            content.add(path);
+
+            Operation op = new Operation.Builder(ADD, address)
+                    .param("name", unmanaged.getName())
+                    .param("runtime-name", unmanaged.getRuntimeName())
+                    .param("enabled", unmanaged.isEnabled())
+                    .param("content", content)
+                    .build();
+
+            dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
+                @Override
+                protected void onFailedOutcome(final ModelNode result) {
+                    context.setErrorMessage("Unable to add unmanaged deployment: " + result.getFailureDescription());
+                }
+
+                @Override
+                public void onSuccess(final ModelNode result) {
+                    ModelNode node = new ModelNode();
+                    node.get(NAME).set(unmanaged.getName());
+                    node.get("runtime-name").set(unmanaged.getRuntimeName());
+                    control.getContext().push(new Content(node));
+                }
+            });
+        }
+    }
+
+
+    /**
+     * Adds and optionally enables an assignment to the specified server group. Expects a {@link Content} instance in
+     * the context.
      */
     public static class AddAssignment implements Function<FunctionContext> {
 
@@ -213,81 +276,94 @@ public final class DeploymentFunctions {
                     .param("enabled", enable)
                     .build();
 
-            dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
                 @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().setError(new RuntimeException("Unable to assign deployment"));
-                    control.abort();
-                }
-
-                @Override
-                public void onSuccess(final DMRResponse response) {
-                    ModelNode result = response.get();
-                    if (result.isFailure()) {
-                        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
-                        control.abort();
-                    } else {
-                        control.proceed();
-                    }
+                protected void onFailedOutcome(final ModelNode result) {
+                    control.getContext().setErrorMessage(
+                            "Unable to assign deployment: " + result.getFailureDescription());
                 }
             });
         }
     }
 
 
-    public static class AddUnmanaged implements Function<FunctionContext> {
+    /**
+     * Loads the assignments of the specified server group and puts the result as list of {@link Assignment} instances
+     * under the key {@link #ASSIGNMENTS} in the context.
+     */
+    public static class LoadAssignments implements Function<FunctionContext> {
 
         private final DispatchAsync dispatcher;
-        private final DeploymentRecord unmanaged;
+        private final String serverGroup;
 
-        public AddUnmanaged(final DispatchAsync dispatcher, final DeploymentRecord unmanaged) {
+        public LoadAssignments(final DispatchAsync dispatcher, final String serverGroup) {
             this.dispatcher = dispatcher;
-            this.unmanaged = unmanaged;
+            this.serverGroup = serverGroup;
         }
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-
-            ResourceAddress address = new ResourceAddress().add("deployment", unmanaged.getName());
-
-            List<ModelNode> content = new ArrayList<>(1);
-            ModelNode path = new ModelNode();
-            path.get("path").set(unmanaged.getPath());
-            path.get("archive").set(unmanaged.isArchive());
-            if (unmanaged.getRelativeTo() != null && !unmanaged.getRelativeTo().equals("")) {
-                path.get("relative-to").set(unmanaged.getRelativeTo());
-            }
-            content.add(path);
-
-            Operation op = new Operation.Builder(ADD, address)
-                    .param("name", unmanaged.getName())
-                    .param("runtime-name", unmanaged.getRuntimeName())
-                    .param("enabled", unmanaged.isEnabled())
-                    .param("content", content)
+            ResourceAddress address = new ResourceAddress().add("server-group", serverGroup);
+            Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
+                    .param(CHILD_TYPE, "deployment")
                     .build();
 
-            dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
                 @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().setError(new RuntimeException("Unable to add unmanaged deployment"));
-                    control.abort();
-                }
-
-                @Override
-                public void onSuccess(final DMRResponse response) {
-                    ModelNode result = response.get();
-                    if (result.isFailure()) {
-                        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
-                        control.abort();
-                    } else {
-                        ModelNode node = new ModelNode();
-                        node.get(NAME).set(unmanaged.getName());
-                        node.get("runtime-name").set(unmanaged.getRuntimeName());
-                        control.getContext().push(new Content(node));
-                        control.proceed();
+                public void onSuccess(final ModelNode result) {
+                    List<Assignment> assignments = new ArrayList<>();
+                    ModelNode payload = result.get(RESULT);
+                    List<Property> properties = payload.asPropertyList();
+                    for (Property property : properties) {
+                        assignments.add(new Assignment(serverGroup, property.getValue()));
                     }
+                    control.getContext().set(ASSIGNMENTS, assignments);
                 }
             });
+        }
+    }
+
+
+    /**
+     * Tries to find a reference (running) server for the specified server group. Expects a the list of hosts stored
+     * under the key {@link org.jboss.as.console.client.domain.topology.TopologyFunctions#HOSTS_KEY} in the context.
+     * Expects a list of assignments for the given server group under the key {@link #ASSIGNMENTS} in the context.
+     * If a reference server is found it's pushed onto the context stack.
+     */
+    public static class FindReferenceServer implements Function<FunctionContext> {
+
+        private final String serverGroup;
+
+        public FindReferenceServer(final String serverGroup) {
+            this.serverGroup = serverGroup;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            ReferenceServer referenceServer = null;
+            List<HostInfo> hosts = control.getContext()
+                    .getOrDefault(TopologyFunctions.HOSTS_KEY, input -> Collections.emptyList());
+            List<Assignment> assignments = control.getContext()
+                    .getOrDefault(ASSIGNMENTS, input -> Collections.emptyList());
+
+            for (Iterator<HostInfo> i = hosts.iterator(); i.hasNext() && referenceServer == null; ) {
+                HostInfo host = i.next();
+                List<ServerInstance> serverInstances = host.getServerInstances();
+                for (Iterator<ServerInstance> j = serverInstances.iterator();
+                        j.hasNext() && referenceServer == null; ) {
+                    ServerInstance server = j.next();
+                    if (server.isRunning() && server.getGroup().equals(serverGroup)) {
+                        referenceServer = new ReferenceServer(server.getHost(), server.getName());
+                    }
+                }
+            }
+            if (referenceServer != null) {
+                control.getContext().push(referenceServer);
+                for (Assignment assignment : assignments) {
+                    assignment.setReferenceServer(referenceServer);
+                }
+            }
+            control.proceed();
         }
     }
 }

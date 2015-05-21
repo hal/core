@@ -169,9 +169,9 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
                 }
             };
             new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                    new TopologyFunctions.HostsAndGroups(dispatcher),
-                    new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
-                    new TopologyFunctions.RunningServerInstances(dispatcher));
+                    new TopologyFunctions.ReadHostsAndGroups(dispatcher),
+                    new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
+                    new TopologyFunctions.FindRunningServerInstances(dispatcher));
         }
     }
 

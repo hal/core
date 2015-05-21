@@ -183,7 +183,7 @@ public final class RoleAssignmentFunctions {
             dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
 
                 @Override
-                protected void onSuccess(final ModelNode result) {
+                public void onSuccess(final ModelNode result) {
                     List<ModelNode> roleMappings = result.get(RESULT).asList();
                     for (ModelNode node : roleMappings) {
                         Property property = node.asProperty();

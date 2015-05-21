@@ -21,13 +21,12 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.functions;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.useware.kernel.gui.behaviour.StatementContext;
@@ -57,23 +56,11 @@ public class CreateSaslSingleton implements Function<FunctionContext> {
         ModelNode op = new ModelNode();
         op.get(ADDRESS).set(singletonAddress.resolve(statementContext, connectorName));
         op.get(OP).set(ADD);
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
             @Override
-            public void onFailure(Throwable caught) {
-                control.getContext().setError(caught);
-                control.abort();
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if (result.isFailure()) {
-                    control.getContext().setError(new RuntimeException("Failed to add security singleton for resource " +
-                            connectorName + ": " + result.getFailureDescription()));
-                    control.abort();
-                } else {
-                    control.proceed();
-                }
+            protected void onFailedOutcome(final ModelNode result) {
+                context.setErrorMessage("Failed to add security singleton for resource " +
+                        connectorName + ": " + result.getFailureDescription());
             }
         });
     }

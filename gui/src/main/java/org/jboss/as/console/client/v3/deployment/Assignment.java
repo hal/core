@@ -31,6 +31,7 @@ public class Assignment extends Content {
 
     private final String serverGroup;
     private final ModelNode node;
+    private ReferenceServer referenceServer; // might be null if no reference server is available!
 
     public Assignment(final String serverGroup, final ModelNode node) {
         super(node);
@@ -67,6 +68,18 @@ public class Assignment extends Content {
 
     public String getServerGroup() {
         return serverGroup;
+    }
+
+    public ReferenceServer getReferenceServer() {
+        return referenceServer;
+    }
+
+    public boolean hasReferenceServer() {
+        return referenceServer != null;
+    }
+
+    public void setReferenceServer(final ReferenceServer referenceServer) {
+        this.referenceServer = referenceServer;
     }
 
     @Override

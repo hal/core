@@ -76,11 +76,9 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
@@ -126,7 +124,6 @@ public class DomainDeploymentFinder
     private final DispatchAsync dispatcher;
     private final Dispatcher circuit;
     private final ServerGroupStore serverGroupStore;
-    private final Map<String, ReferenceServer> referenceServers;
     private final AddDomainDeploymentWizard addWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
     private final UnassignedContentDialog unassignedDialog;
@@ -145,7 +142,6 @@ public class DomainDeploymentFinder
         this.dispatcher = dispatcher;
         this.circuit = circuit;
         this.serverGroupStore = serverGroupStore;
-        this.referenceServers = new HashMap<>();
 
         this.addWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> loadAssignments(context.serverGroup, false));
@@ -395,21 +391,22 @@ public class DomainDeploymentFinder
                         }
                     }
                 }
-                referenceServers.remove(serverGroup);
                 if (referenceServer != null) {
-                    referenceServers.put(serverGroup, referenceServer);
+                    for (Assignment assignment : assignments) {
+                        assignment.setReferenceServer(referenceServer);
+                    }
                 }
                 getView().updateAssignments(assignments);
             }
         };
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new TopologyFunctions.HostsAndGroups(dispatcher),
-                new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
-                new TopologyFunctions.RunningServerInstances(dispatcher));
+                new TopologyFunctions.ReadHostsAndGroups(dispatcher),
+                new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
+                new TopologyFunctions.FindRunningServerInstances(dispatcher));
     }
 
     public void loadDeployments(final Assignment assignment) {
-        final ReferenceServer referenceServer = referenceServers.get(assignment.getServerGroup());
+        final ReferenceServer referenceServer = assignment.getReferenceServer();
         if (referenceServer != null) {
             Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, referenceServer.getAddress())
                     .param(CHILD_TYPE, "deployment")
@@ -467,16 +464,5 @@ public class DomainDeploymentFinder
     public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
         if(isVisible())
             getView().clearActiveSelection(event);
-    }
-
-
-    // ------------------------------------------------------ state
-
-    public ReferenceServer getReferenceServer(String serverGroup) {
-        return referenceServers.get(serverGroup);
-    }
-
-    public boolean hasReferenceServer(Assignment assignment) {
-        return getReferenceServer(assignment.getServerGroup()) != null;
     }
 }

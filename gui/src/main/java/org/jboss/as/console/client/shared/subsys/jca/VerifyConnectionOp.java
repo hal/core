@@ -427,8 +427,8 @@ public class VerifyConnectionOp {
                 }
             } else {
                 // in domain mode verifying a datasource requires a running server
-                functions.add(new TopologyFunctions.HostsAndGroups(dispatcher));
-                functions.add(new TopologyFunctions.ServerConfigs(dispatcher, beanFactory));
+                functions.add(new TopologyFunctions.ReadHostsAndGroups(dispatcher));
+                functions.add(new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory));
                 functions.add(new FilterCurrentProfile());
                 functions.add(new VerifyRunningServer());
                 if (existing) {

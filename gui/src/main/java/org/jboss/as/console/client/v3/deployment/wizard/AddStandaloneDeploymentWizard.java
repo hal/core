@@ -131,12 +131,12 @@ public class AddStandaloneDeploymentWizard extends DeploymentWizard implements A
 
     private void uploadAndAddContent(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.Upload(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddContent(bootstrapContext, false));
+                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
+                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false));
     }
 
     private void addUnmanaged(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.AddUnmanaged(dispatcher, context.unmanagedDeployment));
+                new DeploymentFunctions.AddUnmanagedContent(dispatcher, context.unmanagedDeployment));
     }
 }

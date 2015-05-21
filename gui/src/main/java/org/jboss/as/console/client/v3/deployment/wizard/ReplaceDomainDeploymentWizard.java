@@ -107,7 +107,7 @@ public class ReplaceDomainDeploymentWizard extends DeploymentWizard implements R
 
         context.upload.setEnableAfterDeployment(assignment.isEnabled());
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.Upload(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddContent(bootstrapContext, true));
+                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
+                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, true));
     }
 }

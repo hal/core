@@ -122,12 +122,12 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
                 new FinderColumn.Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {
-                        return presenter.hasReferenceServer(data) && data.isEnabled();
+                        return data.hasReferenceServer() && data.isEnabled();
                     }
 
                     @Override
                     public SafeHtml render(final String baseCss, final Assignment data) {
-                        if (!presenter.hasReferenceServer(data)) {
+                        if (!data.hasReferenceServer()) {
                             return Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(data.getName(), 20),
                                     data.getName() + " (no reference server available)");
                         } else if (!data.isEnabled()) {
@@ -140,7 +140,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public String rowCss(final Assignment data) {
-                        if (!presenter.hasReferenceServer(data)) {
+                        if (!data.hasReferenceServer()) {
                             return "noReferenceServer";
                         } else if (!data.isEnabled()) {
                             return "inactive";
@@ -182,7 +182,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
                 columnManager.reduceColumnsTo(2);
                 columnManager.updateActiveSelection(assignmentColumnWidget);
                 Assignment assignment = assignmentColumn.getSelectedItem();
-                if (presenter.hasReferenceServer(assignment) && assignment.isEnabled()) {
+                if (assignment.hasReferenceServer() && assignment.isEnabled()) {
                     columnManager.appendColumn(deploymentColumnWidget);
                     presenter.loadDeployments(assignment);
                 }

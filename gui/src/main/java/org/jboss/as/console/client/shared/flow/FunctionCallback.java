@@ -34,15 +34,36 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
 public class FunctionCallback implements AsyncCallback<DMRResponse> {
 
     private final Control<FunctionContext> control;
+    protected final FunctionContext context;
 
-    public FunctionCallback(final Control<FunctionContext> control) {this.control = control;}
+    public FunctionCallback(final Control<FunctionContext> control) {
+        this.control = control;
+        this.context = control.getContext();
+    }
 
+    /**
+     * Stores the exception in the context, calls {@link #onError(Throwable)} {@linkplain Control#abort()}s the control
+     * flow.
+     */
     @Override
     public void onFailure(final Throwable caught) {
-        control.getContext().setError(caught);
+        context.setError(caught);
+        onError(caught);
         abort();
     }
 
+    /**
+     * Override this method to handle exceptions. Called from {@link #onFailure(Throwable)}. Do not call {@link
+     * Control#abort()} from this method, {@link #onSuccess(DMRResponse)} takes care of this.
+     */
+    @SuppressWarnings("UnusedParameters")
+    public void onError(final Throwable error) {
+    }
+
+    /**
+     * Takes the payload from the response and checks if it was successful. Calls {@link #onSuccess(ModelNode)} and
+     * {@link #proceed()} if no error occurred, {@link #onFailedOutcome(ModelNode)} and {@link #abort()} otherwise.
+     */
     @Override
     public void onSuccess(final DMRResponse response) {
         ModelNode result = response.get();
@@ -55,18 +76,33 @@ public class FunctionCallback implements AsyncCallback<DMRResponse> {
         }
     }
 
+    /**
+     * Called from {@link #onSuccess(DMRResponse)} if the payload contains an error. Sets the error message to
+     * {@link ModelNode#getFailureDescription()}. Do not call {@link Control#abort()} from this method, {@link
+     * #onSuccess(DMRResponse)} takes care of this.
+     */
     protected void onFailedOutcome(final ModelNode result) {
-        control.getContext().setError(new RuntimeException(result.getFailureDescription()));
+        context.setErrorMessage(result.getFailureDescription());
     }
 
+    /**
+     * Shortcut for {@link Control#abort()}
+     */
     protected void abort() {
         control.abort();
     }
 
-    protected void onSuccess(final ModelNode result) {
-        // empty
+    /**
+     * Override this method if you want to process a successful payload. Do not call {@link Control#proceed()} from
+     * this method, {@link #onSuccess(DMRResponse)} takes care of this.
+     */
+    public void onSuccess(final ModelNode result) {
+        // noop
     }
 
+    /**
+     * Shortcut for {@link Control#proceed()}
+     */
     protected void proceed() {
         control.proceed();
     }

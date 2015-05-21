@@ -21,13 +21,12 @@
  */
 package org.jboss.as.console.client.shared.subsys.remoting.functions;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
-import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 import org.useware.kernel.gui.behaviour.StatementContext;
@@ -61,25 +60,19 @@ public class VerifySaslSingleton implements Function<FunctionContext> {
         ModelNode op = new ModelNode();
         op.get(ADDRESS).set(singletonAddress.resolve(statementContext, connectorName));
         op.get(OP).set(READ_RESOURCE_OPERATION);
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
             @Override
-            public void onFailure(Throwable caught) {
-                // security singleton does not exist, create in next step
-                control.getContext().push(404);
+            protected void proceed() {
+                // security singleton already exists, signal next step to skip creation
+                context.push(200);
                 control.proceed();
             }
 
             @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if (result.isFailure()) {
-                    // security singleton does not exist, create in next step
-                    control.getContext().push(404);
-                } else {
-                    // security singleton already exists, signal next step to skip creation
-                    control.getContext().push(200);
-                }
-                control.proceed();
+            protected void abort() {
+                // security singleton does not exist, create in next step
+                context.push(404);
+                proceed();
             }
         });
     }

@@ -71,8 +71,8 @@ public class DomainDriverStrategy implements DriverStrategy {
         };
 
         new Async<FunctionContext>().waterfall(new FunctionContext(), outcome,
-                new TopologyFunctions.HostsAndGroups(dispatcher), // we need only hosts here, but still better to DRY
-                new TopologyFunctions.ServerConfigs(dispatcher, beanFactory),
+                new TopologyFunctions.ReadHostsAndGroups(dispatcher), // we need only hosts here, but still better to DRY
+                new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
                 new DriversOnRunningServers(dispatcher, beanFactory));
     }
 
@@ -112,7 +112,7 @@ public class DomainDriverStrategy implements DriverStrategy {
             node.get(STEPS).set(steps);
             dispatcher.execute(new DMRAction(node), new FunctionCallback(control) {
                 @Override
-                protected void onSuccess(final ModelNode result) {
+                public void onSuccess(final ModelNode result) {
                     /* For a composite op the "installed-drivers-list" reads as
                      * "server-groups" => {"<groupName>" => {"host" => {"<hostName>" => {"<serverName>" => {"response" => {
                      *   "outcome" => "success",
@@ -145,7 +145,7 @@ public class DomainDriverStrategy implements DriverStrategy {
                             }
                         }
                     }
-                    control.getContext().push(drivers);
+                    context.push(drivers);
                 }
 
                 private void addDrivers(final String groupName, final ModelNode serverNode) {

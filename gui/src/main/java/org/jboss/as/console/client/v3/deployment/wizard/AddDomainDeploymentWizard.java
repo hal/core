@@ -148,8 +148,8 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
 
     private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.Upload(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddContent(bootstrapContext, false),
+                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
+                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false),
                 new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
                         context.upload.isEnableAfterDeployment()));
     }
@@ -165,7 +165,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
 
     private void addUnmanaged(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.AddUnmanaged(dispatcher, context.unmanagedDeployment),
+                new DeploymentFunctions.AddUnmanagedContent(dispatcher, context.unmanagedDeployment),
                 new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
                         context.unmanagedDeployment.isEnabled()));
     }
