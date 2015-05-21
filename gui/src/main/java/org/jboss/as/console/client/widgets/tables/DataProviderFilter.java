@@ -62,6 +62,7 @@ public class DataProviderFilter<T> {
      * you need to do it when the data provider gets new records.
      */
     public void reset() {
+        origVisibleRange = new Range(0, this.delegate.getList().size());
         snapshot();
         clearFilter();
         filter.setText("");
@@ -73,9 +74,8 @@ public class DataProviderFilter<T> {
      */
     private void snapshot() {
         // backup original
-        origValues.clear();
-        origValues.addAll(delegate.getList());
-        origVisibleRange = delegate.getDataDisplays().iterator().next().getVisibleRange();
+        this.origValues.clear();
+        this.origValues.addAll(delegate.getList());
     }
 
     public Widget asWidget() {
