@@ -56,8 +56,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
     private Widget serverGroupColumnWidget;
     private FinderColumn<Assignment> assignmentColumn;
     private Widget assignmentColumnWidget;
-    private DeploymentColumn deploymentColumn;
-    private Widget deploymentColumnWidget;
+    private SubdeploymentColumn subdeploymentColumn;
     private Widget subdeploymentColumnWidget;
 
     @Inject
@@ -109,7 +108,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
             if (serverGroupColumn.hasSelectedItem()) {
                 columnManager.updateActiveSelection(serverGroupColumnWidget);
                 columnManager.appendColumn(assignmentColumnWidget);
-                presenter.loadAssignments(serverGroupColumn.getSelectedItem().getName(), true);
+                presenter.loadAssignments(serverGroupColumn.getSelectedItem().getName());
             }
         });
 
@@ -118,16 +117,16 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
 
         assignmentColumn = new FinderColumn<>(
                 FinderColumn.FinderId.DEPLOYMENT,
-                "Assignment",
+                "Deployment",
                 new FinderColumn.Display<Assignment>() {
                     @Override
                     public boolean isFolder(final Assignment data) {
-                        return data.hasReferenceServer() && data.isEnabled();
+                        return data.isEnabled() && data.hasDeployment() && data.getDeployment().hasSubdeployments();
                     }
 
                     @Override
                     public SafeHtml render(final String baseCss, final Assignment data) {
-                        if (!data.hasReferenceServer()) {
+                        if (!data.hasDeployment()) {
                             return Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(data.getName(), 20),
                                     data.getName() + " (no reference server available)");
                         } else if (!data.isEnabled()) {
@@ -140,7 +139,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public String rowCss(final Assignment data) {
-                        if (!data.hasReferenceServer()) {
+                        if (!data.hasDeployment()) {
                             return "noReferenceServer";
                         } else if (!data.isEnabled()) {
                             return "inactive";
@@ -163,7 +162,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
                         item -> presenter.launchAddAssignmentWizard(serverGroupColumn.getSelectedItem().getName())),
                 new MenuDelegate<>("Unassigned", item -> presenter.launchUnassignedDialog()),
                 new MenuDelegate<>("Refresh",
-                        item -> presenter.loadAssignments(serverGroupColumn.getSelectedItem().getName(), true))
+                        item -> presenter.loadAssignments(serverGroupColumn.getSelectedItem().getName()))
         );
 
         //noinspection Convert2MethodRef
@@ -173,59 +172,36 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item))
         );
 
-        assignmentColumn.setPreviewFactory((data, callback) ->
-                callback.onSuccess(
-                        Templates.PREVIEWS.assignment(data.getName(), data.isEnabled() ? "Enabled" : "Disabled")));
+        assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
 
         assignmentColumn.addSelectionChangeHandler(selectionChangeEvent -> {
+            columnManager.reduceColumnsTo(2);
             if (assignmentColumn.hasSelectedItem()) {
-                columnManager.reduceColumnsTo(2);
                 columnManager.updateActiveSelection(assignmentColumnWidget);
                 Assignment assignment = assignmentColumn.getSelectedItem();
-                if (assignment.hasReferenceServer() && assignment.isEnabled()) {
-                    columnManager.appendColumn(deploymentColumnWidget);
-                    presenter.loadDeployments(assignment);
+                if (assignment.isEnabled() && assignment.hasDeployment() && assignment.getDeployment()
+                        .hasSubdeployments()) {
+                    Deployment deployment = assignment.getDeployment();
+                    columnManager.appendColumn(subdeploymentColumnWidget);
+                    subdeploymentColumn.updateFrom(deployment.getSubdeployments());
                 }
             }
         });
 
 
-        // ------------------------------------------------------ (sub)deployments
+        // ------------------------------------------------------ subdeployments
 
-        SubdeploymentColumn subdeploymentColumn = new SubdeploymentColumn(columnManager, 4,
-                (baseCss, subdeployment) ->
-                        Templates.ITEMS.item(baseCss,
-                                Trim.abbreviateMiddle(subdeployment.getName(), 20), subdeployment.getName()),
-
-                subdeployment ->
-                        Templates.PREVIEWS.subdeployment(subdeployment.getName(),
-                                Templates.subdeploymentSummary(subdeployment))
-        );
-
-        deploymentColumn = new DeploymentColumn("Reference Server", columnManager, subdeploymentColumn, 3,
-                (baseCss, deployment) ->
-                        Templates.ITEMS.referenceServer(baseCss, deployment.getReferenceServer().getHost(),
-                                deployment.getReferenceServer().getServer()),
-
-                deployment -> "",
-
-                deployment ->
-                        Templates.PREVIEWS.domainDeployment(deployment.getName(), deployment.getRuntimeName(),
-                                deployment.getReferenceServer().getHost(), deployment.getReferenceServer().getServer(),
-                                Templates.deploymentSummary(deployment))
-        );
+        subdeploymentColumn = new SubdeploymentColumn(columnManager, 3);
 
 
         // ------------------------------------------------------ setup UI
 
         serverGroupColumnWidget = serverGroupColumn.asWidget();
         assignmentColumnWidget = assignmentColumn.asWidget();
-        deploymentColumnWidget = deploymentColumn.asWidget();
         subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
         columnManager.addWest(serverGroupColumnWidget);
         columnManager.addWest(assignmentColumnWidget);
-        columnManager.addWest(deploymentColumnWidget);
         columnManager.addWest(subdeploymentColumnWidget);
         columnManager.add(contentCanvas);
         columnManager.setInitialVisible(1);
@@ -252,11 +228,6 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
     @Override
     public void updateAssignments(final Iterable<Assignment> assignments) {
         assignmentColumn.updateFrom(Lists.newArrayList(assignments));
-    }
-
-    @Override
-    public void updateDeployments(Iterable<Deployment> deployments) {
-        deploymentColumn.updateFrom(Lists.newArrayList(deployments));
     }
 
 
@@ -293,7 +264,6 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl
     public void clearActiveSelection(final ClearFinderSelectionEvent event) {
         serverGroupColumnWidget.getElement().removeClassName("active");
         assignmentColumnWidget.getElement().removeClassName("active");
-        deploymentColumnWidget.getElement().removeClassName("active");
         subdeploymentColumnWidget.getElement().removeClassName("active");
     }
 }

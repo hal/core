@@ -22,7 +22,7 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 /**
- * Marker interface used in {@link VerifyUploadStep}  to distinguish between add and replace.
+ * Marker interface used in {@link VerifyUploadStep} to distinguish between add and replace.
  *
  * @author Harald Pehl
  */

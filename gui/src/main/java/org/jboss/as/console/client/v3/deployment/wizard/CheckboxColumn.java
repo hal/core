@@ -22,18 +22,19 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.user.cellview.client.Column;
 
 /**
- * A column that allows a boolean value to be updated.  The entity should implement
- * CheckboxColumn.Selectable.
+ * A column that allows a boolean value to be updated. The entity should implement CheckboxColumn.Selectable.
  *
  * @author Stan Silvert ssilvert@redhat.com (C) 2011 Red Hat Inc.
  */
 public class CheckboxColumn<T extends CheckboxColumn.Selectable> extends Column<T, Boolean> {
-    
+
     public interface Selectable {
+
         boolean isSelected();
+
         void setSelected(boolean isSelected);
     }
-    
+
     public CheckboxColumn() {
         super(new CheckboxCell());
         setFieldUpdater((index, object, value) -> object.setSelected(value));

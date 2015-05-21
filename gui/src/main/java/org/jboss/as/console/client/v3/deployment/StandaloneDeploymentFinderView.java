@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
@@ -47,8 +48,10 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
     private LayoutPanel contentCanvas;
     private ColumnManager columnManager;
 
-    private DeploymentColumn deploymentColumn;
+    private FinderColumn<Deployment> deploymentColumn;
+    private Widget deploymentColumnWidget;
     private SubdeploymentColumn subdeploymentColumn;
+    private Widget subdeploymentColumnWidget;
 
     @SuppressWarnings("unchecked")
     public StandaloneDeploymentFinderView() {
@@ -57,33 +60,39 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
         layout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(layout, FinderColumn.FinderId.DEPLOYMENT);
 
-        subdeploymentColumn = new SubdeploymentColumn(columnManager, 2,
-                (baseCss, subdeployment) ->
-                        Templates.ITEMS.item(baseCss,
-                                Trim.abbreviateMiddle(subdeployment.getName(), 20), subdeployment.getName()),
 
-                subdeployment ->
-                        Templates.PREVIEWS.subdeployment(subdeployment.getName(),
-                                Templates.subdeploymentSummary(subdeployment))
-        );
+        // ------------------------------------------------------ deployments
 
-        deploymentColumn = new DeploymentColumn("Deployment", columnManager, subdeploymentColumn, 1,
-                (baseCss, deployment) ->
-                        Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(deployment.getName()),
-                                deployment.getName()),
+        deploymentColumn = new FinderColumn<>(
+                FinderColumn.FinderId.DEPLOYMENT,
+                "Deployment",
+                new FinderColumn.Display<Deployment>() {
+                    @Override
+                    public boolean isFolder(final Deployment data) {
+                        return data.hasSubdeployments();
+                    }
 
-                deployment -> {
-                    if (!deployment.isEnabled()) {
-                        return "inactive";
-                    } else if (deployment.getStatus() == Deployment.Status.FAILED) {
-                        return "noReferenceServer"; // TODO custom style, check for other states
-                    } else
-                    return "";
+                    @Override
+                    public SafeHtml render(final String baseCss, final Deployment data) {
+                        return Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(data.getName()),
+                                data.getName());
+                    }
+
+                    @Override
+                    public String rowCss(final Deployment data) {
+                        if (!data.isEnabled()) {
+                            return "inactive";
+                        } else if (data.getStatus() == Deployment.Status.FAILED) {
+                            return "noReferenceServer"; // TODO custom style, check for other states
+                        } else { return ""; }
+                    }
                 },
-
-                deployment ->
-                        Templates.PREVIEWS.standaloneDeployment(deployment.getName(), deployment.getRuntimeName(),
-                                Templates.deploymentSummary(deployment))
+                new ProvidesKey<Deployment>() {
+                    @Override
+                    public Object getKey(final Deployment item) {
+                        return item.getName();
+                    }
+                }
         );
 
         deploymentColumn.setTopMenuItems(
@@ -98,8 +107,33 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item))
         );
 
-        columnManager.addWest(deploymentColumn.asWidget());
-        columnManager.addWest(subdeploymentColumn.asWidget());
+        deploymentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.deploymentPreview(data)));
+
+        deploymentColumn.addSelectionChangeHandler(event -> {
+            columnManager.reduceColumnsTo(1);
+            if (deploymentColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(deploymentColumnWidget);
+                Deployment deployment = deploymentColumn.getSelectedItem();
+                if (deployment.hasSubdeployments()) {
+                    columnManager.appendColumn(subdeploymentColumnWidget);
+                    subdeploymentColumn.updateFrom(deployment.getSubdeployments());
+                }
+            }
+        });
+
+
+        // ------------------------------------------------------ subdeployments
+
+        subdeploymentColumn = new SubdeploymentColumn(columnManager, 2);
+
+
+        // ------------------------------------------------------ setup UI
+
+        deploymentColumnWidget = deploymentColumn.asWidget();
+        subdeploymentColumnWidget = subdeploymentColumn.asWidget();
+
+        columnManager.addWest(deploymentColumnWidget);
+        columnManager.addWest(subdeploymentColumnWidget);
         columnManager.add(contentCanvas);
         columnManager.setInitialVisible(1);
     }
@@ -127,7 +161,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
     @Override
     public void setInSlot(final Object slot, final IsWidget content) {
-        if (slot == DomainDeploymentFinder.TYPE_MainContent) {
+        if (slot == StandaloneDeploymentFinder.TYPE_MainContent) {
             if (content != null) { setContent(content); } else { contentCanvas.clear(); }
         }
     }
@@ -154,7 +188,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
     }
 
     public void clearActiveSelection(final ClearFinderSelectionEvent event) {
-        deploymentColumn.asWidget().getElement().removeClassName("active");
-        subdeploymentColumn.asWidget().getElement().removeClassName("active");
+        deploymentColumnWidget.getElement().removeClassName("active");
+        subdeploymentColumnWidget.getElement().removeClassName("active");
     }
 }

@@ -27,7 +27,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.v3.deployment.Deployment;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -57,7 +56,7 @@ public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard implemen
 
     public void open(final Deployment deployment) {
         this.deployment = deployment;
-        super.open("Replace '" + Trim.abbreviateMiddle(deployment.getName()) + "'");
+        super.open("Replace Deployment");
     }
 
     @Override

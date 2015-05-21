@@ -37,6 +37,7 @@ import org.jboss.as.console.client.shared.deployment.DeploymentReference;
 import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
+import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.widgets.forms.UploadForm;
@@ -49,8 +50,10 @@ import org.jboss.gwt.flow.client.Function;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -62,6 +65,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public final class DeploymentFunctions {
 
     public static final String ASSIGNMENTS = DeploymentFunctions.class.getName() + ".assignments";
+    public static final String REFERENCE_SERVER = DeploymentFunctions.class.getName() + ".referenceServer";
+    public static final String NO_REFERENCE_SERVER_WARNING = "No Reference Server found"; // TODO i18n
 
     private DeploymentFunctions() {}
 
@@ -249,6 +254,68 @@ public final class DeploymentFunctions {
 
 
     /**
+     * Loads the contents form the content repository and pushes a {@code Map&lt;Content, List&lt;Assignment&gt;&gt;}
+     * onto the context stack.
+     */
+    public static class LoadContentAssignments implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+        private final String serverGroup;
+
+        public LoadContentAssignments(final DispatchAsync dispatcher) {
+            this(dispatcher, "*");
+        }
+
+        /**
+         * @param dispatcher  the dispatcher
+         * @param serverGroup use "*" to find assignments on any server group
+         */
+        public LoadContentAssignments(final DispatchAsync dispatcher, final String serverGroup) {
+            this.dispatcher = dispatcher;
+            this.serverGroup = serverGroup;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            final Map<Content, List<Assignment>> contentAssignments = new HashMap<>();
+            Operation content = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, ResourceAddress.ROOT)
+                    .param(CHILD_TYPE, "deployment")
+                    .build();
+            ResourceAddress address = new ResourceAddress()
+                    .add("server-group", serverGroup)
+                    .add("deployment", "*");
+            Operation assignments = new Operation.Builder(READ_RESOURCE_OPERATION, address).build();
+
+            dispatcher.execute(new DMRAction(new Composite(content, assignments)), new FunctionCallback(control) {
+                @Override
+                public void onSuccess(final ModelNode result) {
+                    Map<String, Content> contentByName = new HashMap<>();
+                    List<Property> properties = result.get(RESULT).get("step-1").get(RESULT).asPropertyList();
+                    for (Property property : properties) {
+                        Content content = new Content(property.getValue());
+                        contentByName.put(content.getName(), content);
+                        contentAssignments.put(content, new ArrayList<>());
+                    }
+
+                    List<ModelNode> nodes = result.get(RESULT).get("step-2").get(RESULT).asList();
+                    for (ModelNode node : nodes) {
+                        ModelNode addressNode = node.get(ADDRESS);
+                        String groupName = addressNode.asList().get(0).get("server-group").asString();
+                        ModelNode assignmentNode = node.get(RESULT);
+                        Assignment assignment = new Assignment(groupName, assignmentNode);
+                        Content content = contentByName.get(assignment.getName());
+                        if (content != null) {
+                            contentAssignments.get(content).add(assignment);
+                        }
+                    }
+                    context.push(contentAssignments);
+                }
+            });
+        }
+    }
+
+
+    /**
      * Adds and optionally enables an assignment to the specified server group. Expects a {@link Content} instance in
      * the context.
      */
@@ -303,6 +370,7 @@ public final class DeploymentFunctions {
 
         @Override
         public void execute(final Control<FunctionContext> control) {
+
             ResourceAddress address = new ResourceAddress().add("server-group", serverGroup);
             Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
                     .param(CHILD_TYPE, "deployment")
@@ -327,8 +395,7 @@ public final class DeploymentFunctions {
     /**
      * Tries to find a reference (running) server for the specified server group. Expects a the list of hosts stored
      * under the key {@link org.jboss.as.console.client.domain.topology.TopologyFunctions#HOSTS_KEY} in the context.
-     * Expects a list of assignments for the given server group under the key {@link #ASSIGNMENTS} in the context.
-     * If a reference server is found it's pushed onto the context stack.
+     * If a reference server is found it's put under the key {@link #REFERENCE_SERVER} into the context.
      */
     public static class FindReferenceServer implements Function<FunctionContext> {
 
@@ -343,8 +410,6 @@ public final class DeploymentFunctions {
             ReferenceServer referenceServer = null;
             List<HostInfo> hosts = control.getContext()
                     .getOrDefault(TopologyFunctions.HOSTS_KEY, input -> Collections.emptyList());
-            List<Assignment> assignments = control.getContext()
-                    .getOrDefault(ASSIGNMENTS, input -> Collections.emptyList());
 
             for (Iterator<HostInfo> i = hosts.iterator(); i.hasNext() && referenceServer == null; ) {
                 HostInfo host = i.next();
@@ -358,12 +423,60 @@ public final class DeploymentFunctions {
                 }
             }
             if (referenceServer != null) {
-                control.getContext().push(referenceServer);
-                for (Assignment assignment : assignments) {
-                    assignment.setReferenceServer(referenceServer);
-                }
+                control.getContext().set(REFERENCE_SERVER, referenceServer);
             }
             control.proceed();
+        }
+    }
+
+
+    /**
+     * Loads the deployments from a reference server which needs to be in the context map (key {@link
+     * #REFERENCE_SERVER}. Expects the list of assignments for the related server group under the key {@link
+     * #ASSIGNMENTS} in the context. Updated the assignments with the deployment instance.
+     */
+    public static class LoadDeploymentsFromReferenceServer implements Function<FunctionContext> {
+
+        private final DispatchAsync dispatcher;
+
+        public LoadDeploymentsFromReferenceServer(final DispatchAsync dispatcher) {
+            this.dispatcher = dispatcher;
+        }
+
+        @Override
+        public void execute(final Control<FunctionContext> control) {
+            if (control.getContext().get(REFERENCE_SERVER) == null) {
+                control.getContext().setErrorMessage(NO_REFERENCE_SERVER_WARNING);
+                control.abort();
+            } else {
+                final ReferenceServer referenceServer = control.getContext().get(REFERENCE_SERVER);
+
+                Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, referenceServer.getAddress())
+                        .param(CHILD_TYPE, "deployment")
+                        .param(INCLUDE_RUNTIME, true)
+                        .param(RECURSIVE, true)
+                        .build();
+
+                dispatcher.execute(new DMRAction(op), new FunctionCallback(control) {
+                    @Override
+                    public void onSuccess(final ModelNode result) {
+                        Map<String, Deployment> deploymentsByName = new HashMap<>();
+
+                        ModelNode payload = result.get(RESULT);
+                        List<Property> properties = payload.asPropertyList();
+                        for (Property property : properties) {
+                            final Deployment deployment = new Deployment(referenceServer, property.getValue());
+                            deploymentsByName.put(deployment.getName(), deployment);
+                        }
+
+                        // update assignments
+                        List<Assignment> assignments = context.get(ASSIGNMENTS);
+                        for (Assignment assignment : assignments) {
+                            assignment.setDeployment(deploymentsByName.get(assignment.getName()));
+                        }
+                    }
+                });
+            }
         }
     }
 }

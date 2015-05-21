@@ -26,20 +26,24 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
-import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.ContentSlot;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.HasPresenter;
+import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddStandaloneDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceStandaloneDeploymentWizard;
 import org.jboss.as.console.client.v3.dmr.Operation;
@@ -68,7 +72,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  */
 public class StandaloneDeploymentFinder
-        extends Presenter<StandaloneDeploymentFinder.MyView, StandaloneDeploymentFinder.MyProxy>
+        extends PerspectivePresenter<StandaloneDeploymentFinder.MyView, StandaloneDeploymentFinder.MyProxy>
         implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler, ClearFinderSelectionEvent.Handler {
 
     // @formatter:off --------------------------------------- proxy & view
@@ -103,8 +107,11 @@ public class StandaloneDeploymentFinder
 
     @Inject
     public StandaloneDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final BeanFactory beanFactory, final DispatchAsync dispatcher, final BootstrapContext bootstrapContext) {
-        super(eventBus, view, proxy);
+            final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
+            final BeanFactory beanFactory, final DispatchAsync dispatcher,
+            final BootstrapContext bootstrapContext, final Header header) {
+        super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder,
+                unauthorisedPresenter, TYPE_MainContent);
         this.dispatcher = dispatcher;
 
         this.addWizard = new AddStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
@@ -131,6 +138,12 @@ public class StandaloneDeploymentFinder
     }
 
     @Override
+    protected void onFirstReveal(final PlaceRequest placeRequest, final PlaceManager placeManager,
+            final boolean revealDefault) {
+        // noop
+    }
+
+    @Override
     protected void onReset() {
         super.onReset();
         loadDeployments();
@@ -148,14 +161,14 @@ public class StandaloneDeploymentFinder
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                // TODO Error handling
+                Console.error("Unable to load deployments", caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    // TODO Error handling
+                    Console.error("Unable to load deployments", result.getFailureDescription());
                 } else {
                     List<Deployment> deployments = new ArrayList<>();
                     ModelNode payload = result.get(RESULT);
@@ -210,14 +223,14 @@ public class StandaloneDeploymentFinder
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                // TODO Error handling
+                Console.error("Unable to modify deployment.", caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    // TODO Error handling
+                    Console.error("Unable to modify deployment.", result.getFailureDescription());
                 } else {
                     loadDeployments();
                 }

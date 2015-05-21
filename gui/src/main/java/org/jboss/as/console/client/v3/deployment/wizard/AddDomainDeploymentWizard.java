@@ -56,7 +56,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements AddDe
     }
 
     public void open(List<Content> contentRepository, String serverGroup) {
-        super.open("Add Assignment for '" + serverGroup + "'");
+        super.open("Add deployment to server group '" + serverGroup + "'");
         context.contentRepository.clear();
         context.contentRepository.addAll(contentRepository);
         context.serverGroup = serverGroup;

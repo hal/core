@@ -40,6 +40,21 @@ public class Async<C> {
     }
 
     /**
+     * Convenience method to executes a single function. Use this method if you have seperated your business logic
+     * across different function, but just want to execute a single function.
+     */
+    public void single(final C context, final Function<C> function, Outcome<C> outcome) {
+        SingletonControl ctrl = new SingletonControl(context, outcome);
+        progress.reset(1);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                function.execute(ctrl);
+            }
+        });
+    }
+
+    /**
      * Run an array of functions in series, each one running once the previous function has completed.
      * If any functions in the series pass an error to its callback,
      * no more functions are run and outcome for the series is immediately called with the value of the error.
@@ -63,7 +78,7 @@ public class Async<C> {
     @SuppressWarnings("unchecked")
     private final void _series(C context, final Outcome<C> outcome, final Function<C>... functions) {
         final C finalContext = context != null ? context : (C) EMPTY_CONTEXT;
-        final SequentialControl<C> ctrl = new SequentialControl<C>(finalContext, functions);
+        final SequentialControl ctrl = new SequentialControl(finalContext, functions);
 
         // reset progress
         progress.reset(functions.length);
@@ -109,7 +124,7 @@ public class Async<C> {
     @SuppressWarnings("unchecked")
     public void parallel(C context, final Outcome<C> outcome, final Function<C>... functions) {
         final C finalContext = context != null ? context : (C) EMPTY_CONTEXT;
-        final CountingControl<C> ctrl = new CountingControl<C>(finalContext, functions);
+        final CountingControl ctrl = new CountingControl(finalContext, functions);
         progress.reset(functions.length);
 
         Scheduler.get().scheduleIncremental(new Scheduler.RepeatingCommand() {
@@ -192,7 +207,34 @@ public class Async<C> {
         }
     }
 
-    private class SequentialControl<C> implements Control<C> {
+    private class SingletonControl implements Control<C> {
+
+        private final C context;
+        private final Outcome<C> outcome;
+
+        public SingletonControl(final C context, Outcome<C> outcome) {
+            this.context = context;
+            this.outcome = outcome;
+        }
+
+        @Override
+        public void proceed() {
+            progress.tick();
+            outcome.onSuccess(context);
+        }
+
+        @Override
+        public void abort() {
+            outcome.onFailure(context);
+        }
+
+        @Override
+        public C getContext() {
+            return context;
+        }
+    }
+
+    private class SequentialControl implements Control<C> {
 
         private final C context;
         private final Function<C>[] functions;
@@ -251,7 +293,7 @@ public class Async<C> {
         }
     }
 
-    private class CountingControl<C> implements Control<C> {
+    private class CountingControl implements Control<C> {
 
         private final C context;
         private final Function<C>[] functions;

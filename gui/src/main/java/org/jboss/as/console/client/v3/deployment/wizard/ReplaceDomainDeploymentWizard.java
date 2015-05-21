@@ -27,7 +27,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.v3.deployment.Assignment;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -57,8 +56,7 @@ public class ReplaceDomainDeploymentWizard extends DeploymentWizard implements R
 
     public void open(final Assignment assignment) {
         this.assignment = assignment;
-        super.open("Replace '" + Trim.abbreviateMiddle(assignment.getName()) + "' on '" + assignment
-                .getServerGroup() + "'");
+        super.open("Replace Deployment");
         context.serverGroup = assignment.getServerGroup();
     }
 

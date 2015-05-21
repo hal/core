@@ -47,15 +47,15 @@ public class ChooseStep extends
     public Widget asWidget() {
         FlowPanel body = new FlowPanel();
 
-        deployNew = new RadioButton("deployment_kind", "Upload and assign a new deployment");
+        deployNew = new RadioButton("deployment_kind", "Upload a new deployment");
         deployNew.addStyleName("radio-block");
         IdHelper.setId(deployNew, id(), "deployNew");
 
-        deployExisting = new RadioButton("deployment_kind", "Assign an existing deployment");
+        deployExisting = new RadioButton("deployment_kind", "Reuse an existing deployment");
         deployExisting.addStyleName("radio-block");
         IdHelper.setId(deployExisting, id(), "deployExisting");
 
-        deployUnmanaged = new RadioButton("deployment_kind", "Setup and assign an unmanaged deployment");
+        deployUnmanaged = new RadioButton("deployment_kind", "Create an unmanaged deployment");
         deployUnmanaged.addStyleName("radio-block");
         IdHelper.setId(deployUnmanaged, id(), "deployUnmanaged");
 

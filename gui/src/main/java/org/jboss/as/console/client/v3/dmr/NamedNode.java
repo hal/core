@@ -19,29 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.deployment;
+package org.jboss.as.console.client.v3.dmr;
 
-import org.jboss.as.console.client.v3.dmr.NamedNode;
 import org.jboss.dmr.client.ModelNode;
 
+import static org.jboss.dmr.client.ModelDescriptionConstants.NAME;
+
 /**
- * An uploaded deployment blob w/o any relation to servers or server groups.
- *
  * @author Harald Pehl
  */
-public class Content extends NamedNode {
+public abstract class NamedNode extends ModelNode {
 
-    public Content(final ModelNode node) {
-        super(node);
+    private final String name;
+
+    public NamedNode(final ModelNode node) {
+        set(node);
+        ModelNode name = get(NAME);
+        this.name = name.isDefined() ? name.asString() : undefinedName();
     }
 
-    public String getRuntimeName() {
-        ModelNode runtimeName = get("runtime-name");
-        return runtimeName.isDefined() ? runtimeName.asString() : null;
+    protected String undefinedName() {
+        String undefined = "undefined_" + getClass().getSimpleName() + "_" + System.currentTimeMillis();
+        return undefined.toLowerCase();
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
-    public String toString() {
-        return "Content{" + getName() + "}";
+    public boolean equals(final Object o) {
+        if (this == o) { return true; }
+        if (!(o instanceof NamedNode)) { return false; }
+        if (!super.equals(o)) { return false; }
+
+        NamedNode namedNode = (NamedNode) o;
+
+        return name.equals(namedNode.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
     }
 }

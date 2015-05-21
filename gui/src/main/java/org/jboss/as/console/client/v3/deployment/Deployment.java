@@ -50,17 +50,13 @@ public class Deployment extends Content {
         }
     }
 
-
     private final ReferenceServer referenceServer;
-    private final ModelNode node;
     private final List<Subdeployment> subdeployments;
     private final List<Subsystem> subsystems;
 
     public Deployment(final ReferenceServer referenceServer, final ModelNode node) {
         super(node);
         this.referenceServer = referenceServer;
-        this.node = node;
-
         this.subdeployments = new ArrayList<>();
         this.subsystems = new ArrayList<>();
 
@@ -84,14 +80,14 @@ public class Deployment extends Content {
         Deployment that = (Deployment) o;
         //noinspection SimplifiableIfStatement
         if (!referenceServer.equals(that.referenceServer)) { return false; }
-        return node.equals(that.node);
+        return getName().equals(that.getName());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + referenceServer.hashCode();
-        result = 31 * result + node.hashCode();
+        result = 31 * result + getName().hashCode();
         return result;
     }
 
@@ -135,6 +131,22 @@ public class Deployment extends Content {
             }
         }
         return status;
+    }
+
+    public String getEnabledTime() {
+        ModelNode node = get("enabled-timestamp");
+        if (node.isDefined()) {
+            return node.asString();
+        }
+        return null;
+    }
+
+    public String getDisabledTime() {
+        ModelNode node = get("disabled-timestamp");
+        if (node.isDefined()) {
+            return node.asString();
+        }
+        return null;
     }
 
     public boolean hasSubdeployments() {

@@ -45,7 +45,7 @@ public class UploadStep extends
     private FileUpload fileUpload;
 
     public UploadStep(final DeploymentWizard wizard, final BootstrapContext bootstrapContext) {
-        super(wizard, "Upload");
+        super(wizard, "Upload Deployment");
         this.bootstrapContext = bootstrapContext;
     }
 

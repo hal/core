@@ -21,10 +21,10 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import com.google.common.base.Function;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
@@ -35,8 +35,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
     private Widget widget;
 
-    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo,
-            final ColumnHtmlProvider<Subdeployment> columnHtml, final Function<Subdeployment, SafeHtml> previewHtml) {
+    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo) {
 
         super(FinderColumn.FinderId.DEPLOYMENT, "Subdeployment",
                 new FinderColumn.Display<Subdeployment>() {
@@ -47,7 +46,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
                     @Override
                     public SafeHtml render(final String baseCss, final Subdeployment data) {
-                        return columnHtml.provideHtml(baseCss, data);
+                        return Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(data.getName(), 20), data.getName());
                     }
 
                     @Override
@@ -63,7 +62,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
                 }
         );
 
-        setPreviewFactory((data, callback) -> callback.onSuccess(previewHtml.apply(data)));
+        setPreviewFactory((data, callback) -> callback.onSuccess(Templates.subdeploymentPreview(data)));
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(reduceTo);

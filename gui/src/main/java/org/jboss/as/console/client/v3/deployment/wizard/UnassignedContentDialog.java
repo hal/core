@@ -62,7 +62,7 @@ public class UnassignedContentDialog implements IsWidget {
     public Widget asWidget() {
         VerticalPanel root = new VerticalPanel();
         root.setStyleName("window-content");
-        root.add(new Label("The following content is not assigned to any server group. To remove the content select one or multiple items and press 'Remove'"));
+        root.add(new Label("The following deployments are not assigned to any server group. To remove the deployment select one or multiple items and press 'Remove'"));
 
         ProvidesKey<Content> keyProvider = Content::getName;
         MultiSelectionModel<Content> selectionModel = new MultiSelectionModel<>(keyProvider);
@@ -101,7 +101,7 @@ public class UnassignedContentDialog implements IsWidget {
 
     public void open(List<Content> content) {
         if (window == null) {
-            window = new DefaultWindow("Unassigned Content");
+            window = new DefaultWindow("Unassigned Deployments");
             window.setWidth(400);
             window.setHeight(450);
             window.trapWidget(asWidget());

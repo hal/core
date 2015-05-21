@@ -43,8 +43,6 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.model.ServerInstance;
-import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -67,22 +65,21 @@ import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Function;
 import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 /**
  * @author Harald Pehl
@@ -107,7 +104,6 @@ public class DomainDeploymentFinder
     public interface MyView extends View, HasPresenter<DomainDeploymentFinder> {
         void updateServerGroups(Iterable<ServerGroupRecord> serverGroups);
         void updateAssignments(Iterable<Assignment> assignments);
-        void updateDeployments(Iterable<Deployment> deployments);
 
         void setPreview(SafeHtml html);
         void clearActiveSelection(ClearFinderSelectionEvent event);
@@ -144,9 +140,9 @@ public class DomainDeploymentFinder
         this.serverGroupStore = serverGroupStore;
 
         this.addWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadAssignments(context.serverGroup, false));
+                context -> loadAssignments(context.serverGroup));
         this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadAssignments(context.serverGroup, false));
+                context -> loadAssignments(context.serverGroup));
         this.unassignedDialog = new UnassignedContentDialog(this);
     }
 
@@ -182,21 +178,26 @@ public class DomainDeploymentFinder
     // ------------------------------------------------------ deployment methods
 
     public void launchUnassignedDialog() {
-        loadUnassignedContent("*", new AsyncCallback<List<Content>>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                // TODO Error handling
-            }
+        new Async<FunctionContext>().single(new FunctionContext(),
+                new DeploymentFunctions.LoadContentAssignments(dispatcher),
+                new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(final FunctionContext context) {
+                        Console.error("Unable to find deployments.", context.getErrorMessage());
+                    }
 
-            @Override
-            public void onSuccess(final List<Content> result) {
-                if (result.isEmpty()) {
-                    Console.info("No unassigned content found.");
-                } else {
-                    unassignedDialog.open(result);
-                }
-            }
-        });
+                    @Override
+                    public void onSuccess(final FunctionContext context) {
+                        List<Content> unassigned = new ArrayList<>();
+                        Map<Content, List<Assignment>> contentAssignments = context.pop();
+                        for (Content content : contentAssignments.keySet()) {
+                            if (contentAssignments.get(content).isEmpty()) {
+                                unassigned.add(content);
+                            }
+                        }
+                        unassignedDialog.open(unassigned);
+                    }
+                });
     }
 
     public void removeContent(final Set<Content> content) {
@@ -208,75 +209,42 @@ public class DomainDeploymentFinder
         dispatcher.execute(new DMRAction(new Composite(ops)), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Console.error("Unable to remove content", caught.getMessage());
+                Console.error("Unable to remove deployment.", caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    Console.error("Unable to remove content", result.getFailureDescription());
+                    Console.error("Unable to remove deployment.", result.getFailureDescription());
                 } else {
-                    Console.info("Successfully removed " + content.size() + " artifacts.");
+                    Console.info("Successfully removed " + content.size() + " deployments.");
                 }
             }
         });
     }
 
     public void launchAddAssignmentWizard(final String serverGroup) {
-        loadUnassignedContent(serverGroup, new AsyncCallback<List<Content>>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                // TODO Error handling
-            }
-
-            @Override
-            public void onSuccess(final List<Content> result) {
-                addWizard.open(result, serverGroup);
-            }
-        });
-    }
-
-    private void loadUnassignedContent(final String serverGroup, final AsyncCallback<List<Content>> callback) {
-        Operation content = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, ResourceAddress.ROOT)
-                .param(CHILD_TYPE, "deployment")
-                .build();
-        ResourceAddress address = new ResourceAddress()
-                .add("server-group", serverGroup)
-                .add("deployment", "*");
-        Operation assignments = new Operation.Builder(READ_RESOURCE_OPERATION, address).build();
-
-        dispatcher.execute(new DMRAction(new Composite(content, assignments)), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                callback.onFailure(caught);
-            }
-
-            @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    callback.onFailure(new RuntimeException(result.getFailureDescription()));
-                } else {
-                    Set<String> assignemnts = new HashSet<>();
-                    List<ModelNode> assignmentNodes = result.get(RESULT).get("step-2").get(RESULT).asList();
-                    for (ModelNode assignmentNode : assignmentNodes) {
-                        ModelNode node = assignmentNode.get(RESULT);
-                        assignemnts.add(node.get(NAME).asString());
+        new Async<FunctionContext>().single(new FunctionContext(),
+                new DeploymentFunctions.LoadContentAssignments(dispatcher, serverGroup),
+                new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(final FunctionContext context) {
+                        Console.error("Unable to add deployment.", context.getErrorMessage());
                     }
 
-                    List<Content> contentRepository = new ArrayList<>();
-                    List<Property> properties = result.get(RESULT).get("step-1").get(RESULT).asPropertyList();
-                    for (Property property : properties) {
-                        if (assignemnts.contains(property.getName())) {
-                            continue; // skip already assigned content
+                    @Override
+                    public void onSuccess(final FunctionContext context) {
+                        List<Content> unassigned = new ArrayList<>();
+                        Map<Content, List<Assignment>> contentAssignments = context.pop();
+                        for (Content content : contentAssignments.keySet()) {
+                            if (contentAssignments.get(content).isEmpty()) {
+                                unassigned.add(content);
+                            }
                         }
-                        contentRepository.add(new Content(property.getValue()));
+                        addWizard.open(unassigned, serverGroup);
                     }
-                    callback.onSuccess(contentRepository);
-                }
-            }
-        });
+                });
     }
 
     public void launchReplaceAssignmentWizard(final Assignment assignment) {
@@ -320,128 +288,55 @@ public class DomainDeploymentFinder
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
-                // TODO Error handling
+                Console.error("Unable to modify deployment.", caught.getMessage());
             }
 
             @Override
             public void onSuccess(final DMRResponse response) {
                 ModelNode result = response.get();
                 if (result.isFailure()) {
-                    // TODO Error handling
+                    Console.error("Unable to modify deployment.", result.getFailureDescription());
                 } else {
-                    loadAssignments(serverGroup, false);
+                    loadAssignments(serverGroup);
                 }
             }
         });
     }
 
-    public void loadAssignments(final String serverGroup, final boolean lookupReferenceServer) {
-        ResourceAddress address = new ResourceAddress().add("server-group", serverGroup);
-        Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
-                .param(CHILD_TYPE, "deployment")
-                .build();
+    public void loadAssignments(final String serverGroup) {
+        // TODO Optimize - find a way to cache the reference server
+        List<Function<FunctionContext>> functions = new ArrayList<>();
+        functions.add(new DeploymentFunctions.LoadAssignments(dispatcher, serverGroup));
+        functions.add(new TopologyFunctions.ReadHostsAndGroups(dispatcher));
+        functions.add(new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory));
+        functions.add(new TopologyFunctions.FindRunningServerInstances(dispatcher));
+        functions.add(new DeploymentFunctions.FindReferenceServer(serverGroup));
+        functions.add(new DeploymentFunctions.LoadDeploymentsFromReferenceServer(dispatcher));
 
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                // TODO Error handling
-            }
-
-            @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    // TODO Error handling
-                } else {
-                    List<Assignment> assignments = new ArrayList<>();
-                    ModelNode payload = result.get(RESULT);
-                    List<Property> properties = payload.asPropertyList();
-                    for (Property property : properties) {
-                        assignments.add(new Assignment(serverGroup, property.getValue()));
-                    }
-                    if (lookupReferenceServer) {
-                        findReferenceServer(serverGroup, assignments);
-                    } else {
-                        getView().updateAssignments(assignments);
-                    }
-                }
-            }
-        });
-    }
-
-    private void findReferenceServer(final String serverGroup, final List<Assignment> assignments) {
         Outcome<FunctionContext> outcome = new Outcome<FunctionContext>() {
             @Override
             public void onFailure(final FunctionContext context) {
-                // TODO Error handling
+                String errorMessage = context.getErrorMessage();
+                if (DeploymentFunctions.NO_REFERENCE_SERVER_WARNING.equals(errorMessage)) {
+                    // not a real error
+                    Console.warning(errorMessage);
+                    List<Assignment> assignments = context.get(DeploymentFunctions.ASSIGNMENTS);
+                    getView().updateAssignments(assignments);
+                } else {
+                    Console.error("Unable to load deployments", context.getErrorMessage());
+                }
             }
 
             @Override
             public void onSuccess(final FunctionContext context) {
-                ReferenceServer referenceServer = null;
-                List<HostInfo> hosts = context.pop();
-                for (Iterator<HostInfo> i = hosts.iterator(); i.hasNext() && referenceServer == null; ) {
-                    HostInfo host = i.next();
-                    List<ServerInstance> serverInstances = host.getServerInstances();
-                    for (Iterator<ServerInstance> j = serverInstances.iterator();
-                            j.hasNext() && referenceServer == null; ) {
-                        ServerInstance server = j.next();
-                        if (server.isRunning() && server.getGroup().equals(serverGroup)) {
-                            referenceServer = new ReferenceServer(server.getHost(), server.getName());
-                        }
-                    }
-                }
-                if (referenceServer != null) {
-                    for (Assignment assignment : assignments) {
-                        assignment.setReferenceServer(referenceServer);
-                    }
-                }
+                List<Assignment> assignments = context.get(DeploymentFunctions.ASSIGNMENTS);
                 getView().updateAssignments(assignments);
             }
         };
+
+        //noinspection unchecked
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new TopologyFunctions.ReadHostsAndGroups(dispatcher),
-                new TopologyFunctions.ReadServerConfigs(dispatcher, beanFactory),
-                new TopologyFunctions.FindRunningServerInstances(dispatcher));
-    }
-
-    public void loadDeployments(final Assignment assignment) {
-        final ReferenceServer referenceServer = assignment.getReferenceServer();
-        if (referenceServer != null) {
-            Operation op = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, referenceServer.getAddress())
-                    .param(CHILD_TYPE, "deployment")
-                    .param(INCLUDE_RUNTIME, true)
-                    .param(RECURSIVE, true)
-                    .build();
-
-            dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
-                @Override
-                public void onFailure(final Throwable caught) {
-                    // TODO Error handling
-                }
-
-                @Override
-                public void onSuccess(final DMRResponse response) {
-                    ModelNode result = response.get();
-                    if (result.isFailure()) {
-                        // TODO Error handling
-                    } else {
-                        List<Deployment> deployments = new ArrayList<Deployment>();
-                        ModelNode payload = result.get(RESULT);
-                        List<Property> properties = payload.asPropertyList();
-                        for (Property property : properties) {
-                            // filter by assignment
-                            if (property.getName().equals(assignment.getName())) {
-                                deployments.add(new Deployment(referenceServer, property.getValue()));
-                            }
-                        }
-                        getView().updateDeployments(deployments);
-                    }
-                }
-            });
-        } else {
-            // TODO Error handling
-        }
+                functions.toArray(new Function[functions.size()]));
     }
 
 
@@ -449,20 +344,16 @@ public class DomainDeploymentFinder
 
     @Override
     public void onPreview(PreviewEvent event) {
-        if(isVisible())
-            getView().setPreview(event.getHtml());
+        if (isVisible()) { getView().setPreview(event.getHtml()); }
     }
-
 
     @Override
     public void onToggleScrolling(final FinderScrollEvent event) {
-        if(isVisible())
-            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
     }
 
     @Override
     public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
-        if(isVisible())
-            getView().clearActiveSelection(event);
+        if (isVisible()) { getView().clearActiveSelection(event); }
     }
 }

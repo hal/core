@@ -71,7 +71,7 @@ public class ContentRepositoryStep extends
     private ListDataProvider<SelectableContent> contentProvider;
     private SingleSelectionModel<SelectableContent> selection;
 
-    public ContentRepositoryStep(final DeploymentWizard wizard) {super(wizard, "Uploaded Content");}
+    public ContentRepositoryStep(final DeploymentWizard wizard) {super(wizard, "Uploaded Deployments");}
 
     @Override
     @SuppressWarnings("unchecked")
@@ -116,7 +116,7 @@ public class ContentRepositoryStep extends
         }
 
         if (data.isEmpty()) {
-            wizard.showError("All uploaded content is already assigned to this server group!");
+            wizard.showError("All deployments are already assigned to this server group!");
         } else {
             wizard.clearError();
         }

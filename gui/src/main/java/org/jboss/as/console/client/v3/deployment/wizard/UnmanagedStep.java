@@ -40,7 +40,7 @@ public class UnmanagedStep extends
 
     private Form<DeploymentRecord> form;
 
-    public UnmanagedStep(final DeploymentWizard wizard) {super(wizard, "Unmanaged");}
+    public UnmanagedStep(final DeploymentWizard wizard) {super(wizard, "Unmanaged Deployment");}
 
     @Override
     public Widget asWidget() {

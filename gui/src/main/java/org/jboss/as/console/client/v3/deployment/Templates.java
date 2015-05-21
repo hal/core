@@ -26,8 +26,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 
-import java.util.List;
-
 /**
  * HTML templates used for the deployment finder.
  *
@@ -43,71 +41,111 @@ final class Templates {
 
         @Template("<div class=\"{0}\" title=\"{2}\">{1}</div>")
         SafeHtml item(String cssClass, String name, String title);
-
-        @Template("<div class=\"{0}\">Host: {1}<br/>Server: {2}</div>")
-        SafeHtml referenceServer(String cssClass, String host, String server);
     }
 
 
     interface Previews extends SafeHtmlTemplates {
 
-        @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "<ul>" +
-                "<li>{1}</li>" +
-                "</ul>" +
+        @Template("<div class='preview-content'><h2>No Running Server</h2>" +
+                "<p>There's no server running in server group <code>{0}</code>.</p>" +
                 "</div>")
-        SafeHtml assignment(String name, String enabledDisabled);
+        SafeHtml noReferenceServer(String serverGroup);
 
-        @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "<ul>" +
-                "<li>Runtime Name: {1}</li>" +
-                "<li>Host: {2}</li>" +
-                "<li>Server: {3}</li>" +
-                "</ul>" +
-                "{4}" +
+        @Template("<div class='preview-content'><h2>Deployment</h2>" +
+                "<p>The deployment <code>{0}</code> is <span class='deployment-{1}'>{1}</span> and has the status <span class='deployment-state-{2}'>{2}</span>.</p>" +
+                "{3}" +
                 "</div>")
-        SafeHtml domainDeployment(String name, String runtimeName, String host, String server, SafeHtml summary);
+        SafeHtml standaloneDeployment(String name, String ed, String state, SafeHtml details);
 
-        @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "<ul>" +
-                "<li>Runtime Name: {1}</li>" +
-                "</ul>" +
-                "{2}" +
+        @Template("<div class='preview-content'><h2>Deployment</h2>" +
+                "<p>The deployment <code>{0}</code> is <span class='deployment-{1}'>{1}</span> and has the status <span class='deployment-state-{2}'>{2}</span>.<br/>The information is taken from host <code>{3}</code>, server <code>{4}</code>.</p>" +
+                "{5}" +
                 "</div>")
-        SafeHtml standaloneDeployment(String name, String runtimeName, SafeHtml summary);
+        SafeHtml domainDeployment(String name, String ed, String state, String host, String server, SafeHtml details);
 
-        @Template("<div class='preview-content'><h2>{0}</h2>{1}</div>")
-        SafeHtml subdeployment(String name, SafeHtml summary);
+        @Template("<div class='preview-content'><h2>Nested Deployment</h2>" +
+                "<p>The nested deployment <code>{0}</code> is part of another deployment.</p>" +
+                "{1}" +
+                "</div>")
+        SafeHtml subdeployment(String name, SafeHtml details);
     }
 
 
-    static SafeHtml deploymentSummary(Deployment deployment) {
-        final SafeHtmlBuilder builder = new SafeHtmlBuilder();
+    static SafeHtml assignmentPreview(final Assignment assignment) {
+        final Deployment deployment = assignment.getDeployment();
+        if (deployment == null) {
+            return PREVIEWS.noReferenceServer(assignment.getServerGroup());
+
+        } else {
+            return deploymentPreview(deployment);
+        }
+    }
+
+    static SafeHtml deploymentPreview(final Deployment deployment) {
+        String ed = deployment.isEnabled() ? "enabled" : "disabled";
+
+        SafeHtmlBuilder details = new SafeHtmlBuilder();
+        details.appendHtmlConstant("<h3>").appendEscaped("Details").appendHtmlConstant("</h3>")
+                .appendHtmlConstant("<ul>");
+        if (deployment.getEnabledTime() != null) {
+            details.appendHtmlConstant("<li class='deployment-timestamp'>").appendEscaped("Last enabled at ")
+                    .appendEscaped(deployment.getEnabledTime());
+        } else {
+            details.appendHtmlConstant("<li>").appendEscaped("The deployment was never enabled");
+        }
+        if (deployment.getDisabledTime() != null) {
+            details.appendHtmlConstant("<li class='deployment-timestamp'>").appendEscaped("Last disabled at ")
+                    .appendEscaped(deployment.getDisabledTime());
+        } else {
+            details.appendHtmlConstant("<li>").appendEscaped("The deployment was never disabled");
+        }
+        details.appendHtmlConstant("<li>").appendEscaped("Runtime name: ")
+                .appendHtmlConstant("<code>")
+                .appendEscaped(deployment.getRuntimeName())
+                .appendHtmlConstant("</code>");
+        details.appendHtmlConstant("</ul>");
+
         if (deployment.hasSubdeployments()) {
-            builder.appendHtmlConstant("<h3>").appendEscaped("Sub Deployments").appendHtmlConstant("</h3>");
-            builder.appendHtmlConstant("<ul>");
-            for (Subdeployment subdeployment : deployment.getSubdeployments()) {
-                builder.appendHtmlConstant("<li>").appendEscaped(subdeployment.getName()).appendHtmlConstant("</li>");
-            }
-            builder.appendHtmlConstant("</ul>");
+            details.appendHtmlConstant("<h3>").appendEscaped("Nested Deployments").appendHtmlConstant("</h3>")
+                    .appendHtmlConstant("<p>")
+                    .appendEscaped("The deployment contains ")
+                    .appendEscaped(String.valueOf(deployment.getSubdeployments().size()))
+                    .appendEscaped(" nested deployments")
+                    .appendHtmlConstant("</p>");
+
         } else if (!deployment.getSubsystems().isEmpty()) {
-            subsystemsSummary(builder, deployment.getSubsystems());
+            details.appendHtmlConstant("<h3>").appendEscaped("Subsystems").appendHtmlConstant("</h3>")
+                    .appendHtmlConstant("<p>")
+                    .appendEscaped("The deployment contains the following subsystems:")
+                    .appendHtmlConstant("</p>")
+                    .appendHtmlConstant("<ul>");
+            for (Subsystem subsystem : deployment.getSubsystems()) {
+                details.appendHtmlConstant("<li>").appendEscaped(subsystem.getName()).appendHtmlConstant("</li>");
+            }
+            details.appendHtmlConstant("</ul>");
         }
-        return builder.toSafeHtml();
+
+        return deployment.getReferenceServer().isStandalone() ?
+                PREVIEWS.standaloneDeployment(deployment.getName(), ed, deployment.getStatus().name(),
+                        details.toSafeHtml()) :
+                PREVIEWS.domainDeployment(deployment.getName(), ed, deployment.getStatus().name(),
+                        deployment.getReferenceServer().getHost(), deployment.getReferenceServer().getServer(),
+                        details.toSafeHtml());
     }
 
-    static SafeHtml subdeploymentSummary(Subdeployment subdeployment) {
-        final SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        subsystemsSummary(builder, subdeployment.getSubsystems());
-        return builder.toSafeHtml();
-    }
-
-    static void subsystemsSummary(SafeHtmlBuilder builder, List<Subsystem> subsystems) {
-        builder.appendHtmlConstant("<h3>").appendEscaped("Subsystems").appendHtmlConstant("</h3>");
-        builder.appendHtmlConstant("<ul>");
-        for (Subsystem subsystem : subsystems) {
-            builder.appendHtmlConstant("<li>").appendEscaped(subsystem.getName()).appendHtmlConstant("</li>");
+    static SafeHtml subdeploymentPreview(final Subdeployment subdeployment) {
+        SafeHtmlBuilder details = new SafeHtmlBuilder();
+        if (!subdeployment.getSubsystems().isEmpty()) {
+            details.appendHtmlConstant("<h3>").appendEscaped("Subsystems").appendHtmlConstant("</h3>")
+                    .appendHtmlConstant("<p>")
+                    .appendEscaped("The deployment contains the following subsystems:")
+                    .appendHtmlConstant("</p>")
+                    .appendHtmlConstant("<ul>");
+            for (Subsystem subsystem : subdeployment.getSubsystems()) {
+                details.appendHtmlConstant("<li>").appendEscaped(subsystem.getName()).appendHtmlConstant("</li>");
+            }
+            details.appendHtmlConstant("</ul>");
         }
-        builder.appendHtmlConstant("</ul>");
+        return PREVIEWS.subdeployment(subdeployment.getName(), details.toSafeHtml());
     }
 }
