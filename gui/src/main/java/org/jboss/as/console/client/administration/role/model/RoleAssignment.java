@@ -19,6 +19,8 @@
 package org.jboss.as.console.client.administration.role.model;
 
 import com.google.gwt.view.client.ProvidesKey;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 
 import java.util.ArrayList;
 import java.util.Collection;

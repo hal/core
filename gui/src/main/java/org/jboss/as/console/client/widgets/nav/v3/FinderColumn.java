@@ -12,9 +12,6 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -40,7 +37,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityContextAware;
 import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -73,7 +69,7 @@ public class FinderColumn<T>  {
     private LayoutPanel layout;
     private HTMLPanel headerMenu;
 
-    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME}
+    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL}
     private boolean showSize = false;
 
     static Framework FRAMEWORK = GWT.create(Framework.class);
@@ -253,18 +249,15 @@ public class FinderColumn<T>  {
                 // toggle row level tools
                 boolean hasSelection = selectionModel.getSelectedObject()!=null;
 
-                if(hasSelection) {
-                    int row = cellTable.getKeyboardSelectedRow();
+                int row = cellTable.getKeyboardSelectedRow();
+                if (row < cellTable.getRowCount()) {
                     TableRowElement rowElement = cellTable.getRowElement(row);
-
-
-                    if (hasSelection) {
+                    if(hasSelection) {
                         rowElement.addClassName("nav-hover");
                     } else {
                         rowElement.removeClassName("nav-hover");
                     }
                 }
-
             }
         });
     }

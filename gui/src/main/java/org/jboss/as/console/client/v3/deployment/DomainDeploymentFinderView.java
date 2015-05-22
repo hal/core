@@ -44,8 +44,7 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 /**
  * @author Harald Pehl
  */
-public class DomainDeploymentFinderView extends SuspendableViewImpl
-        implements DomainDeploymentFinder.MyView {
+public class DomainDeploymentFinderView extends SuspendableViewImpl implements DomainDeploymentFinder.MyView {
 
     private DomainDeploymentFinder presenter;
     private SplitLayoutPanel layout;

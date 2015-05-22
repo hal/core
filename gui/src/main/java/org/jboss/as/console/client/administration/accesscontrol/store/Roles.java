@@ -16,15 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.model;
+package org.jboss.as.console.client.administration.accesscontrol.store;
 
-import java.util.ArrayList;
+import com.google.common.collect.Ordering;
+
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 
 /**
  * Contains the list of standard roles plus the custom defined scoped roles.
@@ -34,13 +34,13 @@ import java.util.TreeSet;
 public class Roles implements Iterable<Role> {
 
     private final Map<String, Role> lookup;
-    private final SortedSet<Role> standardRoles;
-    private final SortedSet<Role> scopedRoles;
+    private final Set<Role> standardRoles;
+    private final Set<Role> scopedRoles;
 
     public Roles() {
-        this.lookup = new HashMap<String, Role>();
-        this.standardRoles = new TreeSet<Role>(new RoleComparator());
-        this.scopedRoles = new TreeSet<Role>(new RoleComparator());
+        this.lookup = new HashMap<>();
+        this.standardRoles = new HashSet<>();
+        this.scopedRoles = new HashSet<>();
     }
 
     public void add(Role role) {
@@ -54,35 +54,38 @@ public class Roles implements Iterable<Role> {
         }
     }
 
-    public void clear() {
-        lookup.clear();
-        standardRoles.clear();
-        scopedRoles.clear();
-    }
-
-    public List<Role> getRoles() {
-        List<Role> roles = new ArrayList<Role>(standardRoles);
-        roles.addAll(scopedRoles);
-        return roles;
-    }
-
-    public List<Role> getStandardRoles() {
-        return new ArrayList<Role>(standardRoles);
-    }
-
-    public List<Role> getScopedRoles() {
-        return new ArrayList<Role>(scopedRoles);
-    }
-
-    public Role getRole(String id) {
+    public Role get(String id) {
         if (id != null) {
             return lookup.get(id);
         }
         return null;
     }
 
+    public Set<Role> getScopedRoles() {
+        return scopedRoles;
+    }
+
+    public void clear() {
+        lookup.clear();
+        standardRoles.clear();
+        scopedRoles.clear();
+    }
+
     @Override
     public Iterator<Role> iterator() {
-        return getRoles().iterator();
+        return lookup.values().iterator();
+    }
+
+    public static Ordering<Role> orderedByName() {
+        return Ordering.natural().onResultOf(Role::getName);
+    }
+
+    public static Ordering<Role> orderedByType() {
+        return new Ordering<Role>() {
+            @Override
+            public int compare(final Role left, final Role right) {
+                return left.getType().compareTo(right.getType());
+            }
+        };
     }
 }

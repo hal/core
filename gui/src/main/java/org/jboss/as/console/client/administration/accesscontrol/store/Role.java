@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.model;
+package org.jboss.as.console.client.administration.accesscontrol.store;
 
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.rbac.StandardRole;
@@ -48,7 +48,7 @@ public class Role {
         this.name = name;
         this.baseRole = baseRole;
         this.type = type;
-        this.scope = new TreeSet<String>();
+        this.scope = new TreeSet<>();
         if (scope != null) {
             this.scope.addAll(scope);
         }
@@ -83,7 +83,7 @@ public class Role {
             return name;
         }
         return id + " extends " + baseRole.getId() + " scoped to " + type.name()
-                .toLowerCase() + scope + " includeAll: " + includeAll;
+                .toLowerCase() + scope + ", includeAll: " + includeAll;
     }
 
     public boolean isStandard() {
@@ -139,7 +139,7 @@ public class Role {
         this.includeAll = includeAll;
     }
 
-    public static enum Type {
+    public enum Type {
         STANDARD, HOST, SERVER_GROUP
     }
 

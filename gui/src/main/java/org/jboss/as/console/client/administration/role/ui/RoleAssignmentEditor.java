@@ -10,9 +10,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -20,7 +20,7 @@ import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
 
 /**
  * @author Harald Pehl

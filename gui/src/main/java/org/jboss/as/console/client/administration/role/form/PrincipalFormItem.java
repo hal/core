@@ -27,8 +27,8 @@ import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.forms.InputElementWrapper;
 
@@ -96,8 +96,7 @@ public class PrincipalFormItem extends FormItem<Principal> {
             principal = cache.get(name);
             if (principal == null) {
                 // create a new principal
-                String id = type.name().toLowerCase() + "-" + name;
-                principal = new Principal(id, name, type);
+                principal = Principal.transientPrincipal(type, name, null);
                 cache.put(principal.getId(), principal);
             }
         }

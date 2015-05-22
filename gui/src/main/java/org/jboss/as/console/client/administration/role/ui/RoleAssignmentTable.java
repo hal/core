@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.jboss.as.console.client.administration.role.model.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * @author Harald Pehl

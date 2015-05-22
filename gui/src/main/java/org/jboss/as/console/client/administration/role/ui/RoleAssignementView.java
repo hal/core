@@ -23,16 +23,16 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * @author Harald Pehl

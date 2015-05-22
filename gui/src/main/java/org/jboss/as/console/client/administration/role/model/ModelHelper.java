@@ -18,10 +18,12 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.dmr.client.ModelNode;
 
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.SERVER_GROUP;
 import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
 
 /**

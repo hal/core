@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
 
 import java.util.List;

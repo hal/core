@@ -27,10 +27,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.EnumFormItem;
-import org.jboss.as.console.client.administration.role.form.MultiselectListBoxItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.StandardRoleFormItem;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
@@ -40,8 +39,8 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.SERVER_GROUP;
 
 /**
  * @author Harald Pehl

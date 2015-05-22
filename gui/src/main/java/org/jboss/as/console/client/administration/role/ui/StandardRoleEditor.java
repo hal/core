@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.ContentHeaderLabel;
@@ -85,7 +85,7 @@ public class StandardRoleEditor implements IsWidget {
     }
 
     public void update(final Roles roles) {
-        table.update(roles.getStandardRoles());
+//        table.update(roles.getStandardRoles());
         details.update(table.getSelectedRole());
     }
 }

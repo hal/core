@@ -19,19 +19,19 @@
 package org.jboss.as.console.client.administration.role.operation;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
-import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
@@ -50,8 +50,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.SERVER_GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.SERVER_GROUP;
 import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -231,7 +231,7 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
         private void addInternalRoleAssignment(final Principals principals, final RoleAssignments assignments,
                 final Roles roles, final Property property) {
             String roleId = property.getName();
-            Role role = roles.getRole(roleId);
+            Role role = roles.get(roleId);
             if (role != null) {
                 RoleAssignment.Internal internal = new RoleAssignment.Internal(role);
                 ModelNode assignmentNode = property.getValue();
@@ -270,13 +270,12 @@ public class LoadRoleAssignmentsOp implements ManagementOperation<FunctionContex
             }
 
             Principal.Type type = Principal.Type.valueOf(node.get("type").asString());
-            Principal principal = new Principal(id, name, type);
-            principals.add(principal);
-
             String realm = null;
             if (node.hasDefined("realm")) {
                 realm = node.get("realm").asString();
             }
+            Principal principal = Principal.persistentPrincipal(type, id, name, realm);
+            principals.add(principal);
 
             return new PrincipalRealmTupel(principal, realm);
         }

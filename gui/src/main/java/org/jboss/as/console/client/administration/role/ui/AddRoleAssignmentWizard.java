@@ -27,10 +27,10 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.PrincipalFormItem;
 import org.jboss.as.console.client.administration.role.form.RolesFormItem;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
@@ -38,7 +38,7 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
 
 /**
  * @author Harald Pehl
@@ -96,8 +96,7 @@ public class AddRoleAssignmentWizard implements IsWidget {
                             final String realm = realmItem.getValue();
                             Principal principal = principalItem.getValue();
                             if (realm != null && realm.length() != 0) {
-                                principal = new Principal(principal.getId() + "@" + realm, principal.getName(),
-                                        principal.getType());
+                                principal = Principal.transientPrincipal(principal.getType(), principal.getName(), realm);
                             }
                             RoleAssignment roleAssignment = new RoleAssignment(principal);
                             roleAssignment.setRealm(realm);

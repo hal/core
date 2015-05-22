@@ -38,8 +38,10 @@ public class StandardRole {
         repository.clear();
     }
 
-    public static void add(String id) {
-        repository.put(id, new StandardRole(id));
+    public static StandardRole add(String id) {
+        StandardRole standardRole = new StandardRole(id);
+        repository.put(id, standardRole);
+        return standardRole;
     }
 
     public static StandardRole fromId(String id) {
