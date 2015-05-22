@@ -37,7 +37,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
     public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo) {
 
-        super(FinderColumn.FinderId.DEPLOYMENT, "Subdeployment",
+        super(FinderColumn.FinderId.DEPLOYMENT, "Nested Deployment",
                 new FinderColumn.Display<Subdeployment>() {
                     @Override
                     public boolean isFolder(final Subdeployment data) {
