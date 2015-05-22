@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.widgets.ContentDescription;
 import org.jboss.ballroom.client.widgets.ContentGroupLabel;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
@@ -83,8 +83,8 @@ public class ScopedRoleEditor implements IsWidget {
 
     public void update(final Roles roles, final List<String> hosts, final List<String> serverGroups) {
         if (!presenter.isStandalone()) {
-            table.update(roles.getScopedRoles());
-            details.update(roles.getScopedRoles(), hosts, serverGroups, table.getSelectedRole());
+//            table.update(roles.getScopedRoles());
+//            details.update(roles.getScopedRoles(), hosts, serverGroups, table.getSelectedRole());
         }
     }
 }

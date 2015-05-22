@@ -33,8 +33,8 @@ import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.ResourceLoader;
-import org.jboss.as.console.client.administration.AdministrationPresenter;
-import org.jboss.as.console.client.administration.AdministrationView;
+import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
+import org.jboss.as.console.client.administration.accesscontrol.ui.AccessControlView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogView;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
@@ -612,10 +612,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 IiopOpenJdkPresenter.MyProxy.class);
 
         // Administration
-        bindPresenter(AdministrationPresenter.class,
-                AdministrationPresenter.MyView.class,
-                AdministrationView.class,
-                AdministrationPresenter.MyProxy.class);
+        bindPresenter(AccessControlFinder.class,
+                AccessControlFinder.MyView.class,
+                AccessControlView.class,
+                AccessControlFinder.MyProxy.class);
         bindPresenter(RoleAssignmentPresenter.class,
                 RoleAssignmentPresenter.MyView.class,
                 RoleAssignementView.class,

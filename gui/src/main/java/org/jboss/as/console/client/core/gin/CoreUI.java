@@ -28,7 +28,7 @@ import com.gwtplatform.mvp.client.googleanalytics.GoogleAnalytics;
 import com.gwtplatform.mvp.client.proxy.Gatekeeper;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
-import org.jboss.as.console.client.administration.AdministrationPresenter;
+import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
@@ -345,7 +345,7 @@ public interface CoreUI {
     AsyncProvider<IOPresenter> getIOPresenter();
 
     // Administration
-    AsyncProvider<AdministrationPresenter> getAdministrationPresenter();
+    AsyncProvider<AccessControlFinder> getRbacFinder();
     AsyncProvider<RoleAssignmentPresenter> getRoleAssignmentPresenter();
     AsyncProvider<AuditLogPresenter> getAuditLogPresenter();
 

@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.preview;
 
+import com.google.common.base.Function;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.resources.client.ResourceCallback;
 import com.google.gwt.resources.client.ResourceException;
@@ -15,7 +16,13 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public class PreviewContentFactoryImpl implements PreviewContentFactory {
 
     @Override
-    public void createContent(final ExternalTextResource resource, AsyncCallback<SafeHtml> callback) {
+    public void createContent(final ExternalTextResource resource, final AsyncCallback<SafeHtml> callback) {
+        createAndModifyContent(resource, input -> input, callback);
+    }
+
+    @Override
+    public void createAndModifyContent(final ExternalTextResource resource, final Function<SafeHtml, SafeHtml> modifyFn,
+            final AsyncCallback<SafeHtml> callback) {
         try {
             resource.getText(
                     new ResourceCallback<TextResource>() {
@@ -28,10 +35,9 @@ public class PreviewContentFactoryImpl implements PreviewContentFactory {
 
                         @Override
                         public void onSuccess(TextResource textResource) {
-
                             SafeHtmlBuilder html = new SafeHtmlBuilder();
                             html.appendHtmlConstant(textResource.getText());
-                            callback.onSuccess(html.toSafeHtml());
+                            callback.onSuccess(modifyFn.apply(html.toSafeHtml()));
                         }
                     }
             );

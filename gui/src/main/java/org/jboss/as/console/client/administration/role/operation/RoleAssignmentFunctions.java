@@ -19,7 +19,7 @@
 package org.jboss.as.console.client.administration.role.operation;
 
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;

@@ -18,7 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.operation;
 
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.dispatch.DispatchAsync;

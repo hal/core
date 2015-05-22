@@ -19,7 +19,7 @@
 package org.jboss.as.console.client.administration.role.operation;
 
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.dmr.client.ModelDescriptionConstants;
@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.jboss.as.console.client.administration.role.model.Role.Type.HOST;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Role.Type.HOST;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**

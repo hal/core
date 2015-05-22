@@ -18,6 +18,9 @@
  */
 package org.jboss.as.console.client.administration.role.model;
 
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 import static org.jboss.as.console.client.administration.role.model.RoleAssignment.PrincipalRealmTupel;
 
 /**

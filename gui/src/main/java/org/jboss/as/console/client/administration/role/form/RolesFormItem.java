@@ -18,6 +18,7 @@
  */
 package org.jboss.as.console.client.administration.role.form;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
@@ -27,8 +28,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import com.google.gwt.view.client.DefaultSelectionEventManager.SelectAction;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.administration.role.ui.UIHelper;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
@@ -36,6 +37,8 @@ import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 
@@ -170,7 +173,10 @@ public class RolesFormItem extends FormItem<List<Role>> {
     }
 
     public void update(final Roles roles) {
-        dataProvider.setList(roles.getRoles());
+        SortedSet<Role> all = new TreeSet<>();
+//        all.addAll(roles.standardRoles);
+//        all.addAll(roles.scopedRoles);
+        dataProvider.setList(Lists.newArrayList(all));
         selectionModel.clear();
         for (Role role : value) {
             selectionModel.setSelected(role, true);

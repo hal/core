@@ -30,7 +30,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
 import java.util.Collection;

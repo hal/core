@@ -37,7 +37,7 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * @author Harald Pehl

@@ -38,22 +38,22 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Role;
-import org.jboss.as.console.client.administration.role.model.RoleComparator;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import static org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem.Type.*;
 
@@ -352,7 +352,10 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             this.value.get(AVAILABLE).removeAll(this.value.get(EXCLUDE));
         }
         if (roles != null) {
-            Set<Role> available = new HashSet<Role>(roles.getRoles());
+            SortedSet<Role> all = new TreeSet<>();
+//            all.addAll(roles.standardRoles);
+//            all.addAll(roles.scopedRoles);
+            Set<Role> available = new HashSet<Role>(all);
             if (includes != null) {available.removeAll(includes);}
             if (excludes != null) {available.removeAll(excludes);}
             this.value.put(AVAILABLE, available);
@@ -363,13 +366,13 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
 
     @Override
     public String asString() {
-        RoleComparator comperator = new RoleComparator();
+//        RoleComparator comperator = new RoleComparator();
         List<Role> includes = new ArrayList<Role>(value.get(INCLUDE));
-        Collections.sort(includes, comperator);
+//        Collections.sort(includes, comperator);
         StringBuilder builder = new StringBuilder().append(rolesCsv(includes, ""));
         if (builder.length() > 0 && !value.get(EXCLUDE).isEmpty()) {
             List<Role> excludes = new ArrayList<Role>(value.get(EXCLUDE));
-            Collections.sort(excludes, comperator);
+//            Collections.sort(excludes, comperator);
             builder.append(", ").append(rolesCsv(excludes, "-"));
         }
         return builder.toString();
@@ -404,7 +407,10 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
     public void update(final Roles roles) {
         this.roles = roles;
         value.get(AVAILABLE).clear();
-        value.get(AVAILABLE).addAll(roles.getRoles());
+        SortedSet<Role> all = new TreeSet<>();
+//        all.addAll(roles.standardRoles);
+//        all.addAll(roles.scopedRoles);
+        value.get(AVAILABLE).addAll(all);
         updateDataProvider();
     }
 
@@ -419,10 +425,10 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
         ArrayList<Role> includeList = new ArrayList<Role>(value.get(INCLUDE));
         ArrayList<Role> excludeList = new ArrayList<Role>(value.get(EXCLUDE));
 
-        RoleComparator comparator = new RoleComparator();
-        Collections.sort(availableList, comparator);
-        Collections.sort(includeList, comparator);
-        Collections.sort(excludeList, comparator);
+//        RoleComparator comparator = new RoleComparator();
+//        Collections.sort(availableList, comparator);
+//        Collections.sort(includeList, comparator);
+//        Collections.sort(excludeList, comparator);
 
         availableProvider.setList(availableList);
         includeProvider.setList(includeList);
@@ -448,5 +454,4 @@ public class IncludeExcludeFormItem extends FormItem<Map<IncludeExcludeFormItem.
             sb.appendEscaped(value.getName());
         }
     }
-
 }

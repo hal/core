@@ -83,7 +83,7 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
 
     @Inject
     public ToplevelTabs(final BootstrapContext bootstrapContext) {
-        tabs = new LinkedList<Config>();
+        tabs = new LinkedList<>();
         tabs.add(new Config(NameTokens.HomepagePresenter, "Home", true));
         if (bootstrapContext.isStandalone()) {
             tabs.add(new Config(NameTokens.StandaloneDeploymentFinder, "Deployments", true));
@@ -97,12 +97,11 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
             //tabs.add(new Config(NameTokens.ServerPresenter, "Domain", false));
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Runtime", true));
         }
-
         if(bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
-            tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
+            tabs.add(new Config(NameTokens.RbacFinder, "Access Control", true));
+            // tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
             tabs.add(new Config(NameTokens.PatchingPresenter, "Patching", true));
         }
-
     }
 
     @Override

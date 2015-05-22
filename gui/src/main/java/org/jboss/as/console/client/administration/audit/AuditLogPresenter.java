@@ -66,6 +66,6 @@ public class AuditLogPresenter
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInAdministration(this);
+        revealStrategy.revealInParent(this);
     }
 }

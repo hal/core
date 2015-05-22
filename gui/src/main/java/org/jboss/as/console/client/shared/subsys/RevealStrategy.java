@@ -21,15 +21,9 @@ package org.jboss.as.console.client.shared.subsys;
 
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
-import org.jboss.as.console.client.administration.AdministrationPresenter;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
-import org.jboss.as.console.client.core.MainLayoutViewImpl;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
-import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
-import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
-import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
-import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 
 import javax.inject.Inject;
 
@@ -62,9 +56,5 @@ public class RevealStrategy {
             RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_MainContent, presenter);
         else
             RevealContentEvent.fire(presenter, MainLayoutPresenter.TYPE_MainContent, presenter);
-    }
-
-    public void revealInAdministration(final Presenter presenter) {
-        RevealContentEvent.fire(presenter, AdministrationPresenter.TYPE_MainContent, presenter);
     }
 }

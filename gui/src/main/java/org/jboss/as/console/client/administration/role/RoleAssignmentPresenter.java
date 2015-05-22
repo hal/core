@@ -29,18 +29,17 @@ import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
 import org.jboss.as.console.client.administration.role.operation.LoadRoleAssignmentsOp;
 import org.jboss.as.console.client.administration.role.operation.ManagementOperation;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleAssignmentOp;
 import org.jboss.as.console.client.administration.role.operation.ModifyRoleOp;
 import org.jboss.as.console.client.administration.role.operation.ShowMembersOperation;
-import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.administration.role.ui.AddRoleAssignmentWizard;
 import org.jboss.as.console.client.administration.role.ui.AddScopedRoleWizard;
 import org.jboss.as.console.client.administration.role.ui.MembersDialog;
@@ -58,8 +57,8 @@ import org.jboss.gwt.flow.client.Outcome;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
 import static org.jboss.as.console.client.administration.role.operation.ManagementOperation.Operation.*;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * There are some constraints when managing role assignments in the console:
@@ -229,8 +228,8 @@ public class RoleAssignmentPresenter
                     if (!initialized) {
                         String acp = context.get(LoadRoleAssignmentsOp.ACCESS_CONTROL_PROVIDER);
                         if (SIMPLE_ACCESS_CONTROL_PROVIDER.equals(acp)) {
-                            openWindow("Access Control Provider", 480, 220,
-                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
+//                            openWindow("Access Control Provider", 480, 220,
+//                                    new AccessControlProviderDialog(RoleAssignmentPresenter.this).asWidget());
                         }
                     }
                     initialized = true;

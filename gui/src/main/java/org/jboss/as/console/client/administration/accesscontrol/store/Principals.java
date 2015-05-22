@@ -16,7 +16,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-package org.jboss.as.console.client.administration.role.model;
+package org.jboss.as.console.client.administration.accesscontrol.store;
+
+import com.google.common.collect.Ordering;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,8 +26,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.GROUP;
-import static org.jboss.as.console.client.administration.role.model.Principal.Type.USER;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.GROUP;
+import static org.jboss.as.console.client.administration.accesscontrol.store.Principal.Type.USER;
 
 /**
  * Contains a list of principals stored in the management model.
@@ -38,10 +40,10 @@ public class Principals implements Iterable<Principal> {
     private final Map<String, Principal> lookup;
 
     public Principals() {
-        principals = new HashMap<Principal.Type, Set<Principal>>();
-        principals.put(GROUP, new HashSet<Principal>());
-        principals.put(USER, new HashSet<Principal>());
-        lookup = new HashMap<String, Principal>();
+        principals = new HashMap<>();
+        principals.put(GROUP, new HashSet<>());
+        principals.put(USER, new HashSet<>());
+        lookup = new HashMap<>();
     }
 
     public void add(Principal principal) {
@@ -55,19 +57,40 @@ public class Principals implements Iterable<Principal> {
         }
     }
 
-    @Override
-    public Iterator<Principal> iterator() {
-        Set<Principal> all = new HashSet<Principal>();
-        all.addAll(principals.get(GROUP));
-        all.addAll(principals.get(USER));
-        return all.iterator();
+    public boolean contains(final Principal principal) {
+        return lookup.containsKey(principal.getId());
+    }
+
+    public Principal get(final String id) {
+        return lookup.get(id);
     }
 
     public Set<Principal> get(Principal.Type type) {
         return principals.get(type);
     }
 
-    public Principal lookup(final Principal.Type type, final String id) {
-        return lookup.get(id);
+    public void remove(final Principal principal) {
+        principals.get(principal.getType()).remove(principal);
+        lookup.remove(principal.getId());
+    }
+
+    public void clear() {
+        if (principals.containsKey(GROUP)) {
+            principals.get(GROUP).clear();
+        }
+        if (principals.containsKey(USER)) {
+            principals.get(USER).clear();
+        }
+        lookup.clear();
+    }
+
+    @Override
+    public Iterator<Principal> iterator() {
+        return lookup.values().iterator();
+    }
+
+    public static Ordering<Principal> orderedByName() {
+        //noinspection Convert2MethodRef
+        return Ordering.natural().onResultOf(principal -> principal.getName());
     }
 }

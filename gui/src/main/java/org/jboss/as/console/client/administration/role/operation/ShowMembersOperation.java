@@ -20,9 +20,9 @@ package org.jboss.as.console.client.administration.role.operation;
 
 import com.allen_sauer.gwt.log.client.Log;
 import org.jboss.as.console.client.administration.role.model.ModelHelper;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Principals;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.dmr.client.ModelNode;
@@ -109,7 +109,7 @@ public class ShowMembersOperation implements ManagementOperation<RoleAssignment.
         if (principalNode.hasDefined("realm")) {
             realm = principalNode.get("realm").asString();
         }
-        Principal principal = principals.lookup(type, id);
+        Principal principal = principals.get(id);
         if (principal != null) {
             return new RoleAssignment.PrincipalRealmTupel(principal, realm);
         }

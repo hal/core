@@ -9,6 +9,7 @@ import com.google.gwt.resources.client.ExternalTextResource;
  * @since 27/03/15
  */
 public interface PreviewContent extends ClientBundleWithLookup {
+
     PreviewContent INSTANCE = GWT.create(PreviewContent.class);
 
     @Source("profiles_empty.html")
@@ -29,6 +30,37 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("properties.html")
     ExternalTextResource properties();
 
+    @Source("users.html")
+    ExternalTextResource users();
+
+    @Source("groups.html")
+    ExternalTextResource groups();
+
+    @Source("roles.html")
+    ExternalTextResource roles();
+
+    // standard role names
+    // must match the lowercase names from /core-service=management/access=authorization(standard-role-names)
+    @Source("roles/administrator.html")
+    ExternalTextResource administrator();
+
+    @Source("roles/auditor.html")
+    ExternalTextResource auditor();
+
+    @Source("roles/deployer.html")
+    ExternalTextResource deployer();
+
+    @Source("roles/maintainer.html")
+    ExternalTextResource maintainer();
+
+    @Source("roles/monitor.html")
+    ExternalTextResource monitor();
+
+    @Source("roles/operator.html")
+    ExternalTextResource operator();
+
+    @Source("roles/superuser.html")
+    ExternalTextResource superuser();
 
     // content below (referenced by name token)
 
@@ -51,7 +83,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
     ExternalTextResource jca();
 
     @Source("content/jmx.html")
-        ExternalTextResource jmx();
+    ExternalTextResource jmx();
 
     @Source("content/jpa.html")
     ExternalTextResource jpa();

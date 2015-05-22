@@ -29,11 +29,11 @@ import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.administration.role.form.IncludeExcludeFormItem;
 import org.jboss.as.console.client.administration.role.form.PojoForm;
 import org.jboss.as.console.client.administration.role.form.ReadOnlyItem;
-import org.jboss.as.console.client.administration.role.model.Principal;
-import org.jboss.as.console.client.administration.role.model.Role;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.role.model.RoleAssignment;
 import org.jboss.as.console.client.administration.role.model.RoleAssignments;
-import org.jboss.as.console.client.administration.role.model.Roles;
+import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
 
 import java.util.HashMap;

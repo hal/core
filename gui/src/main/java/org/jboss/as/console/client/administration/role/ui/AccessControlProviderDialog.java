@@ -18,8 +18,6 @@
  */
 package org.jboss.as.console.client.administration.role.ui;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -27,7 +25,7 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
+import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 
@@ -36,9 +34,9 @@ import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
  */
 public class AccessControlProviderDialog implements IsWidget {
 
-    private final RoleAssignmentPresenter presenter;
+    private final AccessControlFinder presenter;
 
-    public AccessControlProviderDialog(final RoleAssignmentPresenter presenter) {this.presenter = presenter;}
+    public AccessControlProviderDialog(final AccessControlFinder presenter) {this.presenter = presenter;}
 
     @Override
     public Widget asWidget() {
@@ -50,19 +48,9 @@ public class AccessControlProviderDialog implements IsWidget {
 
         DialogueOptions options = new DialogueOptions(
                 Console.CONSTANTS.common_label_done(),
-                new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        presenter.closeWindow();
-                    }
-                },
+                event -> presenter.closeWindow(),
                 Console.CONSTANTS.common_label_cancel(),
-                new ClickHandler() {
-                    @Override
-                    public void onClick(final ClickEvent event) {
-                        presenter.closeWindow();
-                    }
-                }
+                event -> presenter.closeWindow()
         );
         options.showCancel(false);
         return new WindowContentBuilder(new ScrollPanel(layout), options).build();

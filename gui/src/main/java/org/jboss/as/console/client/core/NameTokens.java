@@ -149,6 +149,7 @@ public class NameTokens {
     public static final String SecDomains = "security_domains";
     public static final String SecDomain = "security_domain";
     public static final String UndertowFinder = "undertow-subsystem";
+    public static final String RbacFinder = "rbac";
 }
 
 
