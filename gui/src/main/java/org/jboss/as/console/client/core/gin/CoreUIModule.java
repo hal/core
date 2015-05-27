@@ -239,6 +239,8 @@ import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpView;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletView;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinder;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinderView;
 import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.UndertowView;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
@@ -712,6 +714,10 @@ public class CoreUIModule extends AbstractPresenterModule {
                 SecDomainView.class,
                 SecDomainPresenter.MyProxy.class);
 
+        bindPresenter(UndertowFinder.class,
+                UndertowFinder.MyView.class,
+                UndertowFinderView.class,
+                UndertowFinder.MyProxy.class);
 
         // ------------------------------------------------------ circuit
 

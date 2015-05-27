@@ -104,8 +104,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
 
         PlaceLink datasources = new PlaceLink("Datasources", NameTokens.DataSourceMetricPresenter);
-        PlaceLink jmsQueues = new PlaceLink("JMS Destinations", NameTokens.JmsMetricPresenter);
-        PlaceLink web = new PlaceLink("Web", NameTokens.HttpMetrics);
+        PlaceLink jmsQueues = new PlaceLink("Messaging", NameTokens.JmsMetricPresenter);
+        PlaceLink web = new PlaceLink("Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
         PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
         PlaceLink naming = new PlaceLink("JNDI View", NameTokens.JndiPresenter);

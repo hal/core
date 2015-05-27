@@ -134,6 +134,7 @@ import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpMetricPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.HttpPresenter;
 import org.jboss.as.console.client.shared.subsys.undertow.ServletPresenter;
+import org.jboss.as.console.client.shared.subsys.undertow.UndertowFinder;
 import org.jboss.as.console.client.shared.subsys.undertow.UndertowPresenter;
 import org.jboss.as.console.client.shared.subsys.web.WebPresenter;
 import org.jboss.as.console.client.shared.subsys.ws.DomainEndpointStrategy;
@@ -399,4 +400,6 @@ public interface CoreUI {
     AsyncProvider<SecDomainFinder> getSecDomainFinder();
 
     AsyncProvider<SecDomainPresenter> getSecDomainPresenter();
+
+    AsyncProvider<UndertowFinder> getUndertowFinder();
 }

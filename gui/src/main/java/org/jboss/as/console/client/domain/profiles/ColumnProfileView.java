@@ -58,7 +58,8 @@ public class ColumnProfileView extends SuspendableViewImpl
             NameTokens.MailFinder,
             NameTokens.CacheFinderPresenter,
             NameTokens.HornetqFinder,
-            NameTokens.SecDomains
+            NameTokens.SecDomains,
+            NameTokens.UndertowFinder
     };
 
     private static final String PROFILES = "Profiles";

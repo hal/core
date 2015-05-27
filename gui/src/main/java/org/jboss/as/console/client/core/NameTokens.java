@@ -85,9 +85,7 @@ public class NameTokens {
     public static final String DMRBrowser = "browser";
     public static final String ToolsPresenter = "tools";
     public static final String PathManagementPresenter = "path" ;
-    public static final String UndertowHTTP = "undertow-http";
-    public static final String UndertowServlet = "undertow-servlet";
-    public static final String UndertowCore = "undertow-core";
+
     public static final String DialogPresenter = "mbui";
     public static final String DomainPresenter = "domain";
     public static final String NoServer = "no-server";
@@ -150,6 +148,7 @@ public class NameTokens {
     public static final String Logging = "logging";
     public static final String SecDomains = "security_domains";
     public static final String SecDomain = "security_domain";
+    public static final String UndertowFinder = "undertow-subsystem";
 }
 
 
