@@ -24,12 +24,12 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
@@ -43,7 +43,6 @@ import org.jboss.as.console.client.shared.state.ReloadEvent;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.InlineLink;
-import org.jboss.ballroom.client.widgets.icons.Icons;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
@@ -58,13 +57,14 @@ import java.util.List;
 public class MessageCenterView implements MessageListener, ReloadEvent.ReloadListener {
 
     private static final String MESSAGE_LABEL = Console.CONSTANTS.common_label_messages();
+
     //+ "&nbsp;<i class='icon-caret-down'></i>";
     private MessageCenter messageCenter;
     private HorizontalPanel messageDisplay;
     final MessageListPopup messagePopup = new MessageListPopup();
     private Message lastSticky = null;
     private HTML messageButton;
-    private DefaultPopup displayPopup;
+    private PopupPanel displayPopup;
 
     @Inject
     public MessageCenterView(MessageCenter messageCenter) {
@@ -179,11 +179,13 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
         SafeHtmlBuilder html = new SafeHtmlBuilder();
 
+        String style = "list-"+msg.getSeverity().getStyle();
+
         // TODO: XSS prevention?
         html.appendHtmlConstant(msg.getSeverity().getTag());
         html.appendHtmlConstant("&nbsp;");
         html.appendHtmlConstant(msg.getFired().toString());
-        html.appendHtmlConstant("<h3 id='consise-message'>");
+        html.appendHtmlConstant("<h3 id='consise-message' class='"+style+"' style='padding:10px;box-shadow:none!important;border-width:5px'>");
         html.appendHtmlConstant(msg.getConciseMessage());
         html.appendHtmlConstant("</h3>");
         html.appendHtmlConstant("<p/>");
@@ -199,7 +201,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
 
         DialogueOptions options = new DialogueOptions(
-                "OK",
+                "Dismiss",
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent clickEvent) {
@@ -213,7 +215,7 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
                         window.hide();
                     }
                 }
-        );
+        ).showCancel(false);
 
         options.getSubmit().setAttribute("aria-describedby", "consise-message detail-message");
 
@@ -325,18 +327,10 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
             // update the visible message count
             reflectMessageCount();
 
-            if(message.isSticky())   // sticky messages override each other like this
-            {
-                lastSticky=message;
-                displayNotification(message);
-            }
-            else if(null==lastSticky
-                    || Message.Severity.Error == message.getSeverity()
-                    || Message.Severity.Fatal == message.getSeverity()) // regular message don't replace sticky ones
-            {
-                clearSticky();
+            displayNotification(message);
 
-                displayNotification(message);
+            if(!message.isSticky())
+            {
 
                 Timer hideTimer = new Timer() {
                     @Override
@@ -362,16 +356,39 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
     private void displayNotification(final Message message) {
 
 
-
-        String actualMessage = message.getConciseMessage().length()>40 ?
-                message.getConciseMessage().substring(0, 40)+" ..." :
+        final int MAX = 80;
+        String actualMessage = message.getConciseMessage().length()> MAX ?
+                message.getConciseMessage().substring(0, MAX)+" ..." :
                 message.getConciseMessage();
 
-        displayPopup = new DefaultPopup(DefaultPopup.Arrow.RIGHTTOP);
+        displayPopup = new PopupPanel() {
+            {
+                this.sinkEvents(Event.ONKEYDOWN);
+
+                getElement().setAttribute("role", "alert");
+                getElement().setAttribute("aria-live", "assertive");
+
+                if(!message.isSticky()) {
+                    setAutoHideEnabled(true);
+                    setAutoHideOnHistoryEventsEnabled(true);
+                }
+            }
+
+            @Override
+            protected void onPreviewNativeEvent(Event.NativePreviewEvent event) {
+                if (Event.ONKEYDOWN == event.getTypeInt()) {
+                    if (event.getNativeEvent().getKeyCode() == KeyCodes.KEY_ESCAPE) {
+                        // Dismiss when escape is pressed
+                        hide();
+                    }
+                }
+            }
+        };
+
 
         final HTML label = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
 
-        label.addClickHandler(new ClickHandler() {
+        ClickHandler closeHandler = new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
                 if (message.isSticky()) {
                     MessageCenterView.this.lastSticky = null;
@@ -380,20 +397,21 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
                 displayPopup.hide();
                 showDetail(message);
             }
-        });
+        };
+        label.addClickHandler(closeHandler);
 
         label.addStyleName("notification-display");
-        final String css = getSeverityStyle(message.severity);
+        final String css = message.severity.getStyle();
         label.addStyleName(css);
 
         displayPopup.setWidget(label);
 
-        int width=250;
-        int height=16;
+        int width=500;
+        int height=25;
 
         displayPopup.setPopupPosition(
-                messageButton.getAbsoluteLeft() - (width + 2 - messageButton.getOffsetWidth() + 85),
-                messageButton.getAbsoluteTop() - 2
+                (Window.getClientWidth()-width)/2,
+                50
         );
 
         displayPopup.show();
@@ -402,41 +420,6 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         displayPopup.setHeight(height + "px");
 
     }
-
-    public static String getSeverityStyle(Message.Severity severity) {
-        String css = null;
-        switch (severity) {
-            case Info:
-                css = "InfoBlock";
-                break;
-            case Warning:
-                css = "WarnBlock";
-                break;
-            case Error:
-            case Fatal:
-                css = "ErrorBlock";
-                break;
-        }
-        return css;
-    }
-
-    public static ImageResource getSeverityIcon(Message.Severity severity) {
-        ImageResource iconSrc = null;
-        switch (severity) {
-            case Info:
-                iconSrc = Icons.INSTANCE.info_blue();
-                break;
-            case Warning:
-                iconSrc = Icons.INSTANCE.info_orange();
-                break;
-            case Error:
-            case Fatal:
-                iconSrc = Icons.INSTANCE.info_red();
-                break;
-        }
-        return iconSrc;
-    }
-
 
     @Override
     public void onReload() {

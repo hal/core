@@ -150,8 +150,12 @@ public class Console implements EntryPoint, ReloadNotification.Handler {
 
     // ------------------------------------------------------ messages
 
+    public static void message(String message) {
+           getMessageCenter().notify(new Message(message, Message.Severity.Info));
+       }
+
     public static void info(String message) {
-        getMessageCenter().notify(new Message(message, Message.Severity.Info));
+        getMessageCenter().notify(new Message(message, Message.Severity.Confirmation));
     }
 
     public static void error(String message) {

@@ -44,13 +44,15 @@ public class MessageCell extends AbstractCell<Message> {
         //AbstractImagePrototype prototype = AbstractImagePrototype.create(icon);
 
         String styles = (context.getIndex() %2 > 0) ? "message-list-item message-list-item-odd" : "message-list-item";
-        String rowStyle= message.isNew()  ? "" : "class='message-list-item-old'";
+        String rowStyle= message.isNew()  ? "" : "message-list-item-old";
+        styles = styles + " list-" +message.getSeverity().getStyle();
 
         safeHtmlBuilder.appendHtmlConstant("<table width='100%' cellpadding=4 cellspacing=0>");
-        safeHtmlBuilder.appendHtmlConstant("<tr valign='middle' "+rowStyle+">");
-        safeHtmlBuilder.appendHtmlConstant("<td width='10%'>");
+        safeHtmlBuilder.appendHtmlConstant("<tr valign='middle' class='"+rowStyle+"'>");
+        /*safeHtmlBuilder.appendHtmlConstant("<td width='10%'>");
         safeHtmlBuilder.appendHtmlConstant(message.getSeverity().getTag());
-        safeHtmlBuilder.appendHtmlConstant("</td><td width='90%'>");
+        safeHtmlBuilder.appendHtmlConstant("</td>");*/
+        safeHtmlBuilder.appendHtmlConstant("<td>");
 
         safeHtmlBuilder.appendHtmlConstant("<div class='"+styles+"'>");
         String actualMessage = message.getConciseMessage().length()>30 ? message.getConciseMessage().substring(0, 30)+" ..." : message.getConciseMessage();
