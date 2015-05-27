@@ -347,9 +347,10 @@ public class ColumnProfileView extends SuspendableViewImpl
                 }
                 else
                 {
-                    SafeHtmlBuilder html = new SafeHtmlBuilder();
-                    html.appendEscaped("No content for '"+data.getToken()+"'");
-                    callback.onSuccess(html.toSafeHtml());
+                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                    String icon = "icon-folder-close-alt";
+                    builder.appendHtmlConstant("<center><i class='" + icon + "' style='font-size:48px;top:100px;position:relative'></i></center>");
+                    callback.onSuccess(builder.toSafeHtml());
                 }
 
             }

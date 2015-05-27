@@ -2,6 +2,7 @@ package org.jboss.as.console.client.standalone;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -22,6 +23,8 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
@@ -46,6 +49,17 @@ import java.util.Map;
 public class ColumnServerView extends SuspendableViewImpl
         implements ServerMgmtApplicationPresenter.ServerManagementView {
 
+    /**
+     * These items will reveal a nested finder contribution
+     */
+    private final static String[] subsystemFolders = new String[] {
+            NameTokens.MailFinder,
+            NameTokens.CacheFinderPresenter,
+            NameTokens.HornetqFinder,
+            NameTokens.SecDomains,
+            NameTokens.UndertowFinder
+    };
+
     private final FinderColumn<SubsystemLink> subsystems;
     private final FinderColumn<FinderItem> config;
     private final ArrayList<FinderItem> configLinks;
@@ -54,6 +68,7 @@ public class ColumnServerView extends SuspendableViewImpl
     private final Widget subsystColWidget;
     private final Widget configColWidget;
     private final PlaceManager placeManager;
+    private final PreviewContentFactory contentFactory;
 
     private SplitLayoutPanel splitlayout;
     private LayoutPanel contentCanvas;
@@ -68,9 +83,10 @@ public class ColumnServerView extends SuspendableViewImpl
 
 
     @Inject
-    public ColumnServerView(final PlaceManager placeManager) {
+    public ColumnServerView(final PlaceManager placeManager, PreviewContentFactory contentFactory) {
         super();
         this.placeManager = placeManager;
+        this.contentFactory = contentFactory;
 
         contentCanvas = new LayoutPanel();
 
@@ -230,6 +246,25 @@ public class ColumnServerView extends SuspendableViewImpl
             }
         }));
 
+        subsystems.setPreviewFactory(new PreviewFactory<SubsystemLink>() {
+            @Override
+            public void createPreview(SubsystemLink data, AsyncCallback<SafeHtml> callback) {
+                PreviewContent content = PreviewContent.INSTANCE;
+                ExternalTextResource resource = (ExternalTextResource)content.getResource(data.getToken().replace("-", "_"));
+                if(resource!=null) {
+                    contentFactory.createContent(resource, callback);
+                }
+                else
+                {
+                    SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                    String icon = "icon-folder-close-alt";
+                    builder.appendHtmlConstant("<center><i class='" + icon + "' style='font-size:48px;top:100px;position:relative'></i></center>");
+                    callback.onSuccess(builder.toSafeHtml());
+                }
+
+            }
+        });
+
         subsystColWidget = subsystems.asWidget();
 
         configColWidget = config.asWidget();
@@ -367,11 +402,6 @@ public class ColumnServerView extends SuspendableViewImpl
             return isFolder;
         }
     }
-
-
-    private final static String[] subsystemFolders = new String[] {
-            NameTokens.MailFinder
-    };
 
     private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
     {

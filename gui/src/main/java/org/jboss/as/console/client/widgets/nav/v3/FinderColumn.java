@@ -21,7 +21,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -524,6 +523,7 @@ public class FinderColumn<T> {
     }
 
     public void updateFrom(final List<T> records, final boolean selectDefault) {
+
         selectionModel.clear();
         cellTable.setRowCount(records.size(), true);
         cellTable.setRowData(0, records);

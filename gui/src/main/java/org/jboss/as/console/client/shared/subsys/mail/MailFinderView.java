@@ -109,7 +109,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
 
         mailSessions.setMenuItems(
                 new MenuDelegate<MailSession>(
-                        "Edit", new ContextualCommand<MailSession>() {
+                        "View", new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
                         placeManager.revealRelativePlace(
