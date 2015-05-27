@@ -15,12 +15,12 @@ public interface PoolConfig {
     void setName(String name);
 
     @Binding(detypedName = "max-pool-size")
-    int getMaxPoolSize();
-    void setMaxPoolSize(int max);
+    Integer getMaxPoolSize();
+    void setMaxPoolSize(Integer max);
 
     @Binding(detypedName = "min-pool-size")
-    int getMinPoolSize();
-    void setMinPoolSize(int min);
+    Integer getMinPoolSize();
+    void setMinPoolSize(Integer min);
 
     @Binding(detypedName = "pool-prefill")
     boolean isPoolPrefill();
@@ -45,24 +45,24 @@ public interface PoolConfig {
     // metrics below
 
     @Binding(skip = true)
-    int getActiveCount();
-    void setActiveCount(int i);
+    Integer getActiveCount();
+    void setActiveCount(Integer i);
 
     @Binding(skip = true)
-    int getCreatedCount();
-    void setCreatedCount(int i);
+    Integer getCreatedCount();
+    void setCreatedCount(Integer i);
 
     @Binding(skip = true)
-    int getMaxWaitCount();
-    void setMaxWaitCount(int i);
+    Integer getMaxWaitCount();
+    void setMaxWaitCount(Integer i);
 
     @Binding(skip = true)
-    int getAvailbleCount();
-    void setAvailbleCount(int i);
+    Integer getAvailbleCount();
+    void setAvailbleCount(Integer i);
 
     @Binding(skip = true)
-    int getMaxUsedCount();
-    void setMaxUsedCount(int i);
+    Integer getMaxUsedCount();
+    void setMaxUsedCount(Integer i);
 
 
 }
