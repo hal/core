@@ -99,6 +99,7 @@
 
     <!-- Path -->
     <stylesheet src="lab.css"/>
+    <stylesheet src="custom-progress.css"/>
     <source path="client"/>
     <source path="mbui"/>
 
