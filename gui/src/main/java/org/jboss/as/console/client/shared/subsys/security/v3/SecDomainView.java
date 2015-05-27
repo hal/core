@@ -1,10 +1,12 @@
 package org.jboss.as.console.client.shared.subsys.security.v3;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.pages.PagedView;
+import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.Property;
 
 import java.util.Collections;
@@ -113,6 +115,11 @@ public class SecDomainView extends SuspendableViewImpl implements SecDomainPrese
         // default page
         panel.showPage(0);
 
-        return panel.asWidget();
+        DefaultTabLayoutPanel tabs = new DefaultTabLayoutPanel(40, Style.Unit.PX);
+        tabs.addStyleName("default-tabpanel");
+        tabs.add(panel.asWidget(), "Security Domain");
+        tabs.selectTab(0);
+
+        return tabs.asWidget();
     }
 }
