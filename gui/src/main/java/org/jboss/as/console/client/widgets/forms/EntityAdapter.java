@@ -251,28 +251,28 @@ public class EntityAdapter<T> {
                         value = propValue.asLong();
                     else
                         // need to make sure to use the proper type otherwise ClassCastExceptions occur down the line (after boxing)
-                        value = -1L;
+                        value = null;
                 }
                 else if("java.lang.Integer".equals(propBinding.getJavaTypeName()))
                 {
                     if(propValue.isDefined())
                         value = propValue.asInt();
                     else
-                        value = -1;
+                        value = null;
                 }
                 else if("java.lang.Double".equals(propBinding.getJavaTypeName()))
                 {
                     if(propValue.isDefined())
                         value = propValue.asDouble();
                     else
-                        value = -1.0;
+                        value = null;
                 }
                 else if("java.lang.Float".equals(propBinding.getJavaTypeName()))
                 {
                     if(propValue.isDefined())
                         value = propValue.asDouble();
                     else
-                        value = -1.0;
+                        value = null;
                 }
                 else if("java.lang.String".equals(propBinding.getJavaTypeName()))
                 {
