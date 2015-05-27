@@ -19,6 +19,7 @@ import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -47,8 +48,11 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpMetrics)
-    @AccessControl(resources = {
-            "/{selected.host}/{selected.server}/subsystem=undertow"}
+    @RequiredResources(
+            resources = {
+                    "/{selected.host}/{selected.server}/subsystem=undertow",
+                    "/{selected.host}/{selected.server}/subsystem=undertow/server=*"
+            }
     )
     @SearchIndex(keywords = {"web", "connections", "http"})
     public interface MyProxy extends Proxy<HttpMetricPresenter>, Place {}

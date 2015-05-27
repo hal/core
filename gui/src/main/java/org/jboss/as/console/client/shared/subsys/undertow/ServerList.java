@@ -13,14 +13,10 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -39,18 +35,17 @@ import java.util.Map;
  */
 public class ServerList {
 
-    private static final AddressTemplate RESOURCE_ADDRESS =
-            AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*");
+    private final AddressTemplate RESOURCE_ADDRESS;
 
     private CommonHttpPresenter presenter;
-    private final boolean supportsEditing;
+    private final boolean isRuntimeView;
     private DefaultCellTable table;
     private ListDataProvider<Property> dataProvider;
 
-    public ServerList(CommonHttpPresenter presenter, boolean supportsEditing) {
+    public ServerList(CommonHttpPresenter presenter, boolean isRuntimeView) {
 
         this.presenter = presenter;
-        this.supportsEditing = supportsEditing;
+        this.isRuntimeView = isRuntimeView;
 
         ProvidesKey<Property> keyProvider = new ProvidesKey<Property>() {
             @Override
@@ -58,6 +53,15 @@ public class ServerList {
                 return property.getName();
             }
         };
+
+        if(isRuntimeView)
+        {
+            this.RESOURCE_ADDRESS = AddressTemplate.of("/{selected.host}/{selected.server}/subsystem=undertow/server=*");
+        }
+        else
+        {
+            this.RESOURCE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*");
+        }
 
         this.table = new DefaultCellTable(5, keyProvider);
         this.dataProvider = new ListDataProvider<Property>();
@@ -154,7 +158,7 @@ public class ServerList {
                 .setMaster(Console.MESSAGES.available("HTTP Server "), table);
 
 
-        if(supportsEditing)
+        if(!isRuntimeView)
         {
             layoutBuilder.addDetail("Attributes", formPanel);
         }

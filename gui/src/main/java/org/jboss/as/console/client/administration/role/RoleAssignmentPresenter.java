@@ -180,13 +180,15 @@ public class RoleAssignmentPresenter
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInAdministration(this);
+        revealStrategy.revealInParent(this);
     }
 
     @Override
     protected void onReset() {
         super.onReset();
         loadAssignments();
+
+        Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
 
     private void loadAssignments() {

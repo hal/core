@@ -39,7 +39,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
 
         panel = new PagedView();
 
-        serverList = new ServerList(presenter, true);
+        serverList = new ServerList(presenter, false);
         httpView = new HttpListenerView(presenter);
         httpsView = new HttpsListenerView(presenter);
         ajpView = new AJPListenerView(presenter);

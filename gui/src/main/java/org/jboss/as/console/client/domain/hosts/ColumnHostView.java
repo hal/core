@@ -111,6 +111,18 @@ public class ColumnHostView extends SuspendableViewImpl
                 });
 
 
+      /*  hosts.setTopMenuItems(
+                new MenuDelegate<String>(          // TODO permissions
+                        "Patching", new ContextualCommand<String>() {
+                    @Override
+                    public void executeOn(final String host) {
+                        Console.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.PatchingPresenter)
+                        );
+                    }
+                })
+        );*/
+
         hosts.setPreviewFactory(new PreviewFactory<String>() {
             @Override
             public void createPreview(String data, AsyncCallback<SafeHtml> callback) {

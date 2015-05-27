@@ -153,7 +153,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInAdministration(this);
+        revealStrategy.revealInParent(this);
     }
 
     @Override
