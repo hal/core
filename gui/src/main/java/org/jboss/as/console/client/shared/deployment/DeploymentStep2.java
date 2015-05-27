@@ -64,7 +64,11 @@ public class DeploymentStep2 {
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
         CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
-        form.setFields(nameField, runtimeNameField, enable);
+        if (Console.getBootstrapContext().isStandalone()) {
+            form.setFields(nameField, runtimeNameField, enable);
+        } else {
+            form.setFields(nameField, runtimeNameField);
+        }
 
         layout.add(form.asWidget());
 
