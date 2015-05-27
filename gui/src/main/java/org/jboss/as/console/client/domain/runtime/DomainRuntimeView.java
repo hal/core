@@ -202,7 +202,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     @Override
                     public boolean isFolder(Server data) {
-                        return true;
+                        return data.isStarted();
                     }
 
                     @Override
