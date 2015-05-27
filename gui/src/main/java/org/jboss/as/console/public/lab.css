@@ -403,11 +403,11 @@
 }
 
 .navigation-cell-table .inactive .cellTableFirstColumn {
-    border-left:4px solid #DC9F2E!important;
+    border-left:4px solid #EC7A08!important;
 }
 
 .navigation-cell-table .noReferenceServer .cellTableFirstColumn {
-    border-left:4px solid #993333!important;
+    border-left:4px solid #CC0000!important;
 }
 
 .active .cellTableSelectedRow {
