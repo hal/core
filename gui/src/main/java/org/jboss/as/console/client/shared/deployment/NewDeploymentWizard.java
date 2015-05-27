@@ -184,7 +184,7 @@ public class NewDeploymentWizard {
         sb.append("\"BYTES_VALUE\":\"").append(deployment.getHash()).append("\"");
         sb.append("}}],");
         sb.append("\"name\":\"").append(deployment.getName()).append("\",");
-        sb.append("\"enabled\":\"").append(deployment.isEnableAfterDeployment()).append("\"");
+        sb.append("\"enabled\":\"").append(Console.getBootstrapContext().isStandalone() ? deployment.isEnableAfterDeployment() : true).append("\"");
         sb.append("}");
         return sb.toString();
     }
@@ -199,7 +199,7 @@ public class NewDeploymentWizard {
         sb.append("}}],");
         sb.append("\"name\":\"").append(deployment.getName()).append("\",");
         sb.append("\"runtime-name\":\"").append(deployment.getRuntimeName()).append("\",");
-        sb.append("\"enabled\":\"").append(deployment.isEnableAfterDeployment()).append("\"");
+        sb.append("\"enabled\":\"").append(Console.getBootstrapContext().isStandalone() ? deployment.isEnableAfterDeployment() : true).append("\"");
         sb.append("}");
         return sb.toString();
     }
