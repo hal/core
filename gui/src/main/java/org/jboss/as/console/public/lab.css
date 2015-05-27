@@ -439,14 +439,6 @@
     display: none;
 }
 
-.form-edit-panel {
-    background-color: #FFFFFF !important;
-}
-
-.form-view-panel {
-    background-color: #FFFFFF !important;
-}
-
 .application-panel-glass {
     background-attachment: scroll;
     background-clip: border-box;
