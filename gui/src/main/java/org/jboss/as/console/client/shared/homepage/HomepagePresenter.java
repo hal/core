@@ -84,14 +84,14 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         List<InfoBox> infoBoxes = new LinkedList<InfoBox>();
 
         if (standalone) {
-            infoBoxes.add(new InfoBox(NameTokens.DeploymentBrowserPresenter, Console.CONSTANTS.common_label_deployments(),
+            infoBoxes.add(new InfoBox(NameTokens.StandaloneDeploymentFinder, Console.CONSTANTS.common_label_deployments(),
                     Console.CONSTANTS.section_deployment_intro()));
             infoBoxes.add(new InfoBox(NameTokens.ServerProfile, Console.CONSTANTS.common_label_configuration(),
                     Console.CONSTANTS.section_configuration_intro()));
             infoBoxes.add(new InfoBox(NameTokens.StandaloneRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));
         } else {
-            infoBoxes.add(new InfoBox(NameTokens.DeploymentsPresenter, Console.CONSTANTS.common_label_deployments(),
+            infoBoxes.add(new InfoBox(NameTokens.DomainDeploymentFinder, Console.CONSTANTS.common_label_deployments(),
                     Console.CONSTANTS.section_deployment_intro()));
             infoBoxes.add(new InfoBox(NameTokens.ProfileMgmtPresenter,
                     Console.CONSTANTS.common_label_configuration(), Console.CONSTANTS.section_configuration_intro()));
@@ -99,7 +99,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             infoBoxes.add(new InfoBox(NameTokens.DomainRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));
         }
-        infoBoxes.add(new InfoBox(NameTokens.AdministrationPresenter, "Administration",
+        infoBoxes.add(new InfoBox(NameTokens.RoleAssignmentPresenter, "Access Control",
                 Console.CONSTANTS.section_administration_intro()));
 
         return infoBoxes;
@@ -112,7 +112,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             contentBoxes.add(new ContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body_standalone(),
-                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.DeploymentBrowserPresenter));
+                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.StandaloneDeploymentFinder));
             contentBoxes.add(new ContentBox("Datasources",
                     Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body_standalone(),
@@ -125,7 +125,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             contentBoxes.add(new ContentBox("NewDeployment",
                     Console.CONSTANTS.content_box_new_deployment_title(),
                     Console.MESSAGES.content_box_new_deployment_body_domain(),
-                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.DeploymentsPresenter));
+                    Console.CONSTANTS.content_box_new_deployment_link(), NameTokens.DomainDeploymentFinder));
             contentBoxes.add(new ContentBox("Datasources",
                     Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body_domain(),
