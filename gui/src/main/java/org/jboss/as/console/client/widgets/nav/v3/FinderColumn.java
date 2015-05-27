@@ -439,7 +439,7 @@ public class FinderColumn<T> {
         if(!plain) {     // including the header
 
             header = new LayoutPanel();
-            header.addStyleName("fill-layout");
+            header.addStyleName("fill-layout-width");
             header.addStyleName("finder-col-header");
 
             headerTitle = new HTML(title);

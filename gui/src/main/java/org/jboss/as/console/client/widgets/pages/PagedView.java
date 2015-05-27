@@ -50,6 +50,7 @@ public class PagedView {
         layout.add(deck);
 
 
+
         layout.setWidgetHidden(navigationBar, !navOnFirstPage);
 
         return layout;

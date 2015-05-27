@@ -1049,36 +1049,20 @@ table {
   border-right: 1px solid @border2-color;
   border-bottom: 1px solid @border2-color;
   width: 100%;
-  background-color: #ffffff;
+  background-color: #fcfcfc;
+  margin-top: 10px;
 }
 
 .cellTableHeader {
-  color: #4E5255;
+
   padding-left: 10px;
   border-left: 1px solid @border2-color;
   border-bottom: 1px solid @border2-color;
-  text-align: center;
-  height: 35px;
-  font-weight: normal;
-  text-align: left;
+  height: 30px;
+  font-weight: bold;
 
-  /* fallback */
-  background-color: #f9f9f9;
-
-  /* Safari 4-5, Chrome 1-9 */
-  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f9f9f9), to(#eeeeee));
-
-  /* Safari 5.1, Chrome 10+ */
-  background: -webkit-linear-gradient(top, #f9f9f9, #eeeeee);
-
-  /* Firefox 3.6+ */
-  background: -moz-linear-gradient(top, #f9f9f9, #eeeeee);
-
-  /* IE 10 */
-  background: -ms-linear-gradient(top, #f9f9f9, #eeeeee);
-
-  /* Opera 11.10+ */
-  background: -o-linear-gradient(top, #f9f9f9, #eeeeee);
+  background-clip: padding-box;
+  background-color: #fafafa;
 }
 
 .cellTableFirstColumnHeader {
@@ -1188,6 +1172,8 @@ table {
   padding-bottom: 0px;
   margin-bottom: 10px;
   padding-top: 10px;
+  display:none;
+
 }
 
 /* plain form view */
@@ -1234,8 +1220,7 @@ table {
 
 .form-view-panel, .form-edit-panel {
   width: 100%;
-  background-color: @background1-color;
-  padding: 10px;
+  background: none;
 }
 
 .form-edit-panel table {
@@ -1540,10 +1525,9 @@ input[type="checkbox"] {
 /*paged views*/
 
 .paged-view-navigation {
-  border-bottom: 1px solid #e9e6e6;
-  padding-left: 15px;
-  margin-left: 15px;
+  margin: 0 15px 0 auto;
   margin-right: 15px;
+  padding-top: 30px;
 }
 
 .link-bar {

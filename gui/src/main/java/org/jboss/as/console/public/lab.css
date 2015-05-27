@@ -574,9 +574,12 @@
 }
 
 .finder-col-header {
-    background: -moz-linear-gradient(center top , #F9F9F9, #EEEEEE) repeat scroll 0 0 rgba(0, 0, 0, 0);
     border-bottom: 1px solid #CFCFCF !important;
-    color: #666666;
+    color: #333333;
+    background-clip: padding-box;
+    background-color: #F9F9F9;
+    background-image: linear-gradient(to bottom, #FAFAFA 0px, #EDEDED 100%);
+    background-repeat: repeat-x;
 }
 
 .finder-col-title {
@@ -693,3 +696,19 @@
     z-index: 50;
 }
 
+.spinner.spinner-lg {
+    border-width: 5px;
+    height: 30px;
+    width: 30px;
+}
+.spinner {
+    animation: 0.6s linear 0s normal none infinite rotation;
+    border-color: rgba(0, 0, 0, 0.75) rgba(0, 0, 0, 0.25) rgba(0, 0, 0, 0.25);
+    border-radius: 100%;
+    border-style: solid;
+    border-width: 4px;
+    height: 24px;
+    margin: 0 auto;
+    position: relative;
+    width: 24px;
+}
