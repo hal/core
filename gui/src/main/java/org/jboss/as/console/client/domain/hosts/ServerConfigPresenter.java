@@ -166,54 +166,12 @@ public class ServerConfigPresenter extends CircuitPresenter<ServerConfigPresente
 
         if(!isVisible()) return; // don't process anything when not visible
 
-        // TODO (hbraun):  I think this whole section is not needed anymore
 
-      /*  if(action instanceof SelectServer)
+        if(action instanceof RefreshServer)
         {
-            SelectServer serverSelection = (SelectServer) action;
-            List<Server> serverModel = serverStore.getServerForHost(serverSelection.getHost());
-            for (Server server : serverModel) {
-                if(server.getHostName().equals(serverSelection.getHost())
-                        && server.getName().equals(serverSelection.getServer()))
-                {
-                    getView().updateFrom(server);
-                    break;
-                }
-            }
+            Server server = serverStore.findServer(serverStore.getSelectServer());
+            getView().updateFrom(server);
         }
-
-        // Refresh the server list when:
-        // - changes to host/group filter refresh the server list
-        // - group and host selection events
-        // - server's are added or removed
-        else if(
-                (action instanceof FilterType)
-                        || (action instanceof GroupSelection)
-                        || (action instanceof HostSelection)
-                        || (action instanceof RemoveServer)
-                        || (action instanceof AddServer)
-                ) {
-
-            if(FilterType.HOST.equals(serverStore.getFilter()))
-            {
-                String selectedHost = hostStore.getSelectedHost();
-
-                List<Server> serverModel = Collections.EMPTY_LIST;
-                if (selectedHost != null) {
-                    serverModel = serverStore.getServerForHost(
-                            hostStore.getSelectedHost()
-                    );
-
-                }
-
-                getView().updateServerList(serverModel);
-            }
-            else if(FilterType.GROUP.equals(serverStore.getFilter()))
-            {
-                List<Server> serverModel = serverStore.getServerForGroup(serverStore.getSelectedGroup());
-                getView().updateServerList(serverModel);
-            }
-        }*/
     }
 
     @Override

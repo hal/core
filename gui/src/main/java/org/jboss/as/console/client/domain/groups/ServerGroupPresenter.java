@@ -183,13 +183,13 @@ public class ServerGroupPresenter
 
     @Deprecated
     private void loadServerGroup() {
-        /*serverGroupDAO.loadServerGroup(serverStore.getSelectedGroup(),
+        serverGroupDAO.loadServerGroup(serverStore.getSelectedGroup(),
                 new SimpleCallback<ServerGroupRecord>() {
                     @Override
                     public void onSuccess(ServerGroupRecord group) {
                         getView().updateFrom(group);
                     }
-                });*/
+                });
     }
 
     @Override
