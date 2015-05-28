@@ -422,7 +422,19 @@ public class ColumnHostView extends SuspendableViewImpl
                         "Start Group", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
-                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.START);
+
+
+                        Feedback.confirm(
+                                "Start Server Group",
+                                "Do you want to start group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.START);
+                                    }
+                                }
+                        );
                     }
                 }),
                 new MenuDelegate<ServerGroupRecord>(
@@ -430,7 +442,37 @@ public class ColumnHostView extends SuspendableViewImpl
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
-                        presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
+                        Feedback.confirm(
+                                "Stop Server Group",
+                                "Do you want to stop group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
+                                    }
+                                }
+                        );
+
+                    }
+                }),
+                new MenuDelegate<ServerGroupRecord>(
+                        "Restart Group", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+                        Feedback.confirm(
+                                "Restart Server Group",
+                                "Do you want to restart group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESTART);
+                                    }
+                                }
+                        );
+
                     }
                 })
         );

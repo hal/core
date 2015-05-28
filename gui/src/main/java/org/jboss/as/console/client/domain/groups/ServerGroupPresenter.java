@@ -69,12 +69,6 @@ import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
  * @author Heiko Braun
  * @date 2/16/11
  *
- * * IA - refactoring remaining issues:
- *
- * + jvm settings
- * + system properties
- * + server group store to share data with other presenters
- * ? start/stop group
  *
  */
 public class ServerGroupPresenter
