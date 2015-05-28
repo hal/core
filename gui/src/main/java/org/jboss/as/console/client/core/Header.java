@@ -193,19 +193,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         // Debug tools
         VerticalPanel debugTools = new VerticalPanel();
 
-        if(!GWT.isScript())
-        {
-            HTML rbac = new HTML("<i title='RBAC Diagnostics' style='cursor:pointer;color:#cecece;font-size:30px;font-weight:normal!important' class='icon-eye-open'></i>");
-            debugTools.add(rbac);
-
-            rbac.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    RBACContextView.launch();
-                }
-            });
-        }
-
         bottom.add(debugTools);
         bottom.setWidgetLeftWidth(links, 0, Style.Unit.PX, 800, Style.Unit.PX);
         bottom.setWidgetTopHeight(links, 0, Style.Unit.PX, 44, Style.Unit.PX);

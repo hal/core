@@ -72,7 +72,6 @@ import org.jboss.as.console.client.plugins.SearchIndexRegistry;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.search.Harvest;
@@ -358,7 +357,6 @@ public interface CoreUI {
     SearchIndexRegistry getSearchIndexRegistry();
 
     SecurityFramework getSecurityFramework();
-    PlaceRequestSecurityFramework getPlaceRequestSecurityContext();
 
     UnauthorisedPresenter getUnauthorisedPresenter();
 

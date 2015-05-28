@@ -40,7 +40,6 @@ import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
@@ -62,7 +61,7 @@ import java.util.List;
 public class ProfileMgmtPresenter
         extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
         implements Finder, ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
-        UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
+         ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
@@ -88,14 +87,12 @@ public class ProfileMgmtPresenter
     private final PlaceManager placeManager;
     private ProfileStore profileStore;
     private CurrentProfileSelection profileSelection;
-    private final UnauthorisedPresenter unauthorisedPresenter;
     private final Dispatcher circuit;
     private final Header header;
 
     @Inject
     public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
-            UnauthorisedPresenter unauthorisedPresenter, Dispatcher circuit, Header header) {
+            ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection, Dispatcher circuit, Header header) {
 
         super(eventBus, view, proxy);
 
@@ -103,7 +100,7 @@ public class ProfileMgmtPresenter
         this.profileStore = profileStore;
         this.subsysStore = subsysStore;
         this.profileSelection = currentProfileSelection;
-        this.unauthorisedPresenter = unauthorisedPresenter;
+
         this.circuit = circuit;
         this.header = header;
     }
@@ -114,15 +111,6 @@ public class ProfileMgmtPresenter
             getView().toogleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 
-    /**
-     * Sets the {@link org.jboss.as.console.client.rbac.UnauthorisedPresenter} in the content slot given as constructor
-     * parameter.
-     */
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        // resetLastPlace();
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
-    }
 
     @Override
     public void onClearActiveSelection(ClearFinderSelectionEvent event) {

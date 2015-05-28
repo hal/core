@@ -5,9 +5,12 @@ package org.jboss.as.console.client.widgets.nav.v3;
  * @since 19/01/15
  */
 public class MenuDelegate<T> {
+
     private String title;
     private ContextualCommand<T> command;
     private String[] operationContext;
+    private String resource;
+    private String op;
 
     public MenuDelegate(String title, ContextualCommand<T> command) {
         this.title = title;
@@ -26,4 +29,19 @@ public class MenuDelegate<T> {
         this.operationContext = new String[] {resource, op};
         return this;
     }
+
+
+    public void setOperationAddress(String resource, String op) {
+        this.resource = resource;
+        this.op = op;
+    }
+
+    public String[] getOperationAddress() {
+        return new String[] {resource, op};
+    }
+
+    public boolean hasOperationAddress() {
+        return resource!=null && op!=null;
+    }
+
 }

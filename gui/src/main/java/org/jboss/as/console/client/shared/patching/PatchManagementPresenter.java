@@ -33,7 +33,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.*;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
 import org.jboss.as.console.client.shared.patching.ui.RestartModal;
 import org.jboss.as.console.client.shared.patching.wizard.apply.ApplyContext;
@@ -113,7 +112,6 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     private final HostStore hostStore;
     private final BootstrapContext bootstrapContext;
     private final DispatchAsync dispatcher;
-    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow window;
 
 
@@ -121,8 +119,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     public PatchManagementPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
                                     final RevealStrategy revealStrategy, final PatchManager patchManager,
                                     final Dispatcher circuit, final HostStore hostStore,
-                                    final BootstrapContext bootstrapContext, final DispatchAsync dispatcher,
-                                    final PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                                    final BootstrapContext bootstrapContext, final DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy, circuit);
         this.revealStrategy = revealStrategy;
@@ -130,7 +127,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
         this.hostStore = hostStore;
         this.bootstrapContext = bootstrapContext;
         this.dispatcher = dispatcher;
-        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
+
     }
 
     @Override
@@ -138,12 +135,11 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
         super.onBind();
         getView().setPresenter(this);
         addChangeHandler(hostStore);
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
     @Override
     protected void onAction(Action action) {
-        placeRequestSecurityFramework.update(this, hostPlaceRequest());
+        // noop
     }
 
     private PlaceRequest hostPlaceRequest() {
@@ -160,6 +156,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     protected void onReset() {
         super.onReset();
         loadPatches();
+        Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
 
     public void loadPatches() {

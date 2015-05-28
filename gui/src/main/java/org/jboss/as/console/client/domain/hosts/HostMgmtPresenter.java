@@ -152,7 +152,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
                              ProfileStore profileStore, DispatchAsync dispatcher, BeanFactory factory,
                              ServerGroupDAO serverGroupDAO, ServerGroupStore serverGroupStore, SocketBindingStore socketBindingStore) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter, unauthorisedPresenter,
+        super(eventBus, view, proxy, placeManager, header, NameTokens.HostMgmtPresenter,
                 TYPE_MainContent);
         this.placeManager = placeManager;
 

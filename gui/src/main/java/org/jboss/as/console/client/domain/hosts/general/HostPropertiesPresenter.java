@@ -22,7 +22,6 @@ package org.jboss.as.console.client.domain.hosts.general;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.View;
@@ -32,12 +31,10 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.CreatePropertyCmd;
 import org.jboss.as.console.client.shared.properties.DeletePropertyCmd;
@@ -85,19 +82,17 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     private final DispatchAsync dispatcher;
     private final HostStore hostStore;
     private final BeanFactory factory;
-    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private DefaultWindow propertyWindow;
 
     @Inject
     public HostPropertiesPresenter(EventBus eventBus, MyView view, MyProxy proxy, Dispatcher circuit,
-                                   DispatchAsync dispatcher,BeanFactory factory, HostStore hostStore,
-                                   PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                                   DispatchAsync dispatcher,BeanFactory factory, HostStore hostStore) {
         super(eventBus, view, proxy, circuit);
 
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
         this.factory = factory;
-        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
+
     }
 
     @Override
@@ -105,12 +100,12 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
         super.onBind();
         getView().setPresenter(this);
         addChangeHandler(hostStore);
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
+
     }
 
     @Override
     protected void onAction(Action action) {
-        placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
+        //placeRequestSecurityFramework.update(HostPropertiesPresenter.this, hostPlaceRequest());
         loadProperties();
     }
 
@@ -122,6 +117,7 @@ public class HostPropertiesPresenter extends CircuitPresenter<HostPropertiesPres
     @Override
     protected void onReset() {
         super.onReset();
+
         loadProperties();
     }
 

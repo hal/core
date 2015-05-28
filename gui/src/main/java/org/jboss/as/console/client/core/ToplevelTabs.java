@@ -97,8 +97,12 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
             //tabs.add(new Config(NameTokens.ServerPresenter, "Domain", false));
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Runtime", true));
         }
-        tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
-        tabs.add(new Config(NameTokens.PatchingPresenter, "Patching", true));
+
+        if(bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
+            tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
+            tabs.add(new Config(NameTokens.PatchingPresenter, "Patching", true));
+        }
+
     }
 
     @Override

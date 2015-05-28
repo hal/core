@@ -53,6 +53,8 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RefreshServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.RemoveServer;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -77,7 +79,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class DomainRuntimePresenter
         extends PerspectivePresenter<DomainRuntimePresenter.MyView, DomainRuntimePresenter.MyProxy>
-        implements Finder, UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
+        implements Finder, PreviewEvent.Handler {
 
 
     private DefaultWindow window;
@@ -85,7 +87,11 @@ public class DomainRuntimePresenter
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
-    //@UseGatekeeper(DomainRuntimegateKeeper.class)
+    @RequiredResources(
+            resources = {
+                    "/{selected.host}/server-config=*"
+            },
+            recursive = false)
     public interface MyProxy extends Proxy<DomainRuntimePresenter>, Place {
     }
 
@@ -118,11 +124,10 @@ public class DomainRuntimePresenter
     @Inject
     public DomainRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
                                   HostStore hostStore, SubsystemLoader subsysStore,
-                                  ServerGroupDAO serverGroupStore, Header header, UnauthorisedPresenter unauthorisedPresenter,
+                                  ServerGroupDAO serverGroupStore, Header header,
                                   Dispatcher circuit, ServerStore serverStore, HostInformationStore hostInfoStore, DispatchAsync dispatcher) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, unauthorisedPresenter,
-                TYPE_MainContent);
+        super(eventBus, view, proxy, placeManager, header, NameTokens.DomainRuntimePresenter, TYPE_MainContent);
 
         this.placeManager = placeManager;
 

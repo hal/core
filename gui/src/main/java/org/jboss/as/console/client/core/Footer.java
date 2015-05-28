@@ -36,6 +36,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.ProductConfig;
 import org.jboss.as.console.client.core.bootstrap.hal.GlobalShortcuts;
+import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.v3.stores.DiagnosticsView;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
@@ -152,9 +153,24 @@ public class Footer {
                         new PlaceRequest.Builder().nameToken(NameTokens.SettingsPresenter).build(), false
                 );
             }
+
         });
 
+
         HorizontalPanel tools = new HorizontalPanel();
+        if(!GWT.isScript())
+        {
+            HTML rbac = new HTML("<i title='RBAC Diagnostics' class='icon-shield'></i>");
+            rbac.addStyleName("footer-link");
+            tools.add(rbac);
+            rbac.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    RBACContextView.launch();
+                }
+            });
+        }
+
         tools.add(toolsLink);
         tools.add(settings);
         layout.add(tools);

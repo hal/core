@@ -122,7 +122,6 @@ import org.jboss.as.console.client.plugins.SubsystemRegistryImpl;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.preview.PreviewContentFactoryImpl;
 import org.jboss.as.console.client.rbac.HostManagementGatekeeper;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.rbac.RBACGatekeeper;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.rbac.SecurityFrameworkImpl;
@@ -772,7 +771,6 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         bind(StatementContext.class).to(CoreGUIContext.class).in(Singleton.class);
         bind(SecurityFramework.class).to(SecurityFrameworkImpl.class).in(Singleton.class);
-        bind(PlaceRequestSecurityFramework.class).in(Singleton.class);
 
         bind(StandaloneEndpointStrategy.class).in(Singleton.class);
         bind(RequiredResourcesProcessor.class).in(Singleton.class);

@@ -33,6 +33,7 @@ public abstract class TopologyOp {
     protected final LifecycleCallback callback;
     protected boolean lifecycleReached;
     protected long start;
+    private boolean failed = false;
 
     protected TopologyOp(final LifecycleOperation op, final LifecycleCallback callback) {
         this.op = op;
@@ -59,6 +60,7 @@ public abstract class TopologyOp {
 
         @Override
         public void onFailure(final Throwable caught) {
+            failed = true;
             callback.onError(caught);
         }
     }
@@ -67,7 +69,7 @@ public abstract class TopologyOp {
 
         @Override
         public boolean isMet() {
-            return !timeout() && !lifecycleReached;
+            return !failed && !timeout() && !lifecycleReached;
         }
     }
 

@@ -264,7 +264,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         serverColumn.setMenuItems(
                 new MenuDelegate<Server>(          // TODO permissions
-                        "Edit", new ContextualCommand<Server>() {
+                        "View", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(final Server server) {
                         placeManager.revealRelativePlace(

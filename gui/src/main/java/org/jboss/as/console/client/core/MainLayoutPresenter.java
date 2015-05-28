@@ -19,7 +19,11 @@
 
 package org.jboss.as.console.client.core;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -33,10 +37,14 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.ProxyPlace;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.client.proxy.RevealRootLayoutContentEvent;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.expr.ExpressionTool;
 import org.jboss.as.console.client.widgets.nav.v3.CloseApplicationEvent;
 import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 
 /**
  * @author Heiko Braun
@@ -45,10 +53,12 @@ import org.jboss.ballroom.client.widgets.forms.ResolveExpressionEvent;
 public class MainLayoutPresenter
         extends Presenter<MainLayoutPresenter.MainLayoutView,
         MainLayoutPresenter.MainLayoutProxy>
-        implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler, CloseApplicationEvent.Handler {
+        implements ResolveExpressionEvent.ExpressionResolveListener, LogoutEvent.LogoutHandler, CloseApplicationEvent.Handler,
+        UnauthorizedEvent.UnauthorizedHandler {
 
     boolean revealDefault = true;
     private BootstrapContext bootstrap;
+    private final UnauthorisedPresenter unauthorisedPresenter;
 
     private ExpressionTool expressionTool;
 
@@ -79,9 +89,10 @@ public class MainLayoutPresenter
             EventBus eventBus,
             MainLayoutView view,
             MainLayoutProxy proxy, BootstrapContext bootstrap,
-            ExpressionResolver resolver, PlaceManager placeManager) {
+            ExpressionResolver resolver, PlaceManager placeManager, UnauthorisedPresenter unauthorisedPresenter) {
         super(eventBus, view, proxy);
         this.bootstrap = bootstrap;
+        this.unauthorisedPresenter = unauthorisedPresenter;
         this.expressionTool = new ExpressionTool(resolver);
         this.placeManager = placeManager;
 
@@ -94,6 +105,19 @@ public class MainLayoutPresenter
         getEventBus().addHandler(ResolveExpressionEvent.TYPE, this);
         getEventBus().addHandler(LogoutEvent.TYPE, this);
         getEventBus().addHandler(CloseApplicationEvent.TYPE, this);
+        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
+
+    }
+
+    @Override
+    public void onUnauthorized(UnauthorizedEvent event) {
+        DefaultWindow window = new DefaultWindow("Insufficient Privileges");
+        window.setWidget(unauthorisedPresenter);
+        window.setWidth(320);
+        window.setHeight(240);
+        window.setAutoHideOnHistoryEventsEnabled(true);
+        window.setGlassEnabled(true);
+        window.center();
     }
 
     @Override

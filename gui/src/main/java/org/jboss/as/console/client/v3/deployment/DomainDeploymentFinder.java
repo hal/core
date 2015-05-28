@@ -133,7 +133,7 @@ public class DomainDeploymentFinder
             final BeanFactory beanFactory, final DispatchAsync dispatcher, final Dispatcher circuit,
             final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext, final Header header) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainDeploymentFinder,
-                unauthorisedPresenter, TYPE_MainContent);
+                TYPE_MainContent);
         this.beanFactory = beanFactory;
         this.dispatcher = dispatcher;
         this.circuit = circuit;

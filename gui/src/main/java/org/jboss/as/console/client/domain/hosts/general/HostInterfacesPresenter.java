@@ -31,9 +31,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.general.InterfaceManagement;
 import org.jboss.as.console.client.shared.general.InterfaceManagementImpl;
 import org.jboss.as.console.client.shared.general.model.Interface;
@@ -76,7 +74,6 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
 
     private final DispatchAsync dispatcher;
     private final ApplicationMetaData metaData;
-    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private final InterfaceManagement delegate;
     private final HostStore hostStore;
 
@@ -84,15 +81,15 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
     @Inject
     public HostInterfacesPresenter(EventBus eventBus, MyView view, MyProxy proxy,
                                    HostStore hostStore, Dispatcher circuit,
-                                   DispatchAsync dispatcher, ApplicationMetaData metaData,
-                                   PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                                   DispatchAsync dispatcher, ApplicationMetaData metaData
+                                   ) {
 
         super(eventBus, view, proxy, circuit);
 
         this.hostStore = hostStore;
         this.dispatcher = dispatcher;
         this.metaData = metaData;
-        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
+
         this.delegate = new InterfaceManagementImpl(dispatcher, new EntityAdapter<Interface>(Interface.class, metaData),
                 metaData.getBeanMetaData(Interface.class));
         this.delegate.setCallback(this);
@@ -105,12 +102,10 @@ public class HostInterfacesPresenter extends CircuitPresenter<HostInterfacesPres
         getView().setPresenter(this);
         getView().setDelegate(this.delegate);
         addChangeHandler(hostStore);
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
     @Override
     protected void onAction(Action action) {
-        placeRequestSecurityFramework.update(HostInterfacesPresenter.this, hostPlaceRequest());
         loadInterfaces();
     }
 

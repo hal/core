@@ -62,7 +62,7 @@ public class AdministrationPresenter
     public AdministrationPresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final PlaceManager placeManager, final Header header, UnauthorisedPresenter unauthorisedPresenter) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.AdministrationPresenter, unauthorisedPresenter,
+        super(eventBus, view, proxy, placeManager, header, NameTokens.AdministrationPresenter,
                 TYPE_MainContent);
     }
 

@@ -19,7 +19,6 @@
 package org.jboss.as.console.client.shared.state;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.user.client.History;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
 import com.gwtplatform.mvp.client.View;
@@ -29,12 +28,9 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SelectPerspective;
 import org.jboss.ballroom.client.layout.LHSHighlightEvent;
 import org.jboss.gwt.circuit.Dispatcher;
-
-import java.util.List;
 
 /**
  * Base class for top level presenters like "Configuration", "Server Health" or "Administration". Meets two tasks:
@@ -47,13 +43,11 @@ import java.util.List;
  *
  * @author Harald Pehl
  */
-public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_>
-        implements UnauthorizedEvent.UnauthorizedHandler {
+public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<?>> extends Presenter<V, Proxy_> {
 
     private final PlaceManager placeManager;
     private final Header header;
     private final String token;
-    private final UnauthorisedPresenter unauthorisedPresenter;
     private final Object contentSlot;
     private final Dispatcher circuit;
     private PlaceRequest lastPlace;
@@ -61,13 +55,12 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
 
     public PerspectivePresenter(final EventBus eventBus, final V view, final Proxy_ proxy,
             final PlaceManager placeManager, final Header header, final String token,
-            final UnauthorisedPresenter unauthorisedPresenter, Object contentSlot) {
+            Object contentSlot) {
 
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         this.header = header;
         this.token = token;
-        this.unauthorisedPresenter = unauthorisedPresenter;
         this.contentSlot = contentSlot;
         this.circuit = Console.MODULES.getCircuitDispatcher();
     }
@@ -75,7 +68,6 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
     @Override
     protected void onBind() {
         super.onBind();
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
     }
 
     @Override
@@ -118,17 +110,19 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
      */
     abstract protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault);
 
-    /**
+  /* *
      * Sets the {@link org.jboss.as.console.client.rbac.UnauthorisedPresenter} in the content slot given as constructor
      * parameter.
-     */
+     *//*
     @Override
     public void onUnauthorized(final UnauthorizedEvent event) {
        // resetLastPlace();
         setInSlot(contentSlot, unauthorisedPresenter);
     }
 
-    /**
+  */
+
+     /**
      * Clears the last place and resets the "has-been-revealed" status to false. Thus the next time
      * onFirstReveal() will be called again.
      */

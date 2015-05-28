@@ -19,7 +19,6 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
@@ -33,12 +32,11 @@ import java.util.List;
  */
 public class StandaloneRuntimePresenter
         extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy>
-        implements Finder, UnauthorizedEvent.UnauthorizedHandler, PreviewEvent.Handler {
+        implements Finder, PreviewEvent.Handler {
 
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
     private final Header header;
-    private final UnauthorisedPresenter unauthorisedPresenter;
 
     @NoGatekeeper
     @ProxyCodeSplit
@@ -58,13 +56,12 @@ public class StandaloneRuntimePresenter
 
     @Inject
     public StandaloneRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            SubsystemLoader subsysStore, Header header, UnauthorisedPresenter unauthorisedPresenter) {
+            SubsystemLoader subsysStore, Header header) {
 
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
         this.header = header;
-        this.unauthorisedPresenter = unauthorisedPresenter;
     }
 
     @Override
@@ -73,17 +70,9 @@ public class StandaloneRuntimePresenter
     }
 
     @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        // resetLastPlace();
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
-    }
-
-
-    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
-        getEventBus().addHandler(UnauthorizedEvent.TYPE, this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
     }
 

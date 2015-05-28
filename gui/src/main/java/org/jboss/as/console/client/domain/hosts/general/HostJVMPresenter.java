@@ -35,9 +35,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.jvm.JvmManagement;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
@@ -86,19 +84,16 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
 
     private final DispatchAsync dispatcher;
     private final HostStore hostStore;
-    private final PlaceRequestSecurityFramework placeRequestSecurityFramework;
     private final EntityAdapter<Jvm> adapter;
     private DefaultWindow window;
 
     @Inject
     public HostJVMPresenter(EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-                            HostStore hostStore, ApplicationMetaData metaData,
-                            PlaceRequestSecurityFramework placeRequestSecurityFramework) {
+                            HostStore hostStore, ApplicationMetaData metaData) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
         this.hostStore = hostStore;
-        this.placeRequestSecurityFramework = placeRequestSecurityFramework;
         this.adapter = new EntityAdapter<Jvm>(Jvm.class, metaData);
     }
 
@@ -110,12 +105,10 @@ public class HostJVMPresenter extends Presenter<HostJVMPresenter.MyView, HostJVM
             @Override
             public void onChange(Action action) {
                 if (isVisible()) {
-                    placeRequestSecurityFramework.update(HostJVMPresenter.this, hostPlaceRequest());
                     loadJVMConfig();
                 }
             }
         });
-        placeRequestSecurityFramework.addCurrentContext(hostPlaceRequest());
     }
 
     @Override

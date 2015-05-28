@@ -3,13 +3,18 @@ package org.jboss.as.console.client.widgets.nav.v3;
 import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.SafeHtmlCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -34,6 +39,10 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.rbac.SecurityContextAware;
+import org.jboss.ballroom.client.rbac.SecurityService;
+import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
 import java.util.List;
@@ -42,7 +51,7 @@ import java.util.List;
  * @author Heiko Braun
  * @since 09/01/15
  */
-public class FinderColumn<T> {
+public class FinderColumn<T>  {
 
 
     private static final String CLICK = "click";
@@ -52,15 +61,25 @@ public class FinderColumn<T> {
     private final String title;
     private final Display display;
     private final ProvidesKey keyProvider;
+    private final String id;
+    private final String token;
     private LayoutPanel header;
     private boolean plain = false;
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
     private HTML headerTitle;
     private ValueProvider<T> valueProvider;
+    private String filter;
+    private LayoutPanel layout;
+    private HTMLPanel headerMenu;
 
     public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME}
     private boolean showSize = false;
+
+    static Framework FRAMEWORK = GWT.create(Framework.class);
+    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
+
+    private String resourceAddress = null;
 
     /**
      * Thje default finder preview
@@ -83,6 +102,11 @@ public class FinderColumn<T> {
         this.title = title;
         this.display = display;
         this.keyProvider = keyProvider;
+
+        // RBAC related
+        this.token = SECURITY_SERVICE.resolveToken();
+        this.id = Document.get().createUniqueId();
+
         selectionModel = new SingleSelectionModel<T>(keyProvider);
 
         cellTable = new CellTable<T>(200, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
@@ -224,8 +248,29 @@ public class FinderColumn<T> {
         });
     }
 
+    private void applySecurity(final SecurityContext securityContext, boolean update) {
+
+        boolean writePrivilege = this.resourceAddress != null ?
+                securityContext.getWritePrivilege(this.resourceAddress).isGranted() :
+                securityContext.getWritePriviledge().isGranted();
+
+        if(writePrivilege)
+        {
+            headerMenu.getElement().removeClassName("rbac-suppressed");
+        }
+        else
+        {
+            headerMenu.getElement().addClassName("rbac-suppressed");
+        }
+    }
+
     public FinderColumn<T> setShowSize(boolean b) {
         this.showSize = b;
+        return this;
+    }
+
+    public FinderColumn<T> setResourceAddress(String address) {
+        this.resourceAddress = address;
         return this;
     }
 
@@ -432,9 +477,17 @@ public class FinderColumn<T> {
 
     public Widget asWidget() {
 
-        LayoutPanel layout = new LayoutPanel();
+        layout = new LayoutPanel() {
+            @Override
+            protected void onLoad() {
+                applySecurity(SECURITY_SERVICE.getSecurityContext(FinderColumn.this.token), false);
+            }
+        };
+
         layout.addStyleName("navigation-column");
-        layout.getElement().setId(title);
+        layout.getElement().setId(id);   // RBAC
+
+
 
         if(!plain) {     // including the header
 
@@ -456,7 +509,7 @@ public class FinderColumn<T> {
             sb.appendHtmlConstant("</div>");
             sb.appendHtmlConstant("</div>");
 
-            final HTMLPanel headerMenu = new HTMLPanel(sb.toSafeHtml());
+            headerMenu = new HTMLPanel(sb.toSafeHtml());
             headerMenu.setStyleName("fill-layout");
 
             if(topMenuItems.length>0) {

@@ -90,7 +90,7 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
 
     @Override
     public void revealUnauthorizedPlace(String unauthorizedHistoryToken) {
-        if (NameTokens.DomainRuntimePresenter.equals(unauthorizedHistoryToken)) {
+       /* if (NameTokens.DomainRuntimePresenter.equals(unauthorizedHistoryToken)) {
             // a runtime constrain is not given
             // see DomainRuntimeGatekeeper
             revealPlace(new PlaceRequest.Builder().nameToken(NameTokens.NoServer).build());
@@ -101,6 +101,8 @@ public class DefaultPlaceManager extends PlaceManagerImpl {
             // Send an unauthorized event notifying the top level presenters to show
             // the unauthorized presenter widget in the main content slot
             UnauthorizedEvent.fire(this, unauthorizedHistoryToken);
-        }
+        }*/
+
+        UnauthorizedEvent.fire(this, unauthorizedHistoryToken);
     }
 }

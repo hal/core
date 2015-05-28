@@ -372,7 +372,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
         groups.setMenuItems(
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions
-                        "Edit", new ContextualCommand<ServerGroupRecord>() {
+                        "View", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 

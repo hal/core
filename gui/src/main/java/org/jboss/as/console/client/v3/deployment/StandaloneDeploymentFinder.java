@@ -110,8 +110,7 @@ public class StandaloneDeploymentFinder
             final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
             final BeanFactory beanFactory, final DispatchAsync dispatcher,
             final BootstrapContext bootstrapContext, final Header header) {
-        super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder,
-                unauthorisedPresenter, TYPE_MainContent);
+        super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder, TYPE_MainContent);
         this.dispatcher = dispatcher;
 
         this.addWizard = new AddStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,

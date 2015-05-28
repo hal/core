@@ -59,12 +59,12 @@ import java.util.List;
  */
 public class ServerMgmtApplicationPresenter extends
         Presenter<ServerMgmtApplicationPresenter.ServerManagementView, ServerMgmtApplicationPresenter.ServerManagementProxy>
-        implements Finder, PreviewEvent.Handler,  UnauthorizedEvent.UnauthorizedHandler, ClearFinderSelectionEvent.Handler  {
+        implements Finder, PreviewEvent.Handler,  ClearFinderSelectionEvent.Handler  {
 
     private PlaceManager placeManager;
     private SubsystemStore subsysStore;
     private final Header header;
-    private final UnauthorisedPresenter unauthorisedPresenter;
+
     private final Dispatcher circuit;
 
     @ContentSlot
@@ -87,7 +87,7 @@ public class ServerMgmtApplicationPresenter extends
     public ServerMgmtApplicationPresenter(
             EventBus eventBus, ServerManagementView view,
             ServerManagementProxy proxy, PlaceManager placeManager, SubsystemStore subsysStore, Header header,
-            UnauthorisedPresenter unauthorisedPresenter,  Dispatcher circuit) {
+            Dispatcher circuit) {
 
         super(eventBus, view, proxy);
 
@@ -95,7 +95,6 @@ public class ServerMgmtApplicationPresenter extends
         this.subsysStore = subsysStore;
         this.header = header;
 
-        this.unauthorisedPresenter = unauthorisedPresenter;
         this.circuit = circuit;
     }
 
@@ -130,16 +129,6 @@ public class ServerMgmtApplicationPresenter extends
     @Override
     public void onPreview(PreviewEvent event) {
         getView().setPreview(event.getHtml());
-    }
-
-    /**
-     * Sets the {@link org.jboss.as.console.client.rbac.UnauthorisedPresenter} in the content slot given as constructor
-     * parameter.
-     */
-    @Override
-    public void onUnauthorized(final UnauthorizedEvent event) {
-        // resetLastPlace();
-        setInSlot(TYPE_MainContent, unauthorisedPresenter);
     }
 
     @Override
