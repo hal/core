@@ -268,5 +268,4 @@ public interface UIMessages extends Messages {
     String bs_interface_warning(String url);
 
     String failedToAddResourceAdapter(String name);
-
 }
