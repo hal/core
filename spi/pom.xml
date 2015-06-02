@@ -34,13 +34,6 @@
             <groupId>com.gwtplatform</groupId>
             <artifactId>gwtp-mvp-client</artifactId>
         </dependency>
-        <!-- TODO (hpehl) Remove dependency once the SPIProcessor is refactored -->
-        <!--<dependency>-->
-            <!--<groupId>org.jboss.gwt.circuit</groupId>-->
-            <!--<artifactId>circuit-processor</artifactId>-->
-            <!--<version>${circuit.version}</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
     </dependencies>
 
     

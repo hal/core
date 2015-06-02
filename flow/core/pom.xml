@@ -52,14 +52,20 @@
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>gwt-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>attach-sources</id>
                         <goals>
-                            <goal>resources</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
