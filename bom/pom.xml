@@ -243,6 +243,11 @@
                 <artifactId>gin</artifactId>
                 <version>${gin.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>3.0.22</version>
+            </dependency>
 
             <!-- APT Processors -->
             <dependency>
