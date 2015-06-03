@@ -265,7 +265,5 @@ public interface UIMessages extends Messages {
 
     String patch_manager_restart_verify(String host);
 
-    String bs_interface_warning(String url);
-
     String failedToAddResourceAdapter(String name);
 }
