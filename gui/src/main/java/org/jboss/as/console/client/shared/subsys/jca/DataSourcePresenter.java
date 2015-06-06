@@ -20,20 +20,19 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
-import com.gwtplatform.mvp.client.annotations.CustomProvider;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.*;
+import org.jboss.as.console.client.core.ApplicationProperties;
+import org.jboss.as.console.client.core.Footer;
+import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -45,10 +44,16 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadDataSourcesFunction;
 import org.jboss.as.console.client.shared.subsys.jca.functions.LoadXADataSourcesFunction;
-import org.jboss.as.console.client.shared.subsys.jca.model.*;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
+import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
+import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
+import org.jboss.as.console.client.shared.subsys.jca.model.DriverStrategy;
+import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
+import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
+import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewDatasourceWizard;
 import org.jboss.as.console.client.shared.subsys.jca.wizard.NewXADatasourceWizard;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -243,7 +248,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     public void onCreateDatasource(final DataSource datasource) {
         window.hide();
 
-        datasource.setEnabled(false);
+        // HAL-617 / WFLY-4750
+        datasource.setEnabled(true);
 
         // TODO find a proper way to deal with this
         if("".equals(datasource.getUsername()))
@@ -355,7 +361,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     public void onCreateXADatasource(final XADataSource updatedEntity) {
         window.hide();
 
-        updatedEntity.setEnabled(false);
+        // HAL-617 / WFLY-4750
+        updatedEntity.setEnabled(true);
 
         if("".equals(updatedEntity.getUsername()))
             updatedEntity.setUsername(null);
