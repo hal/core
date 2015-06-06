@@ -270,7 +270,7 @@ public class VerifyConnectionOp {
             if ("".equals(dataSource.getUsername())) { dataSource.setUsername(null); }
             if ("".equals(dataSource.getPassword())) { dataSource.setPassword(null); }
             if ("".equals(dataSource.getSecurityDomain())) { dataSource.setSecurityDomain(null); }
-            dataSource.setEnabled(false); // will be enabled in next function
+            dataSource.setEnabled(true);
 
             final AsyncCallback<ResponseWrapper<Boolean>> callback = new AsyncCallback<ResponseWrapper<Boolean>>() {
                 @Override
@@ -295,56 +295,6 @@ public class VerifyConnectionOp {
                 dataSourceStore.createXADataSource((XADataSource) dataSource, callback);
             } else {
                 dataSourceStore.createDataSource(dataSource, callback);
-            }
-        }
-    }
-
-
-    private class EnableFunction implements Function<FunctionContext> {
-
-        private final DataSource dataSource;
-        private final boolean xa;
-        private final boolean existing;
-
-        private EnableFunction(final DataSource dataSource, boolean xa, boolean existing) {
-            this.dataSource = dataSource;
-            this.xa = xa;
-            this.existing = existing;
-        }
-
-        @Override
-        public void execute(final Control<FunctionContext> control) {
-            final AsyncCallback<ResponseWrapper<Boolean>> callback = new AsyncCallback<ResponseWrapper<Boolean>>() {
-                @Override
-                public void onFailure(final Throwable caught) {
-                    control.getContext().push(new VerifyResult(caught));
-                    if (existing) {
-                        control.abort();
-                    } else {
-                        control.proceed();
-                    }
-                }
-
-                @Override
-                public void onSuccess(ResponseWrapper<Boolean> result) {
-                    if (result.getUnderlying()) {
-                        control.proceed();
-                    } else {
-                        control.getContext()
-                                .push(new VerifyResult(false, Console.CONSTANTS.verify_datasource_dependent_error(),
-                                        Console.MESSAGES.modificationFailed("Datasource " + dataSource.getName())));
-                        if (existing) {
-                            control.abort();
-                        } else {
-                            control.proceed();
-                        }
-                    }
-                }
-            };
-            if (xa) {
-                dataSourceStore.enableXADataSource((XADataSource) dataSource, true, callback);
-            } else {
-                dataSourceStore.enableDataSource(dataSource, true, callback);
             }
         }
     }
@@ -421,7 +371,6 @@ public class VerifyConnectionOp {
                 } else {
                     // create - verify - remove
                     functions.add(new CreateFunction(dataSource, xa));
-                    functions.add(new EnableFunction(dataSource, xa, false));
                     functions.add(new VerifyStandaloneFunction(dataSource, xa, false));
                     functions.add(new RemoveFunction(dataSource, xa));
                 }
@@ -436,7 +385,6 @@ public class VerifyConnectionOp {
                 } else {
                     // create - verify - remove
                     functions.add(new CreateFunction(dataSource, xa));
-                    functions.add(new EnableFunction(dataSource, xa, false));
                     functions.add(new VerifyDomainFunction(dispatcher, dataSource, xa, false));
                     functions.add(new RemoveFunction(dataSource, xa));
                 }
