@@ -619,7 +619,9 @@
 .paged-view-navigation {
     border-right: none!important;
     border-bottom:none!important;
-    margin-top:30px;
+
+    padding-top:30px;
+    padding-left:25px;
 }
 
 .link-bar-first {
