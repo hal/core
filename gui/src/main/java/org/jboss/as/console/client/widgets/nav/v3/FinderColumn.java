@@ -244,6 +244,27 @@ public class FinderColumn<T>  {
 
                 triggerBreadcrumbEvent(false);
                 triggerPreviewEvent();
+
+
+                // skip empty menus
+                if(menuItems.length==0) return;
+
+
+                // toggle row level tools
+                boolean hasSelection = selectionModel.getSelectedObject()!=null;
+
+                int row = cellTable.getKeyboardSelectedRow();
+                TableRowElement rowElement = cellTable.getRowElement(row);
+
+
+                if(hasSelection) {
+                    rowElement.addClassName("nav-hover");
+                }
+                else
+                {
+                    rowElement.removeClassName("nav-hover");
+                }
+
             }
         });
     }
@@ -322,49 +343,49 @@ public class FinderColumn<T>  {
 
     private void openTopContextMenu(Element anchor, final NativeEvent event) {
 
-           Element el = Element.as(event.getEventTarget());
-           //Element anchor = el.getParentElement().getParentElement();
+        Element el = Element.as(event.getEventTarget());
+        //Element anchor = el.getParentElement().getParentElement();
 
-           final PopupPanel popupPanel = new PopupPanel(true);
-           final MenuBar popupMenuBar = new MenuBar(true);
-           popupMenuBar.setStyleName("dropdown-menu");
+        final PopupPanel popupPanel = new PopupPanel(true);
+        final MenuBar popupMenuBar = new MenuBar(true);
+        popupMenuBar.setStyleName("dropdown-menu");
 
-           int i=0;
-           for (final MenuDelegate menuitem : topMenuItems) {
+        int i=0;
+        for (final MenuDelegate menuitem : topMenuItems) {
 
-               if(i>0) {     // skip the "default" action
-                   MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
+            if(i>0) {     // skip the "default" action
+                MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
 
-                       @Override
-                       public void execute() {
-                           Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                               @Override
-                               public void execute() {
-                                   menuitem.getCommand().executeOn(null);
-                               }
-                           });
+                    @Override
+                    public void execute() {
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                            @Override
+                            public void execute() {
+                                menuitem.getCommand().executeOn(null);
+                            }
+                        });
 
-                           popupPanel.hide();
-                       }
+                        popupPanel.hide();
+                    }
 
-                   });
+                });
 
-                   popupMenuBar.addItem(cmd);
-               }
-               i++;
-           }
+                popupMenuBar.addItem(cmd);
+            }
+            i++;
+        }
 
-           popupMenuBar.setVisible(true);
+        popupMenuBar.setVisible(true);
 
 
-           popupPanel.setWidget(popupMenuBar);
-           int left = anchor.getAbsoluteLeft();
-           int top = anchor.getAbsoluteTop() + 30;
+        popupPanel.setWidget(popupMenuBar);
+        int left = anchor.getAbsoluteLeft();
+        int top = anchor.getAbsoluteTop() + 30;
 
-           popupPanel.setPopupPosition(left, top);
-           popupPanel.setAutoHideEnabled(true);
-           popupPanel.show();
-       }
+        popupPanel.setPopupPosition(left, top);
+        popupPanel.setAutoHideEnabled(true);
+        popupPanel.show();
+    }
 
     private void openContextMenu(final NativeEvent event, final T object) {
 
@@ -524,7 +545,7 @@ public class FinderColumn<T>  {
                 });
                 headerMenu.add(item, groupId);
 
-                 // remaining menu items move into dropdown
+                // remaining menu items move into dropdown
                 if(topMenuItems.length>1)
                 {
 
