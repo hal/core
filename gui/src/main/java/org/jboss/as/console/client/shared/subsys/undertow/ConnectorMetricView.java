@@ -13,12 +13,12 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.shared.runtime.charts.Column;
 import org.jboss.as.console.client.shared.runtime.charts.NumberColumn;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.dmr.client.ModelNode;
@@ -30,8 +30,9 @@ import java.util.List;
  * @author Heiko Braun
  * @since 07/04/15
  */
-public class ConnectorMetricView extends ModelDrivenWidget {
-    private static final String BASE_ADDRESS = "{selected.profile}/subsystem=undertow/server={selected.server}";
+public class ConnectorMetricView {
+
+    public static final AddressTemplate BASE_ADDRESS  = AddressTemplate.of("{selected.host}/{selected.server}/subsystem=undertow/server=*");
 
     private final HttpMetricPresenter presenter;
     private final DefaultCellTable table;
@@ -40,7 +41,7 @@ public class ConnectorMetricView extends ModelDrivenWidget {
     private Grid grid;
 
     public ConnectorMetricView(HttpMetricPresenter presenter) {
-        super(BASE_ADDRESS);
+
         this.presenter = presenter;
         this.table = new DefaultCellTable(5);
 
@@ -56,8 +57,8 @@ public class ConnectorMetricView extends ModelDrivenWidget {
         this.table.setSelectionModel(new SingleSelectionModel<Property>(keyProvider));
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+
+    public Widget asWidget() {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -84,11 +85,14 @@ public class ConnectorMetricView extends ModelDrivenWidget {
         table.addColumn(socketColumn, "Socket Binding");
         table.addColumn(enabledColumn, "Is Enabled?");
 
-        SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        // forms
+        final SecurityContext securityContext = presenter.getSecurityFramework()
+                .getSecurityContext(presenter.getProxy().getNameToken());
+
+        ResourceDescription resourceDescription = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
         VerticalPanel formPanel = new VerticalPanel();
         formPanel.setStyleName("fill-layout-width");
-
 
 
         final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();

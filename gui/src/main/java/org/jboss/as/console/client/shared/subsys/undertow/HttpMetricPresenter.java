@@ -12,12 +12,15 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.RequiredResourcesContext;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -28,6 +31,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.useware.kernel.gui.behaviour.FilteringStatementContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,15 +47,27 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.MyView,
         HttpMetricPresenter.MyProxy> implements CommonHttpPresenter {
 
+
+    private final PlaceManager placeManager;
+    private final FilteringStatementContext statementContext;
+    private DispatchAsync dispatcher;
+    private RevealStrategy revealStrategy;
+    private final ServerStore serverStore;
     private String currentServer;
     private ResourceDescriptionRegistry descriptionRegistry;
+    private final SecurityFramework securityFramework;
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpMetrics)
     @RequiredResources(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=undertow",
-                    "/{selected.host}/{selected.server}/subsystem=undertow/server=*"
+                    "/{selected.host}/{selected.server}/subsystem=undertow/server={undertow.server}"
             }
     )
     @SearchIndex(keywords = {"web", "connections", "http"})
@@ -70,18 +86,12 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
         void setConnectors(List<Property> connectors);
     }
 
-
-    private final PlaceManager placeManager;
-    private DispatchAsync dispatcher;
-    private RevealStrategy revealStrategy;
-    private final ServerStore serverStore;
-
-
     @Inject
     public HttpMetricPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager,  DispatchAsync dispatcher, Dispatcher circuit,
-            RevealStrategy revealStrategy, ServerStore serverStore, ResourceDescriptionRegistry descriptionRegistry) {
+            RevealStrategy revealStrategy, ServerStore serverStore,
+            ResourceDescriptionRegistry descriptionRegistry, CoreGUIContext delegate, SecurityFramework securityFramework) {
         super(eventBus, view, proxy, circuit);
 
         this.placeManager = placeManager;
@@ -91,6 +101,27 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
         this.serverStore = serverStore;
 
         this.descriptionRegistry = descriptionRegistry;
+        this.securityFramework = securityFramework;
+
+        this.statementContext  = new FilteringStatementContext(
+                delegate,
+                new FilteringStatementContext.Filter() {
+                    @Override
+                    public String filter(String key) {
+                        if ("undertow.server".equals(key))
+                            return currentServer!=null ? currentServer : "*";
+                        else
+                            return null;
+                    }
+
+                    @Override
+                    public String[] filterTuple(String key) {
+                        return null;
+                    }
+                }
+        ) {
+
+        };
     }
 
 
