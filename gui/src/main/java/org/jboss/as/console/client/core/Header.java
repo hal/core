@@ -332,7 +332,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         menuPopup.setWidget(usermenu);
 
         // Reconnect to a different WildFly server / domain
-        if (productConfig.getProfile() == COMMUNITY) {
+        if (productConfig.getProfile() == COMMUNITY && !bootstrap.isSameOrigin()) {
             SafeHtml globe = new SafeHtmlBuilder().appendHtmlConstant("<div class='header-textlink'><i style='color:#cecece' class='icon-globe'></i></div>").toSafeHtml();
             HTML connectTo = new HTML(globe);
             String desc = bootstrap.isStandalone() ? Console.CONSTANTS.connecto_to_desc_standalone() : Console.CONSTANTS.connecto_to_desc_domain();
