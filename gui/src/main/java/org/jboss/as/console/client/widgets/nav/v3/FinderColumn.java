@@ -253,16 +253,16 @@ public class FinderColumn<T>  {
                 // toggle row level tools
                 boolean hasSelection = selectionModel.getSelectedObject()!=null;
 
-                int row = cellTable.getKeyboardSelectedRow();
-                TableRowElement rowElement = cellTable.getRowElement(row);
-
-
                 if(hasSelection) {
-                    rowElement.addClassName("nav-hover");
-                }
-                else
-                {
-                    rowElement.removeClassName("nav-hover");
+                    int row = cellTable.getKeyboardSelectedRow();
+                    TableRowElement rowElement = cellTable.getRowElement(row);
+
+
+                    if (hasSelection) {
+                        rowElement.addClassName("nav-hover");
+                    } else {
+                        rowElement.removeClassName("nav-hover");
+                    }
                 }
 
             }
