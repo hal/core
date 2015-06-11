@@ -19,6 +19,10 @@
 
 package org.jboss.as.console.client.domain.model;
 
+import org.jboss.as.console.client.widgets.forms.Binding;
+
+import java.util.List;
+
 /**
  * @author Heiko Braun
  * @date 2/11/11
@@ -27,4 +31,8 @@ public interface ProfileRecord {
 
     public String getName();
     public void setName(String name);
+
+    @Binding(skip = true)
+    public List<String> getIncludes();
+    public void setIncludes(List<String> includes);
 }

@@ -29,6 +29,7 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.model.SubsystemReference;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -87,12 +88,18 @@ public class ColumnProfileView extends SuspendableViewImpl
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
+
+        @Template("<div class=\"{0}\">{1}<br><span style='font-size:10px'>{2}</div>")
+        SafeHtml profile(String cssClass, String title, String inclusions);
     }
 
     interface SubsystemTemplate extends SafeHtmlTemplates {
-            @Template("<div class=\"{0}\">{1}</div>")
-            SafeHtml item(String cssClass, String title, String group);
-        }
+        @Template("<div class=\"{0}\">{1}</div>")
+        SafeHtml item(String cssClass, String title, String group);
+
+        @Template("<div title='{3}' class=\"{0}\">{1}</div>")
+        SafeHtml includedItem(String cssClass, String title, String group, String form);
+    }
 
     private static final Template TEMPLATE = GWT.create(Template.class);
 
@@ -260,7 +267,8 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, ProfileRecord data) {
-                        return TEMPLATE.item(baseCss, data.getName());
+                        String inclusions = data.getIncludes().isEmpty() ? "" : "Includes: "+ data.getIncludes().toString();
+                        return TEMPLATE.profile(baseCss, data.getName(), inclusions);
                     }
 
                     @Override
@@ -303,12 +311,27 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
-                        return SUBSYS_TEMPLATE.item(baseCss, data.getTitle(), data.getGroupName());
+                        if (data.isIncuded())
+                            return SUBSYS_TEMPLATE.includedItem(baseCss, data.getTitle(), data.getGroupName(), "Included from "+data.getIncludedFrom());
+                        else
+                            return SUBSYS_TEMPLATE.item(baseCss, data.getTitle(), data.getGroupName());
                     }
 
                     @Override
                     public String rowCss(SubsystemLink data) {
-                        return data.isFolder() ? "no-menu" : "";
+                        if(data.isIncuded())
+                        {
+                            return "no-menu paused";
+                        }
+                        else if (data.isFolder())
+                        {
+                            return "no-menu";
+                        }
+                        else
+                        {
+                            return "";
+                        }
+
                     }
                 },
                 new ProvidesKey<SubsystemLink>() {
@@ -339,11 +362,29 @@ public class ColumnProfileView extends SuspendableViewImpl
 
         subsystems.setPreviewFactory(new PreviewFactory<SubsystemLink>() {
             @Override
-            public void createPreview(SubsystemLink data, AsyncCallback<SafeHtml> callback) {
+            public void createPreview(SubsystemLink data, final AsyncCallback<SafeHtml> callback) {
                 PreviewContent content = PreviewContent.INSTANCE;
                 ExternalTextResource resource = (ExternalTextResource)content.getResource(data.getToken().replace("-", "_"));
                 if(resource!=null) {
-                    contentFactory.createContent(resource, callback);
+                    contentFactory.createContent(resource, new SimpleCallback<SafeHtml>() {
+
+                        @Override
+                        public void onSuccess(SafeHtml safeHtml) {
+
+                            if(data.isIncuded()) {
+                                SafeHtmlBuilder builder = new SafeHtmlBuilder();
+                                builder.appendHtmlConstant("<div class='preview-content'><h3>");
+                                builder.appendEscaped("Included from profile: ").appendEscaped(data.getIncludedFrom());
+                                builder.appendHtmlConstant("</h3>");
+                                builder.append(safeHtml);
+                                builder.appendHtmlConstant("</div>");
+                                callback.onSuccess(builder.toSafeHtml());
+                            }
+                            else {
+                                callback.onSuccess(safeHtml);
+                            }
+                        }
+                    });
                 }
                 else
                 {
@@ -493,7 +534,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     }
 
     @Override
-    public void setSubsystems(List<SubsystemRecord> subsystemRecords)
+    public void setSubsystems(List<SubsystemReference> subsystemRecords)
     {
         subsystems.updateFrom(matchSubsystems(subsystemRecords), false);
     }
@@ -524,12 +565,14 @@ public class ColumnProfileView extends SuspendableViewImpl
         String token;
         private final boolean isFolder;
         private final String groupName;
+        private final SubsystemReference ref;
 
-        public SubsystemLink(String title, String token, boolean isFolder, String groupName) {
+        public SubsystemLink(String title, String token, boolean isFolder, String groupName, SubsystemReference ref) {
             this.title = title;
             this.token = token;
             this.isFolder = isFolder;
             this.groupName = groupName;
+            this.ref = ref;
         }
 
         public String getTitle() {
@@ -547,9 +590,15 @@ public class ColumnProfileView extends SuspendableViewImpl
         public boolean isFolder() {
             return isFolder;
         }
+
+        public boolean isIncuded(){return ref.isInclude();}
+
+        public String getIncludedFrom() {
+            return ref.getIncludedFrom();
+        }
     }
 
-    private List<SubsystemLink> matchSubsystems(List<SubsystemRecord> subsystems)
+    private List<SubsystemLink> matchSubsystems(List<SubsystemReference> subsystems)
     {
 
         List<SubsystemLink> matches = new ArrayList<>();
@@ -579,8 +628,9 @@ public class ColumnProfileView extends SuspendableViewImpl
             for(SubsystemExtensionMetaData candidate : items)
             {
                 boolean match = false;
-                for(SubsystemRecord actual: subsystems)
+                for(SubsystemReference ref: subsystems)
                 {
+                    SubsystemRecord actual = ref.getDelegate();
                     if(actual.getKey().equals(candidate.getKey()))
                     {
 
@@ -601,7 +651,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                         }
 
                         matches.add(
-                                new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder, groupName)
+                                new SubsystemLink(candidate.getName(), candidate.getToken(), isFolder, groupName, ref)
                         );
                         match = true;
                     }

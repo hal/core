@@ -42,6 +42,7 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.model.SubsystemReference;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
@@ -53,6 +54,7 @@ import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -70,7 +72,7 @@ public class ProfileMgmtPresenter
 
     public interface MyView extends SuspendableView {
         void setProfiles(List<ProfileRecord> profileRecords);
-        void setSubsystems(List<SubsystemRecord> subsystemRecords);
+        void setSubsystems(List<SubsystemReference> subsystemRecords);
         void setPresenter(ProfileMgmtPresenter presenter);
         void setPreview(SafeHtml html);
 
@@ -136,8 +138,8 @@ public class ProfileMgmtPresenter
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
-                List<SubsystemRecord> subsystems = subsysStore.getSubsystems(profileSelection.getName());
-                getView().setSubsystems(subsystems);
+                List<SubsystemReference> actualSubsystems = subsysStore.getActualSubsystems(profileSelection.getName());
+                getView().setSubsystems(actualSubsystems);
             }
         });
 

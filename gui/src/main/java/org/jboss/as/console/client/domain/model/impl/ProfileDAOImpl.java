@@ -22,20 +22,23 @@ package org.jboss.as.console.client.domain.model.impl;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ProfileDAO;
-import org.jboss.as.console.client.domain.profiles.CurrentProfileSelection;
+import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
@@ -45,20 +48,13 @@ public class ProfileDAOImpl implements ProfileDAO {
 
     private DispatchAsync dispatcher;
     private BeanFactory factory;
-    private ModelNode operation;
-    private CurrentProfileSelection currentProfile;
+
     private List<ProfileRecord> cachedRecords = null;
 
     @Inject
-    public ProfileDAOImpl(DispatchAsync dispatcher, BeanFactory factory, CurrentProfileSelection currentProfile) {
+    public ProfileDAOImpl(DispatchAsync dispatcher, BeanFactory factory) {
         this.dispatcher = dispatcher;
         this.factory = factory;
-        this.currentProfile = currentProfile;
-
-        this.operation = new ModelNode();
-        operation.get(OP).set(ModelDescriptionConstants.READ_CHILDREN_NAMES_OPERATION);
-        operation.get("child-type").set("profile");
-        operation.get(ModelDescriptionConstants.ADDRESS).setEmptyList();
     }
 
     @Override
@@ -66,6 +62,12 @@ public class ProfileDAOImpl implements ProfileDAO {
 
         if(null==this.cachedRecords)
         {
+            ModelNode operation = new ModelNode();
+            operation.get(OP).set("query");
+            operation.get("select").add("name");
+            operation.get("select").add("includes");
+            operation.get(ModelDescriptionConstants.ADDRESS).add("profile", "*");
+
             dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
                 @Override
                 public void onFailure(Throwable caught) {
@@ -75,19 +77,36 @@ public class ProfileDAOImpl implements ProfileDAO {
                 @Override
                 public void onSuccess(DMRResponse result) {
                     ModelNode response = result.get();
+
                     if(response.isFailure())
                     {
-                        Console.error("Failed to load profiles");
+                        Console.error("Failed to load profiles:"+response.getFailureDescription());
                     }
                     else
                     {
+
                         List<ModelNode> payload = response.get("result").asList();
 
                         List<ProfileRecord> records = new ArrayList<ProfileRecord>(payload.size());
-                        for(int i=0; i<payload.size(); i++)
+                        for(ModelNode item : payload)
                         {
+                            ModelNode atts = item.get(RESULT);
                             ProfileRecord record = factory.profile().as();
-                            record.setName(payload.get(i).asString());
+                            record.setName(atts.get("name").asString());
+
+                            if(atts.hasDefined("includes"))
+                            {
+                                List<ModelNode> included = atts.get("includes").asList();
+                                List<String> inclusions = new LinkedList<String>();
+                                for (ModelNode inc : included) {
+                                    inclusions.add(inc.asString());
+                                }
+                                record.setIncludes(inclusions);
+                            }
+                            else
+                            {
+                                record.setIncludes(Collections.EMPTY_LIST);
+                            }
                             records.add(record);
                         }
 

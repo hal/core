@@ -406,6 +406,10 @@
     border-left:4px solid #EC7A08!important;
 }
 
+.navigation-cell-table .paused .cellTableFirstColumn {
+    border-left:4px solid #cecece!important;
+}
+
 .navigation-cell-table .noReferenceServer .cellTableFirstColumn {
     border-left:4px solid #CC0000!important;
 }
@@ -413,6 +417,7 @@
 .active .cellTableSelectedRow {
     background-color: #D4EDFA;
 }
+
 
 .nav-menu {
     display: none;
@@ -599,6 +604,12 @@
     padding-right:30px;
     padding-top:20px;
 }
+
+.preview-content .preview-content{
+    height:100%;
+    padding:0 0!important;
+}
+
 
 .preview-content h1 {
     font-size: 22px;

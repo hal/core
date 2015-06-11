@@ -61,4 +61,16 @@ public class ProfileStore extends ChangeSupport {
     public List<ProfileRecord> getProfiles() {
         return profiles;
     }
+
+    public ProfileRecord getProfile(String name) {
+        ProfileRecord match = null;
+        for (ProfileRecord profile : profiles) {
+            if(profile.getName().equals(name))
+            {
+                match = profile;
+                break;
+            }
+        }
+        return match;
+    }
 }
