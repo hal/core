@@ -73,7 +73,9 @@ public class LogFileTable extends Composite implements LogViewerId {
     public LogFileTable(final Dispatcher circuit) {
 
         VerticalPanel panel = new VerticalPanel();
-        panel.addStyleName("rhs-content-panel");
+        panel.addStyleName("fill-layout-width");
+        panel.getElement().getStyle().setPadding(30, Style.Unit.PX);
+
         panel.getElement().getStyle().setMarginBottom(0, PX);
 
         // header

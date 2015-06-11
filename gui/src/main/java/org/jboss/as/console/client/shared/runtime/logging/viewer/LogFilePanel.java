@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.runtime.logging.viewer;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -73,7 +74,9 @@ public class LogFilePanel extends Composite implements LogViewerId {
         this.name = logFile.getName();
 
         panel = new VerticalPanel();
-        panel.setStyleName("rhs-content-panel");
+        panel.addStyleName("fill-layout-width");
+        panel.getElement().getStyle().setPadding(30, Style.Unit.PX);
+
         panel.add(new HTML("<h3>" + logFile.getName() + "</h3>"));
         // No search box: The search works only inside the currently displayed lines, not over the whole
         // log file. It's better to disable search than having a search which is ambiguous to the user.
@@ -177,7 +180,7 @@ public class LogFilePanel extends Composite implements LogViewerId {
             }
         });
         initWidget(panel);
-        setStyleName("rhs-content-panel");
+        //setStyleName("rhs-content-panel");
     }
 
     public void refresh(LogFile logFile, Action action) {

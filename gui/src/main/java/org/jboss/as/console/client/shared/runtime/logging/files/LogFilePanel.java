@@ -22,6 +22,7 @@
 package org.jboss.as.console.client.shared.runtime.logging.files;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
@@ -61,7 +62,8 @@ public class LogFilePanel extends Composite implements LogFilesId {
         this.name = logFile.getName();
 
         panel = new VerticalPanel();
-        panel.setStyleName("rhs-content-panel");
+        panel.addStyleName("fill-layout-width");
+        panel.getElement().getStyle().setPadding(30, Style.Unit.PX);
 
         editor = new AceEditor();
         editor.addStyleName("hal-LogViewer");
@@ -105,7 +107,7 @@ public class LogFilePanel extends Composite implements LogFilesId {
             }
         });
         initWidget(panel);
-        setStyleName("rhs-content-panel");
+        //setStyleName("rhs-content-panel");
     }
 
     public void refresh(LogFile logFile) {
