@@ -26,7 +26,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.rbac.StandardRole;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
@@ -301,7 +300,7 @@ public class AccessControlStore extends ChangeSupport {
             List<Operation> ops = new ArrayList<>();
             for (Assignment assignment : assignments) {
                 if (assignment.getPrincipal().equals(principal)) {
-                    ops.add(new Operation.Builder(REMOVE, AddressHelper.principalAssignment(assignment)).build());
+                    ops.add(new Operation.Builder(REMOVE, AddressHelper.assignment(assignment)).build());
                 }
             }
             Composite composite = new Composite(ops);
@@ -409,14 +408,24 @@ public class AccessControlStore extends ChangeSupport {
 
     @Process(actionType = AddAssignment.class)
     public void addAssignment(final AddAssignment action, Channel channel) {
-        Console.warning("Not yet implemented");
-        channel.ack();
+        Assignment assignment = action.getAssignment();
+        Operation.Builder builder = new Operation.Builder(ADD, AddressHelper.assignment(assignment))
+                .param(NAME, assignment.getPrincipal().getName())
+                .param("type", assignment.getPrincipal().getType().name());
+        if (assignment.getPrincipal().getRealm() != null) {
+            builder.param("realm", assignment.getPrincipal().getRealm());
+        }
+
+        Operation operation = builder.build();
+        dispatcher.execute(new DMRAction(operation), new ReloadCallback(channel));
     }
 
     @Process(actionType = RemoveAssignment.class)
     public void removeAssignment(final RemoveAssignment action, Channel channel) {
-        Console.warning("Not yet implemented");
-        channel.ack();
+        Assignment assignment = action.getAssignment();
+        Operation operation = new Operation.Builder(REMOVE, AddressHelper.assignment(assignment)).build();
+        dispatcher.execute(new DMRAction(operation), new ReloadCallback(channel));
+        // TODO Cleanup empty mappings?
     }
 
 
@@ -443,12 +452,26 @@ public class AccessControlStore extends ChangeSupport {
         return roles;
     }
 
+    public Iterable<Assignment> getAssignments(Principal principal) {
+        if (principal == null) {
+            return Collections.emptyList();
+        }
+        return Iterables.filter(assignments, assignment -> assignment.getPrincipal().equals(principal));
+    }
+
     public Iterable<Assignment> getAssignments(Principal principal, boolean include) {
         if (principal == null) {
             return Collections.emptyList();
         }
         return Iterables.filter(assignments,
                 assignment -> assignment.getPrincipal().equals(principal) && assignment.isInclude() == include);
+    }
+
+    public Iterable<Assignment> getAssignments(Role role) {
+        if (role == null) {
+            return Collections.emptyList();
+        }
+        return Iterables.filter(assignments, assignment -> assignment.getRole().equals(role));
     }
 
     public Iterable<Assignment> getAssignments(Role role, boolean include) {

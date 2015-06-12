@@ -50,7 +50,7 @@ final class AddressHelper {
         return address;
     }
 
-    static ResourceAddress principalAssignment(Assignment assignment) {
+    static ResourceAddress assignment(Assignment assignment) {
         return root()
                 .add("role-mapping", assignment.getRole().getId())
                 .add(assignment.isInclude() ? "include" : "exclude", assignment.getPrincipal().getId());

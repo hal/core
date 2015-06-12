@@ -89,6 +89,15 @@ public class Principals implements Iterable<Principal> {
         return lookup.values().iterator();
     }
 
+    public static Ordering<Principal> orderedByType() {
+        return new Ordering<Principal>() {
+            @Override
+            public int compare(final Principal left, final Principal right) {
+                return left.getType().compareTo(right.getType());
+            }
+        };
+    }
+
     public static Ordering<Principal> orderedByName() {
         //noinspection Convert2MethodRef
         return Ordering.natural().onResultOf(principal -> principal.getName());

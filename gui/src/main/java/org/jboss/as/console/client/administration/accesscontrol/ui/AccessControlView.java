@@ -33,7 +33,9 @@ import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.as.console.client.administration.accesscontrol.store.AccessControlStore;
+import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignments;
+import org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
@@ -82,10 +84,12 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
 
     private AggregationColumn assignmentAggregationColumn;
     private Widget assignmentAggregationColumnWidget;
+    private AssignmentColumn assignmentColumn;
     private Widget assignmentColumnWidget;
 
     private AggregationColumn memberAggregationColumn;
     private Widget memberAggregationColumnWidget;
+    private MemberColumn memberColumn;
     private Widget memberColumnWidget;
 
 
@@ -117,17 +121,18 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
         // since left columns depend on right columns
         // ------------------------------------------------------ members
 
-        MemberColumn memberColumn = new MemberColumn(accessControlStore, circuit, presenter, columnManager,
-                roleColumn::getSelectedItem, () -> memberAggregationColumn.getSelectedItem().isInclude());
+        //noinspection Convert2MethodRef
+        memberColumn = new MemberColumn(accessControlStore, circuit, presenter, columnManager,
+                () -> roleColumn.getSelectedItem(), () -> memberAggregationColumn.getSelectedItem().isInclude());
         memberColumnWidget = memberColumn.asWidget();
 
         List<AggregationItem> memberAggregationItems = Arrays.asList(
                 new AggregationItem(false,
-                        () -> Assignments.orderedByPrincipalType()
+                        () -> Assignments.orderedByPrincipal()
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(roleColumn.getSelectedItem(), false))),
                 new AggregationItem(true,
-                        () -> Assignments.orderedByPrincipalType()
+                        () -> Assignments.orderedByPrincipal()
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(roleColumn.getSelectedItem(), true)))
         );
@@ -138,8 +143,9 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
 
         // ------------------------------------------------------ assignments
 
-        AssignmentColumn assignmentColumn = new AssignmentColumn(circuit, presenter, contentFactory, columnManager,
-                this::selectedPrincipal, () -> assignmentAggregationColumn.getSelectedItem().isInclude());
+        //noinspection Convert2MethodRef
+        assignmentColumn = new AssignmentColumn(circuit, presenter, contentFactory, columnManager,
+                () -> selectedPrincipal(), () -> assignmentAggregationColumn.getSelectedItem().isInclude());
         assignmentColumnWidget = assignmentColumn.asWidget();
 
         List<AggregationItem> assignmentAggregationItems = Arrays.asList(
@@ -252,6 +258,15 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
         roleColumn.updateFrom(Roles.orderedByType().compound(Roles.orderedByName()).immutableSortedCopy(roles));
     }
 
+    @Override
+    public void reloadAssignments(final Iterable<Assignment> assignments, Relation relation) {
+        columnManager.reduceColumnsTo(4);
+        if (relation == Relation.PRINCIPAL_TO_ROLE) {
+            assignmentColumn.updateFrom(Assignments.orderedByRole().immutableSortedCopy(assignments));
+        } else if (relation == Relation.ROLE_TO_PRINCIPAL) {
+            memberColumn.updateFrom(Assignments.orderedByPrincipal().immutableSortedCopy(assignments));
+        }
+    }
 
     // ------------------------------------------------------ slot management
 

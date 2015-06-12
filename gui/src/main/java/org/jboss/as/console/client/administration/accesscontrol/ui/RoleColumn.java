@@ -107,7 +107,7 @@ public class RoleColumn extends FinderColumn<Role> {
             } else {
                 callback.onSuccess(Templates.scopedRolePreview(data,
                         accessControlStore.getPrincipals(data, false),
-                        accessControlStore.getPrincipals(data, false)));
+                        accessControlStore.getPrincipals(data, true)));
             }
         });
 

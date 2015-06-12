@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol;
 
+import com.google.common.collect.Sets;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -37,16 +38,19 @@ import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.administration.accesscontrol.store.AccessControlStore;
+import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.DuplicateResourceException;
+import org.jboss.as.console.client.administration.accesscontrol.store.HasSuccessMessage;
+import org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment;
+import org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation;
 import org.jboss.as.console.client.administration.accesscontrol.store.ModifiesPrincipal;
 import org.jboss.as.console.client.administration.accesscontrol.store.ModifiesRole;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
 import org.jboss.as.console.client.administration.accesscontrol.store.ReloadAccessControl;
-import org.jboss.as.console.client.administration.accesscontrol.store.RemovePrincipal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.accesscontrol.store.RoleInUseException;
-import org.jboss.as.console.client.administration.accesscontrol.store.SuccessMessage;
 import org.jboss.as.console.client.administration.accesscontrol.ui.AssignmentDialog;
+import org.jboss.as.console.client.administration.accesscontrol.ui.MemberDialog;
 import org.jboss.as.console.client.administration.accesscontrol.ui.PrincipalDialog;
 import org.jboss.as.console.client.administration.accesscontrol.ui.ScopedRoleDialog;
 import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
@@ -66,6 +70,10 @@ import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.ActionErrorSupport;
 
+import java.util.Set;
+
+import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+
 /**
  * @author Harald Pehl
  */
@@ -84,11 +92,11 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
         void reload();
         void reloadPrincipals(Principal.Type type, Iterable<Principal> principals);
         void reloadRoles( Iterable<Role> roles);
+        void reloadAssignments(Iterable<Assignment> assignments, Relation relation);
         void setPreview(SafeHtml html);
         void clearActiveSelection(ClearFinderSelectionEvent event);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
-
 
     // @formatter:on ---------------------------------------- instance data
 
@@ -126,7 +134,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
         super.onBind();
         getView().setPresenter(this);
 
-        // circuit change handling
+        // circuit action handling
         accessControlStore.addChangeHandler(action -> {
             if (action instanceof ReloadAccessControl) {
                 getView().reload();
@@ -137,18 +145,24 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
                 }
 
             } else if (action instanceof ModifiesPrincipal) {
-                if (action instanceof RemovePrincipal) {
-                    getView().reload(); // reload everything since the principal might be removed from many assignments
-                } else {
-                    Principal.Type type = ((ModifiesPrincipal) action).getPrincipal().getType();
-                    getView().reloadPrincipals(type, accessControlStore.getPrincipals().get(type));
-                }
+                Principal.Type type = ((ModifiesPrincipal) action).getPrincipal().getType();
+                getView().reloadPrincipals(type, accessControlStore.getPrincipals().get(type));
+
             } else if (action instanceof ModifiesRole) {
                 getView().reloadRoles(accessControlStore.getRoles());
+
+
+            } else if (action instanceof ModifiesAssignment) {
+                ModifiesAssignment maa = (ModifiesAssignment) action;
+                Assignment assignment = maa.getAssignment();
+                Iterable<Assignment> assignments = maa.getRelation() == PRINCIPAL_TO_ROLE ?
+                        accessControlStore.getAssignments(assignment.getPrincipal(), assignment.isInclude()) :
+                        accessControlStore.getAssignments(assignment.getRole(), assignment.isInclude());
+                getView().reloadAssignments(assignments,maa.getRelation());
             }
 
-            if (action instanceof SuccessMessage) {
-                String message = ((SuccessMessage) action).getMessage();
+            if (action instanceof HasSuccessMessage) {
+                String message = ((HasSuccessMessage) action).getMessage();
                 Console.info(message);
             }
         });
@@ -250,12 +264,30 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
     }
 
     public void launchAddMemberDialog(final Role role, final boolean include) {
-        Console.warning("Not yet implemented");
+        Set<Principal> unassignedPrincipals = Sets.newHashSet(accessControlStore.getPrincipals());
+        Iterable<Assignment> assignments = accessControlStore.getAssignments(role);
+        for (Assignment assignment : assignments) {
+            unassignedPrincipals.remove(assignment.getPrincipal());
+        }
+        if (unassignedPrincipals.isEmpty()) {
+            Console.warning("All users and groups are already members of " + role.getName());
+        } else {
+            MemberDialog dialog = new MemberDialog(role, include, unassignedPrincipals, circuit, this);
+            openWindow(include ? "Add Member" : "Exclude Member", WINDOW_WIDTH, 400, dialog);
+        }
     }
 
     public void launchAddAssignmentDialog(final Principal principal, final boolean include) {
-        AssignmentDialog dialog = new AssignmentDialog(principal, include, accessControlStore, circuit,
-                this);
-        openWindow(include ? "Assign Role" : "Exclude Role", WINDOW_WIDTH, 400, dialog);
+        Set<Role> unassignedRoles = Sets.newHashSet(accessControlStore.getRoles());
+        Iterable<Assignment> assignments = accessControlStore.getAssignments(principal);
+        for (Assignment assignment : assignments) {
+            unassignedRoles.remove(assignment.getRole());
+        }
+        if (unassignedRoles.isEmpty()) {
+            Console.warning("All roles are already assigned to " + principal.getNameAndRealm());
+        } else {
+            AssignmentDialog dialog = new AssignmentDialog(principal, include, unassignedRoles, circuit, this);
+            openWindow(include ? "Assign Role" : "Exclude Role", WINDOW_WIDTH, 400, dialog);
+        }
     }
 }

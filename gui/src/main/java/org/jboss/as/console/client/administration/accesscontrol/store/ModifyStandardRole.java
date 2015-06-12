@@ -26,7 +26,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class ModifyStandardRole implements Action, ModifiesRole, SuccessMessage {
+public class ModifyStandardRole implements Action, ModifiesRole, HasSuccessMessage {
 
     private final Role role;
 

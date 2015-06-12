@@ -45,13 +45,15 @@ public class Assignments implements Iterable<Assignment> {
         return assignments.iterator();
     }
 
-    public static Ordering<Assignment> orderedByPrincipalType() {
-        return new Ordering<Assignment>() {
+    public static Ordering<Assignment> orderedByPrincipal() {
+        Ordering<Assignment> byType = new Ordering<Assignment>() {
             @Override
             public int compare(final Assignment left, final Assignment right) {
                 return left.getPrincipal().getType().compareTo(right.getPrincipal().getType());
             }
         };
+        Ordering<Assignment> byName = Ordering.natural().onResultOf(input -> input.getPrincipal().getName());
+        return byType.compound(byName);
     }
 
     public static Ordering<Assignment> orderedByRole() {

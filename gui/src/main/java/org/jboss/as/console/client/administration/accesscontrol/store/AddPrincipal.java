@@ -26,7 +26,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class AddPrincipal implements Action, ModifiesPrincipal, SuccessMessage {
+public class AddPrincipal implements Action, ModifiesPrincipal, HasSuccessMessage {
 
     private final Principal principal;
 

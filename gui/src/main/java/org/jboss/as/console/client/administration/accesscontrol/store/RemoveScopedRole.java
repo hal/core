@@ -26,7 +26,7 @@ import org.jboss.gwt.circuit.Action;
 /**
  * @author Harald Pehl
  */
-public class RemoveScopedRole implements Action, ModifiesRole, SuccessMessage {
+public class RemoveScopedRole implements Action, ModifiesRole, HasSuccessMessage {
 
     private final Role role;
 

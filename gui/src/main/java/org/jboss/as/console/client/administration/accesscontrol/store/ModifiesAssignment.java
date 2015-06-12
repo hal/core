@@ -21,24 +21,14 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.store;
 
-import org.jboss.gwt.circuit.Action;
-
 /**
  * @author Harald Pehl
  */
-public class ModifyScopedRole implements Action, ModifiesRole, HasSuccessMessage {
+public interface ModifiesAssignment {
 
-    private final Role role;
+    enum Relation {PRINCIPAL_TO_ROLE, ROLE_TO_PRINCIPAL}
 
-    public ModifyScopedRole(final Role role) {this.role = role;}
+    Assignment getAssignment();
 
-    @Override
-    public Role getRole() {
-        return role;
-    }
-
-    @Override
-    public String getMessage() {
-        return "Scoped role " + role.getId() + " successfully modified.";
-    }
+    Relation getRelation();
 }

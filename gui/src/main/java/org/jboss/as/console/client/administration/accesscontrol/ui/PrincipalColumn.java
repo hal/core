@@ -88,7 +88,10 @@ public class PrincipalColumn extends FinderColumn<Principal> {
 
         setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddPrincipalDialog(type)));
         setMenuItems(new MenuDelegate<>("Remove", item ->
-                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
+                Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
+                        "Remove " + item.getName() +
+                                "? This will also remove all assignments for this " +
+                                (item.getType() == Principal.Type.USER ? "user." : "group."),
                         isConfirmed -> {
                             if (isConfirmed) { circuit.dispatch(new RemovePrincipal(item)); }
                         })));
