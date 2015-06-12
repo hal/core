@@ -35,8 +35,8 @@ import org.jboss.as.console.client.administration.accesscontrol.AccessControlFin
 import org.jboss.as.console.client.administration.accesscontrol.store.AddAssignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Principals;
 import org.jboss.as.console.client.administration.accesscontrol.store.Role;
-import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.widgets.lists.DefaultCellList;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
@@ -47,27 +47,27 @@ import java.util.Set;
 import static com.google.gwt.dom.client.Style.Unit.PX;
 import static com.google.gwt.user.cellview.client.HasKeyboardPagingPolicy.KeyboardPagingPolicy.INCREASE_RANGE;
 import static com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.BOUND_TO_SELECTION;
-import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.ROLE_TO_PRINCIPAL;
 
 /**
  * @author Harald Pehl
  */
-public class AssignmentDialog implements IsWidget {
+public class MemberDialog implements IsWidget {
 
-    private final Principal principal;
+    private final Role role;
     private final boolean include;
-    private final Set<Role> unassignedRoles;
+    private final Set<Principal> unassignedPrincipals;
     private final Dispatcher circuit;
     private final AccessControlFinder presenter;
 
-    public AssignmentDialog(final Principal principal,
+    public MemberDialog(final Role role,
             final boolean include,
-            final Set<Role> unassignedRoles,
+            final Set<Principal> unassignedPrincipals,
             final Dispatcher circuit,
             final AccessControlFinder presenter) {
-        this.principal = principal;
+        this.role = role;
         this.include = include;
-        this.unassignedRoles = unassignedRoles;
+        this.unassignedPrincipals = unassignedPrincipals;
         this.circuit = circuit;
         this.presenter = presenter;
     }
@@ -75,25 +75,26 @@ public class AssignmentDialog implements IsWidget {
     @Override
     @SuppressWarnings("unchecked")
     public Widget asWidget() {
-        ProvidesKey<Role> keyProvider = Role::getId;
+        ProvidesKey<Principal> keyProvider = Principal::getId;
 
-        AbstractCell<Role> roleCell = new AbstractCell<Role>() {
+        AbstractCell<Principal> roleCell = new AbstractCell<Principal>() {
             @Override
-            public void render(final Context context, final Role value, final SafeHtmlBuilder sb) {
-                sb.append(Templates.roleItem("navigation-column-item", value));
+            public void render(final Context context, final Principal value, final SafeHtmlBuilder sb) {
+                sb.append(Templates.memberItem("navigation-column-item", value));
             }
         };
-        DefaultCellList<Role> list = new DefaultCellList<>(roleCell, keyProvider);
+        DefaultCellList<Principal> list = new DefaultCellList<>(roleCell, keyProvider);
         list.setPageSize(30);
         list.setKeyboardPagingPolicy(INCREASE_RANGE);
         list.setKeyboardSelectionPolicy(BOUND_TO_SELECTION);
 
-        ListDataProvider<Role> dataProvider = new ListDataProvider<>(keyProvider);
-        dataProvider.setList(
-                Roles.orderedByType().compound(Roles.orderedByName()).immutableSortedCopy(unassignedRoles));
+        ListDataProvider<Principal> dataProvider = new ListDataProvider<>(keyProvider);
+        dataProvider.setList(Principals.orderedByType()
+                .compound(Principals.orderedByName())
+                .immutableSortedCopy(unassignedPrincipals));
         dataProvider.addDataDisplay(list);
 
-        SingleSelectionModel<Role> selectionModel = new SingleSelectionModel<>(keyProvider);
+        SingleSelectionModel<Principal> selectionModel = new SingleSelectionModel<>(keyProvider);
         list.setSelectionModel(selectionModel);
         selectionModel.setSelected(dataProvider.getList().get(0), true);
         Scheduler.get().scheduleDeferred(() -> list.setFocus(true));
@@ -111,12 +112,12 @@ public class AssignmentDialog implements IsWidget {
         DialogueOptions options = new DialogueOptions(
                 event -> {
                     if (selectionModel.getSelectedObject() == null) {
-                        errorMessage.setText("Please select a role");
+                        errorMessage.setText("Please select a user or group");
                         errorMessage.setVisible(true);
                     } else {
-                        Assignment assignment = new Assignment(principal, selectionModel.getSelectedObject(),
+                        Assignment assignment = new Assignment(selectionModel.getSelectedObject(), role,
                                 include);
-                        circuit.dispatch(new AddAssignment(assignment, PRINCIPAL_TO_ROLE));
+                        circuit.dispatch(new AddAssignment(assignment, ROLE_TO_PRINCIPAL));
                         presenter.closeWindow();
                     }
                 },

@@ -23,22 +23,41 @@ package org.jboss.as.console.client.administration.accesscontrol.store;
 
 import org.jboss.gwt.circuit.Action;
 
+import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+
 /**
  * @author Harald Pehl
  */
-public class AddAssignment implements Action, SuccessMessage {
+public class AddAssignment implements Action, ModifiesAssignment, HasSuccessMessage {
 
     private final Assignment assignment;
+    private final Relation relation;
 
-    public AddAssignment(final Assignment assignment) {this.assignment = assignment;}
+    public AddAssignment(final Assignment assignment, final Relation relation) {
+        this.assignment = assignment;
+        this.relation = relation;
+    }
 
+    @Override
     public Assignment getAssignment() {
         return assignment;
     }
 
     @Override
+    public Relation getRelation() {
+        return relation;
+    }
+
+    @Override
     public String getMessage() {
-        return "Role " + assignment.getRole().getId() + " successfully " + (assignment
-                .isInclude() ? "assigned to " : "excluded from ") + assignment.getPrincipal().getName() + ".";
+        if (relation == PRINCIPAL_TO_ROLE) {
+            return "Role " + assignment.getRole().getId() + " successfully " +
+                    (assignment.isInclude() ? "assigned to " : "excluded from ") +
+                    assignment.getPrincipal().getNameAndRealm() + ".";
+        } else {
+            return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User " : "Group ") +
+                    assignment.getPrincipal().getNameAndRealm() + " successfully " +
+                    (assignment.isInclude() ? "added to " : "excluded from ") + assignment.getRole().getId() + ".";
+        }
     }
 }

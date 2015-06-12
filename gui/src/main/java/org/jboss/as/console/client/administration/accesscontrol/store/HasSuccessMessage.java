@@ -26,7 +26,7 @@ package org.jboss.as.console.client.administration.accesscontrol.store;
  *
  * @author Harald Pehl
  */
-public interface SuccessMessage {
+public interface HasSuccessMessage {
 
     String getMessage();
 }

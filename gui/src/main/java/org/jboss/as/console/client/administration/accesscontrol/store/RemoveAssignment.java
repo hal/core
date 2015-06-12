@@ -23,22 +23,41 @@ package org.jboss.as.console.client.administration.accesscontrol.store;
 
 import org.jboss.gwt.circuit.Action;
 
+import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+
 /**
  * @author Harald Pehl
  */
-public class RemoveAssignment implements Action, SuccessMessage {
+public class RemoveAssignment implements Action, ModifiesAssignment, HasSuccessMessage {
 
     private final Assignment assignment;
+    private final Relation relation;
 
-    public RemoveAssignment(final Assignment assignment) {this.assignment = assignment;}
+    public RemoveAssignment(final Assignment assignment, final Relation relation) {
+        this.assignment = assignment;
+        this.relation = relation;
+    }
 
+    @Override
     public Assignment getAssignment() {
         return assignment;
     }
 
     @Override
+    public Relation getRelation() {
+        return relation;
+    }
+
+    @Override
     public String getMessage() {
-        return "Role " + assignment.getRole().getId() + " successfully removed from " +
-                assignment.getPrincipal().getName() + ".";
+        if (relation == PRINCIPAL_TO_ROLE) {
+            return "Role " + assignment.getRole().getId() +
+                    " successfully removed from " +
+                    assignment.getPrincipal().getName() + ".";
+        } else {
+            return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User " : "Group ") +
+                    " successfully removed from " +
+                    assignment.getPrincipal().getName() + ".";
+        }
     }
 }

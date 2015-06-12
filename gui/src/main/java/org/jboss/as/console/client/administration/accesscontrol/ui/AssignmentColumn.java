@@ -40,6 +40,8 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.gwt.circuit.Dispatcher;
 
+import static org.jboss.as.console.client.administration.accesscontrol.store.ModifiesAssignment.Relation.PRINCIPAL_TO_ROLE;
+
 /**
  * Column for the assignment of a selected principal or role.
  *
@@ -109,7 +111,9 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
         setMenuItems(new MenuDelegate<>("Remove", item ->
                 Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getRole().getName(),
                         isConfirmed -> {
-                            if (isConfirmed) { circuit.dispatch(new RemoveAssignment(item)); }
+                            if (isConfirmed) {
+                                circuit.dispatch(new RemoveAssignment(item, PRINCIPAL_TO_ROLE));
+                            }
                         })));
 
         addSelectionChangeHandler(event -> {

@@ -208,13 +208,9 @@ final class Templates {
 
     // ------------------------------------------------------ member
 
-    static SafeHtml memberItem(final String css, final Assignment assignment) {
-        Principal principal = assignment.getPrincipal();
+    static SafeHtml memberItem(final String css, final Principal principal) {
         String principalTypeCss = principal.getType() == Principal.Type.USER ? "icon-user" : "icon-group";
         StringBuilder title = new StringBuilder();
-        if (!assignment.isInclude()) {
-            title.append("Exclude ");
-        }
         title.append(principal.getName());
         if (principal.getRealm() != null) {
             title.append(" (at) ").append(principal.getRealm());
