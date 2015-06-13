@@ -53,7 +53,7 @@ import org.jboss.as.console.client.administration.accesscontrol.ui.AssignmentDia
 import org.jboss.as.console.client.administration.accesscontrol.ui.MemberDialog;
 import org.jboss.as.console.client.administration.accesscontrol.ui.PrincipalDialog;
 import org.jboss.as.console.client.administration.accesscontrol.ui.ScopedRoleDialog;
-import org.jboss.as.console.client.administration.role.ui.AccessControlProviderDialog;
+import org.jboss.as.console.client.administration.accesscontrol.ui.AccessControlProviderDialog;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
@@ -97,6 +97,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
         void clearActiveSelection(ClearFinderSelectionEvent event);
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
+
 
     // @formatter:on ---------------------------------------- instance data
 
@@ -158,7 +159,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
                 Iterable<Assignment> assignments = maa.getRelation() == PRINCIPAL_TO_ROLE ?
                         accessControlStore.getAssignments(assignment.getPrincipal(), assignment.isInclude()) :
                         accessControlStore.getAssignments(assignment.getRole(), assignment.isInclude());
-                getView().reloadAssignments(assignments,maa.getRelation());
+                getView().reloadAssignments(assignments, maa.getRelation());
             }
 
             if (action instanceof HasSuccessMessage) {

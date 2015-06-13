@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.PopupViewImpl;
-import org.jboss.as.console.client.administration.role.operation.PrincipalFunctions;
 import org.jboss.as.console.client.widgets.DefaultSplitLayoutPanel;
 import org.jboss.as.console.client.widgets.progress.ProgressElement;
 import org.jboss.as.console.mbui.widgets.AddressUtils;

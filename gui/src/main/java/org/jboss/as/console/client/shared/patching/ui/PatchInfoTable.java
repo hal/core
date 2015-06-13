@@ -96,7 +96,7 @@ public class PatchInfoTable implements IsWidget, PatchManagementElementId {
         TextColumn<PatchInfo> typeColumn = new TextColumn<PatchInfo>() {
             @Override
             public String getValue(PatchInfo record) {
-                return record.getType().label();
+                return record.getType();
             }
         };
         table.addColumn(idColumn, "ID");

@@ -30,7 +30,6 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.administration.accesscontrol.AccessControlFinder;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
-import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
 import org.jboss.as.console.client.auth.SignInPagePresenter;
@@ -346,7 +345,6 @@ public interface CoreUI {
 
     // Administration
     AsyncProvider<AccessControlFinder> getRbacFinder();
-    AsyncProvider<RoleAssignmentPresenter> getRoleAssignmentPresenter();
     AsyncProvider<AuditLogPresenter> getAuditLogPresenter();
 
     // mbui workbench

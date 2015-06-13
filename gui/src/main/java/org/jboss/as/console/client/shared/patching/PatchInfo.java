@@ -23,14 +23,18 @@ package org.jboss.as.console.client.shared.patching;
  */
 public interface PatchInfo { //@formatter:off
 
+    String CUMULATIVE_TYPE = "cumulative";
+    String ONE_OFF_TYPE = "one-off";
+
+
     String getId();
     void setId(String id);
 
     String getVersion();
     void setVersion(String version);
 
-    PatchType getType();
-    void setType(PatchType type);
+    String getType();
+    void setType(String type);
 
     String getAppliedAt();
     void setAppliedAt(String appliedAt);

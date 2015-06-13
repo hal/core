@@ -163,7 +163,7 @@ public class PatchManager {
     private PatchInfo historyToPatchInfo(final ModelNode node) {
         PatchInfo patchInfo = beanFactory.patchInfo().as();
         patchInfo.setId(node.get("patch-id").asString());
-        patchInfo.setType(PatchType.fromLabel(node.get("type").asString()));
+        patchInfo.setType(node.get("type").asString());
         patchInfo.setAppliedAt(node.get("applied-at").asString());
         patchInfo.setIdentityName("");
         patchInfo.setIdentityVersion("");

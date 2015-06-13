@@ -25,20 +25,14 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.PatchType;
 import org.jboss.as.console.client.shared.patching.ui.PatchManagementTemplates;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
-import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
 /**
@@ -64,15 +58,14 @@ public class AppliedOkStep extends PatchWizardStep<ApplyContext, ApplyState> {
         body.add(new Label(Console.MESSAGES.patch_manager_restart_needed(serverOrHost)));
         body.add(new HTML(TEMPLATES.successPanel(Console.CONSTANTS.patch_manager_applied_success())));
 
-        form = new Form<PatchInfo>(PatchInfo.class);
+        form = new Form<>(PatchInfo.class);
         form.setEnabled(false);
         TextItem id = new TextItem("id", "ID");
         TextItem version = new TextItem("version", "Version");
-        Map<PatchType, String> values = new HashMap<PatchType, String>();
-        values.put(CUMULATIVE, CUMULATIVE.label());
-        values.put(ONE_OFF, ONE_OFF.label());
-        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
-        type.setValues(values);
+        ComboBoxItem type = new ComboBoxItem("type", Console.CONSTANTS.common_label_type());
+        type.setValueMap(new String[]{PatchInfo.ONE_OFF_TYPE, PatchInfo.CUMULATIVE_TYPE});
+        type.setDefaultToFirstOption(true);
+        type.setRequired(true);
         form.setFields(id, version, type);
         body.add(form);
 
