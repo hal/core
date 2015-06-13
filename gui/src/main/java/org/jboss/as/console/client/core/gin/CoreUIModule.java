@@ -37,8 +37,6 @@ import org.jboss.as.console.client.administration.accesscontrol.AccessControlFin
 import org.jboss.as.console.client.administration.accesscontrol.ui.AccessControlView;
 import org.jboss.as.console.client.administration.audit.AuditLogPresenter;
 import org.jboss.as.console.client.administration.audit.AuditLogView;
-import org.jboss.as.console.client.administration.role.RoleAssignmentPresenter;
-import org.jboss.as.console.client.administration.role.ui.RoleAssignementView;
 import org.jboss.as.console.client.analytics.AnalyticsProvider;
 import org.jboss.as.console.client.analytics.NavigationTracker;
 import org.jboss.as.console.client.auth.CurrentUser;
@@ -616,10 +614,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 AccessControlFinder.MyView.class,
                 AccessControlView.class,
                 AccessControlFinder.MyProxy.class);
-        bindPresenter(RoleAssignmentPresenter.class,
-                RoleAssignmentPresenter.MyView.class,
-                RoleAssignementView.class,
-                RoleAssignmentPresenter.MyProxy.class);
         bindPresenter(AuditLogPresenter.class,
                 AuditLogPresenter.MyView.class,
                 AuditLogView.class,

@@ -22,20 +22,14 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.administration.role.form.EnumFormItem;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
-import org.jboss.as.console.client.shared.patching.PatchType;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.google.gwt.dom.client.Style.Unit.EM;
-import static org.jboss.as.console.client.shared.patching.PatchType.CUMULATIVE;
-import static org.jboss.as.console.client.shared.patching.PatchType.ONE_OFF;
 
 /**
  * @author Harald Pehl
@@ -63,15 +57,14 @@ public class ConfirmRollbackStep extends PatchWizardStep<RollbackContext, Rollba
         overrideAll.getElement().getStyle().setMarginBottom(1, EM);
         body.add(overrideAll);
 
-        form = new Form<PatchInfo>(PatchInfo.class);
+        form = new Form<>(PatchInfo.class);
         form.setEnabled(false);
         TextItem id = new TextItem("id", "ID");
         TextItem date = new TextItem("appliedAt", Console.CONSTANTS.patch_manager_applied_at());
-        Map<PatchType, String> values = new HashMap<PatchType, String>();
-        values.put(CUMULATIVE, CUMULATIVE.label());
-        values.put(ONE_OFF, ONE_OFF.label());
-        EnumFormItem<PatchType> type = new EnumFormItem<PatchType>("type", Console.CONSTANTS.common_label_type());
-        type.setValues(values);
+        ComboBoxItem type = new ComboBoxItem("type", Console.CONSTANTS.common_label_type());
+        type.setValueMap(new String[]{PatchInfo.ONE_OFF_TYPE, PatchInfo.CUMULATIVE_TYPE});
+        type.setDefaultToFirstOption(true);
+        type.setRequired(true);
         form.setFields(id, date, type);
         body.add(form);
 
