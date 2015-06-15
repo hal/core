@@ -31,7 +31,6 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.util.Trim;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -74,8 +73,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(final String baseCss, final Deployment data) {
-                        return Templates.ITEMS.item(baseCss, Trim.abbreviateMiddle(data.getName()),
-                                data.getName());
+                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
                     }
 
                     @Override
@@ -95,10 +93,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                 }
         );
 
-        deploymentColumn.setTopMenuItems(
-                new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard()),
-                new MenuDelegate<>("Refresh", item -> presenter.loadDeployments())
-        );
+        deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard()));
 
         //noinspection Convert2MethodRef
         deploymentColumn.setMenuItems(

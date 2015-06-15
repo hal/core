@@ -24,7 +24,7 @@ package org.jboss.as.console.client.v3.deployment.wizard;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.shared.deployment.DeploymentReference;
+import org.jboss.as.console.client.v3.deployment.UploadBean;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -38,7 +38,7 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 public class VerifyUploadStep extends
         WizardStep<Context, State> {
 
-    private Form<DeploymentReference> form;
+    private Form<UploadBean> form;
 
     public VerifyUploadStep(final DeploymentWizard wizard) {
         super(wizard, "Verify Upload");
@@ -49,13 +49,13 @@ public class VerifyUploadStep extends
         FlowPanel panel = new FlowPanel();
         panel.add(new StaticHelpPanel(StaticHelp.replace()).asWidget());
 
-        form = new Form<>(DeploymentReference.class);
+        form = new Form<>(UploadBean.class);
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
         CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
-        if (wizard instanceof AddDeploymentWizard) {
+        if (wizard instanceof CanEnableDeployment) {
             form.setFields(nameField, runtimeNameField, enable);
-        } else if (wizard instanceof ReplaceDeploymentWizard) {
+        } else {
             form.setFields(nameField, runtimeNameField);
         }
         panel.add(form.asWidget());

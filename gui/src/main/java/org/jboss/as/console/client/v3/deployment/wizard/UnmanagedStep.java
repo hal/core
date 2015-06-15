@@ -23,7 +23,7 @@ package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.v3.deployment.UnmanagedBean;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
@@ -38,7 +38,7 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 public class UnmanagedStep extends
         WizardStep<Context, State> {
 
-    private Form<DeploymentRecord> form;
+    private Form<UnmanagedBean> form;
 
     public UnmanagedStep(final DeploymentWizard wizard) {super(wizard, "Unmanaged Deployment");}
 
@@ -47,7 +47,7 @@ public class UnmanagedStep extends
         FlowPanel panel = new FlowPanel();
         panel.add(new StaticHelpPanel(StaticHelp.unmanaged()).asWidget());
 
-        form = new Form<>(DeploymentRecord.class);
+        form = new Form<>(UnmanagedBean.class);
         TextBoxItem name = new TextBoxItem("name", "Name");
         TextBoxItem runtimeName = new TextBoxItem("runtimeName", "Runtime Name") {
             @Override

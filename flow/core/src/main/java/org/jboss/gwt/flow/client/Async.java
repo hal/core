@@ -40,18 +40,19 @@ public class Async<C> {
     }
 
     /**
-     * Convenience method to executes a single function. Use this method if you have seperated your business logic
-     * across different function, but just want to execute a single function.
+     * Convenience method to executes a single function. Use this method if you have implemented your business logic
+     * across different functions, but just want to execute a single function.
      */
     public void single(final C context, final Function<C> function, Outcome<C> outcome) {
         SingletonControl ctrl = new SingletonControl(context, outcome);
         progress.reset(1);
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-            @Override
-            public void execute() {
-                function.execute(ctrl);
-            }
-        });
+        function.execute(ctrl);
+//        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+//            @Override
+//            public void execute() {
+//                function.execute(ctrl);
+//            }
+//        });
     }
 
     /**
@@ -219,12 +220,13 @@ public class Async<C> {
 
         @Override
         public void proceed() {
-            progress.tick();
+            progress.finish();
             outcome.onSuccess(context);
         }
 
         @Override
         public void abort() {
+            progress.finish();
             outcome.onFailure(context);
         }
 

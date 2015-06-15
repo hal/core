@@ -24,15 +24,21 @@ package org.jboss.as.console.client.v3.deployment;
 import org.jboss.as.console.client.v3.dmr.NamedNode;
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * An uploaded deployment blob w/o any relation to servers or server groups.
+ * An uploaded deployment blob.
  *
  * @author Harald Pehl
  */
 public class Content extends NamedNode {
 
+    private final List<Assignment> assignments;
+
     public Content(final ModelNode node) {
         super(node);
+        this.assignments = new ArrayList<>();
     }
 
     public String getRuntimeName() {
@@ -40,8 +46,16 @@ public class Content extends NamedNode {
         return runtimeName.isDefined() ? runtimeName.asString() : null;
     }
 
+    public void addAssignment(Assignment assignment) {
+        assignments.add(assignment);
+    }
+
+    public List<Assignment> getAssignments() {
+        return assignments;
+    }
+
     @Override
     public String toString() {
-        return "Content{" + getName() + "}";
+        return "Content{" + getName() + ", assigned to " + assignments + "}";
     }
 }

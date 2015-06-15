@@ -24,49 +24,52 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
 /**
  * @author Harald Pehl
  */
-public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
+public class BrowseByColumn extends FinderColumn<BrowseByItem> {
 
     private Widget widget;
 
-    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo) {
+    @SuppressWarnings("unchecked")
+    public BrowseByColumn(final PreviewContentFactory contentFactory, final ColumnManager columnManager) {
 
-        super(FinderColumn.FinderId.DEPLOYMENT, "Nested Deployment",
-                new FinderColumn.Display<Subdeployment>() {
+        super(FinderId.DEPLOYMENT,
+                "Browse By",
+                new Display<BrowseByItem>() {
                     @Override
-                    public boolean isFolder(final Subdeployment data) {
-                        return false;
+                    public boolean isFolder(final BrowseByItem data) {
+                        return true;
                     }
 
                     @Override
-                    public SafeHtml render(final String baseCss, final Subdeployment data) {
-                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
+                    public SafeHtml render(final String baseCss, final BrowseByItem data) {
+                        return Templates.ITEMS.item(baseCss, data.getTitle(), data.getTitle());
                     }
 
                     @Override
-                    public String rowCss(final Subdeployment data) {
+                    public String rowCss(final BrowseByItem data) {
                         return "";
                     }
                 },
-                new ProvidesKey<Subdeployment>() {
+                new ProvidesKey<BrowseByItem>() {
                     @Override
-                    public Object getKey(final Subdeployment item) {
-                        return item.getName();
+                    public Object getKey(final BrowseByItem item) {
+                        return item.getTitle();
                     }
-                }
-        );
+                });
 
-        setPreviewFactory((data, callback) -> callback.onSuccess(Templates.subdeploymentPreview(data)));
+        setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
 
         addSelectionChangeHandler(event -> {
-            columnManager.reduceColumnsTo(reduceTo);
+            columnManager.reduceColumnsTo(1);
             if (hasSelectedItem()) {
                 columnManager.updateActiveSelection(asWidget());
+                getSelectedItem().onSelect().execute();
             }
         });
     }

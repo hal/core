@@ -63,6 +63,11 @@ public interface PreviewContent extends ClientBundleWithLookup {
     ExternalTextResource superuser();
 
     // content below (referenced by name token)
+    @Source("content/batch.html")
+    ExternalTextResource batch();
+
+    @Source("content/content_repository.html")
+    ExternalTextResource content_repository();
 
     @Source("content/datasources.html")
     ExternalTextResource datasources();
@@ -75,6 +80,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("content/ejb3.html")
     ExternalTextResource ejb3();
+
+    @Source("content/http.html")
+    ExternalTextResource http();
 
     @Source("content/jacorb.html")
     ExternalTextResource jacorb();
@@ -94,33 +102,30 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/mail.html")
     ExternalTextResource mail();
 
-    @Source("content/resource-adapters.html")
+    @Source("content/resource_adapters.html")
     ExternalTextResource resource_adapters();
-
-    @Source("content/threads.html")
-    ExternalTextResource threads();
-
-    @Source("content/transactions.html")
-    ExternalTextResource transactions();
-
-    @Source("content/security-domains.html")
-    ExternalTextResource security_domains();
 
     @Source("content/security.html")
     ExternalTextResource security();
 
-    @Source("content/server-group.html")
+    @Source("content/security_domains.html")
+    ExternalTextResource security_domains();
+
+    @Source("content/server_group.html")
     ExternalTextResource server_group();
 
     @Source("content/servlet.html")
     ExternalTextResource servlet();
 
+    @Source("content/transactions.html")
+    ExternalTextResource transactions();
+
+    @Source("content/threads.html")
+    ExternalTextResource threads();
+
     @Source("content/webservices.html")
     ExternalTextResource webservices();
 
-    @Source("content/http.html")
-    ExternalTextResource http();
-
-    @Source("content/batch.html")
-    ExternalTextResource batch();
+    @Source("content/unassigned_content.html")
+    ExternalTextResource unassigned_content();
 }

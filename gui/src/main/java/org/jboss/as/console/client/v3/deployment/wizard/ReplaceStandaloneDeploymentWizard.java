@@ -42,7 +42,7 @@ import static org.jboss.as.console.client.v3.deployment.wizard.State.VERIFY_UPLO
 /**
  * @author Harald Pehl
  */
-public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard implements ReplaceDeploymentWizard {
+public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard {
 
     private Deployment deployment;
 

@@ -33,8 +33,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
-import org.jboss.as.console.client.shared.deployment.DeploymentReference;
-import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
 import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.Composite;
@@ -71,17 +69,17 @@ public final class DeploymentFunctions {
     private DeploymentFunctions() {}
 
     /**
-     * Uploads a deployment, sets the deployment hash and pushes the updated {@link DeploymentReference} instance into
+     * Uploads a deployment, sets the deployment hash and pushes the updated {@link UploadBean} instance into
      * the context.
      */
     public static class UploadContent implements Function<FunctionContext> {
 
         private final UploadForm uploadForm;
         private final FileUpload fileUpload;
-        private final DeploymentReference upload;
+        private final UploadBean upload;
 
         public UploadContent(final UploadForm uploadForm, final FileUpload fileUpload,
-                final DeploymentReference upload) {
+                final UploadBean upload) {
             this.uploadForm = uploadForm;
             this.fileUpload = fileUpload;
             this.upload = upload;
@@ -110,7 +108,7 @@ public final class DeploymentFunctions {
 
     /**
      * Adds or replaces an uploaded deployment to/in the content repository.
-     * Expects a {@link DeploymentReference} instance on top of the context stack.
+     * Expects a {@link UploadBean} instance on top of the context stack.
      * Pushes an {@link Content} instance into the context.
      */
     public static class AddOrReplaceContent implements Function<FunctionContext> {
@@ -128,7 +126,7 @@ public final class DeploymentFunctions {
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-            DeploymentReference upload = control.getContext().pop();
+            UploadBean upload = control.getContext().pop();
 
             String requestJSO = replace ? makeReplaceJSO(upload) : makeAddJSO(upload);
             RequestBuilder rb = new RequestBuilder(RequestBuilder.POST,
@@ -167,7 +165,7 @@ public final class DeploymentFunctions {
             }
         }
 
-        private String makeAddJSO(DeploymentReference upload) {
+        private String makeAddJSO(UploadBean upload) {
             //noinspection StringBufferReplaceableByString
             StringBuilder builder = new StringBuilder();
             builder.append("{");
@@ -184,7 +182,7 @@ public final class DeploymentFunctions {
             return builder.toString();
         }
 
-        private String makeReplaceJSO(DeploymentReference upload) {
+        private String makeReplaceJSO(UploadBean upload) {
             //noinspection StringBufferReplaceableByString
             StringBuilder builder = new StringBuilder();
             builder.append("{");
@@ -208,9 +206,9 @@ public final class DeploymentFunctions {
     public static class AddUnmanagedContent implements Function<FunctionContext> {
 
         private final DispatchAsync dispatcher;
-        private final DeploymentRecord unmanaged;
+        private final UnmanagedBean unmanaged;
 
-        public AddUnmanagedContent(final DispatchAsync dispatcher, final DeploymentRecord unmanaged) {
+        public AddUnmanagedContent(final DispatchAsync dispatcher, final UnmanagedBean unmanaged) {
             this.dispatcher = dispatcher;
             this.unmanaged = unmanaged;
         }
@@ -254,8 +252,7 @@ public final class DeploymentFunctions {
 
 
     /**
-     * Loads the contents form the content repository and pushes a {@code Map&lt;Content, List&lt;Assignment&gt;&gt;}
-     * onto the context stack.
+     * Loads the contents form the content repository and pushes a {@code List&lt;Content&gt;} onto the context stack.
      */
     public static class LoadContentAssignments implements Function<FunctionContext> {
 
@@ -277,7 +274,6 @@ public final class DeploymentFunctions {
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-            final Map<Content, List<Assignment>> contentAssignments = new HashMap<>();
             Operation content = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, ResourceAddress.ROOT)
                     .param(CHILD_TYPE, "deployment")
                     .build();
@@ -294,7 +290,6 @@ public final class DeploymentFunctions {
                     for (Property property : properties) {
                         Content content = new Content(property.getValue());
                         contentByName.put(content.getName(), content);
-                        contentAssignments.put(content, new ArrayList<>());
                     }
 
                     List<ModelNode> nodes = result.get(RESULT).get("step-2").get(RESULT).asList();
@@ -305,10 +300,10 @@ public final class DeploymentFunctions {
                         Assignment assignment = new Assignment(groupName, assignmentNode);
                         Content content = contentByName.get(assignment.getName());
                         if (content != null) {
-                            contentAssignments.get(content).add(assignment);
+                            content.addAssignment(assignment);
                         }
                     }
-                    context.push(contentAssignments);
+                    context.push(new ArrayList<>(contentByName.values()));
                 }
             });
         }

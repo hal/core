@@ -22,9 +22,10 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 /**
- * Marker interface used in {@link VerifyUploadStep}  to distinguish between add and replace.
+ * Marker interface used in {@link VerifyUploadStep} to distinguish between wizards which can and cannot enable the
+ * deployment.
  *
  * @author Harald Pehl
  */
-public interface AddDeploymentWizard {
+public interface CanEnableDeployment {
 }

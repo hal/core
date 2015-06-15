@@ -58,9 +58,9 @@ public abstract class DeploymentWizard extends Wizard<Context, State> {
         context.deployNew = false;
         context.deployExisting = false;
         context.deployUnmanaged = false;
-        context.upload = beanFactory.deploymentReference().as();
+        context.upload = beanFactory.upload().as();
         context.existingContent = null;
         context.enableExistingContent = false;
-        context.unmanagedDeployment = beanFactory.deployment().as();
+        context.unmanagedDeployment = beanFactory.unmanaged().as();
     }
 }

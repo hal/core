@@ -16,20 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA  02110-1301, USA.
  */
-
-package org.jboss.as.console.client.shared.deployment;
-
-import org.jboss.as.console.client.widgets.forms.Binding;
+package org.jboss.as.console.client.v3.deployment;
 
 /**
  * @author Heiko Braun
  * @author Stan Silvert
  * @date 4/8/11
  */
-@Deprecated
-public interface DeploymentReference {
+public interface UploadBean {
 
-    @Binding(key = true)
     String getName();
     void setName(String name);
     
@@ -39,10 +34,6 @@ public interface DeploymentReference {
     String getHash();
     void setHash(String hash);
 
-    String getGroup();
-    void setGroup(String group);
-
-    @Binding(skip = true)
     boolean isEnableAfterDeployment();
     void setEnableAfterDeployment(boolean enableAfterDeployment);
 }

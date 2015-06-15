@@ -19,12 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.deployment.wizard;
+package org.jboss.as.console.client.v3.deployment;
+
+import com.google.web.bindery.autobean.shared.AutoBean;
+import org.jboss.as.console.spi.BeanFactoryExtension;
 
 /**
- * Marker interface used in {@link VerifyUploadStep} to distinguish between add and replace.
+ * Simple auto beans used in the deployment forms.
  *
  * @author Harald Pehl
  */
-public interface ReplaceDeploymentWizard {
+@BeanFactoryExtension
+public interface DepoymentBeans {
+
+    AutoBean<UploadBean> upload();
+    AutoBean<UnmanagedBean> unmanaged();
 }

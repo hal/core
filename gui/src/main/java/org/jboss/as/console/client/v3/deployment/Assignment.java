@@ -25,6 +25,7 @@ import org.jboss.dmr.client.ModelNode;
 
 /**
  * An assigned deployment used in domain mode.
+ *
  * @author Harald Pehl
  */
 public class Assignment extends Content {
