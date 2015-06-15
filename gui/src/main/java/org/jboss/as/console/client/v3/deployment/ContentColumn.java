@@ -26,45 +26,54 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
+import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+
+import static org.jboss.as.console.client.widgets.nav.v3.FinderColumn.FinderId.DEPLOYMENT;
 
 /**
  * @author Harald Pehl
  */
-public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
+public class ContentColumn extends FinderColumn<Content> {
 
     private Widget widget;
 
-    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo) {
+    @SuppressWarnings("unchecked")
+    public ContentColumn(final String title, final ColumnManager columnManager,
+            MenuDelegate<Content> topMenuItem, MenuDelegate<Content> contextMenuItem) {
+        super(DEPLOYMENT, title, new Display<Content>() {
+            @Override
+            public boolean isFolder(final Content data) {
+                return false;
+            }
 
-        super(FinderColumn.FinderId.DEPLOYMENT, "Nested Deployment",
-                new FinderColumn.Display<Subdeployment>() {
-                    @Override
-                    public boolean isFolder(final Subdeployment data) {
-                        return false;
-                    }
+            @Override
+            public SafeHtml render(final String baseCss, final Content data) {
+                return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
+            }
 
-                    @Override
-                    public SafeHtml render(final String baseCss, final Subdeployment data) {
-                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
-                    }
+            @Override
+            public String rowCss(final Content data) {
+                return "";
+            }
+        }, new ProvidesKey<Content>() {
+            @Override
+            public Object getKey(final Content item) {
+                return item.getName();
+            }
+        });
 
-                    @Override
-                    public String rowCss(final Subdeployment data) {
-                        return "";
-                    }
-                },
-                new ProvidesKey<Subdeployment>() {
-                    @Override
-                    public Object getKey(final Subdeployment item) {
-                        return item.getName();
-                    }
-                }
-        );
+        setShowSize(true);
+        setPreviewFactory((data, callback) -> callback.onSuccess(Templates.contentPreview(data)));
 
-        setPreviewFactory((data, callback) -> callback.onSuccess(Templates.subdeploymentPreview(data)));
+        if (topMenuItem != null) {
+            setTopMenuItems(topMenuItem);
+        }
+        if (contextMenuItem != null) {
+            setMenuItems(contextMenuItem);
+        }
 
         addSelectionChangeHandler(event -> {
-            columnManager.reduceColumnsTo(reduceTo);
+            columnManager.reduceColumnsTo(2);
             if (hasSelectedItem()) {
                 columnManager.updateActiveSelection(asWidget());
             }

@@ -22,8 +22,8 @@
 package org.jboss.as.console.client.v3.deployment.wizard;
 
 import com.google.gwt.user.client.ui.FileUpload;
-import org.jboss.as.console.client.shared.deployment.DeploymentReference;
-import org.jboss.as.console.client.shared.deployment.model.DeploymentRecord;
+import org.jboss.as.console.client.v3.deployment.UploadBean;
+import org.jboss.as.console.client.v3.deployment.UnmanagedBean;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.widgets.forms.UploadForm;
 
@@ -45,10 +45,10 @@ public class Context {
     public boolean deployUnmanaged;
     public FileUpload fileUpload;
     public UploadForm uploadForm;
-    public DeploymentReference upload;
+    public UploadBean upload;
     public Content existingContent;
     public boolean enableExistingContent;
-    public DeploymentRecord unmanagedDeployment;
+    public UnmanagedBean unmanagedDeployment;
 
     public Context(final boolean standalone) {
         this.standalone = standalone;

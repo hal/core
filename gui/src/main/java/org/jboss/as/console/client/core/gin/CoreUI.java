@@ -49,7 +49,6 @@ import org.jboss.as.console.client.core.settings.SettingsPresenter;
 import org.jboss.as.console.client.core.settings.SettingsPresenterWidget;
 import org.jboss.as.console.client.csp.CSPPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
-import org.jboss.as.console.client.domain.groups.deployment.DomainDeploymentPresenter;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
 import org.jboss.as.console.client.domain.hosts.ServerConfigPresenter;
@@ -76,7 +75,6 @@ import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.shared.DialogPresenter;
-import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
 import org.jboss.as.console.client.shared.general.PathManagementPresenter;
@@ -141,7 +139,6 @@ import org.jboss.as.console.client.shared.subsys.ws.StandaloneEndpointStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.WebServicePresenter;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerPresenter;
-import org.jboss.as.console.client.standalone.deployment.StandaloneDeploymentPresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
@@ -239,9 +236,6 @@ public interface CoreUI {
 
     // ----------------------------------------------------------------------
     AsyncProvider<ServerMgmtApplicationPresenter> getServerManagementAppPresenter();
-    AsyncProvider<StandaloneDeploymentPresenter> getDeploymentBrowserPresenter();
-
-    DeploymentStore getDeployments();
 
 
     // ----------------------------------------------------------------------
@@ -258,8 +252,6 @@ public interface CoreUI {
     ServerGroupDAO getServerGroupDAO();
     HostInformationStore getHostInfoStore();
 
-
-    AsyncProvider<DomainDeploymentPresenter> getDeploymentsPresenter();
 
     AsyncProvider<HostMgmtPresenter> getHostMgmtPresenter();
     AsyncProvider<ServerConfigPresenter> getServerPresenter();

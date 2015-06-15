@@ -51,7 +51,7 @@ public class ChooseStep extends
         deployNew.addStyleName("radio-block");
         IdHelper.setId(deployNew, id(), "deployNew");
 
-        deployExisting = new RadioButton("deployment_kind", "Reuse an existing deployment");
+        deployExisting = new RadioButton("deployment_kind", "Choose a deployment from the content repository");
         deployExisting.addStyleName("radio-block");
         IdHelper.setId(deployExisting, id(), "deployExisting");
 

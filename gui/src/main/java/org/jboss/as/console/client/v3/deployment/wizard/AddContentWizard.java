@@ -27,7 +27,6 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
-import org.jboss.as.console.client.v3.deployment.Assignment;
 import org.jboss.as.console.client.v3.deployment.DeploymentFunctions;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -36,48 +35,53 @@ import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.EnumSet;
 
-import static org.jboss.as.console.client.v3.deployment.wizard.State.UPLOAD;
-import static org.jboss.as.console.client.v3.deployment.wizard.State.VERIFY_UPLOAD;
+import static org.jboss.as.console.client.v3.deployment.wizard.State.*;
 
 /**
  * @author Harald Pehl
  */
-public class ReplaceDomainDeploymentWizard extends DeploymentWizard {
+public class AddContentWizard extends DeploymentWizard {
 
-    private Assignment assignment;
-
-    public ReplaceDomainDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
+    public AddContentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
             DispatchAsync dispatcher, FinishCallback onFinish) {
-        super("replace_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
+        super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
     }
 
-    public void open(final Assignment assignment) {
-        this.assignment = assignment;
-        super.open("Replace Deployment");
-        context.serverGroup = assignment.getServerGroup();
-    }
-
-    @Override
-    protected State initialState() {
-        return UPLOAD;
-    }
-
     @Override
     protected EnumSet<State> lastStates() {
+        //noinspection NonJREEmulationClassesInClientCode
         return EnumSet.of(VERIFY_UPLOAD);
     }
 
     @Override
     protected State back(final State state) {
-        return state == VERIFY_UPLOAD ? UPLOAD : null;
+        State previous = null;
+        switch (state) {
+            case UPLOAD:
+                previous = null;
+                break;
+            case VERIFY_UPLOAD:
+                previous = UPLOAD;
+                break;
+        }
+        return previous;
     }
 
     @Override
     protected State next(final State state) {
-        return state == UPLOAD ? VERIFY_UPLOAD : null;
+        State next = null;
+        switch (state) {
+            case UPLOAD:
+                next = VERIFY_UPLOAD;
+                break;
+            case VERIFY_UPLOAD:
+                next = null;
+                break;
+        }
+        return next;
     }
 
     @Override
@@ -103,9 +107,8 @@ public class ReplaceDomainDeploymentWizard extends DeploymentWizard {
             }
         };
 
-        context.upload.setEnableAfterDeployment(assignment.isEnabled());
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, true));
+                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false));
     }
 }

@@ -44,14 +44,12 @@ import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
+import org.jboss.as.console.client.v3.deployment.wizard.AddContentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceDomainDeploymentWizard;
-import org.jboss.as.console.client.v3.deployment.wizard.UnassignedContentDialog;
-import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.presenter.Finder;
@@ -75,8 +73,6 @@ import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
 import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
@@ -102,6 +98,8 @@ public class DomainDeploymentFinder
     public interface MyProxy extends ProxyPlace<DomainDeploymentFinder> {}
 
     public interface MyView extends View, HasPresenter<DomainDeploymentFinder> {
+        void updateContentRepository( Iterable<Content> content);
+        void updateUnassigned( Iterable<Content> unassigned);
         void updateServerGroups(Iterable<ServerGroupRecord> serverGroups);
         void updateAssignments(Iterable<Assignment> assignments);
 
@@ -120,18 +118,18 @@ public class DomainDeploymentFinder
     private final DispatchAsync dispatcher;
     private final Dispatcher circuit;
     private final ServerGroupStore serverGroupStore;
-    private final AddDomainDeploymentWizard addWizard;
+    private final AddContentWizard addContentWizard;
+    private final AddDomainDeploymentWizard addDeploymentWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
-    private final UnassignedContentDialog unassignedDialog;
 
 
     // ------------------------------------------------------ presenter lifecycle
 
     @Inject
     public DomainDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
-            final BeanFactory beanFactory, final DispatchAsync dispatcher, final Dispatcher circuit,
-            final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext, final Header header) {
+            final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
+            final Dispatcher circuit, final ServerGroupStore serverGroupStore, final BootstrapContext bootstrapContext,
+            final Header header) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.DomainDeploymentFinder,
                 TYPE_MainContent);
         this.beanFactory = beanFactory;
@@ -139,11 +137,12 @@ public class DomainDeploymentFinder
         this.circuit = circuit;
         this.serverGroupStore = serverGroupStore;
 
-        this.addWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
+        this.addContentWizard = new AddContentWizard(bootstrapContext, beanFactory, dispatcher,
+                context -> loadContentRepository());
+        this.addDeploymentWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> loadAssignments(context.serverGroup));
         this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> loadAssignments(context.serverGroup));
-        this.unassignedDialog = new UnassignedContentDialog(this);
     }
 
     @Override
@@ -156,11 +155,6 @@ public class DomainDeploymentFinder
         registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
         registerHandler(getEventBus().addHandler(FinderScrollEvent.TYPE, this));
         registerHandler(getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this));
-
-        // circuit handler
-        registerHandler(serverGroupStore.addChangeHandler(RefreshServerGroups.class, action -> {
-            getView().updateServerGroups(serverGroupStore.getServerGroups());
-        }));
     }
 
     @Override
@@ -175,9 +169,27 @@ public class DomainDeploymentFinder
     }
 
 
+    // ------------------------------------------------------ finder related methods
+
+    @Override
+    public void onPreview(PreviewEvent event) {
+        if (isVisible()) { getView().setPreview(event.getHtml()); }
+    }
+
+    @Override
+    public void onToggleScrolling(final FinderScrollEvent event) {
+        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
+    }
+
+    @Override
+    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
+        if (isVisible()) { getView().clearActiveSelection(event); }
+    }
+
+
     // ------------------------------------------------------ deployment methods
 
-    public void launchUnassignedDialog() {
+    public void loadContentRepository() {
         new Async<FunctionContext>().single(new FunctionContext(),
                 new DeploymentFunctions.LoadContentAssignments(dispatcher),
                 new Outcome<FunctionContext>() {
@@ -188,25 +200,48 @@ public class DomainDeploymentFinder
 
                     @Override
                     public void onSuccess(final FunctionContext context) {
-                        List<Content> unassigned = new ArrayList<>();
-                        Map<Content, List<Assignment>> contentAssignments = context.pop();
-                        for (Content content : contentAssignments.keySet()) {
-                            if (contentAssignments.get(content).isEmpty()) {
-                                unassigned.add(content);
-                            }
-                        }
-                        unassignedDialog.open(unassigned);
+                        List<Content> contentRepository = context.pop();
+                        getView().updateContentRepository(contentRepository);
                     }
                 });
     }
 
-    public void removeContent(final Set<Content> content) {
-        List<Operation> ops = new ArrayList<>(content.size());
-        for (Content c : content) {
-            ops.add(new Operation.Builder(REMOVE, new ResourceAddress().add("deployment", c.getName())).build());
-        }
+    public void loadUnassignedContent() {
+        new Async<FunctionContext>().single(new FunctionContext(),
+                new DeploymentFunctions.LoadContentAssignments(dispatcher),
+                new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(final FunctionContext context) {
+                        Console.error("Unable to find deployments.", context.getErrorMessage());
+                    }
 
-        dispatcher.execute(new DMRAction(new Composite(ops)), new AsyncCallback<DMRResponse>() {
+                    @Override
+                    public void onSuccess(final FunctionContext context) {
+                        List<Content> contentRepository = context.pop();
+                        List<Content> unassigned = new ArrayList<>();
+                        for (Content content : contentRepository) {
+                            if (content.getAssignments().isEmpty()) {
+                                unassigned.add(content);
+                            }
+                        }
+                        getView().updateUnassigned(unassigned);
+                    }
+                });
+    }
+
+    public void loadServerGroups() {
+        getView().updateServerGroups(serverGroupStore.getServerGroups());
+    }
+
+    public void launchAddContentWizard() {
+        addContentWizard.open("Add Content");
+    }
+
+    public void removeContent(final Content content) {
+        Operation operation = new Operation.Builder(REMOVE, new ResourceAddress().add("deployment", content.getName()))
+                .build();
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
             public void onFailure(final Throwable caught) {
                 Console.error("Unable to remove deployment.", caught.getMessage());
@@ -218,7 +253,8 @@ public class DomainDeploymentFinder
                 if (result.isFailure()) {
                     Console.error("Unable to remove deployment.", result.getFailureDescription());
                 } else {
-                    Console.info("Successfully removed " + content.size() + " deployments.");
+                    Console.info("Successfully removed " + content.getName() + ".");
+                    loadContentRepository();
                 }
             }
         });
@@ -235,14 +271,14 @@ public class DomainDeploymentFinder
 
                     @Override
                     public void onSuccess(final FunctionContext context) {
+                        List<Content> contentRepository = context.pop();
                         List<Content> unassigned = new ArrayList<>();
-                        Map<Content, List<Assignment>> contentAssignments = context.pop();
-                        for (Content content : contentAssignments.keySet()) {
-                            if (contentAssignments.get(content).isEmpty()) {
+                        for (Content content : contentRepository) {
+                            if (content.getAssignments().isEmpty()) {
                                 unassigned.add(content);
                             }
                         }
-                        addWizard.open(unassigned, serverGroup);
+                        addDeploymentWizard.open(unassigned, serverGroup);
                     }
                 });
     }
@@ -319,7 +355,6 @@ public class DomainDeploymentFinder
                 String errorMessage = context.getErrorMessage();
                 if (DeploymentFunctions.NO_REFERENCE_SERVER_WARNING.equals(errorMessage)) {
                     // not a real error
-                    Console.warning(errorMessage);
                     List<Assignment> assignments = context.get(DeploymentFunctions.ASSIGNMENTS);
                     getView().updateAssignments(assignments);
                 } else {
@@ -337,23 +372,5 @@ public class DomainDeploymentFinder
         //noinspection unchecked
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 functions.toArray(new Function[functions.size()]));
-    }
-
-
-    // ------------------------------------------------------ finder related methods
-
-    @Override
-    public void onPreview(PreviewEvent event) {
-        if (isVisible()) { getView().setPreview(event.getHtml()); }
-    }
-
-    @Override
-    public void onToggleScrolling(final FinderScrollEvent event) {
-        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
-    }
-
-    @Override
-    public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
-        if (isVisible()) { getView().clearActiveSelection(event); }
     }
 }

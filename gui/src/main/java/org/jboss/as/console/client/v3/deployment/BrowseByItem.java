@@ -19,32 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.shared.util;
+package org.jboss.as.console.client.v3.deployment;
+
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.resources.client.ExternalTextResource;
 
 /**
  * @author Harald Pehl
  */
-public final class Trim {
+public class BrowseByItem {
 
-    private static final int MAX_LENGTH = 15;
-    private static final String ELLIPSIS = "...";
+    private final String title;
+    private final ExternalTextResource preview;
+    private final Scheduler.ScheduledCommand onSelect;
 
-    private Trim() {
+    public BrowseByItem(final String title, final ExternalTextResource preview,
+            final Scheduler.ScheduledCommand onSelect) {
+        this.title = title;
+        this.preview = preview;
+        this.onSelect = onSelect;
     }
 
-    public static String abbreviateMiddle(String str) {
-        return abbreviateMiddle(str, MAX_LENGTH);
+    public String getTitle() {
+        return title;
     }
 
-    public static String abbreviateMiddle(String str, int maxLength) {
-        if (str == null || maxLength >= str.length()) {
-            return str;
-        }
+    public ExternalTextResource getPreview() {
+        return preview;
+    }
 
-        final int targetSting = maxLength - ELLIPSIS.length();
-        final int startOffset = targetSting / 2 + targetSting % 2;
-        final int endOffset = str.length() - targetSting / 2;
-
-        return str.substring(0, startOffset) + ELLIPSIS + str.substring(endOffset);
+    public Scheduler.ScheduledCommand onSelect() {
+        return onSelect;
     }
 }

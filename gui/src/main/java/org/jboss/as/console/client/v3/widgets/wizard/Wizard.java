@@ -188,6 +188,8 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
             window.setHeight(450);
             window.trapWidget(asWidget());
             window.setGlassEnabled(true);
+        } else {
+            window.setTitle(title);
         }
         resetContext();
         for (WizardStep<C, S> step : steps.values()) {

@@ -40,7 +40,7 @@ import static org.jboss.as.console.client.v3.deployment.wizard.State.*;
 /**
  * @author Harald Pehl
  */
-public class AddStandaloneDeploymentWizard extends DeploymentWizard implements AddDeploymentWizard {
+public class AddStandaloneDeploymentWizard extends DeploymentWizard implements CanEnableDeployment {
 
     public AddStandaloneDeploymentWizard(BootstrapContext bootstrapContext, BeanFactory beanFactory,
             DispatchAsync dispatcher, FinishCallback onFinish) {

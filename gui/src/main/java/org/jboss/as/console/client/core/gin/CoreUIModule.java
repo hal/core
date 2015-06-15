@@ -79,8 +79,6 @@ import org.jboss.as.console.client.csp.CSPPresenter;
 import org.jboss.as.console.client.csp.CSPView;
 import org.jboss.as.console.client.domain.groups.ServerGroupPresenter;
 import org.jboss.as.console.client.domain.groups.ServerGroupView;
-import org.jboss.as.console.client.domain.groups.deployment.DomainDeploymentPresenter;
-import org.jboss.as.console.client.domain.groups.deployment.DomainDeploymentView;
 import org.jboss.as.console.client.domain.hosts.ColumnHostView;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.HostVMMetricPresenter;
@@ -131,7 +129,6 @@ import org.jboss.as.console.client.search.IndexProvider;
 import org.jboss.as.console.client.shared.DialogPresenter;
 import org.jboss.as.console.client.shared.DialogView;
 import org.jboss.as.console.client.shared.DialogViewImpl;
-import org.jboss.as.console.client.shared.deployment.DeploymentStore;
 import org.jboss.as.console.client.shared.expr.DefaultExpressionResolver;
 import org.jboss.as.console.client.shared.expr.ExpressionResolver;
 import org.jboss.as.console.client.shared.general.InterfacePresenter;
@@ -251,8 +248,6 @@ import org.jboss.as.console.client.standalone.ColumnServerView;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerView;
-import org.jboss.as.console.client.standalone.deployment.StandaloneDeploymentPresenter;
-import org.jboss.as.console.client.standalone.deployment.StandaloneDeploymentView;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimeView;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
@@ -342,11 +337,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ColumnServerView.class,
                 ServerMgmtApplicationPresenter.ServerManagementProxy.class);
 
-        bindPresenter(StandaloneDeploymentPresenter.class,
-                StandaloneDeploymentPresenter.MyView.class,
-                StandaloneDeploymentView.class,
-                StandaloneDeploymentPresenter.MyProxy.class);
-
         // ------------------------------------------------
         // domain management application
 
@@ -391,12 +381,6 @@ public class CoreUIModule extends AbstractPresenterModule {
                 ServerGroupPresenter.MyView.class,
                 ServerGroupView.class,
                 ServerGroupPresenter.MyProxy.class);
-
-        // domain/domain-deployments
-        bindPresenter(DomainDeploymentPresenter.class,
-                DomainDeploymentPresenter.MyView.class,
-                DomainDeploymentView.class,
-                DomainDeploymentPresenter.MyProxy.class);
 
         // deployment finders
         bindPresenter(DomainDeploymentFinder.class,
@@ -719,7 +703,6 @@ public class CoreUIModule extends AbstractPresenterModule {
 
         // ------------------------------------------------------ no circuit stores yet!
 
-        bind(DeploymentStore.class).in(Singleton.class);
         bind(DataSourceStore.class).to(DataSourceStoreImpl.class).in(Singleton.class);
         bind(ProfileDAO.class).to(ProfileDAOImpl.class).in(Singleton.class);
         bind(SubsystemLoader.class).to(SubsystemStoreImpl.class).in(Singleton.class);

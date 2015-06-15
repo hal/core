@@ -25,6 +25,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 
 /**
  * HTML templates used for the deployment finder.
@@ -45,6 +46,17 @@ final class Templates {
 
 
     interface Previews extends SafeHtmlTemplates {
+
+        @Template("<div class='preview-content'><h2>Content</h2>" +
+                "<p>The content <code>{0}</code> is assigned to the following server groups:</p>{1}</div>")
+        SafeHtml content(String name, SafeHtml details);
+
+        @Template("<div class='preview-content'><h2>Content</h2>" +
+                "<p>The content <code>{0}</code> is not assigned to a server group.</div>")
+        SafeHtml unassignedContent(String name);
+
+        @Template("<div class='preview-content'><h2>Server Group</h2>{0}</div>")
+        SafeHtml serverGroup(SafeHtml details);
 
         @Template("<div class='preview-content'><h2>No Running Server</h2>" +
                 "<p>There's no server running in server group <code>{0}</code>.</p>" +
@@ -70,6 +82,44 @@ final class Templates {
         SafeHtml subdeployment(String name, SafeHtml details);
     }
 
+
+    static SafeHtml contentPreview(final Content content) {
+        if (content.getAssignments().isEmpty()) {
+            return PREVIEWS.unassignedContent(content.getName());
+        } else {
+            SafeHtmlBuilder details = new SafeHtmlBuilder();
+            details.appendHtmlConstant("<ul>");
+            for (Assignment assignment : content.getAssignments()) {
+                details.appendHtmlConstant("<li>")
+                        .appendEscaped(assignment.getServerGroup())
+                        .appendHtmlConstant("</li>");
+            }
+            details.appendHtmlConstant("</ul>");
+            return PREVIEWS.content(content.getName(), details.toSafeHtml());
+        }
+    }
+
+    static SafeHtml serverGroupPreview(final ServerGroupRecord serverGroup, int deployments) {
+        SafeHtmlBuilder builder = new SafeHtmlBuilder();
+        builder.appendHtmlConstant("<p>");
+        if (deployments == -1) {
+            builder.appendEscaped("Deployments for server group ")
+                    .appendEscaped(serverGroup.getName())
+                    .appendEscaped(" cannot be read.");
+        } else if (deployments == 0) {
+            builder.appendEscaped("Server group ")
+                    .appendEscaped(serverGroup.getName())
+                    .appendEscaped(" does not contain deployments.");
+        } else {
+            builder.appendEscaped("Server group ")
+                    .appendEscaped(serverGroup.getName())
+                    .appendEscaped(" contains ")
+                    .append(deployments)
+                    .appendEscaped(" deployment(s).");
+        }
+        builder.appendHtmlConstant("</p>");
+        return PREVIEWS.serverGroup(builder.toSafeHtml());
+    }
 
     static SafeHtml assignmentPreview(final Assignment assignment) {
         final Deployment deployment = assignment.getDeployment();
