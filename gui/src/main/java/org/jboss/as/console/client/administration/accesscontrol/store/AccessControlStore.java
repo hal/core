@@ -409,15 +409,21 @@ public class AccessControlStore extends ChangeSupport {
     @Process(actionType = AddAssignment.class)
     public void addAssignment(final AddAssignment action, Channel channel) {
         Assignment assignment = action.getAssignment();
+
         Operation.Builder builder = new Operation.Builder(ADD, AddressHelper.assignment(assignment))
                 .param(NAME, assignment.getPrincipal().getName())
                 .param("type", assignment.getPrincipal().getType().name());
         if (assignment.getPrincipal().getRealm() != null) {
             builder.param("realm", assignment.getPrincipal().getRealm());
         }
+        Operation addOp = builder.build();
+        Function<FunctionContext> addFn =
+                control -> dispatcher.execute(new DMRAction(addOp), new FunctionCallback(control));
 
-        Operation operation = builder.build();
-        dispatcher.execute(new DMRAction(operation), new ReloadCallback(channel));
+        new Async<FunctionContext>().waterfall(new FunctionContext(), new ReloadOutcome(channel),
+                new AccessControlFunctions.CheckAssignment(dispatcher, assignment.getRole()),
+                new AccessControlFunctions.AddAssignment(dispatcher, assignment.getRole(), status -> status == 404),
+                addFn);
     }
 
     @Process(actionType = RemoveAssignment.class)

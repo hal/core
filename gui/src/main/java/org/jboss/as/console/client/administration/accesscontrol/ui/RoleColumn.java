@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
@@ -59,7 +60,7 @@ public class RoleColumn extends FinderColumn<Role> {
             final AccessControlFinder presenter,
             final PreviewContentFactory contentFactory,
             final ColumnManager columnManager,
-            final Widget nextColumn) {
+            final Scheduler.ScheduledCommand onSelect) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Role",
@@ -133,7 +134,7 @@ public class RoleColumn extends FinderColumn<Role> {
             columnManager.reduceColumnsTo(2);
             if (hasSelectedItem()) {
                 columnManager.updateActiveSelection(asWidget());
-                columnManager.appendColumn(nextColumn);
+                onSelect.execute();
             }
         });
     }
