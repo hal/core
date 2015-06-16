@@ -38,6 +38,7 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -296,6 +297,30 @@ public class ColumnProfileView extends SuspendableViewImpl
             }
         });
 
+        profiles.setMenuItems(
+                new MenuDelegate<ProfileRecord>("Clone", new ContextualCommand<ProfileRecord>() {
+                    @Override
+                    public void executeOn(ProfileRecord profileRecord) {
+                        presenter.onCloneProfile(profileRecord);
+                    }
+                })
+                /*, new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
+                    @Override
+                    public void executeOn(ProfileRecord profileRecord) {
+
+                        Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName()+"?", new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if(isConfirmed)
+                                {
+                                    presenter.onRemoveProfile(profileRecord);
+                                }
+                            }
+                        });
+
+                    }
+                })*/
+        );
         profileColWidget = profiles.asWidget();
 
 

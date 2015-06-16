@@ -33,29 +33,37 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
+import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.topology.ServerGroup;
 import org.jboss.as.console.client.shared.model.LoadProfile;
-import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemReference;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
+import org.jboss.as.console.client.v3.stores.domain.ServerGroupStore;
+import org.jboss.as.console.client.v3.stores.domain.actions.CloneProfile;
 import org.jboss.as.console.client.v3.stores.domain.actions.RefreshProfiles;
+import org.jboss.as.console.client.v3.stores.domain.actions.RemoveProfile;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
-import java.util.LinkedList;
 import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -63,7 +71,11 @@ import java.util.List;
 public class ProfileMgmtPresenter
         extends Presenter<ProfileMgmtPresenter.MyView, ProfileMgmtPresenter.MyProxy>
         implements Finder, ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
-         ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
+        ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
+
+
+    private DefaultWindow window;
+
 
     @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
@@ -91,10 +103,12 @@ public class ProfileMgmtPresenter
     private CurrentProfileSelection profileSelection;
     private final Dispatcher circuit;
     private final Header header;
+    private final ServerGroupStore serverGroupStore;
 
     @Inject
     public ProfileMgmtPresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection, Dispatcher circuit, Header header) {
+                                ProfileStore profileStore, SubsystemStore subsysStore, CurrentProfileSelection currentProfileSelection,
+                                Dispatcher circuit, Header header, ServerGroupStore serverGroupStore) {
 
         super(eventBus, view, proxy);
 
@@ -105,6 +119,7 @@ public class ProfileMgmtPresenter
 
         this.circuit = circuit;
         this.header = header;
+        this.serverGroupStore = serverGroupStore;
     }
 
     @Override
@@ -146,7 +161,7 @@ public class ProfileMgmtPresenter
         profileStore.addChangeHandler(new PropagatesChange.Handler() {
             @Override
             public void onChange(Action action) {
-                 getView().setProfiles(profileStore.getProfiles());
+                getView().setProfiles(profileStore.getProfiles());
             }
         });
     }
@@ -172,4 +187,47 @@ public class ProfileMgmtPresenter
     public void onPreview(PreviewEvent event) {
         getView().setPreview(event.getHtml());
     }
+
+    public void onCloneProfile(ProfileRecord profileRecord) {
+        window = new DefaultWindow(Console.MESSAGES.createTitle("Clone Profile"));
+        window.setWidth(480);
+        window.setHeight(360);
+
+        window.trapWidget(
+                new CloneProfileWizard(this, profileRecord).asWidget()
+        );
+
+        window.setGlassEnabled(true);
+        window.center();
+    }
+
+    public boolean doesExist(String profile) {
+        return profileStore.getProfile(profile)!=null;
+    }
+
+    public void onSaveClonedProfile(ProfileRecord from, ProfileRecord to) {
+        window.hide();
+        circuit.dispatch(new CloneProfile(from.getName(), to.getName()));
+    }
+
+    public void  onRemoveProfile(ProfileRecord profileRecord) {
+        ServerGroupRecord inUseBy = null;
+        for (ServerGroupRecord serverGroup : serverGroupStore.getServerGroups()) {
+            if(serverGroup.getProfileName().equals(profileRecord.getName())) {
+                inUseBy = serverGroup;
+                break;
+            }
+        }
+
+        if(inUseBy!=null)
+            Console.error("The profile is still in use by server group: "+ inUseBy.getName());
+        else
+            circuit.dispatch(new RemoveProfile(profileRecord.getName()));
+
+    }
+
+    public void closeDialogue() {
+        window.hide();
+    }
+
 }

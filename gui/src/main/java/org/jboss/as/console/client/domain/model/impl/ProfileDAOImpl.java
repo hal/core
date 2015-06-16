@@ -27,7 +27,6 @@ import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -49,7 +48,6 @@ public class ProfileDAOImpl implements ProfileDAO {
     private DispatchAsync dispatcher;
     private BeanFactory factory;
 
-    private List<ProfileRecord> cachedRecords = null;
 
     @Inject
     public ProfileDAOImpl(DispatchAsync dispatcher, BeanFactory factory) {
@@ -60,66 +58,60 @@ public class ProfileDAOImpl implements ProfileDAO {
     @Override
     public void loadProfiles(final AsyncCallback<List<ProfileRecord>> callback) {
 
-        if(null==this.cachedRecords)
-        {
-            ModelNode operation = new ModelNode();
-            operation.get(OP).set("query");
-            operation.get("select").add("name");
-            operation.get("select").add("includes");
-            operation.get(ModelDescriptionConstants.ADDRESS).add("profile", "*");
+        ModelNode operation = new ModelNode();
+        operation.get(OP).set("query");
+        operation.get("select").add("name");
+        operation.get("select").add("includes");
 
-            dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    callback.onFailure(caught);
+        operation.get(ModelDescriptionConstants.ADDRESS).add("profile", "*");
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if(response.isFailure())
+                {
+                    Console.error("Failed to load profiles:"+response.getFailureDescription());
                 }
+                else
+                {
 
-                @Override
-                public void onSuccess(DMRResponse result) {
-                    ModelNode response = result.get();
+                    List<ModelNode> payload = response.get("result").asList();
 
-                    if(response.isFailure())
+                    List<ProfileRecord> records = new ArrayList<ProfileRecord>(payload.size());
+                    for(ModelNode item : payload)
                     {
-                        Console.error("Failed to load profiles:"+response.getFailureDescription());
-                    }
-                    else
-                    {
+                        ModelNode atts = item.get(RESULT);
+                        ProfileRecord record = factory.profile().as();
+                        record.setName(atts.get("name").asString());
 
-                        List<ModelNode> payload = response.get("result").asList();
-
-                        List<ProfileRecord> records = new ArrayList<ProfileRecord>(payload.size());
-                        for(ModelNode item : payload)
+                        if(atts.hasDefined("includes"))
                         {
-                            ModelNode atts = item.get(RESULT);
-                            ProfileRecord record = factory.profile().as();
-                            record.setName(atts.get("name").asString());
-
-                            if(atts.hasDefined("includes"))
-                            {
-                                List<ModelNode> included = atts.get("includes").asList();
-                                List<String> inclusions = new LinkedList<String>();
-                                for (ModelNode inc : included) {
-                                    inclusions.add(inc.asString());
-                                }
-                                record.setIncludes(inclusions);
+                            List<ModelNode> included = atts.get("includes").asList();
+                            List<String> inclusions = new LinkedList<String>();
+                            for (ModelNode inc : included) {
+                                inclusions.add(inc.asString());
                             }
-                            else
-                            {
-                                record.setIncludes(Collections.EMPTY_LIST);
-                            }
-                            records.add(record);
+                            record.setIncludes(inclusions);
                         }
-
-                        ProfileDAOImpl.this.cachedRecords = records;
-                        callback.onSuccess(records);
+                        else
+                        {
+                            record.setIncludes(Collections.EMPTY_LIST);
+                        }
+                        records.add(record);
                     }
+
+
+                    callback.onSuccess(records);
                 }
-            });
-        }
-        else
-        {
-            // provide cached results
-            callback.onSuccess(cachedRecords);
-        }
+            }
+        });
+
     }
 }
