@@ -1,6 +1,7 @@
 package org.jboss.as.console.client.shared.model;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.stores.domain.ProfileStore;
@@ -30,13 +31,15 @@ public class SubsystemStore extends ChangeSupport {
 
     private final SubsystemLoader subsystemLoader;
     private final ProfileStore profileStore;
+    private final BootstrapContext bootstrap;
 
     private Map<String, List<SubsystemRecord>> profileMap = new HashMap<>();
 
     @Inject
-    public SubsystemStore(SubsystemLoader subsystemLoader, ProfileStore profileStore) {
+    public SubsystemStore(SubsystemLoader subsystemLoader, ProfileStore profileStore, BootstrapContext bootstrap) {
         this.subsystemLoader = subsystemLoader;
         this.profileStore = profileStore;
+        this.bootstrap = bootstrap;
     }
 
     @Process(actionType = LoadProfile.class)
@@ -50,16 +53,53 @@ public class SubsystemStore extends ChangeSupport {
         }
         else {
 
-            ProfileRecord profile = profileStore.getProfile(action.getProfile());
+            if(bootstrap.isStandalone())
+            {
+                subsystemLoader.loadSubsystems("default", new AsyncCallback<List<SubsystemRecord>>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        channel.nack(caught);
+                    }
 
-            List<Function<FunctionContext>> fns = new LinkedList<> ();
+                    @Override
+                    public void onSuccess(List<SubsystemRecord> result) {
+                        profileMap.put("default", result);
+                        channel.ack();
+                    }
+                });
+            }
+            else
+            {
+                ProfileRecord profile = profileStore.getProfile(action.getProfile());
 
-            // included profiles
-            for (String includedProfile : getAllParents(profile)) {
+                List<Function<FunctionContext>> fns = new LinkedList<>();
+
+                // included profiles
+                for (String includedProfile : getAllParents(profile)) {
+                    fns.add(new Function<FunctionContext>() {
+                        @Override
+                        public void execute(Control<FunctionContext> control) {
+                            subsystemLoader.loadSubsystems(includedProfile, new AsyncCallback<List<SubsystemRecord>>() {
+                                @Override
+                                public void onFailure(Throwable caught) {
+                                    control.abort();
+                                }
+
+                                @Override
+                                public void onSuccess(List<SubsystemRecord> result) {
+                                    profileMap.put(includedProfile, result);
+                                    control.proceed();
+                                }
+                            });
+                        }
+                    });
+                }
+
+                // the profile itself
                 fns.add(new Function<FunctionContext>() {
                     @Override
                     public void execute(Control<FunctionContext> control) {
-                        subsystemLoader.loadSubsystems(includedProfile, new AsyncCallback<List<SubsystemRecord>>() {
+                        subsystemLoader.loadSubsystems(action.getProfile(), new AsyncCallback<List<SubsystemRecord>>() {
                             @Override
                             public void onFailure(Throwable caught) {
                                 control.abort();
@@ -67,46 +107,26 @@ public class SubsystemStore extends ChangeSupport {
 
                             @Override
                             public void onSuccess(List<SubsystemRecord> result) {
-                                profileMap.put(includedProfile, result);
+                                profileMap.put(action.getProfile(), result);
                                 control.proceed();
                             }
                         });
                     }
                 });
+
+
+                new Async().waterfall(new FunctionContext(), new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(FunctionContext context) {
+                        channel.nack(context.getError());
+                    }
+
+                    @Override
+                    public void onSuccess(FunctionContext context) {
+                        channel.ack(true);
+                    }
+                }, fns.toArray(new Function[]{}));
             }
-
-            // the profile itself
-            fns.add(new Function<FunctionContext>() {
-                @Override
-                public void execute(Control<FunctionContext> control) {
-                    subsystemLoader.loadSubsystems(action.getProfile(), new AsyncCallback<List<SubsystemRecord>>() {
-                        @Override
-                        public void onFailure(Throwable caught) {
-                            control.abort();
-                        }
-
-                        @Override
-                        public void onSuccess(List<SubsystemRecord> result) {
-                            profileMap.put(action.getProfile(), result);
-                            control.proceed();
-                        }
-                    });
-                }
-            });
-
-
-            new Async().waterfall(new FunctionContext(), new Outcome<FunctionContext>() {
-                @Override
-                public void onFailure(FunctionContext context) {
-                    channel.nack(context.getError());
-                }
-
-                @Override
-                public void onSuccess(FunctionContext context) {
-                    channel.ack(true);
-                }
-            }, fns.toArray(new Function[]{}));
-
         }
     }
 
