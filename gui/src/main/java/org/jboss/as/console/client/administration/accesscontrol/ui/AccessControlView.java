@@ -167,15 +167,27 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
         // ------------------------------------------------------ user, group and roles
 
         userColumn = new PrincipalColumn(Console.CONSTANTS.common_label_user(), Principal.Type.USER,
-                accessControlStore, circuit, presenter, columnManager, assignmentAggregationColumnWidget);
+                accessControlStore, circuit, presenter, columnManager,
+                () -> {
+                    assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
+                    columnManager.appendColumn(assignmentAggregationColumnWidget);
+                });
         userColumnWidget = userColumn.asWidget();
 
         groupColumn = new PrincipalColumn(Console.CONSTANTS.common_label_group(), Principal.Type.GROUP,
-                accessControlStore, circuit, presenter, columnManager, assignmentAggregationColumnWidget);
+                accessControlStore, circuit, presenter, columnManager,
+                () -> {
+                    assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
+                    columnManager.appendColumn(assignmentAggregationColumnWidget);
+                });
         groupColumnWidget = groupColumn.asWidget();
 
         roleColumn = new RoleColumn(bootstrapContext, accessControlStore, circuit, presenter, contentFactory,
-                columnManager, memberAggregationColumnWidget);
+                columnManager,
+                () -> {
+                    memberAggregationColumn.updateFrom(memberAggregationItems);
+                    columnManager.appendColumn(memberAggregationColumnWidget);
+                });
         roleColumnWidget = roleColumn.asWidget();
 
 

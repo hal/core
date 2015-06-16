@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
@@ -51,7 +52,7 @@ public class PrincipalColumn extends FinderColumn<Principal> {
             final Dispatcher circuit,
             final AccessControlFinder presenter,
             final ColumnManager columnManager,
-            final Widget nextColumn) {
+            final Scheduler.ScheduledCommand onSelect) {
 
         super(FinderId.ACCESS_CONTROL,
                 title,
@@ -100,7 +101,7 @@ public class PrincipalColumn extends FinderColumn<Principal> {
             columnManager.reduceColumnsTo(2);
             if (hasSelectedItem()) {
                 columnManager.updateActiveSelection(asWidget());
-                columnManager.appendColumn(nextColumn);
+                onSelect.execute();
             }
         });
     }

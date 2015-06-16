@@ -82,7 +82,7 @@ public class Principal {
 
     @Override
     public String toString() {
-        return transient_ ? "Transient " : "" + type + "(" + getNameAndRealm() + ")";
+        return (transient_ ? "Transient " : "") + type + "(" + getNameAndRealm() + ")";
     }
 
     public String getId() {
