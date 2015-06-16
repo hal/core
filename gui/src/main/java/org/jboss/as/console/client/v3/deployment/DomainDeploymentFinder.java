@@ -254,7 +254,7 @@ public class DomainDeploymentFinder
                     Console.error("Unable to remove deployment.", result.getFailureDescription());
                 } else {
                     Console.info("Successfully removed " + content.getName() + ".");
-                    loadContentRepository();
+                    loadUnassignedContent(); // Remove is an action of the "Unassigned Content" column
                 }
             }
         });
