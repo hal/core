@@ -44,6 +44,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 
 import org.jboss.gwt.circuit.Action;
@@ -59,7 +60,7 @@ import java.util.List;
  */
 public class ServerMgmtApplicationPresenter extends
         Presenter<ServerMgmtApplicationPresenter.ServerManagementView, ServerMgmtApplicationPresenter.ServerManagementProxy>
-        implements Finder, PreviewEvent.Handler,  ClearFinderSelectionEvent.Handler  {
+        implements Finder, PreviewEvent.Handler,  ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler  {
 
     private PlaceManager placeManager;
     private SubsystemStore subsysStore;
@@ -79,8 +80,9 @@ public class ServerMgmtApplicationPresenter extends
         void updateFrom(List<SubsystemRecord> subsystemRecords);
         void clearActiveSelection();
         void setPreview(final SafeHtml html);
-
         void setPresenter(ServerMgmtApplicationPresenter presenter);
+
+        void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
 
     @Inject
@@ -94,7 +96,6 @@ public class ServerMgmtApplicationPresenter extends
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
         this.header = header;
-
         this.circuit = circuit;
     }
 
@@ -105,6 +106,7 @@ public class ServerMgmtApplicationPresenter extends
         getEventBus().addHandler(ProfileSelectionEvent.TYPE, this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
         getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
+        getEventBus().addHandler(FinderScrollEvent.TYPE, this);
 
         subsysStore.addChangeHandler(LoadProfile.class, new PropagatesChange.Handler() {
             @Override
@@ -138,5 +140,11 @@ public class ServerMgmtApplicationPresenter extends
 
     public void loadSubsystems() {
         circuit.dispatch(new LoadProfile("default"));
+    }
+
+    @Override
+    public void onToggleScrolling(FinderScrollEvent event) {
+        if(isVisible())
+            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 }
