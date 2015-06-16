@@ -23,6 +23,7 @@ import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.presenter.Finder;
+import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 public class StandaloneRuntimePresenter
         extends Presenter<StandaloneRuntimePresenter.MyView, StandaloneRuntimePresenter.MyProxy>
-        implements Finder, PreviewEvent.Handler {
+        implements Finder, PreviewEvent.Handler, FinderScrollEvent.Handler {
 
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
@@ -47,6 +48,8 @@ public class StandaloneRuntimePresenter
         void setPresenter(StandaloneRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
         void setPreview(final SafeHtml html);
+
+        void toggleScrolling(boolean enforceScrolling, int requiredWidth);
     }
 
     @ContentSlot
@@ -74,6 +77,7 @@ public class StandaloneRuntimePresenter
         super.onBind();
         getView().setPresenter(this);
         getEventBus().addHandler(PreviewEvent.TYPE, this);
+        getEventBus().addHandler(FinderScrollEvent.TYPE, this);
     }
 
     @Override
@@ -92,5 +96,11 @@ public class StandaloneRuntimePresenter
     @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
+    }
+
+    @Override
+    public void onToggleScrolling(FinderScrollEvent event) {
+        if(isVisible())
+            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
 }

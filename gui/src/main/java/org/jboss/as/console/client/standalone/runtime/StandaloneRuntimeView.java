@@ -422,4 +422,9 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         subsystemColumn.updateFrom(runtimeLinks, false);
     }
 
+    @Override
+    public void toggleScrolling(boolean enforceScrolling, int requiredWidth) {
+        columnManager.toogleScrolling(enforceScrolling, requiredWidth);
+    }
+
 }

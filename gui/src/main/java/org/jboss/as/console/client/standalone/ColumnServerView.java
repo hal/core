@@ -498,4 +498,10 @@ public class ColumnServerView extends SuspendableViewImpl
 
         return "";
     }
+
+    @Override
+    public void toggleScrolling(boolean enforceScrolling, int requiredWidth) {
+
+        columnManager.toogleScrolling(enforceScrolling, requiredWidth);
+    }
 }
