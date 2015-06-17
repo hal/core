@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
@@ -18,7 +19,10 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.v3.stores.domain.HostStore;
 import org.jboss.as.console.client.v3.stores.domain.ServerStore;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
@@ -50,6 +54,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private final Widget hostColWidget;
     private final Widget groupsColWidget;
     private final FinderColumn<FinderItem> browseColumn;
+    private final PreviewContentFactory contentFactory;
 
     private SplitLayoutPanel layout;
     private LayoutPanel contentCanvas;
@@ -72,8 +77,10 @@ public class ColumnHostView extends SuspendableViewImpl
     private static final StatusTemplate STATUS_TEMPLATE = GWT.create(StatusTemplate.class);
 
     @Inject
-    public ColumnHostView(final HostStore hostStore, final ServerStore serverStore) {
+    public ColumnHostView(final HostStore hostStore, final ServerStore serverStore,
+            final PreviewContentFactory contentFactory) {
         super();
+        this.contentFactory = contentFactory;
 
         Console.getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
 
@@ -226,9 +233,9 @@ public class ColumnHostView extends SuspendableViewImpl
         browseColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
+                columnManager.reduceColumnsTo(1);
                 if(browseColumn.hasSelectedItem())
                 {
-                    columnManager.reduceColumnsTo(1);
                     columnManager.updateActiveSelection(browseWidget);
 
                     clearNestedPresenter();
@@ -238,7 +245,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     );
 
                     browseColumn.getSelectedItem().getCmd().execute();
-                }
+                } 
             }
         });
 
@@ -300,6 +307,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 else
                 {
                     clearNestedPresenter();
+                    startupContent();
                 }
             }
         });
@@ -366,6 +374,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 else
                 {
                     clearNestedPresenter();
+                    startupContent();
                 }
             }
         });
@@ -549,6 +558,23 @@ public class ColumnHostView extends SuspendableViewImpl
             }
         });
     }
+
+    private void startupContent() {
+        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        Scheduler.get().scheduleDeferred(() -> {
+                            if(contentCanvas.getWidgetCount()==0) { // nested presenter shows preview
+                                contentCanvas.clear();
+                                contentCanvas.add(new HTML(previewContent));
+                            }
+                        });
+                    }
+                }
+        );
+    }
+
 
     @Override
     public void preview(SafeHtml html) {
