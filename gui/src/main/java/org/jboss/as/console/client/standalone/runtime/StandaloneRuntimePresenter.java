@@ -21,7 +21,6 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.schedule.LongRunningTask;
@@ -39,8 +38,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
@@ -90,7 +87,8 @@ public class StandaloneRuntimePresenter
 
     @Override
     public void onPreview(PreviewEvent event) {
-        getView().setPreview(event.getHtml());
+        if(isVisible())
+            getView().setPreview(event.getHtml());
     }
 
     @Override

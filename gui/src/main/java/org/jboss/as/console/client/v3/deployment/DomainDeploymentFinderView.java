@@ -35,6 +35,7 @@ import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.v3.dmr.Operation;
@@ -53,9 +54,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import java.util.Arrays;
 
 import static org.jboss.as.console.client.widgets.nav.v3.FinderColumn.FinderId.DEPLOYMENT;
-import static org.jboss.dmr.client.ModelDescriptionConstants.CHILD_TYPE;
-import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -242,14 +241,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
         unassignedColumn = new ContentColumn("Unassigned Content", columnManager,
                 null,
-                new MenuDelegate<>("Remove", item -> {
-                    Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
-                            isConfirmed -> {
-                                if (isConfirmed) {
-                                    presenter.removeContent(item);
-                                }
-                            });
-                }));
+                new MenuDelegate<>("Remove", item ->
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
+                        isConfirmed -> {
+                            if (isConfirmed) {
+                                presenter.removeContent(item);
+                            }
+                        })));
         unassignedColumnWidget = unassignedColumn.asWidget();
 
 
@@ -271,7 +269,15 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             presenter.loadServerGroups();
         });
 
-        browseByColumn = new BrowseByColumn(contentFactory, columnManager);
+        browseByColumn = new BrowseByColumn(contentFactory, event -> {
+            columnManager.reduceColumnsTo(1);
+            if (browseByColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(browseByColumnWidget);
+                browseByColumn.getSelectedItem().onSelect().execute();
+            } else {
+                startupContent(contentFactory);
+            }
+        });
         browseByColumnWidget = browseByColumn.asWidget();
         browseByColumn.updateFrom(Arrays.asList(contentRepositoryItem, unassignedContentItem, serverGroupsItem));
 
@@ -336,6 +342,17 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         serverGroupColumnWidget.getElement().removeClassName("active");
         assignmentColumnWidget.getElement().removeClassName("active");
         subdeploymentColumnWidget.getElement().removeClassName("active");
+    }
+
+    private void startupContent(PreviewContentFactory contentFactory) {
+        contentFactory.createContent(PreviewContent.INSTANCE.deployments_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        setPreview(previewContent);
+                    }
+                }
+        );
     }
 
 
