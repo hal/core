@@ -419,7 +419,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }),
                 new MenuDelegate<ServerGroupRecord>(
-                        "Start Group", new ContextualCommand<ServerGroupRecord>() {
+                        "Start", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
@@ -438,7 +438,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }),
                 new MenuDelegate<ServerGroupRecord>(
-                        "Stop Group", new ContextualCommand<ServerGroupRecord>() {
+                        "Stop", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
@@ -457,7 +457,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     }
                 }),
                 new MenuDelegate<ServerGroupRecord>(
-                        "Restart Group", new ContextualCommand<ServerGroupRecord>() {
+                        "Restart", new ContextualCommand<ServerGroupRecord>() {
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
@@ -469,6 +469,25 @@ public class ColumnHostView extends SuspendableViewImpl
                                     public void onConfirmation(boolean isConfirmed) {
                                         if (isConfirmed)
                                             presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESTART);
+                                    }
+                                }
+                        );
+
+                    }
+                }) ,
+                new MenuDelegate<ServerGroupRecord>(
+                        "Reload", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+                        Feedback.confirm(
+                                "Reload Server Group",
+                                "Do you want to reload group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RELOAD);
                                     }
                                 }
                         );

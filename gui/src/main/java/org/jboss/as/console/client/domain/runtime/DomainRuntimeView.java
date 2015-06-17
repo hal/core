@@ -314,6 +314,20 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public void executeOn(Server server) {
                         presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.STOP);
                     }
+                }),
+                new MenuDelegate<Server>(
+                        "Reload", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RELOAD);
+                    }
+                })
+                ,new MenuDelegate<Server>(
+                        "Restart", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RESTART);
+                    }
                 })
         );
 

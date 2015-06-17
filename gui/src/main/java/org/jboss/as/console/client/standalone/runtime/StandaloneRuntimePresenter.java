@@ -2,6 +2,7 @@ package org.jboss.as.console.client.standalone.runtime;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -15,6 +16,7 @@ import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
+import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -22,11 +24,23 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.schedule.LongRunningTask;
+import org.jboss.as.console.client.shared.state.ReloadEvent;
+import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.AsyncCommand;
+import org.jboss.dmr.client.dispatch.DispatchAsync;
+import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADDRESS;
+import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Heiko Braun
@@ -38,6 +52,11 @@ public class StandaloneRuntimePresenter
     private final PlaceManager placeManager;
     private final SubsystemLoader subsysStore;
     private final Header header;
+    private final ReloadState reloadState;
+    private final DispatchAsync dispatcher;
+
+    private boolean hasBeenLoaded;
+
 
     @NoGatekeeper
     @ProxyCodeSplit
@@ -48,8 +67,8 @@ public class StandaloneRuntimePresenter
         void setPresenter(StandaloneRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
         void setPreview(final SafeHtml html);
-
         void toggleScrolling(boolean enforceScrolling, int requiredWidth);
+        void updateServer(StandaloneServer standaloneServer);
     }
 
     @ContentSlot
@@ -59,12 +78,14 @@ public class StandaloneRuntimePresenter
 
     @Inject
     public StandaloneRuntimePresenter(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-            SubsystemLoader subsysStore, Header header) {
+                                      SubsystemLoader subsysStore, Header header, ReloadState reloadState, DispatchAsync dispatcher) {
 
         super(eventBus, view, proxy);
         this.placeManager = placeManager;
         this.subsysStore = subsysStore;
         this.header = header;
+        this.reloadState = reloadState;
+        this.dispatcher = dispatcher;
     }
 
     @Override
@@ -91,6 +112,16 @@ public class StandaloneRuntimePresenter
         });
 
         header.highlight(getProxy().getNameToken());
+
+
+        if(reloadState.isStaleModel() || !hasBeenLoaded)
+        {
+            getView().updateServer(new StandaloneServer(reloadState.isStaleModel()));
+        }
+
+        if(!hasBeenLoaded)
+            hasBeenLoaded = true;
+
     }
 
     @Override
@@ -103,4 +134,89 @@ public class StandaloneRuntimePresenter
         if(isVisible())
             getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
+    public boolean isStaleModel() {
+        return reloadState.isStaleModel();
+    }
+
+    public void onReloadServerConfig() {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("reload");
+        operation.get(ADDRESS).setEmptyList();
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(Console.MESSAGES.failed("Reload Server"), response.getFailureDescription());
+                } else {
+                    pollState();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error(Console.MESSAGES.failed("Reload Server"), caught.getMessage());
+            }
+        });
+    }
+
+    private void pollState() {
+
+        LongRunningTask poll = new LongRunningTask(new AsyncCommand<Boolean>() {
+            @Override
+            public void execute(final AsyncCallback<Boolean> callback) {
+                checkReloadState(callback);
+            }
+        }, 10);
+
+        // kick of the polling request
+        poll.schedule(500);
+    }
+
+    /**
+     * Simply query the process state attribute to get to the required headers
+     */
+    public void checkReloadState(final AsyncCallback<Boolean> callback) {
+
+        // :read-attribute(name=process-type)
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(READ_ATTRIBUTE_OPERATION);
+        operation.get(NAME).set("server-state");
+        operation.get(ADDRESS).setEmptyList();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+
+                ModelNode response = result.get();
+
+                if(response.isFailure()) {
+                    callback.onFailure(new RuntimeException("Failed to poll server state"));
+                }
+                else
+                {
+                    // TODO: only works when this response changes the reload state
+                    String outcome = response.get(RESULT).asString();
+                    boolean keepRunning = !outcome.equalsIgnoreCase("running");//reloadState.isStaleModel();
+
+                    if(!keepRunning)
+                    {
+
+                        // clear state
+                        reloadState.reset();
+
+                        Console.info(Console.MESSAGES.successful("Reload Server"));
+                        getEventBus().fireEvent(new ReloadEvent());
+                        getView().updateServer(new StandaloneServer(reloadState.isStaleModel()));
+                    }
+
+                    callback.onSuccess(keepRunning);
+                }
+            }
+        });
+    }
+
 }

@@ -32,6 +32,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     private ColumnManager columnManager;
 
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
+    private FinderColumn<StandaloneServer> serverColumn;
+    private Widget serverColWidget;
 
 
     interface SubsystemTemplate extends SafeHtmlTemplates {
@@ -71,6 +74,9 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     interface StatusTemplate extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String title);
+
+        @Template("<div class=\"{0}\">{1}</span></div>")
+        SafeHtml item(String cssClass, String title);
     }
 
     private static final StatusTemplate STATUS_TEMPLATE = GWT.create(StatusTemplate.class);
@@ -79,7 +85,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
     @Inject
     public StandaloneRuntimeView(final PlaceManager placeManager) {
-        super();
+
         this.placeManager = placeManager;
         contentCanvas = new LayoutPanel(); // TODO remove, including the widget slot in presenter
         previewCanvas = new LayoutPanel();
@@ -174,11 +180,80 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             }
         }, true));
 
+/*
+        serverColItems = new ArrayList<>(1);
+        serverColItems.add(new FinderItem("Standalone Server", new Command() {
+            @Override
+            public void execute() {
+                // noop
+            }
+        }, true));*/
+
     }
 
     @Override
     public Widget createWidget() {
 
+        serverColumn = new FinderColumn<StandaloneServer>(
+                FinderColumn.FinderId.RUNTIME,
+                "Server",
+                new FinderColumn.Display<StandaloneServer>() {
+
+                    @Override
+                    public boolean isFolder(StandaloneServer data) {
+                        return true;
+                    }
+
+                    @Override
+                    public SafeHtml render(String baseCss, StandaloneServer data) {
+                        return STATUS_TEMPLATE.item(baseCss, data.getTitle());
+                    }
+
+                    @Override
+                    public String rowCss(StandaloneServer data) {
+                        return data.isRequiresReload() ? "inactive" : "active";
+                    }
+                },
+                new ProvidesKey<StandaloneServer>() {
+                    @Override
+                    public Object getKey(StandaloneServer item) {
+                        return item.getTitle();
+                    }
+                });
+
+        serverColumn.setMenuItems(new MenuDelegate<StandaloneServer>("Reload", new ContextualCommand<StandaloneServer>() {
+            @Override
+            public void executeOn(StandaloneServer item) {
+                Feedback.confirm("Reload Server", "Really reload server?", new Feedback.ConfirmationHandler() {
+                    @Override
+                    public void onConfirmation(boolean isConfirmed) {
+                        if (isConfirmed)
+                            presenter.onReloadServerConfig();
+                    }
+                });
+
+            }
+        }));
+
+        serverColumn.setPreviewFactory(new PreviewFactory<StandaloneServer>() {
+            @Override
+            public void createPreview(StandaloneServer server, AsyncCallback<SafeHtml> callback) {
+                SafeHtmlBuilder html = new SafeHtmlBuilder();
+                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
+                html.appendEscaped("The server ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
+                html.appendHtmlConstant("<h3>Status</h3>");
+                if(presenter.isStaleModel())
+                {
+                    html.appendEscaped(Console.CONSTANTS.server_instance_reloadRequired());
+                }
+                else
+                {
+                    html.appendEscaped(Console.CONSTANTS.server_config_uptodate());
+                }
+                html.appendHtmlConstant("</div>");
+                callback.onSuccess(html.toSafeHtml());
+            }
+        });
 
         statusColumn = new FinderColumn<FinderItem>(
                 FinderColumn.FinderId.RUNTIME,
@@ -267,10 +342,11 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         );
 
 
-
+        serverColWidget = serverColumn.asWidget();
         subsysColWidget = subsystemColumn.asWidget();
 
         // server column is always present
+        columnManager.addWest(serverColWidget);
         columnManager.addWest(statusColWidget);
         columnManager.addWest(subsysColWidget);
         columnManager.add(previewCanvas);
@@ -278,6 +354,19 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         columnManager.setInitialVisible(1);
 
         // selection handling
+
+        serverColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
+                if(serverColumn.hasSelectedItem())
+                {
+                    columnManager.reduceColumnsTo(1);
+                    columnManager.updateActiveSelection(serverColWidget);
+                    columnManager.appendColumn(statusColWidget);
+
+                }
+            }
+        });
 
         statusColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -425,6 +514,15 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     @Override
     public void toggleScrolling(boolean enforceScrolling, int requiredWidth) {
         columnManager.toogleScrolling(enforceScrolling, requiredWidth);
+    }
+
+    public void updateServer(StandaloneServer standaloneServer) {
+
+        columnManager.reduceColumnsTo(1);
+
+        List<StandaloneServer> server = new ArrayList<>();
+        server.add(standaloneServer);
+        serverColumn.updateFrom(server);
     }
 
 }
