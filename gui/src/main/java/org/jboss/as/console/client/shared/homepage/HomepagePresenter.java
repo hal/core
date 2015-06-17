@@ -116,7 +116,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             contentBoxes.add(new ContentBox("Datasources",
                     Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body_standalone(),
-                    "Datasources", NameTokens.DataSourcePresenter));
+                    "Datasources", NameTokens.ServerProfile));
             contentBoxes.add(new ContentBox("ApplyPath",
                     Console.CONSTANTS.content_box_apply_patch_title(),
                     Console.MESSAGES.content_box_apply_patch_body_standalone(),
@@ -129,15 +129,15 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             contentBoxes.add(new ContentBox("Datasources",
                     Console.CONSTANTS.content_box_create_datasource_title(),
                     Console.MESSAGES.content_box_create_datasource_body_domain(),
-                    "Datasources", NameTokens.DataSourcePresenter));
+                    "Datasources", NameTokens.ProfileMgmtPresenter));
             contentBoxes.add(new ContentBox("Topology",
                     Console.CONSTANTS.content_box_topology_title(),
                     Console.MESSAGES.content_box_topology_body(),
-                    Console.CONSTANTS.content_box_topology_link(), NameTokens.Topology));
+                    Console.CONSTANTS.content_box_topology_link(), NameTokens.HostMgmtPresenter));
             contentBoxes.add(new ContentBox("CreateServerGroup",
                     Console.CONSTANTS.content_box_create_server_group_title(),
                     Console.MESSAGES.content_box_create_server_group_body(),
-                    Console.CONSTANTS.content_box_create_server_group_link(), NameTokens.ServerGroupPresenter));
+                    Console.CONSTANTS.content_box_create_server_group_link(), NameTokens.HostMgmtPresenter));
             contentBoxes.add(new ContentBox("ApplyPath",
                     Console.CONSTANTS.content_box_apply_patch_title(),
                     Console.MESSAGES.content_box_apply_patch_body_domain(),
@@ -157,9 +157,9 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         if (profile == COMMUNITY) {
             SidebarSection general = new SidebarSection(Console.CONSTANTS.sidebar_general_resources());
             general.addLink("http://wildfly.org/", Console.CONSTANTS.sidebar_wilfdfly_home_text());
-            general.addLink("https://docs.jboss.org/author/display/WFLY8/Documentation",
+            general.addLink("https://docs.jboss.org/author/display/WFLY9/Documentation",
                     Console.CONSTANTS.sidebar_wilfdfly_documentation_text());
-            general.addLink("https://docs.jboss.org/author/display/WFLY8/Admin+Guide",
+            general.addLink("https://docs.jboss.org/author/display/WFLY9/Admin+Guide",
                     Console.CONSTANTS.sidebar_admin_guide_text());
             general.addLink("http://wildscribe.github.io/index.html", Console.CONSTANTS.sidebar_model_reference_text());
             general.addLink("https://issues.jboss.org/browse/WFLY", Console.CONSTANTS.sidebar_wildfly_issues_text());
@@ -167,7 +167,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             sections.add(general);
 
             SidebarSection help = new SidebarSection(Console.CONSTANTS.sidebar_get_help());
-            help.addLink("http://www.jboss.org/jdf/", Console.CONSTANTS.sidebar_tutorials_text());
+            help.addLink("http://www.jboss.org/developer-materials/", Console.CONSTANTS.sidebar_tutorials_text());
             help.addLink("https://community.jboss.org/en/wildfly?view=discussions",
                     Console.CONSTANTS.sidebar_user_forums_text());
             help.addLink("irc://freenode.org/#wildfly", Console.CONSTANTS.sidebar_irc_text());
