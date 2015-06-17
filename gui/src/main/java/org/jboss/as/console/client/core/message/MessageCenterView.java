@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.core.message;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -32,6 +33,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,13 +60,10 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
 
     private static final String MESSAGE_LABEL = Console.CONSTANTS.common_label_messages();
 
-    //+ "&nbsp;<i class='icon-caret-down'></i>";
     private MessageCenter messageCenter;
     private HorizontalPanel messageDisplay;
     final MessageListPopup messagePopup = new MessageListPopup();
-    private Message lastSticky = null;
     private HTML messageButton;
-    private PopupPanel displayPopup;
 
     @Inject
     public MessageCenterView(MessageCenter messageCenter) {
@@ -158,7 +157,6 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
     }
 
     private void clearSticky() {
-        MessageCenterView.this.lastSticky=null;
         messageDisplay.clear();
     }
 
@@ -327,22 +325,21 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
             // update the visible message count
             reflectMessageCount();
 
-            displayNotification(message);
+            final PopupPanel display = createDisplay(message);
+            displayNotification(display, message);
 
-            if(!message.isSticky())
-            {
+            if (!message.isSticky()) {
 
                 Timer hideTimer = new Timer() {
                     @Override
                     public void run() {
                         // hide message
                         messageDisplay.clear();
-                        if(displayPopup!=null)
-                            displayPopup.hide();
+                        display.hide();
                     }
                 };
 
-                hideTimer.schedule(5000);
+                hideTimer.schedule(4000);
             }
 
         }
@@ -353,15 +350,8 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
         messageButton.setHTML(MESSAGE_LABEL+": "+ numMessages);
     }
 
-    private void displayNotification(final Message message) {
-
-
-        final int MAX = 80;
-        String actualMessage = message.getConciseMessage().length()> MAX ?
-                message.getConciseMessage().substring(0, MAX)+" ..." :
-                message.getConciseMessage();
-
-        displayPopup = new PopupPanel() {
+    private PopupPanel createDisplay(Message message) {
+        PopupPanel displayPopup = new PopupPanel() {
             {
                 this.sinkEvents(Event.ONKEYDOWN);
 
@@ -385,39 +375,67 @@ public class MessageCenterView implements MessageListener, ReloadEvent.ReloadLis
             }
         };
 
+        return displayPopup;
+    }
+    private void displayNotification(final PopupPanel display, final Message message) {
 
-        final HTML label = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
 
-        ClickHandler closeHandler = new ClickHandler() {
+        final int MAX = 65;
+        String actualMessage = message.getConciseMessage().length()> MAX ?
+                message.getConciseMessage().substring(0, MAX)+" ..." :
+                message.getConciseMessage();
+
+        // display structure
+
+        LayoutPanel container = new LayoutPanel();
+        container.addStyleName("notification-display");
+        container.addStyleName(message.severity.getStyle());
+        container.addStyleName("fill-layout");
+
+        final HTML msg = new HTML(message.getSeverity().getTag()+"&nbsp;"+actualMessage);
+
+        ClickHandler msgClickHandler = new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
-                if (message.isSticky()) {
-                    MessageCenterView.this.lastSticky = null;
-                }
                 messageDisplay.clear();
-                displayPopup.hide();
+                display.hide();
                 showDetail(message);
             }
         };
-        label.addClickHandler(closeHandler);
+        msg.addClickHandler(msgClickHandler);
 
-        label.addStyleName("notification-display");
-        final String css = message.severity.getStyle();
-        label.addStyleName(css);
 
-        displayPopup.setWidget(label);
+        container.add(msg);
+
+        HTML closeIcon = new HTML("<i class='icon-remove'></i>");
+        closeIcon.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                display.hide();
+            }
+        });
+
+        closeIcon.getElement().getStyle().setCursor(Style.Cursor.POINTER);
+
+        container.add(closeIcon);
+
+        container.setWidgetLeftWidth(msg, 5, Style.Unit.PX, 95, Style.Unit.PCT);
+        container.setWidgetTopHeight(msg, 15, Style.Unit.PX, 100, Style.Unit.PCT);
+        container.setWidgetRightWidth(closeIcon, 10, Style.Unit.PX, 15, Style.Unit.PX);
+        container.setWidgetTopHeight(closeIcon, 15, Style.Unit.PX, 100, Style.Unit.PCT);
+        display.setWidget(container);
 
         int width=500;
         int height=25;
 
-        displayPopup.setPopupPosition(
+        display.setPopupPosition(
                 (Window.getClientWidth()-width)/2,
                 50
         );
 
-        displayPopup.show();
+        display.show();
 
-        displayPopup.setWidth(width + "px");
-        displayPopup.setHeight(height + "px");
+        display.setWidth(width + "px");
+        display.setHeight(height + "px");
 
     }
 
