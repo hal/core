@@ -83,7 +83,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
     // @formatter:off --------------------------------------- proxy & view
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.RbacFinder)
+    @NameToken(NameTokens.AccessControlFinder)
     @SearchIndex(keywords = {"authorization", "access-control", "rbac", "security"})
     @RequiredResources(resources = {"/core-service=management/access=authorization"}, recursive = false)
     public interface MyProxy extends ProxyPlace<AccessControlFinder> {}
@@ -122,7 +122,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
             final PlaceManager placeManager, final BeanFactory beanFactory, final Header header,
             final Dispatcher circuit, final AccessControlStore accessControlStore) {
 
-        super(eventBus, view, proxy, placeManager, header, NameTokens.RbacFinder, TYPE_MainContent);
+        super(eventBus, view, proxy, placeManager, header, NameTokens.AccessControlFinder, TYPE_MainContent);
         this.beanFactory = beanFactory;
         this.circuit = circuit;
         this.accessControlStore = accessControlStore;

@@ -104,8 +104,6 @@ public class NameTokens {
     public static final String errorPage = "err";
     public static final String ServerProfile = "profile";
 
-    public static final String StandloneDeployments = "server-deployments";
-
     public static final String systemApp = "system";
 
     public final static String InterfaceToolPresenter = "server-interfaces";
@@ -131,8 +129,6 @@ public class NameTokens {
 
     public final static String ServerPresenter = "server-config";
 
-    public static final String DeploymentBrowserPresenter = "deployments";
-
     public static final String DomainDeploymentFinder = "domain-deployments";
     public static final String StandaloneDeploymentFinder = "standalone-deployments";
 
@@ -140,16 +136,12 @@ public class NameTokens {
     // ------------------------------------------------------
     // administration tokens below
 
-    public static final String AdministrationPresenter = "administration";
-
-    public static final String RoleAssignmentPresenter = "role-assignment";
-
     public static final String AuditLogPresenter = "audit-log";
     public static final String Logging = "logging";
     public static final String SecDomains = "security_domains";
     public static final String SecDomain = "security_domain";
     public static final String UndertowFinder = "undertow-subsystem";
-    public static final String RbacFinder = "rbac";
+    public static final String AccessControlFinder = "rbac";
 }
 
 

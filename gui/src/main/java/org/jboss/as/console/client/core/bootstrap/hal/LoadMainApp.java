@@ -1,17 +1,13 @@
 package org.jboss.as.console.client.core.bootstrap.hal;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.user.client.History;
-import com.google.inject.Inject;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import com.gwtplatform.mvp.shared.proxy.TokenFormatter;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,8 +23,7 @@ public class LoadMainApp implements ScheduledCommand {
     static {
         BLACK_LIST.add(NameTokens.SettingsPresenter);
         BLACK_LIST.add(NameTokens.ToolsPresenter);
-        BLACK_LIST.add(NameTokens.AdministrationPresenter);
-        BLACK_LIST.add(NameTokens.RoleAssignmentPresenter);
+        BLACK_LIST.add(NameTokens.AccessControlFinder);
     }
 
     private static boolean isBlackListed(String token) {

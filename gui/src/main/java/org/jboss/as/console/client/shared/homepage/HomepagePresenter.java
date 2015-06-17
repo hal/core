@@ -99,7 +99,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
             infoBoxes.add(new InfoBox(NameTokens.DomainRuntimePresenter, "Runtime",
                     Console.CONSTANTS.section_runtime_intro()));
         }
-        infoBoxes.add(new InfoBox(NameTokens.RoleAssignmentPresenter, "Access Control",
+        infoBoxes.add(new InfoBox(NameTokens.AccessControlFinder, "Access Control",
                 Console.CONSTANTS.section_administration_intro()));
 
         return infoBoxes;
@@ -146,7 +146,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
         contentBoxes.add(new ContentBox("Administration",
                 Console.CONSTANTS.content_box_role_assignment_title(),
                 Console.MESSAGES.content_box_role_assignment_body(),
-                Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.RoleAssignmentPresenter));
+                Console.CONSTANTS.content_box_role_assignment_link(), NameTokens.AccessControlFinder));
 
         return contentBoxes;
     }

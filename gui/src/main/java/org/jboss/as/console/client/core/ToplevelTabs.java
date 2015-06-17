@@ -98,7 +98,7 @@ public class ToplevelTabs implements Iterable<ToplevelTabs.Config> {
             tabs.add(new Config(NameTokens.HostMgmtPresenter, "Runtime", true));
         }
         if(bootstrapContext.isAdmin() || bootstrapContext.isSuperUser()) {
-            tabs.add(new Config(NameTokens.RbacFinder, "Access Control", true));
+            tabs.add(new Config(NameTokens.AccessControlFinder, "Access Control", true));
             // tabs.add(new Config(NameTokens.RoleAssignmentPresenter, "Access Control", true));
             tabs.add(new Config(NameTokens.PatchingPresenter, "Patching", true));
         }
