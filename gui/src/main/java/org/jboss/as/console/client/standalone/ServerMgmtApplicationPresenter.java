@@ -37,8 +37,6 @@ import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
-import org.jboss.as.console.client.rbac.UnauthorizedEvent;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
@@ -46,7 +44,6 @@ import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
-
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
@@ -130,7 +127,8 @@ public class ServerMgmtApplicationPresenter extends
 
     @Override
     public void onPreview(PreviewEvent event) {
-        getView().setPreview(event.getHtml());
+        if(isVisible())
+            getView().setPreview(event.getHtml());
     }
 
     @Override

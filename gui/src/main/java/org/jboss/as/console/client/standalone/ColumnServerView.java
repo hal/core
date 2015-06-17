@@ -21,6 +21,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.plugins.SubsystemExtensionMetaData;
 import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -33,7 +34,6 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
-import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -280,10 +280,10 @@ public class ColumnServerView extends SuspendableViewImpl
         config.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
+                columnManager.reduceColumnsTo(1);
                 if(config.hasSelectedItem())
                 {
                     FinderItem item = config.getSelectedItem();
-                    columnManager.reduceColumnsTo(1);
                     columnManager.updateActiveSelection(configColWidget);
 
                     clearNestedPresenter();
@@ -293,6 +293,8 @@ public class ColumnServerView extends SuspendableViewImpl
                         columnManager.appendColumn(subsystColWidget);
                         presenter.loadSubsystems();
                     }
+                } else {
+                    startupContent();
                 }
             }
         });
@@ -469,16 +471,29 @@ public class ColumnServerView extends SuspendableViewImpl
     @Override
     public void setPreview(final SafeHtml html) {
 
-        if(contentCanvas.getWidgetCount()==0) {
+        if(contentCanvas.getWidgetCount()==0) { // nested presenter shows preview
             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                 @Override
                 public void execute() {
+                    contentCanvas.clear();
                     contentCanvas.add(new HTML(html));
                 }
             });
         }
 
     }
+
+    private void startupContent() {
+        contentFactory.createContent(PreviewContent.INSTANCE.profile_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        setPreview(previewContent);
+                    }
+                }
+        );
+    }
+
 
     private String resolveDescriptionFor(String title) {
         if("Paths".equals(title))

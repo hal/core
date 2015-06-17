@@ -21,10 +21,13 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
@@ -45,6 +48,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
+    private final PreviewContentFactory contentFactory;
     private final LayoutPanel previewCanvas;
     private Widget subsysColWidget;
     private Widget statusColWidget;
@@ -84,9 +88,10 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     private static final SubsystemTemplate SUBSYSTEM_TEMPLATE = GWT.create(SubsystemTemplate.class);
 
     @Inject
-    public StandaloneRuntimeView(final PlaceManager placeManager) {
+    public StandaloneRuntimeView(final PlaceManager placeManager, PreviewContentFactory contentFactory) {
 
         this.placeManager = placeManager;
+        this.contentFactory = contentFactory;
         contentCanvas = new LayoutPanel(); // TODO remove, including the widget slot in presenter
         previewCanvas = new LayoutPanel();
 
@@ -358,12 +363,14 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         serverColumn.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
+                columnManager.reduceColumnsTo(1);
                 if(serverColumn.hasSelectedItem())
                 {
-                    columnManager.reduceColumnsTo(1);
                     columnManager.updateActiveSelection(serverColWidget);
                     columnManager.appendColumn(statusColWidget);
 
+                } else {
+                    startupContent();
                 }
             }
         });
@@ -442,6 +449,18 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         });
 
     }
+
+    private void startupContent() {
+        contentFactory.createContent(PreviewContent.INSTANCE.runtime_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        setPreview(previewContent);
+                    }
+                }
+        );
+    }
+
 
     @Override
     public void setPresenter(StandaloneRuntimePresenter presenter) {

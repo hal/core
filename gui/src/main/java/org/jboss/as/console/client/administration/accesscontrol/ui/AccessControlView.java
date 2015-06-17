@@ -42,6 +42,7 @@ import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.administration.accesscontrol.store.Roles;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
@@ -217,7 +218,15 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                         })
         );
 
-        browseByColumn = new BrowseByColumn(circuit, contentFactory, columnManager);
+        browseByColumn = new BrowseByColumn(circuit, contentFactory, event -> {
+            columnManager.reduceColumnsTo(1);
+            if (browseByColumn.hasSelectedItem()) {
+                columnManager.updateActiveSelection(asWidget());
+                browseByColumn.getSelectedItem().onSelect().execute();
+            } else {
+                startupContent(contentFactory);
+            }
+        });
         browseByColumnWidget = browseByColumn.asWidget();
         browseByColumn.updateFrom(browseByItems);
 
@@ -320,6 +329,18 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
         assignmentColumnWidget.getElement().removeClassName("active");
         memberColumnWidget.getElement().removeClassName("active");
     }
+
+    private void startupContent(PreviewContentFactory contentFactory) {
+        contentFactory.createContent(PreviewContent.INSTANCE.access_control_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        setPreview(previewContent);
+                    }
+                }
+        );
+    }
+
 
 
     // ------------------------------------------------------ helper methods

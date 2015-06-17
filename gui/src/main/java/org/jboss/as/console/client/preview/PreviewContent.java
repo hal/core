@@ -12,11 +12,23 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     PreviewContent INSTANCE = GWT.create(PreviewContent.class);
 
+    @Source("access_control_empty.html")
+    ExternalTextResource access_control_empty();
+
+    @Source("deployments_empty.html")
+    ExternalTextResource deployments_empty();
+
     @Source("profiles_empty.html")
     ExternalTextResource profiles_empty();
 
+    @Source("profile_empty.html")
+    ExternalTextResource profile_empty();
+
     @Source("profiles_profile.html")
     ExternalTextResource profiles_profile();
+
+    @Source("runtime_empty.html")
+    ExternalTextResource runtime_empty();
 
     @Source("interfaces.html")
     ExternalTextResource interfaces();

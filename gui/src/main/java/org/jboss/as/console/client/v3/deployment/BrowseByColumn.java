@@ -24,8 +24,8 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
 /**
@@ -36,7 +36,8 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
     private Widget widget;
 
     @SuppressWarnings("unchecked")
-    public BrowseByColumn(final PreviewContentFactory contentFactory, final ColumnManager columnManager) {
+    public BrowseByColumn(final PreviewContentFactory contentFactory,
+            final SelectionChangeEvent.Handler selectionHandler) {
 
         super(FinderId.DEPLOYMENT,
                 "Browse By",
@@ -64,14 +65,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
                 });
 
         setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
-
-        addSelectionChangeHandler(event -> {
-            columnManager.reduceColumnsTo(1);
-            if (hasSelectedItem()) {
-                columnManager.updateActiveSelection(asWidget());
-                getSelectedItem().onSelect().execute();
-            }
-        });
+        addSelectionChangeHandler(selectionHandler);
     }
 
     @Override

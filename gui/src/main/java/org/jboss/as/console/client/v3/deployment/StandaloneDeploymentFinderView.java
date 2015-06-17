@@ -30,7 +30,11 @@ import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.inject.Inject;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -52,8 +56,9 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
     private SubdeploymentColumn subdeploymentColumn;
     private Widget subdeploymentColumnWidget;
 
+    @Inject
     @SuppressWarnings("unchecked")
-    public StandaloneDeploymentFinderView() {
+    public StandaloneDeploymentFinderView(final PreviewContentFactory contentFactory) {
 
         contentCanvas = new LayoutPanel();
         layout = new SplitLayoutPanel(2);
@@ -113,6 +118,8 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     columnManager.appendColumn(subdeploymentColumnWidget);
                     subdeploymentColumn.updateFrom(deployment.getSubdeployments());
                 }
+            } else {
+                startupContent(contentFactory);
             }
         });
 
@@ -185,5 +192,16 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
     public void clearActiveSelection(final ClearFinderSelectionEvent event) {
         deploymentColumnWidget.getElement().removeClassName("active");
         subdeploymentColumnWidget.getElement().removeClassName("active");
+    }
+
+    private void startupContent(PreviewContentFactory contentFactory) {
+        contentFactory.createContent(PreviewContent.INSTANCE.deployments_empty(),
+                new SimpleCallback<SafeHtml>() {
+                    @Override
+                    public void onSuccess(SafeHtml previewContent) {
+                        setPreview(previewContent);
+                    }
+                }
+        );
     }
 }

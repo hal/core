@@ -24,9 +24,9 @@ package org.jboss.as.console.client.administration.accesscontrol.ui;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import org.jboss.as.console.client.administration.accesscontrol.store.ReloadAccessControl;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.gwt.circuit.Dispatcher;
@@ -41,7 +41,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
     @SuppressWarnings("unchecked")
     public BrowseByColumn(final Dispatcher circuit,
             final PreviewContentFactory contentFactory,
-            final ColumnManager columnManager) {
+            final SelectionChangeEvent.Handler selectionHandler) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Browse By",
@@ -69,16 +69,8 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
                 });
 
         setTopMenuItems(new MenuDelegate<>("Refresh", item -> circuit.dispatch(new ReloadAccessControl())));
-
         setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
-
-        addSelectionChangeHandler(event -> {
-            columnManager.reduceColumnsTo(1);
-            if (hasSelectedItem()) {
-                columnManager.updateActiveSelection(asWidget());
-                getSelectedItem().onSelect().execute();
-            }
-        });
+        addSelectionChangeHandler(selectionHandler);
     }
 
     @Override
