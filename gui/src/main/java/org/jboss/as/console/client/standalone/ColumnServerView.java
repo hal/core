@@ -91,7 +91,7 @@ public class ColumnServerView extends SuspendableViewImpl
         contentCanvas = new LayoutPanel();
 
         splitlayout = new SplitLayoutPanel(2);
-        columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.RUNTIME);
+        columnManager = new ColumnManager(splitlayout, FinderColumn.FinderId.CONFIGURATION);
 
         config = new FinderColumn<FinderItem>(
                 FinderColumn.FinderId.CONFIGURATION,
