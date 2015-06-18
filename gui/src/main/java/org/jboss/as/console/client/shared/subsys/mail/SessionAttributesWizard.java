@@ -6,34 +6,57 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
+import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
- * @date 11/28/11
+ * @since 18/06/15
  */
-public class NewMailSessionWizard {
+public class SessionAttributesWizard {
 
-    private final MailFinder presenter;
+    MailSession mailSession;
+    MailFinder presenter;
+    private Form<MailSession> form;
 
-    public NewMailSessionWizard(final MailFinder presenter) {
+    public SessionAttributesWizard(MailFinder presenter) {
         this.presenter = presenter;
     }
 
     Widget asWidget() {
-        VerticalPanel layout = new VerticalPanel();
-        layout.setStyleName("window-content");
 
-        final Form<MailSession> form = new Form<MailSession>(MailSession.class);
-        TextBoxItem name = new TextBoxItem("name", "Name");
-        TextBoxItem jndi = new JndiNameItem("jndiName", "JNDI Name");
-        form.setFields(name, jndi);
+        VerticalPanel layout = new VerticalPanel();
+               layout.setStyleName("window-content");
+
+
+
+
+        form = new Form<MailSession>(MailSession.class);
+        form.setNumColumns(2);
+
+        TextItem name= new TextItem("name", "Name");
+        TextBoxItem jndi = new TextBoxItem("jndiName", "JNDI Name");
+        CheckBoxItem debug = new CheckBoxItem("debug", "Debug Enabled?");
+        TextBoxItem from = new TextBoxItem("from", "Default From", false);
+
+        form.setFields(name, jndi, debug, from);
+
+
+        FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback() {
+            @Override
+            public ModelNode getAddress() {
+                ModelNode address = Baseadress.get();
+                address.add("subsystem", "mail");
+                address.add("mail-session", "*");
+                return address;
+            }
+        }, form);
 
         DialogueOptions options = new DialogueOptions(
 
@@ -41,13 +64,11 @@ public class NewMailSessionWizard {
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        // merge base
-
                         FormValidation validation = form.validate();
                         if(validation.hasErrors())
                             return;
 
-                        presenter.onCreateSession(form.getUpdatedEntity());
+                        presenter.onSave(mailSession, form.getChangedValues());
 
                     }
                 },
@@ -65,20 +86,15 @@ public class NewMailSessionWizard {
         // ----------------------------------------
 
         Widget formWidget = form.asWidget();
-        final FormHelpPanel helpPanel = new FormHelpPanel(
-                new FormHelpPanel.AddressCallback() {
-                    @Override
-                    public ModelNode getAddress() {
-                        ModelNode address = Baseadress.get();
-                        address.add("subsystem", "mail");
-                        address.add("mail-session", "*");
-                        return address;
-                    }
-                }, form
-        );
 
         layout.add(helpPanel.asWidget());
         layout.add(formWidget);
+
         return new WindowContentBuilder(layout, options).build();
+    }
+
+    public void updateFrom(MailSession session) {
+        this.mailSession = session;
+        form.edit(session);
     }
 }

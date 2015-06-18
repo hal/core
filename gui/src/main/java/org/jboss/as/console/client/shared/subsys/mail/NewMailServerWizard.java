@@ -66,7 +66,7 @@ public class NewMailServerWizard {
 
                         MailServerDefinition entity = form.getUpdatedEntity();
                         entity.setType(ServerType.valueOf(type.getValue()));
-                        presenter.onCreateServer("TODO", entity); // TODO fix me
+                        presenter.onCreateServer(selectedSession.getName(), entity);
                     }
                 },
 
@@ -114,7 +114,7 @@ public class NewMailServerWizard {
         public boolean validate(final String value) {
             boolean duplicateType = false;
             boolean parentValid = super.validate(value);
-            if (parentValid) {
+            if (parentValid && value!=null) {
                 duplicateType = sessionsContains(value);
                 if (duplicateType) {
                     setErrMessage(Console.CONSTANTS.duplicate_mail_server_type());

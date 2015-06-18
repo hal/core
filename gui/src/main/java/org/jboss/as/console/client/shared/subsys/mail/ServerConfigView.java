@@ -6,8 +6,8 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
+import com.google.gwt.view.client.*;
+
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
@@ -23,6 +23,9 @@ import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
+import javax.swing.*;
+import javax.swing.SingleSelectionModel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,9 +42,8 @@ public class ServerConfigView {
     private ListDataProvider<MailServerDefinition> dataProvider;
     private String title;
     private DefaultCellTable<MailServerDefinition> table;
-    private MailSession parent;
-    private List<MailServerDefinition> serverConfigs;
-    private String session;
+    private MailSession session;
+    private com.google.gwt.view.client.SingleSelectionModel<MailServerDefinition> selectionModel;
 
 
     public ServerConfigView(
@@ -65,6 +67,9 @@ public class ServerConfigView {
         dataProvider = new ListDataProvider<MailServerDefinition>();
         dataProvider.addDataDisplay(table);
 
+        selectionModel = new com.google.gwt.view.client.SingleSelectionModel<>();
+        table.setSelectionModel(selectionModel);
+
         TextColumn<MailServerDefinition> nameColumn = new TextColumn<MailServerDefinition>() {
             @Override
             public String getValue(MailServerDefinition record) {
@@ -82,7 +87,7 @@ public class ServerConfigView {
                 new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        presenter.launchNewServerWizard(parent);
+                        presenter.launchNewServerWizard(session);
                     }
                 });
 
@@ -97,7 +102,7 @@ public class ServerConfigView {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
                                         if (isConfirmed) {
-                                            presenter.onRemoveServer(session, form.getEditedEntity());
+                                            presenter.onRemoveServer(session.getName(), form.getEditedEntity());
                                         }
                                     }
                                 });
@@ -120,12 +125,12 @@ public class ServerConfigView {
         form.setEnabled(false);
         form.setNumColumns(2);
 
-        FormToolStrip formTools = new FormToolStrip(form,
+        FormToolStrip formTools = new FormToolStrip<MailServerDefinition>(form,
                 new FormToolStrip.FormCallback<MailServerDefinition>() {
                     @Override
                     public void onSave(Map<String, Object> changeset) {
 
-                        presenter.onSaveServer(session, form.getEditedEntity().getType(), changeset);
+                        presenter.onSaveServer(session.getName(), form.getEditedEntity().getType(), changeset);
                     }
 
                     @Override
@@ -170,12 +175,26 @@ public class ServerConfigView {
         form.bind(table);
 
         return layout.build();
+
     }
 
-    public void setServerConfigs(String name, List<MailServerDefinition> serverConfigs) {
-        this.session = name;
-        headline.setText("Mail Session: " + name);
-        dataProvider.setList(serverConfigs);
+
+    public void updateFrom(MailSession session) {
+        this.session = session;
+        headline.setText("Mail Session: " + session.getName());
+
+
+        List<MailServerDefinition> server = new ArrayList<>();
+        if(session.getImapServer()!=null)
+            server.add(session.getImapServer());
+
+        if(session.getSmtpServer()!=null)
+            server.add(session.getSmtpServer());
+
+        if(session.getPopServer()!=null)
+            server.add(session.getPopServer());
+
+        dataProvider.setList(server);
         table.selectDefaultEntity();
     }
 }

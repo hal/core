@@ -41,7 +41,7 @@ public class MailSubsystemView extends MultiViewImpl implements MailPresenter.My
     }
 
     @Override
-    public void updateFrom(String name, List<MailServerDefinition> list) {
-        serverConfigEditor.setServerConfigs(name, list);
+    public void updateFrom(MailSession session) {
+        serverConfigEditor.updateFrom(session);
     }
 }
