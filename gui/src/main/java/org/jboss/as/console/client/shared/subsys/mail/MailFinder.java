@@ -45,6 +45,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
     implements PreviewEvent.Handler {
 
+
+
     @ProxyCodeSplit
     @NameToken(NameTokens.MailFinder)
     @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
@@ -224,6 +226,9 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
     }
 
     public void onSave(final MailSession editedEntity, Map<String, Object> changeset) {
+
+        closeDialoge();
+
         ModelNode address = beanMetaData.getAddress().asResource(
                 Baseadress.get(),
                 editedEntity.getName()
@@ -250,4 +255,18 @@ public class MailFinder extends Presenter<MailFinder.MyView, MailFinder.MyProxy>
         if(isVisible())
             getView().setPreview(event.getHtml());
     }
+
+    public void onLauchAttributesWizard(MailSession session) {
+
+        window = new DefaultWindow(Console.MESSAGES.modify("Mail Session Attributes"));
+        window.setWidth(480);
+        window.setHeight(360);
+        SessionAttributesWizard wizard = new SessionAttributesWizard(MailFinder.this);
+        window.trapWidget(wizard.asWidget());
+        wizard.updateFrom(session);
+
+        window.setGlassEnabled(true);
+        window.center();
+
+      }
 }

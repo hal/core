@@ -40,6 +40,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
 
 
+
     @ProxyCodeSplit
     @NameToken(NameTokens.MailPresenter)
     @AccessControl(resources = {"{selected.profile}/subsystem=mail/mail-session=*"})
@@ -49,7 +50,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     public interface MyView extends MultiView {
         void setPresenter(MailPresenter presenter);
-        void updateFrom(String name, List<MailServerDefinition> list);
+        void updateFrom(MailSession session);
     }
 
 
@@ -59,6 +60,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     private final BeanFactory beanFactory;
     private final BeanMetaData beanMetaData;
     private final EntityAdapter<MailServerDefinition> serverAdapter;
+    private final EntityAdapter<MailSession> adapter;
 
     private DefaultWindow window;
 
@@ -75,6 +77,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
         this.dispatcher = dispatcher;
         this.beanFactory = beanFactory;
         this.beanMetaData = metaData.getBeanMetaData(MailSession.class);
+        this.adapter = new EntityAdapter<MailSession>(MailSession.class, metaData);
         this.serverAdapter = new EntityAdapter<MailServerDefinition>(MailServerDefinition.class, metaData);
     }
 
@@ -90,7 +93,7 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
 
     @Override
     protected void onReset() {
-        loadServer(placeManager.getCurrentPlaceRequest().getParameter("name", "default"));
+        loadMailSession(placeManager.getCurrentPlaceRequest().getParameter("name", "default"));
         getView().toggle("server");
     }
 
@@ -105,40 +108,66 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     }
 
 
+    private void loadMailSession(final String sessionName) {
+            ModelNode operation = beanMetaData.getAddress().asSubresource(Baseadress.get());
+            operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+            operation.get(RECURSIVE).set(true);
 
-    private void loadServer(final String name) {
+            dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+                @Override
+                public void onSuccess(DMRResponse result) {
+                    ModelNode response = result.get();
 
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem", "mail");
-        operation.get(ADDRESS).add("mail-session", name);
-        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-        operation.get(CHILD_TYPE).set("server");
-        operation.get(RECURSIVE).set(true);
+                    if (response.isFailure()) {
+                        Console.error(Console.MESSAGES.failed("Mail Sessions"));
+                    } else {
+                        List<Property> items = response.get(RESULT).asPropertyList();
 
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
+                        for (Property item : items) {
 
-                if (response.isFailure()) {
-                    Console.error(Console.MESSAGES.failed("Mail Server"));
-                } else {
-                    List<Property> items = response.get(RESULT).asPropertyList();
-                    List<MailServerDefinition> servers = new ArrayList<MailServerDefinition>(items.size());
-                    for (Property server : items) {
-                        ModelNode model = server.getValue();
-                        MailServerDefinition def = serverAdapter.fromDMR(model);
-                        def.setType(ServerType.valueOf(server.getName()));
-                        servers.add(def);
+
+                            if(item.getName().equals(sessionName)) {
+
+                                ModelNode model = item.getValue();
+                                MailSession mailSession = adapter.fromDMR(model);
+                                mailSession.setName(item.getName());
+
+                                if (model.hasDefined("server")) {
+                                    List<Property> serverList = model.get("server").asPropertyList();
+                                    for (Property server : serverList) {
+                                        if (server.getName().equals(ServerType.smtp.name())) {
+                                            MailServerDefinition smtpServer = serverAdapter.fromDMR(server.getValue());
+                                            smtpServer.setType(ServerType.smtp);
+                                            mailSession.setSmtpServer(smtpServer);
+                                        } else if (server.getName().equals(ServerType.imap.name())) {
+                                            MailServerDefinition imap = serverAdapter.fromDMR(server.getValue());
+                                            imap.setType(ServerType.imap);
+                                            mailSession.setImapServer(imap);
+                                        } else if (server.getName().equals(ServerType.pop3.name())) {
+                                            MailServerDefinition pop = serverAdapter.fromDMR(server.getValue());
+                                            pop.setType(ServerType.pop3);
+                                            mailSession.setPopServer(pop);
+                                        }
+                                    }
+
+                                }
+
+                                getView().updateFrom(mailSession);
+                                break;
+                            }
+
+                        }
+
+
+
+
                     }
-                    getView().updateFrom(name , servers);
+
                 }
+            });
+        }
 
-            }
-        });
 
-    }
     @Override
     protected void revealInParent() {
         revealStrategy.revealInParent(this);
@@ -149,11 +178,11 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
     }
 
 
-    public void onSaveServer(String name, ServerType type, Map<String, Object> changeset) {
+    public void onSaveServer(String sessionName, ServerType type, Map<String, Object> changeset) {
         ModelNode address = new ModelNode();
         address.get(ADDRESS).set(Baseadress.get());
         address.get(ADDRESS).add("subsystem", "mail");
-        address.get(ADDRESS).add("mail-session", name);
+        address.get(ADDRESS).add("mail-session", sessionName);
         address.get(ADDRESS).add("server", type.name());
         ModelNode operation = serverAdapter.fromChangeset(changeset, address);
 
@@ -164,18 +193,18 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.modificationFailed("Mail Server"), response.getFailureDescription());
                 } else {
-                    Console.info(Console.MESSAGES.modified("Mail Server"));
+                    Console.info(Console.MESSAGES.modified("Mail Server"+type.toString()));
                 }
-                // TODO refresh
+                loadMailSession(sessionName);
             }
         });
     }
 
-    public void onRemoveServer(String name, MailServerDefinition entity) {
+    public void onRemoveServer(String sessionName, MailServerDefinition entity) {
         ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "mail");
-        operation.get(ADDRESS).add("mail-session", name);
+        operation.get(ADDRESS).add("mail-session", sessionName);
         operation.get(ADDRESS).add("server", entity.getType().name());
         operation.get(OP).set(REMOVE);
 
@@ -186,20 +215,20 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.deletionFailed("Mail Server"), response.getFailureDescription());
                 } else {
-                    Console.info(Console.MESSAGES.deleted("Mail Server"));
+                    Console.info(Console.MESSAGES.deleted("Mail Server"+entity.getType()));
                 }
-                // TODO refresh
+                loadMailSession(sessionName);
             }
         });
     }
 
-    public void onCreateServer(String name, MailServerDefinition entity) {
+    public void onCreateServer(String sessionName, MailServerDefinition entity) {
         closeDialoge();
 
         ModelNode operation = serverAdapter.fromEntity(entity);
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "mail");
-        operation.get(ADDRESS).add("mail-session", name);
+        operation.get(ADDRESS).add("mail-session", sessionName);
         operation.get(ADDRESS).add("server", entity.getType().name());
         operation.get(OP).set(ADD);
 
@@ -210,18 +239,11 @@ public class MailPresenter extends Presenter<MailPresenter.MyView, MailPresenter
                 if (response.isFailure()) {
                     Console.error(Console.MESSAGES.addingFailed("Mail Server"), response.getFailureDescription());
                 } else {
-                    Console.info(Console.MESSAGES.added("Mail Server"));
+                    Console.info(Console.MESSAGES.added("Mail Server "+entity.getType()));
                 }
-                // TODO refresh
+                loadMailSession(sessionName);
             }
         });
     }
 
-    public void onDelete(MailSession session) {
-
-    }
-
-    public void onSave(MailSession session, Map<String, Object> changeset) {
-
-    }
 }

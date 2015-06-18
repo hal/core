@@ -118,10 +118,10 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     }
                 }),
                 new MenuDelegate<MailSession>(
-                        "Properties", new ContextualCommand<MailSession>() {
+                        "Attributes", new ContextualCommand<MailSession>() {
                     @Override
                     public void executeOn(MailSession mailSession) {
-                        // TODO
+                        presenter.onLauchAttributesWizard(mailSession);
                     }
                 }),
                 new MenuDelegate<MailSession>(
