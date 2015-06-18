@@ -11,12 +11,12 @@
     <parent>
         <groupId>org.jboss.as</groupId>
         <artifactId>jboss-as-console-parent</artifactId>
-        <version>2.7.3.Final</version>
+        <version>2.7.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
-    	<jboss.as.console.bom.version>2.7.3.Final</jboss.as.console.bom.version>
+    	<jboss.as.console.bom.version>2.7.4-SNAPSHOT</jboss.as.console.bom.version>
         <maven.min.version>3.1.0</maven.min.version>
         <auto-service.version>1.0-rc2</auto-service.version>
         <auto-common.version>1.0-jboss</auto-common.version>
