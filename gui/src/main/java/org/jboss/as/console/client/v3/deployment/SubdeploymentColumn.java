@@ -34,7 +34,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
 
     private Widget widget;
 
-    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo) {
+    public SubdeploymentColumn(final ColumnManager columnManager, final int reduceTo, String token) {
 
         super(FinderColumn.FinderId.DEPLOYMENT, "Nested Deployment",
                 new FinderColumn.Display<Subdeployment>() {
@@ -58,7 +58,7 @@ public class SubdeploymentColumn extends FinderColumn<Subdeployment> {
                     public Object getKey(final Subdeployment item) {
                         return item.getName();
                     }
-                }
+                }, token
         );
 
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.subdeploymentPreview(data)));

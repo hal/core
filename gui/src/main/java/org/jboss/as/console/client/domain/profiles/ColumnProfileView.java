@@ -143,7 +143,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                });
+                }, NameTokens.ProfileMgmtPresenter);
 
         config.setPreviewFactory(new PreviewFactory<FinderItem>() {
 
@@ -282,7 +282,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(ProfileRecord item) {
                         return item.getName();
                     }
-                }).setShowSize(true);
+                }, NameTokens.ProfileMgmtPresenter).setShowSize(true);
 
         profiles.setPreviewFactory(new PreviewFactory<ProfileRecord>() {
 
@@ -303,7 +303,8 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public void executeOn(ProfileRecord profileRecord) {
                         presenter.onCloneProfile(profileRecord);
                     }
-                })
+                }, MenuDelegate.Role.Operation)
+
                 /*, new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
                     @Override
                     public void executeOn(ProfileRecord profileRecord) {
@@ -319,7 +320,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                         });
 
                     }
-                })*/
+                }, MenuDelegate.Role.Operation)*/
         );
         profileColWidget = profiles.asWidget();
 
@@ -364,7 +365,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     public Object getKey(SubsystemLink item) {
                         return item.getToken();
                     }
-                }).setShowSize(true);
+                }, NameTokens.ProfileMgmtPresenter).setShowSize(true);
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override

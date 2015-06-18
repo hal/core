@@ -34,7 +34,6 @@ import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import com.gwtplatform.mvp.client.proxy.RevealContentHandler;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
@@ -42,7 +41,6 @@ import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
-import org.jboss.as.console.client.domain.topology.ServerGroup;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemReference;
 import org.jboss.as.console.client.shared.model.SubsystemStore;
@@ -55,15 +53,13 @@ import org.jboss.as.console.client.v3.stores.domain.actions.RemoveProfile;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.PropagatesChange;
 
 import java.util.List;
-
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -73,13 +69,16 @@ public class ProfileMgmtPresenter
         implements Finder, ProfileSelectionEvent.ProfileSelectionListener, PreviewEvent.Handler,
         ClearFinderSelectionEvent.Handler, FinderScrollEvent.Handler {
 
-
     private DefaultWindow window;
 
-
-    @NoGatekeeper // Toplevel navigation presenter - redirects to default / last place
     @ProxyCodeSplit
     @NameToken(NameTokens.ProfileMgmtPresenter)
+    @RequiredResources (
+            resources = {
+                    "/profile=*"
+            },
+            recursive = false
+    )
     public interface MyProxy extends Proxy<ProfileMgmtPresenter>, Place {}
 
     public interface MyView extends SuspendableView {

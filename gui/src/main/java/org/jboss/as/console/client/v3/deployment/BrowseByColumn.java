@@ -37,7 +37,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
 
     @SuppressWarnings("unchecked")
     public BrowseByColumn(final PreviewContentFactory contentFactory,
-            final SelectionChangeEvent.Handler selectionHandler) {
+            final SelectionChangeEvent.Handler selectionHandler, String token) {
 
         super(FinderId.DEPLOYMENT,
                 "Browse By",
@@ -62,7 +62,7 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
                     public Object getKey(final BrowseByItem item) {
                         return item.getTitle();
                     }
-                });
+                }, token);
 
         setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
         addSelectionChangeHandler(selectionHandler);

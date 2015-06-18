@@ -124,7 +124,8 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
 
         //noinspection Convert2MethodRef
         memberColumn = new MemberColumn(accessControlStore, circuit, presenter, columnManager,
-                () -> roleColumn.getSelectedItem(), () -> memberAggregationColumn.getSelectedItem().isInclude());
+                () -> roleColumn.getSelectedItem(), () -> memberAggregationColumn.getSelectedItem().isInclude(),
+                presenter.getProxy().getNameToken());
         memberColumnWidget = memberColumn.asWidget();
 
         List<AggregationItem> memberAggregationItems = Arrays.asList(
@@ -137,7 +138,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(roleColumn.getSelectedItem(), true)))
         );
-        memberAggregationColumn = new AggregationColumn("Membership", columnManager, memberColumn, memberColumnWidget);
+        memberAggregationColumn = new AggregationColumn("Membership", columnManager, memberColumn, memberColumnWidget, presenter.getProxy().getNameToken());
         memberAggregationColumnWidget = memberAggregationColumn.asWidget();
         memberAggregationColumn.updateFrom(memberAggregationItems);
 
@@ -146,7 +147,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
 
         //noinspection Convert2MethodRef
         assignmentColumn = new AssignmentColumn(circuit, presenter, contentFactory, columnManager,
-                () -> selectedPrincipal(), () -> assignmentAggregationColumn.getSelectedItem().isInclude());
+                () -> selectedPrincipal(), () -> assignmentAggregationColumn.getSelectedItem().isInclude(), presenter.getProxy().getNameToken());
         assignmentColumnWidget = assignmentColumn.asWidget();
 
         List<AggregationItem> assignmentAggregationItems = Arrays.asList(
@@ -160,7 +161,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                         accessControlStore.getAssignments(selectedPrincipal(), true)))
         );
         assignmentAggregationColumn = new AggregationColumn("Assignment", columnManager, assignmentColumn,
-                assignmentColumnWidget);
+                assignmentColumnWidget, presenter.getProxy().getNameToken());
         assignmentAggregationColumnWidget = assignmentAggregationColumn.asWidget();
         assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
 
@@ -172,7 +173,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                 () -> {
                     assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
                     columnManager.appendColumn(assignmentAggregationColumnWidget);
-                });
+                }, presenter.getProxy().getNameToken());
         userColumnWidget = userColumn.asWidget();
 
         groupColumn = new PrincipalColumn(Console.CONSTANTS.common_label_group(), Principal.Type.GROUP,
@@ -180,7 +181,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                 () -> {
                     assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
                     columnManager.appendColumn(assignmentAggregationColumnWidget);
-                });
+                }, presenter.getProxy().getNameToken());
         groupColumnWidget = groupColumn.asWidget();
 
         roleColumn = new RoleColumn(bootstrapContext, accessControlStore, circuit, presenter, contentFactory,
@@ -188,7 +189,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                 () -> {
                     memberAggregationColumn.updateFrom(memberAggregationItems);
                     columnManager.appendColumn(memberAggregationColumnWidget);
-                });
+                },presenter.getProxy().getNameToken());
         roleColumnWidget = roleColumn.asWidget();
 
 
@@ -226,7 +227,7 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
             } else {
                 startupContent(contentFactory);
             }
-        });
+        },presenter.getProxy().getNameToken());
         browseByColumnWidget = browseByColumn.asWidget();
         browseByColumn.updateFrom(browseByItems);
 

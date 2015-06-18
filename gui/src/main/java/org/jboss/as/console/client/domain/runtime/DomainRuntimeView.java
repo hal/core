@@ -222,7 +222,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public Object getKey(Server item) {
                         return item.getName() + item.getHostName();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         serverColumn.setValueProvider(new ValueProvider<Server>() {
             @Override
@@ -245,7 +245,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public void executeOn(Server server) {
                         presenter.launchNewConfigDialoge();
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
         serverColumn.setPreviewFactory(new PreviewFactory<Server>() {
@@ -292,14 +292,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                                     }
                                 });
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
                         "Copy", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.onLaunchCopyWizard(server);
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
                         "Start", new ContextualCommand<Server>() {
                     @Override
@@ -307,28 +307,28 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.START);
 
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
                         "Stop", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.STOP);
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
                         "Reload", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RELOAD);
                     }
-                })
+                }, MenuDelegate.Role.Operation)
                 ,new MenuDelegate<Server>(
                         "Restart", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
                         presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RESTART);
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
 
@@ -360,7 +360,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         statusColumn.setMenuItems(
                 new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
@@ -399,7 +399,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public Object getKey(PlaceLink item) {
                         return item.getTitle();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override

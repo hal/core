@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
@@ -95,7 +96,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     public Object getKey(final Deployment item) {
                         return item.getName();
                     }
-                }
+                }, NameTokens.StandaloneDeploymentFinder
         );
 
         deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard()));
@@ -126,7 +127,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
         // ------------------------------------------------------ subdeployments
 
-        subdeploymentColumn = new SubdeploymentColumn(columnManager, 2);
+        subdeploymentColumn = new SubdeploymentColumn(columnManager, 2, NameTokens.StandaloneDeploymentFinder);
 
 
         // ------------------------------------------------------ setup UI

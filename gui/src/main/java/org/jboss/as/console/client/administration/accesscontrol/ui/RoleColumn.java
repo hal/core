@@ -60,7 +60,7 @@ public class RoleColumn extends FinderColumn<Role> {
             final AccessControlFinder presenter,
             final PreviewContentFactory contentFactory,
             final ColumnManager columnManager,
-            final Scheduler.ScheduledCommand onSelect) {
+            final Scheduler.ScheduledCommand onSelect, String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Role",
@@ -85,7 +85,7 @@ public class RoleColumn extends FinderColumn<Role> {
                     public Object getKey(final Role item) {
                         return item.getId();
                     }
-                });
+                }, token);
         this.accessControlStore = accessControlStore;
 
         setShowSize(true);

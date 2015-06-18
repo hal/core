@@ -96,7 +96,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
                     public Object getKey(Property item) {
                         return item.getName();
                     }
-                })
+                }, presenter.getProxy().getNameToken())
         ;
 
         mailSessions.setTopMenuItems(
@@ -106,7 +106,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
                     public void executeOn(Property mailSession) {
                         presenter.launchNewProviderWizard();
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
 
@@ -163,7 +163,7 @@ public class HornetqFinderView extends SuspendableViewImpl implements HornetqFin
                                 });
 
                     }
-                })
+                },MenuDelegate.Role.Operation)
         );
 
         mailSessions.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

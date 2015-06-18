@@ -41,6 +41,7 @@ import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.spi.Framework;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -50,7 +51,13 @@ import java.util.List;
 public class FinderColumn<T>  {
 
 
+    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL}
+
+    static Framework FRAMEWORK = GWT.create(Framework.class);
+    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
+
     private static final String CLICK = "click";
+
     private final SingleSelectionModel<T> selectionModel;
     private final CellTable<T> cellTable;
     private final FinderId correlationId;
@@ -63,22 +70,23 @@ public class FinderColumn<T>  {
     private boolean plain = false;
     private MenuDelegate[] menuItems = new MenuDelegate[]{};
     private MenuDelegate[] topMenuItems = new MenuDelegate[]{};
+
+    // accessible items are the ones remaining after the security context has been applied
+    private List<MenuDelegate> accessibleMenuItems = new LinkedList<>();
+
+    // accessible items are the ones remaining after the security context has been applied
+    private List<MenuDelegate> accessibleTopMenuItems = new LinkedList<>();
+
     private HTML headerTitle;
     private ValueProvider<T> valueProvider;
     private String filter;
     private LayoutPanel layout;
-    private HTMLPanel headerMenu;
+    private LayoutPanel headerMenu;
 
-    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL}
     private boolean showSize = false;
 
-    static Framework FRAMEWORK = GWT.create(Framework.class);
-    static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
-
-    private String resourceAddress = null;
-
     /**
-     * Thje default finder preview
+     * The default finder preview
      */
     private final PreviewFactory DEFAULT_PREVIEW = new PreviewFactory() {
         @Override
@@ -93,14 +101,14 @@ public class FinderColumn<T>  {
 
     private PreviewFactory<T> previewFactory = DEFAULT_PREVIEW;
 
-    public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider) {
+    public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider, String token) {
         this.correlationId = correlationId;
         this.title = title;
         this.display = display;
         this.keyProvider = keyProvider;
 
         // RBAC related
-        this.token = SECURITY_SERVICE.resolveToken();
+        this.token = token;
         this.id = Document.get().createUniqueId();
 
         selectionModel = new SingleSelectionModel<T>(keyProvider);
@@ -120,9 +128,14 @@ public class FinderColumn<T>  {
         };
 
         final Column<T, String> menuColumn = new Column<T, String>(new ButtonCell() {
+
+            /**
+             * Renders the button cells
+             */
             public void render(Cell.Context context, SafeHtml data, SafeHtmlBuilder sb) {
 
-                if(menuItems.length>0) {
+                if(accessibleMenuItems.size()>0) {
+
                     sb.appendHtmlConstant("<div class='nav-menu'>");
                     sb.appendHtmlConstant("<div class='btn-group'>");
                     sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
@@ -131,7 +144,7 @@ public class FinderColumn<T>  {
                     }
                     sb.appendHtmlConstant("</button>");
 
-                    if(menuItems.length>1) {
+                    if(accessibleMenuItems.size()>1) {
                         sb.appendHtmlConstant("<button action='menu' class='btn dropdown-toggle' type='button' tabindex=\"-1\">");
                         sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
                         sb.appendHtmlConstant("</button>");
@@ -145,9 +158,12 @@ public class FinderColumn<T>  {
         }) {
 
 
+            /**
+             * Determines which attribute of MenuDelegate should become the title of the default action
+             */
             @Override
             public String getValue(T object) {
-                return menuItems.length>0 ? menuItems[0].getTitle() : "";
+                return accessibleMenuItems.size()>0 ? accessibleMenuItems.get(0).getTitle() : "";
             }
 
         };
@@ -182,7 +198,7 @@ public class FinderColumn<T>  {
                 TableRowElement hoveringRow = event.getHoveringRow();
 
                 // skip empty menus
-                if(menuItems.length==0) return;
+                if(accessibleMenuItems.size()==0) return;
 
                 if(event.isUnHover()) {
                     hoveringRow.removeClassName("nav-hover");
@@ -209,7 +225,7 @@ public class FinderColumn<T>  {
                     String action = element.getAttribute("action");
                     if("default".equals(action))
                     {
-                        menuItems[0].getCommand().executeOn(event.getValue());
+                        accessibleMenuItems.get(0).getCommand().executeOn(event.getValue());
                     }
                     else if("menu".equals(action))
                     {
@@ -225,10 +241,13 @@ public class FinderColumn<T>  {
         });
 
         cellTable.setRowStyles(new RowStyles<T>() {
+
+
             @Override
             public String getStyleNames(T row, int rowIndex) {
                 boolean isFolder = display.isFolder(row);
                 String css = display.rowCss(row);
+
                 return isFolder ? css + " folder-view" : css + " file-view";
             }
         });
@@ -243,7 +262,7 @@ public class FinderColumn<T>  {
 
 
                 // skip empty menus
-                if(menuItems.length==0) return;
+                if(accessibleMenuItems.size()==0) return;
 
 
                 // toggle row level tools
@@ -262,29 +281,51 @@ public class FinderColumn<T>  {
         });
     }
 
+    /**
+     * Central point for security context changes
+     * This will be called when:
+     *
+     * a) the widget is attached (default)
+     * b) the security context changes (i.e. scoped roles)
+     *
+     */
     private void applySecurity(final SecurityContext securityContext, boolean update) {
 
-        boolean writePrivilege = this.resourceAddress != null ?
-                securityContext.getWritePrivilege(this.resourceAddress).isGranted() :
-                securityContext.getWritePriviledge().isGranted();
+        boolean writePrivilege = securityContext.getWritePriviledge().isGranted();
 
-        if(writePrivilege)
-        {
-            headerMenu.getElement().removeClassName("rbac-suppressed");
-        }
-        else
-        {
-            headerMenu.getElement().addClassName("rbac-suppressed");
+        // calculate accessible menu items
+        filterNonPrivilegeOperations(writePrivilege, accessibleTopMenuItems, topMenuItems);
+        filterNonPrivilegeOperations(writePrivilege, accessibleMenuItems, menuItems);
+
+        // the top menu is build here
+        buildTopMenu(headerMenu);
+
+        // the row level menu is build when the celltable is filled
+
+    }
+
+    private void filterNonPrivilegeOperations(boolean writePrivilege, List<MenuDelegate> target, MenuDelegate[] source) {
+        target.clear();
+        for (MenuDelegate menuItem : source) {
+
+            // Role.Operation will be filtered depending on the permission
+            if(MenuDelegate.Role.Operation == menuItem.getRole()
+                    && writePrivilege)
+            {
+                target.add(menuItem);
+            }
+
+            // Role.Navigation will not be filtered at all
+            else if(MenuDelegate.Role.Navigation == menuItem.getRole())
+            {
+                target.add(menuItem);
+            }
+
         }
     }
 
     public FinderColumn<T> setShowSize(boolean b) {
         this.showSize = b;
-        return this;
-    }
-
-    public FinderColumn<T> setResourceAddress(String address) {
-        this.resourceAddress = address;
         return this;
     }
 
@@ -344,7 +385,7 @@ public class FinderColumn<T>  {
         popupMenuBar.setStyleName("dropdown-menu");
 
         int i=0;
-        for (final MenuDelegate menuitem : topMenuItems) {
+        for (final MenuDelegate menuitem : accessibleTopMenuItems) {
 
             if(i>0) {     // skip the "default" action
                 MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
@@ -390,7 +431,7 @@ public class FinderColumn<T>  {
         popupMenuBar.setStyleName("dropdown-menu");
 
         int i=0;
-        for (final MenuDelegate menuitem : menuItems) {
+        for (final MenuDelegate menuitem : accessibleMenuItems) {
 
             if(i>0) {     // skip the "default" action
                 MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
@@ -445,6 +486,7 @@ public class FinderColumn<T>  {
         this.menuItems = items;
         return this;
     }
+
 
     /**
      * renders the column without a header
@@ -501,8 +543,6 @@ public class FinderColumn<T>  {
         layout.addStyleName("navigation-column");
         layout.getElement().setId(id);   // RBAC
 
-
-
         if(!plain) {     // including the header
 
             header = new LayoutPanel();
@@ -512,52 +552,12 @@ public class FinderColumn<T>  {
             headerTitle = new HTML(title);
             headerTitle.addStyleName("finder-col-title");
             header.add(headerTitle);
-            ScrollPanel nav = new ScrollPanel(cellTable);
-            nav.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+            ScrollPanel column = new ScrollPanel(cellTable);
+            column.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
 
-            String groupId = HTMLPanel.createUniqueId();
-
-            SafeHtmlBuilder sb = new SafeHtmlBuilder();
-            sb.appendHtmlConstant("<div class='nav-headerMenu'>");
-            sb.appendHtmlConstant("<div id="+groupId+" class='btn-group' style='float:right;padding-right:10px;padding-top:8px'>");
-            sb.appendHtmlConstant("</div>");
-            sb.appendHtmlConstant("</div>");
-
-            headerMenu = new HTMLPanel(sb.toSafeHtml());
+            headerMenu = new LayoutPanel();
             headerMenu.setStyleName("fill-layout");
-
-            if(topMenuItems.length>0) {
-
-                HTML item = new HTML(topMenuItems[0].getTitle());
-                item.setStyleName("btn");
-                item.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        topMenuItems[0].getCommand().executeOn(null);
-                    }
-                });
-                headerMenu.add(item, groupId);
-
-                // remaining menu items move into dropdown
-                if(topMenuItems.length>1)
-                {
-
-                    HTML dropDown = new HTML("<span><i class='icon-caret-down'></i></span>");
-                    dropDown.setStyleName("btn dropdown-toggle");
-                    dropDown.addClickHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-
-                            openTopContextMenu(headerMenu.getElementById(groupId), event.getNativeEvent());
-                        }
-                    });
-                    headerMenu.add(dropDown, groupId);
-
-                }
-
-            }
-
-            header.add(headerMenu);
+            header.add(headerMenu); // fill we be filled through #applySecurity()
 
             header.setWidgetLeftWidth(headerTitle, 0, Style.Unit.PX, 60, Style.Unit.PCT);
             header.setWidgetRightWidth(headerMenu, 0, Style.Unit.PX, 40, Style.Unit.PCT);
@@ -566,10 +566,10 @@ public class FinderColumn<T>  {
             header.setWidgetTopHeight(headerMenu, 1, Style.Unit.PX, 38, Style.Unit.PX);
 
             layout.add(header);
-            layout.add(nav);
+            layout.add(column);
 
             layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(nav, 41, Style.Unit.PX, 95, Style.Unit.PCT);
+            layout.setWidgetTopHeight(column, 41, Style.Unit.PX, 95, Style.Unit.PCT);
 
         }
         else            // embedded mode, w/o header
@@ -585,6 +585,54 @@ public class FinderColumn<T>  {
         return layout;
     }
 
+    private void buildTopMenu(LayoutPanel container) {
+        String groupId = HTMLPanel.createUniqueId();
+
+        SafeHtmlBuilder sb = new SafeHtmlBuilder();
+        sb.appendHtmlConstant("<div class='nav-headerMenu'>");
+        sb.appendHtmlConstant("<div id="+groupId+" class='btn-group' style='float:right;padding-right:10px;padding-top:8px'>");
+        sb.appendHtmlConstant("</div>");
+        sb.appendHtmlConstant("</div>");
+
+        HTMLPanel headerMenu = new HTMLPanel(sb.toSafeHtml());
+        headerMenu.setStyleName("fill-layout");
+
+        container.clear();
+        container.add(headerMenu);
+
+        if(accessibleTopMenuItems.size()>0) {
+
+            MenuDelegate firstItem = accessibleTopMenuItems.get(0);
+            HTML item = new HTML(firstItem.getTitle());
+            item.setStyleName("btn");
+            item.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    firstItem.getCommand().executeOn(null);
+                }
+            });
+            headerMenu.add(item, groupId);
+
+            // remaining menu items move into dropdown
+            if(accessibleTopMenuItems.size()>1)
+            {
+
+                HTML dropDown = new HTML("<span><i class='icon-caret-down'></i></span>");
+                dropDown.setStyleName("btn dropdown-toggle");
+                dropDown.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+
+                        openTopContextMenu(headerMenu.getElementById(groupId), event.getNativeEvent());
+                    }
+                });
+                headerMenu.add(dropDown, groupId);
+
+            }
+
+        }
+    }
+
     public void updateFrom(List<T> records) {
         updateFrom(records, false);
     }
@@ -595,11 +643,15 @@ public class FinderColumn<T>  {
         cellTable.setRowCount(records.size(), true);
         cellTable.setRowData(0, records);
 
+        String label = title;
+        if(!GWT.isScript())
+            label = "<span title='"+token+"'>"+title+"</span>";
+
         if(!plain) {
             if(showSize)
-                headerTitle.setHTML(title+" ("+records.size()+")");
+                headerTitle.setHTML(label+" ("+records.size()+")");
             else
-                headerTitle.setHTML(title);
+                headerTitle.setHTML(label);
         }
 
         if(selectDefault && records.size()>0)

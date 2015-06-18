@@ -40,7 +40,7 @@ public class AggregationColumn extends FinderColumn<AggregationItem> {
     public AggregationColumn(final String title,
             final ColumnManager columnManager,
             final FinderColumn<Assignment> nextColumn,
-            final Widget nextColumnWidget) {
+            final Widget nextColumnWidget, String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 title,
@@ -65,7 +65,7 @@ public class AggregationColumn extends FinderColumn<AggregationItem> {
                     public Object getKey(final AggregationItem item) {
                         return item.isInclude();
                     }
-                });
+                }, token);
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(3);

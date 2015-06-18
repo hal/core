@@ -224,7 +224,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public Object getKey(StandaloneServer item) {
                         return item.getTitle();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         serverColumn.setMenuItems(new MenuDelegate<StandaloneServer>("Reload", new ContextualCommand<StandaloneServer>() {
             @Override
@@ -286,7 +286,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         statusColumn.setMenuItems(
                 new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {
@@ -325,13 +325,13 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     public Object getKey(PlaceLink item) {
                         return item.getTitle();
                     }
-                });
+                }, presenter.getProxy().getNameToken());
 
         subsystemColumn.setPreviewFactory(new PreviewFactory<PlaceLink>() {
             @Override
             public void createPreview(PlaceLink data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;"+data.getTitle()+"</span></center>");
+                builder.appendHtmlConstant("<div class='preview-content'><span style='font-size:24px;'><i class='icon-bar-chart' style='font-size:48px;vertical-align:middle'></i>&nbsp;" + data.getTitle() + "</span></center>");
                 builder.appendHtmlConstant("</div>");
                 callback.onSuccess(builder.toSafeHtml());
             }
@@ -364,8 +364,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 columnManager.reduceColumnsTo(1);
-                if(serverColumn.hasSelectedItem())
-                {
+                if (serverColumn.hasSelectedItem()) {
                     columnManager.updateActiveSelection(serverColWidget);
                     columnManager.appendColumn(statusColWidget);
 
@@ -387,13 +386,10 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                         @Override
                         public void execute() {
 
-                            if(statusColumn.getSelectedItem().getTitle().equals("Subsystems"))
-                            {
+                            if (statusColumn.getSelectedItem().getTitle().equals("Subsystems")) {
                                 columnManager.appendColumn(subsysColWidget);
                                 updateSubsystemColumn(subsystems);
-                            }
-                            else
-                            {
+                            } else {
                                 columnManager.reduceColumnsTo(2);
                             }
                         }

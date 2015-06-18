@@ -118,7 +118,7 @@ public class ColumnServerView extends SuspendableViewImpl
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                });
+                }, NameTokens.ServerProfile);
 
         config.setPreviewFactory(new PreviewFactory<FinderItem>() {
             @Override
@@ -225,7 +225,7 @@ public class ColumnServerView extends SuspendableViewImpl
                     public Object getKey(SubsystemLink item) {
                         return item.getToken();
                     }
-                });
+                },NameTokens.ServerProfile);
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override

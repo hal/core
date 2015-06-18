@@ -52,7 +52,7 @@ public class PrincipalColumn extends FinderColumn<Principal> {
             final Dispatcher circuit,
             final AccessControlFinder presenter,
             final ColumnManager columnManager,
-            final Scheduler.ScheduledCommand onSelect) {
+            final Scheduler.ScheduledCommand onSelect, String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 title,
@@ -77,7 +77,7 @@ public class PrincipalColumn extends FinderColumn<Principal> {
                     public Object getKey(final Principal item) {
                         return item.getId();
                     }
-                }
+                }, token
         );
 
         setShowSize(true);

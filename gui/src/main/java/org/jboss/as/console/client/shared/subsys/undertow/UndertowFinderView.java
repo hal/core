@@ -93,7 +93,7 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                })
+                }, presenter.getProxy().getNameToken())
         ;
 
         links.setMenuItems(new MenuDelegate<FinderItem>("View", new ContextualCommand<FinderItem>() {

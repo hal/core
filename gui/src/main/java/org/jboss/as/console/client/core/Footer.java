@@ -65,9 +65,11 @@ public class Footer {
     private PlaceManager placeManager;
     private ProductConfig productConfig;
     private Diagnostics diagnostics = GWT.create(Diagnostics.class);
+    private RBACContextView rbacView;
 
     @Inject
     public Footer(PlaceManager placeManager, ProductConfig prodConfig, BootstrapContext context, Dispatcher circuit) {
+
         this.placeManager = placeManager;
         this.productConfig = prodConfig;
         this.context = context;
@@ -78,6 +80,8 @@ public class Footer {
             circuit.addDiagnostics(diag);
         }
 
+        if(!GWT.isScript())
+            this.rbacView = new RBACContextView();
     }
 
     public Widget asWidget() {
@@ -166,7 +170,7 @@ public class Footer {
             rbac.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    RBACContextView.launch();
+                    rbacView.launch();
                 }
             });
         }
