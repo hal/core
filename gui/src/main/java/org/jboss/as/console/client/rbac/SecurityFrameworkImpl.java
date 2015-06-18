@@ -128,7 +128,7 @@ public class SecurityFrameworkImpl implements SecurityFramework, SecurityContext
 
         if(null==securityContext) {
             // if this happens the order of presenter initialisation is probably wrong
-            String msg = "Failed to resolve security context for #" + id;
+            String msg = "Failed to resolve security context for #" + id+" (Fallback to read only context)";
             new RuntimeException(msg).printStackTrace();
             securityContext = new ReadOnlyContext();
 

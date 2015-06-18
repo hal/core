@@ -96,7 +96,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                     public Object getKey(Property item) {
                         return item.getName();
                     }
-                })
+                }, presenter.getProxy().getNameToken())
         ;
 
         cacheContainer.setTopMenuItems(
@@ -106,7 +106,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                     public void executeOn(Property container) {
                         presenter.onLauchAddContainer();
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
 
@@ -153,7 +153,7 @@ public class CacheFinder extends SuspendableViewImpl implements CacheFinderPrese
                                     });
                         }
                     }
-                })
+                },MenuDelegate.Role.Operation)
         );
 
         cacheContainer.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

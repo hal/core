@@ -39,7 +39,7 @@ public class ContentColumn extends FinderColumn<Content> {
 
     @SuppressWarnings("unchecked")
     public ContentColumn(final String title, final ColumnManager columnManager,
-            MenuDelegate<Content> topMenuItem, MenuDelegate<Content> contextMenuItem) {
+            MenuDelegate<Content> topMenuItem, MenuDelegate<Content> contextMenuItem, String token) {
         super(DEPLOYMENT, title, new Display<Content>() {
             @Override
             public boolean isFolder(final Content data) {
@@ -60,7 +60,7 @@ public class ContentColumn extends FinderColumn<Content> {
             public Object getKey(final Content item) {
                 return item.getName();
             }
-        });
+        }, token);
 
         setShowSize(true);
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.contentPreview(data)));

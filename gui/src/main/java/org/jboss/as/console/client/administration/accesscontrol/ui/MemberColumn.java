@@ -55,7 +55,8 @@ public class MemberColumn extends FinderColumn<Assignment> {
             final AccessControlFinder presenter,
             final ColumnManager columnManager,
             final Supplier<Role> selectedRole,
-            final Supplier<Boolean> include) {
+            final Supplier<Boolean> include,
+                        String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Member",
@@ -80,7 +81,7 @@ public class MemberColumn extends FinderColumn<Assignment> {
                     public Object getKey(final Assignment item) {
                         return item.getId();
                     }
-                }
+                }, token
         );
 
         setShowSize(true);

@@ -39,7 +39,6 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableView;
 import org.jboss.as.console.client.domain.events.ProfileSelectionEvent;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.model.LoadProfile;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.model.SubsystemStore;

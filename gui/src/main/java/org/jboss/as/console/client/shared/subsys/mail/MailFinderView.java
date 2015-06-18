@@ -93,7 +93,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     public Object getKey(MailSession item) {
                         return item.getName();
                     }
-                })
+                }, presenter.getProxy().getNameToken())
         ;
 
         mailSessions.setTopMenuItems(
@@ -103,7 +103,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     public void executeOn(MailSession mailSession) {
                         presenter.launchNewSessionWizard();
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
 
@@ -130,7 +130,7 @@ public class MailFinderView extends SuspendableViewImpl implements MailFinder.My
                     public void executeOn(MailSession mailSession) {
                         presenter.onDelete(mailSession);
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
         mailSessions.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {

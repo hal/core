@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -90,7 +91,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
         // ------------------------------------------------------ subdeployments
 
-        subdeploymentColumn = new SubdeploymentColumn(columnManager, 4);
+        subdeploymentColumn = new SubdeploymentColumn(columnManager, 4, NameTokens.DomainDeploymentFinder);
         subdeploymentColumnWidget = subdeploymentColumn.asWidget();
 
 
@@ -132,7 +133,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         return item.getName();
                     }
                 }
-        );
+                , NameTokens.DomainDeploymentFinder);
         assignmentColumn.setShowSize(true);
 
         assignmentColumn.setTopMenuItems(
@@ -193,7 +194,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                     public Object getKey(ServerGroupRecord item) {
                         return item.getName();
                     }
-                });
+                },NameTokens.DomainDeploymentFinder);
         serverGroupColumn.setShowSize(true);
 
         serverGroupColumn.setPreviewFactory((data, callback) -> {
@@ -236,7 +237,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         //noinspection Convert2MethodRef
         contentColumn = new ContentColumn("All Content", columnManager,
                 new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard()),
-                null);
+                null, NameTokens.DomainDeploymentFinder);
         contentColumnWidget = contentColumn.asWidget();
 
         unassignedColumn = new ContentColumn("Unassigned Content", columnManager,
@@ -247,7 +248,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                             if (isConfirmed) {
                                 presenter.removeContent(item);
                             }
-                        })));
+                        })), NameTokens.DomainDeploymentFinder);
         unassignedColumnWidget = unassignedColumn.asWidget();
 
 
@@ -277,7 +278,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             } else {
                 startupContent(contentFactory);
             }
-        });
+        },NameTokens.DomainDeploymentFinder);
         browseByColumnWidget = browseByColumn.asWidget();
         browseByColumn.updateFrom(Arrays.asList(contentRepositoryItem, unassignedContentItem, serverGroupsItem));
 

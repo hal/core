@@ -115,7 +115,8 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(String item) {
                         return item;
                     }
-                });
+                }, NameTokens.HostMgmtPresenter
+        );
 
 
       /*  hosts.setTopMenuItems(
@@ -166,7 +167,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(ServerGroupRecord item) {
                         return item.getName();
                     }
-                });
+                }, NameTokens.HostMgmtPresenter);
 
         groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
                         new ContextualCommand<ServerGroupRecord>() {
@@ -175,7 +176,7 @@ public class ColumnHostView extends SuspendableViewImpl
                                 // TODO "/server-group=*", "add" permission
                                 presenter.launchNewGroupDialog();
                             }
-                        })
+                        }, MenuDelegate.Role.Operation)
         );
 
         groups.setPreviewFactory(new PreviewFactory<ServerGroupRecord>() {
@@ -218,7 +219,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     public Object getKey(FinderItem item) {
                         return item.getTitle();
                     }
-                });
+                }, NameTokens.HostMgmtPresenter);
 
 
 
@@ -418,7 +419,7 @@ public class ColumnHostView extends SuspendableViewImpl
                                             }
                                         });
                             }
-                        }),
+                        }, MenuDelegate.Role.Operation),
                 new MenuDelegate<ServerGroupRecord>(          // TODO permissions   "/server-group=*", "add"
                         "Copy", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -426,7 +427,7 @@ public class ColumnHostView extends SuspendableViewImpl
                         Console.getCircuit().dispatch(new GroupSelection(group.getName()));
                         presenter.launchCopyWizard(group);
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<ServerGroupRecord>(
                         "Start", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -445,7 +446,7 @@ public class ColumnHostView extends SuspendableViewImpl
                                 }
                         );
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<ServerGroupRecord>(
                         "Stop", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -464,7 +465,7 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                }),
+                }, MenuDelegate.Role.Operation),
                 new MenuDelegate<ServerGroupRecord>(
                         "Restart", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -483,7 +484,7 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                }) ,
+                }, MenuDelegate.Role.Operation) ,
                 new MenuDelegate<ServerGroupRecord>(
                         "Reload", new ContextualCommand<ServerGroupRecord>() {
                     @Override
@@ -502,7 +503,7 @@ public class ColumnHostView extends SuspendableViewImpl
                         );
 
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
     }

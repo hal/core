@@ -84,7 +84,6 @@ public class DomainRuntimePresenter
 
     private DefaultWindow window;
 
-
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
     @RequiredResources(
@@ -99,16 +98,12 @@ public class DomainRuntimePresenter
         void setPresenter(DomainRuntimePresenter presenter);
         void setSubsystems(List<SubsystemRecord> result);
         void updateServerList(List<Server> serverModel);
-
         void setPreview(SafeHtml html);
-
         void clearServerList();
     }
 
-
     @ContentSlot
-    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =
-            new GwtEvent.Type<RevealContentHandler<?>>();
+    public static final GwtEvent.Type<RevealContentHandler<?>> TYPE_MainContent =  new GwtEvent.Type<RevealContentHandler<?>>();
 
 
     private final Dispatcher circuit;

@@ -96,7 +96,7 @@ public class SecDomainFinderView extends SuspendableViewImpl implements SecDomai
                     public Object getKey(Property item) {
                         return item.getName();
                     }
-                })
+                }, presenter.getProxy().getNameToken())
         ;
 
         securityDomains.setTopMenuItems(
