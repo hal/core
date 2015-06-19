@@ -41,6 +41,8 @@ import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 
+import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Operation;
+
 /**
  * @author Harald Pehl
  */
@@ -96,16 +98,18 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     public Object getKey(final Deployment item) {
                         return item.getName();
                     }
-                }, NameTokens.StandaloneDeploymentFinder
+                },
+                NameTokens.StandaloneDeploymentFinder
         );
 
-        deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard()));
+        deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard(),
+                Operation));
 
         //noinspection Convert2MethodRef
         deploymentColumn.setMenuItems(
-                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableDeployment(item)),
-                new MenuDelegate<>("Replace", item -> presenter.launchReplaceDeploymentWizard(item)),
-                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item))
+                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableDeployment(item), Operation),
+                new MenuDelegate<>("Replace", item -> presenter.launchReplaceDeploymentWizard(item), Operation),
+                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item), Operation)
         );
 
         deploymentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.deploymentPreview(data)));

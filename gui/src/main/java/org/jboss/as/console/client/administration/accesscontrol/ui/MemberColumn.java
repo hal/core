@@ -56,7 +56,7 @@ public class MemberColumn extends FinderColumn<Assignment> {
             final ColumnManager columnManager,
             final Supplier<Role> selectedRole,
             final Supplier<Boolean> include,
-                        String token) {
+            final String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Member",
@@ -81,7 +81,8 @@ public class MemberColumn extends FinderColumn<Assignment> {
                     public Object getKey(final Assignment item) {
                         return item.getId();
                     }
-                }, token
+                },
+                token
         );
 
         setShowSize(true);
@@ -89,14 +90,17 @@ public class MemberColumn extends FinderColumn<Assignment> {
                 Iterables.size(accessControlStore.getAssignments(data.getPrincipal(), include.get())))));
 
         setTopMenuItems(new MenuDelegate<>("Add",
-                item -> presenter.launchAddMemberDialog(selectedRole.get(), include.get())));
+                item -> presenter.launchAddMemberDialog(selectedRole.get(), include.get()),
+                MenuDelegate.Role.Operation));
+
         setMenuItems(new MenuDelegate<>("Remove", item ->
                 Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getPrincipal().getName(),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveAssignment(item, ROLE_TO_PRINCIPAL));
                             }
-                        })));
+                        }),
+                MenuDelegate.Role.Operation));
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(4);

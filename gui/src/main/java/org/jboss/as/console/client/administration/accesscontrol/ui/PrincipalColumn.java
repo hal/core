@@ -52,7 +52,8 @@ public class PrincipalColumn extends FinderColumn<Principal> {
             final Dispatcher circuit,
             final AccessControlFinder presenter,
             final ColumnManager columnManager,
-            final Scheduler.ScheduledCommand onSelect, String token) {
+            final Scheduler.ScheduledCommand onSelect,
+            final String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 title,
@@ -77,7 +78,8 @@ public class PrincipalColumn extends FinderColumn<Principal> {
                     public Object getKey(final Principal item) {
                         return item.getId();
                     }
-                }, token
+                },
+                token
         );
 
         setShowSize(true);
@@ -87,7 +89,9 @@ public class PrincipalColumn extends FinderColumn<Principal> {
                         accessControlStore.getAssignments(data, false))
         ));
 
-        setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddPrincipalDialog(type)));
+        setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddPrincipalDialog(type),
+                MenuDelegate.Role.Operation));
+
         setMenuItems(new MenuDelegate<>("Remove", item ->
                 Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
                         "Remove " + item.getName() +
@@ -95,7 +99,8 @@ public class PrincipalColumn extends FinderColumn<Principal> {
                                 (item.getType() == Principal.Type.USER ? "user." : "group."),
                         isConfirmed -> {
                             if (isConfirmed) { circuit.dispatch(new RemovePrincipal(item)); }
-                        })));
+                        }),
+                MenuDelegate.Role.Operation));
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(2);

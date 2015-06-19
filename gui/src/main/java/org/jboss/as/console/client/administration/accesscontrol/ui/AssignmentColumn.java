@@ -59,7 +59,8 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
             final PreviewContentFactory contentFactory,
             final ColumnManager columnManager,
             final Supplier<Principal> selectedPrincipal,
-            final Supplier<Boolean> include, String token) {
+            final Supplier<Boolean> include,
+            final String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Role",
@@ -84,7 +85,8 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
                     public Object getKey(final Assignment item) {
                         return item.getId();
                     }
-                }, token
+                },
+                token
         );
 
         setShowSize(true);
@@ -107,14 +109,17 @@ public class AssignmentColumn extends FinderColumn<Assignment> {
         });
 
         setTopMenuItems(new MenuDelegate<>("Add",
-                item -> presenter.launchAddAssignmentDialog(selectedPrincipal.get(), include.get())));
+                item -> presenter.launchAddAssignmentDialog(selectedPrincipal.get(), include.get()),
+                MenuDelegate.Role.Operation));
+
         setMenuItems(new MenuDelegate<>("Remove", item ->
                 Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getRole().getName(),
                         isConfirmed -> {
                             if (isConfirmed) {
                                 circuit.dispatch(new RemoveAssignment(item, PRINCIPAL_TO_ROLE));
                             }
-                        })));
+                        }),
+                MenuDelegate.Role.Operation));
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(4);

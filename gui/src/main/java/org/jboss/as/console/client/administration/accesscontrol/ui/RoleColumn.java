@@ -50,7 +50,6 @@ public class RoleColumn extends FinderColumn<Role> {
 
     static final PreviewContent PREVIEW_CONTENT = PreviewContent.INSTANCE;
 
-    private final AccessControlStore accessControlStore;
     private Widget widget;
 
     @SuppressWarnings({"unchecked", "Convert2MethodRef"})
@@ -60,7 +59,8 @@ public class RoleColumn extends FinderColumn<Role> {
             final AccessControlFinder presenter,
             final PreviewContentFactory contentFactory,
             final ColumnManager columnManager,
-            final Scheduler.ScheduledCommand onSelect, String token) {
+            final Scheduler.ScheduledCommand onSelect,
+            final String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Role",
@@ -85,8 +85,8 @@ public class RoleColumn extends FinderColumn<Role> {
                     public Object getKey(final Role item) {
                         return item.getId();
                     }
-                }, token);
-        this.accessControlStore = accessControlStore;
+                },
+                token);
 
         setShowSize(true);
         setPreviewFactory((data, callback) -> {
@@ -113,10 +113,11 @@ public class RoleColumn extends FinderColumn<Role> {
         });
 
         if (!bootstrapContext.isStandalone()) {
-            setTopMenuItems(new MenuDelegate<>("Add Scoped Role", item -> presenter.launchAddScopedRoleDialog()));
+            setTopMenuItems(new MenuDelegate<>("Add Scoped Role", item -> presenter.launchAddScopedRoleDialog(),
+                    MenuDelegate.Role.Operation));
         }
         setMenuItems(
-                new MenuDelegate<>("Edit", item -> presenter.editRole(item)),
+                new MenuDelegate<>("Edit", item -> presenter.editRole(item), MenuDelegate.Role.Operation),
                 new MenuDelegate<>("Remove", item -> {
                     if (item.isScoped()) {
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
@@ -127,7 +128,7 @@ public class RoleColumn extends FinderColumn<Role> {
                     } else {
                         Console.warning("Standard roles cannot be removed.");
                     }
-                })
+                }, MenuDelegate.Role.Operation)
         );
 
         addSelectionChangeHandler(event -> {
