@@ -55,6 +55,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import java.util.Arrays;
 
 import static org.jboss.as.console.client.widgets.nav.v3.FinderColumn.FinderId.DEPLOYMENT;
+import static org.jboss.as.console.client.widgets.nav.v3.MenuDelegate.Role.Operation;
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -132,20 +133,22 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                     public Object getKey(final Assignment item) {
                         return item.getName();
                     }
-                }
-                , NameTokens.DomainDeploymentFinder);
+                },
+                NameTokens.DomainDeploymentFinder);
+
         assignmentColumn.setShowSize(true);
 
         assignmentColumn.setTopMenuItems(
                 new MenuDelegate<>("Add",
-                        item -> presenter.launchAddAssignmentWizard(serverGroupColumn.getSelectedItem().getName()))
+                        item -> presenter.launchAddAssignmentWizard(serverGroupColumn.getSelectedItem().getName()),
+                        Operation)
         );
 
         //noinspection Convert2MethodRef
         assignmentColumn.setMenuItems(
-                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableAssignment(item)),
-                new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item)),
-                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item))
+                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableAssignment(item), Operation),
+                new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
+                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item), Operation)
         );
 
         assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
@@ -194,7 +197,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                     public Object getKey(ServerGroupRecord item) {
                         return item.getName();
                     }
-                },NameTokens.DomainDeploymentFinder);
+                },
+                NameTokens.DomainDeploymentFinder);
         serverGroupColumn.setShowSize(true);
 
         serverGroupColumn.setPreviewFactory((data, callback) -> {
@@ -236,7 +240,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
         //noinspection Convert2MethodRef
         contentColumn = new ContentColumn("All Content", columnManager,
-                new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard()),
+                new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard(), Operation),
                 null, NameTokens.DomainDeploymentFinder);
         contentColumnWidget = contentColumn.asWidget();
 
@@ -244,11 +248,12 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 null,
                 new MenuDelegate<>("Remove", item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
-                        isConfirmed -> {
-                            if (isConfirmed) {
-                                presenter.removeContent(item);
-                            }
-                        })), NameTokens.DomainDeploymentFinder);
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.removeContent(item);
+                                    }
+                                }), Operation),
+                NameTokens.DomainDeploymentFinder);
         unassignedColumnWidget = unassignedColumn.asWidget();
 
 
@@ -278,7 +283,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
             } else {
                 startupContent(contentFactory);
             }
-        },NameTokens.DomainDeploymentFinder);
+        }, NameTokens.DomainDeploymentFinder);
         browseByColumnWidget = browseByColumn.asWidget();
         browseByColumn.updateFrom(Arrays.asList(contentRepositoryItem, unassignedContentItem, serverGroupsItem));
 

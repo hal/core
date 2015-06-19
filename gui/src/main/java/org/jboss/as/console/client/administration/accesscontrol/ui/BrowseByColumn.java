@@ -41,7 +41,8 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
     @SuppressWarnings("unchecked")
     public BrowseByColumn(final Dispatcher circuit,
             final PreviewContentFactory contentFactory,
-            final SelectionChangeEvent.Handler selectionHandler, String token) {
+            final SelectionChangeEvent.Handler selectionHandler,
+            final String token) {
 
         super(FinderId.ACCESS_CONTROL,
                 "Browse By",
@@ -66,9 +67,11 @@ public class BrowseByColumn extends FinderColumn<BrowseByItem> {
                     public Object getKey(final BrowseByItem item) {
                         return item.getTitle();
                     }
-                }, token);
+                },
+                token);
 
-        setTopMenuItems(new MenuDelegate<>("Refresh", item -> circuit.dispatch(new ReloadAccessControl())));
+        setTopMenuItems(new MenuDelegate<>("Refresh", item -> circuit.dispatch(new ReloadAccessControl()),
+                MenuDelegate.Role.Operation));
         setPreviewFactory((data, callback) -> contentFactory.createContent(data.getPreview(), callback));
         addSelectionChangeHandler(selectionHandler);
     }

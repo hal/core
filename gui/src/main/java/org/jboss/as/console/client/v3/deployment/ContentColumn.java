@@ -39,28 +39,31 @@ public class ContentColumn extends FinderColumn<Content> {
 
     @SuppressWarnings("unchecked")
     public ContentColumn(final String title, final ColumnManager columnManager,
-            MenuDelegate<Content> topMenuItem, MenuDelegate<Content> contextMenuItem, String token) {
-        super(DEPLOYMENT, title, new Display<Content>() {
-            @Override
-            public boolean isFolder(final Content data) {
-                return false;
-            }
+            final MenuDelegate<Content> topMenuItem, final MenuDelegate<Content> contextMenuItem, final String token) {
+        super(DEPLOYMENT, title,
+                new Display<Content>() {
+                    @Override
+                    public boolean isFolder(final Content data) {
+                        return false;
+                    }
 
-            @Override
-            public SafeHtml render(final String baseCss, final Content data) {
-                return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
-            }
+                    @Override
+                    public SafeHtml render(final String baseCss, final Content data) {
+                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
+                    }
 
-            @Override
-            public String rowCss(final Content data) {
-                return "";
-            }
-        }, new ProvidesKey<Content>() {
-            @Override
-            public Object getKey(final Content item) {
-                return item.getName();
-            }
-        }, token);
+                    @Override
+                    public String rowCss(final Content data) {
+                        return "";
+                    }
+                },
+                new ProvidesKey<Content>() {
+                    @Override
+                    public Object getKey(final Content item) {
+                        return item.getName();
+                    }
+                },
+                token);
 
         setShowSize(true);
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.contentPreview(data)));
