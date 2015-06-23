@@ -22,6 +22,7 @@
 package org.jboss.hal.processors;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Joiner;
 import org.jboss.as.console.spi.GinExtension;
 import org.jboss.as.console.spi.GinExtensionBinding;
 
@@ -73,10 +74,12 @@ public class GinProcessor extends AbstractHalProcessor {
         for (Element e : roundEnv.getElementsAnnotatedWith(GinExtension.class)) {
             TypeElement moduleElement = (TypeElement) e;
             ginjectors.add(moduleElement.getQualifiedName().toString());
+            debug("Added %s as ginjector extension", moduleElement.getQualifiedName());
         }
         for (Element e : roundEnv.getElementsAnnotatedWith(GinExtensionBinding.class)) {
             TypeElement moduleElement = (TypeElement) e;
             modules.add(moduleElement.getQualifiedName().toString());
+            debug("Added %s as GIN module extension", moduleElement.getQualifiedName());
         }
 
         if (round() == GENERATE_AT_ROUND) {
@@ -90,7 +93,8 @@ public class GinProcessor extends AbstractHalProcessor {
                     context.put("compositeBinding", MODULE_CLASS);
                     return context;
                 });
-                info("Successfully generated composite ginjector interface [%s].", GINJECTOR_CLASS);
+                info("Successfully generated composite ginjector interface [%s] based on \n\t- %s.", GINJECTOR_CLASS,
+                        Joiner.on("\n\t- ").join(ginjectors));
                 ginjectors.clear();
             }
 
@@ -103,7 +107,8 @@ public class GinProcessor extends AbstractHalProcessor {
                     context.put("modules", modules);
                     return context;
                 });
-                info("Successfully generated composite GIN module [%s].", MODULE_CLASS);
+                info("Successfully generated composite GIN module [%s] based on \n\t- %s.", MODULE_CLASS,
+                        Joiner.on("\n\t- ").join(modules));
                 modules.clear();
             }
         }

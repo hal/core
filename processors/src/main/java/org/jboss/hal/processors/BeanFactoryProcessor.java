@@ -24,6 +24,7 @@ package org.jboss.hal.processors;
 import com.google.auto.common.AnnotationMirrors;
 import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
+import com.google.common.base.Joiner;
 import com.google.web.bindery.autobean.shared.AutoBeanFactory;
 import org.jboss.as.console.spi.BeanFactoryExtension;
 
@@ -70,6 +71,7 @@ public class BeanFactoryProcessor extends AbstractHalProcessor {
         for (Element e : roundEnv.getElementsAnnotatedWith(BeanFactoryExtension.class)) {
             TypeElement factoryElement = (TypeElement) e;
             factories.add(factoryElement.getQualifiedName().toString());
+            debug("Added %s as bean factory extension", factoryElement.getQualifiedName());
         }
 
         for (Element e : roundEnv.getElementsAnnotatedWith(AutoBeanFactory.Category.class)) {
@@ -89,8 +91,8 @@ public class BeanFactoryProcessor extends AbstractHalProcessor {
                 context.put("categories", categories);
                 return context;
             });
-
-            info("Successfully generated composite bean factory [%s].", BEAN_FACTORY_CLASS);
+            info("Successfully generated composite bean factory [%s] based on \n\t- %s.", BEAN_FACTORY_CLASS,
+                    Joiner.on("\n\t- ").join(factories));
             factories.clear();
             categories.clear();
         }

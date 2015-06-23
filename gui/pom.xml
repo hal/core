@@ -207,6 +207,20 @@
 
         <plugins>
             <plugin>
+                <!-- Must run *before* maven-processor-plugin -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
                 <executions>
@@ -224,7 +238,7 @@
                                 -->
                                 <gwt.console.core.version>${project.version}</gwt.console.core.version>
                                 <!-- Uncomment to get more messages from the annotation processors -->
-                                <debug>true</debug>
+                                <!--<debug>true</debug>-->
                             </options>
                             <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
                         </configuration>
@@ -237,19 +251,6 @@
                 <configuration>
                     <compilerArgument>-proc:none</compilerArgument>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.lesscss</groupId>

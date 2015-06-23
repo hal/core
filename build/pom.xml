@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>HAL Core Console :: Build</name>
     <artifactId>jboss-as-console-build</artifactId>
@@ -131,6 +132,11 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.bsc.maven</groupId>
+                    <artifactId>maven-processor-plugin</artifactId>
+                    <version>${version.maven.processor.plugin}</version>
+                </plugin>
+                <plugin>
                     <artifactId>maven-war-plugin</artifactId>
                     <executions>
                         <execution>
@@ -180,37 +186,6 @@
                         </fileset>
                     </filesets>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>generate-gwt-modules</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <processors>
-                                <processor>org.jboss.hal.processors.GwtModuleProcessor</processor>
-                            </processors>
-                            <processSourceArtifacts>
-                                <processSourceArtifact>org.jboss.as:jboss-as-console-core</processSourceArtifact>
-                            </processSourceArtifacts>
-                            <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
-                            <options>
-                                <!--
-                                    All properties prefixed with 'gwt.' are written into the
-                                    generated GWT module (without the 'gwt.' prefix)
-                                -->
-                                <gwt.console.core.version>${project.version}</gwt.console.core.version>
-                                <!-- Uncomment to get more messages from the annotation processors -->
-                                <debug>true</debug>
-                            </options>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -284,7 +259,8 @@
             <id>dev</id>
             <properties>
                 <skipTests>true</skipTests>
-                <o>true</o> <!-- offline -->
+                <o>true</o>
+                <!-- offline -->
                 <env>default</env>
             </properties>
             <build>
@@ -373,7 +349,8 @@
             <id>eapdev</id>
             <properties>
                 <skipTests>true</skipTests>
-                <o>true</o> <!-- offline -->
+                <o>true</o>
+                <!-- offline -->
                 <env>default</env>
             </properties>
             <build>
