@@ -19,5 +19,8 @@ public @interface RuntimeExtension {
 
     String group() default METRICS;
 
+    /**
+     * DMR name of the subsystem
+     */
     String key();
 }

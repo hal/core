@@ -16,6 +16,10 @@
         <relativePath>../bom/pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <gwt.module>org.jboss.hal.WildFlyDev</gwt.module>
+    </properties>
+
     <!--
     ~  USAGE:
     ~  Inherit from this pom.
@@ -135,6 +139,30 @@
                     <groupId>org.bsc.maven</groupId>
                     <artifactId>maven-processor-plugin</artifactId>
                     <version>${version.maven.processor.plugin}</version>
+                    <executions>
+                        <execution>
+                            <id>process-spi</id>
+                            <goals>
+                                <goal>process</goal>
+                            </goals>
+                            <phase>generate-sources</phase>
+                            <configuration>
+                                <options>
+                                    <!--
+                                        All properties prefixed with 'gwt.' are written into the
+                                        generated GWT module (without the 'gwt.' prefix)
+                                    -->
+                                    <gwt.console.core.version>${project.version}</gwt.console.core.version>
+                                    <!-- Uncomment to get more messages from the annotation processors -->
+                                    <!--<debug>true</debug>-->
+                                </options>
+                                <processSourceArtifacts>
+                                    <processSourceArtifact>org.jboss.as:jboss-as-console-core:sources</processSourceArtifact>
+                                </processSourceArtifacts>
+                                <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <artifactId>maven-war-plugin</artifactId>
@@ -208,7 +236,7 @@
                     <sourceLevel>1.8</sourceLevel>
                     <localWorkers>4</localWorkers>
                     <compileReport>false</compileReport>
-                    <module>org.jboss.as.console.composite.WildFly</module>
+                    <module>${gwt.module}</module>
                     <disableCastChecking>true</disableCastChecking>
                     <disableClassMetadata>true</disableClassMetadata>
                     <enableClosureCompiler>true</enableClosureCompiler>
@@ -262,6 +290,7 @@
                 <o>true</o>
                 <!-- offline -->
                 <env>default</env>
+                <gwt.module>org.jboss.as.console.composite.WildFlyDev</gwt.module>
             </properties>
             <build>
                 <plugins>
@@ -269,7 +298,7 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <module>org.jboss.as.console.composite.WildFlyDev</module>
+                            <module>${gwt.module}</module>
                             <!--style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler-->
                         </configuration>
@@ -290,6 +319,7 @@
             <id>full</id>
             <properties>
                 <env>default</env>
+                <gwt.module>org.jboss.as.console.composite.WildFlyFull</gwt.module>
             </properties>
             <build>
                 <plugins>
@@ -299,7 +329,7 @@
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>true</disableClassMetadata>
-                            <module>org.jboss.as.console.composite.WildFlyFull</module>
+                            <module>${gwt.module}</module>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -329,6 +359,7 @@
             <id>eap</id>
             <properties>
                 <env>default</env>
+                <gwt.module>org.jboss.as.console.composite.EAP</gwt.module>
             </properties>
             <build>
                 <plugins>
@@ -338,7 +369,7 @@
                         <configuration>
                             <disableCastChecking>true</disableCastChecking>
                             <disableClassMetadata>true</disableClassMetadata>
-                            <module>org.jboss.as.console.composite.EAP</module>
+                            <module>${gwt.module}</module>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -352,6 +383,7 @@
                 <o>true</o>
                 <!-- offline -->
                 <env>default</env>
+                <gwt.module>org.jboss.as.console.composite.EAPDev</gwt.module>
             </properties>
             <build>
                 <plugins>
@@ -359,9 +391,9 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>gwt-maven-plugin</artifactId>
                         <configuration>
-                            <module>org.jboss.as.console.composite.EAPDev</module>
                             <style>DETAILED</style>
                             <enableClosureCompiler>false</enableClosureCompiler>
+                            <module>${gwt.module}</module>
                         </configuration>
                     </plugin>
                     <plugin>
