@@ -13,6 +13,7 @@ public enum Protocol {
     UDP("UDP"),
     TCP("TCP"),
     TCP_GOSSIP("TCP_GOSSIP"),
+    TCP_PING("TCPPING"),
     AUTH("AUTH"),
     PING("PING"),
     MPING("MPING"),
