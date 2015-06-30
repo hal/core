@@ -39,6 +39,7 @@ public class ColumnManager {
      * number of columns visible across all finders (and contributions)
      */
     private static Map<FinderColumn.FinderId, Integer> totalColumnsVisible = new HashMap<>();
+    private Widget centerWidget;
 
 
     public ColumnManager(SplitLayoutPanel delegate, FinderColumn.FinderId finderId) {
@@ -202,8 +203,7 @@ public class ColumnManager {
                 public void execute() {
                    centerWidget.getElement().scrollIntoView();
                 }
-            });
-*/
+            });*/
         }
         else
         {
@@ -221,7 +221,7 @@ public class ColumnManager {
 
     public void add(Widget widget) {
         splitlayout.add(widget);
-        //this.centerWidget = widget;
+        this.centerWidget = widget;
     }
 
     public void setInitialVisible(int index) {

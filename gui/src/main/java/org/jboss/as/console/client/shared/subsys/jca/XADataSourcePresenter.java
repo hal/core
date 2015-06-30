@@ -47,6 +47,7 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
 import org.jboss.as.console.client.shared.subsys.jca.model.DriverStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
+import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -61,14 +62,15 @@ import static org.jboss.as.console.client.shared.subsys.jca.VerifyConnectionOp.V
 /**
  * @author Heiko Braun
  */
-public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, DataSourcePresenter.MyProxy>
+public class XADataSourcePresenter extends Presenter<XADataSourcePresenter.MyView, XADataSourcePresenter.MyProxy>
         implements PropertyManagement {
+
+    private String selectedDatasource;
 
     private final DispatchAsync dispatcher;
     private final BeanFactory beanFactory;
     private final CurrentProfileSelection currentProfileSelection;
     private final DataSourceTemplates dataSourceTemplates;
-    private boolean hasBeenRevealed = false;
     private DefaultWindow window;
 
     private DataSourceStore dataSourceStore;
@@ -76,35 +78,35 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     private RevealStrategy revealStrategy;
     private ApplicationProperties bootstrap;
     private DefaultWindow propertyWindow;
-    private List<DataSource> datasources;
+
     private List<JDBCDriver> drivers;
-    private String selectedDatasource;
 
     @ProxyCodeSplit
-    @NameToken(NameTokens.DataSourcePresenter)
+    @NameToken(NameTokens.XADataSourcePresenter)
     @RequiredResources(resources = {
-            "/{selected.profile}/subsystem=datasources/data-source=*"}
-    )
-    @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc"})
-    public interface MyProxy extends Proxy<DataSourcePresenter>, Place {}
+            "/{selected.profile}/subsystem=datasources/xa-data-source=*"})
+    @SearchIndex(keywords = {"jpa", "data-source", "pool", "connection-properties", "jdbc", "xa-data-source"})
+    public interface MyProxy extends Proxy<XADataSourcePresenter>, Place {}
 
 
     public interface MyView extends SuspendableView {
-
-        void setPresenter(DataSourcePresenter presenter);
-        void updateDataSource(DataSource ds);
-        void enableDSDetails(boolean b);
-        void setPoolConfig(String name, PoolConfig poolConfig);
-        void setConnectionProperties(String reference, List<PropertyRecord> properties);
+        void setPresenter(XADataSourcePresenter presenter);
+        void updateXADataSource(XADataSource ds);
+        void enableXADetails(boolean b);
+        void setXAPoolConfig(String dsName, PoolConfig underlying);
+        void setXAProperties(String dataSourceName, List<PropertyRecord> result);
         void showVerifyConncectionResult(final String name, VerifyResult result);
+
+        void setConnectionProperties(String datasourceName, List<PropertyRecord> propertyRecords);
     }
 
 
+
     @Inject
-    public DataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
-                               DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
-                               DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection,
-                               DataSourceTemplates dataSourceTemplates) {
+    public XADataSourcePresenter(EventBus eventBus, MyView view, MyProxy proxy, DataSourceStore dataSourceStore,
+                                 DriverRegistry driverRegistry, RevealStrategy revealStrategy, ApplicationProperties bootstrap,
+                                 DispatchAsync dispatcher, BeanFactory beanFactory, CurrentProfileSelection currentProfileSelection,
+                                 DataSourceTemplates dataSourceTemplates) {
 
         super(eventBus, view, proxy);
         this.dispatcher = dispatcher;
@@ -116,7 +118,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         this.driverRegistry = driverRegistry.create();
         this.revealStrategy = revealStrategy;
         this.bootstrap = bootstrap;
-        this.datasources = new ArrayList<DataSource>();
+
         this.drivers = new ArrayList<JDBCDriver>();
     }
 
@@ -135,7 +137,20 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
     @Override
     protected void onReset() {
         super.onReset();
-        loadDataSource();
+
+       loadXADataSource();
+    }
+
+    private void loadXADataSource() {
+
+        dataSourceStore.loadDataSource(selectedDatasource, true, new SimpleCallback<DataSource>() {
+            @Override
+            public void onSuccess(DataSource result) {
+
+                getView().updateXADataSource((XADataSource) result);
+            }
+        });
+
     }
 
     @Override
@@ -153,17 +168,7 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
 
             @Override
             public void onSuccess(final List<JDBCDriver> result) {
-                DataSourcePresenter.this.drivers = result;
-            }
-        });
-    }
-
-    private void loadDataSource() {
-        dataSourceStore.loadDataSource(selectedDatasource, false, new SimpleCallback<DataSource>() {
-            @Override
-            public void onSuccess(DataSource result) {
-
-                getView().updateDataSource(result);
+                XADataSourcePresenter.this.drivers = result;
             }
         });
     }
@@ -172,26 +177,25 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         window.hide();
     }
 
-    public void onSaveDSDetails(final String name, Map<String, Object> changedValues) {
-        getView().enableDSDetails(false);
+    public void onSaveXADetails(final String name, Map<String, Object> changedValues) {
+
+        getView().enableXADetails(false);
         if(changedValues.size()>0)
         {
-            dataSourceStore.updateDataSource(name, changedValues, new SimpleCallback<ResponseWrapper<Boolean>> (){
+            dataSourceStore.updateXADataSource(name, changedValues, new SimpleCallback<ResponseWrapper<Boolean>> (){
 
                 @Override
                 public void onSuccess(ResponseWrapper<Boolean> response) {
                     if(response.getUnderlying())
-                        Console.info(Console.MESSAGES.saved("Datasource "+name));
+                        Console.info(Console.MESSAGES.saved("XA Datasource "+name));
                     else
-                        Console.error(Console.MESSAGES.saveFailed("Datasource ") + name, response.getResponse().toString());
+                        Console.error(Console.MESSAGES.saveFailed("XA Datasource " + name), response.getResponse().toString());
 
-                    loadDataSource();
+                    loadXADataSource();
                 }
-
             });
         }
     }
-
 
     public void loadPoolConfig(final boolean isXA, final String dsName) {
 
@@ -199,7 +203,8 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 new SimpleCallback<ResponseWrapper<PoolConfig>>() {
                     @Override
                     public void onSuccess(ResponseWrapper<PoolConfig> result) {
-                        getView().setPoolConfig(dsName, result.getUnderlying());
+                        if(isXA)
+                            getView().setXAPoolConfig(dsName, result.getUnderlying());
                     }
                 });
     }
@@ -231,6 +236,89 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
                 loadPoolConfig(isXA, editedName);
             }
         });
+    }
+
+    public void loadXAProperties(final String dataSourceName) {
+        dataSourceStore.loadXAProperties(dataSourceName, new SimpleCallback<List<PropertyRecord>>()
+        {
+            @Override
+            public void onSuccess(List<PropertyRecord> result) {
+                getView().setXAProperties(dataSourceName, result);
+            }
+        });
+    }
+
+
+    public void onCreateXAProperty(final String reference, final PropertyRecord prop) {
+
+        closeXAPropertyDialoge();
+
+        dataSourceStore.createXAConnectionProperty(reference, prop, new SimpleCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                if (success)
+                    Console.info(Console.MESSAGES.added("XA property " + prop.getKey()));
+                else
+                    Console.error(Console.MESSAGES.addingFailed("XA property " + prop.getKey()));
+
+                loadXAProperties(reference);
+            }
+        });
+    }
+
+    public void onDeleteXAProperty(final String reference, final PropertyRecord prop) {
+        dataSourceStore.deleteXAConnectionProperty(reference, prop, new SimpleCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean success) {
+                if (success)
+                    Console.info(Console.MESSAGES.deleted("XA property " + prop.getKey()));
+                else
+                    Console.error(Console.MESSAGES.deletionFailed("XA property " + prop.getKey()));
+
+                loadXAProperties(reference);
+            }
+        });
+    }
+
+    public void launchNewXAPropertyDialoge(String reference) {
+        propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("XA property"));
+        propertyWindow.setWidth(480);
+        propertyWindow.setHeight(360);
+        propertyWindow.trapWidget(
+                new NewPropertyWizard(new PropertyManagement() {
+                    @Override
+                    public void onCreateProperty(String reference, PropertyRecord prop) {
+                        onCreateXAProperty(reference, prop);
+                    }
+
+                    @Override
+                    public void onDeleteProperty(String reference, PropertyRecord prop) {
+
+                    }
+
+                    @Override
+                    public void onChangeProperty(String reference, PropertyRecord prop) {
+
+                    }
+
+                    @Override
+                    public void launchNewPropertyDialoge(String reference) {
+
+                    }
+
+                    @Override
+                    public void closePropertyDialoge() {
+                        closeXAPropertyDialoge();
+                    }
+                }, reference).asWidget()
+        );
+
+        propertyWindow.setGlassEnabled(true);
+        propertyWindow.center();
+    }
+
+    public void closeXAPropertyDialoge() {
+        propertyWindow.hide();
     }
 
     public void verifyConnection(final DataSource dataSource, boolean xa, boolean existing) {
@@ -323,24 +411,25 @@ public class DataSourcePresenter extends Presenter<DataSourcePresenter.MyView, D
         });
     }
 
-
-    public void onDisable(final DataSource entity, boolean doEnable) {
-        dataSourceStore.enableDataSource(entity, doEnable, new SimpleCallback<ResponseWrapper<Boolean>>() {
+    public void onDisableXA(final XADataSource entity, boolean doEnable) {
+        dataSourceStore.enableXADataSource(entity, doEnable, new SimpleCallback<ResponseWrapper<Boolean>>()
+        {
 
             @Override
             public void onSuccess(ResponseWrapper<Boolean> result) {
                 boolean enabled = entity.isEnabled();
-                String text = enabled ? Console.MESSAGES.successDisabled("Datasource " + entity.getName()) :Console.MESSAGES.successEnabled("Datasource " + entity.getName()) ;
+                String text = enabled ? Console.MESSAGES.successDisabled("XA datasource " + entity.getName()) : Console.MESSAGES.successEnabled("XA datasource " + entity.getName()) ;
                 if (result.getUnderlying()) {
                     Console.info(text);
                 } else {
-                    Console.error(Console.MESSAGES.modificationFailed("Datasource ") + entity.getName(), result.getResponse().toString());
+                    Console.error(Console.MESSAGES.modificationFailed("Datasource " + entity.getName()), result.getResponse().toString());
                 }
 
-                loadDataSource();
+                loadXADataSource();
 
-                getEventBus().fireEvent(new RefreshDSFinderEvent(false, selectedDatasource));
+                getEventBus().fireEvent(new RefreshDSFinderEvent(true, selectedDatasource));
             }
         });
     }
+
 }

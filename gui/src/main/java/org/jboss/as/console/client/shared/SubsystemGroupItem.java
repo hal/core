@@ -34,6 +34,7 @@ public class SubsystemGroupItem {
     private final int micro;
     private boolean disabled = false;
 
+    @Deprecated
     public SubsystemGroupItem(String name, String key) {
         this(name, key, key.toLowerCase().replace(" ", "_"));
     }

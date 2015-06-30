@@ -26,9 +26,9 @@ public class XADataSourceConnection {
     private ModelNode helpAddress;
     private FormToolStrip.FormCallback<XADataSource> callback;
     private Form<XADataSource> form;
-    private DataSourcePresenter presenter;
+    private XADataSourcePresenter presenter;
 
-    public XADataSourceConnection(DataSourcePresenter presenter, FormToolStrip.FormCallback<XADataSource> callback) {
+    public XADataSourceConnection(XADataSourcePresenter presenter, FormToolStrip.FormCallback<XADataSource> callback) {
 
         ModelNode helpAddress = Baseadress.get();
         helpAddress.add("subsystem", "datasources");

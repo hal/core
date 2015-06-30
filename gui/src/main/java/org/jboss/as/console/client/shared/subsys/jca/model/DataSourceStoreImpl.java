@@ -28,7 +28,11 @@ import org.jboss.as.console.client.shared.model.ModelAdapter;
 import org.jboss.as.console.client.shared.model.ResponseWrapper;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.widgets.forms.*;
+import org.jboss.as.console.client.widgets.forms.AddressBinding;
+import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
+import org.jboss.as.console.client.widgets.forms.BeanMetaData;
+import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.widgets.forms.KeyAssignment;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -119,7 +123,7 @@ public class DataSourceStoreImpl implements DataSourceStore {
     }
 
     @Override
-    public void loadDataSource(String name, boolean isXA, final AsyncCallback<DataSource> callback) {
+    public void loadDataSource(final String name, boolean isXA, final AsyncCallback<DataSource> callback) {
 
         AddressBinding address = isXA ? xadsMetaData.getAddress() : dsMetaData.getAddress();
         ModelNode operation = address.asResource(baseadress.getAdress(), name);
@@ -142,8 +146,19 @@ public class DataSourceStoreImpl implements DataSourceStore {
                 }
                 else
                 {
-                    DataSource datasource = dataSourceAdapter.fromDMR(response.get(RESULT).asObject());
-                    callback.onSuccess(datasource);
+                    if(isXA)
+                    {
+                        XADataSource datasource = xaDataSourceAdapter.fromDMR(response.get(RESULT).asObject());
+                        datasource.setName(name);
+                        callback.onSuccess(datasource);
+                    }
+                    else
+                    {
+                        DataSource datasource = dataSourceAdapter.fromDMR(response.get(RESULT).asObject());
+                        datasource.setName(name);
+                        callback.onSuccess(datasource);
+                    }
+
                 }
             }
         });

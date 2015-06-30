@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
+import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplate;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class NewXADatasourceWizard {
 
-    private final DataSourcePresenter presenter;
+    private final DataSourceFinder presenter;
     private final List<JDBCDriver> drivers;
     private final List<XADataSource> existingXaDataSources;
     private final ApplicationProperties bootstrap;
@@ -60,7 +60,7 @@ public class NewXADatasourceWizard {
     private XADatasourceStep4 step4;
     private TrappedFocusPanel trap;
 
-    public NewXADatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
+    public NewXADatasourceWizard(DataSourceFinder presenter, List<JDBCDriver> drivers,
                                  List<XADataSource> existingXaDataSources, ApplicationProperties bootstrap,
                                  DataSourceTemplates templates, BeanFactory beanFactory) {
         this.presenter = presenter;
@@ -71,7 +71,7 @@ public class NewXADatasourceWizard {
         this.beanFactory = beanFactory;
     }
 
-    public DataSourcePresenter getPresenter() {
+    public DataSourceFinder getPresenter() {
         return presenter;
     }
 

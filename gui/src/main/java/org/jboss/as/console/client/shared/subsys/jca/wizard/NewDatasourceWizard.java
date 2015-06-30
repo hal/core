@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.DeckPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
+import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplate;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class NewDatasourceWizard {
 
-    private final DataSourcePresenter presenter;
+    private final DataSourceFinder presenter;
     private final List<DataSource> existingDataSources;
     private final List<JDBCDriver> drivers;
     private final ApplicationProperties bootstrap;
@@ -55,7 +55,7 @@ public class NewDatasourceWizard {
     private DataSourceStep3 step3;
     private TrappedFocusPanel trap;
 
-    public NewDatasourceWizard(DataSourcePresenter presenter, List<JDBCDriver> drivers,
+    public NewDatasourceWizard(DataSourceFinder presenter, List<JDBCDriver> drivers,
                                List<DataSource> existingDataSources, ApplicationProperties bootstrap,
                                DataSourceTemplates templates, BeanFactory beanFactory) {
         this.presenter = presenter;
@@ -66,7 +66,7 @@ public class NewDatasourceWizard {
         this.beanFactory = beanFactory;
     }
 
-    public DataSourcePresenter getPresenter() {
+    public DataSourceFinder getPresenter() {
         return presenter;
     }
 

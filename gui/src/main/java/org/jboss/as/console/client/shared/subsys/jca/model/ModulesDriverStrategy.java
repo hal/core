@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
 
 /**
  * @author Harald Pehl

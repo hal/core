@@ -38,7 +38,6 @@ import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.layout.LHSNavTreeItem;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +60,8 @@ public class ColumnProfileView extends SuspendableViewImpl
             NameTokens.CacheFinderPresenter,
             NameTokens.HornetqFinder,
             NameTokens.SecDomains,
-            NameTokens.UndertowFinder
+            NameTokens.UndertowFinder,
+            NameTokens.DataSourceFinder
     };
 
     private static final String PROFILES = "Profiles";

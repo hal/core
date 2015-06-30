@@ -30,9 +30,7 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.StatusItem;
-import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
@@ -112,9 +110,6 @@ public class DataSourceDetails {
         return scroll;
     }
 
-    public void bind(CellTable<DataSource> dataSourceTable) {
-        form.bind(dataSourceTable);
-    }
 
     public void setEnabled(boolean b) {
         form.setEnabled(b);
@@ -122,5 +117,10 @@ public class DataSourceDetails {
 
     public DataSource getCurrentSelection() {
         return form.getEditedEntity();
+    }
+
+    public void updateFrom(DataSource ds)
+    {
+        form.edit(ds);
     }
 }

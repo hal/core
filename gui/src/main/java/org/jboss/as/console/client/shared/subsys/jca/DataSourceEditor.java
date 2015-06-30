@@ -21,17 +21,15 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.widgets.forms.FormEditor;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -46,7 +44,7 @@ import java.util.Map;
 public class DataSourceEditor {
 
     private DataSourcePresenter presenter;
-    private DatasourceTable dataSourceTable;
+
     private DataSourceDetails details;
     private PoolConfigurationView poolConfig;
     private ConnectionProperties connectionProps ;
@@ -56,7 +54,8 @@ public class DataSourceEditor {
     private DataSourceTimeoutEditor<DataSource> timeoutEditor;
     private DataSourceStatementEditor<DataSource> statementEditor;
     private ToolButton disableBtn;
-    private Widget dataSourceTableWidget;
+    private DataSource selectedEntity = null;
+    private HTML title;
 
     public DataSourceEditor(DataSourcePresenter presenter) {
         this.presenter = presenter;
@@ -66,67 +65,33 @@ public class DataSourceEditor {
 
 
         ToolStrip topLevelTools = new ToolStrip();
-        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
 
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewDatasourceWizard();
-            }
-        }));
+        details = new DataSourceDetails(presenter);
 
-
-        ClickHandler clickHandler = new ClickHandler() {
+        ClickHandler disableHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
-                final DataSource currentSelection = details.getCurrentSelection();
-                if(currentSelection!=null)
-                {
-                    Feedback.confirm(
-                            Console.MESSAGES.deleteTitle("Datasource"),
-                            Console.MESSAGES.deleteConfirm("Datasource "+currentSelection.getName()),
-                            new Feedback.ConfirmationHandler() {
-                                @Override
-                                public void onConfirmation(boolean isConfirmed) {
-                                    if (isConfirmed) {
-                                        presenter.onDelete(currentSelection);
-                                    }
+
+                final boolean nextState = !selectedEntity.isEnabled();
+                String title = nextState ? Console.MESSAGES.enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
+                String text = nextState ? Console.MESSAGES.enableConfirm("datasource "+selectedEntity.getName()) : Console.MESSAGES.disableConfirm("datasource "+selectedEntity.getName()) ;
+                Feedback.confirm(title, text,
+                        new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed) {
+                                    presenter.onDisable(selectedEntity, nextState);
                                 }
-                            });
-                }
+                            }
+                        });
             }
         };
-        ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
-        deleteBtn.addClickHandler(clickHandler);
-        topLevelTools.addToolButtonRight(deleteBtn);
 
+        disableBtn = new ToolButton(Console.CONSTANTS.common_label_enOrDisable(), disableHandler);
+        disableBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_enOrDisable_dataSourceDetails());
 
-        // ---
-
-        dataSourceTable = new DatasourceTable();
-        dataSourceTableWidget = dataSourceTable.asWidget();
-
-        // -----------
-        details = new DataSourceDetails(presenter);
-        details.bind(dataSourceTable.getCellTable());
-
-        SingleSelectionModel<DataSource> selectionModel =
-                (SingleSelectionModel<DataSource>)dataSourceTable.getCellTable().getSelectionModel();
-
-        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler () {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                DataSource selectedObject = ((SingleSelectionModel<DataSource>) dataSourceTable.getCellTable().getSelectionModel()).getSelectedObject();
-                if(selectedObject!=null) {
-                    presenter.loadPoolConfig(false, selectedObject.getName());
-                    presenter.onLoadConnectionProperties(selectedObject.getName());
-                }
-
-            }
-        });
-
-        // -----------------
-
+        topLevelTools.addToolButtonRight(disableBtn);
 
 
         // -----------------
@@ -134,8 +99,8 @@ public class DataSourceEditor {
         final FormToolStrip.FormCallback<DataSource> formCallback = new FormToolStrip.FormCallback<DataSource>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
-                DataSource ds = getCurrentSelection();
-                presenter.onSaveDSDetails(ds.getName(), changeset);
+
+                presenter.onSaveDSDetails(selectedEntity.getName(), changeset);
             }
 
             @Override
@@ -148,11 +113,7 @@ public class DataSourceEditor {
 
         securityEditor = new DataSourceSecurityEditor(formCallback);
 
-        // -----------------
-
         connectionProps = new ConnectionProperties(presenter);
-
-        // -----------------
 
         poolConfig = new PoolConfigurationView(new PoolManagement() {
             @Override
@@ -167,7 +128,7 @@ public class DataSourceEditor {
 
             @Override
             public void onDoFlush(String editedName, String flushOp) {
-                if(getCurrentSelection().isEnabled())
+                if(selectedEntity.isEnabled())
                     presenter.onDoFlush(false, editedName, flushOp);
                 else
                     Console.error(Console.CONSTANTS.subsys_jca_error_datasource_notenabled());
@@ -185,59 +146,15 @@ public class DataSourceEditor {
         timeoutEditor = new DataSourceTimeoutEditor<DataSource>(formCallback, false);
         statementEditor = new DataSourceStatementEditor<>(formCallback, false);
 
-        // --
-        ClickHandler disableHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
 
-                final DataSource selection = getCurrentSelection();
-                final boolean nextState = !selection.isEnabled();
-                String title = nextState ? Console.MESSAGES.enableConfirm("datasource") : Console.MESSAGES.disableConfirm("datasource");
-                String text = nextState ? Console.MESSAGES.enableConfirm("datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("datasource "+selection.getName()) ;
-                Feedback.confirm(title, text,
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    presenter.onDisable(selection, nextState);
-                                }
-                            }
-                        });
-            }
-        };
+        title = new HTML();
+        title.setStyleName("content-header-label");
 
-        disableBtn = new ToolButton(Console.CONSTANTS.common_label_enOrDisable(), disableHandler);
-        disableBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_enOrDisable_dataSourceDetails());
-
-
-        // -----
-        // handle modifications to the model
-
-        dataSourceTable.getCellTable().getSelectionModel().addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler() {
-                    @Override
-                    public void onSelectionChange(SelectionChangeEvent event) {
-                        DataSource selection = getCurrentSelection();
-                        if(selection!=null) {
-                            String nextState = selection.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
-                            disableBtn.setText(nextState);
-                        }
-                    }
-                }) ;
-
-
-        topLevelTools.addToolButtonRight(disableBtn);
-
-
-        // --
-
-
-        MultipleToOneLayout builder = new MultipleToOneLayout()
+        OneToOneLayout builder = new OneToOneLayout()
                 .setPlain(true)
-                .setHeadline("JDBC Datasources")
+                .setHeadlineWidget(title)
                 .setDescription(Console.CONSTANTS.subsys_jca_dataSources_desc())
-                .setMasterTools(topLevelTools.asWidget())
-                .setMaster("Available Datasources", dataSourceTable.getCellTable())
+                .setMaster("",topLevelTools.asWidget())
                 .addDetail("Attributes", details.asWidget())
                 .addDetail("Connection", connectionEditor.asWidget())
                 .addDetail("Pool", poolConfig.asWidget())
@@ -247,32 +164,38 @@ public class DataSourceEditor {
                 .addDetail("Timeouts", timeoutEditor.asWidget())
                 .addDetail("Statements", statementEditor.asWidget());
 
-        connectionEditor.getForm().bind(dataSourceTable.getCellTable());
-        securityEditor.getForm().bind(dataSourceTable.getCellTable());
-        poolConfig.getForm().bind(dataSourceTable.getCellTable());
-        validationEditor.getForm().bind(dataSourceTable.getCellTable());
-        timeoutEditor.getForm().bind(dataSourceTable.getCellTable());
-        statementEditor.getForm().bind(dataSourceTable.getCellTable());
-
         return builder.build();
     }
 
 
-    private DataSource getCurrentSelection() {
-        DataSource ds = ((SingleSelectionModel<DataSource>) dataSourceTable.getCellTable().getSelectionModel()).getSelectedObject();
-        return ds;
-    }
+    public void updateDataSource(DataSource ds) {
 
-    public void updateDataSources(List<DataSource> datasources) {
+        this.selectedEntity= ds;
+
+        details.updateFrom(ds);
+
+        String suffix = ds.isEnabled() ? " (enabled)" : " (disabled)";
+        title.setHTML("JDBC datasource '"+ds.getName()+"'"+suffix);
+
+
+        String nextState = ds.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
+        disableBtn.setText(nextState);
 
         // some cleanup has to be done manually
         connectionProps.clearProperties();
 
+        connectionEditor.getForm().edit(ds);
+        securityEditor.getForm().edit(ds);
 
-        dataSourceTable.getDataProvider().setList(datasources);
+        validationEditor.getForm().edit(ds);
+        timeoutEditor.getForm().edit(ds);
+        statementEditor.getForm().edit(ds);
 
-        final DefaultCellTable<DataSource> cellTable = dataSourceTable.getCellTable();
-        cellTable.selectDefaultEntity();
+
+        // used to be selection model callbacks
+        presenter.loadPoolConfig(false, ds.getName());
+        presenter.onLoadConnectionProperties(ds.getName());
+
     }
 
     public void setEnabled(boolean isEnabled) {

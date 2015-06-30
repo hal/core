@@ -19,20 +19,12 @@
 
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.google.gwt.cell.client.ImageResourceCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.resources.client.ImageResource;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.TabPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
 import org.jboss.as.console.client.shared.properties.PropertyManagement;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
@@ -40,8 +32,6 @@ import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.icons.Icons;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
@@ -55,9 +45,7 @@ import java.util.Map;
  */
 public class XADataSourceEditor implements PropertyManagement {
 
-    private DataSourcePresenter presenter;
-    private DefaultCellTable<XADataSource> dataSourceTable;
-    private ListDataProvider<XADataSource> dataSourceProvider;
+    private XADataSourcePresenter presenter;
     private XADataSourceDetails details;
     private PropertyEditor propertyEditor;
     private PoolConfigurationView poolConfig;
@@ -67,8 +55,11 @@ public class XADataSourceEditor implements PropertyManagement {
     private DataSourceTimeoutEditor<XADataSource> timeoutEditor;
     private DataSourceStatementEditor<XADataSource> statementEditor;
     private ToolButton disableBtn;
+    private HTML title;
+    private XADataSource selectedEntity = null;
 
-    public XADataSourceEditor(DataSourcePresenter presenter) {
+
+    public XADataSourceEditor(XADataSourcePresenter presenter) {
         this.presenter = presenter;
     }
 
@@ -76,129 +67,25 @@ public class XADataSourceEditor implements PropertyManagement {
 
 
         ToolStrip topLevelTools = new ToolStrip();
-        ToolButton commonLabelAddBtn = new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
 
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewXADatasourceWizard();
-            }
-        });
-        commonLabelAddBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_add_xADataSourceEditor());
-        topLevelTools.addToolButtonRight(commonLabelAddBtn);
-
-
-        ClickHandler clickHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                final XADataSource currentSelection = details.getCurrentSelection();
-                if(currentSelection!=null)
-                {
-                    Feedback.confirm(
-                            Console.MESSAGES.deleteTitle("XA Datasource"),
-                            Console.MESSAGES.deleteConfirm("XA Datasource "+currentSelection.getName()),
-                            new Feedback.ConfirmationHandler() {
-                                @Override
-                                public void onConfirmation(boolean isConfirmed) {
-                                    if (isConfirmed) {
-                                        presenter.onDeleteXA(currentSelection);
-                                    }
-                                }
-                            });
-                }
-            }
-        };
-        ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
-        deleteBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_delete_xADataSourceEditor());
-        deleteBtn.addClickHandler(clickHandler);
-        topLevelTools.addToolButtonRight(deleteBtn);
-
-        // ---
-
-        dataSourceTable = new DefaultCellTable<XADataSource>(8,
-                new ProvidesKey<XADataSource>() {
-                    @Override
-                    public Object getKey(XADataSource item) {
-                        return item.getJndiName();
-                    }
-                });
-
-        dataSourceProvider = new ListDataProvider<XADataSource>();
-        dataSourceProvider.addDataDisplay(dataSourceTable);
-
-
-        TextColumn<DataSource> nameColumn = new TextColumn<DataSource>() {
-            @Override
-            public String getValue(DataSource record) {
-                return record.getName();
-            }
-        };
-
-        TextColumn<DataSource> jndiNameColumn = new TextColumn<DataSource>() {
-            @Override
-            public String getValue(DataSource record) {
-                return record.getJndiName();
-            }
-        };
-
-        Column<DataSource, ImageResource> statusColumn =
-                new Column<DataSource, ImageResource>(new ImageResourceCell()) {
-                    @Override
-                    public ImageResource getValue(DataSource dataSource) {
-
-                        ImageResource res = null;
-
-                        if(dataSource.isEnabled())
-                            res = Icons.INSTANCE.status_good();
-                        else
-                            res = Icons.INSTANCE.status_bad();
-
-                        return res;
-                    }
-                };
-
-
-        dataSourceTable.addColumn(nameColumn, "Name");
-        dataSourceTable.addColumn(jndiNameColumn, "JNDI");
-        dataSourceTable.addColumn(statusColumn, "Enabled?");
-
-        // -----------
         details = new XADataSourceDetails(presenter);
-
 
         propertyEditor = new PropertyEditor(this, true);
         propertyEditor.setHelpText(Console.CONSTANTS.subsys_jca_dataSource_xaprop_help());
-
-        final SingleSelectionModel<XADataSource> selectionModel = new SingleSelectionModel<XADataSource>();
-        selectionModel.addSelectionChangeHandler(
-                new SelectionChangeEvent.Handler() {
-                    @Override
-                    public void onSelectionChange(SelectionChangeEvent event) {
-                        XADataSource dataSource = selectionModel.getSelectedObject();
-                        String nextState = dataSource.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
-                        disableBtn.setText(nextState);
-
-                        presenter.loadXAProperties(dataSource.getName());
-                        presenter.loadPoolConfig(true, dataSource.getName());
-                    }
-                });
-        dataSourceTable.setSelectionModel(selectionModel);
-
 
         ClickHandler disableHandler = new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
-                final XADataSource selection = getCurrentSelection();
-                final boolean doEnable = !selection.isEnabled();
+                final boolean doEnable = !selectedEntity.isEnabled();
                 String title = doEnable ? Console.MESSAGES.enableConfirm("XA datasource") : Console.MESSAGES.disableConfirm("XA datasource");
-                String text = doEnable ? Console.MESSAGES.enableConfirm("XA datasource "+selection.getName()) : Console.MESSAGES.disableConfirm("XA datasource "+selection.getName()) ;
+                String text = doEnable ? Console.MESSAGES.enableConfirm("XA datasource "+selectedEntity.getName()) : Console.MESSAGES.disableConfirm("XA datasource "+selectedEntity.getName()) ;
                 Feedback.confirm(title, text,
                         new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
-                                    presenter.onDisableXA(selection, doEnable);
+                                    presenter.onDisableXA(selectedEntity, doEnable);
                                 }
                             }
                         });
@@ -210,13 +97,13 @@ public class XADataSourceEditor implements PropertyManagement {
         disableBtn.addClickHandler(disableHandler);
         topLevelTools.addToolButtonRight(disableBtn);
 
-        // -----
+
+   // -----
 
         final FormToolStrip.FormCallback<XADataSource> xaCallback = new FormToolStrip.FormCallback<XADataSource>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
-                DataSource ds = getCurrentSelection();
-                presenter.onSaveXADetails(ds.getName(), changeset);
+                presenter.onSaveXADetails(selectedEntity.getName(), changeset);
             }
 
             @Override
@@ -228,8 +115,7 @@ public class XADataSourceEditor implements PropertyManagement {
         final FormToolStrip.FormCallback<DataSource> dsCallback = new FormToolStrip.FormCallback<DataSource>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
-                DataSource ds = getCurrentSelection();
-                presenter.onSaveXADetails(ds.getName(), changeset);
+                presenter.onSaveXADetails(selectedEntity.getName(), changeset);
             }
 
             @Override
@@ -260,51 +146,59 @@ public class XADataSourceEditor implements PropertyManagement {
         timeoutEditor = new DataSourceTimeoutEditor<XADataSource>(xaCallback, true);
         statementEditor = new DataSourceStatementEditor<>(xaCallback, true);
 
-        MultipleToOneLayout builder = new MultipleToOneLayout()
-                     .setPlain(true)
-                     .setHeadline("JDBC XA Datasources")
-                     .setDescription(Console.CONSTANTS.subsys_jca_xadataSources_desc())
-                     .setMasterTools(topLevelTools.asWidget())
-                     .setMaster("Available Datasources", dataSourceTable)
-                     .addDetail("Attributes", details.asWidget())
-                     .addDetail("Connection", connectionEditor.asWidget())
-                     .addDetail("Pool", poolConfig.asWidget())
-                     .addDetail("Security", securityEditor.asWidget())
-                     .addDetail("Properties", propertyEditor.asWidget())
-                     .addDetail("Validation", validationEditor.asWidget())
-                     .addDetail("Timeouts", timeoutEditor.asWidget())
-                     .addDetail("Statements", statementEditor.asWidget());
+        title = new HTML();
+        title.setStyleName("content-header-label");
+
+
+        OneToOneLayout builder = new OneToOneLayout()
+                .setPlain(true)
+                .setHeadlineWidget(title)
+                .setDescription(Console.CONSTANTS.subsys_jca_xadataSources_desc())
+                .setMaster("", topLevelTools.asWidget())
+                .addDetail("Attributes", details.asWidget())
+                .addDetail("Connection", connectionEditor.asWidget())
+                .addDetail("Pool", poolConfig.asWidget())
+                .addDetail("Security", securityEditor.asWidget())
+                .addDetail("Properties", propertyEditor.asWidget())
+                .addDetail("Validation", validationEditor.asWidget())
+                .addDetail("Timeouts", timeoutEditor.asWidget())
+                .addDetail("Statements", statementEditor.asWidget());
 
         // build the overall layout
         Widget widget = builder.build();
-        // now it's safe to bind the forms
-        details.getForm().bind(dataSourceTable);
-        connectionEditor.getForm().bind(dataSourceTable);
-        poolConfig.getForm().bind(dataSourceTable);
-        securityEditor.getForm().bind(dataSourceTable);
-        validationEditor.getForm().bind(dataSourceTable);
-        timeoutEditor.getForm().bind(dataSourceTable);
+
         return widget;
     }
 
 
-    public void updateDataSources(List<XADataSource> datasources) {
+    public void updateDataSource(XADataSource ds) {
+
+        this.selectedEntity = ds;
 
         // requires manual cleanup
         propertyEditor.clearValues();
 
-        dataSourceProvider.setList(datasources);
+        details.updateFrom(ds);
 
-        dataSourceTable.selectDefaultEntity();
+        String suffix = ds.isEnabled() ? " (enabled)" : " (disabled)";
+        title.setHTML("JDBC datasource '"+ds.getName()+"'"+suffix);
 
+
+        String nextState = ds.isEnabled() ? Console.CONSTANTS.common_label_disable() : Console.CONSTANTS.common_label_enable();
+        disableBtn.setText(nextState);
+
+        details.getForm().edit(ds);
+        connectionEditor.getForm().edit(ds);
+        securityEditor.getForm().edit(ds);
+        validationEditor.getForm().edit(ds);
+        timeoutEditor.getForm().edit(ds);
+
+        presenter.loadXAProperties(ds.getName());
+        presenter.loadPoolConfig(true, ds.getName());
     }
 
     public void setEnabled(boolean isEnabled) {
         details.setEnabled(isEnabled);
-    }
-
-    private XADataSource getCurrentSelection() {
-        return ((SingleSelectionModel<XADataSource>)dataSourceTable.getSelectionModel()).getSelectedObject();
     }
 
     // property management below

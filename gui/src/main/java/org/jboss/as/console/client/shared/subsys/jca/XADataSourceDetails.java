@@ -28,9 +28,7 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.StatusItem;
-import org.jboss.ballroom.client.widgets.forms.TextAreaItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
 import org.jboss.dmr.client.ModelNode;
@@ -44,10 +42,10 @@ import java.util.Map;
 public class XADataSourceDetails {
 
     private Form<XADataSource> form;
-    private DataSourcePresenter presenter;
+    private XADataSourcePresenter presenter;
 
 
-    public XADataSourceDetails(DataSourcePresenter presenter) {
+    public XADataSourceDetails(XADataSourcePresenter presenter) {
         this.presenter = presenter;
         form = new Form(XADataSource.class);
         form.setNumColumns(2);
@@ -120,5 +118,9 @@ public class XADataSourceDetails {
 
     public XADataSource getCurrentSelection() {
         return form.getEditedEntity();
+    }
+
+    public void updateFrom(XADataSource ds) {
+        form.edit(ds);
     }
 }

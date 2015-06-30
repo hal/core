@@ -106,9 +106,11 @@ import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresente
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
+import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
+import org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
 import org.jboss.as.console.client.shared.subsys.jca.model.DomainDriverStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.model.DriverRegistry;
@@ -259,6 +261,8 @@ public interface CoreUI {
     // ----------------------------------------------------------------------
     // shared subsystems
     AsyncProvider<DataSourcePresenter> getDataSourcePresenter();
+    AsyncProvider<XADataSourcePresenter> getXADataSourcePresenter();
+
     DataSourceStore getDataSourceStore();
 
     DomainDriverStrategy getDomainDriverStrategy();
@@ -390,4 +394,6 @@ public interface CoreUI {
     AsyncProvider<SecDomainPresenter> getSecDomainPresenter();
 
     AsyncProvider<UndertowFinder> getUndertowFinder();
+
+    AsyncProvider<DataSourceFinder> getDataSourceFinder();
 }

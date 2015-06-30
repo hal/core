@@ -24,8 +24,8 @@ import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
+import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 
 import java.util.List;
@@ -34,20 +34,21 @@ import java.util.List;
  * @author Heiko Braun
  * @date 3/24/11
  */
-public class DatasourceView extends SuspendableViewImpl implements DataSourcePresenter.MyView {
+public class XADatasourceView extends SuspendableViewImpl implements XADataSourcePresenter.MyView {
 
-    private DataSourcePresenter presenter;
-    private DataSourceEditor dataSourceEditor;
+    private XADataSourcePresenter presenter;
+    private XADataSourceEditor xaDataSourceEditor;
 
     @Override
     public Widget createWidget() {
 
-        this.dataSourceEditor = new DataSourceEditor(presenter);
+
+        this.xaDataSourceEditor = new XADataSourceEditor(presenter);
 
         DefaultTabLayoutPanel tabLayoutpanel = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         tabLayoutpanel.addStyleName("default-tabpanel");
 
-        tabLayoutpanel.add(dataSourceEditor.asWidget(), Console.CONSTANTS.subsys_jca_dataSources(), true);
+        tabLayoutpanel.add(xaDataSourceEditor.asWidget(), Console.CONSTANTS.subsys_jca_dataSourcesXA(), true);
 
         tabLayoutpanel.selectTab(0);
 
@@ -55,27 +56,33 @@ public class DatasourceView extends SuspendableViewImpl implements DataSourcePre
     }
 
     @Override
-    public void setPresenter(DataSourcePresenter presenter) {
+    public void setXAProperties(String dataSourceName, List<PropertyRecord> result) {
+        xaDataSourceEditor.setXaProperties(dataSourceName, result);
+    }
+
+    @Override
+    public void setConnectionProperties(String datasourceName, List<PropertyRecord> propertyRecords) {
+        // TODO: NOOP?
+    }
+
+    @Override
+    public void setPresenter(XADataSourcePresenter presenter) {
         this.presenter = presenter;
     }
 
     @Override
-    public void updateDataSource(DataSource ds) {
-        dataSourceEditor.updateDataSource(ds);
+    public void updateXADataSource(XADataSource ds) {
+        xaDataSourceEditor.updateDataSource(ds);
     }
 
     @Override
-    public void enableDSDetails(boolean b) {
-        dataSourceEditor.enableDetails(b);
+    public void enableXADetails(boolean b) {
+        xaDataSourceEditor.enableDetails(b);
     }
 
     @Override
-    public void setPoolConfig(String name, PoolConfig poolConfig) {
-        dataSourceEditor.setPoolConfig(name, poolConfig);
-    }
-
-    public void setConnectionProperties(String reference, List<PropertyRecord> properties) {
-        dataSourceEditor.setConnectionProperties(reference, properties);
+    public void setXAPoolConfig(String name, PoolConfig poolConfig) {
+        xaDataSourceEditor.setPoolConfig(name, poolConfig);
     }
 
     @Override

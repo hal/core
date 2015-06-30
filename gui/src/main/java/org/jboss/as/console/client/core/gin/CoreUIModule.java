@@ -188,12 +188,16 @@ import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesView;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOView;
+import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
+import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinderView;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DatasourceView;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaSubsystemView;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterView;
+import org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter;
+import org.jboss.as.console.client.shared.subsys.jca.XADatasourceView;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStoreImpl;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceTemplates;
@@ -406,6 +410,12 @@ public class CoreUIModule extends AbstractPresenterModule {
                 DataSourcePresenter.MyView.class,
                 DatasourceView.class,
                 DataSourcePresenter.MyProxy.class);
+
+        bindPresenter(XADataSourcePresenter.class,
+                      XADataSourcePresenter.MyView.class,
+                      XADatasourceView.class,
+                      XADataSourcePresenter.MyProxy.class);
+
 
         bindPresenter(MsgDestinationsPresenter.class,
                 MsgDestinationsPresenter.MyView.class,
@@ -695,6 +705,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 UndertowFinder.MyView.class,
                 UndertowFinderView.class,
                 UndertowFinder.MyProxy.class);
+
+        bindPresenter(DataSourceFinder.class,
+                DataSourceFinder.MyView.class,
+                DataSourceFinderView.class,
+                DataSourceFinder.MyProxy.class);
 
         // ------------------------------------------------------ circuit
 
