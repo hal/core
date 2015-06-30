@@ -67,7 +67,7 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
     @RequiredResources(
             resources = {
                     "/{selected.host}/{selected.server}/subsystem=undertow",
-                    "/{selected.host}/{selected.server}/subsystem=undertow/server={undertow.server}"
+                    "/{selected.host}/{selected.server}/subsystem=undertow/server=*"
             }
     )
     @SearchIndex(keywords = {"web", "connections", "http"})
