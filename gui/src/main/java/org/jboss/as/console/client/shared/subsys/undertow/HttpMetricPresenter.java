@@ -61,7 +61,6 @@ public class HttpMetricPresenter extends CircuitPresenter<HttpMetricPresenter.My
         return securityFramework;
     }
 
-
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpMetrics)
     @RequiredResources(
