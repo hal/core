@@ -146,6 +146,7 @@ public class StandaloneDeploymentFinder
     protected void onReset() {
         super.onReset();
         loadDeployments();
+        Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
 
 

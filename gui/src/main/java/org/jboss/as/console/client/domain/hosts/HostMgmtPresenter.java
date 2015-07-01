@@ -225,6 +225,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     protected void onReset() {
         clearInitialPlace();
         HostMgmtPresenter.super.onReset();
+        Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
 
     private void loadServerGroups() {
@@ -443,6 +444,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         ServerGroupOpV3 serverGroupOp = new ServerGroupOpV3(op, new LifecycleCallback() {
             @Override
             public void onSuccess() {
+                Console.info("Server Group "+ op.name() + " succeeded");
                 circuit.dispatch(new RefreshServer());
             }
 

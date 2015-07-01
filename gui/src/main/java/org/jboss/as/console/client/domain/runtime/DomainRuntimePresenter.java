@@ -296,6 +296,7 @@ public class DomainRuntimePresenter
                 op, new LifecycleCallback() {
             @Override
             public void onSuccess() {
+                Console.info("Server "+op.name() + " succeeded: Server "+server);
                 circuit.dispatch(new RefreshServer());
             }
 

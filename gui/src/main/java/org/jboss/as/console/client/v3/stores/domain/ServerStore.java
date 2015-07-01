@@ -208,8 +208,8 @@ public class ServerStore extends ChangeSupport {
 
             @Override
             public void onSuccess(Boolean success) {
-
-               onRefresh(channel);
+                Console.info("Successfully added server " + action.getServer().getName());
+                onRefresh(channel);
             }
 
             @Override
@@ -228,6 +228,7 @@ public class ServerStore extends ChangeSupport {
             @Override
             public void onSuccess(Boolean success) {
 
+                Console.info("Successfully removed server " + action.getServerRef().getServerName());
                 onRefresh(channel);
             }
 

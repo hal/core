@@ -164,6 +164,12 @@ public class DomainDeploymentFinder
     }
 
     @Override
+    protected void onReset() {
+        super.onReset();
+        Console.MODULES.getHeader().highlight(getProxy().getNameToken());
+    }
+
+    @Override
     protected void revealInParent() {
         RevealContentEvent.fire(this, MainLayoutPresenter.TYPE_MainContent, this);
     }

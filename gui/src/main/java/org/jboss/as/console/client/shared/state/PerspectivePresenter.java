@@ -72,7 +72,7 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
     @Override
     protected void onReset() {
         super.onReset();
-        header.highlight(token);
+        //header.highlight(token);
 
         PlaceRequest requestedPlace = placeManager.getCurrentPlaceRequest();
 

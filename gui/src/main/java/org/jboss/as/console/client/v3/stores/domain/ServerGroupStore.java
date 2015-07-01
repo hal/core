@@ -76,9 +76,9 @@ public class ServerGroupStore extends ChangeSupport {
                 @Override
                 public void onSuccess(Boolean wasSuccessful) {
                     if (wasSuccessful) {
-                        Console.info(Console.MESSAGES.deleted(action.getName()));
+                        Console.info(Console.MESSAGES.deleted("Server Group "+action.getName()));
                     } else {
-                        Console.error(Console.MESSAGES.deletionFailed(action.getName()));
+                        Console.error(Console.MESSAGES.deletionFailed("Server Group "+action.getName()));
                     }
 
                     refresh(channel);
@@ -95,11 +95,11 @@ public class ServerGroupStore extends ChangeSupport {
 
                 if (success) {
 
-                    Console.info(Console.MESSAGES.added(action.getGroup().getName()));
+                    Console.info(Console.MESSAGES.added("Server Group "+action.getGroup().getName()));
                     refresh(channel);
 
                 } else {
-                    Console.error(Console.MESSAGES.addingFailed(action.getGroup().getName()));
+                    Console.error(Console.MESSAGES.addingFailed("Server Group "+ action.getGroup().getName()));
                 }
             }
         });
