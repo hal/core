@@ -52,7 +52,7 @@ public class PagedView {
         navigationBar.getElement().getStyle().setMarginBottom(0, PX);
         navigationBar.getElement().getStyle().setMarginLeft(15, PX);
         navigationBar.getElement().getStyle().setMarginRight(15, PX);
-        layout.addWest(navigationBar, 180);
+        layout.addWest(navigationBar, 220);
         layout.add(deck);
 
 
