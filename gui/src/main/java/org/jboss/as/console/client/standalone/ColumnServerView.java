@@ -57,7 +57,9 @@ public class ColumnServerView extends SuspendableViewImpl
             NameTokens.CacheFinderPresenter,
             NameTokens.HornetqFinder,
             NameTokens.SecDomains,
-            NameTokens.UndertowFinder
+            NameTokens.UndertowFinder,
+            NameTokens.DataSourceFinder,
+            NameTokens.ResourceAdapterFinder
     };
 
     private final FinderColumn<SubsystemLink> subsystems;

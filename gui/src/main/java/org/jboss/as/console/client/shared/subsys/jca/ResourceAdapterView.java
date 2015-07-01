@@ -19,7 +19,7 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
     private ResourceAdapterPresenter presenter;
     private PagedView panel;
     private AdapterList adapterList;
-    private List<ResourceAdapter> adapters;
+
     private ConnectionList connectionList;
     private AdminObjectList adminObjects;
 
@@ -33,13 +33,13 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
 
         DefaultTabLayoutPanel layout  = new DefaultTabLayoutPanel(40, Style.Unit.PX);
         layout.addStyleName("default-tabpanel");
-        panel = new PagedView();
+        panel = new PagedView(true);
 
         this.adapterList = new AdapterList(presenter);
         this.connectionList = new ConnectionList(presenter);
         this.adminObjects = new AdminObjectList(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), adapterList.asWidget());
+        panel.addPage("Configuration", adapterList.asWidget());
         panel.addPage("Connection Definitions", connectionList.asWidget());
         panel.addPage("Admin Objects", adminObjects.asWidget()) ;
 
@@ -53,34 +53,11 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
     }
 
     @Override
-    public void setSelectedAdapter(String selectedAdapter) {
+    public void setAdapter(ResourceAdapter ra) {
 
-
-        if(null==selectedAdapter)
-        {
-            panel.showPage(0);
-        }
-        else{
-            for(ResourceAdapter adapter : adapters)
-            {
-                if(adapter.getName().equals(selectedAdapter))
-                {
-                    connectionList.setAdapter(adapter);
-                    adminObjects.setAdapter(adapter);
-                    break;
-                }
-            }
-
-            // move to first page if still showing topology
-            if(0==panel.getPage())
-                panel.showPage(1);
-        }
-    }
-
-    @Override
-    public void setAdapters(List<ResourceAdapter> adapters) {
-        this.adapters = adapters;
-        adapterList.setAdapters(adapters);
+        adapterList.setAdapter(ra);
+        connectionList.setAdapter(ra);
+        adminObjects.setAdapter(ra);
 
     }
 }

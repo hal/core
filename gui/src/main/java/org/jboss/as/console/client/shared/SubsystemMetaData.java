@@ -73,7 +73,7 @@ public class SubsystemMetaData {
         // assign actual subsystems
         groups.get(CONNECTOR).getItems().add(new SubsystemGroupItem("JCA", "jca"));
         groups.get(CONNECTOR).getItems().add(new SubsystemGroupItem("Datasources", "datasources", NameTokens.DataSourceFinder));
-        groups.get(CONNECTOR).getItems().add(new SubsystemGroupItem("Resource Adapters", "resource-adapters"));
+        groups.get(CONNECTOR).getItems().add(new SubsystemGroupItem("Resource Adapters", "resource-adapters", NameTokens.ResourceAdapterFinder));
         groups.get(CONNECTOR).getItems().add(new SubsystemGroupItem("Mail", "mail", NameTokens.MailFinder));
 
         groups.get(WEB).getItems().add(new SubsystemGroupItem("Servlet/HTTP", "web"));

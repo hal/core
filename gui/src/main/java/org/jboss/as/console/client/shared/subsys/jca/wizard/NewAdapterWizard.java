@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterFinder;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
@@ -27,10 +28,10 @@ import java.util.List;
 public class NewAdapterWizard {
 
 
-    private ResourceAdapterPresenter presenter;
+    private ResourceAdapterFinder presenter;
     private final ResourceAdapter bean;
 
-    public NewAdapterWizard(ResourceAdapterPresenter presenter, ResourceAdapter bean) {
+    public NewAdapterWizard(ResourceAdapterFinder presenter, ResourceAdapter bean) {
         this.presenter = presenter;
 
         this.bean = bean;
@@ -134,7 +135,7 @@ public class NewAdapterWizard {
         return new WindowContentBuilder(layout, options).build();
     }
 
-    ResourceAdapterPresenter getPresenter() {
+    ResourceAdapterFinder getPresenter() {
         return presenter;
     }
 }

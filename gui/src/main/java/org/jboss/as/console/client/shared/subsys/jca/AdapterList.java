@@ -1,20 +1,10 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.ProvidesKey;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
-import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.layout.MultipleToOneLayout;
+import org.jboss.as.console.client.layout.OneToOneLayout;
 import org.jboss.as.console.client.shared.help.FormHelpPanel;
 import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
 import org.jboss.as.console.client.shared.properties.PropertyEditor;
@@ -23,21 +13,15 @@ import org.jboss.as.console.client.shared.properties.PropertyRecord;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
-import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
-import org.jboss.ballroom.client.widgets.tools.ToolButton;
-import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
-import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,13 +31,13 @@ import java.util.Map;
 public class AdapterList implements PropertyManagement {
 
     private ResourceAdapterPresenter presenter;
-    private DefaultCellTable<ResourceAdapter> table;
-    private ListDataProvider<ResourceAdapter> dataProvider;
 
     private Form<ResourceAdapter> attributesForm;
     private Form<ResourceAdapter> wmForm;
     private PropertyEditor propertyEditor;
     private DefaultWindow window;
+    private HTML title;
+    private ResourceAdapter selectedEntity;
 
     public AdapterList(ResourceAdapterPresenter presenter) {
         this.presenter = presenter;
@@ -61,89 +45,6 @@ public class AdapterList implements PropertyManagement {
 
     Widget asWidget() {
 
-
-        ToolStrip topLevelTools = new ToolStrip();
-        topLevelTools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
-
-            @Override
-            public void onClick(ClickEvent event) {
-                presenter.launchNewAdapterWizard();
-            }
-        }));
-
-        ClickHandler clickHandler = new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                final ResourceAdapter selection = getCurrentSelection();
-
-                Feedback.confirm(
-                        Console.MESSAGES.deleteTitle("Resource Adapter"),
-                        Console.MESSAGES.deleteConfirm("Resource Adapter " + selection.getName()),
-                        new Feedback.ConfirmationHandler() {
-                            @Override
-                            public void onConfirmation(boolean isConfirmed) {
-                                if (isConfirmed) {
-                                    presenter.onDelete(selection);
-                                }
-                            }
-                        });
-            }
-        };
-        ToolButton deleteBtn = new ToolButton(Console.CONSTANTS.common_label_delete());
-        deleteBtn.addClickHandler(clickHandler);
-        topLevelTools.addToolButtonRight(deleteBtn);
-
-        // -------
-
-
-        table = new DefaultCellTable<ResourceAdapter>(5,
-                new ProvidesKey<ResourceAdapter>() {
-                    @Override
-                    public Object getKey(ResourceAdapter item) {
-                        return item.getName();
-                    }
-                });
-
-        dataProvider = new ListDataProvider<ResourceAdapter>();
-        dataProvider.addDataDisplay(table);
-
-        TextColumn<ResourceAdapter> nameColumn = new TextColumn<ResourceAdapter>() {
-                    @Override
-                    public String getValue(ResourceAdapter record) {
-                        return record.getName();
-                    }
-                };
-
-        TextColumn<ResourceAdapter> numberConnections = new TextColumn<ResourceAdapter>() {
-            @Override
-            public String getValue(ResourceAdapter record) {
-                return String.valueOf(record.getConnectionDefinitions().size());
-            }
-        };
-
-        Column<ResourceAdapter, ResourceAdapter> option = new Column<ResourceAdapter, ResourceAdapter>(
-                new ViewLinkCell<ResourceAdapter>(Console.CONSTANTS.common_label_view(), new ActionCell.Delegate<ResourceAdapter>() {
-                    @Override
-                    public void execute(ResourceAdapter selection) {
-                        presenter.getPlaceManager().revealPlace(
-                                new PlaceRequest.Builder().nameToken(NameTokens.ResourceAdapterPresenter)
-                                        .with("name", selection.getName()).build());
-                    }
-                })
-        ) {
-            @Override
-            public ResourceAdapter getValue(ResourceAdapter manager) {
-                return manager;
-            }
-        };
-
-        table.addColumn(nameColumn, "Name");
-        table.addColumn(numberConnections, "Connection Definition");
-        table.addColumn(option, "Option");
-
-
-        // -------
 
         VerticalPanel attributesFormPanel = new VerticalPanel();
         attributesFormPanel.setStyleName("fill-layout-width");
@@ -197,7 +98,6 @@ public class AdapterList implements PropertyManagement {
                 }, attributesForm
         );
         attributesFormPanel.add(attributesHelpPanel.asWidget());
-        attributesForm.bind(table);
 
         attributesFormPanel.add(attributesForm.asWidget());
 
@@ -252,34 +152,24 @@ public class AdapterList implements PropertyManagement {
                 }, wmForm
         );
         wmFormPanel.add(wmHelpPanel.asWidget());
-        wmForm.bind(table);
 
         wmFormPanel.add(wmForm.asWidget());
 
         wmForm.setEnabled(false);
 
 
-
-        table.getSelectionModel().addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                ResourceAdapter ra = getCurrentSelection();
-                propertyEditor.setProperties("", ra.getProperties());
-            }
-        });
-
-        // ----
-
         propertyEditor = new PropertyEditor(this, true);
 
         // ----
-        MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
+
+        title = new HTML();
+        title.setStyleName("content-header-label");
+
+        OneToOneLayout layoutBuilder = new OneToOneLayout()
                 .setPlain(true)
                 .setTitle("Resource Adapter")
-                .setHeadline("Resource Adapters")
+                .setHeadlineWidget(title)
                 .setDescription(Console.CONSTANTS.subsys_jca_resource_adapter_desc())
-                .setMaster(Console.MESSAGES.available("Resource Adapters"), table)
-                .setMasterTools(topLevelTools.asWidget())
                 .addDetail("Attributes", attributesFormPanel)
                 .addDetail("Work Manager Security", wmFormPanel)
                 .addDetail("Properties", propertyEditor.asWidget());
@@ -289,16 +179,7 @@ public class AdapterList implements PropertyManagement {
 
 
     private ResourceAdapter getCurrentSelection() {
-        ResourceAdapter selection = ((SingleSelectionModel<ResourceAdapter>) table.getSelectionModel()).getSelectedObject();
-        return selection;
-    }
-
-    public void setAdapters(List<ResourceAdapter> adapters) {
-        dataProvider.setList(adapters);
-
-        propertyEditor.clearValues();
-        table.selectDefaultEntity();
-
+        return selectedEntity;
     }
 
     @Override
@@ -335,5 +216,17 @@ public class AdapterList implements PropertyManagement {
     @Override
     public void closePropertyDialoge() {
         window.hide();
+    }
+
+    public void setAdapter(ResourceAdapter ra) {
+        propertyEditor.clearValues();
+
+        this.selectedEntity = ra;
+        title.setHTML("Resource Adapter "+ ra.getName());
+
+        attributesForm.edit(ra);
+        wmForm.edit(ra);
+        propertyEditor.setProperties(ra.getName(), ra.getProperties());
+
     }
 }

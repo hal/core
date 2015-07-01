@@ -194,6 +194,8 @@ import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DatasourceView;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaSubsystemView;
+import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterFinder;
+import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterFinderView;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterView;
 import org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter;
@@ -482,6 +484,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 IOView.class,
                 IOPresenter.MyProxy.class);
 
+        bindPresenter(ResourceAdapterFinder.class,
+                ResourceAdapterFinder.MyView.class,
+                ResourceAdapterFinderView.class,
+                ResourceAdapterFinder.MyProxy.class);
+        
         bindPresenter(ResourceAdapterPresenter.class,
                 ResourceAdapterPresenter.MyView.class,
                 ResourceAdapterView.class,

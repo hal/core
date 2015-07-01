@@ -109,6 +109,7 @@ import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.JcaPresenter;
+import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterFinder;
 import org.jboss.as.console.client.shared.subsys.jca.ResourceAdapterPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.XADataSourcePresenter;
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSourceStore;
@@ -298,6 +299,7 @@ public interface CoreUI {
     StandaloneEndpointStrategy getStandaloneEndpointStrategy();
 
     AsyncProvider<ResourceAdapterPresenter> getResourceAdapterPresenter();
+    AsyncProvider<ResourceAdapterFinder> getResourceAdapterFinder();
     AsyncProvider<JndiPresenter> getJndiPresenter();
 
     AsyncProvider<VMMetricsPresenter> getVMMetricsPresenter();

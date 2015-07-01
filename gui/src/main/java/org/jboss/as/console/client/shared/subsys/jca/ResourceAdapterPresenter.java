@@ -61,22 +61,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ResourceAdapterPresenter
         extends Presenter<ResourceAdapterPresenter.MyView, ResourceAdapterPresenter.MyProxy> {
 
-    @ProxyCodeSplit
-    @NameToken(NameTokens.ResourceAdapterPresenter)
-    @AccessControl(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
-    @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
-    public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
-    }
-
-
-    public interface MyView extends View {
-        void setPresenter(ResourceAdapterPresenter presenter);
-        void setAdapters(List<ResourceAdapter> adapters);
-
-        void setSelectedAdapter(String selectedAdapter);
-    }
-
-
     private final PlaceManager placeManager;
     private RevealStrategy revealStrategy;
     private DispatchAsync dispatcher;
@@ -96,6 +80,18 @@ public class ResourceAdapterPresenter
     private EntityAdapter<PropertyRecord> propertyAdapter;
     private EntityAdapter<PoolConfig> poolAdapter;
     private EntityAdapter<AdminObject> adminAdapter;
+
+    @ProxyCodeSplit
+    @NameToken(NameTokens.ResourceAdapterPresenter)
+    @AccessControl(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
+    @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
+    public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
+    }
+
+    public interface MyView extends View {
+        void setPresenter(ResourceAdapterPresenter presenter);
+        void setAdapter(ResourceAdapter ra);
+    }
 
     @Inject
     public ResourceAdapterPresenter(
@@ -141,10 +137,10 @@ public class ResourceAdapterPresenter
     private void loadAdapter(final boolean refreshDetail) {
 
         ModelNode operation = new ModelNode();
-        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
         operation.get(ADDRESS).set(Baseadress.get());
         operation.get(ADDRESS).add("subsystem", "resource-adapters");
-        operation.get(CHILD_TYPE).set("resource-adapter");
+        operation.get(ADDRESS).add("resource-adapter", selectedAdapter);
         operation.get(RECURSIVE).set(true);
 
 
@@ -153,92 +149,83 @@ public class ResourceAdapterPresenter
             public void onSuccess(DMRResponse response) {
                 ModelNode result = response.get();
 
-                List<Property> children = result.get(RESULT).asPropertyList();
-                List<ResourceAdapter> resourceAdapters = new ArrayList<ResourceAdapter>(children.size());
 
-                for (Property child : children) {
-                    ModelNode raModel = child.getValue();
 
-                    ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
-                    // The unique identifier of a resource adapter is its name (not the archive name)
-                    resourceAdapter.setName(child.getName());
+                ModelNode raModel = result.get(RESULT).asObject();
 
-                    List<PropertyRecord> props = parseConfigProperties(raModel);
-                    resourceAdapter.setProperties(props);
+                ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
+                // The unique identifier of a resource adapter is its name (not the archive name)
+                resourceAdapter.setName(selectedAdapter);
 
-                    resourceAdapter.setConnectionDefinitions(new ArrayList<ConnectionDefinition>());
+                List<PropertyRecord> props = parseConfigProperties(raModel);
+                resourceAdapter.setProperties(props);
 
-                    // connection definition
-                    if (raModel.hasDefined("connection-definitions")) {
-                        List<Property> connections = raModel.get("connection-definitions").asPropertyList();
-                        for (final Property con : connections) {
-                            ModelNode connectionModel = con.getValue();
-                            ConnectionDefinition connectionDefinition = connectionAdapter
-                                    .with(new KeyAssignment() {
-                                        @Override
-                                        public Object valueForKey(String key) {
-                                            return con.getName();
-                                        }
-                                    })
-                                    .fromDMR(connectionModel);
+                resourceAdapter.setConnectionDefinitions(new ArrayList<ConnectionDefinition>());
 
-                            // config properties
-                            List<PropertyRecord> connectionProps = parseConfigProperties(connectionModel);
-                            connectionDefinition.setProperties(connectionProps);
+                // connection definition
+                if (raModel.hasDefined("connection-definitions")) {
+                    List<Property> connections = raModel.get("connection-definitions").asPropertyList();
+                    for (final Property con : connections) {
+                        ModelNode connectionModel = con.getValue();
+                        ConnectionDefinition connectionDefinition = connectionAdapter
+                                .with(new KeyAssignment() {
+                                    @Override
+                                    public Object valueForKey(String key) {
+                                        return con.getName();
+                                    }
+                                })
+                                .fromDMR(connectionModel);
 
-                            // pool
-                            PoolConfig poolConfig = poolAdapter.with(new KeyAssignment() {
-                                @Override
-                                public Object valueForKey(String key) {
-                                    //return connectionModel.get("");
-                                    return "";
-                                }
-                            }).fromDMR(connectionModel);
-                            connectionDefinition.setPoolConfig(poolConfig);
+                        // config properties
+                        List<PropertyRecord> connectionProps = parseConfigProperties(connectionModel);
+                        connectionDefinition.setProperties(connectionProps);
 
-                            resourceAdapter.getConnectionDefinitions().add(connectionDefinition);
+                        // pool
+                        PoolConfig poolConfig = poolAdapter.with(new KeyAssignment() {
+                            @Override
+                            public Object valueForKey(String key) {
+                                //return connectionModel.get("");
+                                return "";
+                            }
+                        }).fromDMR(connectionModel);
+                        connectionDefinition.setPoolConfig(poolConfig);
 
-                        }
+                        resourceAdapter.getConnectionDefinitions().add(connectionDefinition);
 
                     }
 
-
-                    // admin objects
-                    if (raModel.hasDefined("admin-objects")) {
-                        List<Property> admins = raModel.get("admin-objects").asPropertyList();
-                        List<AdminObject> adminEntities = new ArrayList<AdminObject>(admins.size());
-
-                        for (final Property admin : admins) {
-                            ModelNode adminModel = admin.getValue();
-                            AdminObject adminObject = adminAdapter
-                                    .with(new KeyAssignment() {
-                                        @Override
-                                        public Object valueForKey(String key) {
-                                            return admin.getName();
-                                        }
-                                    }).fromDMR(adminModel);
-
-                            adminObject.setName(admin.getName()); // just to make sure
-                            List<PropertyRecord> adminConfig = parseConfigProperties(adminModel);
-                            adminObject.setProperties(adminConfig);
-
-                            adminEntities.add(adminObject);
-                        }
-
-                        resourceAdapter.setAdminObjects(adminEntities);
-                    } else {
-                        resourceAdapter.setAdminObjects(Collections.<AdminObject>emptyList());
-                    }
-
-
-                    // append result
-                    resourceAdapters.add(resourceAdapter);
                 }
 
-                getView().setAdapters(resourceAdapters);
 
-                if (refreshDetail)
-                    getView().setSelectedAdapter(selectedAdapter);
+                // admin objects
+                if (raModel.hasDefined("admin-objects")) {
+                    List<Property> admins = raModel.get("admin-objects").asPropertyList();
+                    List<AdminObject> adminEntities = new ArrayList<AdminObject>(admins.size());
+
+                    for (final Property admin : admins) {
+                        ModelNode adminModel = admin.getValue();
+                        AdminObject adminObject = adminAdapter
+                                .with(new KeyAssignment() {
+                                    @Override
+                                    public Object valueForKey(String key) {
+                                        return admin.getName();
+                                    }
+                                }).fromDMR(adminModel);
+
+                        adminObject.setName(admin.getName()); // just to make sure
+                        List<PropertyRecord> adminConfig = parseConfigProperties(adminModel);
+                        adminObject.setProperties(adminConfig);
+
+                        adminEntities.add(adminObject);
+                    }
+
+                    resourceAdapter.setAdminObjects(adminEntities);
+                } else {
+                    resourceAdapter.setAdminObjects(Collections.<AdminObject>emptyList());
+                }
+
+                getView().setAdapter(resourceAdapter);
+
             }
         });
     }
@@ -271,34 +258,6 @@ public class ResourceAdapterPresenter
         revealStrategy.revealInParent(this);
     }
 
-    public void onDelete(final ResourceAdapter ra) {
-
-        AddressBinding address = raMetaData.getAddress();
-        ModelNode operation = address.asResource(Baseadress.get(), ra.getName());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                super.onFailure(caught);
-                loadAdapter(false);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if (ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.deleted("Resource Adapter " + ra.getName()));
-                else
-                    Console.error(Console.MESSAGES.deletionFailed("Resource Adapter " + ra.getName()),
-                            result.toString());
-
-                loadAdapter(false);
-            }
-        });
-
-    }
 
     public void onSave(final ResourceAdapter ra, Map<String, Object> changedValues) {
 
@@ -335,57 +294,8 @@ public class ResourceAdapterPresenter
 
     }
 
-    public void launchNewAdapterWizard() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Resource Adapter"));
-        window.setWidth(480);
-        window.setHeight(360);
-
-        window.trapWidget(
-                new NewAdapterWizard(this, factory.resourceAdapter().as()).asWidget()
-        );
-
-        window.setGlassEnabled(true);
-        window.center();
-    }
-
     public void closeDialoge() {
         window.hide();
-    }
-
-    public void onCreateAdapter(final ResourceAdapter ra) {
-        closeDialoge();
-
-        ModelNode addressModel = raMetaData.getAddress().asResource(Baseadress.get(), ra.getName());
-
-        ModelNode operation = adapter.fromEntity(ra);
-        operation.get(OP).set(ADD);
-        operation.get(ADDRESS).set(addressModel.get(ADDRESS).asObject());
-
-        operation.remove("name"); // work around
-
-        System.out.println(operation);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-        	
-			@Override
-			public void onFailure(Throwable caught) {
-				Log.error("Adding resource adapter failed: " + caught.getMessage(), caught);
-                Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), caught.getMessage());
-				loadAdapter(false);
-			}
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if (ModelNodeUtil.indicatesSuccess(result)) {
-                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getName()));
-                } else {
-                    Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), result.toString());
-                }
-                loadAdapter(false);
-            }
-        });
-
     }
 
     public void createProperty(final ResourceAdapter ra, final PropertyRecord prop) {
@@ -859,7 +769,7 @@ public class ResourceAdapterPresenter
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
-               ModelNode response = result.get();
+                ModelNode response = result.get();
                 if(response.isFailure())
                     Console.error(Console.MESSAGES.deletionFailed("Admin Object"), response.getFailureDescription());
                 else
