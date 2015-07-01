@@ -468,10 +468,12 @@
 }
 .btn-group > .btn:first-child {
     margin-left: 0;
+    margin-right: 0;
 }
-.btn-group-vertical > .btn, .btn-group > .btn {
-    /*float: left;*/
-    position: relative;
+.btn-group > .btn,
+.btn-group-vertical > .btn {
+  position: relative;
+  float: left;
 }
 
 .btn {
@@ -516,6 +518,21 @@
 .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
+}
+
+.btn .caret {
+    margin-left: 0;
+}
+
+.caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top: 4px solid;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
 }
 
 .dropdown-menu {
