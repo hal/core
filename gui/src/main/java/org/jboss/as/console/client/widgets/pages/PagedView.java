@@ -12,6 +12,8 @@ import org.jboss.as.console.client.Console;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.google.gwt.dom.client.Style.Unit.PX;
+
 /**
  * @author Heiko Braun
  * @date 12/6/11
@@ -46,6 +48,10 @@ public class PagedView {
 
         navigationBar = bar.asWidget();
         navigationBar.addStyleName("paged-view-navigation");
+        navigationBar.getElement().getStyle().setMarginTop(0, PX);
+        navigationBar.getElement().getStyle().setMarginBottom(0, PX);
+        navigationBar.getElement().getStyle().setMarginLeft(15, PX);
+        navigationBar.getElement().getStyle().setMarginRight(15, PX);
         layout.addWest(navigationBar, 180);
         layout.add(deck);
 
