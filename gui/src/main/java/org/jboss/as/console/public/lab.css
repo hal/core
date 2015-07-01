@@ -472,8 +472,8 @@
 }
 .btn-group > .btn,
 .btn-group-vertical > .btn {
-  position: relative;
-  float: left;
+    position: relative;
+    float: left;
 }
 
 .btn {
@@ -525,14 +525,14 @@
 }
 
 .caret {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  margin-left: 2px;
-  vertical-align: middle;
-  border-top: 4px solid;
-  border-right: 4px solid transparent;
-  border-left: 4px solid transparent;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
 }
 
 .dropdown-menu {
@@ -730,3 +730,45 @@
     z-index: 50;
 }
 
+
+/*font size issues*/
+
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3 {
+    font-weight: 500;
+    line-height: 1.1;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+h1,
+.h1 {
+    font-weight: 500;
+    line-height: 1.1;
+    font-size: 24px;
+}
+h2,
+.h2 {
+    font-weight: 500;
+    line-height: 1.1;
+    font-size: 22px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+h3,
+.h3 {
+    font-weight: 500;
+    line-height: 1.1;
+    font-weight: 500;
+    line-height: 1.1;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
