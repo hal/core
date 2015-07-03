@@ -34,15 +34,17 @@ class ServerGroup implements Comparable<ServerGroup>
 {
     final String name;
     final String profile;
+    final String socketBindingGroup;
     String cssClassname;
     int maxServersPerHost;
     SortedMap<HostInfo, List<ServerInstance>> serversPerHost;
 
 
-    ServerGroup(final String name, final String profile)
+    ServerGroup(final String name, final String profile, final String socketBindingGroup)
     {
         this.name = name;
         this.profile = profile;
+        this.socketBindingGroup = socketBindingGroup;
         this.cssClassname = "255,255,255";
         this.maxServersPerHost = 0;
         this.serversPerHost = new TreeMap<HostInfo, List<ServerInstance>>();
@@ -107,5 +109,17 @@ class ServerGroup implements Comparable<ServerGroup>
     List<HostInfo> getHosts()
     {
         return new ArrayList<HostInfo>(serversPerHost.keySet());
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getProfile() {
+        return profile;
+    }
+
+    public String getSocketBindingGroup() {
+        return socketBindingGroup;
     }
 }

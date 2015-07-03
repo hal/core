@@ -13,6 +13,7 @@ import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +28,6 @@ public final class TopologyFunctions {
 
     public static final String HOSTS_KEY = "hosts";
     public static final String GROUPS_KEY = "groups";
-    public static final String GROUP_TO_PROFILE_KEY = "groupToProfile";
 
     private TopologyFunctions() {}
 
@@ -78,8 +78,7 @@ public final class TopologyFunctions {
                     }
                     control.getContext().set(HOSTS_KEY, hosts);
 
-                    List<ServerGroup> groups = new LinkedList<ServerGroup>();
-                    Map<String, String> groupToProfile = new HashMap<String, String>();
+                    Map<String, ServerGroup> groups = new HashMap<String, ServerGroup>();
                     currentStep = stepsResult.get("step-2");
                     if (currentStep.get(RESULT).isDefined()) {
                         List<Property> properties = currentStep.get(RESULT).asPropertyList();
@@ -87,13 +86,12 @@ public final class TopologyFunctions {
                             String name = property.getName();
                             ModelNode groupModel = property.getValue();
                             String profile = groupModel.get("profile").asString();
-                            ServerGroup serverGroup = new ServerGroup(name, profile);
-                            groups.add(serverGroup);
-                            groupToProfile.put(name, profile);
+                            String socketBindingGroup = groupModel.get("socket-binding-group").asString();
+                            ServerGroup serverGroup = new ServerGroup(name, profile, socketBindingGroup);
+                            groups.put(name, serverGroup);
                         }
                     }
                     control.getContext().set(GROUPS_KEY, groups);
-                    control.getContext().set(GROUP_TO_PROFILE_KEY, groupToProfile);
                 }
             });
         }
@@ -119,7 +117,7 @@ public final class TopologyFunctions {
             int step = 1;
             final Map<String, HostInfo> stepToHost = new HashMap<String, HostInfo>();
             final List<HostInfo> hosts = control.getContext().get(HOSTS_KEY);
-            final Map<String, String> groupToProfile = control.getContext().get(GROUP_TO_PROFILE_KEY);
+            final Map<String, ServerGroup> groups = control.getContext().get(GROUPS_KEY);
             for (HostInfo hostInfo : hosts) {
                 final ModelNode scOp = new ModelNode();
                 scOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
@@ -146,17 +144,23 @@ public final class TopologyFunctions {
                             for (Property property : properties) {
                                 String name = property.getName();
                                 ModelNode scModel = property.getValue();
-                                String group = scModel.get("group").asString();
+                                String groupName = scModel.get("group").asString();
+                                ServerGroup group = groups.get(groupName);
 
                                 ServerInstance serverInstance = beanFactory.serverInstance().as();
                                 serverInstance.setName(name);
                                 serverInstance.setServer(name);
-                                serverInstance.setGroup(group);
-                                serverInstance.setProfile(groupToProfile.get(group));
+                                serverInstance.setGroup(groupName);
+                                serverInstance.setProfile(group.getProfile());
                                 serverInstance.setHost(hostInfo.getName());
                                 serverInstance.setRunning(scModel.get("status").asString().equalsIgnoreCase("STARTED"));
-                                serverInstance.setSocketBindings(new HashMap<String, String>());
 
+                                // FIXME We just need the socket binding group name here not the actual socket bindings
+                                // Using a map is not necessary
+                                Map<String, String> socketBindings = new HashMap<>();
+                                socketBindings.put(group.getSocketBindingGroup(),
+                                        scModel.get("socket-binding-port-offset").asString());
+                                serverInstance.setSocketBindings(socketBindings);
                                 servers.add(serverInstance);
                             }
                             hostInfo.setServerInstances(servers);
@@ -183,11 +187,14 @@ public final class TopologyFunctions {
             List<ModelNode> steps = new LinkedList<ModelNode>();
 
             int step = 1;
+            final HashSet<String> processedGroups = new HashSet<>();
+            final Map<String, ServerGroup> groups = control.getContext().get(GROUPS_KEY);
             final Map<String, ServerInstance> stepToServer = new HashMap<String, ServerInstance>();
             final List<HostInfo> hosts = control.getContext().get(HOSTS_KEY);
             for (HostInfo hostInfo : hosts) {
                 for (ServerInstance serverInstance : hostInfo.getServerInstances()) {
-                    if (serverInstance.isRunning()) {
+                    // find a server which we haven't processed so far - no matter which host
+                    if (serverInstance.isRunning() && !processedGroups.contains(serverInstance.getGroup())) {
                         ModelNode serverStateOp = new ModelNode();
                         serverStateOp.get(OP).set(READ_ATTRIBUTE_OPERATION);
                         serverStateOp.get(NAME).set("server-state");
@@ -197,15 +204,7 @@ public final class TopologyFunctions {
                         stepToServer.put("step-" + step, serverInstance);
                         step++;
 
-                        ModelNode socketBindingOp = new ModelNode();
-                        socketBindingOp.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
-                        socketBindingOp.get(INCLUDE_RUNTIME).set(true);
-                        socketBindingOp.get(ADDRESS).add("host", hostInfo.getName());
-                        socketBindingOp.get(ADDRESS).add("server", serverInstance.getName());
-                        socketBindingOp.get(CHILD_TYPE).set("socket-binding-group");
-                        steps.add(socketBindingOp);
-                        stepToServer.put("step-" + step, serverInstance);
-                        step++;
+                        processedGroups.add(serverInstance.getGroup());
                     }
                 }
             }
@@ -233,14 +232,13 @@ public final class TopologyFunctions {
                                     }
                                 }
 
-                                // step-n + 1: socket binding groups
-                                property = iterator.next();
-                                node = property.getValue();
-                                if (node.get(RESULT).isDefined()) {
-                                    List<Property> sockets = node.get(RESULT).asPropertyList();
-                                    for (Property socket : sockets) {
-                                        serverInstance.getSocketBindings()
-                                                .put(socket.getName(), socket.getValue().get("port-offset").asString());
+                            }
+
+                            // update likeminded (same group)
+                            for (HostInfo hostInfo : hosts) {
+                                for (ServerInstance s : hostInfo.getServerInstances()) {
+                                    if (s.getGroup().equals(serverInstance.getGroup())) {
+                                        s.setFlag(serverInstance.getFlag());
                                     }
                                 }
                             }
