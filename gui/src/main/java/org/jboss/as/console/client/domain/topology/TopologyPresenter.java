@@ -103,6 +103,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     private LoadExtensionCmd loadExtensionCmd;
     private boolean fake;
     private int hostIndex;
+    private List<HostInfo> hosts;
 
     @Inject
     public TopologyPresenter(final EventBus eventBus, final MyView view,
@@ -154,7 +155,6 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
         super.prepareFromRequest(request);
         fake = Boolean.valueOf(request.getParameter("fake", "false"));
         fillscreen = Boolean.valueOf(request.getParameter("fill", "false"));
-        hostIndex = Integer.parseInt(request.getParameter("hostIndex", "0"));
     }
 
 
@@ -172,7 +172,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
 
                 @Override
                 public void onSuccess(final FunctionContext context) {
-                    List<HostInfo> hosts = context.pop();
+                    hosts = context.pop();
                     getView().updateHosts(deriveGroups(hosts), hostIndex);
                 }
             };
@@ -184,13 +184,8 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     }
 
     public void requestHostIndex(int hostIndex) {
-        // TODO Use the in-memory model of the topology for paging
-        PlaceRequest.Builder builder = new PlaceRequest.Builder().nameToken(NameTokens.Topology)
-                .with("hostIndex", String.valueOf(hostIndex));
-        if (fake) {
-            builder.with("fake", "true");
-        }
-        placeManager.revealPlace(builder.build());
+        this.hostIndex = hostIndex;
+        getView().updateHosts(deriveGroups(hosts), hostIndex);
     }
 
     public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
@@ -224,7 +219,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
                 String profile = server.getProfile();
                 ServerGroup serverGroup = serverGroups.get(group);
                 if (serverGroup == null) {
-                    serverGroup = new ServerGroup(group, profile);
+                    serverGroup = new ServerGroup(group, profile, server.getSocketBindings().keySet().iterator().next());
                     serverGroup.fill(hosts);
                     serverGroups.put(group, serverGroup);
                 }

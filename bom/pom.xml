@@ -37,6 +37,7 @@
         <csp.plugin.version>0.9.36.Final-jboss1</csp.plugin.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
+        <gwt.devAddress>127.0.0.1</gwt.devAddress>
     </properties>
 
     <dependencyManagement>

@@ -252,7 +252,7 @@
                                     generated GWT module (without the 'gwt.' prefix)
                                 -->
                                 <gwt.console.core.version>${project.version}</gwt.console.core.version>
-                                <gwt.console.dev.host>${gwt.bindAddress}</gwt.console.dev.host>
+                                <gwt.console.dev.host>${gwt.devAddress}</gwt.console.dev.host>
                                 <gwt.console.dev.port>${gwt.bindPort}</gwt.console.dev.port>
                             </options>
                         </configuration>
