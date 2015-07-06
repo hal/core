@@ -69,8 +69,9 @@ public class ChooseStep extends
 
     @Override
     public void reset() {
-        deployNew.setValue(true);
-        deployExisting.setValue(false);
+        // Deploy new is the default in standalone - deploy existing in domain mode
+        deployNew.setValue(standalone);
+        deployExisting.setValue(!standalone);
         deployUnmanaged.setValue(false);
     }
 
