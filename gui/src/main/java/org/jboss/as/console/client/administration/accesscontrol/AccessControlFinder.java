@@ -169,6 +169,7 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
         });
 
         // circuit error handling
+        circuit.addDiagnostics(errorSupport);
         errorSupport.onError((action, error) -> {
             if (error instanceof DuplicateResourceException) {
                 Console.error("Resource already exists",
@@ -184,7 +185,6 @@ public class AccessControlFinder extends PerspectivePresenter<AccessControlFinde
                 Console.error("Unknown Error", error.getMessage());
             }
         });
-        circuit.addDiagnostics(errorSupport);
 
         // GWT event handler
         registerHandler(getEventBus().addHandler(PreviewEvent.TYPE, this));
