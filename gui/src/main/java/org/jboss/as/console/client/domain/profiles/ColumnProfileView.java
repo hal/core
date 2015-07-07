@@ -500,7 +500,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                     final SubsystemLink link = subsystems.getSelectedItem();
                     columnManager.updateActiveSelection(subsystColWidget);
 
-                    if(link.isFolder())
+                    if(link.isFolder() && !link.isIncuded())
                     {
                         placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
                     }
@@ -671,7 +671,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                         boolean isFolder = false;
                         for (String subsystemFolder : subsystemFolders) {
-                            if(candidate.getToken().equals(subsystemFolder)) {
+                            if(candidate.getToken().equals(subsystemFolder)  && !ref.isInclude()) {
                                 isFolder = true;
                                 break;
                             }
