@@ -328,11 +328,11 @@ public class DomainDeploymentFinder
                 });
     }
 
-    public void verifyRemoveAssignment(final Assignment assignment) {
-        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + assignment.getName(),
+    public void verifyUnassignAssignment(final Assignment assignment) {
+        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Unassign " + assignment.getName(),
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyAssignment(assignment, REMOVE, assignment.getName() + " successfully removed.");
+                        modifyAssignment(assignment, REMOVE, assignment.getName() + " successfully unassigned.");
                     }
                 });
     }

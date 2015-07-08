@@ -156,7 +156,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         assignmentColumn.setMenuItems(
                 enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
-                new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item), Operation)
+                new MenuDelegate<>("Unassign", item -> presenter.verifyUnassignAssignment(item), Operation)
         );
 
         assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
