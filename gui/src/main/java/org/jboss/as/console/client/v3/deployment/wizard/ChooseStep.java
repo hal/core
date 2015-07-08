@@ -34,13 +34,20 @@ public class ChooseStep extends
         WizardStep<Context, State> {
 
     private final boolean standalone;
+    private final boolean showDeployNew;
+    private final boolean showDeployExisting;
+    private final boolean showDeployUnmanaged;
     private RadioButton deployNew;
     private RadioButton deployExisting;
     private RadioButton deployUnmanaged;
 
-    public ChooseStep(final DeploymentWizard wizard, final boolean standalone) {
+    public ChooseStep(final DeploymentWizard wizard, final boolean standalone,
+            final boolean showDeployNew, final boolean showDeployExisting, final boolean showDeployUnmanaged) {
         super(wizard, "Please Choose");
         this.standalone = standalone;
+        this.showDeployNew = showDeployNew;
+        this.showDeployExisting = showDeployExisting;
+        this.showDeployUnmanaged = showDeployUnmanaged;
     }
 
     @Override
@@ -59,20 +66,30 @@ public class ChooseStep extends
         deployUnmanaged.addStyleName("radio-block");
         IdHelper.setId(deployUnmanaged, id(), "deployUnmanaged");
 
-        body.add(deployNew);
-        if (!standalone) {
+        if (showDeployNew) {
+            body.add(deployNew);
+        }
+        if (showDeployExisting) {
             body.add(deployExisting);
         }
-        body.add(deployUnmanaged);
+        if (showDeployUnmanaged) {
+            body.add(deployUnmanaged);
+        }
         return body;
     }
 
     @Override
     public void reset() {
         // Deploy new is the default in standalone - deploy existing in domain mode
-        deployNew.setValue(standalone);
-        deployExisting.setValue(!standalone);
-        deployUnmanaged.setValue(false);
+        if (standalone || !showDeployExisting) {
+            deployNew.setValue(true);
+            deployExisting.setValue(false);
+            deployUnmanaged.setValue(false);
+        } else {
+            deployNew.setValue(false);
+            deployExisting.setValue(true);
+            deployUnmanaged.setValue(false);
+        }
     }
 
     @Override

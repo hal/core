@@ -46,22 +46,28 @@ public class AddContentWizard extends DeploymentWizard {
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
+        addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone(), true, false, true));
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
+        addStep(UNMANAGED, new UnmanagedStep(this, bootstrapContext.isStandalone()));
     }
 
     @Override
     protected EnumSet<State> lastStates() {
         //noinspection NonJREEmulationClassesInClientCode
-        return EnumSet.of(VERIFY_UPLOAD);
+        return EnumSet.of(VERIFY_UPLOAD, UNMANAGED);
     }
 
     @Override
     protected State back(final State state) {
         State previous = null;
         switch (state) {
-            case UPLOAD:
+            case CHOOSE:
                 previous = null;
+                break;
+            case UPLOAD:
+            case UNMANAGED:
+                previous = CHOOSE;
                 break;
             case VERIFY_UPLOAD:
                 previous = UPLOAD;
@@ -74,10 +80,18 @@ public class AddContentWizard extends DeploymentWizard {
     protected State next(final State state) {
         State next = null;
         switch (state) {
+            case CHOOSE:
+                if (context.deployNew) {
+                    next = UPLOAD;
+                } else if (context.deployUnmanaged) {
+                    next = UNMANAGED;
+                }
+                break;
             case UPLOAD:
                 next = VERIFY_UPLOAD;
                 break;
             case VERIFY_UPLOAD:
+            case UNMANAGED:
                 next = null;
                 break;
         }
@@ -107,8 +121,26 @@ public class AddContentWizard extends DeploymentWizard {
             }
         };
 
+        if (context.deployNew) {
+            uploadAddContentAndAssign(outcome);
+
+        } else if (context.deployUnmanaged) {
+            addUnmanaged(outcome);
+        }
+
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
                 new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
                 new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false));
+    }
+
+    private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
+                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
+                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false));
+    }
+
+    private void addUnmanaged(final Outcome<FunctionContext> outcome) {
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
+                new DeploymentFunctions.AddUnmanagedContent(dispatcher, context.unmanagedDeployment));
     }
 }

@@ -48,7 +48,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
-        addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone()));
+        addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone(), true, true, true));
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
         addStep(CONTENT_REPOSITORY, new ContentRepositoryStep(this));

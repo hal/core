@@ -46,7 +46,7 @@ public class AddStandaloneDeploymentWizard extends DeploymentWizard implements C
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
-        addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone()));
+        addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone(), true, false, true));
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
         addStep(UNMANAGED, new UnmanagedStep(this, bootstrapContext.isStandalone()));

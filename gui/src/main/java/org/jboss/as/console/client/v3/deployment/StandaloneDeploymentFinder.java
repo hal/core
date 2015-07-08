@@ -41,7 +41,6 @@ import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.rbac.UnauthorisedPresenter;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddStandaloneDeploymentWizard;
@@ -107,8 +106,7 @@ public class StandaloneDeploymentFinder
 
     @Inject
     public StandaloneDeploymentFinder(final EventBus eventBus, final MyView view, final MyProxy proxy,
-            final PlaceManager placeManager, final UnauthorisedPresenter unauthorisedPresenter,
-            final BeanFactory beanFactory, final DispatchAsync dispatcher,
+            final PlaceManager placeManager, final BeanFactory beanFactory, final DispatchAsync dispatcher,
             final BootstrapContext bootstrapContext, final Header header) {
         super(eventBus, view, proxy, placeManager, header, NameTokens.StandaloneDeploymentFinder, TYPE_MainContent);
         this.dispatcher = dispatcher;
@@ -117,9 +115,7 @@ public class StandaloneDeploymentFinder
                 context -> {
                     String name = context.deployNew ?
                             context.upload.getName() :
-                            context.deployExisting ?
-                                    context.existingContent.getName() :
-                                    context.unmanagedDeployment.getName();
+                            context.unmanagedDeployment.getName();
                     Console.info(name + " successfully deployed.");
                     loadDeployments();
                 });
@@ -258,19 +254,16 @@ public class StandaloneDeploymentFinder
 
     @Override
     public void onPreview(PreviewEvent event) {
-        if(isVisible())
-            getView().setPreview(event.getHtml());
+        if (isVisible()) { getView().setPreview(event.getHtml()); }
     }
 
     @Override
     public void onToggleScrolling(final FinderScrollEvent event) {
-        if(isVisible())
-            getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
+        if (isVisible()) { getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth()); }
     }
 
     @Override
     public void onClearActiveSelection(final ClearFinderSelectionEvent event) {
-        if(isVisible())
-            getView().clearActiveSelection(event);
+        if (isVisible()) { getView().clearActiveSelection(event); }
     }
 }

@@ -139,7 +139,10 @@ public class DomainDeploymentFinder
 
         this.addContentWizard = new AddContentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
-                    Console.info(context.upload.getName() + " successfully uploaded.");
+                    String name = context.deployNew ?
+                            context.upload.getName() :
+                            context.unmanagedDeployment.getName();
+                    Console.info(name + " successfully uploaded.");
                     loadContentRepository();
                 });
         this.addDeploymentWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
