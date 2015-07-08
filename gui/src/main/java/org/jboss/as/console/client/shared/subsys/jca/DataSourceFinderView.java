@@ -222,6 +222,12 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                         },
                         MenuDelegate.Role.Operation
                 )
+                {
+                    @Override
+                    public String render(DataSource data) {
+                        return data.isEnabled() ? "Disable" : "Enable";
+                    }
+                }
         );
 
         // -------------
@@ -319,6 +325,13 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                         },
                         MenuDelegate.Role.Operation
                 )
+
+                {
+                    @Override
+                    public String render(XADataSource data) {
+                        return data.isEnabled() ? "Disable" : "Enable";
+                    }
+                }
         );
 
         typeColWidget = typeColumn.asWidget();
