@@ -123,71 +123,52 @@ public class FinderColumn<T>  {
         Column<T, SafeHtml> titleColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(T data) {
-                return display.render("navigation-column-item", data);
-            }
-        };
 
-        final Column<T, String> menuColumn = new Column<T, String>(new ButtonCell() {
+                SafeHtml title = display.render("navigation-column-item", data);
+                SafeHtmlBuilder sb = new SafeHtmlBuilder();
+                sb.appendHtmlConstant("<div class='row-level' style='position:relative'>");
+                sb.append(title);
 
-            /**
-             * Renders the button cells
-             */
-            public void render(Cell.Context context, SafeHtml data, SafeHtmlBuilder sb) {
+
+                int offset1 = display.isFolder(data) ? 10 : 5;
+                int offset2 = display.isFolder(data) ? 5 : 0;
 
                 if(accessibleMenuItems.size()>0) {
-
-                    sb.appendHtmlConstant("<div class='nav-menu'>");
+                    sb.appendHtmlConstant("<span class='nav-menu' style='position:absolute; top:5px; right:"+offset1+"px'>");
                     sb.appendHtmlConstant("<div class='btn-group'>");
-                    sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
-                    if (data != null) {
-                        sb.append(data);
-                    }
-                    sb.appendHtmlConstant("</button>");
+
+                        sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
+                        if (data != null) {
+                            sb.appendEscaped(accessibleMenuItems.get(0).render(data));
+                        }
+                        sb.appendHtmlConstant("</button>");
 
                     if(accessibleMenuItems.size()>1) {
                         sb.appendHtmlConstant("<button action='menu' class='btn dropdown-toggle' type='button' tabindex=\"-1\">");
-                        sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
+                            sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
                         sb.appendHtmlConstant("</button>");
-                        sb.appendHtmlConstant("</div>");
-                        sb.appendHtmlConstant("</div>");
                     }
+
+                    sb.appendHtmlConstant("</div>");
+                    sb.appendHtmlConstant("</span>");
                 }
 
-            }
+                if(display.isFolder(data)) {
+                    sb.appendHtmlConstant("<span style='position:absolute; top:5px; right:"+offset2+"px'>");
+                    sb.appendHtmlConstant("<i class='icon-angle-right row-icon' style='vertical-align:middle'></i>");
+                    sb.appendHtmlConstant("</span>");
+                }
 
-        }) {
-
-
-            /**
-             * Determines which attribute of MenuDelegate should become the title of the default action
-             */
-            @Override
-            public String getValue(T object) {
-                return accessibleMenuItems.size()>0 ? accessibleMenuItems.get(0).render(object) : "";
-            }
-
-        };
-
-        Column<T, SafeHtml> iconColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
-            @Override
-            public SafeHtml getValue(T data) {
-                SafeHtmlBuilder builder = new SafeHtmlBuilder();
-                builder.appendHtmlConstant("<i class='icon-caret-right row-icon' style='vertical-align:middle'></i>");
-                return builder.toSafeHtml();
+                return sb.toSafeHtml();
             }
         };
 
-        menuColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
         cellTable.addColumn(titleColumn);
-        cellTable.addColumn(menuColumn);
-        cellTable.addColumn(iconColumn);
 
         // width constraints, overflow, etc
         cellTable.getElement().getStyle().setTableLayout(Style.TableLayout.FIXED);
-        cellTable.setColumnWidth(titleColumn, 150, Style.Unit.PX);
-        cellTable.setColumnWidth(menuColumn, 120, Style.Unit.PX);
-        cellTable.setColumnWidth(iconColumn, 30, Style.Unit.PX);
+        cellTable.setColumnWidth(titleColumn, 100, Style.Unit.PCT);
 
         cellTable.setSelectionModel(selectionModel);
 
@@ -217,8 +198,11 @@ public class FinderColumn<T>  {
             @Override
             public void onCellPreview(final CellPreviewEvent<T> event) {
                 boolean isClick = CLICK.equals(event.getNativeEvent().getType());
-                if(isClick && 1==event.getColumn())
+                if(isClick && 0==event.getColumn())
                 {
+                    // preview
+                    triggerPreviewEvent();
+
                     // update breadcrumb navigation
                     triggerBreadcrumbEvent(true);
 
@@ -235,10 +219,7 @@ public class FinderColumn<T>  {
                     }
 
                 }
-                else if(isClick && 0==event.getColumn())
-                {
-                    triggerPreviewEvent();
-                }
+
             }
         });
 
@@ -273,6 +254,7 @@ public class FinderColumn<T>  {
                 int row = cellTable.getKeyboardSelectedRow();
                 if (row < cellTable.getRowCount()) {
                     TableRowElement rowElement = cellTable.getRowElement(row);
+
                     if(hasSelection) {
                         rowElement.addClassName("nav-hover");
                     } else {
@@ -591,7 +573,7 @@ public class FinderColumn<T>  {
         String groupId = HTMLPanel.createUniqueId();
 
         SafeHtmlBuilder sb = new SafeHtmlBuilder();
-        sb.appendHtmlConstant("<div class='nav-headerMenu'>");
+        sb.appendHtmlConstant("<div class='nav-headerMenu top-level'>");
         sb.appendHtmlConstant("<div id="+groupId+" class='btn-group' style='float:right;padding-right:10px;padding-top:8px'>");
         sb.appendHtmlConstant("</div>");
         sb.appendHtmlConstant("</div>");

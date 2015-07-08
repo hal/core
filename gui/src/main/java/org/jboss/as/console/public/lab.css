@@ -460,6 +460,19 @@
     display: inline-block;
     position: relative;
     vertical-align: middle;
+    padding-left: 5px;
+}
+
+.top-level .btn-group {
+    background: none!important;
+}
+
+.active .row-level .btn-group {
+    background-color: #D4EDFA;
+}
+
+.row-level .btn-group {
+    background-color: #D8D8D8;
 }
 
 .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
