@@ -304,8 +304,19 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         "Start/Stop", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        LifecycleOperation op = server.isStarted() ? LifecycleOperation.STOP : LifecycleOperation.STOP;
-                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+
+                        LifecycleOperation op = server.isStarted() ? LifecycleOperation.STOP : LifecycleOperation.START;
+                        Feedback.confirm(
+                                "Server " + op.name(),
+                                "Do you really want to " + op.name() + " server " + server.getName() + "?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+                                    }
+                                });
 
                     }
 
@@ -320,14 +331,38 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         "Reload", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RELOAD);
+
+                        Feedback.confirm(
+                                "Reload Server",
+                                "Do you really want to reload server " + server.getName() + "?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RELOAD);
+                                    }
+                                });
+
                     }
                 }, MenuDelegate.Role.Operation)
                 ,new MenuDelegate<Server>(
                         "Restart", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RESTART);
+                        Feedback.confirm(
+                                "Restart Server",
+                                "Do you really want to restart server " + server.getName() + "?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.RESTART);
+                                    }
+                                });
+
+
                     }
                 }, MenuDelegate.Role.Operation)
         );
