@@ -279,7 +279,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                         Feedback.confirm(
                                 "Remove server",
-                                "Do you really want to remove server "+server.getName()+"?",
+                                "Do you really want to remove server " + server.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
 
                                     @Override
@@ -301,20 +301,21 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     }
                 }, MenuDelegate.Role.Operation),
                 new MenuDelegate<Server>(
-                        "Start", new ContextualCommand<Server>() {
+                        "Start/Stop", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
-                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.START);
+                        LifecycleOperation op = server.isStarted() ? LifecycleOperation.STOP : LifecycleOperation.STOP;
+                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
 
                     }
-                }, MenuDelegate.Role.Operation),
-                new MenuDelegate<Server>(
-                        "Stop", new ContextualCommand<Server>() {
+
+                }, MenuDelegate.Role.Operation) {
+
                     @Override
-                    public void executeOn(Server server) {
-                        presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), LifecycleOperation.STOP);
+                    public String render(Server server) {
+                        return server.isStarted() ? "Stop" : "Start";
                     }
-                }, MenuDelegate.Role.Operation),
+                },
                 new MenuDelegate<Server>(
                         "Reload", new ContextualCommand<Server>() {
                     @Override

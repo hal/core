@@ -163,7 +163,7 @@ public class FinderColumn<T>  {
              */
             @Override
             public String getValue(T object) {
-                return accessibleMenuItems.size()>0 ? accessibleMenuItems.get(0).getTitle() : "";
+                return accessibleMenuItems.size()>0 ? accessibleMenuItems.get(0).render(object) : "";
             }
 
         };
@@ -436,7 +436,7 @@ public class FinderColumn<T>  {
         for (final MenuDelegate menuitem : accessibleMenuItems) {
 
             if(i>0) {     // skip the "default" action
-                MenuItem cmd = new MenuItem(menuitem.getTitle(), true, new Command() {
+                MenuItem cmd = new MenuItem(menuitem.render(object), true, new Command() {
 
                     @Override
                     public void execute() {

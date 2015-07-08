@@ -1,5 +1,8 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+
 /**
  * @author Heiko Braun
  * @since 19/01/15
@@ -24,6 +27,10 @@ public class MenuDelegate<T>{
         this.title = title;
         this.command = command;
         this.actualRole = role;
+    }
+
+    public String render(T data) {
+        return this.title;
     }
 
     public Role getRole() {
