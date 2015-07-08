@@ -38,10 +38,13 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 public class VerifyUploadStep extends
         WizardStep<Context, State> {
 
+    private final boolean standalone;
     private Form<UploadBean> form;
+    private CheckBoxItem enable;
 
-    public VerifyUploadStep(final DeploymentWizard wizard) {
+    public VerifyUploadStep(final DeploymentWizard wizard, final boolean standalone) {
         super(wizard, "Verify Upload");
+        this.standalone = standalone;
     }
 
     @Override
@@ -52,7 +55,7 @@ public class VerifyUploadStep extends
         form = new Form<>(UploadBean.class);
         TextBoxItem nameField = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
         TextBoxItem runtimeNameField = new TextBoxItem("runtimeName", Console.CONSTANTS.common_label_runtimeName());
-        CheckBoxItem enable = new CheckBoxItem("enableAfterDeployment", "Enable");
+        enable = new CheckBoxItem("enableAfterDeployment", "Enable");
         if (wizard instanceof CanEnableDeployment) {
             form.setFields(nameField, runtimeNameField, enable);
         } else {
@@ -71,6 +74,7 @@ public class VerifyUploadStep extends
     @Override
     protected void onShow(final Context context) {
         form.edit(context.upload);
+        enable.setValue(standalone);
     }
 
     @Override

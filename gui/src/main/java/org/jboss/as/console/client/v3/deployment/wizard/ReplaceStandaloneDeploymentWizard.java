@@ -51,7 +51,7 @@ public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard {
         super("replace_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
-        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
+        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
     }
 
     public void open(final Deployment deployment) {

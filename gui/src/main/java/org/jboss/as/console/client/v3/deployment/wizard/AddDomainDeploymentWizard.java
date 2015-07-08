@@ -50,9 +50,9 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
 
         addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone()));
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
-        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
+        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
         addStep(CONTENT_REPOSITORY, new ContentRepositoryStep(this));
-        addStep(UNMANAGED, new UnmanagedStep(this));
+        addStep(UNMANAGED, new UnmanagedStep(this, bootstrapContext.isStandalone()));
     }
 
     public void open(List<Content> contentRepository, String serverGroup) {

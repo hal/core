@@ -47,7 +47,7 @@ public class AddContentWizard extends DeploymentWizard {
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(UPLOAD, new UploadStep(this, bootstrapContext));
-        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this));
+        addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
     }
 
     @Override

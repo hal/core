@@ -38,9 +38,14 @@ import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 public class UnmanagedStep extends
         WizardStep<Context, State> {
 
+    private final boolean standalone;
     private Form<UnmanagedBean> form;
+    private CheckBoxItem enabled;
 
-    public UnmanagedStep(final DeploymentWizard wizard) {super(wizard, "Unmanaged Deployment");}
+    public UnmanagedStep(final DeploymentWizard wizard, final boolean standalone) {
+        super(wizard, "Unmanaged Deployment");
+        this.standalone = standalone;
+    }
 
     @Override
     public Widget asWidget() {
@@ -59,7 +64,7 @@ public class UnmanagedStep extends
         TextBoxItem relativeTo = new TextBoxItem("relativeTo", "Relative To", false);
         CheckBoxItem archive = new CheckBoxItem("archive", "Is Archive?");
         archive.setValue(true);
-        CheckBoxItem enabled = new CheckBoxItem("enabled", "Enable");
+        enabled = new CheckBoxItem("enabled", "Enable");
         form.setFields(path, relativeTo, archive, name, runtimeName, enabled);
         panel.add(form.asWidget());
 
@@ -69,6 +74,7 @@ public class UnmanagedStep extends
     @Override
     public void reset() {
         form.clearValues();
+        enabled.setValue(standalone);
     }
 
     @Override
