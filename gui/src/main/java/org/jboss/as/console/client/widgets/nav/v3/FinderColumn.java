@@ -192,7 +192,9 @@ public class FinderColumn<T>  {
         cellTable.setSelectionModel(selectionModel);
 
         // visibility of the context menu column
-        cellTable.addRowHoverHandler(new RowHoverEvent.Handler() {
+        // See HAL-738: We keep this in case we change our minds, but for now the menu is implicitly enabled
+
+        /*cellTable.addRowHoverHandler(new RowHoverEvent.Handler() {
             @Override
             public void onRowHover(RowHoverEvent event) {
                 TableRowElement hoveringRow = event.getHoveringRow();
@@ -209,7 +211,7 @@ public class FinderColumn<T>  {
                 }
 
             }
-        });
+        });*/
 
         cellTable.addCellPreviewHandler(new CellPreviewEvent.Handler<T>() {
             @Override
