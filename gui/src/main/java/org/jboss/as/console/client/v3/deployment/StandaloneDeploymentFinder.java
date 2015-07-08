@@ -114,9 +114,20 @@ public class StandaloneDeploymentFinder
         this.dispatcher = dispatcher;
 
         this.addWizard = new AddStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadDeployments());
+                context -> {
+                    String name = context.deployNew ?
+                            context.upload.getName() :
+                            context.deployExisting ?
+                                    context.existingContent.getName() :
+                                    context.unmanagedDeployment.getName();
+                    Console.info(name + " successfully deployed.");
+                    loadDeployments();
+                });
         this.replaceWizard = new ReplaceStandaloneDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadDeployments());
+                context -> {
+                    Console.info(context.upload.getName() + " successfully replaced.");
+                    loadDeployments();
+                });
     }
 
     @Override
@@ -191,19 +202,22 @@ public class StandaloneDeploymentFinder
     }
 
     public void verifyEnableDisableDeployment(final Deployment deployment) {
-        String message;
+        String question;
         String operation;
+        String successMessage;
         if (deployment.isEnabled()) {
-            message = "Disable " + deployment.getName();
             operation = "undeploy";
+            question = "Disable " + deployment.getName();
+            successMessage = deployment.getName() + " successfully disabled.";
         } else {
-            message = "Enable " + deployment.getName();
             operation = "deploy";
+            question = "Enable " + deployment.getName();
+            successMessage = deployment.getName() + " successfully enabled.";
         }
-        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), message,
+        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), question,
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyDeployment(deployment, operation);
+                        modifyDeployment(deployment, operation, successMessage);
                     }
                 });
     }
@@ -212,12 +226,12 @@ public class StandaloneDeploymentFinder
         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + deployment.getName(),
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyDeployment(deployment, REMOVE);
+                        modifyDeployment(deployment, REMOVE, deployment.getName() + " successfully removed.");
                     }
                 });
     }
 
-    private void modifyDeployment(final Deployment deployment, final String operation) {
+    private void modifyDeployment(final Deployment deployment, final String operation, final String successMessage) {
         ResourceAddress address = new ResourceAddress().add("deployment", deployment.getName());
         Operation op = new Operation.Builder(operation, address).build();
         dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
@@ -232,6 +246,7 @@ public class StandaloneDeploymentFinder
                 if (result.isFailure()) {
                     Console.error("Unable to modify deployment.", result.getFailureDescription());
                 } else {
+                    Console.info(successMessage);
                     loadDeployments();
                 }
             }

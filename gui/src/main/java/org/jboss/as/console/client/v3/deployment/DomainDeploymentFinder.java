@@ -138,11 +138,25 @@ public class DomainDeploymentFinder
         this.serverGroupStore = serverGroupStore;
 
         this.addContentWizard = new AddContentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadContentRepository());
+                context -> {
+                    Console.info(context.upload.getName() + " successfully uploaded.");
+                    loadContentRepository();
+                });
         this.addDeploymentWizard = new AddDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadAssignments(context.serverGroup));
+                context -> {
+                    String name = context.deployNew ?
+                            context.upload.getName() :
+                            context.deployExisting ?
+                                    context.existingContent.getName() :
+                                    context.unmanagedDeployment.getName();
+                    Console.info(name + " successfully deployed.");
+                    loadAssignments(context.serverGroup);
+                });
         this.replaceWizard = new ReplaceDomainDeploymentWizard(bootstrapContext, beanFactory, dispatcher,
-                context -> loadAssignments(context.serverGroup));
+                context -> {
+                    Console.info(context.upload.getName() + " successfully replaced.");
+                    loadAssignments(context.serverGroup);
+                });
     }
 
     @Override
@@ -259,7 +273,7 @@ public class DomainDeploymentFinder
                 if (result.isFailure()) {
                     Console.error("Unable to remove deployment.", result.getFailureDescription());
                 } else {
-                    Console.info("Successfully removed " + content.getName() + ".");
+                    Console.info(content.getName() + " successfully removed.");
                     loadUnassignedContent(); // Remove is an action of the "Unassigned Content" column
                 }
             }
@@ -294,19 +308,22 @@ public class DomainDeploymentFinder
     }
 
     public void verifyEnableDisableAssignment(final Assignment assignment) {
-        String message;
+        String question;
         String operation;
+        String successMessage;
         if (assignment.isEnabled()) {
-            message = "Disable " + assignment.getName();
             operation = "undeploy";
+            question = "Disable " + assignment.getName();
+            successMessage = assignment.getName() + " successfully disabled.";
         } else {
-            message = "Enable " + assignment.getName();
             operation = "deploy";
+            question = "Enable " + assignment.getName();
+            successMessage = assignment.getName() + " successfully enabled.";
         }
-        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), message,
+        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), question,
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyAssignment(assignment, operation);
+                        modifyAssignment(assignment, operation, successMessage);
                     }
                 });
     }
@@ -315,12 +332,12 @@ public class DomainDeploymentFinder
         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + assignment.getName(),
                 isConfirmed -> {
                     if (isConfirmed) {
-                        modifyAssignment(assignment, REMOVE);
+                        modifyAssignment(assignment, REMOVE, assignment.getName() + " successfully removed.");
                     }
                 });
     }
 
-    private void modifyAssignment(final Assignment assignment, final String operation) {
+    private void modifyAssignment(final Assignment assignment, final String operation, final String successMessage) {
         String serverGroup = assignment.getServerGroup();
         ResourceAddress address = new ResourceAddress()
                 .add("server-group", serverGroup)
@@ -339,6 +356,7 @@ public class DomainDeploymentFinder
                 if (result.isFailure()) {
                     Console.error("Unable to modify deployment.", result.getFailureDescription());
                 } else {
+                    Console.info(successMessage);
                     loadAssignments(serverGroup);
                 }
             }
