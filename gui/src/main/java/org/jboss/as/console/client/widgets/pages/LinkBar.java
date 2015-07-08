@@ -56,7 +56,7 @@ public class LinkBar {
             if(!navOnFirstPage)
             {
                 html.addStyleName("link-bar-first");
-                builder.appendHtmlConstant("<i class='icon-chevron-left'></i>");
+                builder.appendHtmlConstant("<i class='icon-list-ul'></i>");
                 builder.appendHtmlConstant("&nbsp;");
             }
         }

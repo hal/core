@@ -89,7 +89,7 @@ public class JMSMetricView extends SuspendableViewImpl implements JMSMetricPrese
                 .addContent("", table.asWidget())
                 .build();
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), frontPage);
+        panel.addPage("JMS Server", frontPage);
 
 
         panel.addPage("Queues", queueMetrics.asWidget()) ;

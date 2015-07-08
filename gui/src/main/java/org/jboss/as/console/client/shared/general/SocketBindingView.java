@@ -62,7 +62,7 @@ public class SocketBindingView extends DisposableViewImpl implements SocketBindi
 
         panel = new PagedView();
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), socketGroups.asWidget());
+        panel.addPage("Socket Binding Groups", socketGroups.asWidget());
         panel.addPage("Inbound", sockets.asWidget()) ;
         panel.addPage("Outbound Remote", remoteSockets.asWidget()) ;
         panel.addPage("Outbound Local", localSockets.asWidget()) ;

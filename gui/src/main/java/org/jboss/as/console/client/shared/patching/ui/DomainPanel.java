@@ -141,7 +141,7 @@ public class DomainPanel implements IsWidget, HasPresenter<PatchManagementPresen
         patchInfoWrapper.setStyleName("rhs-content-panel");
         patchInfoWrapper.add(patchInfoPanel);
 
-        pagedView.addPage(Console.CONSTANTS.common_label_back(), overviewPanel.build());
+        pagedView.addPage("Hosts", overviewPanel.build());
         pagedView.addPage("Patches", new ScrollPanel(patchInfoWrapper));
         pagedView.showPage(0);
 

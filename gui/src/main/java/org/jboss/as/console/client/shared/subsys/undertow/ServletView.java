@@ -48,7 +48,7 @@ public class ServletView extends SuspendableViewImpl implements ServletPresenter
         sessionView = new SessionView(presenter);
         cookieView = new CookieView(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), serverList.asWidget());
+        panel.addPage("Servlet Container", serverList.asWidget());
         panel.addPage("JSP", jspView.asWidget());
         panel.addPage("Web Sockets", webSockets.asWidget());
         panel.addPage("Sessions", sessionView.asWidget());

@@ -30,7 +30,7 @@ public class WorkmanagerEditor {
         this.managerList = new WorkmanagerList(presenter);
         this.threadPools = new ThreadPoolEditor(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), managerList.asWidget());
+        panel.addPage("Workmanager", managerList.asWidget());
         panel.addPage("Thread Pools", threadPools.asWidget());
 
         // default page

@@ -135,32 +135,32 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         alternateSubNav.setStyleName("fill-layout");
         alternateSubNav.getElement().setAttribute("style", "background-color:#F9F9F9!important");
 
+        // breadcrumb
         breadcrumb = new HTML();
         breadcrumb.setStyleName("header-breadcrumb");
         alternateSubNav.add(breadcrumb);
 
-
+        // Back link
         HTML backLink = new HTML();
         backLink.addStyleName("link-bar-first");
         SafeHtmlBuilder builder = new SafeHtmlBuilder();
-        builder.appendHtmlConstant("Close");
-        builder.appendHtmlConstant("&nbsp;");
-        builder.appendHtmlConstant("<i class='icon-remove'></i>");
+        builder.appendHtmlConstant("<i class='icon-double-angle-left'></i>&nbsp;");
+        //builder.appendHtmlConstant("<i class='icon-columns'></i>&nbsp;");
+        builder.appendHtmlConstant("Back");
+        builder.appendHtmlConstant("&nbsp;<span style='color:#F5F5F5'>|</span>&nbsp;");
         backLink.setHTML(builder.toSafeHtml());
         backLink.getElement().setAttribute("style", "font-size:16px; padding-top:10px;cursor:pointer;");
         backLink.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-               // placeManager.revealRelativePlace(1);
+                // placeManager.revealRelativePlace(1);
 
                 // a workaround. see details of toggleNavigation(bool)
-                if(places.isEmpty()) {
+                if (places.isEmpty()) {
 
                     // should not happen
                     Console.error("Unable to navigate back");
-                }
-                else
-                {
+                } else {
                     placeManager.revealPlace(places.get(0));
                 }
 
@@ -168,8 +168,10 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         });
         alternateSubNav.add(backLink);
 
-        alternateSubNav.setWidgetLeftWidth(breadcrumb, 15, Style.Unit.PX, 75, Style.Unit.PCT);
-        alternateSubNav.setWidgetRightWidth(backLink, 15, Style.Unit.PX, 70, Style.Unit.PX);
+
+
+        alternateSubNav.setWidgetLeftWidth(backLink, 15, Style.Unit.PX, 70, Style.Unit.PX);
+        alternateSubNav.setWidgetLeftWidth(breadcrumb, 80, Style.Unit.PX, 100, Style.Unit.PCT);
 
         outerLayout.add(line);
         outerLayout.add(top);
@@ -551,10 +553,13 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
                 for (int i = 0; i <= breadcrumbMgr.getBreadcrumbCursor(); i++) {
                     BreadcrumbEvent item = breadcrumbMgr.getNavigationStack().get(i);
-                    html.appendEscaped(item.getKey()).appendEscaped(":").appendHtmlConstant("&nbsp;").appendEscaped(item.getValue());
+
+                    if(i>0 && i==breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("<b>");
+                        html.appendEscaped(item.getKey()).appendEscaped(":").appendHtmlConstant("&nbsp;").appendEscaped(item.getValue());
+                    if(i>0 && i==breadcrumbMgr.getBreadcrumbCursor()) html.appendHtmlConstant("</b>");
 
                     if (i <= breadcrumbMgr.getBreadcrumbCursor() - 1) {
-                        html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-double-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
+                        html.appendHtmlConstant("&nbsp;&nbsp;").appendHtmlConstant("<i class=\"icon-angle-right\"></i>").appendHtmlConstant("&nbsp;&nbsp;");
                     }
                 }
 

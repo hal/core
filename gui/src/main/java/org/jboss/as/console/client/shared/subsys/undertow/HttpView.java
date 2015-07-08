@@ -45,7 +45,7 @@ public class HttpView extends SuspendableViewImpl implements HttpPresenter.MyVie
         ajpView = new AJPListenerView(presenter);
         hostView = new HostView(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), serverList.asWidget());
+        panel.addPage("HTTP Server", serverList.asWidget());
         panel.addPage("HTTP Listener", httpView.asWidget());
         panel.addPage("HTTPS Listener", httpsView.asWidget());
         panel.addPage("AJP Listener", ajpView.asWidget());

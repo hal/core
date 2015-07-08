@@ -42,7 +42,7 @@ public class JGroupsSubsystemView extends SuspendableViewImpl implements JGroups
         stackEditor = new StackEditor(presenter);
         transportEditor = new TransportEditor(presenter);
 
-        panel.addPage(Console.CONSTANTS.common_label_back(), stackOverview.asWidget());
+        panel.addPage("Protocol Stacks", stackOverview.asWidget());
         panel.addPage("Protocols", stackEditor.asWidget());
         panel.addPage("Transport", transportEditor.asWidget());
 
