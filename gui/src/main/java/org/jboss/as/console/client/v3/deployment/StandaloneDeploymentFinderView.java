@@ -106,8 +106,16 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                 Operation));
 
         //noinspection Convert2MethodRef
+        MenuDelegate<Deployment> enableDisableDelegate = new MenuDelegate<Deployment>("(En/Dis)able",
+                item -> presenter.verifyEnableDisableDeployment(item), Operation) {
+            @Override
+            public String render(final Deployment data) {
+                return data.isEnabled() ? "Disable" : "Enable";
+            }
+        };
+        //noinspection Convert2MethodRef
         deploymentColumn.setMenuItems(
-                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableDeployment(item), Operation),
+                enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceDeploymentWizard(item), Operation),
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item), Operation)
         );

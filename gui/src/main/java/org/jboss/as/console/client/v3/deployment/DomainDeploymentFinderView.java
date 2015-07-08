@@ -145,8 +145,16 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         );
 
         //noinspection Convert2MethodRef
+        MenuDelegate<Assignment> enableDisableDelegate = new MenuDelegate<Assignment>("(En/Dis)able",
+                item -> presenter.verifyEnableDisableAssignment(item), Operation) {
+            @Override
+            public String render(final Assignment data) {
+                return data.isEnabled() ? "Disable" : "Enable";
+            }
+        };
+        //noinspection Convert2MethodRef
         assignmentColumn.setMenuItems(
-                new MenuDelegate<>("(En/Dis)able", item -> presenter.verifyEnableDisableAssignment(item), Operation),
+                enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveAssignment(item), Operation)
         );
