@@ -113,6 +113,12 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
     }
 
     @Override
+    protected void onReset() {
+        loadDatasources();
+        loadXADatasources();
+    }
+
+    @Override
     protected void onBind() {
         super.onBind();
         getEventBus().addHandler(PreviewEvent.TYPE, this);
