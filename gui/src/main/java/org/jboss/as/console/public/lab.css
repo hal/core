@@ -953,3 +953,8 @@ h3,
   right: -4px;
   top: 8px;
 }
+
+
+#PagedView .subpage .rhs-content-panel {
+    margin: 0!important;
+}

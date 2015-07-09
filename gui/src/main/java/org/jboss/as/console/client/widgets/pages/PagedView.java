@@ -65,6 +65,9 @@ public class PagedView {
     public void addPage(String title, Widget pageWidget)
     {
         deck.add(pageWidget);
+        if(deck.getWidgetCount()>1)
+            pageWidget.addStyleName("subpage");
+
         final int index = deck.getWidgetCount()-1;
 
         bar.addLink(title, new ClickHandler() {
