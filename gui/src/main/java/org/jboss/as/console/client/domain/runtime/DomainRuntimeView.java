@@ -30,6 +30,7 @@ import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -47,7 +48,8 @@ import java.util.List;
 /**
  * @author Heiko Braun
  */
-public class DomainRuntimeView extends SuspendableViewImpl implements DomainRuntimePresenter.MyView {
+public class DomainRuntimeView extends SuspendableViewImpl implements DomainRuntimePresenter.MyView,
+        ClearFinderSelectionEvent.Handler {
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
@@ -96,6 +98,9 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     @Inject
     public DomainRuntimeView(final PlaceManager placeManager) {
         super();
+
+        Console.getEventBus().addHandler(ClearFinderSelectionEvent.TYPE, this);
+
         this.placeManager = placeManager;
         contentCanvas = new LayoutPanel(); // TODO remove, including the widget slot in presenter
         previewCanvas = new LayoutPanel();
@@ -193,6 +198,13 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     }
 
     @Override
+    public void onClearActiveSelection(ClearFinderSelectionEvent event) {
+        serverColWidget.getElement().removeClassName("active");
+        subsysColWidget.getElement().removeClassName("active");
+        statusColWidget.getElement().removeClassName("active");
+    }
+
+    @Override
     public Widget createWidget() {
 
         serverColumn = new FinderColumn<Server>(
@@ -213,7 +225,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     @Override
                     public String rowCss(Server server) {
-                        String css = server.isStarted() ? "active" : "inactive";
+                        String css = server.isStarted() ? "active-row" : "inactive";
                         return css;
                     }
                 },

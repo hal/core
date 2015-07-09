@@ -406,6 +406,10 @@
     border-left:4px solid #EC7A08!important;
 }
 
+.navigation-cell-table .active-row .cellTableFirstColumn {
+    border-left:none!important;
+}
+
 .navigation-cell-table .paused .cellTableFirstColumn {
     border-left:4px solid #cecece!important;
 }
@@ -605,7 +609,7 @@
 }
 
 .empty-finder-column {
-    color: #CCCCCC;
+    color: #000000;
     height: 50px;
     padding-top: 22px;
     text-align: center;
