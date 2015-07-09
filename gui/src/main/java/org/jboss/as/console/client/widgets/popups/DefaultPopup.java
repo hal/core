@@ -18,11 +18,16 @@ public class DefaultPopup extends PopupPanel {
     private Arrow arrow = Arrow.NONE;
 
     public DefaultPopup() {
-        this(Arrow.NONE);
+        this(Arrow.NONE, false);
     }
 
     public DefaultPopup(Arrow arrow) {
+        this(arrow, false);
+    }
+
+    public DefaultPopup(Arrow arrow, boolean isTooltip) {
         super(true);
+        this.arrow = arrow;
 
         getElement().setAttribute("role", "alert");
         getElement().setAttribute("aria-live", "assertive");
@@ -30,29 +35,32 @@ public class DefaultPopup extends PopupPanel {
         this.sinkEvents(Event.ONKEYDOWN);
 
         addStyleName("default-popup");
+        if(isTooltip) addStyleName("tooltip");
+
+        String baseCss = isTooltip ? "tooltip-triangle-border": "triangle-border";
 
         if(Arrow.TOP.equals(arrow))
         {
-            addStyleName("triangle-border");
+            addStyleName(baseCss);
             addStyleName("top");
         }
         else if(Arrow.TOPLEFT.equals(arrow))
         {
-            addStyleName("triangle-border");
+            addStyleName(baseCss);
             addStyleName("top-left");
         }
         else if(Arrow.BOTTOM.equals(arrow))
         {
-            addStyleName("triangle-border");
+            addStyleName(baseCss);
         }
         else if(Arrow.RIGHT.equals(arrow))
         {
-            addStyleName("triangle-border");
+            addStyleName(baseCss);
             addStyleName("right");
         }
         else if(Arrow.RIGHTTOP.equals(arrow))
         {
-            addStyleName("triangle-border");
+            addStyleName(baseCss);
             addStyleName("right-top");
         }
 
@@ -67,6 +75,10 @@ public class DefaultPopup extends PopupPanel {
         setAutoHideEnabled(true);
         setAutoHideOnHistoryEventsEnabled(true);
 
+    }
+
+    public Arrow getArrow() {
+        return arrow;
     }
 
     @Override

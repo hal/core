@@ -716,6 +716,7 @@
     background-color: #CC0000;
 }
 
+
 .list-InfoBlock  {
     border-left:3px solid #006E9C;
 }
@@ -784,4 +785,171 @@ h3,
     font-size: 16px;
     margin-top: 20px;
     margin-bottom: 10px;
+}
+
+
+/* updated tooltip styles*/
+
+.tooltip-info{
+    padding:5px;
+    color:#ffffff;
+    background-color: #006E9C;
+}
+.tooltip-confirm{
+    padding:5px;
+    color:#ffffff;
+    background-color: #3F9C35;
+}
+.tooltip-warn{
+    padding:5px;
+    color:#ffffff;
+    background-color: #EC7A08;
+}
+.tooltip-error {
+    padding:5px;
+    color:#ffffff;
+    background-color: #CC0000;
+}
+
+.tooltip {
+    color:#ffffff;
+    border-color: #4d5258 !important;
+    background-color:#4d5258!important;
+    opacity: .9;
+
+}
+
+.finder-tooltip-content {
+    padding:5px;
+}
+
+
+.tooltip-triangle-border:before {
+  content: "";
+  position: absolute;
+  bottom: -10px; /* value = - border-top-width - border-bottom-width */
+  left: 40px; /* controls horizontal position */
+  border-width: 10px 10px 0;
+  border-style: solid;
+  border-color: #4d5258 transparent;
+  /* reduce the damage in FF3.0 */
+  display: block;
+  width: 0;
+}
+
+/* creates the smaller  triangle */
+.tooltip-triangle-border:after {
+  content: "";
+  position: absolute;
+  bottom: -8px; /* value = - border-top-width - border-bottom-width */
+  left: 42px; /* value = (:before left) + (:before border-left) - (:after border-left) */
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: #4d5258 transparent;
+  /* reduce the damage in FF3.0 */
+  display: block;
+  width: 0;
+}
+
+/* Variant : top
+------------------------------------------ */
+
+/* creates the larger triangle */
+.tooltip-triangle-border.top:before {
+  top: -10px; /* value = - border-top-width - border-bottom-width */
+  bottom: auto;
+  left: auto;
+  right: 40px; /* controls horizontal position */
+  border-width: 0 10px 10px;
+}
+
+/* creates the smaller  triangle */
+.tooltip-triangle-border.top:after {
+  top: -8px; /* value = - border-top-width - border-bottom-width */
+  bottom: auto;
+  left: auto;
+  right: 42px; /* value = (:before right) + (:before border-right) - (:after border-right) */
+  border-width: 0 8px 8px;
+}
+
+/* creates the larger triangle */
+.tooltip-triangle-border.top-left:before {
+  top: -10px; /* value = - border-top-width - border-bottom-width */
+  bottom: auto;
+  left: 40;
+  right: auto; /* controls horizontal position */
+  border-width: 0 10px 10px;
+}
+
+/* creates the smaller  triangle */
+.tooltip-triangle-border.top-left:after {
+  top: -8px; /* value = - border-top-width - border-bottom-width */
+  bottom: auto;
+  left: 42px;
+  right: auto; /* value = (:before right) + (:before border-right) - (:after border-right) */
+  border-width: 0 8px 8px;
+}
+
+/* Variant : left
+------------------------------------------ */
+
+/* creates the larger triangle */
+.tooltip-triangle-border.left:before {
+  top: 10px; /* controls vertical position */
+  bottom: auto;
+  left: -30px; /* value = - border-left-width - border-right-width */
+  border-width: 15px 30px 15px 0;
+  border-color:transparent #4d5258;
+}
+
+/* creates the smaller  triangle */
+.tooltip-triangle-border.left:after {
+  top: 16px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+  bottom: auto;
+  left: -21px; /* value = - border-left-width - border-right-width */
+  border-width: 9px 21px 9px 0;
+  border-color:transparent #4d5258;
+}
+
+/* Variant : right
+------------------------------------------ */
+
+/* creates the larger triangle */
+.tooltip-triangle-border.right:before {
+  top: 10px; /* controls vertical position */
+  bottom: auto;
+  left: auto;
+  right: -11px; /* value = - border-left-width - border-right-width */
+  border-width: 10px 0 10px 10px;
+  border-color:transparent #4d5258;
+}
+
+/* creates the smaller  triangle */
+.tooltip-triangle-border.right:after {
+  top: 12px; /* value = (:before top) + (:before border-top) - (:after border-top) */
+  bottom: auto;
+  left: auto;
+  right: -8px; /* value = - border-left-width - border-right-width */
+  border-width: 8px 0 8px 8px;
+  border-color:transparent #4d5258;
+}
+
+/* right top*/
+
+.tooltip-triangle-border.right-top:before {
+  border-color: transparent #4d5258;
+  border-width: 6px 0 6px 6px;
+  bottom: auto;
+  left: auto;
+  right: -6px;
+  top: 6px;
+}
+
+.tooltip-triangle-border.right-top:after {
+  border-color: transparent #4d5258;
+  border-width: 4px 0 4px 4px;
+  bottom: auto;
+  left: auto;
+  right: -4px;
+  top: 8px;
 }

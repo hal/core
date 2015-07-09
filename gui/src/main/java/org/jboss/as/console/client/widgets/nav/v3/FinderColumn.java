@@ -1,7 +1,5 @@
 package org.jboss.as.console.client.widgets.nav.v3;
 
-import com.google.gwt.cell.client.ButtonCell;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
@@ -22,7 +20,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -63,6 +60,8 @@ public class FinderColumn<T>  {
     private final FinderId correlationId;
     private final String title;
     private final Display display;
+    private TooltipDisplay tooltipDisplay = null;
+    private FinderTooltip tooltip;
     private final ProvidesKey keyProvider;
     private final String id;
     private final String token;
@@ -137,15 +136,15 @@ public class FinderColumn<T>  {
                     sb.appendHtmlConstant("<span class='nav-menu' style='position:absolute; top:5px; right:"+offset1+"px'>");
                     sb.appendHtmlConstant("<div class='btn-group'>");
 
-                        sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
-                        if (data != null) {
-                            sb.appendEscaped(accessibleMenuItems.get(0).render(data));
-                        }
-                        sb.appendHtmlConstant("</button>");
+                    sb.appendHtmlConstant("<button action='default' class='btn' type='button' tabindex=\"-1\">");
+                    if (data != null) {
+                        sb.appendEscaped(accessibleMenuItems.get(0).render(data));
+                    }
+                    sb.appendHtmlConstant("</button>");
 
                     if(accessibleMenuItems.size()>1) {
                         sb.appendHtmlConstant("<button action='menu' class='btn dropdown-toggle' type='button' tabindex=\"-1\">");
-                            sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
+                        sb.appendHtmlConstant("<span><i class='icon-caret-down'></i></span>");
                         sb.appendHtmlConstant("</button>");
                     }
 
@@ -492,6 +491,11 @@ public class FinderColumn<T>  {
         return this;
     }
 
+    public FinderColumn<T> setTooltipDisplay(TooltipDisplay<T> tooltipDisplay) {
+        this.tooltipDisplay = tooltipDisplay;
+        return this;
+    }
+
     /**
      * provides the value part of a key/value breadcrumb tuple.
      * if this is not given (default) then the column title will be used as the value.
@@ -516,6 +520,32 @@ public class FinderColumn<T>  {
     }
 
     public Widget asWidget() {
+
+        // tooltips (lazy init because they are optional)
+        if(this.tooltipDisplay!=null) {
+            tooltip = new FinderTooltip(new FinderTooltip.Context<T>() {
+                @Override
+                public SafeHtml render(T item) {
+                    return tooltipDisplay.render(item);
+                }
+            });
+
+            cellTable.addRowHoverHandler(new RowHoverEvent.Handler() {
+                @Override
+                public void onRowHover(RowHoverEvent event) {
+                    TableRowElement hoveringRow = event.getHoveringRow();
+
+                    T item = cellTable.getVisibleItem(hoveringRow.getRowIndex());
+
+                    if (event.isUnHover()) {
+                        tooltip.cancel();
+                    } else {
+                        tooltip.prepare(hoveringRow, item);
+                    }
+
+                }
+            });
+        }
 
         layout = new LayoutPanel() {
             @Override
@@ -657,6 +687,10 @@ public class FinderColumn<T>  {
         boolean isFolder(T data);
         SafeHtml render(String baseCss, T data);
         String rowCss(T data);
+    }
+
+    public interface TooltipDisplay<T> {
+        SafeHtml render(T data);
     }
 
     /*public void selectByKey(Object key) {

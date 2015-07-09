@@ -73,7 +73,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\" title='{2}' style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
+        @Template("<div class=\"{0}\" style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
@@ -346,7 +346,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     }
                 }, MenuDelegate.Role.Operation)
-                ,new MenuDelegate<Server>(
+                , new MenuDelegate<Server>(
                         "Restart", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(Server server) {
@@ -367,6 +367,21 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 }, MenuDelegate.Role.Operation)
         );
 
+
+        serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {
+            @Override
+            public SafeHtml render(Server data) {
+                String message = data.isStarted() ? "running" : "not running";
+                SafeHtmlBuilder sb = new SafeHtmlBuilder();
+                if(data.isStarted())
+                    sb.appendHtmlConstant("<i class=\"icon-ok\" style='color:#3F9C35'></i>&nbsp;");
+                else
+                    sb.appendHtmlConstant("<i class=\"icon-ban-circle\" style='color:#CC0000'></i>&nbsp;");
+                sb.appendEscaped("Server is ").appendEscaped(message);
+
+                return sb.toSafeHtml();
+            }
+        });
 
         serverColWidget = serverColumn.asWidget();
 
