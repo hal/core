@@ -21,6 +21,7 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.shared.SafeHtml;
@@ -249,19 +250,35 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         //noinspection Convert2MethodRef
         contentColumn = new ContentColumn("All Content", columnManager,
                 new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard(), Operation),
-                null, NameTokens.DomainDeploymentFinder);
+                new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
+                new MenuDelegate<>("Remove", item -> {
+                    if (!item.getAssignments().isEmpty()) {
+                        String serverGroups = "\t- " +  Joiner.on("\n\t- ").join(
+                                Lists.transform(item.getAssignments(), Assignment::getServerGroup));
+                        Console.error(item.getName() + " is in use. Please remove its assignments first.",
+                                item.getName() + " is assigned to the following server groups:\n\n" + serverGroups);
+                    } else {
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.removeContent(item);
+                                    }
+                                });
+                    }
+                }, Operation));
         contentColumnWidget = contentColumn.asWidget();
 
+        //noinspection Convert2MethodRef
         unassignedColumn = new ContentColumn("Unassigned Content", columnManager,
                 null,
+                new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
                 new MenuDelegate<>("Remove", item ->
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
                                 isConfirmed -> {
                                     if (isConfirmed) {
                                         presenter.removeContent(item);
                                     }
-                                }), Operation),
-                NameTokens.DomainDeploymentFinder);
+                                }), Operation));
         unassignedColumnWidget = unassignedColumn.asWidget();
 
 

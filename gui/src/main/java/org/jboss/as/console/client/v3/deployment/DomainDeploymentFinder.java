@@ -21,6 +21,9 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -49,7 +52,9 @@ import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddContentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizard;
+import org.jboss.as.console.client.v3.deployment.wizard.AssignContentDialog;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceDomainDeploymentWizard;
+import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.presenter.Finder;
@@ -73,8 +78,10 @@ import org.jboss.gwt.flow.client.Outcome;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.jboss.as.console.spi.OperationMode.Mode.DOMAIN;
+import static org.jboss.dmr.client.ModelDescriptionConstants.ADD;
 import static org.jboss.dmr.client.ModelDescriptionConstants.REMOVE;
 
 /**
@@ -119,6 +126,7 @@ public class DomainDeploymentFinder
     private final Dispatcher circuit;
     private final ServerGroupStore serverGroupStore;
     private final AddContentWizard addContentWizard;
+    private final AssignContentDialog assignContentDialog;
     private final AddDomainDeploymentWizard addDeploymentWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
 
@@ -137,6 +145,7 @@ public class DomainDeploymentFinder
         this.circuit = circuit;
         this.serverGroupStore = serverGroupStore;
 
+        this.assignContentDialog = new AssignContentDialog(this);
         this.addContentWizard = new AddContentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
                     String name = context.deployNew ?
@@ -258,6 +267,50 @@ public class DomainDeploymentFinder
 
     public void launchAddContentWizard() {
         addContentWizard.open("Add Content");
+    }
+
+    public void launchAssignContentDialog(Content content) {
+        Set<String> assignedServerGroupNames = Sets.newHashSet(
+                Lists.transform(content.getAssignments(), Assignment::getServerGroup));
+        Set<String> serverGroupNames = Sets.newHashSet(
+                Lists.transform(serverGroupStore.getServerGroups(), ServerGroupRecord::getName));
+        serverGroupNames.removeAll(assignedServerGroupNames);
+        if (serverGroupNames.isEmpty()) {
+            Console.warning(content.getName() + " is already assigned to all server groups.");
+        } else {
+            assignContentDialog.open(content, Ordering.natural().immutableSortedCopy(serverGroupNames));
+        }
+    }
+
+    public void assignContent(Content content, Set<String> serverGroups, boolean enable) {
+        List<Operation> operations = new ArrayList<>();
+        for (String serverGroup : serverGroups) {
+            ResourceAddress address = new ResourceAddress()
+                    .add("server-group", serverGroup)
+                    .add("deployment", content.getName());
+            Operation operation = new Operation.Builder(ADD, address)
+                    .param("runtime-name", content.getRuntimeName())
+                    .param("enabled", enable)
+                    .build();
+            operations.add(operation);
+        }
+        dispatcher.execute(new DMRAction(new Composite(operations)), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to assign " + content.getName() + ".", caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error("Unable to assign " + content.getName() + ".", result.getFailureDescription());
+                } else {
+                    Console.info(content.getName() + " successfully assigned to selected server groups.");
+                    loadContentRepository();
+                }
+            }
+        });
     }
 
     public void removeContent(final Content content) {

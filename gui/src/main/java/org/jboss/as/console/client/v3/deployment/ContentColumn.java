@@ -24,6 +24,7 @@ package org.jboss.as.console.client.v3.deployment;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
+import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -39,7 +40,7 @@ public class ContentColumn extends FinderColumn<Content> {
 
     @SuppressWarnings("unchecked")
     public ContentColumn(final String title, final ColumnManager columnManager,
-            final MenuDelegate<Content> topMenuItem, final MenuDelegate<Content> contextMenuItem, final String token) {
+            final MenuDelegate<Content> topMenuItem, final MenuDelegate<Content>... contextMenuItems) {
         super(DEPLOYMENT, title,
                 new Display<Content>() {
                     @Override
@@ -63,7 +64,7 @@ public class ContentColumn extends FinderColumn<Content> {
                         return item.getName();
                     }
                 },
-                token);
+                NameTokens.DomainDeploymentFinder);
 
         setShowSize(true);
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.contentPreview(data)));
@@ -71,8 +72,8 @@ public class ContentColumn extends FinderColumn<Content> {
         if (topMenuItem != null) {
             setTopMenuItems(topMenuItem);
         }
-        if (contextMenuItem != null) {
-            setMenuItems(contextMenuItem);
+        if (contextMenuItems != null) {
+            setMenuItems(contextMenuItems);
         }
 
         addSelectionChangeHandler(event -> {

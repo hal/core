@@ -52,7 +52,7 @@ import java.util.Map;
  * <ol>
  * <li>add steps in the constructor using {@link #addStep(Enum, WizardStep)}</li>
  * <li>provide the initial and last step(s) by overriding {@link #initialState()} and {@link #lastStates()}</li>
- * <li>decide how to move back and forth when {@link #back(Enum)} and {@link #next(Enum)} are called</li>
+ * <li>decide how to move back and forth by overriding {@link #back(Enum)} and {@link #next(Enum)}</li>
  * </ol>
  *
  * @param <C> The context
@@ -70,6 +70,7 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
 
 
     private class StateDeckPanel extends DeckPanel {
+
         public void showWidget(final S state) {
             WizardStep<C, S> step = steps.get(state);
             Integer index = stateIndex.get(state);
@@ -279,12 +280,13 @@ public abstract class Wizard<C, S extends Enum<S>> implements IsWidget {
     }
 
     /**
-     * Subclasses must provide the previous state or {@code null} if there's no previous state.
+     * Subclasses must provide the previous state for {@code state} or {@code null} if there's no previous state.
      */
     protected abstract S back(final S state);
 
     /**
-     * Subclasses must provide the next state or {@code null} if there's no next state (signals the 'finished' state)
+     * Subclasses must provide the next state for {@code state} or {@code null} if there's no next state (signals the
+     * 'finished' state)
      */
     protected abstract S next(final S state);
 
