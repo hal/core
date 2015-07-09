@@ -84,17 +84,6 @@ public abstract class PerspectivePresenter<V extends View, Proxy_ extends Proxy<
 
             circuit.dispatch(new SelectPerspective(token, lastPlace.getNameToken()));
         }
-        else if (lastPlace != null) {
-
-            // highlight navigation
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    getEventBus().fireEventFromSource(new LHSHighlightEvent(lastPlace.getNameToken()), this);
-                }
-            });
-            return;
-        }
 
 
         if (!hasBeenRevealed) {

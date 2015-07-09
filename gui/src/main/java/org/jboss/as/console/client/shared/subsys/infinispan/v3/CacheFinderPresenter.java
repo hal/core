@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
@@ -75,6 +76,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final SecurityFramework securityFramework;
     private final StatementContext statementContext;
+    private final PlaceManager placeManager;
 
     private static AddressTemplate CACHE_CONTAINER = AddressTemplate.of("{selected.profile}/subsystem=infinispan/cache-container=*");
     private DefaultWindow transportDialog;
@@ -105,13 +107,15 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     @Inject
     public CacheFinderPresenter(
             EventBus eventBus, MyView view, MyProxy proxy, DispatchAsync dispatcher,
-            ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework, CoreGUIContext delegate) {
+            ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework,
+            CoreGUIContext delegate, PlaceManager placeManager) {
         super(eventBus, view, proxy);
 
         this.dispatcher = dispatcher;
         this.descriptionRegistry = descriptionRegistry;
         this.securityFramework = securityFramework;
         this.statementContext = delegate;
+        this.placeManager = placeManager;
     }
 
     @Override
@@ -124,7 +128,8 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     protected void onReset() {
         super.onReset();
 
-        loadContainer(null);
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+            loadContainer(null);
 
     }
 

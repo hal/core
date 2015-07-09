@@ -115,7 +115,8 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
     protected void onReset() {
         super.onReset();
 
-        loadAdapter();
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+            loadAdapter();
     }
 
 

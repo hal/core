@@ -375,8 +375,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
         xadatasources.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(xadatasources.hasSelectedItem())
-                {
+                if (xadatasources.hasSelectedItem()) {
                     DataSource item = xadatasources.getSelectedItem();
                     columnManager.updateActiveSelection(xaColWidget);
 
@@ -384,8 +383,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
             }
         });
 
-        // types column items
-        typeColumn.updateFrom(types);
+
         return layout;
     }
 
@@ -400,6 +398,11 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
             }
         });
 
+    }
+
+    @Override
+    public void resetFirstColumn() {
+        typeColumn.updateFrom(types);
     }
 
     @Override

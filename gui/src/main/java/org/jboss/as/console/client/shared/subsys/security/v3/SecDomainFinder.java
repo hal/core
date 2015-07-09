@@ -29,6 +29,7 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.client.proxy.RevealContentEvent;
 import org.jboss.as.console.client.Console;
@@ -76,6 +77,7 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
     private final ResourceDescriptionRegistry descriptionRegistry;
     private final SecurityFramework securityFramework;
     private final StatementContext statementContext;
+    private final PlaceManager placeManager;
 
     public static AddressTemplate SECURITY_DOMAIN = AddressTemplate.of("{selected.profile}/subsystem=security/security-domain=*");
     private DefaultWindow domainDialog;
@@ -105,7 +107,8 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
     public SecDomainFinder(
             EventBus eventBus, MyView view, MyProxy proxy,
             RevealStrategy revealStrategy, DispatchAsync dispatcher,
-            ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework, CoreGUIContext delegate) {
+            ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework,
+            CoreGUIContext delegate, PlaceManager placeManager) {
         super(eventBus, view, proxy);
 
         this.revealStrategy = revealStrategy;
@@ -114,6 +117,7 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
         this.descriptionRegistry = descriptionRegistry;
         this.securityFramework = securityFramework;
         this.statementContext = delegate;
+        this.placeManager = placeManager;
     }
 
     @Override
@@ -126,7 +130,8 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
     protected void onReset() {
         super.onReset();
 
-        loadDomains(null);
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+            loadDomains(null);
 
     }
 

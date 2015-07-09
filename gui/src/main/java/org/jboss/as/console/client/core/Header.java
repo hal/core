@@ -36,9 +36,16 @@ import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.DeckPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.LayoutPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
-import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
@@ -47,14 +54,12 @@ import org.jboss.as.console.client.core.bootstrap.cors.BootstrapServerSetup;
 import org.jboss.as.console.client.core.message.MessageCenter;
 import org.jboss.as.console.client.core.message.MessageCenterView;
 import org.jboss.as.console.client.csp.CustomerSupportLauncher;
-import org.jboss.as.console.client.rbac.RBACContextView;
 import org.jboss.as.console.client.search.Harvest;
 import org.jboss.as.console.client.search.Index;
 import org.jboss.as.console.client.search.SearchTool;
 import org.jboss.as.console.client.shared.model.PerspectiveStore;
-import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbMgr;
-import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbEvent;
+import org.jboss.as.console.client.widgets.nav.v3.BreadcrumbMgr;
 import org.jboss.as.console.client.widgets.popups.DefaultPopup;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -80,7 +85,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
     private final BootstrapContext bootstrap;
     private final MessageCenter messageCenter;
     private final PlaceManager placeManager;
-    private final EventBus eventBus;
+
     private final Harvest harvest;
     private final Index index;
     private final PerspectiveStore perspectiveStore;
@@ -98,7 +103,7 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
 
     @Inject
     public Header(final FeatureSet featureSet, final ToplevelTabs toplevelTabs, MessageCenter messageCenter,
-                  ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager, EventBus eventBus,
+                  ProductConfig productConfig, BootstrapContext bootstrap, PlaceManager placeManager,
                   Harvest harvest, Index index, PerspectiveStore perspectiveStore) {
         this.featureSet = featureSet;
         this.toplevelTabs = toplevelTabs;
@@ -106,7 +111,6 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
         this.productConfig = productConfig;
         this.bootstrap = bootstrap;
         this.placeManager = placeManager;
-        this.eventBus = eventBus;
         this.harvest = harvest;
         this.index = index;
         this.perspectiveStore = perspectiveStore;
@@ -161,6 +165,12 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                     // should not happen
                     Console.error("Unable to navigate back");
                 } else {
+
+                    /*
+                    hb: Going back to the first place of the hirarchy allows nested presenters
+                    to skip their onReset() by comparing the current tokens when that method is invoked.
+                    this way they can keep their state (i.e. selections) and allow refresh when being called directly (aka token matches)
+                     */
                     placeManager.revealPlace(places.get(0));
                 }
 
@@ -431,24 +441,20 @@ public class Header implements ValueChangeHandler<String>, BreadcrumbEvent.Handl
                 @Override
                 public void onClick(ClickEvent event) {
                     // navigate either child directly or parent if revealed the first time
-                    boolean hasChild = perspectiveStore.hasChild(tlt.getToken());
-                    /*String token = hasChild ?
+                    /*boolean hasChild = perspectiveStore.hasChild(tlt.getToken());
+                    String token = hasChild ?
                             perspectiveStore.getChild(tlt.getToken()) : tlt.getToken();
-
-
                     boolean updateToken = hasChild ? true : tlt.isUpdateToken();*/
 
                     String token = tlt.getToken();
                     placeManager.revealPlace(
-                            new PlaceRequest.Builder().nameToken(token).build(), tlt.isUpdateToken());
+                            new PlaceRequest.Builder().nameToken(token).build(), tlt.isUpdateToken()
+                    );
                 }
             });
             linksPane.add(widget, id);
 
         }
-
-        //subnavigation = createSubnavigation();
-        //linksPane.add(subnavigation, "subnavigation");
 
         return linksPane;
     }

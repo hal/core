@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
@@ -291,7 +292,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     final String selectedHost = hosts.getSelectedItem();
                     columnManager.updateActiveSelection(hostColWidget);
 
-                    presenter.getPlaceManager().revealPlace(
+                    presenter.getPlaceManager().revealRelativePlace(
                             new PlaceRequest(NameTokens.DomainRuntimePresenter)
                     );
 
@@ -357,16 +358,20 @@ public class ColumnHostView extends SuspendableViewImpl
 
                     columnManager.updateActiveSelection(groupsColWidget);
 
-                    presenter.getPlaceManager().revealPlace(
-                            new PlaceRequest(NameTokens.DomainRuntimePresenter)
-                    );
+                    PlaceManager placeManager = presenter.getPlaceManager();
+
+                    // hb: some trickery with regard to nested presenters
+                    // it needs to be relative, but should not append to existing hirarchies
+                    List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
+                    next.add(placeManager.getCurrentPlaceHierarchy().get(0));
+                    next.add(new PlaceRequest(NameTokens.DomainRuntimePresenter));
+                    placeManager.revealPlaceHierarchy(next);
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
                                     Console.getCircuit().dispatch(new GroupSelection(selectedGroup.getName()));
-
                                 }
                             }
                     );

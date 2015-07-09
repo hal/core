@@ -90,6 +90,8 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
         void updateXADataSources(List<XADataSource> xaDatasources);
 
         void showVerifyConncectionResult(String name, VerifyConnectionOp.VerifyResult result);
+
+        void resetFirstColumn();
     }
 
 
@@ -114,8 +116,12 @@ public class DataSourceFinder extends Presenter<DataSourceFinder.MyView, DataSou
 
     @Override
     protected void onReset() {
-        loadDatasources();
-        loadXADatasources();
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+        {
+            getView().resetFirstColumn();
+            loadDatasources();
+            loadXADatasources();
+        }
     }
 
     @Override

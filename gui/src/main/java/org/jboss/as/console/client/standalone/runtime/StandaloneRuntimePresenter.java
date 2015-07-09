@@ -101,13 +101,6 @@ public class StandaloneRuntimePresenter
 
     @Override
     protected void onReset() {
-        subsysStore.loadSubsystems("default", new SimpleCallback<List<SubsystemRecord>>() {
-            @Override
-            public void onSuccess(List<SubsystemRecord> result) {
-                getView().setSubsystems(result);
-                StandaloneRuntimePresenter.super.onReset();
-            }
-        });
 
         header.highlight(getProxy().getNameToken());
 
@@ -120,6 +113,15 @@ public class StandaloneRuntimePresenter
         if(!hasBeenLoaded)
             hasBeenLoaded = true;
 
+    }
+
+    public void loadSubsystems() {
+        subsysStore.loadSubsystems("default", new SimpleCallback<List<SubsystemRecord>>() {
+            @Override
+            public void onSuccess(List<SubsystemRecord> result) {
+                getView().setSubsystems(result);
+            }
+        });
     }
 
     @Override

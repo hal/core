@@ -21,6 +21,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
@@ -216,7 +217,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
 
                     @Override
                     public String rowCss(StandaloneServer data) {
-                        return data.isRequiresReload() ? "inactive" : "active";
+                        return data.isRequiresReload() ? "inactive" : "active-row";
                     }
                 },
                 new ProvidesKey<StandaloneServer>() {
@@ -247,18 +248,32 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
                 html.appendEscaped("The server ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
                 html.appendHtmlConstant("<h3>Status</h3>");
-                if(presenter.isStaleModel())
-                {
+                if (presenter.isStaleModel()) {
                     html.appendEscaped(Console.CONSTANTS.server_instance_reloadRequired());
-                }
-                else
-                {
+                } else {
                     html.appendEscaped(Console.CONSTANTS.server_config_uptodate());
                 }
                 html.appendHtmlConstant("</div>");
                 callback.onSuccess(html.toSafeHtml());
             }
         });
+
+
+        serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<StandaloneServer>() {
+            @Override
+            public SafeHtml render(StandaloneServer data) {
+                String message = data.isRequiresReload() ? "does require a reload" : "is running appropriately";
+                SafeHtmlBuilder sb = new SafeHtmlBuilder();
+                if (!data.isRequiresReload())
+                    sb.appendHtmlConstant("<i class=\"icon-ok\" style='color:#3F9C35'></i>&nbsp;");
+                else
+                    sb.appendHtmlConstant("<i class=\"icon-warning-sign\" style='color:#CC0000'></i>&nbsp;");
+                sb.appendEscaped("Server ").appendEscaped(message);
+
+                return sb.toSafeHtml();
+            }
+        });
+
 
         statusColumn = new FinderColumn<FinderItem>(
                 FinderColumn.FinderId.RUNTIME,
@@ -365,6 +380,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 columnManager.reduceColumnsTo(1);
                 if (serverColumn.hasSelectedItem()) {
+                    presenter.loadSubsystems();
                     columnManager.updateActiveSelection(serverColWidget);
                     columnManager.appendColumn(statusColWidget);
 

@@ -223,7 +223,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @Override
     protected void onReset() {
-        clearInitialPlace();
+
         HostMgmtPresenter.super.onReset();
         Console.MODULES.getHeader().highlight(getProxy().getNameToken());
     }
@@ -235,22 +235,12 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        circuit.dispatch(new RefreshHosts());
-        loadServerGroups();
+        refreshState();
     }
 
-    private void clearInitialPlace() {
-        if (bootstrap.getInitialPlace() != null) {
-            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                @Override
-                public void execute() {
-                    /*Console.getEventBus().fireEvent(
-                            new LHSHighlightEvent(bootstrap.getInitialPlace())
-                    );*/
-                    bootstrap.setInitialPlace(null);
-                }
-            });
-        }
+    private void refreshState() {
+        circuit.dispatch(new RefreshHosts());
+        loadServerGroups();
     }
 
     @Override

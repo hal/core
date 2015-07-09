@@ -313,7 +313,12 @@ public class ColumnServerView extends SuspendableViewImpl
 
                     if(link.isFolder())
                     {
-                        placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
+                        // hb: some trickery with regard to nested presenters
+                        // it needs to be relative, but should not append to existing hirarchies
+                        List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
+                        next.add(placeManager.getCurrentPlaceHierarchy().get(0));
+                        next.add(new PlaceRequest(link.getToken()));
+                        placeManager.revealPlaceHierarchy(next);
                     }
                     else
                     {
@@ -440,14 +445,6 @@ public class ColumnServerView extends SuspendableViewImpl
                 {
                     if(actual.getKey().equals(candidate.getKey()))
                     {
-
-                       /* final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
-                        link.setKey(candidate.getKey());
-                        link.getElement().setAttribute("title", candidate.getName()+" "+
-                                actual.getMajor()+"."+
-                                actual.getMinor()+"."+
-                                actual.getMicro());*/
-
 
                         boolean isFolder = false;
                         for (String subsystemFolder : subsystemFolders) {

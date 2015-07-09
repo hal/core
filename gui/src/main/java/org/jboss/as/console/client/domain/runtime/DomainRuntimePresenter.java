@@ -191,6 +191,8 @@ public class DomainRuntimePresenter
         });
     }
 
+
+
     private void refreshServerList() {
         if(FilterType.HOST.equals(serverStore.getFilter()))
         {
@@ -228,7 +230,7 @@ public class DomainRuntimePresenter
 
     @Override
     protected void onFirstReveal(final PlaceRequest placeRequest, PlaceManager placeManager, boolean revealDefault) {
-        //circuit.dispatch(new RefreshServer());
+
     }
 
     @Override
@@ -283,7 +285,8 @@ public class DomainRuntimePresenter
     @Override
     protected void onReset() {
         super.onReset();
-        refreshServerList();
+        if(placeManager.getCurrentPlaceRequest().matchesNameToken(getProxy().getNameToken()))
+            refreshServerList();
     }
 
     public String getFilter() {

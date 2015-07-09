@@ -37,7 +37,6 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
-import org.jboss.ballroom.client.layout.LHSNavTreeItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,7 +54,7 @@ public class ColumnProfileView extends SuspendableViewImpl
     /**
      * These items will reveal a nested finder contribution
      */
-    private final static String[] subsystemFolders = new String[] {
+    private final static String[] nestedPresenter = new String[] {
             NameTokens.MailFinder,
             NameTokens.CacheFinderPresenter,
             NameTokens.HornetqFinder,
@@ -338,7 +337,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(String baseCss, SubsystemLink data) {
-                        if (data.isIncuded())
+                        if (data.isIncluded())
                             return SUBSYS_TEMPLATE.includedItem(baseCss, data.getTitle(), data.getGroupName(), "Included from "+data.getIncludedFrom());
                         else
                             return SUBSYS_TEMPLATE.item(baseCss, data.getTitle(), data.getGroupName());
@@ -346,7 +345,7 @@ public class ColumnProfileView extends SuspendableViewImpl
 
                     @Override
                     public String rowCss(SubsystemLink data) {
-                        if(data.isIncuded())
+                        if(data.isIncluded())
                         {
                             return "no-menu paused";
                         }
@@ -398,7 +397,7 @@ public class ColumnProfileView extends SuspendableViewImpl
                         @Override
                         public void onSuccess(SafeHtml safeHtml) {
 
-                            if(data.isIncuded()) {
+                            if(data.isIncluded()) {
                                 SafeHtmlBuilder builder = new SafeHtmlBuilder();
                                 builder.appendHtmlConstant("<div class='preview-content'><h3>");
                                 builder.appendEscaped("Included from profile: ").appendEscaped(data.getIncludedFrom());
@@ -500,9 +499,14 @@ public class ColumnProfileView extends SuspendableViewImpl
                     final SubsystemLink link = subsystems.getSelectedItem();
                     columnManager.updateActiveSelection(subsystColWidget);
 
-                    if(link.isFolder() && !link.isIncuded())
+                    if(link.isFolder() && !link.isIncluded())
                     {
-                        placeManager.revealRelativePlace(new PlaceRequest(link.getToken()));
+                        // hb: some trickery with regard to nested presenters
+                        // it needs to be relative, but should not append to existing hirarchies
+                        List<PlaceRequest> next = new ArrayList<PlaceRequest>(2);
+                        next.add(placeManager.getCurrentPlaceHierarchy().get(0));
+                        next.add(new PlaceRequest(link.getToken()));
+                        placeManager.revealPlaceHierarchy(next);
                     }
                     else
                     {
@@ -618,7 +622,7 @@ public class ColumnProfileView extends SuspendableViewImpl
             return isFolder;
         }
 
-        public boolean isIncuded(){return ref.isInclude();}
+        public boolean isIncluded(){return ref.isInclude();}
 
         public String getIncludedFrom() {
             return ref.getIncludedFrom();
@@ -661,16 +665,8 @@ public class ColumnProfileView extends SuspendableViewImpl
                     if(actual.getKey().equals(candidate.getKey()))
                     {
 
-                        final LHSNavTreeItem link = new LHSNavTreeItem(candidate.getName(), candidate.getToken());
-                        link.setKey(candidate.getKey());
-                        link.getElement().setAttribute("title", candidate.getName()+" "+
-                                actual.getMajor()+"."+
-                                actual.getMinor()+"."+
-                                actual.getMicro());
-
-
                         boolean isFolder = false;
-                        for (String subsystemFolder : subsystemFolders) {
+                        for (String subsystemFolder : nestedPresenter) {
                             if(candidate.getToken().equals(subsystemFolder)  && !ref.isInclude()) {
                                 isFolder = true;
                                 break;
