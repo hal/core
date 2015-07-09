@@ -35,6 +35,7 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 final class Templates {
 
     static final Items ITEMS = GWT.create(Items.class);
+    static final Tooltips TOOLTIPS = GWT.create(Tooltips.class);
     static final Previews PREVIEWS = GWT.create(Previews.class);
 
 
@@ -44,6 +45,11 @@ final class Templates {
         SafeHtml item(String cssClass, String name, String title);
     }
 
+
+    interface Tooltips extends SafeHtmlTemplates {
+        @Template("<i class=\"{1}\" style=\"color:{2}\"></i>&nbsp;{0}")
+        SafeHtml assignment(String text, String icon, String color);
+    }
 
     interface Previews extends SafeHtmlTemplates {
 
@@ -82,6 +88,31 @@ final class Templates {
         SafeHtml subdeployment(String name, SafeHtml details);
     }
 
+
+    // ------------------------------------------------------ tooltips
+
+    static SafeHtml deploymentTooltip(final Deployment deployment) {
+        if (deployment.isEnabled()) {
+            return TOOLTIPS.assignment("Deployment is enabled", "icon-ok", "#3F9C35");
+        } else {
+            return TOOLTIPS.assignment("Deployment is disabled", "icon-warning-sign", "#EC7A08");
+        }
+    }
+
+    static SafeHtml assignmentTooltip(final Assignment assignment) {
+        if (!assignment.hasDeployment()) {
+            return TOOLTIPS.assignment("No reference server available", "icon-ban-circle", "#cc0000");
+        } else {
+            if (assignment.isEnabled()) {
+                return TOOLTIPS.assignment("Deployment is enabled", "icon-ok", "#3F9C35");
+            } else {
+                return TOOLTIPS.assignment("Deployment is disabled", "icon-warning-sign", "#EC7A08");
+            }
+        }
+    }
+
+
+    // ------------------------------------------------------ previews
 
     static SafeHtml contentPreview(final Content content) {
         if (content.getAssignments().isEmpty()) {

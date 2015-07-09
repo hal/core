@@ -81,7 +81,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
 
                     @Override
                     public SafeHtml render(final String baseCss, final Deployment data) {
-                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
+                        return Templates.ITEMS.item(baseCss, data.getName(), ""); // tooltip is defined below
                     }
 
                     @Override
@@ -120,6 +120,7 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                 new MenuDelegate<>("Remove", item -> presenter.verifyRemoveDeployment(item), Operation)
         );
 
+        deploymentColumn.setTooltipDisplay(Templates::deploymentTooltip);
         deploymentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.deploymentPreview(data)));
 
         deploymentColumn.addSelectionChangeHandler(event -> {

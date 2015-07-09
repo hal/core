@@ -110,13 +110,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
 
                     @Override
                     public SafeHtml render(final String baseCss, final Assignment data) {
-                        if (!data.hasDeployment()) {
-                            return Templates.ITEMS
-                                    .item(baseCss, data.getName(), data.getName() + " (no reference server available)");
-                        } else if (!data.isEnabled()) {
-                            return Templates.ITEMS.item(baseCss, data.getName(), data.getName() + " (disabled)");
-                        }
-                        return Templates.ITEMS.item(baseCss, data.getName(), data.getName());
+                        return Templates.ITEMS.item(baseCss, data.getName(), ""); // tooltip is defined below
                     }
 
                     @Override
@@ -160,6 +154,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 new MenuDelegate<>("Unassign", item -> presenter.verifyUnassignAssignment(item), Operation)
         );
 
+        assignmentColumn.setTooltipDisplay(Templates::assignmentTooltip);
         assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
 
         assignmentColumn.addSelectionChangeHandler(selectionChangeEvent -> {
@@ -269,7 +264,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         contentColumnWidget = contentColumn.asWidget();
 
         //noinspection Convert2MethodRef
-        unassignedColumn = new ContentColumn("Unassigned Content", columnManager,
+        unassignedColumn = new ContentColumn("Unassigned", columnManager,
                 null,
                 new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
                 new MenuDelegate<>("Remove", item ->

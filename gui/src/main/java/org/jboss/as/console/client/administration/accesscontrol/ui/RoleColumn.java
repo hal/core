@@ -113,7 +113,7 @@ public class RoleColumn extends FinderColumn<Role> {
         });
 
         if (!bootstrapContext.isStandalone()) {
-            setTopMenuItems(new MenuDelegate<>("Add Scoped Role", item -> presenter.launchAddScopedRoleDialog(),
+            setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddScopedRoleDialog(),
                     MenuDelegate.Role.Operation));
         }
         setMenuItems(
