@@ -31,6 +31,7 @@ import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.ServerGroupDAO;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.domain.topology.LifecycleCallback;
 import org.jboss.as.console.client.domain.topology.ServerInstanceOp;
@@ -83,6 +84,7 @@ public class DomainRuntimePresenter
 
 
     private DefaultWindow window;
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
@@ -192,6 +194,9 @@ public class DomainRuntimePresenter
     }
 
 
+    public void refreshServer() {
+        circuit.dispatch(new RefreshServer());
+    }
 
     private void refreshServerList() {
         if(FilterType.HOST.equals(serverStore.getFilter()))
@@ -341,7 +346,6 @@ public class DomainRuntimePresenter
                 Widget w = wizard.asWidget();
 
 
-
                 wizard.updateGroups(serverGroups);
                 wizard.updateHosts(hostStore.getHostNames());
                 window.trapWidget(w);
@@ -394,12 +398,9 @@ public class DomainRuntimePresenter
                     serverIsRunning = response.get(RESULT).get("status").asString().equalsIgnoreCase("started");
                 }
 
-                if (!serverIsRunning)
-                {
+                if (!serverIsRunning) {
                     performDeleteOperation(server);
-                }
-                else
-                {
+                } else {
                     Console.error(
                             Console.MESSAGES.deletionFailed("Server Configuration"),
                             Console.MESSAGES.server_config_stillRunning(server.getServerName())
@@ -457,6 +458,8 @@ public class DomainRuntimePresenter
 
     }
 
+    public void onSuspendServer(String hostName, String name, boolean resumeServer) {
 
+    }
 
 }

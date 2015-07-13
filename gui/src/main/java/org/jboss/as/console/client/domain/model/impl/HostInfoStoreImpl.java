@@ -26,10 +26,12 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.domain.model.Host;
 import org.jboss.as.console.client.domain.model.HostInformationStore;
+import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerFlag;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.shared.BeanFactory;
 import org.jboss.as.console.client.shared.jvm.Jvm;
@@ -287,6 +289,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
                         Server server = serverAdapter.fromDMR(model);
                         server.setHostName(host);
                         server.setStarted(model.get("status").asString().equalsIgnoreCase("STARTED"));
+                        server.setRuntimeState(RuntimeState.valueOf(model.get("status").asString()));
+                        server.setSuspendState(SuspendState.UNKOWN);   // TODO: https://issues.jboss.org/browse/WFLY-4910
                         server.setProfile(group2profile.get(server.getGroup()));
                         records.add(server);
                     }
@@ -495,12 +499,14 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                     if(response.isFailure())
                                     {
                                         instance.setRunning(false);
+                                        instance.setSuspendState(SuspendState.UNKOWN);
                                     }
                                     else
                                     {
 
                                         ModelNode instanceModel = compositeResponse.get("step-1").get(RESULT);
                                         instance.setRunning(handle.isStarted());
+                                        instance.setSuspendState(SuspendState.valueOf(instanceModel.get("suspend-state").asString()));
 
                                         //instance.setProfile(instanceModel.get("profile-name").asString());
 
@@ -661,6 +667,60 @@ public class HostInfoStoreImpl implements HostInformationStore {
     @Override
     public void startServer(final String host, final String configName, boolean startIt, final AsyncCallback<Boolean> callback) {
         final String actualOp = startIt ? "start" : "stop";
+
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(actualOp);
+        operation.get(ADDRESS).add("host", host);
+        operation.get(ADDRESS).add("server-config", configName);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+        });
+    }
+
+    @Override
+    public void suspendServer(String host, String configName, AsyncCallback<Boolean> callback) {
+        final String actualOp = "suspend";
+
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(actualOp);
+        operation.get(ADDRESS).add("host", host);
+        operation.get(ADDRESS).add("server-config", configName);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onFailure(caught);
+            }
+        });
+    }
+
+    @Override
+    public void resumeServer(String host, String configName, AsyncCallback<Boolean> callback) {
+        final String actualOp = "resume";
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(actualOp);

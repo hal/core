@@ -65,12 +65,18 @@ public class ServerGroupOpV3 extends TopologyOp {
             case RESTART:
                 serverGroupDAO.restartServerGroup(group, bc);
                 break;
+            case SUSPEND:
+                serverGroupDAO.suspendServerGroup(group, bc);
+                break;
+            case RESUME:
+                serverGroupDAO.resumeServerGroup(group, bc);
+                break;
             case KILL:
             case RELOAD:
                 // not supported for server groups
                 break;
         }
-        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 5000);
+        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 1000);
     }
 
     class QueryStatus implements Function<Object> {
@@ -99,6 +105,10 @@ public class ServerGroupOpV3 extends TopologyOp {
                                         break;
                                     case STOP:
                                         lifecycleReached = "stopped".equalsIgnoreCase(status);
+                                        break;
+                                    case SUSPEND:
+                                    case RESUME:
+                                        lifecycleReached = true;
                                         break;
                                     case KILL:
                                     case RELOAD:

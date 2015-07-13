@@ -394,6 +394,12 @@ public class ServerStore extends ChangeSupport {
 
     public List<Server> getServerForHost(String host) {
         List<Server> servers = host2server.get(host);
+
+        // TODO: https://issues.jboss.org/browse/WFLY-4910
+        for (Server server : servers) {
+            server.setSuspendState(getServerInstance(server.getName()).getSuspendState());
+        }
+
         return servers != null ? servers : new ArrayList<Server>();
     }
 
@@ -408,6 +414,12 @@ public class ServerStore extends ChangeSupport {
                 }
             }
         }
+
+        // TODO: https://issues.jboss.org/browse/WFLY-4910
+        for (Server server : matchingServer) {
+            server.setSuspendState(getServerInstance(server.getName()).getSuspendState());
+        }
+
         return matchingServer;
     }
 

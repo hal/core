@@ -86,6 +86,18 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
         lifecycle("restart-servers", name, callback);
     }
 
+    @Override
+    public void suspendServerGroup(final String name, final AsyncCallback<Boolean> callback)
+    {
+        lifecycle("suspend-servers", name, callback);
+    }
+
+    @Override
+    public void resumeServerGroup(final String name, final AsyncCallback<Boolean> callback)
+    {
+        lifecycle("resume-servers", name, callback);
+    }
+
     private void lifecycle(final String op, final String name, final AsyncCallback<Boolean> callback)
     {
         final ModelNode operation = new ModelNode();

@@ -36,6 +36,10 @@ public interface ServerInstance {
     boolean isRunning();
     void setRunning(boolean b);
 
+    @Binding(skip = true)
+    SuspendState getSuspendState();
+    void setSuspendState(SuspendState state);
+
     String getServer();
     void setServer(String server);
 

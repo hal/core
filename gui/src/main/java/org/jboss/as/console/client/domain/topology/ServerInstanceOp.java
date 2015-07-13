@@ -44,8 +44,8 @@ public class ServerInstanceOp extends TopologyOp {
     private final ModelNode node;
 
     public ServerInstanceOp(final LifecycleOperation op, final LifecycleCallback callback,
-            final DispatchAsync dispatcher, final HostInformationStore hostInfoStore, final String host,
-            final String server) {
+                            final DispatchAsync dispatcher, final HostInformationStore hostInfoStore, final String host,
+                            final String server) {
         super(op, callback);
 
         this.dispatcher = dispatcher;
@@ -79,8 +79,14 @@ public class ServerInstanceOp extends TopologyOp {
             case RESTART:
                 // not supported for server instances
                 break;
+            case SUSPEND:
+                hostInfoStore.suspendServer(host, server, bc);
+                break;
+            case RESUME:
+                hostInfoStore.resumeServer(host, server, bc);
+                break;
         }
-        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 5000);
+        new Async(Footer.PROGRESS_ELEMENT).whilst(new KeepGoing(), new Finish(), new QueryStatus(), 1000);
     }
 
     class QueryStatus implements Function<Object> {
@@ -109,6 +115,10 @@ public class ServerInstanceOp extends TopologyOp {
                                 break;
                             case RESTART:
                                 // not supported for server instances
+                                break;
+                            case SUSPEND:
+                            case RESUME:
+                                lifecycleReached = true;
                                 break;
                         }
                     }

@@ -46,6 +46,10 @@ public interface HostInformationStore {
 
     void killServer(String host, String configName, boolean destroyIt, final AsyncCallback<Boolean> callback);
 
+    void suspendServer(String host, String configName, final AsyncCallback<Boolean> callback);
+
+    void resumeServer(String host, String configName, final AsyncCallback<Boolean> callback);
+
     void reloadServer(String host, String configName, final AsyncCallback<Boolean> callback);
 
     void createServerConfig(String host, Server newServer, AsyncCallback<Boolean> callback);

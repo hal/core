@@ -61,9 +61,17 @@ public interface Server {
     void setProperties(List<PropertyRecord> props);
 
     @Binding(skip = true)
+    @Deprecated
     boolean isStarted();
     void setStarted(boolean b);
 
+    @Binding(skip = true)
+    RuntimeState getRuntimeState();
+    void setRuntimeState(RuntimeState state);
+
+    @Binding(skip = true)
+    SuspendState getSuspendState();
+    void setSuspendState(SuspendState  state);
 
     @Binding(skip = true)
     String getProfile();

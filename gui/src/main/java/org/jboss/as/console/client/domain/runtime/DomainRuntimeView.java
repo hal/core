@@ -21,7 +21,9 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
+import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
@@ -35,6 +37,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
@@ -72,7 +75,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
     private final static SafeHtml BLANK = new SafeHtmlBuilder().toSafeHtml();
 
     interface ServerTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\" style='line-height:0.9em'><i class='{1}' style='display:none'></i>{2}&nbsp;<br/><span style='font-size:8px'>({3})</span></div>")
+        @Template("<div class=\"{0}\" style='line-height:0.9em'>{2}&nbsp;<i class='{1}'></i><br/><span style='font-size:8px'>({3})</span></div>")
         SafeHtml item(String cssClass, String icon, String server, String host);
     }
 
@@ -215,12 +218,26 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public SafeHtml render(String baseCss, Server server) {
                         String context = presenter.getFilter().equals(FilterType.HOST) ? server.getGroup() : server.getHostName();
-                        return SERVER_TEMPLATE.item(baseCss, "icon-folder-close-alt",server.getName(), context);
+                        return SERVER_TEMPLATE.item(baseCss, "",server.getName(), context);
                     }
 
                     @Override
                     public String rowCss(Server server) {
-                        String css = server.isStarted() ? "active-row" : "inactive";
+
+                        String css = "";
+                        if(!server.isStarted())
+                        {
+                            css = "inactive";
+                        }
+                        else if(server.getSuspendState()==SuspendState.SUSPENDED)
+                        {
+                            css = "passive";
+                        }
+                        else if(server.isStarted())
+                        {
+                            css = "active-row";
+                        }
+
                         return css;
                     }
                 },
@@ -230,6 +247,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         return item.getName() + item.getHostName();
                     }
                 }, presenter.getProxy().getNameToken());
+
+        serverColumn.setShowSize(true);
 
         serverColumn.setValueProvider(new ValueProvider<Server>() {
             @Override
@@ -252,6 +271,13 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public void executeOn(Server server) {
                         presenter.launchNewConfigDialoge();
                     }
+                }, MenuDelegate.Role.Operation),
+                new MenuDelegate<Server>(
+                        "Refresh", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+                        presenter.refreshServer();
+                    }
                 }, MenuDelegate.Role.Operation)
         );
 
@@ -260,8 +286,24 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
             @Override
             public void createPreview(Server data, AsyncCallback<SafeHtml> callback) {
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
-                html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Server Configuration").appendHtmlConstant("</h2>");
-                html.appendEscaped("Each \"Server\" in the above diagram represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. (In a managed domain the end user cannot directly launch a server process from the command line.)");
+                html.appendHtmlConstant("<div class='preview-content'>");
+
+                html.appendHtmlConstant("<h2>");
+                html.appendEscaped("Server Configuration");
+                html.appendHtmlConstant("</h2>");
+
+
+                html.appendEscaped("A \"Server\" represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. ");
+
+                if(!data.isStarted())
+                {
+                    PreviewState.warn(html, "Server is stopped");
+                }
+                else if(data.getSuspendState() == SuspendState.SUSPENDED)
+                {
+                    PreviewState.info(html, "Server is suspended");
+                }
+
                 html.appendHtmlConstant("</div>");
                 callback.onSuccess(html.toSafeHtml());
             }
@@ -334,6 +376,38 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         return server.isStarted() ? "Stop" : "Start";
                     }
                 },
+
+                new MenuDelegate<Server>(
+                        "Suspend or not", new ContextualCommand<Server>() {
+                    @Override
+                    public void executeOn(Server server) {
+
+                        LifecycleOperation op = server.getSuspendState()==SuspendState.SUSPENDED ?
+                                LifecycleOperation.RESUME: LifecycleOperation.SUSPEND;
+
+                        Feedback.confirm(
+                                "Server " + op.name(),
+                                "Do you really want to " + op.name() + " server " + server.getName() + "?",
+                                new Feedback.ConfirmationHandler() {
+
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+                                    }
+                                });
+
+
+                    }
+
+                }, MenuDelegate.Role.Operation) {
+
+                    @Override
+                    public String render(Server server) {
+                        return server.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
+                    }
+                },
+
                 new MenuDelegate<Server>(
                         "Reload", new ContextualCommand<Server>() {
                     @Override
@@ -386,6 +460,8 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     sb.appendHtmlConstant("<i class=\"icon-ban-circle\" style='color:#CC0000'></i>&nbsp;");
                 sb.appendEscaped("Server is ").appendEscaped(message);
 
+                if(data.getSuspendState()==SuspendState.SUSPENDED)
+                    sb.appendEscaped(", but suspended");
                 return sb.toSafeHtml();
             }
         });

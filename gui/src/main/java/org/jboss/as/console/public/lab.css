@@ -418,10 +418,22 @@
     border-left:4px solid #CC0000!important;
 }
 
+.navigation-cell-table .errorneous .cellTableFirstColumn {
+    border-left:4px solid #CC0000!important;
+}
+
+.navigation-cell-table .passive .cellTableFirstColumn {
+    border-left:4px solid #477EAF!important;
+}
+
 .active .cellTableSelectedRow {
     background-color: #D4EDFA;
 }
 
+
+.nav-headerMenu {
+    margin-right:6px;
+}
 
 .nav-menu {
     display: none;
@@ -717,6 +729,19 @@
     background-color: #EC7A08;
 }
 .ErrorBlock, .FatalBlock {
+    background-color: #CC0000;
+}
+
+.info-color {
+    background-color: #006E9C;
+}
+.active-color{
+    background-color: #3F9C35;
+}
+.warn-color{
+    background-color: #EC7A08;
+}
+.error-color{
     background-color: #CC0000;
 }
 

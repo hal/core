@@ -79,7 +79,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
     @Inject
     public ColumnHostView(final HostStore hostStore, final ServerStore serverStore,
-            final PreviewContentFactory contentFactory) {
+                          final PreviewContentFactory contentFactory) {
         super();
         this.contentFactory = contentFactory;
 
@@ -119,18 +119,7 @@ public class ColumnHostView extends SuspendableViewImpl
                 }, NameTokens.HostMgmtPresenter
         );
 
-
-      /*  hosts.setTopMenuItems(
-                new MenuDelegate<String>(          // TODO permissions
-                        "Patching", new ContextualCommand<String>() {
-                    @Override
-                    public void executeOn(final String host) {
-                        Console.getPlaceManager().revealRelativePlace(
-                                new PlaceRequest(NameTokens.PatchingPresenter)
-                        );
-                    }
-                })
-        );*/
+        hosts.setShowSize(true);
 
         hosts.setPreviewFactory(new PreviewFactory<String>() {
             @Override
@@ -169,6 +158,8 @@ public class ColumnHostView extends SuspendableViewImpl
                         return item.getName();
                     }
                 }, NameTokens.HostMgmtPresenter);
+
+        groups.setShowSize(true);
 
         groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
                         new ContextualCommand<ServerGroupRecord>() {
@@ -247,7 +238,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     );
 
                     browseColumn.getSelectedItem().getCmd().execute();
-                } 
+                }
             }
         });
 
@@ -441,7 +432,7 @@ public class ColumnHostView extends SuspendableViewImpl
 
                         Feedback.confirm(
                                 "Start Server Group",
-                                "Do you want to start group "+group.getName()+"?",
+                                "Do you want to start group " + group.getName() + "?",
                                 new Feedback.ConfirmationHandler() {
                                     @Override
                                     public void onConfirmation(boolean isConfirmed) {
@@ -465,6 +456,44 @@ public class ColumnHostView extends SuspendableViewImpl
                                     public void onConfirmation(boolean isConfirmed) {
                                         if (isConfirmed)
                                             presenter.onGroupLifecycle(group.getName(), LifecycleOperation.STOP);
+                                    }
+                                }
+                        );
+
+                    }
+                }, MenuDelegate.Role.Operation),
+                new MenuDelegate<ServerGroupRecord>(
+                        "Suspend", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+                        Feedback.confirm(
+                                "Suspend Server Group",
+                                "Do you want to suspend group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.SUSPEND);
+                                    }
+                                }
+                        );
+
+                    }
+                }, MenuDelegate.Role.Operation),
+                new MenuDelegate<ServerGroupRecord>(
+                        "Resume", new ContextualCommand<ServerGroupRecord>() {
+                    @Override
+                    public void executeOn(final ServerGroupRecord group) {
+
+                        Feedback.confirm(
+                                "Resume Server Group",
+                                "Do you want to resume group "+group.getName()+"?",
+                                new Feedback.ConfirmationHandler() {
+                                    @Override
+                                    public void onConfirmation(boolean isConfirmed) {
+                                        if (isConfirmed)
+                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.RESUME);
                                     }
                                 }
                         );

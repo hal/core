@@ -442,11 +442,12 @@ public class FinderColumn<T>  {
 
 
         popupPanel.setWidget(popupMenuBar);
-        int left = anchor.getAbsoluteLeft();
+        int left = anchor.getAbsoluteLeft()+5;
         int top = anchor.getAbsoluteTop() + 22;
 
         popupPanel.setPopupPosition(left, top);
         popupPanel.setAutoHideEnabled(true);
+        if(tooltip!=null) tooltip.cancel();
         popupPanel.show();
     }
 
@@ -619,6 +620,7 @@ public class FinderColumn<T>  {
             MenuDelegate firstItem = accessibleTopMenuItems.get(0);
             HTML item = new HTML(firstItem.getTitle());
             item.setStyleName("btn");
+            item.addStyleName("primary");
             item.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -632,7 +634,9 @@ public class FinderColumn<T>  {
             {
 
                 HTML dropDown = new HTML("<span><i class='icon-caret-down'></i></span>");
-                dropDown.setStyleName("btn dropdown-toggle");
+                dropDown.setStyleName("btn");
+                dropDown.addStyleName("dropdown-toggle");
+                dropDown.addStyleName("primary");
                 dropDown.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
