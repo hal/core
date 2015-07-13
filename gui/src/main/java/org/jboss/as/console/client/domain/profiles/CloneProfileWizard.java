@@ -40,7 +40,7 @@ public class CloneProfileWizard  {
         Form<ProfileRecord> form = new Form<ProfileRecord>(ProfileRecord.class);
 
         final TextBoxItem nameItem = new TextBoxItem("name", "Name", true);
-
+        nameItem.setAllowWhiteSpace(true);
         form.setFields(nameItem);
 
         layout.add(form.asWidget());
