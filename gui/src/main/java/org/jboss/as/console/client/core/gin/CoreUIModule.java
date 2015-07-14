@@ -172,6 +172,8 @@ import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimeView;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinder;
+import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinderView;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.batch.ui.BatchView;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
@@ -219,12 +221,6 @@ import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailSubsystemView;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinderView;
-import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
-import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsView;
-import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
-import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringView;
-import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
-import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsView;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterView;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
@@ -418,21 +414,35 @@ public class CoreUIModule extends AbstractPresenterModule {
                       XADatasourceView.class,
                       XADataSourcePresenter.MyProxy.class);
 
+        bindPresenter(org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.class,
+                org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter.MyProxy.class);
 
-        bindPresenter(MsgDestinationsPresenter.class,
-                MsgDestinationsPresenter.MyView.class,
-                MsgDestinationsView.class,
-                MsgDestinationsPresenter.MyProxy.class);
+        bindPresenter(org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter.class,
+                org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter.MyProxy.class);
 
-        bindPresenter(MsgConnectionsPresenter.class,
-                MsgConnectionsPresenter.MyView.class,
-                MsgConnectionsView.class,
-                MsgConnectionsPresenter.MyProxy.class);
+        bindPresenter(org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter.class,
+                org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter.MyProxy.class);
 
-        bindPresenter(MsgClusteringPresenter.class,
-                MsgClusteringPresenter.MyView.class,
-                MsgClusteringView.class,
-                MsgClusteringPresenter.MyProxy.class);
+        bindPresenter(org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter.class,
+                org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter.MyProxy.class);
+
+        bindPresenter(org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter.class,
+                org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringView.class,
+                org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter.MyProxy.class);
+
+        bindPresenter(org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.class,
+                org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringView.class,
+                org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter.MyProxy.class);
 
         bindPresenter(LogViewerPresenter.class,
                 LogViewerPresenter.MyView.class,
@@ -681,12 +691,15 @@ public class CoreUIModule extends AbstractPresenterModule {
                 CachesView.class,
                 CachesPresenter.MyProxy.class);
 
-
-
         bindPresenter(HornetqFinder.class,
                 HornetqFinder.MyView.class,
                 HornetqFinderView.class,
                 HornetqFinder.MyProxy.class);
+
+        bindPresenter(ActivemqFinder.class,
+                ActivemqFinder.MyView.class,
+                ActivemqFinderView.class,
+                ActivemqFinder.MyProxy.class);
 
         bindPresenter(EJB3Presenter.class,
                 EJB3Presenter.MyView.class,

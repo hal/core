@@ -1,12 +1,12 @@
-package org.jboss.as.console.client.shared.subsys.messaging;
+package org.jboss.as.console.client.shared.subsys.activemq;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.subsys.messaging.model.ConnectionFactory;
-import org.jboss.as.console.client.shared.subsys.messaging.model.JMSEndpoint;
-import org.jboss.as.console.client.shared.subsys.messaging.model.Queue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqJMSEndpoint;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.dmr.client.ModelNode;
@@ -29,16 +29,12 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
 
     private DispatchAsync dispatcher;
     private BeanFactory factory;
-    private ApplicationMetaData metaData;
-    private EntityAdapter<ConnectionFactory> factoryAdapter;
+    private EntityAdapter<ActivemqConnectionFactory> factoryAdapter;
 
     public LoadJMSCmd(DispatchAsync dispatcher, BeanFactory factory, ApplicationMetaData metaData) {
         this.dispatcher = dispatcher;
-        this.metaData = metaData;
         this.factory = factory;
-
-
-        factoryAdapter = new EntityAdapter<ConnectionFactory>(ConnectionFactory.class, metaData);
+        this.factoryAdapter = new EntityAdapter<>(ActivemqConnectionFactory.class, metaData);
     }
 
     @Override
@@ -57,17 +53,15 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    callback.onFailure(new RuntimeException("Failed to load JMS endpoints:"+response.getFailureDescription()));
-                }
-                else
-                {
+                if (response.isFailure()) {
+                    callback.onFailure(
+                            new RuntimeException("Failed to load JMS endpoints:" + response.getFailureDescription()));
+                } else {
                     ModelNode payload = response.get("result").asObject();
 
-                    List<ConnectionFactory> factories = parseFactories(payload);
-                    List<Queue> queues = parseQueues(payload);
-                    List<JMSEndpoint> topics = parseTopics(payload);
+                    List<ActivemqConnectionFactory> factories = parseFactories(payload);
+                    List<ActivemqQueue> queues = parseQueues(payload);
+                    List<ActivemqJMSEndpoint> topics = parseTopics(payload);
 
                     AggregatedJMSModel model = new AggregatedJMSModel(factories, queues, topics);
                     callback.onSuccess(model);
@@ -76,14 +70,11 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
         });
     }
 
-    private List<ConnectionFactory> parseFactories(ModelNode response) {
-
-        List<ConnectionFactory> factoryModels = new ArrayList<ConnectionFactory>();
-
+    private List<ActivemqConnectionFactory> parseFactories(ModelNode response) {
+        List<ActivemqConnectionFactory> factoryModels = new ArrayList<>();
         try {
-
             // factories
-            if(response.hasDefined("connection-factory")) {
+            if (response.hasDefined("connection-factory")) {
                 List<Property> factories = response.get("connection-factory").asPropertyList();
 
                 for (Property factoryProp : factories) {
@@ -92,92 +83,73 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
                     ModelNode factoryValue = factoryProp.getValue();
                     String jndi = factoryValue.get("entries").asList().get(0).asString();
 
-                    ConnectionFactory connectionFactory = factoryAdapter.fromDMR(factoryValue);
+                    ActivemqConnectionFactory connectionFactory = factoryAdapter.fromDMR(factoryValue);
                     connectionFactory.setName(name);
                     connectionFactory.setJndiName(jndi);
 
                     if (factoryValue.hasDefined("connector")) {
                         List<Property> items = factoryValue.get("connector").asPropertyList();
                         String list = "";
-                        for (Property item : items)
-                            list += " " + item.getName();
+                        for (Property item : items) { list += " " + item.getName(); }
 
                         connectionFactory.setConnector(list);
                     }
-
                     factoryModels.add(connectionFactory);
                 }
-
             }
-
-
         } catch (Throwable e) {
             Console.error("Failed to parse connection factories: " + e.getMessage());
         }
-
         return factoryModels;
     }
 
+    private List<ActivemqQueue> parseQueues(ModelNode response) {
+        List<ActivemqQueue> queues = new ArrayList<>();
 
-    private List<Queue> parseQueues(ModelNode response) {
-
-        List<Queue> queues = new ArrayList<Queue>();
-
-        if(response.hasDefined("jms-queue")) {
+        if (response.hasDefined("jms-queue")) {
             List<Property> propList = response.get("jms-queue").asPropertyList();
 
-            for(Property prop : propList)
-            {
-                Queue queue = factory.hornetqQueue().as();
+            for (Property prop : propList) {
+                ActivemqQueue queue = factory.activemqQueue().as();
                 queue.setName(prop.getName());
 
                 ModelNode propValue = prop.getValue();
-                List<ModelNode> entires = propValue.get("entries").asList();
-                List<String> values = new ArrayList<String>(entires.size());
-                for (ModelNode entry : entires)
-                {
+                List<ModelNode> entries = propValue.get("entries").asList();
+                List<String> values = new ArrayList<>(entries.size());
+                for (ModelNode entry : entries) {
                     values.add(entry.asString());
                 }
                 queue.setEntries(values);
 
-                if(propValue.hasDefined("durable"))
-                    queue.setDurable(propValue.get("durable").asBoolean());
-
-                if(propValue.hasDefined("selector"))
-                    queue.setSelector(propValue.get("selector").asString());
+                if (propValue.hasDefined("durable")) { queue.setDurable(propValue.get("durable").asBoolean()); }
+                if (propValue.hasDefined("selector")) { queue.setSelector(propValue.get("selector").asString()); }
 
                 queues.add(queue);
             }
         }
-
         return queues;
 
     }
 
-    private List<JMSEndpoint> parseTopics(ModelNode response) {
-        List<JMSEndpoint> topics = new ArrayList<JMSEndpoint>();
+    private List<ActivemqJMSEndpoint> parseTopics(ModelNode response) {
+        List<ActivemqJMSEndpoint> topics = new ArrayList<>();
 
-        if(response.hasDefined("jms-topic"))
-        {
+        if (response.hasDefined("jms-topic")) {
             List<Property> propList = response.get("jms-topic").asPropertyList();
 
-            for(Property prop : propList)
-            {
-                JMSEndpoint topic = factory.topic().as();
+            for (Property prop : propList) {
+                ActivemqJMSEndpoint topic = factory.activemqTopic().as();
                 topic.setName(prop.getName());
 
-                List<ModelNode> entires = prop.getValue().get("entries").asList();
-                List<String> values = new ArrayList<String>(entires.size());
-                for (ModelNode entry : entires)
-                {
+                List<ModelNode> entries = prop.getValue().get("entries").asList();
+                List<String> values = new ArrayList<>(entries.size());
+                for (ModelNode entry : entries) {
                     values.add(entry.asString());
                 }
                 topic.setEntries(values);
-
                 topics.add(topic);
             }
         }
-
         return topics;
     }
 }

@@ -53,6 +53,20 @@ import org.jboss.as.console.client.shared.runtime.ext.Extension;
 import org.jboss.as.console.client.shared.runtime.jpa.model.JPADeployment;
 import org.jboss.as.console.client.shared.runtime.tx.TXParticipant;
 import org.jboss.as.console.client.shared.runtime.tx.TXRecord;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAcceptor;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqAddressingPattern;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBridge;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqBroadcastGroup;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqClusterConnection;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectionFactory;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnector;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqConnectorService;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDiscoveryGroup;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqDivert;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqMessagingProvider;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqQueue;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurityPattern;
+import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqTopic;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
 import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
@@ -124,17 +138,36 @@ public interface CoreBeanFactory {
     AutoBean<AdminObject> AdminObject();
     AutoBean<PoolConfig> poolConfig();
 
-    AutoBean<Queue> queue();
-    AutoBean<Topic> topic();
-    AutoBean<ConnectionFactory> connectionFactory();
-    AutoBean<Divert> divert();
+    // method names must reflect the type names. Hence the ActiveMQ autobeans are suffixed with 'Activemq'
+    AutoBean<ActivemqAcceptor> activemqAcceptor();
+    AutoBean<ActivemqAddressingPattern> activemqMessagingAddress();
+    AutoBean<ActivemqBridge> activemqBridge();
+    AutoBean<ActivemqBroadcastGroup> activemqBroadcastGroup();
+    AutoBean<ActivemqClusterConnection> activemqClusterConnection();
+    AutoBean<ActivemqConnectionFactory> activemqConnectionFactory();
+    AutoBean<ActivemqConnector> activemqConnector();
+    AutoBean<ActivemqConnectorService> activemqConnectorService();
+    AutoBean<ActivemqDiscoveryGroup> activemqDiscoveryGroup();
+    AutoBean<ActivemqDivert> activemqDivert();
+    AutoBean<ActivemqMessagingProvider> activemqMessagingProvider();
+    AutoBean<ActivemqQueue> activemqQueue();
+    AutoBean<ActivemqSecurityPattern> activemqMessagingSecurity();
+    AutoBean<ActivemqTopic> activemqTopic();
+
     AutoBean<Acceptor> acceptor();
-    AutoBean<Connector> connector();
-    AutoBean<ConnectorService> connectorService();
+    AutoBean<AddressingPattern> messagingAddress();
     AutoBean<Bridge> bridge();
-    AutoBean<BroadcastGroup> BroadcastGroup();
-    AutoBean<DiscoveryGroup> DiscoveryGroup();
-    AutoBean<ClusterConnection> ClusterConnection();
+    AutoBean<BroadcastGroup> broadcastGroup();
+    AutoBean<ClusterConnection> clusterConnection();
+    AutoBean<Connector> connector();
+    AutoBean<ConnectionFactory> connectionFactory();
+    AutoBean<ConnectorService> connectorService();
+    AutoBean<DiscoveryGroup> discoveryGroup();
+    AutoBean<Divert> divert();
+    AutoBean<MessagingProvider> messagingProvider();
+    AutoBean<Queue> hornetqQueue();
+    AutoBean<SecurityPattern> messagingSecurity();
+    AutoBean<Topic> topic();
 
     AutoBean<SocketBinding> socketBinding();
     AutoBean<RemoteSocketBinding> RemoteSocketBinding();
@@ -142,9 +175,6 @@ public interface CoreBeanFactory {
     AutoBean<SocketGroup> socketGroup();
 
     AutoBean<CommonSettings> settings();
-    AutoBean<MessagingProvider> messagingProvider();
-    AutoBean<SecurityPattern> messagingSecurity();
-    AutoBean<AddressingPattern> messagingAddress();
     AutoBean<Document> indexDocument();
 
     AutoBean<HttpConnector> httpConnector();

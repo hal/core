@@ -98,6 +98,7 @@ import org.jboss.as.console.client.shared.runtime.web.WebMetricPresenter;
 import org.jboss.as.console.client.shared.runtime.ws.WebServiceRuntimePresenter;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
+import org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinder;
 import org.jboss.as.console.client.shared.subsys.batch.BatchPresenter;
 import org.jboss.as.console.client.shared.subsys.configadmin.ConfigAdminPresenter;
 import org.jboss.as.console.client.shared.subsys.ejb3.EEPresenter;
@@ -123,9 +124,6 @@ import org.jboss.as.console.client.shared.subsys.logger.LoggerPresenter;
 import org.jboss.as.console.client.shared.subsys.mail.MailFinder;
 import org.jboss.as.console.client.shared.subsys.mail.MailPresenter;
 import org.jboss.as.console.client.shared.subsys.messaging.HornetqFinder;
-import org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter;
-import org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter;
-import org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter;
 import org.jboss.as.console.client.shared.subsys.modcluster.ModclusterPresenter;
 import org.jboss.as.console.client.shared.subsys.remoting.RemotingPresenter;
 import org.jboss.as.console.client.shared.subsys.security.v3.SecDomainFinder;
@@ -270,9 +268,12 @@ public interface CoreUI {
     StandaloneDriverStrategy getStandloneDriverStrategy();
     DriverRegistry getDriverRegistry();
 
-    AsyncProvider<MsgDestinationsPresenter> getMsgDestinationsPresenter();
-    AsyncProvider<MsgConnectionsPresenter> getMsgConnectionsPresenter();
-    AsyncProvider<MsgClusteringPresenter> getMsgClusteringPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.messaging.MsgDestinationsPresenter> getMsgDestinationsPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.MsgDestinationsPresenter> getActivemqMsgDestinationsPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.messaging.connections.MsgConnectionsPresenter> getMsgConnectionsPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.connections.MsgConnectionsPresenter> getActivemqMsgConnectionsPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.messaging.cluster.MsgClusteringPresenter> getMsgClusteringPresenter();
+    AsyncProvider<org.jboss.as.console.client.shared.subsys.activemq.cluster.MsgClusteringPresenter> getActivemqMsgClusteringPresenter();
 
     AsyncProvider<LogFilesPresenter> getLogFilesPresenter();
     AsyncProvider<LogViewerPresenter> getLogViewerPresenter();
@@ -386,6 +387,7 @@ public interface CoreUI {
     AsyncProvider<CachesPresenter> getCachesPresenter();
 
     AsyncProvider<HornetqFinder> getHornetqFinderPresenter();
+    AsyncProvider<ActivemqFinder> getActiveMQFinderPresenter();
 
     AsyncProvider<EJB3Presenter> getEJBPresenter();
 

@@ -46,6 +46,7 @@ public class NameTokens {
     public static final String LogFiles = "logfiles";
     public static final String LogHandler = "log-handler";
     public static final String MessagingPresenter = "messaging";
+    public static final String ActivemqMessagingPresenter = "activemq-messaging";
     public static final String MetricsPresenter = "invocation-metrics";
     public static final String ModelBrowserPresenter = "model-browser";
     public static final String PropertiesPresenter = "properties";
@@ -81,7 +82,9 @@ public class NameTokens {
     public static final String JGroupsPresenter = "jgroups";
     public static final String ModclusterPresenter = "modcluster";
     public static final String MsgConnectionsPresenter = "messaging-connections";
+    public static final String ActivemqMsgConnectionsPresenter = "activemq-messaging-connections";
     public static final String MsgClusteringPresenter  =  "messaging-cluster";
+    public static final String ActivemqMsgClusteringPresenter =  "activemq-messaging-cluster";
     public static final String DMRBrowser = "browser";
     public static final String ToolsPresenter = "tools";
     public static final String PathManagementPresenter = "path" ;
@@ -99,6 +102,7 @@ public class NameTokens {
     public static final String CachesPresenter = "caches";
 
     public static final String HornetqFinder = "hornetq";
+    public static final String ActivemqFinder = "activemq";
 
     public static final String signInPage = "login";
     public static final String errorPage = "err";

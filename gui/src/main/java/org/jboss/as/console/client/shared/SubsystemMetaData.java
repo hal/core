@@ -108,7 +108,8 @@ public class SubsystemMetaData {
         groups.get(SECURITY).getItems().add(new SubsystemGroupItem("Security", "security", NameTokens.SecDomains));
 
         groups.get(INFINISPAN).getItems().add(new SubsystemGroupItem("Infinispan", NameTokens.Infinispan, NameTokens.CacheFinderPresenter));
-        groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging", "messaging", NameTokens.HornetqFinder));
+        groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging (HornetQ)", "messaging", NameTokens.HornetqFinder));
+        groups.get(MESSAGING).getItems().add(new SubsystemGroupItem("Messaging", "messaging-activemq", NameTokens.ActivemqFinder));
     }
 
     public static void bootstrap(SubsystemRegistry registry) {

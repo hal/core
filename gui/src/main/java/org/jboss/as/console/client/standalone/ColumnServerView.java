@@ -55,7 +55,7 @@ public class ColumnServerView extends SuspendableViewImpl
     private final static String[] subsystemFolders = new String[] {
             NameTokens.MailFinder,
             NameTokens.CacheFinderPresenter,
-            NameTokens.HornetqFinder,
+            NameTokens.ActivemqFinder,
             NameTokens.SecDomains,
             NameTokens.UndertowFinder,
             NameTokens.DataSourceFinder,
