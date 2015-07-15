@@ -186,7 +186,7 @@ public class TopologyPresenter extends Presenter<TopologyPresenter.MyView, Topol
     }
 
     public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
-        ServerInstanceOp serverInstanceOp = new ServerInstanceOp(op, new TopologyCallback(), dispatcher, hostInfoStore,
+        ServerInstanceOp serverInstanceOp = new ServerInstanceOp(op, Collections.EMPTY_MAP, new TopologyCallback(), dispatcher, hostInfoStore,
                 host, server);
         serverInstanceOp.run();
 

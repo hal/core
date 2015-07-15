@@ -30,6 +30,8 @@ import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
+import java.util.Map;
+
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
@@ -37,16 +39,18 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class ServerInstanceOp extends TopologyOp {
 
+    private final Map<String, Object> params;
     private final DispatchAsync dispatcher;
     private final HostInformationStore hostInfoStore;
     private final String host;
     private final String server;
     private final ModelNode node;
 
-    public ServerInstanceOp(final LifecycleOperation op, final LifecycleCallback callback,
+    public ServerInstanceOp(final LifecycleOperation op, Map<String, Object> params, final LifecycleCallback callback,
                             final DispatchAsync dispatcher, final HostInformationStore hostInfoStore, final String host,
                             final String server) {
         super(op, callback);
+        this.params = params;
 
         this.dispatcher = dispatcher;
         this.hostInfoStore = hostInfoStore;
@@ -80,7 +84,7 @@ public class ServerInstanceOp extends TopologyOp {
                 // not supported for server instances
                 break;
             case SUSPEND:
-                hostInfoStore.suspendServer(host, server, bc);
+                hostInfoStore.suspendServer(host, server, params, bc);
                 break;
             case RESUME:
                 hostInfoStore.resumeServer(host, server, bc);

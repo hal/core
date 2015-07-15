@@ -20,7 +20,9 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.shared.model.SubsystemLoader;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.schedule.LongRunningTask;
@@ -29,6 +31,7 @@ import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.presenter.Finder;
 import org.jboss.as.console.client.widgets.nav.v3.FinderScrollEvent;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.AsyncCommand;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -53,6 +56,20 @@ public class StandaloneRuntimePresenter
     private final DispatchAsync dispatcher;
 
     private boolean hasBeenLoaded;
+    private DefaultWindow window;
+
+    public void closeDialoge() {
+         window.hide();
+    }
+
+    public void onLaunchSuspendDialogue() {
+        window = new DefaultWindow("Suspend Server");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new SuspendStandaloneDialogue(this).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+    }
 
 
     @NoGatekeeper
@@ -104,11 +121,8 @@ public class StandaloneRuntimePresenter
 
         header.highlight(getProxy().getNameToken());
 
-
-        if(reloadState.isStaleModel() || !hasBeenLoaded)
-        {
-            getView().updateServer(new StandaloneServer(reloadState.isStaleModel()));
-        }
+        if(getProxy().getNameToken().equals(placeManager.getCurrentPlaceRequest().getNameToken()))
+            loadServer();
 
         if(!hasBeenLoaded)
             hasBeenLoaded = true;
@@ -133,9 +147,6 @@ public class StandaloneRuntimePresenter
     public void onToggleScrolling(FinderScrollEvent event) {
         if(isVisible())
             getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
-    }
-    public boolean isStaleModel() {
-        return reloadState.isStaleModel();
     }
 
     public void onReloadServerConfig() {
@@ -209,11 +220,97 @@ public class StandaloneRuntimePresenter
                         reloadState.reset();
 
                         Console.info(Console.MESSAGES.successful("Reload Server"));
+
+                        // clear reload state
                         getEventBus().fireEvent(new ReloadEvent());
-                        getView().updateServer(new StandaloneServer(reloadState.isStaleModel()));
+
+                        getView().updateServer(new StandaloneServer(false, SuspendState.UNKOWN));
                     }
 
                     callback.onSuccess(keepRunning);
+                }
+            }
+        });
+    }
+
+
+    private void loadServer() {
+
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set(READ_RESOURCE_OPERATION);
+        operation.get(INCLUDE_RUNTIME).set(true);
+        operation.get(ADDRESS).setEmptyList();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(response.getFailureDescription());
+                } else {
+                    // TODO: only works when this response changes the reload state
+                    ModelNode model = response.get(RESULT);
+
+                    boolean isRunning = model.get("server-state").asString().equalsIgnoreCase("RUNNING");
+                    StandaloneServer server = new StandaloneServer(
+                            !isRunning,
+                            SuspendState.valueOf(model.get("suspend-state").asString())
+                    );
+
+                    getView().updateServer(server);
+
+                }
+            }
+        });
+    }
+
+    public void onResumeServer() {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("resume");
+        operation.get(ADDRESS).setEmptyList();
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(response.getFailureDescription());
+                } else {
+                    Console.info("Successfully resumed server");
+                    loadServer();
+                }
+            }
+        });
+    }
+
+    public void onSuspendServer(Long value) {
+
+
+        closeDialoge();
+
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("suspend");
+        operation.get(ADDRESS).setEmptyList();
+        operation.get("timeout").set(value);
+
+        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error(response.getFailureDescription());
+                } else {
+                    Console.info("Successfully suspended server");
+                    loadServer();
                 }
             }
         });

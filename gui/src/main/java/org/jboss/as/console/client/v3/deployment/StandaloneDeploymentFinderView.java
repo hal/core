@@ -87,10 +87,10 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                     @Override
                     public String rowCss(final Deployment data) {
                         if (!data.isEnabled()) {
-                            return "inactive";
+                            return "paused";
                         } else if (data.getStatus() == Deployment.Status.FAILED) {
-                            return "noReferenceServer"; // TODO custom style, check for other states
-                        } else { return ""; }
+                            return "error"; // TODO custom style, check for other states
+                        } else { return "good"; }
                     }
                 },
                 new ProvidesKey<Deployment>() {

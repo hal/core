@@ -23,12 +23,14 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
 import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
@@ -53,6 +55,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
     private final SplitLayoutPanel splitlayout;
     private final PlaceManager placeManager;
+
     private final LayoutPanel previewCanvas;
     private Widget subsysColWidget;
     private Widget statusColWidget;
@@ -225,17 +228,26 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     public String rowCss(Server server) {
 
                         String css = "";
+                        // TODO: reload state
                         if(!server.isStarted())
                         {
-                            css = "inactive";
+                            css = "paused";
+                        }
+                        else if(server.getServerState()== SrvState.RELOAD_REQUIRED)
+                        {
+                            css = "warn";
+                        }
+                        else if(server.getServerState()== SrvState.RESTART_REQUIRED)
+                        {
+                            css = "warn";
                         }
                         else if(server.getSuspendState()==SuspendState.SUSPENDED)
                         {
-                            css = "passive";
+                            css = "info";
                         }
                         else if(server.isStarted())
                         {
-                            css = "active-row";
+                            css = "good";
                         }
 
                         return css;
@@ -254,13 +266,6 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
             @Override
             public String get(Server item) {
                 return item.getName();
-            }
-        });
-
-        MenuDelegate<Server> editServerCmd = new MenuDelegate<Server>("Edit", new ContextualCommand<Server>() {
-            @Override
-            public void executeOn(Server item) {
-
             }
         });
 
@@ -295,12 +300,19 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                 html.appendEscaped("A \"Server\" represents an actual application server instance. The server runs in a separate JVM process from the Host Controller. The Host Controller is responsible for launching that process. ");
 
-                if(!data.isStarted())
-                {
-                    PreviewState.warn(html, "Server is stopped");
+                // TODO: reload state
+                if (!data.isStarted()) {
+                    PreviewState.paused(html, "Server is stopped");
                 }
-                else if(data.getSuspendState() == SuspendState.SUSPENDED)
+                else if(data.getServerState()==SrvState.RELOAD_REQUIRED)
                 {
+                    PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
+                }
+                else if(data.getServerState()==SrvState.RESTART_REQUIRED)
+                {
+                    PreviewState.warn(html, Console.CONSTANTS.server_instance_servers_needRestart());
+                }
+                else if (data.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
                 }
 
@@ -312,7 +324,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
 
         serverColumn.setMenuItems(
-                new MenuDelegate<Server>(          // TODO permissions
+                new MenuDelegate<Server>(
                         "View", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(final Server server) {
@@ -321,7 +333,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                         );
                     }
                 }),
-                new MenuDelegate<Server>(          // TODO permissions
+                new MenuDelegate<Server>(
                         "Remove", new ContextualCommand<Server>() {
                     @Override
                     public void executeOn(final Server server) {
@@ -382,20 +394,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                     @Override
                     public void executeOn(Server server) {
 
-                        LifecycleOperation op = server.getSuspendState()==SuspendState.SUSPENDED ?
-                                LifecycleOperation.RESUME: LifecycleOperation.SUSPEND;
+                        LifecycleOperation op = server.getSuspendState() == SuspendState.SUSPENDED ?
+                                LifecycleOperation.RESUME : LifecycleOperation.SUSPEND;
 
-                        Feedback.confirm(
-                                "Server " + op.name(),
-                                "Do you really want to " + op.name() + " server " + server.getName() + "?",
-                                new Feedback.ConfirmationHandler() {
-
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
-                                    }
-                                });
+                        if (LifecycleOperation.RESUME == op) {
+                            presenter.onServerInstanceLifecycle(server.getHostName(), server.getName(), op);
+                        } else {
+                            presenter.onLaunchSuspendDialogue(server);
+                        }
 
 
                     }
@@ -404,7 +410,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
                     @Override
                     public String render(Server server) {
-                        return server.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
+                        return server.getSuspendState() == SuspendState.SUSPENDED ? "Resume" : "Suspend";
                     }
                 },
 
@@ -451,17 +457,26 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
 
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {
             @Override
-            public SafeHtml render(Server data) {
-                String message = data.isStarted() ? "running" : "not running";
+            public SafeHtml render(Server server) {
+                String message = server.isStarted() ? "running" : "not running";
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                if(data.isStarted())
+                /*if(data.isStarted())
                     sb.appendHtmlConstant("<i class=\"icon-ok\" style='color:#3F9C35'></i>&nbsp;");
                 else
-                    sb.appendHtmlConstant("<i class=\"icon-ban-circle\" style='color:#CC0000'></i>&nbsp;");
+                    sb.appendHtmlConstant("<i class=\"icon-ban-circle\" style='color:#CC0000'></i>&nbsp;");*/
                 sb.appendEscaped("Server is ").appendEscaped(message);
 
-                if(data.getSuspendState()==SuspendState.SUSPENDED)
+                if(server.getServerState()==SrvState.RELOAD_REQUIRED)
+                {
+                    sb.appendEscaped(". "+Console.CONSTANTS.server_instance_reloadRequired());
+                }
+                else if(server.getServerState()==SrvState.RESTART_REQUIRED)
+                {
+                    sb.appendEscaped(". " + Console.CONSTANTS.server_instance_servers_needRestart());
+                }
+                else if (server.getSuspendState() == SuspendState.SUSPENDED)
                     sb.appendEscaped(", but suspended");
+
                 return sb.toSafeHtml();
             }
         });

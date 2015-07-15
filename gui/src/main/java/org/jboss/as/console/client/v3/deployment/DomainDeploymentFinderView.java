@@ -116,11 +116,11 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                     @Override
                     public String rowCss(final Assignment data) {
                         if (!data.hasDeployment()) {
-                            return "noReferenceServer";
+                            return "error";
                         } else if (!data.isEnabled()) {
-                            return "inactive";
+                            return "paused";
                         }
-                        return "active";
+                        return "good";
                     }
                 },
                 new ProvidesKey<Assignment>() {

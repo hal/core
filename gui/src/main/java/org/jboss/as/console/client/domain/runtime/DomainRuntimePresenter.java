@@ -22,6 +22,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.Footer;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.GroupSuspendDialogue;
+import org.jboss.as.console.client.domain.ServerSuspendDialogue;
 import org.jboss.as.console.client.domain.hosts.CopyServerWizard;
 import org.jboss.as.console.client.domain.hosts.HostMgmtPresenter;
 import org.jboss.as.console.client.domain.hosts.NewServerConfigWizard;
@@ -57,6 +59,7 @@ import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -72,6 +75,7 @@ import org.jboss.gwt.flow.client.PushFlowCallback;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
@@ -84,7 +88,6 @@ public class DomainRuntimePresenter
 
 
     private DefaultWindow window;
-
 
     @ProxyCodeSplit
     @NameToken(NameTokens.DomainRuntimePresenter)
@@ -298,10 +301,26 @@ public class DomainRuntimePresenter
         return serverStore.getFilter();
     }
 
+    public void onLaunchSuspendDialogue(Server server) {
+        window = new DefaultWindow("Suspend Server Group");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new ServerSuspendDialogue(this, server).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+
+    }
+
     public void onServerInstanceLifecycle(final String host, final String server, final LifecycleOperation op) {
+        onServerInstanceLifecycle(host, server, Collections.EMPTY_MAP, op);
+    }
+
+    public void onServerInstanceLifecycle(final String host, final String server, Map<String, Object> params, final LifecycleOperation op) {
+
+        if(window!=null) window.hide();
 
         ServerInstanceOp serverInstanceOp = new ServerInstanceOp(
-                op, new LifecycleCallback() {
+                op, params, new LifecycleCallback() {
             @Override
             public void onSuccess() {
                 Console.info("Server "+op.name() + " succeeded: Server "+server);
@@ -458,8 +477,10 @@ public class DomainRuntimePresenter
 
     }
 
-    public void onSuspendServer(String hostName, String name, boolean resumeServer) {
-
+    public void closeDialoge()
+    {
+        if(window!=null) window.hide();
     }
+
 
 }

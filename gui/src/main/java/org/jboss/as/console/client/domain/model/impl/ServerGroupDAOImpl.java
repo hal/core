@@ -33,6 +33,7 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -40,6 +41,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -87,9 +89,9 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
     }
 
     @Override
-    public void suspendServerGroup(final String name, final AsyncCallback<Boolean> callback)
+    public void suspendServerGroup(final String name, Map<String, Object> params, final AsyncCallback<Boolean> callback)
     {
-        lifecycle("suspend-servers", name, callback);
+        lifecycle("suspend-servers", name, params, callback);
     }
 
     @Override
@@ -98,34 +100,62 @@ public class ServerGroupDAOImpl implements ServerGroupDAO {
         lifecycle("resume-servers", name, callback);
     }
 
-    private void lifecycle(final String op, final String name, final AsyncCallback<Boolean> callback)
+    private void lifecycle(final String op, final String name, final AsyncCallback<Boolean> callback) {
+        lifecycle(op, name, Collections.EMPTY_MAP, callback);
+    }
+
+    private void lifecycle(final String op, final String name, Map<String, Object> params, final AsyncCallback<Boolean> callback)
     {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(op);
         operation.get(ADDRESS).add("server-group", name);
 
-        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>()
-        {
+        for (String s : params.keySet()) {
+            operation.get(s).set(resolveModelType(
+                    params.get(s).getClass().getName()),
+                    params.get(s)
+            );
+        }
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
-            public void onSuccess(DMRResponse result)
-            {
+            public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                if (response.isFailure())
-                {
+                if (response.isFailure()) {
                     callback.onSuccess(Boolean.FALSE);
-                }
-                else
-                {
+                } else {
                     callback.onSuccess(Boolean.TRUE);
                 }
             }
 
             @Override
-            public void onFailure(Throwable caught)
-            {
+            public void onFailure(Throwable caught) {
                 callback.onFailure(caught);
             }
         });
+    }
+
+    private ModelType resolveModelType(String javaTypeName) {
+
+        ModelType type = null;
+
+        if("java.lang.String".equals(javaTypeName))
+            type = ModelType.STRING;
+        else if("java.lang.Integer".equals(javaTypeName))
+            type = ModelType.INT;
+        else if("java.lang.Long".equals(javaTypeName))
+            type = ModelType.LONG;
+        else if("java.lang.Boolean".equals(javaTypeName))
+            type = ModelType.BOOLEAN;
+        else if("java.lang.Double".equals(javaTypeName))
+            type = ModelType.DOUBLE;
+        else if("java.util.List".equals(javaTypeName)) {
+            type = ModelType.LIST;
+        } else {
+            throw new RuntimeException("Failed to resolve ModelType for '"+ javaTypeName+"'");
+        }
+
+        return type;
     }
 
     @Override

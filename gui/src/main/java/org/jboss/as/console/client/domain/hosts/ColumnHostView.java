@@ -40,7 +40,9 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -467,17 +469,7 @@ public class ColumnHostView extends SuspendableViewImpl
                     @Override
                     public void executeOn(final ServerGroupRecord group) {
 
-                        Feedback.confirm(
-                                "Suspend Server Group",
-                                "Do you want to suspend group "+group.getName()+"?",
-                                new Feedback.ConfirmationHandler() {
-                                    @Override
-                                    public void onConfirmation(boolean isConfirmed) {
-                                        if (isConfirmed)
-                                            presenter.onGroupLifecycle(group.getName(), LifecycleOperation.SUSPEND);
-                                    }
-                                }
-                        );
+                     presenter.onLaunchSuspendDialogue(group);
 
                     }
                 }, MenuDelegate.Role.Operation),

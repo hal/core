@@ -40,12 +40,20 @@ public interface ServerInstance {
     SuspendState getSuspendState();
     void setSuspendState(SuspendState state);
 
+    @Binding(skip = true)
+    SrvState getServerState();
+    void setServerState(SrvState state);
+
     String getServer();
     void setServer(String server);
 
     String getGroup();
     void setGroup(String group);
 
+    /**
+     * use {@link #getServerState()} instead
+     */
+    @Deprecated
     ServerFlag getFlag();
     void setFlag(ServerFlag state);
 

@@ -21,8 +21,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.runtime.DomainRuntimePresenter;
 import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
@@ -36,6 +36,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
@@ -216,8 +217,23 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     }
 
                     @Override
-                    public String rowCss(StandaloneServer data) {
-                        return data.isRequiresReload() ? "inactive" : "active-row";
+                    public String rowCss(StandaloneServer server) {
+                        String css = "";
+
+                        if(server.isRequiresReload())
+                        {
+                            css = "inactive";
+                        }
+                        else if(server.getSuspendState()== SuspendState.SUSPENDED)
+                        {
+                            css = "passive";
+                        }
+                        else
+                        {
+                            css = "active-row";
+                        }
+
+                        return css;
                     }
                 },
                 new ProvidesKey<StandaloneServer>() {
@@ -227,19 +243,37 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                     }
                 }, presenter.getProxy().getNameToken());
 
-        serverColumn.setMenuItems(new MenuDelegate<StandaloneServer>("Reload", new ContextualCommand<StandaloneServer>() {
-            @Override
-            public void executeOn(StandaloneServer item) {
-                Feedback.confirm("Reload Server", "Really reload server?", new Feedback.ConfirmationHandler() {
+        serverColumn.setMenuItems(
+                new MenuDelegate<StandaloneServer>("Reload", new ContextualCommand<StandaloneServer>() {
                     @Override
-                    public void onConfirmation(boolean isConfirmed) {
-                        if (isConfirmed)
-                            presenter.onReloadServerConfig();
-                    }
-                });
+                    public void executeOn(StandaloneServer item) {
+                        Feedback.confirm("Reload Server", "Really reload server?", new Feedback.ConfirmationHandler() {
+                            @Override
+                            public void onConfirmation(boolean isConfirmed) {
+                                if (isConfirmed)
+                                    presenter.onReloadServerConfig();
+                            }
+                        });
 
-            }
-        }));
+                    }
+                }, MenuDelegate.Role.Operation),
+
+                new MenuDelegate<StandaloneServer>("Suspend", new ContextualCommand<StandaloneServer>() {
+                    @Override
+                    public void executeOn(StandaloneServer item) {
+
+                        if(item.getSuspendState()==SuspendState.SUSPENDED)
+                            presenter.onResumeServer();
+                        else
+                            presenter.onLaunchSuspendDialogue();
+                    }
+                }, MenuDelegate.Role.Operation) {
+                    @Override
+                    public String render(StandaloneServer data) {
+                        return data.getSuspendState()==SuspendState.SUSPENDED ? "Resume" : "Suspend";
+                    }
+                }
+        );
 
         serverColumn.setPreviewFactory(new PreviewFactory<StandaloneServer>() {
             @Override
@@ -247,10 +281,14 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
                 SafeHtmlBuilder html = new SafeHtmlBuilder();
                 html.appendHtmlConstant("<div class='preview-content'><h2>").appendEscaped("Standalone Server").appendHtmlConstant("</h2>");
                 html.appendEscaped("The server ").appendEscaped(Console.MODULES.getBootstrapContext().getServerName());
-                html.appendHtmlConstant("<h3>Status</h3>");
-                if (presenter.isStaleModel()) {
-                    html.appendEscaped(Console.CONSTANTS.server_instance_reloadRequired());
-                } else {
+                if (server.isRequiresReload()) {
+                    PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
+                }
+                else if(server.getSuspendState() == SuspendState.SUSPENDED)
+                {
+                    PreviewState.info(html, "Server is suspended");
+                }
+                else {
                     html.appendEscaped(Console.CONSTANTS.server_config_uptodate());
                 }
                 html.appendHtmlConstant("</div>");
@@ -262,13 +300,16 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<StandaloneServer>() {
             @Override
             public SafeHtml render(StandaloneServer data) {
-                String message = data.isRequiresReload() ? "does require a reload" : "is running appropriately";
+                String message = data.isRequiresReload() ? "does require a reload!" : "is running appropriately.";
                 SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                if (!data.isRequiresReload())
+                /*if (!data.isRequiresReload())
                     sb.appendHtmlConstant("<i class=\"icon-ok\" style='color:#3F9C35'></i>&nbsp;");
                 else
-                    sb.appendHtmlConstant("<i class=\"icon-warning-sign\" style='color:#CC0000'></i>&nbsp;");
+                    sb.appendHtmlConstant("<i class=\"icon-warning-sign\" style='color:#CC0000'></i>&nbsp;");*/
                 sb.appendEscaped("Server ").appendEscaped(message);
+
+                if(!data.isRequiresReload() && data.getSuspendState()==SuspendState.SUSPENDED)
+                    sb.appendEscaped(", but suspended");
 
                 return sb.toSafeHtml();
             }
@@ -434,7 +475,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
     @Override
     public void setInSlot(Object slot, IsWidget content) {
         if (slot == DomainRuntimePresenter.TYPE_MainContent) {
-            if(content!=null)
+            if (content != null)
                 setContent(content);
 
         } else {
@@ -444,7 +485,7 @@ public class StandaloneRuntimeView extends SuspendableViewImpl implements Standa
         }
     }
 
-    private void setContent(IsWidget  newContent) {
+    private void setContent(IsWidget newContent) {
         contentCanvas.clear();
         contentCanvas.add(newContent);
     }

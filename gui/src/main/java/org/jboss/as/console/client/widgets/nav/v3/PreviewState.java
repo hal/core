@@ -17,6 +17,11 @@ public class PreviewState {
         html.appendEscaped(title).appendHtmlConstant("<p/>");
     }
 
+    public static void paused(SafeHtmlBuilder html, String title) {
+            html.appendHtmlConstant("<p/><span style='padding-left:12px' class='paused-color'>&nbsp;</span>&nbsp;");
+            html.appendEscaped(title).appendHtmlConstant("<p/>");
+        }
+
     public static void error(SafeHtmlBuilder html, String title) {
         html.appendHtmlConstant("<p/><span style='padding-left:12px' class='error-color'>&nbsp;</span>&nbsp;");
         html.appendEscaped(title).appendHtmlConstant("<p/>");

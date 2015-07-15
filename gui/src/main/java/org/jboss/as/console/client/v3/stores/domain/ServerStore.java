@@ -394,12 +394,7 @@ public class ServerStore extends ChangeSupport {
 
     public List<Server> getServerForHost(String host) {
         List<Server> servers = host2server.get(host);
-
-        // TODO: https://issues.jboss.org/browse/WFLY-4910
-        for (Server server : servers) {
-            server.setSuspendState(getServerInstance(server.getName()).getSuspendState());
-        }
-
+        normalizeModel(servers);
         return servers != null ? servers : new ArrayList<Server>();
     }
 
@@ -415,14 +410,25 @@ public class ServerStore extends ChangeSupport {
             }
         }
 
-        // TODO: https://issues.jboss.org/browse/WFLY-4910
-        for (Server server : matchingServer) {
-            server.setSuspendState(getServerInstance(server.getName()).getSuspendState());
-        }
+        normalizeModel(matchingServer);
 
         return matchingServer;
     }
 
+    /**
+     * A workaround to consolidate the server-config and server resource model representations
+     * TODO: https://issues.jboss.org/browse/WFLY-4910
+     *
+     * @param servers
+     */
+    private void normalizeModel(List<Server> servers) {
+
+        for (Server server : servers) {
+            ServerInstance serverInstance = getServerInstance(server.getName());
+            server.setServerState(serverInstance.getServerState());
+            server.setSuspendState(serverInstance.getSuspendState());
+        }
+    }
 
     public ServerInstance getServerInstance(String name) {
         ServerInstance match = null;

@@ -19,7 +19,6 @@
 
 package org.jboss.as.console.client.domain.hosts;
 
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -41,6 +40,7 @@ import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.domain.GroupSuspendDialogue;
 import org.jboss.as.console.client.domain.events.StaleModelEvent;
 import org.jboss.as.console.client.domain.groups.CopyGroupWizard;
 import org.jboss.as.console.client.domain.groups.NewServerGroupWizard;
@@ -88,6 +88,7 @@ import org.jboss.gwt.circuit.PropagatesChange;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -111,6 +112,7 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     public PlaceManager getPlaceManager() {
         return placeManager;
     }
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.HostMgmtPresenter)
@@ -430,8 +432,15 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
     }
 
     public void onGroupLifecycle(final String group, final LifecycleOperation op) {
+        onGroupLifecycle(group, Collections.EMPTY_MAP, op);
 
-        ServerGroupOpV3 serverGroupOp = new ServerGroupOpV3(op, new LifecycleCallback() {
+    }
+    public void onGroupLifecycle(final String group, Map<String, Object> params, final LifecycleOperation op) {
+
+        // parametrized lifecycle operations
+        if(window!=null) window.hide();
+
+        ServerGroupOpV3 serverGroupOp = new ServerGroupOpV3(op, params, new LifecycleCallback() {
             @Override
             public void onSuccess() {
                 Console.info("Server Group "+ op.name() + " succeeded");
@@ -466,4 +475,15 @@ public class HostMgmtPresenter extends PerspectivePresenter<HostMgmtPresenter.My
         if(isVisible())
             getView().toggleScrolling(event.isEnforceScrolling(), event.getRequiredWidth());
     }
+
+    public void onLaunchSuspendDialogue(ServerGroupRecord group) {
+        window = new DefaultWindow("Suspend Server Group");
+        window.setWidth(480);
+        window.setHeight(360);
+        window.trapWidget(new GroupSuspendDialogue(this, group).asWidget());
+        window.setGlassEnabled(true);
+        window.center();
+
+    }
+
 }

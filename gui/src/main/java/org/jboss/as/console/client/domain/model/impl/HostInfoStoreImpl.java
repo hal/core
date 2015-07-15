@@ -31,6 +31,7 @@ import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerFlag;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
+import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
 import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.shared.BeanFactory;
@@ -42,6 +43,7 @@ import org.jboss.as.console.client.widgets.forms.EntityAdapter;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
 import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.ModelType;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -128,30 +130,23 @@ public class HostInfoStoreImpl implements HostInformationStore {
     @Override
     public void loadHostsAndServerInstances(final AsyncCallback<List<HostInfo>> callback)
     {
-        getHosts(new SimpleCallback<List<Host>>()
-        {
+        getHosts(new SimpleCallback<List<Host>>() {
             @Override
-            public void onSuccess(final List<Host> hosts)
-            {
+            public void onSuccess(final List<Host> hosts) {
                 // The command is used to defer callback.onSuccess()
                 // until all server instances of all hosts are available
-                final Command cmd = new Command()
-                {
+                final Command cmd = new Command() {
                     int numRequests = 0;
                     int numResponses = 0;
                     final List<HostInfo> hostInfos = new ArrayList<HostInfo>();
 
                     @Override
-                    public void execute()
-                    {
-                        for (final Host host : hosts)
-                        {
+                    public void execute() {
+                        for (final Host host : hosts) {
                             numRequests++;
-                            getServerInstances(host.getName(), new SimpleCallback<List<ServerInstance>>()
-                            {
+                            getServerInstances(host.getName(), new SimpleCallback<List<ServerInstance>>() {
                                 @Override
-                                public void onFailure(final Throwable caught)
-                                {
+                                public void onFailure(final Throwable caught) {
                                     // log error
                                     super.onFailure(caught);
 
@@ -163,8 +158,7 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                 }
 
                                 @Override
-                                public void onSuccess(List<ServerInstance> serverInstances)
-                                {
+                                public void onSuccess(List<ServerInstance> serverInstances) {
                                     numResponses++;
                                     HostInfo info = new HostInfo(host.getName(), host.isController());
                                     info.setServerInstances(serverInstances);
@@ -175,20 +169,16 @@ public class HostInfoStoreImpl implements HostInformationStore {
                         }
                     }
 
-                    private void checkComplete()
-                    {
-                        if (numRequests == numResponses)
-                        {
+                    private void checkComplete() {
+                        if (numRequests == numResponses) {
                             callback.onSuccess(hostInfos);
                         }
                     }
                 };
 
-                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand()
-                {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
-                    public void execute()
-                    {
+                    public void execute() {
                         cmd.execute();
                     }
                 });
@@ -200,22 +190,15 @@ public class HostInfoStoreImpl implements HostInformationStore {
     public void loadServerInstances(final String serverGroup, final AsyncCallback<List<ServerInstance>> callback)
     {
         final List<ServerInstance> instancesOfGroup = new LinkedList<ServerInstance>();
-        loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>()
-        {
+        loadHostsAndServerInstances(new SimpleCallback<List<HostInfo>>() {
             @Override
-            public void onSuccess(final List<HostInfo> result)
-            {
-                for (HostInfo host : result)
-                {
+            public void onSuccess(final List<HostInfo> result) {
+                for (HostInfo host : result) {
                     List<ServerInstance> instances = host.getServerInstances();
-                    for (ServerInstance instance : instances)
-                    {
-                        if (serverGroup == null)
-                        {
+                    for (ServerInstance instance : instances) {
+                        if (serverGroup == null) {
                             instancesOfGroup.add(instance);
-                        }
-                        else if (instance.getGroup().equals(instance.getGroup()))
-                        {
+                        } else if (instance.getGroup().equals(instance.getGroup())) {
                             instancesOfGroup.add(instance);
                         }
                     }
@@ -290,6 +273,10 @@ public class HostInfoStoreImpl implements HostInformationStore {
                         server.setHostName(host);
                         server.setStarted(model.get("status").asString().equalsIgnoreCase("STARTED"));
                         server.setRuntimeState(RuntimeState.valueOf(model.get("status").asString()));
+
+                        // Does not exists (yet)
+                        //server.setServerState(SrvState.valueOf(model.get("server-state").asString().replace("-", "_").toUpperCase()));
+
                         server.setSuspendState(SuspendState.UNKOWN);   // TODO: https://issues.jboss.org/browse/WFLY-4910
                         server.setProfile(group2profile.get(server.getGroup()));
                         records.add(server);
@@ -512,6 +499,8 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                                         if(instanceModel.hasDefined("server-state"))
                                         {
+
+                                            // TODO: setFlag() is deprecated and to be removed ...
                                             String state = instanceModel.get("server-state").asString();
                                             if(state.equals("reload-required"))
                                             {
@@ -521,6 +510,11 @@ public class HostInfoStoreImpl implements HostInformationStore {
                                             {
                                                 instance.setFlag(ServerFlag.RESTART_REQUIRED);
                                             }
+
+                                            instance.setServerState(
+                                                    SrvState.valueOf(instanceModel.get("server-state").asString().replace("-", "_").toUpperCase())
+                                            );
+
                                         }
 
                                         // ---- interfaces
@@ -627,23 +621,16 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
                 ServerInstance instance = createInstanceModel(handle);
 
-                if(statusResponse.isFailure())
-                {
+                if (statusResponse.isFailure()) {
                     instance.setRunning(false);
-                }
-                else
-                {
+                } else {
                     instance.setRunning(handle.isStarted());
 
-                    if(payload.hasDefined("server-state"))
-                    {
+                    if (payload.hasDefined("server-state")) {
                         String state = payload.get("server-state").asString();
-                        if(state.equals("reload-required"))
-                        {
+                        if (state.equals("reload-required")) {
                             instance.setFlag(ServerFlag.RELOAD_REQUIRED);
-                        }
-                        else if (state.equals("restart-required"))
-                        {
+                        } else if (state.equals("restart-required")) {
                             instance.setFlag(ServerFlag.RESTART_REQUIRED);
                         }
                     }
@@ -691,14 +678,44 @@ public class HostInfoStoreImpl implements HostInformationStore {
         });
     }
 
+    private ModelType resolveModelType(String javaTypeName) {
+
+        ModelType type = null;
+
+        if("java.lang.String".equals(javaTypeName))
+            type = ModelType.STRING;
+        else if("java.lang.Integer".equals(javaTypeName))
+            type = ModelType.INT;
+        else if("java.lang.Long".equals(javaTypeName))
+            type = ModelType.LONG;
+        else if("java.lang.Boolean".equals(javaTypeName))
+            type = ModelType.BOOLEAN;
+        else if("java.lang.Double".equals(javaTypeName))
+            type = ModelType.DOUBLE;
+        else if("java.util.List".equals(javaTypeName)) {
+            type = ModelType.LIST;
+        } else {
+            throw new RuntimeException("Failed to resolve ModelType for '"+ javaTypeName+"'");
+        }
+
+        return type;
+    }
+
     @Override
-    public void suspendServer(String host, String configName, AsyncCallback<Boolean> callback) {
+    public void suspendServer(String host, String configName, Map<String, Object> params,  AsyncCallback<Boolean> callback) {
         final String actualOp = "suspend";
 
         final ModelNode operation = new ModelNode();
         operation.get(OP).set(actualOp);
         operation.get(ADDRESS).add("host", host);
         operation.get(ADDRESS).add("server-config", configName);
+
+        for (String s : params.keySet()) {
+            operation.get(s).set(resolveModelType(
+                            params.get(s).getClass().getName()),
+                    params.get(s)
+            );
+        }
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override

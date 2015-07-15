@@ -16,7 +16,6 @@ public class ReloadState {
     private Map<String, ServerState> serverStates = new HashMap<String, ServerState>();
     private int lastFiredSize = 0;
 
-
     public boolean isStaleModel() {
         return serverStates.size()>0;
     }

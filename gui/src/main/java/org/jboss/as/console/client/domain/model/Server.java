@@ -21,6 +21,7 @@ package org.jboss.as.console.client.domain.model;
 
 import org.jboss.as.console.client.shared.jvm.Jvm;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.shared.state.ServerState;
 import org.jboss.as.console.client.widgets.forms.Binding;
 
 import java.util.List;
@@ -64,6 +65,10 @@ public interface Server {
     @Deprecated
     boolean isStarted();
     void setStarted(boolean b);
+
+    @Binding(skip = true)
+    SrvState getServerState();
+    void setServerState(SrvState state);
 
     @Binding(skip = true)
     RuntimeState getRuntimeState();

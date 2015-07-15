@@ -35,7 +35,7 @@ public interface ServerGroupDAO {
     void startServerGroup(String nme, final AsyncCallback<Boolean> callback);
     void stopServerGroup(String nme, final AsyncCallback<Boolean> callback);
     void restartServerGroup(String nme, final AsyncCallback<Boolean> callback);
-    void suspendServerGroup(String nme, final AsyncCallback<Boolean> callback);
+    void suspendServerGroup(String nme, Map<String, Object> timeout, final AsyncCallback<Boolean> callback);
     void resumeServerGroup(String nme, final AsyncCallback<Boolean> callback);
 
     void loadServerGroups(AsyncCallback<List<ServerGroupRecord>> callback);

@@ -16,21 +16,24 @@ import org.jboss.gwt.flow.client.Function;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 public class ServerGroupOpV3 extends TopologyOp {
 
+    private final Map<String, Object> params;
     private final DispatchAsync dispatcher;
     private final ServerGroupDAO serverGroupDAO;
     private final String group;
     private final ModelNode node;
 
-    public ServerGroupOpV3(final LifecycleOperation op, final LifecycleCallback callback, final DispatchAsync dispatcher,
+    public ServerGroupOpV3(final LifecycleOperation op, Map<String, Object> params, final LifecycleCallback callback, final DispatchAsync dispatcher,
                            final ServerGroupDAO serverGroupDAO, final String group,
                            final List<Server> server) {
 
         super(op, callback);
+        this.params = params;
 
         this.dispatcher = dispatcher;
         this.serverGroupDAO = serverGroupDAO;
@@ -66,7 +69,7 @@ public class ServerGroupOpV3 extends TopologyOp {
                 serverGroupDAO.restartServerGroup(group, bc);
                 break;
             case SUSPEND:
-                serverGroupDAO.suspendServerGroup(group, bc);
+                serverGroupDAO.suspendServerGroup(group, params, bc);
                 break;
             case RESUME:
                 serverGroupDAO.resumeServerGroup(group, bc);
