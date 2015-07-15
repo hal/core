@@ -67,7 +67,6 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFinder.MyProxy>
         implements MessagingAddress {
 
-
     // ------------------------------------------------------ proxy & view
     // @formatter:off
     @ProxyCodeSplit

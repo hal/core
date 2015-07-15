@@ -19,7 +19,7 @@ import static org.jboss.as.console.client.shared.subsys.activemq.ActivemqFinder.
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
- * Loads a list of activemq server instance names
+ * Loads a list of activemq server instance names.
  */
 public class LoadActivemqServersCmd implements AsyncCommand<List<Property>> {
 
