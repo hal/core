@@ -335,6 +335,14 @@ public class DomainDeploymentPresenter extends Presenter<DomainDeploymentPresent
                 }
                 refreshDeployments();
             }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                loading.hide();
+                String header = Console.MESSAGES.failedToRemoveFrom(deployment.getName(),
+                        Console.CONSTANTS.common_label_contentRepository());
+                Console.error(header, caught.getMessage());
+            }
         });
     }
 
