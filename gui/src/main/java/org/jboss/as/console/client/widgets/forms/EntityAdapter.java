@@ -1,11 +1,8 @@
 package org.jboss.as.console.client.widgets.forms;
 
 import com.allen_sauer.gwt.log.client.Log;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.expr.ExpressionAdapter;
 import org.jboss.as.console.client.shared.properties.PropertyRecord;
-import org.jboss.ballroom.client.rbac.SecurityContext;
-import org.jboss.ballroom.client.rbac.SecurityService;
 import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelType;
@@ -297,6 +294,16 @@ public class EntityAdapter<T> {
                         value = new LinkedList();
                     }
                 }
+                else if ("java.util.Map".equals(propBinding.getJavaTypeName())) {
+                    // Only Map<String, String> is supported!
+                    Map<String, String> map = new HashMap<>();
+                    if (propValue.isDefined() && !propValue.asPropertyList().isEmpty()) {
+                        for (Property property : propValue.asPropertyList()) {
+                            map.put(property.getName(), property.getValue().asString());
+                        }
+                    }
+                    value = map;
+                }
 
                 // invoke the mutator
                 if(value!=null)
@@ -362,6 +369,7 @@ public class EntityAdapter<T> {
      * @param entity
      * @return
      */
+    @SuppressWarnings("unchecked")
     public ModelNode fromEntity(T entity)
     {
 
@@ -406,7 +414,14 @@ public class EntityAdapter<T> {
                     if ((modelType == ModelType.LIST) && (property.getListType() == PropertyBinding.class)) {
                         operation.get(splitDetypedName).set(modelType, property.getEntityAdapterForList().fromEntityPropertyList((List) propertyValue));
                     } else if (modelType == ModelType.LIST) {
-                        operation.get(splitDetypedName).set(modelType, property.getEntityAdapterForList().fromEntityList((List) propertyValue));
+                        operation.get(splitDetypedName).set(modelType,
+                                property.getEntityAdapterForList().fromEntityList((List) propertyValue));
+                    } else if (modelType == ModelType.OBJECT) {
+                        // Only Map<String, String> is supported!
+                        Map<String, String> map = (Map<String, String>) propertyValue;
+                        for (Map.Entry<String, String> entry : map.entrySet()) {
+                            operation.get(splitDetypedName).get(entry.getKey()).set(entry.getValue());
+                        }
                     } else {
                         operation.get(splitDetypedName).set(modelType, propertyValue);
                     }
@@ -433,9 +448,11 @@ public class EntityAdapter<T> {
             type = ModelType.BOOLEAN;
         else if("java.lang.Double".equals(javaTypeName))
             type = ModelType.DOUBLE;
-        else if("java.util.List".equals(javaTypeName)) {
+        else if("java.util.List".equals(javaTypeName))
             type = ModelType.LIST;
-        } else {
+        else if("java.util.Map".equals(javaTypeName))
+            type = ModelType.OBJECT;
+        else {
             throw new RuntimeException("Failed to resolve ModelType for '"+ javaTypeName+"'");
         }
 
@@ -617,6 +634,7 @@ public class EntityAdapter<T> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void setValue(PropertyBinding binding, ModelNode nodeToSetValueUpon, Object value) {
         final Class sourceType = value.getClass();
 
@@ -668,6 +686,13 @@ public class EntityAdapter<T> {
                 nodeToSetValueUpon.set(fromBaseTypeList((List)value, binding.getListType()));
             } else {
                 nodeToSetValueUpon.set(fromEntityList((List)value));
+            }
+        }
+        else if (Map.class.getName().equals(binding.getJavaTypeName())) {
+            // Only Map<String, String> is supported!
+            Map<String, String> map = (Map<String, String>) value;
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                nodeToSetValueUpon.get(entry.getKey()).set(entry.getValue());
             }
         }
         else

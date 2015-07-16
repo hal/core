@@ -19,8 +19,6 @@
 
 package org.jboss.as.console.client.widgets.forms;
 
-import org.jboss.ballroom.client.widgets.forms.FormItem;
-
 import java.util.Collections;
 
 /**
@@ -117,6 +115,7 @@ public class PropertyBinding {
         if ("java.lang.Double".equals(javaTypeName)) return Double.parseDouble(defaultValue);
         if ("java.lang.Float".equals(javaTypeName)) return Float.parseFloat(defaultValue);
         if ("java.util.List".equals(javaTypeName)) return Collections.EMPTY_LIST;
+        if ("java.util.Map".equals(javaTypeName)) return Collections.EMPTY_MAP;
 
         throw new RuntimeException("Unable to convert " + javaName + " default value " +
                                    defaultValue + " to type " + javaTypeName);

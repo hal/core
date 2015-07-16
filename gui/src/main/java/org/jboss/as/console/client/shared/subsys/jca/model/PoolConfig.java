@@ -3,6 +3,8 @@ package org.jboss.as.console.client.shared.subsys.jca.model;
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
 
+import java.util.Map;
+
 /**
  * @author Heiko Braun
  * @date 9/16/11
@@ -42,8 +44,23 @@ public interface PoolConfig {
     String getTrackStatements();
     void setTrackStatements(String name);
 
-    // metrics below
+    @Binding(detypedName = "capacity-decrementer-class")
+    String getCapacityDecrementerClass();
+    void setCapacityDecrementerClass(String clazz);
 
+    @Binding(detypedName = "capacity-decrementer-properties")
+    Map<String, String> getCapacityDecrementerProperties();
+    void setCapacityDecrementerProperties(Map<String, String> properties);
+
+    @Binding(detypedName = "capacity-incrementer-class")
+    String getCapacityIncrementerClass();
+    void setCapacityIncrementerClass(String clazz);
+
+    @Binding(detypedName = "capacity-incrementer-properties")
+    Map<String, String> getCapacityIncrementerProperties();
+    void setCapacityIncrementerProperties(Map<String, String> properties);
+
+    // metrics below
     @Binding(skip = true)
     Integer getActiveCount();
     void setActiveCount(Integer i);
@@ -63,7 +80,5 @@ public interface PoolConfig {
     @Binding(skip = true)
     Integer getMaxUsedCount();
     void setMaxUsedCount(Integer i);
-
-
 }
 
