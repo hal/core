@@ -48,11 +48,13 @@ public class PagedView {
 
         navigationBar = bar.asWidget();
         navigationBar.addStyleName("paged-view-navigation");
-        navigationBar.getElement().getStyle().setMarginTop(0, PX);
+        navigationBar.getElement().getStyle().setMarginTop(30, PX);
+        /*navigationBar.getElement().getStyle().setMarginTop(0, PX);
         navigationBar.getElement().getStyle().setMarginBottom(0, PX);
         navigationBar.getElement().getStyle().setMarginLeft(15, PX);
-        navigationBar.getElement().getStyle().setMarginRight(15, PX);
-        layout.addWest(navigationBar, 220);
+        navigationBar.getElement().getStyle().setMarginRight(15, PX);*/
+        layout.addWest(navigationBar, 256);
+        navigationBar.getElement().getParentElement().addClassName("paged-view-navigation-container");
         layout.add(deck);
 
 
@@ -65,7 +67,7 @@ public class PagedView {
     public void addPage(String title, Widget pageWidget)
     {
         deck.add(pageWidget);
-        if(deck.getWidgetCount()>1)
+        if(deck.getWidgetCount()>1 || navOnFirstPage)
             pageWidget.addStyleName("subpage");
 
         final int index = deck.getWidgetCount()-1;

@@ -678,9 +678,14 @@
 .paged-view-navigation {
     border-right: none!important;
     border-bottom:none!important;
-
+    width: 100%!important;
     padding-top:30px;
     padding-left:25px;
+    padding-right: 25px;
+}
+
+.paged-view-navigation-container {
+
 }
 
 .link-bar-first {
@@ -984,7 +989,10 @@ h3,
   top: 8px;
 }
 
-
+/*app layout improvements*/
 #PagedView .subpage .rhs-content-panel {
     margin: 0!important;
+    padding-left:15px;
 }
+
+

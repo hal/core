@@ -48,7 +48,7 @@ import java.util.List;
 public class FinderColumn<T>  {
 
 
-    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL}
+    public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, UNKNOWN}
 
     static Framework FRAMEWORK = GWT.create(Framework.class);
     static SecurityService SECURITY_SERVICE = FRAMEWORK.getSecurityService();
@@ -281,7 +281,8 @@ public class FinderColumn<T>  {
         filterNonPrivilegeOperations(writePrivilege, accessibleMenuItems, menuItems);
 
         // the top menu is build here
-        buildTopMenu(headerMenu);
+        if(!plain)
+            buildTopMenu(headerMenu);
 
         // the row level menu is build when the celltable is filled
 
