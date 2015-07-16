@@ -48,6 +48,9 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         if(null==bean)
             throw new IllegalArgumentException("Invalid entity: null");
 
+        // the edit buttons becomes visible
+        setOperational(true);
+
         this.editedEntity = bean;
 
         // prevent modification of the source
@@ -512,6 +515,8 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
             }
         }
 
+        setOperational(false);
+        setEnabled(false);
         refreshPlainView();
     }
 
