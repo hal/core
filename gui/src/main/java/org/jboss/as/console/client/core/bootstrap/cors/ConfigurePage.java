@@ -69,6 +69,7 @@ class ConfigurePage implements IsWidget {
         portItem = new NumberBoxItem("port", "Port");
 
         form.setFields(nameItem, schemeItem, hostItem, portItem);
+        form.setEnabled(true);
         content.add(form);
 
         DefaultButton pingButton = new DefaultButton(Console.CONSTANTS.bs_ping());
@@ -137,6 +138,7 @@ class ConfigurePage implements IsWidget {
     void reset() {
         configureStatus.setVisible(false);
         form.clearValues();
+        form.setEnabled(true);
         portItem.setValue(9990);
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
