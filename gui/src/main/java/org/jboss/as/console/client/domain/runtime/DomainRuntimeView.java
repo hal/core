@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -33,6 +34,7 @@ import org.jboss.as.console.client.shared.model.SubsystemRecord;
 import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -303,16 +305,11 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 // TODO: reload state
                 if (!data.isStarted()) {
                     PreviewState.paused(html, "Server is stopped");
-                }
-                else if(data.getServerState()==SrvState.RELOAD_REQUIRED)
-                {
+                } else if (data.getServerState() == SrvState.RELOAD_REQUIRED) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_reloadRequired());
-                }
-                else if(data.getServerState()==SrvState.RESTART_REQUIRED)
-                {
+                } else if (data.getServerState() == SrvState.RESTART_REQUIRED) {
                     PreviewState.warn(html, Console.CONSTANTS.server_instance_servers_needRestart());
-                }
-                else if (data.getSuspendState() == SuspendState.SUSPENDED) {
+                } else if (data.getSuspendState() == SuspendState.SUSPENDED) {
                     PreviewState.info(html, "Server is suspended");
                 }
 
@@ -454,6 +451,12 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
                 }, MenuDelegate.Role.Operation)
         );
 
+        serverColumn.setFilter(new ColumnFilter.Predicate<Server>() {
+            @Override
+            public boolean matches(Server item, String token) {
+                return item.getName().contains(token);
+            }
+        });
 
         serverColumn.setTooltipDisplay(new FinderColumn.TooltipDisplay<Server>() {
             @Override
@@ -587,14 +590,14 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
 
+                // column handling
+                columnManager.reduceColumnsTo(1);
+
                 if (serverColumn.hasSelectedItem()) {
 
                     // selection
                     columnManager.updateActiveSelection(serverColWidget);
                     final Server selectedServer = serverColumn.getSelectedItem();
-
-                    // column handling
-                    columnManager.reduceColumnsTo(1);
 
                     // action
                     if(selectedServer.isStarted()) {

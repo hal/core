@@ -7,6 +7,7 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -27,6 +28,7 @@ import org.jboss.as.console.client.plugins.SubsystemRegistry;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -228,6 +230,8 @@ public class ColumnServerView extends SuspendableViewImpl
                         return item.getToken();
                     }
                 },NameTokens.ServerProfile);
+
+        subsystems.setShowSize(true);
 
         subsystems.setValueProvider(new ValueProvider<SubsystemLink>() {
             @Override

@@ -43,6 +43,7 @@ import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -154,6 +155,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 new MenuDelegate<>("Unassign", item -> presenter.verifyUnassignAssignment(item), Operation)
         );
 
+        assignmentColumn.setFilter(new ColumnFilter.Predicate<Assignment>() {
+            @Override
+            public boolean matches(Assignment item, String token) {
+                return item.getDeployment().getName().contains(token);
+            }
+        });
+
         assignmentColumn.setTooltipDisplay(Templates::assignmentTooltip);
         assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
 
@@ -204,6 +212,13 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 },
                 NameTokens.DomainDeploymentFinder);
         serverGroupColumn.setShowSize(true);
+
+        serverGroupColumn.setFilter(new ColumnFilter.Predicate<ServerGroupRecord>() {
+            @Override
+            public boolean matches(ServerGroupRecord item, String token) {
+                return item.getName().contains(token);
+            }
+        });
 
         serverGroupColumn.setPreviewFactory((data, callback) -> {
             ResourceAddress address = new ResourceAddress().add("server-group", data.getName());
@@ -261,6 +276,15 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                                 });
                     }
                 }, Operation));
+
+        contentColumn.setFilter(new ColumnFilter.Predicate<Content>() {
+            @Override
+            public boolean matches(Content item, String token) {
+                return item.getName().contains(token)
+                        || item.getRuntimeName().contains(token);
+            }
+        });
+
         contentColumnWidget = contentColumn.asWidget();
 
         //noinspection Convert2MethodRef

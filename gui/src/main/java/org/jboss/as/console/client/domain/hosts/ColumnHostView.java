@@ -19,6 +19,7 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
+import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
@@ -30,6 +31,7 @@ import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.GroupSelection;
 import org.jboss.as.console.client.v3.stores.domain.actions.HostSelection;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
+import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
@@ -162,6 +164,13 @@ public class ColumnHostView extends SuspendableViewImpl
                 }, NameTokens.HostMgmtPresenter);
 
         groups.setShowSize(true);
+
+        groups.setFilter(new ColumnFilter.Predicate<ServerGroupRecord>() {
+            @Override
+            public boolean matches(ServerGroupRecord item, String token) {
+                return item.getName().contains(token);
+            }
+        });
 
         groups.setTopMenuItems(new MenuDelegate<ServerGroupRecord>("Add",
                         new ContextualCommand<ServerGroupRecord>() {

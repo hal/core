@@ -48,6 +48,8 @@ import java.util.List;
 public class FinderColumn<T>  {
 
 
+    private ColumnFilter filter;
+
     public enum FinderId { DEPLOYMENT, CONFIGURATION, RUNTIME, ACCESS_CONTROL, UNKNOWN}
 
     static Framework FRAMEWORK = GWT.create(Framework.class);
@@ -78,7 +80,7 @@ public class FinderColumn<T>  {
 
     private HTML headerTitle;
     private ValueProvider<T> valueProvider;
-    private String filter;
+
     private LayoutPanel layout;
     private LayoutPanel headerMenu;
 
@@ -110,13 +112,13 @@ public class FinderColumn<T>  {
         this.token = token;
         this.id = Document.get().createUniqueId();
 
+
         selectionModel = new SingleSelectionModel<T>(keyProvider);
 
         cellTable = new CellTable<T>(200, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
         cellTable.setStyleName("navigation-cell-table");
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
-
         cellTable.setEmptyTableWidget(new HTML("<div class='empty-finder-column'>No Items!</div>"));
 
         Column<T, SafeHtml> titleColumn = new Column<T, SafeHtml>(new SafeHtmlCell()) {
@@ -262,6 +264,7 @@ public class FinderColumn<T>  {
                 }
             }
         });
+
     }
 
     /**
@@ -279,6 +282,20 @@ public class FinderColumn<T>  {
         // calculate accessible menu items
         filterNonPrivilegeOperations(writePrivilege, accessibleTopMenuItems, topMenuItems);
         filterNonPrivilegeOperations(writePrivilege, accessibleMenuItems, menuItems);
+
+        /*if(filter!=null)   TODO: decide if search becomes hidden by default
+        {
+            // a default op that's always available
+            accessibleTopMenuItems.add(
+                    new MenuDelegate("Search", new ContextualCommand() {
+                        @Override
+                        public void executeOn(Object item) {
+
+                        }
+                    })
+            );
+        };*/
+
 
         // the top menu is build here
         if(!plain)
@@ -498,6 +515,11 @@ public class FinderColumn<T>  {
         return this;
     }
 
+    public FinderColumn<T> setFilter(ColumnFilter.Predicate<T> filterValue) {
+        this.filter = new ColumnFilter(this.selectionModel, cellTable, filterValue);
+        return this;
+    }
+
     /**
      * provides the value part of a key/value breadcrumb tuple.
      * if this is not given (default) then the column title will be used as the value.
@@ -565,7 +587,8 @@ public class FinderColumn<T>  {
             header.addStyleName("fill-layout-width");
             header.addStyleName("finder-col-header");
 
-            headerTitle = new HTML(title);
+            headerTitle = new HTML();
+            updateTitle();
             headerTitle.addStyleName("finder-col-title");
             header.add(headerTitle);
             ScrollPanel column = new ScrollPanel(cellTable);
@@ -584,8 +607,20 @@ public class FinderColumn<T>  {
             layout.add(header);
             layout.add(column);
 
+            int offset =41;
+            Widget filterWidget = filter!=null ? filter.asWidget() : null;
+            int filterHeight = 45;
+            if(filter!=null)
+            {
+                layout.add(filterWidget);
+                offset += filterHeight;
+            }
+
             layout.setWidgetTopHeight(header, 0, Style.Unit.PX, 40, Style.Unit.PX);
-            layout.setWidgetTopHeight(column, 41, Style.Unit.PX, 95, Style.Unit.PCT);
+            if(filter!=null)
+                layout.setWidgetTopHeight(filterWidget, 41, Style.Unit.PX, filterHeight, Style.Unit.PX);
+
+            layout.setWidgetTopHeight(column, offset, Style.Unit.PX, 95, Style.Unit.PCT);
 
         }
         else            // embedded mode, w/o header
@@ -600,6 +635,19 @@ public class FinderColumn<T>  {
 
         return layout;
     }
+
+    private void updateTitle() {
+
+        String label = title;
+        if(!GWT.isScript())
+            label = "<span title='"+token+"'>"+title+"</span>";
+
+        if(showSize)
+            headerTitle.setHTML(label+" ("+cellTable.getRowCount()+")");
+        else
+            headerTitle.setHTML(label);
+
+    };
 
     private void buildTopMenu(LayoutPanel container) {
         String groupId = HTMLPanel.createUniqueId();
@@ -658,19 +706,13 @@ public class FinderColumn<T>  {
 
     public void updateFrom(final List<T> records, final boolean selectDefault) {
 
+        if(filter!=null) filter.clear();
         selectionModel.clear();
         cellTable.setRowCount(records.size(), true);
         cellTable.setRowData(0, records);
 
-        String label = title;
-        if(!GWT.isScript())
-            label = "<span title='"+token+"'>"+title+"</span>";
-
         if(!plain) {
-            if(showSize)
-                headerTitle.setHTML(label+" ("+records.size()+")");
-            else
-                headerTitle.setHTML(label);
+            updateTitle();
         }
 
         if(selectDefault && records.size()>0)
