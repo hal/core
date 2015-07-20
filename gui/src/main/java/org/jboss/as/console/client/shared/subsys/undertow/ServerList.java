@@ -60,7 +60,7 @@ public class ServerList {
         }
         else
         {
-            this.RESOURCE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*");
+            this.RESOURCE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=undertow/server={undertow.server}");
         }
 
         this.table = new DefaultCellTable(5, keyProvider);

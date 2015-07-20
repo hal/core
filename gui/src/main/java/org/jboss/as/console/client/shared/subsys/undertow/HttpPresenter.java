@@ -71,7 +71,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
 
         @Override
         public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
-
+            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
         }
     };
 
@@ -82,11 +82,11 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
     @RequiredResources(
             resources = {
                     "{selected.profile}/subsystem=undertow",
-                    "{selected.profile}/subsystem=undertow/server=*",
-                    "{selected.profile}/subsystem=undertow/server=*/host=*",
-                    "{selected.profile}/subsystem=undertow/server=*/http-listener=*",
-                    "{selected.profile}/subsystem=undertow/server=*/https-listener=*",
-                    "{selected.profile}/subsystem=undertow/server=*/ajp-listener=*"
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}",
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*",
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}/http-listener=*",
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}/https-listener=*",
+                    "{selected.profile}/subsystem=undertow/server={undertow.server}/ajp-listener=*"
             })
     @ProxyCodeSplit
     @NameToken(NameTokens.HttpPresenter)
@@ -131,7 +131,7 @@ public class HttpPresenter extends Presenter<HttpPresenter.MyView, HttpPresenter
                 new FilteringStatementContext.Filter() {
                     @Override
                     public String filter(String key) {
-                        if ("selected.server".equals(key))
+                        if ("undertow.server".equals(key))
                             return currentServer;
                         else
                             return null;
