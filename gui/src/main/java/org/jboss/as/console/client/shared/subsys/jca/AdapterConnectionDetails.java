@@ -73,11 +73,8 @@ public class AdapterConnectionDetails {
                 }, form
         );
         layout.add(helpPanel.asWidget());
-
+        form.setEnabled(true);
         layout.add(form.asWidget());
-
-        form.setEnabled(false   );
-
     }
 
     Widget asWidget() {
