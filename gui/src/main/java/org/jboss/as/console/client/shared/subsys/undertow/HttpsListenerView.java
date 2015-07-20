@@ -32,7 +32,7 @@ import java.util.Map;
 public class HttpsListenerView {
 
     private static final AddressTemplate  BASE_ADDRESS =
-            AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*/https-listener=*");
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/server={undertow.server}/https-listener=*");
 
     private final HttpPresenter presenter;
     private final DefaultCellTable table;

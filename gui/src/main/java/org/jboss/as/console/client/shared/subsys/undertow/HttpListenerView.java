@@ -31,7 +31,7 @@ import java.util.Map;
 public class HttpListenerView {
 
     private static final AddressTemplate BASE_ADDRESS =
-            AddressTemplate.of("{selected.profile}/subsystem=undertow/server=*/http-listener=*");
+            AddressTemplate.of("{selected.profile}/subsystem=undertow/server={undertow.server}/http-listener=*");
 
     private final HttpPresenter presenter;
     private final DefaultCellTable table;

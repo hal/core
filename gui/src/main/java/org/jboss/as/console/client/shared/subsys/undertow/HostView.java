@@ -31,7 +31,7 @@ import java.util.Map;
 public class HostView {
 
     private static final AddressTemplate BASE_ADDRESS = AddressTemplate .of(
-            "{selected.profile}/subsystem=undertow/server=*/host=*");
+            "{selected.profile}/subsystem=undertow/server={undertow.server}/host=*");
 
     private final HttpPresenter presenter;
     private final DefaultCellTable table;
