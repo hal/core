@@ -3,14 +3,12 @@ package org.jboss.as.console.client.shared.subsys.ws;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.SimpleLayout;
-import org.jboss.as.console.client.shared.help.FormHelpPanel;
-import org.jboss.as.console.client.shared.subsys.Baseadress;
-import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceProvider;
-import org.jboss.as.console.client.widgets.forms.FormToolStrip;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
-import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
-import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.mbui.widgets.ModelNodeForm;
+import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
+import org.jboss.ballroom.client.rbac.SecurityContext;
+import org.jboss.ballroom.client.widgets.forms.FormCallback;
 import org.jboss.dmr.client.ModelNode;
 
 import java.util.Map;
@@ -21,9 +19,10 @@ import java.util.Map;
  */
 public class ProviderEditor {
 
-    private Form<WebServiceProvider> providerForm;
+    private static final AddressTemplate BASE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=webservices");
 
     private WebServicePresenter presenter;
+    private ModelNodeForm form;
 
     public ProviderEditor(WebServicePresenter presenter) {
         this.presenter = presenter;
@@ -31,65 +30,46 @@ public class ProviderEditor {
 
     Widget asWidget() {
 
-        providerForm = new Form<WebServiceProvider>(WebServiceProvider.class);
-        providerForm .setNumColumns(2);
+        SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(BASE_ADDRESS);
 
-        FormToolStrip<WebServiceProvider> formToolStrip = new FormToolStrip<WebServiceProvider>(
-                providerForm,
-                new FormToolStrip.FormCallback<WebServiceProvider>(){
-                    @Override
-                    public void onSave(Map<String, Object> changeset) {
-                        presenter.onSaveProvider(changeset);
-                    }
+        final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+                .setConfigOnly()
+                .setResourceDescription(definition)
+                .setSecurityContext(securityContext).build();
 
-                    @Override
-                    public void onDelete(WebServiceProvider entity) {
+        form = formAssets.getForm();
 
-                    }
-                });
-        formToolStrip.providesDeleteOp(false);
-
-
-        CheckBoxItem modify = new CheckBoxItem("modifyAddress", "Modify SOAP Address");
-        TextBoxItem wsdlHost = new TextBoxItem("wsdlHost", "WSDL Host", true);
-        NumberBoxItem wsdlPort = new NumberBoxItem("wsdlPort", "WSDL Port", 1, Long.MAX_VALUE) {
-            {
-                isRequired=false;
-            }
-        };
-        NumberBoxItem wsdlSecurePort = new NumberBoxItem("wsdlSecurePort", "WSDL Secure Port", 1, Long.MAX_VALUE) {
-            {
-                isRequired=false;
-            }
-        };
-
-        providerForm.setFields(modify, wsdlHost, wsdlPort, wsdlSecurePort);
-        providerForm.setEnabled(false);
-
-        FormHelpPanel helpPanel = new FormHelpPanel(new FormHelpPanel.AddressCallback(){
+        form.setToolsCallback(new FormCallback() {
             @Override
-            public ModelNode getAddress() {
-                ModelNode address = Baseadress.get();
-                        address.add("subsystem", "webservices");
-                        return address;
+            public void onSave(Map changeset) {
+                presenter.onSaveResource(BASE_ADDRESS, changeset);
             }
-        }, providerForm);
+
+            @Override
+            public void onCancel(Object entity) {
+                form.cancel();
+            }
+        });
 
         SimpleLayout layout = new SimpleLayout()
                 .setPlain(true)
                 .setTitle("Provider")
                 .setHeadline("Web Services Provider")
                 .setDescription(Console.CONSTANTS.subsys_ws_desc())
-                .addContent("tools", formToolStrip.asWidget())
-                .addContent("help", helpPanel.asWidget())
-                .addContent("form", providerForm.asWidget());
+                .addContent("", formAssets.asWidget()
+                );
 
         return layout.build();
 
     }
 
-    public void setProvider(WebServiceProvider provider)
-    {
-        providerForm.edit(provider);
+
+    public void reset() {
+        form.clearValues();
+    }
+
+    public void updateFrom(ModelNode modelNode) {
+        form.edit(modelNode);
     }
 }

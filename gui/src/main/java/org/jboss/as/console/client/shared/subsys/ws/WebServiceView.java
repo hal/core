@@ -6,6 +6,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.DisposableViewImpl;
 import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceProvider;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.dmr.client.ModelNode;
 
 /**
  * @author Heiko Braun
@@ -41,7 +42,12 @@ public class WebServiceView extends DisposableViewImpl implements WebServicePres
     }
 
     @Override
-    public void setProvider(WebServiceProvider webServiceProvider) {
-        providerEditor.setProvider(webServiceProvider);
+    public void reset() {
+        providerEditor.reset();
+    }
+
+    @Override
+    public void updateFrom(ModelNode modelNode) {
+        providerEditor.updateFrom(modelNode);
     }
 }

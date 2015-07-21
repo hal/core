@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.ws;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -7,22 +8,19 @@ import com.gwtplatform.mvp.client.View;
 import com.gwtplatform.mvp.client.annotations.NameToken;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
-import com.gwtplatform.mvp.client.proxy.PlaceManager;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.messaging.model.MessagingProvider;
-import org.jboss.as.console.client.shared.subsys.ws.model.WebServiceProvider;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.SearchIndex;
-import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
@@ -38,6 +36,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, WebServicePresenter.MyProxy> {
 
+
+
     @ProxyCodeSplit
     @NameToken(NameTokens.WebServicePresenter)
     @AccessControl(resources = {"{selected.profile}/subsystem=webservices"})
@@ -47,41 +47,44 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
 
     public interface MyView extends View {
         void setPresenter(WebServicePresenter presenter);
-        void setProvider(WebServiceProvider webServiceProvider);
+        void reset();
+        void updateFrom(ModelNode modelNode);
     }
 
-
-    private final PlaceManager placeManager;
+    private final CrudOperationDelegate operationDelegate;
+    private SecurityFramework securityFramework;
+    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
     private DispatchAsync dispatcher;
-    private BeanFactory factory;
-    private MessagingProvider providerEntity;
-    private DefaultWindow window = null;
     private RevealStrategy revealStrategy;
-    private ApplicationMetaData propertyMetaData;
 
-    private EntityAdapter<WebServiceProvider> providerAdapter;
-    private BeanMetaData beanMeta;
+    CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+        @Override
+        public void onSuccess(AddressTemplate address, String name) {
+            Console.info("Successfully saved resource "+address);
+            loadProvider();
+        }
+
+        @Override
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            Console.error("Failed to save resource "+addressTemplate, t.getMessage());
+        }
+    };
+
 
     @Inject
     public WebServicePresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
-            PlaceManager placeManager,DispatchAsync dispatcher,
-            BeanFactory factory, RevealStrategy revealStrategy,
-            ApplicationMetaData metaData, EndpointRegistry registry) {
+            DispatchAsync dispatcher,
+            RevealStrategy revealStrategy,
+            SecurityFramework securityFramework,
+            ResourceDescriptionRegistry resourceDescriptionRegistry, CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
-        this.placeManager = placeManager;
         this.dispatcher = dispatcher;
-        this.factory = factory;
         this.revealStrategy = revealStrategy;
-        this.propertyMetaData = metaData;
-
-
-        providerAdapter = new EntityAdapter<WebServiceProvider>(
-                WebServiceProvider.class, metaData
-        );
-
-        beanMeta = metaData.getBeanMetaData(WebServiceProvider.class);
+        this.securityFramework = securityFramework;
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
+        this.operationDelegate = new CrudOperationDelegate(statementContext, dispatcher);
     }
 
     @Override
@@ -99,26 +102,24 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
     }
 
     private void loadProvider() {
-        ModelNode operation = beanMeta.getAddress().asResource(
-                Baseadress.get()
-        );
-
+        ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
+        operation.get(ADDRESS).set(Baseadress.get());
+        operation.get(ADDRESS).add("subsystem", "webservices");
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.failed("Loading Web Service Provider"), response.getFailureDescription());
+                if (response.isFailure()) {
+                    Log.error("Failed to load web service provider", response.getFailureDescription());
+                    getView().reset();
+                } else {
+                    getView().updateFrom(response.get(RESULT));
                 }
-                else
-                {
-                    WebServiceProvider webServiceProvider = providerAdapter.fromDMR(response.get(RESULT));
-                    getView().setProvider(webServiceProvider);
-                }
+
             }
         });
     }
@@ -128,36 +129,16 @@ public class WebServicePresenter extends Presenter<WebServicePresenter.MyView, W
         revealStrategy.revealInParent(this);
     }
 
-    public void onSaveProvider(Map<String, Object> changes) {
-        ModelNode address = beanMeta.getAddress().asResource(
-                Baseadress.get()
-        );
-
-        ModelNode operation = providerAdapter.fromChangeset(changes, address);
-
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                Console.error(Console.MESSAGES.modificationFailed("Web Service Provider"), caught.getMessage());
-                loadProvider();
-            }
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-
-                //System.out.println(response);
-                if(response.isFailure())
-                {
-                    Console.error(Console.MESSAGES.modificationFailed("Web Service Provider"), response.getFailureDescription());
-                }
-                else
-                {
-                    Console.info(Console.MESSAGES.modified("Web Service Provider"));
-                }
-                loadProvider();
-            }
-        });
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
     }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return resourceDescriptionRegistry;
+    }
+
+    public void onSaveResource(final AddressTemplate address, Map<String, Object> changeset) {
+        operationDelegate.onSaveResource(address, null, changeset, defaultOpCallbacks);
+    }
+
 }
