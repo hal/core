@@ -52,14 +52,11 @@ public class TransportEditor implements PropertyManagement {
         form = new Form<JGroupsTransport>(JGroupsTransport.class);
         form.setNumColumns(2);
 
-        TextItem type = new TextItem("type", "Type");
+        TextItem name = new TextItem("name", "Name");
         TextBoxItem socket= new TextBoxItem("socketBinding", "Socket Binding");
-        TextBoxItem diagSocket = new TextBoxItem("diagSocketBinding", "Diagnostics Socket");
+        TextBoxItem diagSocket = new TextBoxItem("diagSocketBinding", "Diagnostics Socket", false);
         CheckBoxItem shared= new CheckBoxItem("shared", "Is Shared?");
-        TextBoxItem oobExecutor = new TextBoxItem("oobExecutor", "OOB Executor");
-        TextBoxItem timerExecutor = new TextBoxItem("timerExecutor", "timer Executor");
-        TextBoxItem defaultExecutor = new TextBoxItem("defaultExecutor", "Default Executor");
-        TextBoxItem threadFactory= new TextBoxItem("threadFactory", "Thread Factory");
+
         TextBoxItem machine = new TextBoxItem("machine", "Machine", false);
         TextBoxItem site= new TextBoxItem("site", "Site", false);
         TextBoxItem rack= new TextBoxItem("rack", "Rack", false);
@@ -71,8 +68,7 @@ public class TransportEditor implements PropertyManagement {
 
          */
 
-        form.setFields(type, socket, diagSocket, machine, shared, site, rack);
-        form.setFieldsInGroup("Executors", new DisclosureGroupRenderer(), threadFactory, defaultExecutor, oobExecutor, timerExecutor);
+        form.setFields(name, socket, diagSocket, machine, shared, site, rack);
 
         form.setEnabled(false);
 
@@ -92,7 +88,7 @@ public class TransportEditor implements PropertyManagement {
                 form, new FormToolStrip.FormCallback<JGroupsTransport>() {
             @Override
             public void onSave(Map<String, Object> changeset) {
-                presenter.onSaveTransport(changeset);
+                presenter.onSaveTransport(form.getEditedEntity().getName(), changeset);
             }
 
             @Override
@@ -117,7 +113,7 @@ public class TransportEditor implements PropertyManagement {
                 .setTitle("JGroups")
                 .setHeadlineWidget(headline)
                 .setDescription(Console.CONSTANTS.subsys_jgroups_transport_desc())
-                .setMaster("Transport Attributes", detail)
+                .addDetail("Transport Attributes", detail)
                 .addDetail("Properties", properyEditor.asWidget())
                 .build();
 

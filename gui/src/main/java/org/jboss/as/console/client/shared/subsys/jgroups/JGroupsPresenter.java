@@ -503,12 +503,12 @@ public class JGroupsPresenter extends Presenter<JGroupsPresenter.MyView, JGroups
             propertyWindow.hide();
     }
 
-    public void onSaveTransport(Map<String, Object> changeset) {
+    public void onSaveTransport(String key, Map<String, Object> changeset) {
         ModelNode address = new ModelNode();
         address.get(ADDRESS).set(Baseadress.get());
         address.get(ADDRESS).add("subsystem", "jgroups");
         address.get(ADDRESS).add("stack", selectedStack);
-        address.get(ADDRESS).add("transport", "TRANSPORT");
+        address.get(ADDRESS).add("transport", key);
 
         ModelNode operation = transportAdapter.fromChangeset(changeset, address);
 
