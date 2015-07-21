@@ -140,12 +140,14 @@ public class RunAsRoleTool implements Tool {
                 new Feedback.ConfirmationHandler() {
                     @Override
                     public void onConfirmation(boolean isConfirmed) {
-                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                Window.Location.reload();
-                            }
-                        });
+                        if (isConfirmed) {
+                            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    Window.Location.reload();
+                                }
+                            });
+                        }
                     }
                 });
     }
