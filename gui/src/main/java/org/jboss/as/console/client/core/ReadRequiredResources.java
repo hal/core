@@ -191,7 +191,12 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                                 }
                             }
                             if (payload == null) {
-                                throw new RuntimeException("Unexpected response format");
+                                Log.error("Failed to process response: "+stepResult.toString());
+
+                                control.getContext().setError(
+                                        new RuntimeException("Unexpected response format")
+                                );
+                                control.abort();
                             }
                         } else {
                             payload = stepResult;
