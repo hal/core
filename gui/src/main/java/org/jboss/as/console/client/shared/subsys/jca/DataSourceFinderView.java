@@ -353,6 +353,7 @@ public class DataSourceFinderView extends SuspendableViewImpl implements DataSou
                 if(typeColumn.hasSelectedItem())
                 {
                     FinderItem item = typeColumn.getSelectedItem();
+                    columnManager.updateActiveSelection(typeColWidget);
                     item.getCmd().execute();
                 }
             }
