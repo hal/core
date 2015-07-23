@@ -516,7 +516,8 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
         }
 
         setOperational(false);
-        setEnabled(false);
+        if(toolsCallback !=null)
+            setEnabled(false);
         refreshPlainView();
     }
 
