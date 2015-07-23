@@ -313,7 +313,7 @@ public class DomainDeploymentFinder
         });
     }
 
-    public void removeContent(final Content content) {
+    public void removeContent(final Content content, boolean unmanaged) {
         Operation operation = new Operation.Builder(REMOVE, new ResourceAddress().add("deployment", content.getName()))
                 .build();
 
@@ -330,7 +330,11 @@ public class DomainDeploymentFinder
                     Console.error("Unable to remove deployment.", result.getFailureDescription());
                 } else {
                     Console.info(content.getName() + " successfully removed.");
-                    loadUnassignedContent(); // Remove is an action of the "Unassigned Content" column
+                    if (unmanaged) {
+                        loadUnassignedContent();
+                    } else {
+                        loadContentRepository();
+                    }
                 }
             }
         });

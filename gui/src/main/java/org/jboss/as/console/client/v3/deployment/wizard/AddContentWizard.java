@@ -127,10 +127,6 @@ public class AddContentWizard extends DeploymentWizard {
         } else if (context.deployUnmanaged) {
             addUnmanaged(outcome);
         }
-
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false));
     }
 
     private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
