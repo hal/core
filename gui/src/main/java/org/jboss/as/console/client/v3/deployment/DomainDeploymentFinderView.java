@@ -271,19 +271,14 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
                                 isConfirmed -> {
                                     if (isConfirmed) {
-                                        presenter.removeContent(item);
+                                        presenter.removeContent(item, false);
                                     }
                                 });
                     }
                 }, Operation));
 
-        contentColumn.setFilter(new ColumnFilter.Predicate<Content>() {
-            @Override
-            public boolean matches(Content item, String token) {
-                return item.getName().contains(token)
-                        || item.getRuntimeName().contains(token);
-            }
-        });
+        contentColumn.setFilter((item, token) ->
+                item.getName().contains(token) || item.getRuntimeName().contains(token));
 
         contentColumnWidget = contentColumn.asWidget();
 
@@ -295,7 +290,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Remove " + item.getName(),
                                 isConfirmed -> {
                                     if (isConfirmed) {
-                                        presenter.removeContent(item);
+                                        presenter.removeContent(item, true);
                                     }
                                 }), Operation));
         unassignedColumnWidget = unassignedColumn.asWidget();
