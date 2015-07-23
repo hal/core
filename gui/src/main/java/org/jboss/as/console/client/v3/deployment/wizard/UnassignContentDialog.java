@@ -39,8 +39,6 @@ import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.v3.deployment.Content;
 import org.jboss.as.console.client.v3.deployment.DomainDeploymentFinder;
-import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
-import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
@@ -56,7 +54,7 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
 /**
  * @author Harald Pehl
  */
-public class AssignContentDialog implements IsWidget {
+public class UnassignContentDialog implements IsWidget {
 
     private final DomainDeploymentFinder presenter;
     private Content content;
@@ -68,7 +66,7 @@ public class AssignContentDialog implements IsWidget {
     private Label intro;
     private DefaultCellTable<String> table;
 
-    public AssignContentDialog(final DomainDeploymentFinder presenter) {
+    public UnassignContentDialog(final DomainDeploymentFinder presenter) {
         this.presenter = presenter;
     }
 
@@ -84,7 +82,7 @@ public class AssignContentDialog implements IsWidget {
         intro = new Label();
         intro.getElement().getStyle().setMarginBottom(10, PX);
 
-        root.add(new HTML("<h3>Assign Content</h3>"));
+        root.add(new HTML("<h3>Unassign Content</h3>"));
         root.add(errorMessages);
         root.add(intro);
 
@@ -134,12 +132,6 @@ public class AssignContentDialog implements IsWidget {
         pager.setDisplay(table);
         root.add(pager);
 
-        // enable assignments?
-        Form<Object> form = new Form<>(Object.class); // form is just used for layout reasons
-        CheckBoxItem enable = new CheckBoxItem("enable", "Enable assignment on selected server groups");
-        form.setFields(enable);
-        root.add(form.asWidget());
-
         return new TrappedFocusPanel(new WindowContentBuilder(root,
                 new DialogueOptions(Console.CONSTANTS.common_label_assign(),
                         event -> {
@@ -149,7 +141,7 @@ public class AssignContentDialog implements IsWidget {
                                 errorMessages.setVisible(true);
                             } else {
                                 close();
-                                presenter.assignContent(content, selectedSet, enable.getValue());
+                                presenter.unassignContent(content, selectedSet);
                             }
                         },
                         Console.CONSTANTS.common_label_cancel(), event -> close()))
@@ -160,7 +152,7 @@ public class AssignContentDialog implements IsWidget {
         this.content = content;
 
         if (window == null) {
-            window = new DefaultWindow("Assign Content");
+            window = new DefaultWindow("Unassign Content");
             window.setWidth(520);
             window.setHeight(400);
             window.trapWidget(asWidget());
@@ -168,7 +160,7 @@ public class AssignContentDialog implements IsWidget {
         }
         errorMessages.setText("");
         errorMessages.setVisible(false);
-        intro.setText("Choose the server groups for assigning '" + content.getName() + "'.");
+        intro.setText("'" + content.getName() + "' is assigned to the following server groups. Choose the server groups you want to unassign '" + content.getName() + "' from.");
         dataProvider.setList(serverGroups);
         selectionModel.clear();
         table.selectDefaultEntity();

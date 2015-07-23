@@ -54,6 +54,7 @@ import org.jboss.as.console.client.v3.deployment.wizard.AddContentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AddDomainDeploymentWizard;
 import org.jboss.as.console.client.v3.deployment.wizard.AssignContentDialog;
 import org.jboss.as.console.client.v3.deployment.wizard.ReplaceDomainDeploymentWizard;
+import org.jboss.as.console.client.v3.deployment.wizard.UnassignContentDialog;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -127,6 +128,7 @@ public class DomainDeploymentFinder
     private final ServerGroupStore serverGroupStore;
     private final AddContentWizard addContentWizard;
     private final AssignContentDialog assignContentDialog;
+    private final UnassignContentDialog unassignContentDialog;
     private final AddDomainDeploymentWizard addDeploymentWizard;
     private final ReplaceDomainDeploymentWizard replaceWizard;
 
@@ -146,6 +148,7 @@ public class DomainDeploymentFinder
         this.serverGroupStore = serverGroupStore;
 
         this.assignContentDialog = new AssignContentDialog(this);
+        this.unassignContentDialog = new UnassignContentDialog(this);
         this.addContentWizard = new AddContentWizard(bootstrapContext, beanFactory, dispatcher,
                 context -> {
                     String name = context.deployNew ?
@@ -313,6 +316,44 @@ public class DomainDeploymentFinder
         });
     }
 
+    public void launchUnassignContentDialog(Content content) {
+        if (content.getAssignments().isEmpty()) {
+            Console.warning(content.getName() + " is not assigned to a server group.");
+        } else {
+            Set<String> assignedServerGroupNames = Sets.newHashSet(
+                    Lists.transform(content.getAssignments(), Assignment::getServerGroup));
+            unassignContentDialog.open(content, Ordering.natural().immutableSortedCopy(assignedServerGroupNames));
+        }
+    }
+
+    public void unassignContent(final Content content, Set<String> serverGroups) {
+        List<Operation> operations = new ArrayList<>();
+        for (String serverGroup : serverGroups) {
+            ResourceAddress address = new ResourceAddress()
+                    .add("server-group", serverGroup)
+                    .add("deployment", content.getName());
+            Operation operation = new Operation.Builder(REMOVE, address).build();
+            operations.add(operation);
+        }
+        dispatcher.execute(new DMRAction(new Composite(operations)), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                Console.error("Unable to unassign " + content.getName() + ".", caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    Console.error("Unable to unassign " + content.getName() + ".", result.getFailureDescription());
+                } else {
+                    Console.info(content.getName() + " successfully unassigned from selected server groups.");
+                    loadContentRepository();
+                }
+            }
+        });
+    }
+
     public void removeContent(final Content content, boolean unmanaged) {
         Operation operation = new Operation.Builder(REMOVE, new ResourceAddress().add("deployment", content.getName()))
                 .build();
@@ -388,16 +429,7 @@ public class DomainDeploymentFinder
                 });
     }
 
-    public void verifyUnassignAssignment(final Assignment assignment) {
-        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(), "Unassign " + assignment.getName(),
-                isConfirmed -> {
-                    if (isConfirmed) {
-                        modifyAssignment(assignment, REMOVE, assignment.getName() + " successfully unassigned.");
-                    }
-                });
-    }
-
-    private void modifyAssignment(final Assignment assignment, final String operation, final String successMessage) {
+    public void modifyAssignment(final Assignment assignment, final String operation, final String successMessage) {
         String serverGroup = assignment.getServerGroup();
         ResourceAddress address = new ResourceAddress()
                 .add("server-group", serverGroup)

@@ -43,7 +43,6 @@ import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -152,15 +151,18 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         assignmentColumn.setMenuItems(
                 enableDisableDelegate,
                 new MenuDelegate<>("Replace", item -> presenter.launchReplaceAssignmentWizard(item), Operation),
-                new MenuDelegate<>("Unassign", item -> presenter.verifyUnassignAssignment(item), Operation)
+                new MenuDelegate<>("Unassign", item ->
+                        Feedback.confirm(Console.CONSTANTS.common_label_areYouSure(),
+                                "Unassign " + item.getName(),
+                                isConfirmed -> {
+                                    if (isConfirmed) {
+                                        presenter.modifyAssignment(item, REMOVE,
+                                                item.getName() + " successfully unassigned.");
+                                    }
+                                }))
         );
 
-        assignmentColumn.setFilter(new ColumnFilter.Predicate<Assignment>() {
-            @Override
-            public boolean matches(Assignment item, String token) {
-                return item.getDeployment().getName().contains(token);
-            }
-        });
+        assignmentColumn.setFilter((item, token) -> item.getDeployment().getName().contains(token));
 
         assignmentColumn.setTooltipDisplay(Templates::assignmentTooltip);
         assignmentColumn.setPreviewFactory((data, callback) -> callback.onSuccess(Templates.assignmentPreview(data)));
@@ -213,12 +215,7 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                 NameTokens.DomainDeploymentFinder);
         serverGroupColumn.setShowSize(true);
 
-        serverGroupColumn.setFilter(new ColumnFilter.Predicate<ServerGroupRecord>() {
-            @Override
-            public boolean matches(ServerGroupRecord item, String token) {
-                return item.getName().contains(token);
-            }
-        });
+        serverGroupColumn.setFilter((item, token) -> item.getName().contains(token));
 
         serverGroupColumn.setPreviewFactory((data, callback) -> {
             ResourceAddress address = new ResourceAddress().add("server-group", data.getName());
@@ -261,9 +258,10 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
         contentColumn = new ContentColumn("All Content", columnManager,
                 new MenuDelegate<>("Add", item -> presenter.launchAddContentWizard(), Operation),
                 new MenuDelegate<>("Assign", item -> presenter.launchAssignContentDialog(item), Operation),
+                new MenuDelegate<>("Unassign", item -> presenter.launchUnassignContentDialog(item)),
                 new MenuDelegate<>("Remove", item -> {
                     if (!item.getAssignments().isEmpty()) {
-                        String serverGroups = "\t- " +  Joiner.on("\n\t- ").join(
+                        String serverGroups = "\t- " + Joiner.on("\n\t- ").join(
                                 Lists.transform(item.getAssignments(), Assignment::getServerGroup));
                         Console.error(item.getName() + " is in use. Please remove its assignments first.",
                                 item.getName() + " is assigned to the following server groups:\n\n" + serverGroups);
