@@ -25,7 +25,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewState;
 
 /**
  * HTML templates used for the deployment finder.
@@ -47,9 +49,12 @@ final class Templates {
 
 
     interface Tooltips extends SafeHtmlTemplates {
-        @Template("<i class=\"{1}\" style=\"color:{2}\"></i>&nbsp;{0}")
-        SafeHtml assignment(String text, String icon, String color);
+
+        //        @Template("<i class=\"{1}\" style=\"color:{2}\"></i>&nbsp;{0}")
+        @Template("{0}")
+        SafeHtml assignment(String text/*, String icon, String color*/);
     }
+
 
     interface Previews extends SafeHtmlTemplates {
 
@@ -64,22 +69,23 @@ final class Templates {
         @Template("<div class='preview-content'><h2>Server Group</h2>{0}</div>")
         SafeHtml serverGroup(SafeHtml details);
 
-        @Template("<div class='preview-content'><h2>No Running Server</h2>" +
-                "<p>There's no server running in server group <code>{0}</code>.</p>" +
+        @Template("<div class='preview-content'><h2>{0}</h2>" +
+                "<p>There's no server running in server group <code>{1}</code>.</p>" +
+                "{2}" +
                 "</div>")
-        SafeHtml noReferenceServer(String serverGroup);
+        SafeHtml noReferenceServer(String name, String serverGroup, SafeHtml status);
 
-        @Template("<div class='preview-content'><h2>Deployment</h2>" +
-                "<p>The deployment <code>{0}</code> is <span class='deployment-{1}'>{1}</span> and has the status <span class='deployment-state-{2}'>{2}</span>.</p>" +
-                "{3}" +
+        @Template("<div class='preview-content'><h2>{0}</h2>" +
+                "{1}{2}{3}" +
                 "</div>")
-        SafeHtml standaloneDeployment(String name, String ed, String state, SafeHtml details);
+        SafeHtml standaloneDeployment(String name, SafeHtml ed, SafeHtml status, SafeHtml details);
 
-        @Template("<div class='preview-content'><h2>Deployment</h2>" +
-                "<p>The deployment <code>{0}</code> is <span class='deployment-{1}'>{1}</span> and has the status <span class='deployment-state-{2}'>{2}</span>.<br/>The information is taken from host <code>{3}</code>, server <code>{4}</code>.</p>" +
-                "{5}" +
+        @Template("<div class='preview-content'><h2>{0}</h2>" +
+                "<p>The information is taken from host {1}, server {2}.</p>" +
+                "{3}{4}{5}" +
                 "</div>")
-        SafeHtml domainDeployment(String name, String ed, String state, String host, String server, SafeHtml details);
+        SafeHtml domainDeployment(String name, String host, String server,
+                SafeHtml ed, SafeHtml status, SafeHtml details);
 
         @Template("<div class='preview-content'><h2>Nested Deployment</h2>" +
                 "<p>The nested deployment <code>{0}</code> is part of another deployment.</p>" +
@@ -93,20 +99,20 @@ final class Templates {
 
     static SafeHtml deploymentTooltip(final Deployment deployment) {
         if (deployment.isEnabled()) {
-            return TOOLTIPS.assignment("Deployment is enabled", "icon-ok", "#3F9C35");
+            return TOOLTIPS.assignment("Deployment is enabled"/*, "icon-ok", "#3F9C35"*/);
         } else {
-            return TOOLTIPS.assignment("Deployment is disabled", "icon-warning-sign", "#EC7A08");
+            return TOOLTIPS.assignment("Deployment is disabled"/*, "icon-warning-sign", "#EC7A08"*/);
         }
     }
 
     static SafeHtml assignmentTooltip(final Assignment assignment) {
         if (!assignment.hasDeployment()) {
-            return TOOLTIPS.assignment("No reference server available", "icon-ban-circle", "#cc0000");
+            return TOOLTIPS.assignment("No reference server available"/*, "icon-ban-circle", "#cc0000"*/);
         } else {
             if (assignment.isEnabled()) {
-                return TOOLTIPS.assignment("Deployment is enabled", "icon-ok", "#3F9C35");
+                return TOOLTIPS.assignment("Deployment is enabled"/*, "icon-ok", "#3F9C35"*/);
             } else {
-                return TOOLTIPS.assignment("Deployment is disabled", "icon-warning-sign", "#EC7A08");
+                return TOOLTIPS.assignment("Deployment is disabled"/*, "icon-warning-sign", "#EC7A08"*/);
             }
         }
     }
@@ -153,17 +159,43 @@ final class Templates {
     }
 
     static SafeHtml assignmentPreview(final Assignment assignment) {
-        final Deployment deployment = assignment.getDeployment();
+        Deployment deployment = assignment.getDeployment();
         if (deployment == null) {
-            return PREVIEWS.noReferenceServer(assignment.getServerGroup());
-
+            SafeHtmlBuilder status = new SafeHtmlBuilder();
+            PreviewState.error(status, "No running server");
+            return PREVIEWS.noReferenceServer(assignment.getName(), assignment.getServerGroup(), status.toSafeHtml());
         } else {
             return deploymentPreview(deployment);
         }
     }
 
     static SafeHtml deploymentPreview(final Deployment deployment) {
-        String ed = deployment.isEnabled() ? "enabled" : "disabled";
+        SafeHtmlBuilder enabledDisabledBuilder = new SafeHtmlBuilder();
+        if (deployment.isEnabled()) {
+            PreviewState.good(enabledDisabledBuilder, "Deployment is enabled");
+        } else {
+            PreviewState.paused(enabledDisabledBuilder, "Deployment is disabled");
+        }
+
+        SafeHtmlBuilder statusBuilder = new SafeHtmlBuilder();
+        if (deployment.isEnabled()) {
+            switch (deployment.getStatus()) {
+                case OK:
+                    PreviewState.good(statusBuilder, "Status is OK");
+                    break;
+                case FAILED:
+                    PreviewState.error(statusBuilder, "Status is FAILED");
+                    break;
+                case STOPPED:
+                    PreviewState.info(statusBuilder, "Status is FAILED");
+                    break;
+                case UNDEFINED:
+                    PreviewState.warn(statusBuilder, "Status is FAILED");
+                    break;
+            }
+        } else {
+            statusBuilder.append(SafeHtmlUtils.EMPTY_SAFE_HTML);
+        }
 
         SafeHtmlBuilder details = new SafeHtmlBuilder();
         details.appendHtmlConstant("<h3>").appendEscaped("Details").appendHtmlConstant("</h3>")
@@ -207,11 +239,11 @@ final class Templates {
         }
 
         return deployment.getReferenceServer().isStandalone() ?
-                PREVIEWS.standaloneDeployment(deployment.getName(), ed, deployment.getStatus().name(),
-                        details.toSafeHtml()) :
-                PREVIEWS.domainDeployment(deployment.getName(), ed, deployment.getStatus().name(),
-                        deployment.getReferenceServer().getHost(), deployment.getReferenceServer().getServer(),
-                        details.toSafeHtml());
+                PREVIEWS.standaloneDeployment(deployment.getName(), enabledDisabledBuilder.toSafeHtml(),
+                        statusBuilder.toSafeHtml(), details.toSafeHtml()) :
+                PREVIEWS.domainDeployment(deployment.getName(), deployment.getReferenceServer().getHost(),
+                        deployment.getReferenceServer().getServer(), enabledDisabledBuilder.toSafeHtml(),
+                        statusBuilder.toSafeHtml(), details.toSafeHtml());
     }
 
     static SafeHtml subdeploymentPreview(final Subdeployment subdeployment) {
