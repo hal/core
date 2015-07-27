@@ -62,7 +62,8 @@ public class Deployment extends Content {
 
         if (node.hasDefined("subsystem")) {
             parseSubsystems(node, subsystems);
-        } else if (node.hasDefined("subdeployment")) {
+        }
+        if (node.hasDefined("subdeployment")) {
             List<Property> properties = node.get("subdeployment").asPropertyList();
             for (Property property : properties) {
                 Subdeployment subdeployment = new Subdeployment(property.getName(), property.getValue());
