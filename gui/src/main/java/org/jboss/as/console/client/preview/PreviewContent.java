@@ -15,8 +15,20 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("access_control_empty.html")
     ExternalTextResource access_control_empty();
 
+    @Source("assignment.html")
+    ExternalTextResource assignment();
+
     @Source("deployments_empty.html")
     ExternalTextResource deployments_empty();
+
+    @Source("interfaces.html")
+    ExternalTextResource interfaces();
+
+    @Source("membership.html")
+    ExternalTextResource membership();
+
+    @Source("paths.html")
+    ExternalTextResource paths();
 
     @Source("profiles_empty.html")
     ExternalTextResource profiles_empty();
@@ -27,20 +39,14 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("profiles_profile.html")
     ExternalTextResource profiles_profile();
 
+    @Source("properties.html")
+    ExternalTextResource properties();
+
     @Source("runtime_empty.html")
     ExternalTextResource runtime_empty();
 
-    @Source("interfaces.html")
-    ExternalTextResource interfaces();
-
     @Source("sockets.html")
     ExternalTextResource sockets();
-
-    @Source("paths.html")
-    ExternalTextResource paths();
-
-    @Source("properties.html")
-    ExternalTextResource properties();
 
     @Source("users.html")
     ExternalTextResource users();

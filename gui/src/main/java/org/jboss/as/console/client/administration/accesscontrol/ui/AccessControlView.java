@@ -139,8 +139,8 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(roleColumn.getSelectedItem(), true)))
         );
-        memberAggregationColumn = new AggregationColumn("Membership", columnManager, memberColumn, memberColumnWidget,
-                NameTokens.AccessControlFinder);
+        memberAggregationColumn = new AggregationColumn("Membership", contentFactory, PREVIEW_CONTENT.membership(),
+                columnManager, memberColumn, memberColumnWidget, NameTokens.AccessControlFinder);
         memberAggregationColumnWidget = memberAggregationColumn.asWidget();
         memberAggregationColumn.updateFrom(memberAggregationItems);
 
@@ -163,8 +163,8 @@ public class AccessControlView extends SuspendableViewImpl implements AccessCont
                                 .immutableSortedCopy(
                                         accessControlStore.getAssignments(selectedPrincipal(), true)))
         );
-        assignmentAggregationColumn = new AggregationColumn("Assignment", columnManager, assignmentColumn,
-                assignmentColumnWidget, NameTokens.AccessControlFinder);
+        assignmentAggregationColumn = new AggregationColumn("Assignment", contentFactory, PREVIEW_CONTENT.assignment(),
+                columnManager, assignmentColumn, assignmentColumnWidget, NameTokens.AccessControlFinder);
         assignmentAggregationColumnWidget = assignmentAggregationColumn.asWidget();
         assignmentAggregationColumn.updateFrom(assignmentAggregationItems);
 

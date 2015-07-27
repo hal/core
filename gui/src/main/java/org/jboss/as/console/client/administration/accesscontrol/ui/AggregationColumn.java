@@ -21,10 +21,13 @@
  */
 package org.jboss.as.console.client.administration.accesscontrol.ui;
 
+import com.google.gwt.resources.client.ExternalTextResource;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ProvidesKey;
 import org.jboss.as.console.client.administration.accesscontrol.store.Assignment;
+import org.jboss.as.console.client.preview.PreviewContent;
+import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 
@@ -35,9 +38,13 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
  */
 public class AggregationColumn extends FinderColumn<AggregationItem> {
 
+    static final PreviewContent PREVIEW_CONTENT = PreviewContent.INSTANCE;
+
     private Widget widget;
 
     public AggregationColumn(final String title,
+            final PreviewContentFactory contentFactory,
+            final ExternalTextResource textResource,
             final ColumnManager columnManager,
             final FinderColumn<Assignment> nextColumn,
             final Widget nextColumnWidget, String token) {
@@ -66,6 +73,8 @@ public class AggregationColumn extends FinderColumn<AggregationItem> {
                         return item.isInclude();
                     }
                 }, token);
+
+        setPreviewFactory((data, callback) -> contentFactory.createContent(textResource, callback));
 
         addSelectionChangeHandler(event -> {
             columnManager.reduceColumnsTo(3);

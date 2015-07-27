@@ -85,9 +85,6 @@ final class Templates {
         @Template("<div class='preview-content'><h2>{0}</h2><p>{1}</p>{2}</div>")
         SafeHtml scopedRole(String name, String baseAndScope, SafeHtml members);
 
-        @Template("<div class='preview-content'><h2>{0}</h2><p>This is a principal assignment...</p></div>")
-        SafeHtml assignment(String role);
-
         @Template("<div class='preview-content'><h2>{0}</h2>{1}</div>")
         SafeHtml member(String principal, SafeHtml details);
     }
