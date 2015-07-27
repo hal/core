@@ -59,18 +59,18 @@ final class Templates {
     interface Previews extends SafeHtmlTemplates {
 
         @Template("<div class='preview-content'><h2>Content</h2>" +
-                "<p>The content <code>{0}</code> is assigned to the following server groups:</p>{1}</div>")
+                "<p>The content '{0}' is assigned to the following server groups:</p>{1}</div>")
         SafeHtml content(String name, SafeHtml details);
 
         @Template("<div class='preview-content'><h2>Content</h2>" +
-                "<p>The content <code>{0}</code> is not assigned to a server group.</div>")
+                "<p>The content '{0}' is not assigned to a server group.</div>")
         SafeHtml unassignedContent(String name);
 
         @Template("<div class='preview-content'><h2>Server Group</h2>{0}</div>")
         SafeHtml serverGroup(SafeHtml details);
 
         @Template("<div class='preview-content'><h2>{0}</h2>" +
-                "<p>There's no server running in server group <code>{1}</code>.</p>" +
+                "<p>There's no server running in server group '{1}'.</p>" +
                 "{2}" +
                 "</div>")
         SafeHtml noReferenceServer(String name, String serverGroup, SafeHtml status);
