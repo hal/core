@@ -45,6 +45,7 @@ import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.RequiredResources;
@@ -70,7 +71,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  *
  * @author Heiko Braun
  */
-public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomainFinder.MyProxy> {
+public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomainFinder.MyProxy> implements PreviewEvent.Handler {
 
     private RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
@@ -121,9 +122,16 @@ public class SecDomainFinder extends Presenter<SecDomainFinder.MyView, SecDomain
     }
 
     @Override
+    public void onPreview(PreviewEvent event) {
+        if(isVisible())
+            getView().setPreview(event.getHtml());
+    }
+
+    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(PreviewEvent.TYPE,this);
     }
 
     @Override

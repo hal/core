@@ -44,6 +44,7 @@ import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
 import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
@@ -65,7 +66,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Harald Pehl
  */
 public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFinder.MyProxy>
-        implements MessagingAddress {
+        implements MessagingAddress, PreviewEvent.Handler {
 
     // ------------------------------------------------------ proxy & view
     // @formatter:off
@@ -115,9 +116,16 @@ public class ActivemqFinder extends Presenter<ActivemqFinder.MyView, ActivemqFin
     }
 
     @Override
+    public void onPreview(PreviewEvent event) {
+        if(isVisible())
+            getView().setPreview(event.getHtml());
+    }
+
+    @Override
     protected void onBind() {
         super.onBind();
         getView().setPresenter(this);
+        getEventBus().addHandler(PreviewEvent.TYPE, this);
     }
 
     @Override

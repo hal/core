@@ -88,7 +88,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
     ExternalTextResource content_repository();
 
     @Source("content/datasources.html")
-    ExternalTextResource datasources();
+    ExternalTextResource ds_finder();
 
     @Source("content/mail_sessions.html")
     ExternalTextResource mail_sessions();
@@ -121,7 +121,7 @@ public interface PreviewContent extends ClientBundleWithLookup {
     ExternalTextResource mail();
 
     @Source("content/resource_adapters.html")
-    ExternalTextResource resource_adapters();
+    ExternalTextResource ra_finder();
 
     @Source("content/security.html")
     ExternalTextResource security();
@@ -146,4 +146,22 @@ public interface PreviewContent extends ClientBundleWithLookup {
 
     @Source("content/unassigned_content.html")
     ExternalTextResource unassigned_content();
+
+    @Source("content/iiop_openjdk.html")
+    ExternalTextResource iiop_openjdk();
+
+    @Source("content/remoting.html")
+    ExternalTextResource remoting();
+
+    @Source("content/io_subsystem.html")
+    ExternalTextResource io();
+
+    @Source("content/jgroups.html")
+    ExternalTextResource jgroups();
+
+    @Source("content/messaging_activemq.html")
+    ExternalTextResource activemq();
+
+    @Source("content/undertow_subsystem.html")
+    ExternalTextResource undertow_subsystem();
 }

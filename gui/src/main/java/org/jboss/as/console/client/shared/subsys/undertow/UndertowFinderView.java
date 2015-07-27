@@ -1,9 +1,11 @@
 package org.jboss.as.console.client.shared.subsys.undertow;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.SplitLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -37,7 +39,7 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
 
     private ColumnManager columnManager;
     private Widget linksCol;
-    
+
     interface Template extends SafeHtmlTemplates {
         @Template("<div class=\"{0}\">{1}</div>")
         SafeHtml item(String cssClass, String title);
@@ -58,7 +60,13 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
 
     @Override
     public void setPreview(SafeHtml html) {
-
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                previewCanvas.clear();
+                previewCanvas.add(new HTML(html));
+            }
+        });
     }
 
     @Override
@@ -130,11 +138,11 @@ public class UndertowFinderView extends SuspendableViewImpl implements UndertowF
             }
         }, false));
         settings.add(new FinderItem("HTTP", new Command() {
-                    @Override
-                    public void execute() {
-                        placeManager.revealRelativePlace(new PlaceRequest(NameTokens.HttpPresenter));
-                    }
-                }, false));
+            @Override
+            public void execute() {
+                placeManager.revealRelativePlace(new PlaceRequest(NameTokens.HttpPresenter));
+            }
+        }, false));
 
         links.updateFrom(settings);
         return layout;

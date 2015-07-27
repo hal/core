@@ -18,6 +18,7 @@ import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
+import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
@@ -58,6 +59,7 @@ public class ActivemqFinderView extends SuspendableViewImpl implements ActivemqF
     public void updateFrom(List<Property> list) {
         mailSessionColumn.updateFrom(list);
     }
+
 
     @Override
     @SuppressWarnings("unchecked")
