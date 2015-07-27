@@ -48,6 +48,7 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
 import org.jboss.as.console.client.shared.BeanFactory;
+import org.jboss.as.console.client.shared.flow.FunctionCallback;
 import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.shared.state.PerspectivePresenter;
 import org.jboss.as.console.client.v3.deployment.wizard.AddContentWizard;
@@ -436,23 +437,21 @@ public class DomainDeploymentFinder
                 .add("deployment", assignment.getName());
         Operation op = new Operation.Builder(operation, address).build();
 
-        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
-            @Override
-            public void onFailure(final Throwable caught) {
-                Console.error("Unable to modify deployment.", caught.getMessage());
-            }
+        // wrap the operation in a single flow to show the progress indicator in the footer
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).single(new FunctionContext(),
+                control -> dispatcher.execute(new DMRAction(op), new FunctionCallback(control)),
+                new Outcome<FunctionContext>() {
+                    @Override
+                    public void onFailure(final FunctionContext context) {
+                        Console.error("Unable to modify deployment.", context.getErrorMessage());
+                    }
 
-            @Override
-            public void onSuccess(final DMRResponse response) {
-                ModelNode result = response.get();
-                if (result.isFailure()) {
-                    Console.error("Unable to modify deployment.", result.getFailureDescription());
-                } else {
-                    Console.info(successMessage);
-                    loadAssignments(serverGroup);
-                }
-            }
-        });
+                    @Override
+                    public void onSuccess(final FunctionContext context) {
+                        Console.info(successMessage);
+                        loadAssignments(serverGroup);
+                    }
+                });
     }
 
     public void loadAssignments(final String serverGroup) {
