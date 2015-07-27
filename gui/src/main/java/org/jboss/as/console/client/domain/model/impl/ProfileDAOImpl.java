@@ -25,8 +25,8 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.ProfileDAO;
 import org.jboss.as.console.client.domain.model.ProfileRecord;
 import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.dmr.client.ModelDescriptionConstants;
 import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
@@ -36,8 +36,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
-import static org.jboss.dmr.client.ModelDescriptionConstants.RESULT;
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Heiko Braun
@@ -59,11 +58,9 @@ public class ProfileDAOImpl implements ProfileDAO {
     public void loadProfiles(final AsyncCallback<List<ProfileRecord>> callback) {
 
         ModelNode operation = new ModelNode();
-        operation.get(OP).set("query");
-        operation.get("select").add("name");
-        operation.get("select").add("includes");
-
-        operation.get(ModelDescriptionConstants.ADDRESS).add("profile", "*");
+        operation.get(OP).set(READ_CHILDREN_RESOURCES_OPERATION);
+        operation.get(CHILD_TYPE).set("profile");
+        operation.get(ADDRESS).setEmptyList();
 
         dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
             @Override
@@ -82,14 +79,15 @@ public class ProfileDAOImpl implements ProfileDAO {
                 else
                 {
 
-                    List<ModelNode> payload = response.get("result").asList();
+                    List<Property> payload = response.get("result").asPropertyList();
 
                     List<ProfileRecord> records = new ArrayList<ProfileRecord>(payload.size());
-                    for(ModelNode item : payload)
+                    for(Property item : payload)
                     {
-                        ModelNode atts = item.get(RESULT);
+
+                        ModelNode atts = item.getValue();
                         ProfileRecord record = factory.profile().as();
-                        record.setName(atts.get("name").asString());
+                        record.setName(item.getName());
 
                         if(atts.hasDefined("includes"))
                         {
