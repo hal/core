@@ -38,6 +38,7 @@ public class HttpsListenerView {
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
     private List<Property> data;
+    private SingleSelectionModel<Property> selectionModel;
 
     public HttpsListenerView(HttpPresenter presenter) {
 
@@ -127,7 +128,7 @@ public class HttpsListenerView {
                 .addDetail("Attributes", formPanel);
 
 
-        final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
+        selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -152,6 +153,7 @@ public class HttpsListenerView {
     }
 
     public void setData(List<Property> data) {
+        selectionModel.clear();
         dataProvider.setList(data);
         table.selectDefaultEntity();
     }
