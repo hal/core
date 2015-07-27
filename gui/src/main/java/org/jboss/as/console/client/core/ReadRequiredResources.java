@@ -194,7 +194,7 @@ public class ReadRequiredResources implements Function<RequiredResourcesContext>
                                 Log.error("Failed to process response: "+stepResult.toString());
 
                                 control.getContext().setError(
-                                        new RuntimeException("Unexpected response format")
+                                        new RuntimeException("Unexpected response format at address: "+in.requiredResource)
                                 );
                                 control.abort();
                             }
