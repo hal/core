@@ -89,8 +89,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     @NameToken(NameTokens.CacheFinderPresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=infinispan",
-            "{selected.profile}/subsystem=infinispan/cache-container=*",
-            "{selected.profile}/subsystem=infinispan/cache-container=*/transport=TRANSPORT"
+            "{selected.profile}/subsystem=infinispan/cache-container=*"
     }, recursive = false)
     @SearchIndex(keywords = {
             "cache", "ejb", "hibernate", "web", "transport"
