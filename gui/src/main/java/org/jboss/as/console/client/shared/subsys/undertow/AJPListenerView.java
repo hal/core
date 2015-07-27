@@ -38,6 +38,7 @@ public class AJPListenerView {
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
     private List<Property> data;
+    private SingleSelectionModel<Property> selectionModel;
 
     public AJPListenerView(HttpPresenter presenter) {
 
@@ -128,7 +129,7 @@ public class AJPListenerView {
                 .addDetail("Attributes", formPanel);
 
 
-        final SingleSelectionModel<Property> selectionModel = new SingleSelectionModel<Property>();
+        selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -153,6 +154,7 @@ public class AJPListenerView {
     }
 
     public void setData(List<Property> data) {
+        selectionModel.clear();
         dataProvider.setList(data);
         table.selectDefaultEntity();
     }
