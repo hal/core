@@ -131,7 +131,7 @@ public interface CacheContainer extends NamedEntity {
     @Binding(detypedName="transport/TRANSPORT/lock-timeout")
     @FormItem(defaultValue = "60000",
             label="Lock Timeout (ms)",
-            required=true,
+            required=false,
             formItemTypeForEdit="NUMBER_BOX",
             formItemTypeForAdd="NUMBER_BOX",
             localTabName ="subsys_infinispan_transport")
