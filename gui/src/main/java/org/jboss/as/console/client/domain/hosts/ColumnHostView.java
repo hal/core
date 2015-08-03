@@ -19,7 +19,6 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.ServerGroupRecord;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.model.impl.LifecycleOperation;
@@ -42,9 +41,7 @@ import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -75,7 +72,7 @@ public class ColumnHostView extends SuspendableViewImpl
     private static final Template TEMPLATE = GWT.create(Template.class);
 
     interface StatusTemplate extends SafeHtmlTemplates {
-        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>&nbsp;{2}</span></div>")
+        @Template("<div class=\"{0}\"><i class='{1}' style='display:none'></i>{2}</span></div>")
         SafeHtml item(String cssClass, String icon, String title);
     }
 
