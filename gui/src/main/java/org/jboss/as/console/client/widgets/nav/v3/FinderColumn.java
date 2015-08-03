@@ -580,6 +580,7 @@ public class FinderColumn<T>  {
 
         layout.addStyleName("navigation-column");
         layout.getElement().setId(id);   // RBAC
+        layout.getElement().setAttribute("data-column", title);
 
         if(!plain) {     // including the header
 
