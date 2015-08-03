@@ -291,6 +291,10 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                                         presenter.removeContent(item, true);
                                     }
                                 }), Operation));
+
+        unassignedColumn.setFilter((item, token) ->
+                item.getName().contains(token) || item.getRuntimeName().contains(token));
+
         unassignedColumnWidget = unassignedColumn.asWidget();
 
 
