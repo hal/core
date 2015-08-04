@@ -56,7 +56,9 @@ public class DataSourceStatementEditor<T extends DataSource> extends FormEditor<
         ComboBoxItem trackStatements = new ComboBoxItem("trackStatements", "Track Statements");
         trackStatements.setValueMap(new String[]{"true", "false", "nowarn"});
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
+
         NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
+        statementCacheSize.setRequired(false);
 
         getForm().setFields(trackStatements, shareStatements, statementCacheSize);
 

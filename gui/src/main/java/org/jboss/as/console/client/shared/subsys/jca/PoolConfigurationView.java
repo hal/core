@@ -43,9 +43,16 @@ public class PoolConfigurationView {
     Widget asWidget() {
 
         NumberBoxItem minCon = new NumberBoxItem("minPoolSize", "Min Pool Size");
+        minCon.setRequired(false);
+
         NumberBoxItem initialCon = new NumberBoxItem("initialPoolSize", "Initial Pool Size");
+        initialCon.setRequired(false);
+
         NumberBoxItem maxCon = new NumberBoxItem("maxPoolSize", "Max Pool Size");
+        maxCon.setRequired(false);
+
         CheckBoxItem strictMin = new CheckBoxItem("poolStrictMin", "Strict Minimum");
+
         CheckBoxItem prefill = new CheckBoxItem("poolPrefill", "Prefill");
 
         ComboBoxItem flushStrategy = new ComboBoxItem("flushStrategy", "Flush Strategy");
