@@ -38,7 +38,11 @@ public class PoolConfigurationView {
     Widget asWidget() {
 
         final NumberBoxItem maxCon = new NumberBoxItem("maxPoolSize", "Max Pool Size");
+        maxCon.setRequired(false);
+
         final NumberBoxItem minCon = new NumberBoxItem("minPoolSize", "Min Pool Size");
+        minCon.setRequired(false);
+
         CheckBoxItem strictMin = new CheckBoxItem("poolStrictMin", "Strict Minimum");
         CheckBoxItem prefill = new CheckBoxItem("poolPrefill", "Prefill enabled");
 

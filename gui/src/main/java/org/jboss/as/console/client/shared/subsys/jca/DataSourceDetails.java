@@ -87,7 +87,9 @@ public class DataSourceDetails {
         TextBoxItem driverClassItem = new TextBoxItem("driverClass", "Driver Class");
 
         CheckBoxItem shareStatements = new CheckBoxItem("sharePreparedStatements", "Share Prepared Statements");
+
         NumberBoxItem statementCacheSize = new NumberBoxItem("prepareStatementCacheSize", "Statement Cache Size");
+        statementCacheSize.setRequired(false);
 
         form.setFields(nameItem, jndiItem, enabledFlagItem, stats, dsClassItem, driverItem,driverClassItem, shareStatements, statementCacheSize);
 
