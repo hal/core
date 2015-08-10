@@ -69,17 +69,16 @@ public class CommonCacheAttributes {
     }
 
     private void initResourceModel(AddressTemplate cacheType) {
-        LOCKING = cacheType.append("locking=LOCKING");
-        EVICTION = cacheType.append("eviction=EVICTION");
-        EXPIRATION = cacheType.append("expiration=EXPIRATION");
-        STORE = cacheType.append("store=STORE");
-        FILE_STORE = cacheType.append("file-store=FILE_STORE");
-        REMOTE_STORE = cacheType.append("remote-store=REMOTE_STORE");
-        STRING_STORE = cacheType.append("string-keyed-jdbc-store=STRING_KEYED_JDBC_STORE");
-        MIXED_STORE = cacheType.append("mixed-keyed-jdbc-store=MIXED_KEYED_JDBC_STORE");
-        BINARY_STORE = cacheType.append("binary-keyed-jdbc-store=BINARY_KEYED_JDBC_STORE");
-        TRANSACTION = cacheType.append("transaction=TRANSACTION");
-
+        LOCKING = cacheType.append("component=locking");
+        EVICTION = cacheType.append("component=eviction");
+        EXPIRATION = cacheType.append("component=expiration");
+        STORE = cacheType.append("store=custom");
+        FILE_STORE = cacheType.append("store=file");
+        REMOTE_STORE = cacheType.append("store=remote");
+        STRING_STORE = cacheType.append("store=string-jdbc");
+        MIXED_STORE = cacheType.append("store=mixed-jdbc");
+        BINARY_STORE = cacheType.append("store=binary-jdbc");
+        TRANSACTION = cacheType.append("component=transaction");
 
         FORMS.add(LOCKING);
         FORMS.add(EVICTION);
@@ -220,25 +219,28 @@ public class CommonCacheAttributes {
         formMapping.get(cacheType).getForm().edit(payload);
 
         // access to singleton subresources
-        if(payload.hasDefined("locking"))
-            formMapping.get(LOCKING).getForm().edit(payload.get("locking").get("LOCKING"));
-        if(payload.hasDefined("eviction"))
-            formMapping.get(EVICTION).getForm().edit(payload.get("eviction").get("EVICTION"));
-        if(payload.hasDefined("expiration"))
-            formMapping.get(EXPIRATION).getForm().edit(payload.get("expiration").get("EXPIRATION"));
-        if(payload.hasDefined("transaction"))
-            formMapping.get(TRANSACTION).getForm().edit(payload.get("transaction").get("TRANSACTION"));
-        if(payload.hasDefined("store"))
-            formMapping.get(STORE).getForm().edit(payload.get("store").get("STORE"));
-        if(payload.hasDefined("file-store"))
-            formMapping.get(FILE_STORE).getForm().edit(payload.get("file-store").get("FILE_STORE"));
-        if(payload.hasDefined("string-keyed-jdbc-store"))
-            formMapping.get(STRING_STORE).getForm().edit(payload.get("string-keyed-jdbc-store").get("STRING_KEYED_JDBC_STORE"));
-        if(payload.hasDefined("mixed-keyed-jdbc-store"))
-            formMapping.get(MIXED_STORE).getForm().edit(payload.get("mixed-keyed-jdbc-store").get("MIXED_KEYED_JDBC_STORE"));
-        if(payload.hasDefined("binary-keyed-jdbc-store"))
-            formMapping.get(BINARY_STORE).getForm().edit(payload.get("binary-keyed-jdbc-store").get("BINARY_KEYED_JDBC_STORE"));
+        if(hasDefined(payload, "component", "locking"))
+            formMapping.get(LOCKING).getForm().edit(payload.get("component").get("locking"));
+        if(hasDefined(payload, "component", "eviction"))
+            formMapping.get(EVICTION).getForm().edit(payload.get("component").get("eviction"));
+        if(hasDefined(payload, "component", "expiration"))
+            formMapping.get(EXPIRATION).getForm().edit(payload.get("component").get("expiration"));
+        if(hasDefined(payload, "component", "transaction"))
+            formMapping.get(TRANSACTION).getForm().edit(payload.get("component").get("transaction"));
+        if(hasDefined(payload, "store", "custom"))
+            formMapping.get(STORE).getForm().edit(payload.get("store").get("custom"));
+        if(hasDefined(payload, "store", "file"))
+            formMapping.get(FILE_STORE).getForm().edit(payload.get("store").get("file"));
+        if(hasDefined(payload, "store", "string-jdbc"))
+            formMapping.get(STRING_STORE).getForm().edit(payload.get("store").get("string-jdbc"));
+        if(hasDefined(payload, "store", "mixed-jdbc"))
+            formMapping.get(MIXED_STORE).getForm().edit(payload.get("store").get("mixed-jdbc"));
+        if(hasDefined(payload, "store", "binary-jdbc"))
+            formMapping.get(BINARY_STORE).getForm().edit(payload.get("store").get("binary-jdbc"));
+    }
 
+    private boolean hasDefined(ModelNode payload, String key, String value) {
+        return payload.hasDefined(key) && payload.get(key).hasDefined(value);
     }
 
     private void resetForms() {
