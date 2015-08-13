@@ -39,6 +39,7 @@ import org.jboss.as.console.client.widgets.nav.v3.FinderItem;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ValueProvider;
+import org.jboss.ballroom.client.widgets.window.Feedback;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -308,22 +309,21 @@ public class ColumnProfileView extends SuspendableViewImpl
                     }
                 }, MenuDelegate.Role.Operation)
 
-                /*, new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
+                , new MenuDelegate<ProfileRecord>("Remove", new ContextualCommand<ProfileRecord>() {
                     @Override
                     public void executeOn(ProfileRecord profileRecord) {
 
-                        Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName()+"?", new Feedback.ConfirmationHandler() {
+                        Feedback.confirm("Remove Profile", "Really remove profile " + profileRecord.getName() + "?", new Feedback.ConfirmationHandler() {
                             @Override
                             public void onConfirmation(boolean isConfirmed) {
-                                if(isConfirmed)
-                                {
+                                if (isConfirmed) {
                                     presenter.onRemoveProfile(profileRecord);
                                 }
                             }
                         });
 
                     }
-                }, MenuDelegate.Role.Operation)*/
+                }, MenuDelegate.Role.Operation)
         );
         profileColWidget = profiles.asWidget();
 
