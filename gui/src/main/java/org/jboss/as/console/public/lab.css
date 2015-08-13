@@ -991,7 +991,6 @@ h3,
 
 /*app layout improvements*/
 #PagedView .subpage .rhs-content-panel {
-    margin: 0!important;
     padding-left:15px;
 }
 
