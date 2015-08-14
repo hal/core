@@ -115,7 +115,7 @@ public class FinderColumn<T>  {
 
         selectionModel = new SingleSelectionModel<T>(keyProvider);
 
-        cellTable = new CellTable<T>(200, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
+        cellTable = new CellTable<T>(500, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
         cellTable.setStyleName("navigation-cell-table");
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
