@@ -12,6 +12,7 @@ public interface RemoteSocketBinding {
     String getName();
     void setName(String name);
 
+    @Binding(expr = true)
     int getPort();
     void setPort(int port);
 
