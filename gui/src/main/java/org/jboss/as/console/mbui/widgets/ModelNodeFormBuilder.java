@@ -173,7 +173,7 @@ public class ModelNodeFormBuilder {
         if (requiredOnly) {
             for (Property attr : attributeDescriptions) {
                 ModelNode value = attr.getValue();
-                boolean required = value.hasDefined("nillable") ? !value.get("nillable").asBoolean() : false;
+                boolean required = isRequired(value);
                 boolean readOnly = value.get("access-type").asString().equals("read-only");
                 if (required & !readOnly) {
                     hasRequired = true;
@@ -239,7 +239,7 @@ public class ModelNodeFormBuilder {
                         attrDesc.get("access-type").asString().equals("read-only") : false;
 
                 // nillable
-                boolean isRequired = attrDesc.hasDefined("nillable") ? !attrDesc.get("nillable").asBoolean() : false;
+                boolean isRequired = isRequired(attrDesc);
 
                 // createMode flag
                 if ((createMode && readOnly))
@@ -417,6 +417,16 @@ public class ModelNodeFormBuilder {
         FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
         formAssets.setUnsupportedTypes(unsupportedTypes);
         return formAssets;
+    }
+
+    private boolean isRequired(ModelNode attributeDescription) {
+        boolean required = attributeDescription.hasDefined("nillable") && !attributeDescription.get("nillable")
+                .asBoolean();
+        if (attributeDescription.hasDefined("alternatives") &&
+                !attributeDescription.get("alternatives").asList().isEmpty()) {
+            required = false;
+        }
+        return required;
     }
 
     public ModelNodeFormBuilder setRequiredOnly(boolean requiredOnly) {

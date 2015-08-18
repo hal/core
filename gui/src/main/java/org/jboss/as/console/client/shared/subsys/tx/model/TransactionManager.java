@@ -54,7 +54,6 @@ public interface TransactionManager {
     boolean isProcessIdUUID();
     void setProcessIdUUID(boolean b);
 
-
     @Binding(detypedName = "recovery-listener", expr=true)
     boolean isRecoveryListener();
     void setRecoveryListener(boolean b);
@@ -74,6 +73,10 @@ public interface TransactionManager {
     @Binding(detypedName = "use-hornetq-store", expr=true)
     boolean isHornetqStore();
     void setHornetqStore(boolean b);
+
+    @Binding(detypedName = "use-jdbc-store", expr=true)
+    boolean isJdbcStore();
+    void setJdbcStore(boolean b);
 
     // Metrics
 
