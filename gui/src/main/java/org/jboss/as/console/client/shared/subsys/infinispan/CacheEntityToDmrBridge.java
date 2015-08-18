@@ -28,6 +28,7 @@ import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridgeImpl;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
@@ -245,13 +246,15 @@ public class CacheEntityToDmrBridge<T extends LocalCache> extends EntityToDmrBri
             writeSingletonAttributeStep.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
             writeSingletonAttributeStep.get(NAME).set(attributeName(javaName));
 
-            if (this.formMetaData.findAttribute(javaName).getListType() != null
-                    && (changedValues.get(javaName) instanceof List)) {
-                for (PropertyRecord prop : (List<PropertyRecord>)changedValues.get(javaName)) {
-                    writeSingletonAttributeStep.get(VALUE).add(prop.getKey(), prop.getValue());
+            if (changedValues.get(javaName) != FormItem.VALUE_SEMANTICS.UNDEFINED) {
+                if (this.formMetaData.findAttribute(javaName).getListType() != null
+                        && (changedValues.get(javaName) instanceof List)) {
+                    for (PropertyRecord prop : (List<PropertyRecord>) changedValues.get(javaName)) {
+                        writeSingletonAttributeStep.get(VALUE).add(prop.getKey(), prop.getValue());
+                    }
+                } else {
+                    writeSingletonAttributeStep.get(VALUE).set(changedValues.get(javaName).toString());
                 }
-            } else {
-                writeSingletonAttributeStep.get(VALUE).set(changedValues.get(javaName).toString());
             }
             stepsList.add(writeSingletonAttributeStep);
         }

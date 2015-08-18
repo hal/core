@@ -25,6 +25,7 @@ import org.jboss.as.console.client.shared.viewframework.EntityToDmrBridgeImpl;
 import org.jboss.as.console.client.shared.viewframework.FrameworkView;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.client.widgets.forms.PropertyBinding;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 
@@ -140,7 +141,10 @@ public class CacheContainerEntityToDmrBridge extends EntityToDmrBridgeImpl<Cache
             String detypedName = binding.getDetypedName();
             ModelNode writeTransportAttributeStep = makeTransportOperation(WRITE_ATTRIBUTE_OPERATION, cacheContainer);
             writeTransportAttributeStep.get(NAME).set(detypedName.substring(detypedName.lastIndexOf("/") + 1));
-            writeTransportAttributeStep.get(VALUE).set(changedValues.get(javaName).toString());
+
+            if (changedValues.get(javaName) != FormItem.VALUE_SEMANTICS.UNDEFINED)
+                writeTransportAttributeStep.get(VALUE).set(changedValues.get(javaName).toString());
+
             stepsList.add(writeTransportAttributeStep);
         }
     }

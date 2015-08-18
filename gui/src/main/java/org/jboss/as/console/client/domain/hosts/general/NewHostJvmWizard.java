@@ -56,8 +56,8 @@ public class NewHostJvmWizard {
         final Form<Jvm> form = new Form<Jvm>(Jvm.class);
 
         TextBoxItem nameItem = new TextBoxItem("name", Console.CONSTANTS.common_label_name());
-        HeapBoxItem heapItem = new HeapBoxItem("heapSize", "Heap Size");
-        HeapBoxItem maxHeapItem = new HeapBoxItem("maxHeapSize", "Max Heap Size");
+        HeapBoxItem heapItem = new HeapBoxItem("heapSize", "Heap Size", false);
+        HeapBoxItem maxHeapItem = new HeapBoxItem("maxHeapSize", "Max Heap Size", false);
         HeapBoxItem permgen = new HeapBoxItem("permgen", "Permgen Size", false);
         HeapBoxItem maxPermgen = new HeapBoxItem("maxPermgen", "Max Permgen Size", false);
 
