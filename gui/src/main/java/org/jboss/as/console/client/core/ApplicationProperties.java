@@ -27,8 +27,7 @@ public interface ApplicationProperties {
     String INITIAL_TOKEN = "initial_token";
     String STANDALONE = "standalone_usage";
     String DOMAIN_API = "domain-api";
-    String DEPLOYMENT_API = "add-content";
-    String PATCH_API = "management-upload";
+    String UPLOAD_API = "upload-api";
     String LOGOUT_API = "logout";
     String CSP_API = "csp";
 

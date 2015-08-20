@@ -148,8 +148,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
 
     private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload),
-                new DeploymentFunctions.AddOrReplaceContent(bootstrapContext, false),
+                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload, false),
                 new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
                         context.upload.isEnableAfterDeployment()));
     }
@@ -158,7 +157,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
         final FunctionContext functionContext = new FunctionContext();
         functionContext.push(context.existingContent);
 
-        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(functionContext, outcome,
+        new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).single(functionContext, outcome,
                 new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
                         context.enableExistingContent));
     }

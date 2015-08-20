@@ -227,7 +227,6 @@ public class DomainDeploymentFinder
 
     public void loadContentRepository() {
         new Async<FunctionContext>().single(new FunctionContext(),
-                new DeploymentFunctions.LoadContentAssignments(dispatcher),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -239,12 +238,13 @@ public class DomainDeploymentFinder
                         List<Content> contentRepository = context.pop();
                         getView().updateContentRepository(contentRepository);
                     }
-                });
+                },
+                new DeploymentFunctions.LoadContentAssignments(dispatcher)
+        );
     }
 
     public void loadUnassignedContent() {
         new Async<FunctionContext>().single(new FunctionContext(),
-                new DeploymentFunctions.LoadContentAssignments(dispatcher),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -262,7 +262,9 @@ public class DomainDeploymentFinder
                         }
                         getView().updateUnassigned(unassigned);
                     }
-                });
+                },
+                new DeploymentFunctions.LoadContentAssignments(dispatcher)
+        );
     }
 
     public void loadServerGroups() {
@@ -384,7 +386,6 @@ public class DomainDeploymentFinder
 
     public void launchAddAssignmentWizard(final String serverGroup) {
         new Async<FunctionContext>().single(new FunctionContext(),
-                new DeploymentFunctions.LoadContentAssignments(dispatcher, serverGroup),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -402,7 +403,9 @@ public class DomainDeploymentFinder
                         }
                         addDeploymentWizard.open(unassigned, serverGroup);
                     }
-                });
+                },
+                new DeploymentFunctions.LoadContentAssignments(dispatcher, serverGroup)
+        );
     }
 
     public void launchReplaceAssignmentWizard(final Assignment assignment) {
@@ -439,7 +442,6 @@ public class DomainDeploymentFinder
 
         // wrap the operation in a single flow to show the progress indicator in the footer
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).single(new FunctionContext(),
-                control -> dispatcher.execute(new DMRAction(op), new FunctionCallback(control)),
                 new Outcome<FunctionContext>() {
                     @Override
                     public void onFailure(final FunctionContext context) {
@@ -451,7 +453,9 @@ public class DomainDeploymentFinder
                         Console.info(successMessage);
                         loadAssignments(serverGroup);
                     }
-                });
+                },
+                control -> dispatcher.execute(new DMRAction(op), new FunctionCallback(control))
+        );
     }
 
     public void loadAssignments(final String serverGroup) {

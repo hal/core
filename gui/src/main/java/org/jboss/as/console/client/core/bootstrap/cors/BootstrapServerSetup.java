@@ -152,16 +152,14 @@ public class BootstrapServerSetup {
             localBaseUrl += "/";
         }
         String domainApi = localBaseUrl + "management";
-        String deploymentApi = localBaseUrl + "management/add-content";
+        String uploadApi = localBaseUrl + "management-upload";
         String logoutApi = localBaseUrl + "logout";
-        String patchApi = localBaseUrl + "management-upload";
         String cspApi = localBaseUrl + "console/csp";
 
         System.out.println("Domain API Endpoint: " + domainApi);
         context.setProperty(DOMAIN_API, domainApi);
-        context.setProperty(DEPLOYMENT_API, deploymentApi);
+        context.setProperty(UPLOAD_API, uploadApi);
         context.setProperty(LOGOUT_API, logoutApi);
-        context.setProperty(PATCH_API, patchApi);
         context.setProperty(CSP_API, cspApi);
     }
 

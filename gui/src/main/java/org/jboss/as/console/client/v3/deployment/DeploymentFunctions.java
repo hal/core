@@ -21,15 +21,10 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.FileUpload;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.topology.HostInfo;
 import org.jboss.as.console.client.domain.topology.TopologyFunctions;
@@ -69,37 +64,62 @@ public final class DeploymentFunctions {
     private DeploymentFunctions() {}
 
     /**
-     * Uploads a deployment, sets the deployment hash and pushes the updated {@link UploadBean} instance into
-     * the context.
+     * Uploads and adds a new deployment or uploads and replaces an existing deployment in the content repository.
+     * Expects nothing in the context and pushes a {@link Content} instance into the context.
      */
     public static class UploadContent implements Function<FunctionContext> {
 
         private final UploadForm uploadForm;
         private final FileUpload fileUpload;
         private final UploadBean upload;
+        private final boolean replace;
 
         public UploadContent(final UploadForm uploadForm, final FileUpload fileUpload,
-                final UploadBean upload) {
+                final UploadBean upload, final boolean replace) {
             this.uploadForm = uploadForm;
             this.fileUpload = fileUpload;
             this.upload = upload;
+            this.replace = replace;
         }
 
         @Override
         public void execute(final Control<FunctionContext> control) {
-            uploadForm.addUploadCompleteHandler(event -> {
-                String json = event.getPayload();
+            Operation.Builder builder;
+            if (replace) {
+                builder = new Operation.Builder("full-replace-deployment", ResourceAddress.ROOT)
+                    .param(NAME, upload.getName());
+            } else {
+                builder = new Operation.Builder(ADD, new ResourceAddress().add("deployment", upload.getName()));
+            }
+            builder = builder
+                    .param("runtime-name", upload.getRuntimeName())
+                    .param("enabled", upload.isEnableAfterDeployment());
+            Operation operation = builder.build();
+            operation.get("content").add().get("input-stream-index").set(0);
+            uploadForm.setOperation(operation);
+
+            uploadForm.onUploadComplete(json -> {
                 try {
                     JSONObject response = JSONParser.parseLenient(json).isObject();
-                    JSONObject result = response.get("result").isObject();
-                    String hash = result.get("BYTES_VALUE").isString().stringValue();
-                    upload.setHash(hash);
-                    control.getContext().push(upload);
-                    control.proceed();
+                    JSONString outcome = response.get(OUTCOME).isString();
+                    if (outcome.stringValue().equals(SUCCESS)) {
+                        ModelNode node = new ModelNode();
+                        node.get(NAME).set(upload.getName());
+                        node.get("runtime-name").set(upload.getRuntimeName());
+                        control.getContext().push(new Content(node));
+                        control.proceed();
+                    } else {
+                        control.getContext().setError(new RuntimeException("Failed to upload the deployment."));
+                        control.abort();
+                    }
                 } catch (Exception e) {
                     control.getContext().setError(new RuntimeException("Failed to upload the deployment."));
                     control.abort();
                 }
+            });
+            uploadForm.onUploadFailed(error -> {
+                control.getContext().setError(new RuntimeException(error));
+                control.abort();
             });
             uploadForm.upload(fileUpload);
         }
@@ -107,101 +127,7 @@ public final class DeploymentFunctions {
 
 
     /**
-     * Adds or replaces an uploaded deployment to/in the content repository.
-     * Expects a {@link UploadBean} instance on top of the context stack.
-     * Pushes an {@link Content} instance into the context.
-     */
-    public static class AddOrReplaceContent implements Function<FunctionContext> {
-
-        static final String HEADER_CONTENT_TYPE = "Content-Type";
-        static final String APPLICATION_JSON = "application/json";
-
-        private final BootstrapContext bootstrapContext;
-        private final boolean replace;
-
-        public AddOrReplaceContent(final BootstrapContext bootstrapContext, final boolean replace) {
-            this.bootstrapContext = bootstrapContext;
-            this.replace = replace;
-        }
-
-        @Override
-        public void execute(final Control<FunctionContext> control) {
-            UploadBean upload = control.getContext().pop();
-
-            String requestJSO = replace ? makeReplaceJSO(upload) : makeAddJSO(upload);
-            RequestBuilder rb = new RequestBuilder(RequestBuilder.POST,
-                    bootstrapContext.getProperty(BootstrapContext.DOMAIN_API));
-            rb.setIncludeCredentials(true);
-            rb.setHeader(HEADER_CONTENT_TYPE, APPLICATION_JSON);
-
-            try {
-                rb.sendRequest(requestJSO, new RequestCallback() {
-                    @Override
-                    public void onResponseReceived(Request request, Response response) {
-                        int statusCode = response.getStatusCode();
-                        if (200 != statusCode) {
-                            control.getContext()
-                                    .setError(new RuntimeException("Unable to add upload to the content repository."));
-                            control.abort();
-                        } else {
-                            ModelNode node = new ModelNode();
-                            node.get(NAME).set(upload.getName());
-                            node.get("runtime-name").set(upload.getRuntimeName());
-                            control.getContext().push(new Content(node));
-                            control.proceed();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Request request, Throwable exception) {
-                        control.getContext().setError(
-                                new RuntimeException("Unable to add upload to the content repository."));
-                        control.abort();
-                    }
-                });
-            } catch (RequestException e) {
-                control.getContext().setError(new RuntimeException("Unable to add upload to the content repository."));
-                control.abort();
-            }
-        }
-
-        private String makeAddJSO(UploadBean upload) {
-            //noinspection StringBufferReplaceableByString
-            StringBuilder builder = new StringBuilder();
-            builder.append("{");
-            builder.append("\"address\":[").append("{\"deployment\":\"").append(upload.getName()).append("\"}],");
-            builder.append("\"operation\":\"add\",");
-            builder.append("\"runtime-name\":\"").append(upload.getRuntimeName()).append("\",");
-            builder.append("\"content\":");
-            builder.append("[{\"hash\":{");
-            builder.append("\"BYTES_VALUE\":\"").append(upload.getHash()).append("\"");
-            builder.append("}}],");
-            builder.append("\"name\":\"").append(upload.getName()).append("\",");
-            builder.append("\"enabled\":\"").append(upload.isEnableAfterDeployment()).append("\"");
-            builder.append("}");
-            return builder.toString();
-        }
-
-        private String makeReplaceJSO(UploadBean upload) {
-            //noinspection StringBufferReplaceableByString
-            StringBuilder builder = new StringBuilder();
-            builder.append("{");
-            builder.append("\"operation\":\"full-replace-deployment\",");
-            builder.append("\"content\":");
-            builder.append("[{\"hash\":{");
-            builder.append("\"BYTES_VALUE\":\"").append(upload.getHash()).append("\"");
-            builder.append("}}],");
-            builder.append("\"name\":\"").append(upload.getName()).append("\",");
-            builder.append("\"runtime-name\":\"").append(upload.getRuntimeName()).append("\",");
-            builder.append("\"enabled\":\"").append(upload.isEnableAfterDeployment()).append("\"");
-            builder.append("}");
-            return builder.toString();
-        }
-    }
-
-
-    /**
-     * Adds an unmanaged deployment to the content repository. Pushes an {@link Content} instance into the context.
+     * Adds an unmanaged deployment to the content repository. Pushes a {@link Content} instance into the context.
      */
     public static class AddUnmanagedContent implements Function<FunctionContext> {
 

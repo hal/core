@@ -21,166 +21,87 @@
  */
 package org.jboss.as.console.client.widgets.forms;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.shared.EventHandler;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FormPanel;
+import com.google.gwt.user.client.ui.Hidden;
 import org.jboss.as.console.client.Console;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.dmr.client.ModelDescriptionConstants;
+import org.jboss.dmr.client.ModelNode;
 
 /**
- * A {@link FormPanel} to be used for file uploads within HAL. It uses the GWT approach with a hidden iframe when
- * running in "same-origin-mode" and the new HTML5 FormData interface and XMLHttpRequest otherwise (due to CORS
- * restrictions). Please not that the latter require a <a href="http://caniuse.com/#search=FormData">modern browser</a>.
+ * A {@link FormPanel} to be used for file uploads within HAL. It uses the new HTML5 FormData interface which requires
+ * a <a href="http://caniuse.com/#search=FormData">modern browser</a>.
  *
  * @author Harald Pehl
  * @see <a href="https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#formdata">https://dvcs.w3.org/hg/xhr/raw-file/tip/Overview.html#formdata</a>
  */
 public class UploadForm extends FormPanel {
 
-    // ------------------------------------------------------ init
+    @FunctionalInterface
+    public interface UploadCompleteCallback {
 
-    private final boolean sameOrigin;
-    private HandlerRegistration handlerRegistration;
+        void onUploadComplete(String payload);
+    }
+
+    @FunctionalInterface
+    public interface UploadFailedCallback {
+
+        void onUploadFailed(String error);
+    }
+
+
+    private final Hidden operation;
+    private UploadCompleteCallback uploadCompleteCallback;
+    private UploadFailedCallback uploadFailedCallback;
 
     public UploadForm() {
-        sameOrigin = Console.getBootstrapContext().isSameOrigin();
+        this(Console.getBootstrapContext().getProperty(BootstrapContext.UPLOAD_API));
     }
 
-    @Override
-    protected void onAttach() {
-        super.onAttach();
-        if (sameOrigin) {
-            // forward GWT's submit complete handler to our own upload complete handler
-            handlerRegistration = addSubmitCompleteHandler(new SubmitCompleteHandler() {
-                @Override
-                public void onSubmitComplete(SubmitCompleteEvent event) {
-                    String payload = event.getResults();
-                    if (payload != null) {
-                        try {
-                            if (!GWT.isScript()) // TODO: Formpanel weirdness
-                                payload = payload.substring(payload.indexOf(">") + 1, payload.lastIndexOf("<"));
-                        } catch (StringIndexOutOfBoundsException e) {
-                            // if I get this exception it means I shouldn't strip out the html
-                            // this issue still needs more research
-                            Log.debug("Failed to strip out HTML.  This should be preferred?");
-                        }
-                    }
-                    fireUploadComplete(payload);
-                }
-            });
+    public UploadForm(String endpoint) {
+        this.operation = new Hidden(ModelDescriptionConstants.OP);
+        setAction(endpoint);
+        setEncoding(FormPanel.ENCODING_MULTIPART);
+        setMethod(FormPanel.METHOD_POST);
+    }
+
+    public void setOperation(final ModelNode operation) {
+        this.operation.setValue(operation.toJSONString(true));
+    }
+
+    public void onUploadComplete(UploadCompleteCallback callback) {
+        this.uploadCompleteCallback = callback;
+    }
+
+    private void callUploadComplete(String payload) {
+        if (uploadCompleteCallback != null) {
+            uploadCompleteCallback.onUploadComplete(payload);
         }
     }
 
-    @Override
-    protected void onDetach() {
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-        }
-        super.onDetach();
+    public void onUploadFailed(UploadFailedCallback callback) {
+        this.uploadFailedCallback = callback;
     }
 
-
-    // ------------------------------------------------------ upload complete event
-
-    /**
-     * Fired when a upload has been submitted successfully.
-     */
-    public static class UploadCompleteEvent extends GwtEvent<UploadCompleteHandler> {
-        /**
-         * The event type.
-         */
-        private static Type<UploadCompleteHandler> TYPE;
-
-        /**
-         * Handler hook.
-         *
-         * @return the handler hook
-         */
-        public static Type<UploadCompleteHandler> getType() {
-            if (TYPE == null) {
-                TYPE = new Type<UploadCompleteHandler>();
-            }
-            return TYPE;
-        }
-
-        private String payload;
-
-        /**
-         * Create a upload complete event.
-         *
-         * @param payload the results from uploading the file(s)
-         */
-        protected UploadCompleteEvent(String payload) {
-            this.payload = payload;
-        }
-
-        @Override
-        public final Type<UploadCompleteHandler> getAssociatedType() {
-            return getType();
-        }
-
-        /**
-         * Gets the payload.
-         *
-         * @return the payload.
-         */
-        public String getPayload() {
-            return payload;
-        }
-
-        @Override
-        protected void dispatch(UploadCompleteHandler handler) {
-            handler.onUploadComplete(this);
+    private void callUploadFailed(String error) {
+        if (uploadFailedCallback != null) {
+            uploadFailedCallback.onUploadFailed(error);
         }
     }
-
-    /**
-     * Handler for {@link UploadForm.UploadCompleteEvent} events.
-     */
-    public interface UploadCompleteHandler extends EventHandler {
-        /**
-         * Fired when a upload has been submitted successfully.
-         *
-         * @param event the event
-         */
-        void onUploadComplete(UploadForm.UploadCompleteEvent event);
-    }
-
-    /**
-     * Adds a {@link UploadForm.UploadCompleteEvent} handler.
-     *
-     * @param handler the handler
-     * @return the handler registration used to remove the handler
-     */
-    public HandlerRegistration addUploadCompleteHandler(UploadCompleteHandler handler) {
-        return addHandler(handler, UploadCompleteEvent.getType());
-    }
-
-    private void fireUploadComplete(String payload) {
-        fireEvent(new UploadCompleteEvent(payload));
-    }
-
-
-    // ------------------------------------------------------ upload methods
 
     public void upload(FileUpload fileInput) {
-        if (sameOrigin) {
-            submit();
-        } else {
-            uploadUsingFormData(getAction(), fileInput.getElement());
-        }
+        uploadUsingFormData(getAction(), operation.getElement(), fileInput.getElement());
     }
 
-    private native void uploadUsingFormData(String action, Element fileInput) /*-{
+    private native void uploadUsingFormData(String action, Element operation, Element fileInput) /*-{
         var that = this;
 
         var file = fileInput.files[0];
         var formData = new FormData();
         formData.append(fileInput.name, file);
+        formData.append(operation.name, operation.value);
 
         var xhr = new XMLHttpRequest();
         xhr.withCredentials = true;
@@ -192,10 +113,10 @@ public class UploadForm extends FormPanel {
                 status = evt.target.status;
             }
             catch (e) {
-                return;
+                that.@org.jboss.as.console.client.widgets.forms.UploadForm::callUploadFailed(Ljava/lang/String;)(e.message);
             }
-            if (readyState == 4 && status == '200' && text) {
-                that.@org.jboss.as.console.client.widgets.forms.UploadForm::fireUploadComplete(Ljava/lang/String;)(text);
+            if (readyState == 4 && text) {
+                that.@org.jboss.as.console.client.widgets.forms.UploadForm::callUploadComplete(Ljava/lang/String;)(text);
             }
         });
         xhr.open('POST', action, true);

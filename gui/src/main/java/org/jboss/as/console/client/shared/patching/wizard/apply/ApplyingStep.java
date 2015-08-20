@@ -23,7 +23,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
@@ -33,9 +32,12 @@ import org.jboss.as.console.client.shared.patching.ui.Pending;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 import org.jboss.as.console.client.shared.patching.wizard.WizardButton;
+import org.jboss.as.console.client.widgets.forms.UploadForm;
 import org.jboss.dmr.client.ModelNode;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.OP;
+import static org.jboss.dmr.client.ModelDescriptionConstants.OUTCOME;
+import static org.jboss.dmr.client.ModelDescriptionConstants.SUCCESS;
 
 /**
  * @author Harald Pehl
@@ -69,12 +71,17 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
         if (context.overrideConflict) {
             patchOp.get("override-all").set(true);
         }
-        context.operation.setValue(patchOp.toJSONString());
+        context.form.setOperation(patchOp);
 
         // only one handler please!
         if (patchAppliedHandler == null) {
             patchAppliedHandler = new PatchAppliedHandler();
-            context.form.addSubmitCompleteHandler(patchAppliedHandler);
+            context.form.onUploadComplete(patchAppliedHandler);
+            context.form.onUploadFailed(error -> {
+                context.patchFailed = true;
+                context.patchFailedDetails = Console.MESSAGES.patch_manager_error_parse_result(error, "n/a");
+                wizard.next();
+            });
         }
         patchAppliedHandler.context = context;
         context.form.submit();
@@ -89,21 +96,16 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
     }
 
 
-    class PatchAppliedHandler implements FormPanel.SubmitCompleteHandler {
+    class PatchAppliedHandler implements UploadForm.UploadCompleteCallback {
 
         ApplyContext context;
 
         @Override
-        public void onSubmitComplete(final FormPanel.SubmitCompleteEvent event) {
-            String html = event.getResults();
-            String json = html;
-            if (html.indexOf('<') != -1) {
-                json = html.substring(html.indexOf(">") + 1, html.lastIndexOf("<"));
-            }
+        public void onUploadComplete(final String payload) {
             try {
-                JSONObject response = JSONParser.parseLenient(json).isObject();
-                JSONString outcome = response.get("outcome").isString();
-                if (outcome != null && "success".equalsIgnoreCase(outcome.stringValue())) {
+                JSONObject response = JSONParser.parseLenient(payload).isObject();
+                JSONString outcome = response.get(OUTCOME).isString();
+                if (outcome != null && SUCCESS.equalsIgnoreCase(outcome.stringValue())) {
                     patchManager.getPatchOfHost(context.host, new SimpleCallback<Patches>() {
                         @Override
                         public void onSuccess(final Patches result) {
@@ -123,7 +125,7 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
                 }
             } catch (Throwable t) {
                 context.patchFailed = true;
-                context.patchFailedDetails = Console.MESSAGES.patch_manager_error_parse_result(t.getMessage(), json);
+                context.patchFailedDetails = Console.MESSAGES.patch_manager_error_parse_result(t.getMessage(), payload);
                 wizard.next();
             }
         }

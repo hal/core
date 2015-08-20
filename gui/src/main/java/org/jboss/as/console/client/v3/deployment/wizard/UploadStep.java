@@ -24,7 +24,6 @@ package org.jboss.as.console.client.v3.deployment.wizard;
 import com.google.common.base.Strings;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -58,9 +57,6 @@ public class UploadStep extends
         panel.add(description);
 
         form = new UploadForm();
-        form.setAction(bootstrapContext.getProperty(BootstrapContext.DEPLOYMENT_API));
-        form.setEncoding(FormPanel.ENCODING_MULTIPART);
-        form.setMethod(FormPanel.METHOD_POST);
 
         // create a panel to hold all of the form widgets.
         VerticalPanel formPanel = new VerticalPanel();

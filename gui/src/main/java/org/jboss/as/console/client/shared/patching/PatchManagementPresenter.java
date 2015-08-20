@@ -204,7 +204,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
         if (bootstrapContext.isStandalone()) {
             contextCallback
                     .onSuccess(new ApplyContext(true, Patches.STANDALONE_HOST, Collections.<String>emptyList(),
-                            patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
+                            patchManager.baseAddress(), bootstrapContext.getProperty(BootstrapContext.UPLOAD_API)));
         } else {
             final String host = hostStore.getSelectedHost();
             dispatcher
@@ -213,7 +213,7 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
                         protected void onServers(final List<String> runningServers) {
                             contextCallback.onSuccess(new ApplyContext(false, host, runningServers,
                                     patchManager.baseAddress(),
-                                    bootstrapContext.getProperty(BootstrapContext.PATCH_API)));
+                                    bootstrapContext.getProperty(BootstrapContext.UPLOAD_API)));
                         }
                     });
         }
