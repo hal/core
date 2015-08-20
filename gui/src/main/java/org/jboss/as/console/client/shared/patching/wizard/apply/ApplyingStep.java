@@ -84,7 +84,7 @@ public class ApplyingStep extends PatchWizardStep<ApplyContext, ApplyState> {
             });
         }
         patchAppliedHandler.context = context;
-        context.form.submit();
+        context.form.upload(context.fileUpload);
 
         // reset old state
         context.restartToUpdate = true;
