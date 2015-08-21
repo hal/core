@@ -19,37 +19,46 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.as.console.client.v3.deployment.wizard;
+package org.jboss.dmr.client.dispatch.impl;
 
-import com.google.gwt.user.client.ui.FileUpload;
-import org.jboss.as.console.client.v3.deployment.UploadBean;
-import org.jboss.as.console.client.v3.deployment.UnmanagedBean;
-import org.jboss.as.console.client.v3.deployment.Content;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gwt.dom.client.Element;
+import org.jboss.dmr.client.ModelNode;
+import org.jboss.dmr.client.dispatch.Action;
+import org.jboss.dmr.client.dispatch.ActionType;
 
 /**
- * Common context for the deployment wizards.
- *
  * @author Harald Pehl
  */
-public class Context {
+public class UploadAction implements Action<UploadResponse> {
 
-    public final boolean standalone;
-    public final List<Content> contentRepository;
-    public String serverGroup;
-    public boolean deployNew;
-    public boolean deployExisting;
-    public boolean deployUnmanaged;
-    public FileUpload fileUpload;
-    public UploadBean upload;
-    public Content existingContent;
-    public boolean enableExistingContent;
-    public UnmanagedBean unmanagedDeployment;
+    private final Element fileInput;
+    private final ModelNode operation;
 
-    public Context(final boolean standalone) {
-        this.standalone = standalone;
-        this.contentRepository = new ArrayList<>();
+    public UploadAction(final Element fileInput, final ModelNode operation) {
+        this.fileInput = fileInput;
+        this.operation = operation;
+    }
+
+    @Override
+    public ActionType getType() {
+        return ActionType.UPLOAD;
+    }
+
+    @Override
+    public Object getAddress() {
+        throw new RuntimeException("Not supported");
+    }
+
+    @Override
+    public boolean isSecured() {
+        return false;
+    }
+
+    public Element getFileInput() {
+        return fileInput;
+    }
+
+    public ModelNode getOperation() {
+        return operation;
     }
 }

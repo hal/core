@@ -42,6 +42,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 3/17/11
  */
+@SuppressWarnings("GwtClientClassFromNonInheritedModule")
 public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
 
     private static final String HEADER_CONTENT_TYPE = "Content-Type";

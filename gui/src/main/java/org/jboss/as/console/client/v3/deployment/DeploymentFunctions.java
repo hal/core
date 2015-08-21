@@ -21,9 +21,7 @@
  */
 package org.jboss.as.console.client.v3.deployment;
 
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FileUpload;
 import org.jboss.as.console.client.domain.model.ServerInstance;
 import org.jboss.as.console.client.domain.topology.HostInfo;
@@ -33,11 +31,12 @@ import org.jboss.as.console.client.shared.flow.FunctionContext;
 import org.jboss.as.console.client.v3.dmr.Composite;
 import org.jboss.as.console.client.v3.dmr.Operation;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
-import org.jboss.as.console.client.widgets.forms.UploadForm;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
+import org.jboss.dmr.client.dispatch.impl.UploadAction;
+import org.jboss.dmr.client.dispatch.impl.UploadResponse;
 import org.jboss.gwt.flow.client.Control;
 import org.jboss.gwt.flow.client.Function;
 
@@ -69,14 +68,14 @@ public final class DeploymentFunctions {
      */
     public static class UploadContent implements Function<FunctionContext> {
 
-        private final UploadForm uploadForm;
+        private final DispatchAsync dispatcher;
         private final FileUpload fileUpload;
         private final UploadBean upload;
         private final boolean replace;
 
-        public UploadContent(final UploadForm uploadForm, final FileUpload fileUpload,
-                final UploadBean upload, final boolean replace) {
-            this.uploadForm = uploadForm;
+        public UploadContent(final DispatchAsync dispatcher, final FileUpload fileUpload, final UploadBean upload,
+                final boolean replace) {
+            this.dispatcher = dispatcher;
             this.fileUpload = fileUpload;
             this.upload = upload;
             this.replace = replace;
@@ -87,7 +86,7 @@ public final class DeploymentFunctions {
             Operation.Builder builder;
             if (replace) {
                 builder = new Operation.Builder("full-replace-deployment", ResourceAddress.ROOT)
-                    .param(NAME, upload.getName());
+                        .param(NAME, upload.getName());
             } else {
                 builder = new Operation.Builder(ADD, new ResourceAddress().add("deployment", upload.getName()));
             }
@@ -96,32 +95,31 @@ public final class DeploymentFunctions {
                     .param("enabled", upload.isEnableAfterDeployment());
             Operation operation = builder.build();
             operation.get("content").add().get("input-stream-index").set(0);
-            uploadForm.setOperation(operation);
 
-            uploadForm.onUploadComplete(json -> {
-                try {
-                    JSONObject response = JSONParser.parseLenient(json).isObject();
-                    JSONString outcome = response.get(OUTCOME).isString();
-                    if (outcome.stringValue().equals(SUCCESS)) {
-                        ModelNode node = new ModelNode();
-                        node.get(NAME).set(upload.getName());
-                        node.get("runtime-name").set(upload.getRuntimeName());
-                        control.getContext().push(new Content(node));
-                        control.proceed();
-                    } else {
-                        control.getContext().setError(new RuntimeException("Failed to upload the deployment."));
-                        control.abort();
-                    }
-                } catch (Exception e) {
-                    control.getContext().setError(new RuntimeException("Failed to upload the deployment."));
-                    control.abort();
-                }
-            });
-            uploadForm.onUploadFailed(error -> {
-                control.getContext().setError(new RuntimeException(error));
-                control.abort();
-            });
-            uploadForm.upload(fileUpload);
+            dispatcher.execute(new UploadAction(fileUpload.getElement(), operation),
+                    new AsyncCallback<UploadResponse>() {
+                        @Override
+                        public void onFailure(final Throwable caught) {
+                            control.getContext().setError(caught);
+                            control.abort();
+                        }
+
+                        @Override
+                        public void onSuccess(final UploadResponse response) {
+                            ModelNode result = response.get();
+                            if (!result.hasDefined(OUTCOME) || result.isFailure()) {
+                                control.getContext()
+                                        .setErrorMessage("Cannot upload deployment: " + result.getFailureDescription());
+                                control.abort();
+                            } else {
+                                ModelNode node = new ModelNode();
+                                node.get(NAME).set(upload.getName());
+                                node.get("runtime-name").set(upload.getRuntimeName());
+                                control.getContext().push(new Content(node));
+                                control.proceed();
+                            }
+                        }
+                    });
         }
     }
 

@@ -50,7 +50,7 @@ public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard {
             DispatchAsync dispatcher, FinishCallback onFinish) {
         super("replace_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
-        addStep(UPLOAD, new UploadStep(this, bootstrapContext));
+        addStep(UPLOAD, new UploadStep(this));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
     }
 
@@ -104,6 +104,6 @@ public class ReplaceStandaloneDeploymentWizard extends DeploymentWizard {
 
         context.upload.setEnableAfterDeployment(deployment.isEnabled());
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).single(new FunctionContext(), outcome,
-                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload, true));
+                new DeploymentFunctions.UploadContent(dispatcher, context.fileUpload, context.upload, true));
     }
 }

@@ -21,6 +21,7 @@ package org.jboss.as.console.client.shared.patching.wizard.apply;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -28,7 +29,6 @@ import com.google.gwt.user.client.ui.Label;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
-import org.jboss.as.console.client.widgets.forms.UploadForm;
 
 import static org.jboss.as.console.client.shared.util.IdHelper.asId;
 
@@ -46,9 +46,9 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     @Override
     protected IsWidget body(final ApplyContext context) {
-        context.form = new UploadForm(context.patchUrl);
+        FormPanel form = new FormPanel();
         FlowPanel panel = new FlowPanel();
-        context.form.setWidget(panel);
+        form.setWidget(panel);
         panel.add(new Label(Console.CONSTANTS.patch_manager_select_patch_body()));
 
         if (!context.standalone) {
@@ -74,7 +74,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         errorMessages.setVisible(false);
         panel.add(errorMessages);
 
-        return context.form;
+        return form;
     }
 
     @Override

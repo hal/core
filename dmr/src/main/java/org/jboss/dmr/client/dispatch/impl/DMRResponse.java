@@ -30,6 +30,7 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 3/17/11
  */
+@SuppressWarnings("GwtClientClassFromNonInheritedModule")
 public class DMRResponse implements Result<ModelNode> {
 
     private static final String FILTERED_ATTRIBUTES = "filtered-attributes";

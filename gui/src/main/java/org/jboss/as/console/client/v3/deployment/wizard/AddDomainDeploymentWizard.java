@@ -49,7 +49,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
         super("add_deployment", bootstrapContext, beanFactory, dispatcher, onFinish);
 
         addStep(CHOOSE, new ChooseStep(this, bootstrapContext.isStandalone(), true, true, true));
-        addStep(UPLOAD, new UploadStep(this, bootstrapContext));
+        addStep(UPLOAD, new UploadStep(this));
         addStep(VERIFY_UPLOAD, new VerifyUploadStep(this, bootstrapContext.isStandalone()));
         addStep(CONTENT_REPOSITORY, new ContentRepositoryStep(this));
         addStep(UNMANAGED, new UnmanagedStep(this, bootstrapContext.isStandalone()));
@@ -148,7 +148,7 @@ public class AddDomainDeploymentWizard extends DeploymentWizard implements CanEn
 
     private void uploadAddContentAndAssign(final Outcome<FunctionContext> outcome) {
         new Async<FunctionContext>(Footer.PROGRESS_ELEMENT).waterfall(new FunctionContext(), outcome,
-                new DeploymentFunctions.UploadContent(context.uploadForm, context.fileUpload, context.upload, false),
+                new DeploymentFunctions.UploadContent(dispatcher, context.fileUpload, context.upload, false),
                 new DeploymentFunctions.AddAssignment(dispatcher, context.serverGroup,
                         context.upload.isEnableAfterDeployment()));
     }

@@ -24,14 +24,13 @@ package org.jboss.as.console.client.v3.deployment.wizard;
 import com.google.common.base.Strings;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.shared.util.IdHelper;
 import org.jboss.as.console.client.v3.widgets.wizard.WizardStep;
-import org.jboss.as.console.client.widgets.forms.UploadForm;
 
 /**
  * @author Harald Pehl
@@ -39,13 +38,11 @@ import org.jboss.as.console.client.widgets.forms.UploadForm;
 public class UploadStep extends
         WizardStep<Context, State> {
 
-    private final BootstrapContext bootstrapContext;
-    private UploadForm form;
+    private FormPanel form;
     private FileUpload fileUpload;
 
-    public UploadStep(final DeploymentWizard wizard, final BootstrapContext bootstrapContext) {
+    public UploadStep(final DeploymentWizard wizard) {
         super(wizard, "Upload Deployment");
-        this.bootstrapContext = bootstrapContext;
     }
 
     @Override
@@ -56,7 +53,7 @@ public class UploadStep extends
         description.getElement().setAttribute("style", "padding-bottom:15px;");
         panel.add(description);
 
-        form = new UploadForm();
+        form = new FormPanel();
 
         // create a panel to hold all of the form widgets.
         VerticalPanel formPanel = new VerticalPanel();
@@ -75,7 +72,6 @@ public class UploadStep extends
     @Override
     protected void onShow(final Context context) {
         form.reset();
-        context.uploadForm = form;
         context.fileUpload = fileUpload;
     }
 

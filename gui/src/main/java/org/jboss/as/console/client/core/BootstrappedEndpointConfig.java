@@ -12,4 +12,9 @@ public class BootstrappedEndpointConfig implements DMREndpointConfig {
     public String getUrl() {
         return Console.MODULES.getBootstrapContext().getProperty(BootstrapContext.DOMAIN_API);
     }
+
+    @Override
+    public String getUploadUrl() {
+        return Console.MODULES.getBootstrapContext().getProperty(BootstrapContext.UPLOAD_API);
+    }
 }

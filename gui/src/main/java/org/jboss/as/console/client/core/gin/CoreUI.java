@@ -153,6 +153,7 @@ import org.jboss.as.console.spi.GinExtension;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 import org.jboss.gwt.circuit.Dispatcher;
 
 
@@ -217,6 +218,7 @@ public interface CoreUI {
     DispatchAsync getDispatchAsync();
     HandlerMapping getDispatcherHandlerRegistry();
     DMRHandler getDMRHandler();
+    UploadHandler getUploadHHandler();
 
     ApplicationMetaData getApplicationMetaData();
 
