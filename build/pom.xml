@@ -17,7 +17,7 @@
     </parent>
 
     <properties>
-        <gwt.module>org.jboss.as.console.composite.WildFlyDev</gwt.module>
+        <gwt.module>org.jboss.as.console.composite.WildFly</gwt.module>
     </properties>
 
     <!--

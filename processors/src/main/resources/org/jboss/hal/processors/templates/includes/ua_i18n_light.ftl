@@ -1,4 +1,4 @@
-<set-property name="user.agent" value="ie10,gecko1_8,safari"/>
+<set-property name="user.agent" value="ie9,ie10,gecko1_8,safari"/>
 <extend-property name="locale" values="en"/>
 <set-property-fallback name="locale" value="en"/>
 <set-property name="locale" value="en"/>

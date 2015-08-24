@@ -21,11 +21,9 @@
  */
 package org.jboss.dmr.client.dispatch.impl;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
@@ -65,28 +63,61 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
             AsyncCallback<UploadResponse> callback) /*-{
         var that = this;
 
-        var formData = new FormData();
-        formData.append(fileInput.name, fileInput.files[0]);
+        if (!(that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::supportFileAPI() ||
+            that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::supportAjaxUploadProgressEvents() ||
+            that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::supportFormData())) {
+            that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)("Due to security reasons, your browser is not supported for uploads. When running IE, please make sure the page is not opened in compatibility mode. Otherwise please use a more recent browser.", callback);
+            return;
+        }
+
+        var formData = new $wnd.FormData();
+        var file = fileInput.files[0];
+        formData.append(fileInput.name, file);
         formData.append("operation", operation);
 
-        var xhr = new XMLHttpRequest();
-        xhr.withCredentials = true;
-        xhr.onreadystatechange = $entry(function (evt) {
+        var xhr;
+        if ($wnd.XMLHttpRequest) {
+            xhr = new $wnd.XMLHttpRequest();
+        } else {
+            try {
+                xhr = new $wnd.ActiveXObject('MSXML2.XMLHTTP.3.0');
+            } catch (e) {
+                xhr = new $wnd.ActiveXObject("Microsoft.XMLHTTP");
+            }
+        }
+        var ie = $wnd.navigator.userAgent.indexOf("MSIE ") > 0 || !!$wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
+        xhr.open("POST", endpoint, !ie); // Cannot get async mode working in IE
+        xhr.withCredentials = true; // Do not set withCredentials *before* xhr.open() (https://xhr.spec.whatwg.org/#the-withcredentials-attribute)
+        xhr.onreadystatechange = function () {
             var status, text, readyState;
             try {
-                readyState = evt.target.readyState;
-                text = evt.target.responseText;
-                status = evt.target.status;
+                readyState = xhr.readyState;
+                text = xhr.responseText;
+                status = xhr.status;
             }
             catch (e) {
                 that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)(e.message, callback);
             }
-            if (readyState == 4 && text) {
+            if (readyState == 4) {
                 that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::processResponse(*)(status, text, callback);
             }
-        });
-        xhr.open('POST', endpoint, true);
+        };
         xhr.send(formData);
+    }-*/;
+
+    private native boolean supportFileAPI() /*-{
+        var fi = $doc.createElement('INPUT');
+        fi.type = 'file';
+        return 'files' in fi;
+    }-*/;
+
+    private native boolean supportAjaxUploadProgressEvents() /*-{
+        var xhr = new $wnd.XMLHttpRequest();
+        return !!(xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
+    }-*/;
+
+    private native boolean supportFormData() /*-{
+        return !!$wnd.FormData;
     }-*/;
 
     private void onError(final String error, final AsyncCallback<UploadResponse> callback) {
