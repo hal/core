@@ -55,10 +55,10 @@ public class CreateJvmCmd extends AddressableModelCmd implements AsyncCommand<Bo
 
         //ModelNode jvmModel = new ModelNode();
         if (jvm.getPermgen() != null && jvm.getPermgen().trim().length() != 0) {
-            operation.get("heap-size").set(jvm.getPermgen());
+            operation.get("heap-size").set(jvm.getHeapSize());
         }
         if (jvm.getPermgen() != null && jvm.getPermgen().trim().length() != 0) {
-            operation.get("max-heap-size").set(jvm.getPermgen());
+            operation.get("max-heap-size").set(jvm.getMaxHeapSize());
         }
         operation.get("debug-enabled").set(jvm.isDebugEnabled());
         if (jvm.getPermgen() != null && jvm.getPermgen().trim().length() != 0) {
