@@ -69,40 +69,29 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
 
         var xhr;
         if ($wnd.XMLHttpRequest) {
-            console.log("XHR(default)");
             xhr = new $wnd.XMLHttpRequest();
         } else {
             try {
-                console.log("XHR(MSXML)");
                 xhr = new $wnd.ActiveXObject('MSXML2.XMLHTTP.3.0');
             } catch (e) {
-                console.log("XHR(XMLHTTP)");
                 xhr = new $wnd.ActiveXObject("Microsoft.XMLHTTP");
             }
         }
         var progressEventsSupport = !!(xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
 
         var formDataSupport = !!$wnd.FormData;
-        console.log("Check FormData support");
-        console.log("fileApi = " + fileApiSupport + ", progressEvents = " + progressEventsSupport + ", formData = " + formDataSupport);
         if (!(fileApiSupport && progressEventsSupport && formDataSupport)) {
             this.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)("Due to security reasons, your browser is not supported for uploads. When running IE, please make sure the page is not opened in compatibility mode. Otherwise please use a more recent browser.", callback);
             return;
         }
 
-        console.log("Create FormData");
         var formData = new $wnd.FormData();
-        console.log("var file");
-        var file = fileInput.files[0];
-        console.log("Append file");
-        formData.append(fileInput.name, file);
-        console.log("Append operation");
+        formData.append(fileInput.name, fileInput.files[0]);
         formData.append("operation", operation);
 
         var ie = $wnd.navigator.userAgent.indexOf("MSIE ") > 0 || !!$wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
-        console.log("xhr.open(" + endpoint + ", " + !ie + ")");
-        xhr.open("POST", endpoint, !ie); // Cannot get async mode working in IE
-        xhr.withCredentials = true; // Do not set withCredentials *before* xhr.open() (https://xhr.spec.whatwg.org/#the-withcredentials-attribute)
+        xhr.open("POST", endpoint, !ie); // Cannot get async mode working in IE!?
+        xhr.withCredentials = true; // Do not set *before* xhr.open() - see https://xhr.spec.whatwg.org/#the-withcredentials-attribute
         xhr.onreadystatechange = function () {
             var status, text, readyState;
             try {
@@ -117,7 +106,6 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
                 that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::processResponse(*)(status, text, callback);
             }
         };
-        console.log("xhr.send()");
         xhr.send(formData);
     }-*/;
 
