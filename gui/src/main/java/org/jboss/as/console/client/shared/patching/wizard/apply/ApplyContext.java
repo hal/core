@@ -18,8 +18,7 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.Hidden;
+import com.google.gwt.user.client.ui.FileUpload;
 import org.jboss.as.console.client.shared.patching.PatchInfo;
 import org.jboss.as.console.client.shared.patching.wizard.CommonPatchContext;
 import org.jboss.dmr.client.ModelNode;
@@ -36,8 +35,7 @@ public class ApplyContext extends CommonPatchContext {
     // initial data
     final String patchUrl;
     // process slip
-    FormPanel form;
-    Hidden operation;
+    FileUpload fileUpload;
     String filename;
     PatchInfo patchInfo;
     boolean conflict;
@@ -51,8 +49,6 @@ public class ApplyContext extends CommonPatchContext {
         super(standalone, host, runningServers, patchAddress);
         this.patchUrl = patchUrl;
 
-        this.form = null;
-        this.operation = null;
         this.patchInfo = null;
         this.conflict = false;
         this.patchFailed = false;

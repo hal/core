@@ -203,6 +203,7 @@ import org.jboss.dmr.client.dispatch.impl.DispatchAsyncImpl;
 import org.jboss.dmr.client.dispatch.impl.HandlerRegistry;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.circuit.dag.DAGDispatcher;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 
 /**
  * Provides the bindings for the core UI widgets.
@@ -324,6 +325,7 @@ public class CoreUIModule extends AbstractPresenterModule {
         bind(DispatchAsync.class).to(DispatchAsyncImpl.class).in(Singleton.class);
         bind(HandlerMapping.class).to(HandlerRegistry.class).in(Singleton.class);
         bind(DMRHandler.class).in(Singleton.class);
+        bind(UploadHandler.class).in(Singleton.class);
 
         // ----------------------------------------------------------------------
 

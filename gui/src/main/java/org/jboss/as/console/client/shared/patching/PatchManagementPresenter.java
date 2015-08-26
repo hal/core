@@ -31,7 +31,11 @@ import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
 import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.client.core.*;
+import org.jboss.as.console.client.core.BootstrapContext;
+import org.jboss.as.console.client.core.CircuitPresenter;
+import org.jboss.as.console.client.core.HasPresenter;
+import org.jboss.as.console.client.core.NameTokens;
+import org.jboss.as.console.client.core.Updateable;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.PlaceRequestSecurityFramework;
 import org.jboss.as.console.client.shared.flow.TimeoutOperation;
@@ -50,6 +54,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -183,12 +188,16 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     }
 
     public void launchApplyWizard() {
+        if (!UploadHandler.verifySupport()) {
+            Console.warning("Patch uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            return;
+        }
+
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
         final Callback<ApplyContext, Throwable> contextCallback = new Callback<ApplyContext, Throwable>() {
             @Override
             public void onFailure(final Throwable caught) {
-                Log.error("Unable to launch apply patch wizard", caught);
                 Console.error(Console.CONSTANTS.patch_manager_apply_new_wizard_error(), caught.getMessage());
             }
 

@@ -6,4 +6,5 @@ package org.jboss.dmr.client.dispatch.impl;
  */
 public interface DMREndpointConfig {
     String getUrl();
+    String getUploadUrl();
 }

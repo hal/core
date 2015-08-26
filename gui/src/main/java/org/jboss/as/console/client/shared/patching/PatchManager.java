@@ -19,6 +19,7 @@
 package org.jboss.as.console.client.shared.patching;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FileUpload;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.BootstrapContext;
@@ -28,7 +29,13 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
-import org.jboss.gwt.flow.client.*;
+import org.jboss.dmr.client.dispatch.impl.UploadAction;
+import org.jboss.dmr.client.dispatch.impl.UploadResponse;
+import org.jboss.gwt.flow.client.Async;
+import org.jboss.gwt.flow.client.Control;
+import org.jboss.gwt.flow.client.Function;
+import org.jboss.gwt.flow.client.Outcome;
+import org.jboss.gwt.flow.client.Progress;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -132,6 +139,16 @@ public class PatchManager {
                 }
             }
         });
+    }
+
+    public void upload(FileUpload fileUpload, boolean overrideConflict, AsyncCallback<UploadResponse> callback) {
+        ModelNode patchOp = baseAddress();
+        patchOp.get(OP).set("patch");
+        patchOp.get("content").add().get("input-stream-index").set(0);
+        if (overrideConflict) {
+            patchOp.get("override-all").set(true);
+        }
+        dispatcher.execute(new UploadAction(fileUpload.getElement(), patchOp), callback);
     }
 
     public void rollback(final PatchInfo patchInfo, final boolean resetConfiguration, final boolean overrideAll,

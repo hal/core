@@ -160,6 +160,7 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.HandlerMapping;
 import org.jboss.dmr.client.dispatch.impl.DMRHandler;
 import org.jboss.gwt.circuit.Dispatcher;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 
 
 /**
@@ -223,6 +224,7 @@ public interface CoreUI {
     DispatchAsync getDispatchAsync();
     HandlerMapping getDispatcherHandlerRegistry();
     DMRHandler getDMRHandler();
+    UploadHandler getUploadHHandler();
 
     ApplicationMetaData getApplicationMetaData();
 
