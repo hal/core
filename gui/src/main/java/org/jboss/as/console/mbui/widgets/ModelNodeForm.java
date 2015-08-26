@@ -208,6 +208,11 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
     public static Object downCast(ModelNode value, ModelNode metadata)
     {
         Object result = null;
+
+        if (!value.isDefined()) { // value.asXxx() throws IllegalArgumentException when value is undefined
+            return FormItem.VALUE_SEMANTICS.UNDEFINED;
+        }
+
         ModelType targetType = resolveTypeFromMetaData(metadata);
         switch (targetType)
         {
