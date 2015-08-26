@@ -25,6 +25,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental.client.Browser;
+import elemental.html.Console;
 import elemental.html.FormData;
 import elemental.xml.XMLHttpRequest;
 import org.jboss.dmr.client.dispatch.ActionHandler;
@@ -58,17 +59,17 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     public DispatchRequest execute(final UploadAction action, final AsyncCallback<UploadResponse> callback,
             final Map<String, String> properties) {
 
+        Console console = Browser.getWindow().getConsole();
         FormData formData = createFormData(action.getFileInput(), action.getOperation().toJSONString(true));
         XMLHttpRequest xhr = Browser.getWindow().newXMLHttpRequest();
-        xhr.open("POST", endpointConfig.getUploadUrl(), true);
-        xhr.setWithCredentials(true);
 
         xhr.setOnreadystatechange(event -> {
             int readyState = xhr.getReadyState();
             String payload = xhr.getResponseText();
             int status = xhr.getStatus();
 
-            Browser.getWindow().getConsole().log("xhr.onreadystatechange(readyState: " + readyState + ", payload: '" + payload + "', status: " + status + ")");
+            console.log(
+                    "xhr.onreadystatechange(readyState: " + readyState + ", payload: '" + payload + "', status: " + status + ")");
             if (readyState == 4) {
                 if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
                     callback.onSuccess(new UploadResponse(payload));
@@ -77,8 +78,9 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
                 } else if (403 == status) {
                     callback.onFailure(new DispatchError("Authentication required.", status));
                 } else if (503 == status) {
-                    callback.onFailure(new DispatchError("Service temporarily unavailable. Is the server still booting?",
-                            status));
+                    callback.onFailure(
+                            new DispatchError("Service temporarily unavailable. Is the server still booting?",
+                                    status));
                 } else {
                     callback.onFailure(new DispatchError("Unexpected HTTP response " + status, status));
                 }
@@ -86,6 +88,9 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
         });
         xhr.addEventListener("error", event -> callback.onFailure(new DispatchError("Upload failed", xhr.getStatus())),
                 false);
+
+        xhr.open("POST", endpointConfig.getUploadUrl(), true);
+        xhr.setWithCredentials(true);
         xhr.send(formData);
 
         return new UploadDispatchRequest();
@@ -99,14 +104,6 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     }-*/;
 
     public static native boolean verifySupport() /*-{
-        //if ($wnd.navigator.userAgent.indexOf("MSIE") != -1 || $wnd.navigator.userAgent.indexOf("Windows") != -1) {
-        //    var ie11 = $wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
-        //    if (!ie11) {
-        //        console.log("Async uploads not supported: Please use Internet Explorer 11 or better.");
-        //        return false;
-        //    }
-        //}
-
         var fi = $doc.createElement('INPUT');
         fi.type = 'file';
         var fileApiSupport = 'files' in fi;
