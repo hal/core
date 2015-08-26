@@ -68,6 +68,7 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
             String payload = xhr.getResponseText();
             int status = xhr.getStatus();
 
+            Browser.getWindow().getConsole().log("xhr.onreadystatechange(readyState: " + readyState + ", payload: '" + payload + "', status: " + status + ")");
             if (readyState == 4) {
                 if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
                     callback.onSuccess(new UploadResponse(payload));
@@ -83,7 +84,8 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
                 }
             }
         });
-        xhr.addEventListener("error", event -> callback.onFailure(new DispatchError("Upload failed", xhr.getStatus())));
+        xhr.addEventListener("error", event -> callback.onFailure(new DispatchError("Upload failed", xhr.getStatus())),
+                false);
         xhr.send(formData);
 
         return new UploadDispatchRequest();
@@ -97,13 +99,13 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     }-*/;
 
     public static native boolean verifySupport() /*-{
-        if ($wnd.navigator.userAgent.indexOf("MSIE") != -1 || $wnd.navigator.userAgent.indexOf("Windows") != -1) {
-            var ie11 = $wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
-            if (!ie11) {
-                console.log("Async uploads not supported: Please use Internet Explorer 11 or better.");
-                return false;
-            }
-        }
+        //if ($wnd.navigator.userAgent.indexOf("MSIE") != -1 || $wnd.navigator.userAgent.indexOf("Windows") != -1) {
+        //    var ie11 = $wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
+        //    if (!ie11) {
+        //        console.log("Async uploads not supported: Please use Internet Explorer 11 or better.");
+        //        return false;
+        //    }
+        //}
 
         var fi = $doc.createElement('INPUT');
         fi.type = 'file';

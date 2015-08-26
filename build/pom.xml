@@ -232,6 +232,7 @@
                     <jsInteropMode>JS</jsInteropMode>
                     <extraJvmArgs>-Xmx1024m -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
+                    <bindAddress>${gwt.bindAddress}</bindAddress>
                     <hostedWebapp>war</hostedWebapp>
                     <sourceLevel>1.8</sourceLevel>
                     <localWorkers>4</localWorkers>
