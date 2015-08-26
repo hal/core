@@ -24,5 +24,5 @@ package org.jboss.dmr.client.dispatch;
  * @date 3/17/11
  */
 public enum ActionType {
-    DMR
+    DMR, UPLOAD
 }

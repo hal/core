@@ -37,8 +37,9 @@ public class HandlerRegistry implements HandlerMapping {
     private Map<ActionType, ActionHandler> registry = new HashMap<ActionType, ActionHandler>();
 
     @Inject
-    public HandlerRegistry(DMRHandler dmrhandler) {
+    public HandlerRegistry(DMRHandler dmrhandler, UploadHandler uploadHandler) {
         register(ActionType.DMR, dmrhandler);
+        register(ActionType.UPLOAD, uploadHandler);
     }
 
     @Override

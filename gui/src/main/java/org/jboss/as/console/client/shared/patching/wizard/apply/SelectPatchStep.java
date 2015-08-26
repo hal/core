@@ -18,16 +18,11 @@
  */
 package org.jboss.as.console.client.shared.patching.wizard.apply;
 
-import static com.google.gwt.user.client.ui.FormPanel.ENCODING_MULTIPART;
-import static com.google.gwt.user.client.ui.FormPanel.METHOD_POST;
-import static org.jboss.as.console.client.shared.util.IdHelper.asId;
-
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -35,13 +30,14 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizard;
 import org.jboss.as.console.client.shared.patching.wizard.PatchWizardStep;
 
+import static org.jboss.as.console.client.shared.util.IdHelper.asId;
+
 /**
  * @author Harald Pehl
  */
 public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
 
     private HTML info;
-    private FileUpload upload;
     private HTML errorMessages;
 
     public SelectPatchStep(final PatchWizard<ApplyContext, ApplyState> wizard) {
@@ -51,17 +47,8 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected IsWidget body(final ApplyContext context) {
         FormPanel form = new FormPanel();
-        form.setAction(context.patchUrl);
-        form.setEncoding(ENCODING_MULTIPART);
-        form.setMethod(METHOD_POST);
         FlowPanel panel = new FlowPanel();
         form.setWidget(panel);
-        context.form = form;
-
-        Hidden operation = new Hidden("operation");
-        panel.add(operation);
-        context.operation = operation;
-
         panel.add(new Label(Console.CONSTANTS.patch_manager_select_patch_body()));
 
         if (!context.standalone) {
@@ -75,10 +62,10 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
         InlineLabel uploadLabel = new InlineLabel(Console.CONSTANTS.patch_manager_select_patch_upload());
         uploadLabel.getElement().getStyle().setMarginRight(1, Style.Unit.EM);
         uploadPanel.add(uploadLabel);
-        upload = new FileUpload();
-        upload.setName("patch_file");
-        upload.getElement().setId(asId(PREFIX, getClass(), "_Upload"));
-        uploadPanel.add(upload);
+        context.fileUpload = new FileUpload();
+        context.fileUpload.setName("patch_file");
+        context.fileUpload.getElement().setId(asId(PREFIX, getClass(), "_Upload"));
+        uploadPanel.add(context.fileUpload);
         panel.add(uploadPanel);
 
         errorMessages = new HTML(
@@ -107,7 +94,7 @@ public class SelectPatchStep extends PatchWizardStep<ApplyContext, ApplyState> {
     @Override
     protected void onNext(ApplyContext context) {
         errorMessages.setVisible(false);
-        context.filename = upload.getFilename();
+        context.filename = context.fileUpload.getFilename();
         if (context.filename == null || context.filename.length() == 0) {
             errorMessages.setVisible(true);
         } else {

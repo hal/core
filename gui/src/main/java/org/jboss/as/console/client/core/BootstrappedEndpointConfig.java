@@ -8,8 +8,14 @@ import org.jboss.dmr.client.dispatch.impl.DMREndpointConfig;
  * @date 3/13/13
  */
 public class BootstrappedEndpointConfig implements DMREndpointConfig {
+
     @Override
     public String getUrl() {
         return Console.MODULES.getBootstrapContext().getProperty(BootstrapContext.DOMAIN_API);
+    }
+
+    @Override
+    public String getUploadUrl() {
+        return Console.MODULES.getBootstrapContext().getProperty(BootstrapContext.PATCH_API);
     }
 }

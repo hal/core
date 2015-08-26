@@ -18,12 +18,6 @@
  */
 package org.jboss.as.console.client.shared.patching;
 
-import static org.jboss.dmr.client.ModelDescriptionConstants.*;
-
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.user.client.Window;
@@ -59,6 +53,13 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.jboss.dmr.client.ModelDescriptionConstants.*;
 
 /**
  * @author Harald Pehl
@@ -189,6 +190,11 @@ public class PatchManagerPresenter extends Presenter<PatchManagerPresenter.MyVie
     }
 
     public void launchApplyWizard() {
+        if (!UploadHandler.verifySupport()) {
+            Console.warning("Patch uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+            return;
+        }
+
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
         final Callback<ApplyContext, Throwable> contextCallback = new Callback<ApplyContext, Throwable>() {
