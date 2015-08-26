@@ -19,11 +19,12 @@
     	<jboss.as.console.bom.version>2.8.6-SNAPSHOT</jboss.as.console.bom.version>
         <maven.min.version>3.1.0</maven.min.version>
         <auto-service.version>1.0-rc2</auto-service.version>
-        <auto-common.version>1.0-jboss</auto-common.version>
+        <auto-common.version>0.3</auto-common.version>
         <ballroom.version>2.3.5-SNAPSHOT</ballroom.version>
-        <circuit.version>0.1.3</circuit.version>
-        <freemarker.version>2.3.22</freemarker.version>
+        <circuit.version>0.1.4</circuit.version>
+        <freemarker.version>2.3.23</freemarker.version>
         <gin.version>2.1.2</gin.version>
+        <guava.version>19.0.20150826</guava.version>
         <guice.version>3.0</guice.version>
         <gwtp.version>1.4</gwtp.version>
         <gwt-log.version>3.3.2</gwt-log.version>
@@ -61,12 +62,6 @@
                 <groupId>org.jboss.as</groupId>
                 <artifactId>hal-processors</artifactId>
                 <version>${jboss.as.console.bom.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jboss.as</groupId>
-                <artifactId>hal-processors</artifactId>
-                <version>${jboss.as.console.bom.version}</version>
-                <classifier>sources</classifier>
             </dependency>
             <dependency>
                 <groupId>org.jboss.as</groupId>
@@ -125,12 +120,6 @@
                 <version>${ballroom.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.ballroom</groupId>
-                <artifactId>widgets</artifactId>
-                <classifier>sources</classifier>
-                <version>${ballroom.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.jboss.gwt.circuit</groupId>
                 <artifactId>circuit-core</artifactId>
                 <version>${circuit.version}</version>
@@ -186,6 +175,21 @@
                 <groupId>com.google.gwt</groupId>
                 <artifactId>gwt-user</artifactId>
                 <version>${gwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.gwt</groupId>
+                <artifactId>gwt-elemental</artifactId>
+                <version>${gwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-gwt</artifactId>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>

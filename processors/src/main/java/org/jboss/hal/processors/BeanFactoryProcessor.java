@@ -21,7 +21,6 @@
  */
 package org.jboss.hal.processors;
 
-import com.google.auto.common.AnnotationMirrors;
 import com.google.auto.common.MoreElements;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
@@ -34,6 +33,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,9 +75,16 @@ public class BeanFactoryProcessor extends AbstractHalProcessor {
         }
 
         for (Element e : roundEnv.getElementsAnnotatedWith(AutoBeanFactory.Category.class)) {
-            AnnotationMirror categoryAnnotation = MoreElements.getAnnotationMirror(e, AutoBeanFactory.Category.class).get();
-            AnnotationValue value = AnnotationMirrors.getAnnotationValue(categoryAnnotation, "value");
-            Collection<String> categories = extractValue(value);
+            Collection<String> categories = Collections.emptyList();
+            AnnotationMirror categoryAnnotation = MoreElements.getAnnotationMirror(e, AutoBeanFactory.Category.class)
+                    .get();
+            Map<? extends ExecutableElement, ? extends AnnotationValue> values = elementUtils
+                    .getElementValuesWithDefaults(categoryAnnotation);
+            for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : values.entrySet()) {
+                if ("value".equals(entry.getKey().getSimpleName().toString())) {
+                    categories = extractValue(entry.getValue());
+                }
+            }
             this.categories.addAll(categories);
         }
 

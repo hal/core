@@ -24,6 +24,8 @@
     <inherits name="com.google.gwt.user.Debug"/>
     <inherits name="com.google.gwt.visualization.Visualization"/>
     <inherits name="com.google.web.bindery.autobean.AutoBean"/>
+    <inherits name="com.google.common.collect.Collect"/>
+    <inherits name="com.google.common.util.concurrent.Concurrent"/>
 
     <inherits name="org.jboss.ballroom.Framework"/>
     <inherits name="org.jboss.dmr.DMR"/>

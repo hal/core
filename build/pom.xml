@@ -7,7 +7,6 @@
     <packaging>pom</packaging>
     <description>Final extension applications should inherit from this pom</description>
 
-
     <!-- Parent -->
     <parent>
         <groupId>org.jboss.as</groupId>
@@ -40,7 +39,6 @@
         </dependencies>
     </dependencyManagement>
 
-
     <dependencies>
         <dependency>
             <groupId>org.jboss.as</groupId>
@@ -67,40 +65,34 @@
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-core</artifactId>
-            <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-core</artifactId>
             <classifier>sources</classifier>
-            <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
-            <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
-            <version>${circuit.version}</version>
             <classifier>sources</classifier>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
-            <version>${jgrapht.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jgrapht</groupId>
             <artifactId>jgrapht-core</artifactId>
             <classifier>sources</classifier>
-            <version>${jgrapht.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -121,17 +113,25 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-gwt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-
     <!-- Plugins -->
     <build>
         <outputDirectory>war/WEB-INF/classes</outputDirectory>
-
 
         <pluginManagement>
             <plugins>
@@ -196,7 +196,6 @@
             </plugins>
         </pluginManagement>
 
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -230,6 +229,7 @@
                     <logLevel>INFO</logLevel>
                     <runTarget>App.html</runTarget>
                     <warSourceDirectory>war</warSourceDirectory>
+                    <jsInteropMode>JS</jsInteropMode>
                     <extraJvmArgs>-Xmx1024m -DDEBUG</extraJvmArgs>
                     <style>OBF</style>
                     <hostedWebapp>war</hostedWebapp>
@@ -269,7 +269,6 @@
             </plugin>
         </plugins>
     </build>
-
 
     <profiles>
         <profile>

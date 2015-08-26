@@ -24,6 +24,9 @@ package org.jboss.dmr.client.dispatch.impl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import elemental.client.Browser;
+import elemental.html.FormData;
+import elemental.xml.XMLHttpRequest;
 import org.jboss.dmr.client.dispatch.ActionHandler;
 import org.jboss.dmr.client.dispatch.DispatchError;
 import org.jboss.dmr.client.dispatch.DispatchRequest;
@@ -54,14 +57,53 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     @Override
     public DispatchRequest execute(final UploadAction action, final AsyncCallback<UploadResponse> callback,
             final Map<String, String> properties) {
-        upload(endpointConfig.getUploadUrl(), action.getFileInput(), action.getOperation().toJSONString(true),
-                callback);
+
+        FormData formData = createFormData(action.getFileInput(), action.getOperation().toJSONString(true));
+        XMLHttpRequest xhr = Browser.getWindow().newXMLHttpRequest();
+        xhr.open("POST", endpointConfig.getUploadUrl(), true);
+        xhr.setWithCredentials(true);
+
+        xhr.setOnreadystatechange(event -> {
+            int readyState = xhr.getReadyState();
+            String payload = xhr.getResponseText();
+            int status = xhr.getStatus();
+
+            if (readyState == 4) {
+                if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
+                    callback.onSuccess(new UploadResponse(payload));
+                } else if (401 == status || 0 == status) {
+                    callback.onFailure(new DispatchError("Authentication required.", status));
+                } else if (403 == status) {
+                    callback.onFailure(new DispatchError("Authentication required.", status));
+                } else if (503 == status) {
+                    callback.onFailure(new DispatchError("Service temporarily unavailable. Is the server still booting?",
+                            status));
+                } else {
+                    callback.onFailure(new DispatchError("Unexpected HTTP response " + status, status));
+                }
+            }
+        });
+        xhr.addEventListener("error", event -> callback.onFailure(new DispatchError("Upload failed", xhr.getStatus())));
+        xhr.send(formData);
+
         return new UploadDispatchRequest();
     }
 
-    private native void upload(String endpoint, Element fileInput, String operation,
-            AsyncCallback<UploadResponse> callback) /*-{
-        var that = this;
+    private native FormData createFormData(Element fileInput, String operation) /*-{
+        var formData = new $wnd.FormData();
+        formData.append(fileInput.name, fileInput.files[0]);
+        formData.append("operation", operation);
+        return formData;
+    }-*/;
+
+    public static native boolean verifySupport() /*-{
+        if ($wnd.navigator.userAgent.indexOf("MSIE") != -1 || $wnd.navigator.userAgent.indexOf("Windows") != -1) {
+            var ie11 = $wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
+            if (!ie11) {
+                console.log("Async uploads not supported: Please use Internet Explorer 11 or better.");
+                return false;
+            }
+        }
 
         var fi = $doc.createElement('INPUT');
         fi.type = 'file';
@@ -80,53 +122,21 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
         var progressEventsSupport = !!(xhr && ('upload' in xhr) && ('onprogress' in xhr.upload));
 
         var formDataSupport = !!$wnd.FormData;
-        if (!(fileApiSupport && progressEventsSupport && formDataSupport)) {
-            this.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)("Due to security reasons, your browser is not supported for uploads. When running IE, please make sure the page is not opened in compatibility mode. Otherwise please use a more recent browser.", callback);
-            return;
+
+        if (!fileApiSupport) {
+            console.log("Async uploads not supported: No File API.");
+            return false;
         }
-
-        var formData = new $wnd.FormData();
-        formData.append(fileInput.name, fileInput.files[0]);
-        formData.append("operation", operation);
-
-        var ie = $wnd.navigator.userAgent.indexOf("MSIE ") > 0 || !!$wnd.navigator.userAgent.match(/Trident.*rv\:11\./);
-        xhr.open("POST", endpoint, !ie); // Cannot get async mode working in IE!?
-        xhr.withCredentials = true; // Do not set *before* xhr.open() - see https://xhr.spec.whatwg.org/#the-withcredentials-attribute
-        xhr.onreadystatechange = function () {
-            var status, text, readyState;
-            try {
-                readyState = xhr.readyState;
-                text = xhr.responseText;
-                status = xhr.status;
-            }
-            catch (e) {
-                that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)(e.message, callback);
-            }
-            if (readyState == 4) {
-                that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::processResponse(*)(status, text, callback);
-            }
-        };
-        xhr.send(formData);
+        if (!progressEventsSupport) {
+            console.log("Async uploads not supported: No progress events.");
+            return false;
+        }
+        if (!formDataSupport) {
+            console.log("Async uploads not supported: No FormData object.");
+            return false;
+        }
+        return true;
     }-*/;
-
-    private void onError(final String error, final AsyncCallback<UploadResponse> callback) {
-        callback.onFailure(new DispatchError(error, 500));
-    }
-
-    private void processResponse(final int status, final String payload, final AsyncCallback<UploadResponse> callback) {
-        if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
-            callback.onSuccess(new UploadResponse(payload));
-        } else if (401 == status || 0 == status) {
-            callback.onFailure(new DispatchError("Authentication required.", status));
-        } else if (403 == status) {
-            callback.onFailure(new DispatchError("Authentication required.", status));
-        } else if (503 == status) {
-            callback.onFailure(new DispatchError("Service temporarily unavailable. Is the server still booting?",
-                    status));
-        } else {
-            callback.onFailure(new DispatchError("Unexpected HTTP response " + status, status));
-        }
-    }
 
     @Override
     public DispatchRequest undo(final UploadAction action, final UploadResponse result,

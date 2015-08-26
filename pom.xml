@@ -84,7 +84,8 @@
 
 
     <properties>
-        <gwt.version>2.8.0.20150603</gwt.version>
+        <gwt.version>2.8.0-SNAPSHOT</gwt.version>
+        <!--<gwt.version>2.8.0.20150826</gwt.version>-->
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <version.gwt.maven.plugin>2.7.0</version.gwt.maven.plugin>
@@ -221,7 +222,6 @@
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Maven Repository Group</name>
             <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-            <layout>default</layout>
             <releases>
                 <updatePolicy>never</updatePolicy>
             </releases>
@@ -239,6 +239,16 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>google-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/google-snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -265,7 +275,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-
         <pluginRepository>
             <id>maven-annotation-processor-releases</id>
             <url>https://oss.sonatype.org/content/repositories/releases</url>

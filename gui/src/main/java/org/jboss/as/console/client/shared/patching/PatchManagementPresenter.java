@@ -49,6 +49,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 import org.jboss.gwt.circuit.Action;
 import org.jboss.gwt.circuit.Dispatcher;
 
@@ -180,6 +181,10 @@ public class PatchManagementPresenter extends CircuitPresenter<PatchManagementPr
     }
 
     public void launchApplyWizard() {
+        if (!UploadHandler.verifySupport()) {
+            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+        }
+
         // this callback is directly called from the standalone branch
         // or after the running server instances are retrieved in the domain branch
         final Callback<ApplyContext, Throwable> contextCallback = new Callback<ApplyContext, Throwable>() {

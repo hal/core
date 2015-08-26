@@ -82,17 +82,24 @@
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-core</artifactId>
-            <version>${circuit.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava-gwt</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-meta</artifactId>
-            <version>${circuit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.gwt.circuit</groupId>
             <artifactId>circuit-processor</artifactId>
-            <version>${circuit.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -100,16 +107,17 @@
             <artifactId>hal-processors</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.auto</groupId>
+            <artifactId>auto-common</artifactId>
+        </dependency>
+
 
         <!-- GWT -->
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-dev</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-user</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code</groupId>
@@ -122,6 +130,14 @@
         <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-gwt</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -240,6 +256,7 @@
                                 <!-- Uncomment to get more messages from the annotation processors -->
                                 <!--<debug>true</debug>-->
                             </options>
+                            <outputDiagnostics>true</outputDiagnostics>
                             <defaultOutputDirectory>${project.build.directory}/generated-sources/annotations</defaultOutputDirectory>
                         </configuration>
                     </execution>
