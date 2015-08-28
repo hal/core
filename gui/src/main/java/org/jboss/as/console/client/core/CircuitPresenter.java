@@ -106,14 +106,14 @@ public abstract class CircuitPresenter<V extends View, Proxy_ extends Proxy<?>> 
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected void onError(Action action, String reason) {
-        Console.error("Error handling " + action, reason);
+        Console.error("Last action resulted in an error", reason);
     }
 
     /**
      * When this method is called it's guaranteed that the presenter is visible.
      */
     protected void onError(Action action, Throwable t) {
-        Console.error("Error handling " + action, t.getMessage());
+        Console.error("Last action resulted in an error", t.getMessage());
     }
 
 
