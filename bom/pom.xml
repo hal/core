@@ -24,7 +24,7 @@
         <circuit.version>0.1.4</circuit.version>
         <freemarker.version>2.3.23</freemarker.version>
         <gin.version>2.1.2</gin.version>
-        <guava.version>19.0.20150826</guava.version>
+        <guava.version>19.0-rc1</guava.version>
         <guice.version>3.0</guice.version>
         <gwtp.version>1.4</gwtp.version>
         <gwt-log.version>3.3.2</gwt-log.version>
@@ -190,6 +190,11 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava-gwt</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.j2objc</groupId>
+                <artifactId>j2objc-annotations</artifactId>
+                <version>0.1</version>
             </dependency>
             <dependency>
                 <groupId>javax.validation</groupId>
