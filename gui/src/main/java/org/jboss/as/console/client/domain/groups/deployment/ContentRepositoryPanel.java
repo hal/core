@@ -236,6 +236,7 @@ public class ContentRepositoryPanel implements IsWidget
 
     void reset(final ContentRepository contentRepository)
     {
+    	
         this.contentRepository = contentRepository;
         List<DeploymentRecord> _deployments = contentRepository.getDeployments();
         Collections.sort(_deployments, new Comparator<DeploymentRecord>() {
@@ -244,6 +245,7 @@ public class ContentRepositoryPanel implements IsWidget
                 return d1.getName().toLowerCase().compareTo(d2.getName().toLowerCase());
             }
         });
+        this.deploymentSelection.clear();
         this.deploymentData.setList(_deployments);
         this.deploymentsTable.selectDefaultEntity();
         this.filter.reset();
