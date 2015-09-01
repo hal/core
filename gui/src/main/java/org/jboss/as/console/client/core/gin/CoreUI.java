@@ -107,6 +107,7 @@ import org.jboss.as.console.client.shared.subsys.iiopopenjdk.IiopOpenJdkPresente
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CacheFinderPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
+import org.jboss.as.console.client.shared.subsys.jberet.JberetMetricsPresenter;
 import org.jboss.as.console.client.shared.subsys.jberet.JberetPresenter;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourcePresenter;
@@ -343,6 +344,7 @@ public interface CoreUI {
 
     AsyncProvider<BatchPresenter> getBatchPresenter();
     AsyncProvider<JberetPresenter> getJberetPresenter();
+    AsyncProvider<JberetMetricsPresenter> getJberetMetricsPresenter();
 
     AsyncProvider<IOPresenter> getIOPresenter();
 

@@ -24,7 +24,7 @@ package org.jboss.as.console.client.shared.subsys.jberet.store;
 /**
  * @author Harald Pehl
  */
-public class RemoveInMemoryRepository implements JberetAction {
+public class RemoveInMemoryRepository implements JberetConfigAction {
 
     private final String name;
 

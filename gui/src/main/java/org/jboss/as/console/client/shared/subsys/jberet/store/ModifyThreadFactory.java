@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class ModifyThreadFactory implements JberetAction {
+public class ModifyThreadFactory implements JberetConfigAction {
 
     private final String name;
     private final Map<String, Object> changedValues;

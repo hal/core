@@ -7,7 +7,6 @@ import com.google.gwt.safehtml.client.SafeHtmlTemplates;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -22,7 +21,6 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
 import org.jboss.as.console.client.core.message.Message;
-import org.jboss.as.console.client.domain.model.RuntimeState;
 import org.jboss.as.console.client.domain.model.Server;
 import org.jboss.as.console.client.domain.model.SrvState;
 import org.jboss.as.console.client.domain.model.SuspendState;
@@ -31,7 +29,6 @@ import org.jboss.as.console.client.plugins.RuntimeExtensionMetaData;
 import org.jboss.as.console.client.plugins.RuntimeExtensionRegistry;
 import org.jboss.as.console.client.plugins.RuntimeGroup;
 import org.jboss.as.console.client.shared.model.SubsystemRecord;
-import org.jboss.as.console.client.shared.state.ReloadState;
 import org.jboss.as.console.client.v3.stores.domain.actions.FilterType;
 import org.jboss.as.console.client.v3.stores.domain.actions.SelectServer;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
@@ -115,6 +112,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         PlaceLink jmsQueues = new PlaceLink("Messaging", NameTokens.JmsMetricPresenter);
         PlaceLink web = new PlaceLink("Undertow", NameTokens.HttpMetrics);
         PlaceLink jpa = new PlaceLink("JPA", NameTokens.JPAMetricPresenter);
+        PlaceLink batch = new PlaceLink("Batch", NameTokens.BatchJberetMetrics);
         PlaceLink ws = new PlaceLink("Webservices", NameTokens.WebServiceRuntimePresenter);
         PlaceLink naming = new PlaceLink("JNDI View", NameTokens.JndiPresenter);
 
@@ -122,6 +120,7 @@ public class DomainRuntimeView extends SuspendableViewImpl implements DomainRunt
         metricPredicates.add(new Predicate("messaging", jmsQueues));
         metricPredicates.add(new Predicate("undertow", web));
         metricPredicates.add(new Predicate("jpa", jpa));
+        metricPredicates.add(new Predicate("batch-jberet", batch));
         metricPredicates.add(new Predicate("webservices", ws));
         metricPredicates.add(new Predicate("naming", naming));
 

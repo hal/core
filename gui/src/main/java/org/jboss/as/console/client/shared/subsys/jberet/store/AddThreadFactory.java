@@ -26,7 +26,7 @@ import org.jboss.dmr.client.Property;
 /**
  * @author Harald Pehl
  */
-public class AddThreadFactory implements JberetAction {
+public class AddThreadFactory implements JberetConfigAction {
 
     private final Property property;
 

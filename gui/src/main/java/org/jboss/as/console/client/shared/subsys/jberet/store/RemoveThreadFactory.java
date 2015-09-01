@@ -24,7 +24,7 @@ package org.jboss.as.console.client.shared.subsys.jberet.store;
 /**
  * @author Harald Pehl
  */
-public class RemoveThreadFactory implements JberetAction {
+public class RemoveThreadFactory implements JberetConfigAction {
 
     private final String name;
 

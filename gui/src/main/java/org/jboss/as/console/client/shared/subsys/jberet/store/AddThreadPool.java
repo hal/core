@@ -26,7 +26,7 @@ import org.jboss.dmr.client.Property;
 /**
  * @author Harald Pehl
  */
-public class AddThreadPool implements JberetAction {
+public class AddThreadPool implements JberetConfigAction {
 
     private final Property property;
 

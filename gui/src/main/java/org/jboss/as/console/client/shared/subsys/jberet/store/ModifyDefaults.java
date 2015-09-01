@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * @author Harald Pehl
  */
-public class ModifyDefaults implements JberetAction {
+public class ModifyDefaults implements JberetConfigAction {
 
     private final Map<String, Object> changedValues;
 

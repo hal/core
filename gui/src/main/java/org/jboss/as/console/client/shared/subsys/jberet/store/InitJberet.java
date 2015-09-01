@@ -24,5 +24,5 @@ package org.jboss.as.console.client.shared.subsys.jberet.store;
 /**
  * @author Harald Pehl
  */
-public class InitJberet implements JberetAction {
+public class InitJberet implements JberetConfigAction {
 }

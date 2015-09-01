@@ -26,7 +26,7 @@ import org.jboss.dmr.client.Property;
 /**
  * @author Harald Pehl
  */
-public class AddJdbcRepository implements JberetAction {
+public class AddJdbcRepository implements JberetConfigAction {
 
     private final Property property;
 

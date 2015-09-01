@@ -190,7 +190,9 @@ import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesPresenter;
 import org.jboss.as.console.client.shared.subsys.infinispan.v3.CachesView;
 import org.jboss.as.console.client.shared.subsys.io.IOPresenter;
 import org.jboss.as.console.client.shared.subsys.io.IOView;
+import org.jboss.as.console.client.shared.subsys.jberet.JberetMetricsPresenter;
 import org.jboss.as.console.client.shared.subsys.jberet.JberetPresenter;
+import org.jboss.as.console.client.shared.subsys.jberet.ui.JberetMetricsView;
 import org.jboss.as.console.client.shared.subsys.jberet.ui.JberetView;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinder;
 import org.jboss.as.console.client.shared.subsys.jca.DataSourceFinderView;
@@ -496,6 +498,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 JberetPresenter.MyView.class,
                 JberetView.class,
                 JberetPresenter.MyProxy.class);
+
+        bindPresenter(JberetMetricsPresenter.class,
+                JberetMetricsPresenter.MyView.class,
+                JberetMetricsView.class,
+                JberetMetricsPresenter.MyProxy.class);
 
         bindPresenter(IOPresenter.class,
                 IOPresenter.MyView.class,

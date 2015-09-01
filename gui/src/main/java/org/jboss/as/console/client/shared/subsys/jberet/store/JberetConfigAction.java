@@ -27,5 +27,5 @@ import org.jboss.gwt.circuit.Action;
  * Marker interface for actions handled by {@link JberetStore}.
  * @author Harald Pehl
  */
-public interface JberetAction extends Action {
+public interface JberetConfigAction extends Action {
 }

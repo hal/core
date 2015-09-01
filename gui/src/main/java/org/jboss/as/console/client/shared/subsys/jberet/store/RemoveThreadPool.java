@@ -24,7 +24,7 @@ package org.jboss.as.console.client.shared.subsys.jberet.store;
 /**
  * @author Harald Pehl
  */
-public class RemoveThreadPool implements JberetAction {
+public class RemoveThreadPool implements JberetConfigAction {
 
     private final String name;
 

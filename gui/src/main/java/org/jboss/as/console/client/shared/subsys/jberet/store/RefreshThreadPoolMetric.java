@@ -21,26 +21,16 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet.store;
 
-import java.util.Map;
-
 /**
  * @author Harald Pehl
  */
-public class ModifyJdbcRepository implements JberetConfigAction {
+public class RefreshThreadPoolMetric implements JberetMetricAction {
 
     private final String name;
-    private final Map<String, Object> changedValues;
 
-    public ModifyJdbcRepository(final String name, final Map<String, Object> changedValues) {
-        this.name = name;
-        this.changedValues = changedValues;
-    }
+    public RefreshThreadPoolMetric(final String name) {this.name = name;}
 
     public String getName() {
         return name;
-    }
-
-    public Map<String, Object> getChangedValues() {
-        return changedValues;
     }
 }

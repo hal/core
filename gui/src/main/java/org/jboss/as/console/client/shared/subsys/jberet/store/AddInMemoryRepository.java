@@ -26,7 +26,7 @@ import org.jboss.dmr.client.Property;
 /**
  * @author Harald Pehl
  */
-public class AddInMemoryRepository implements JberetAction {
+public class AddInMemoryRepository implements JberetConfigAction {
 
     private final Property property;
 

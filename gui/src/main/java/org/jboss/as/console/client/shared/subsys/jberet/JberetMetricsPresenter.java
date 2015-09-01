@@ -32,9 +32,9 @@ import org.jboss.as.console.client.core.CircuitPresenter;
 import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.jberet.store.InitJberet;
-import org.jboss.as.console.client.shared.subsys.jberet.store.JberetConfigAction;
 import org.jboss.as.console.client.shared.subsys.jberet.store.JberetStore;
+import org.jboss.as.console.client.shared.subsys.jberet.store.LoadThreadPoolMetrics;
+import org.jboss.as.console.client.shared.subsys.jberet.store.RefreshThreadPoolMetric;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.Property;
@@ -46,17 +46,18 @@ import java.util.List;
 /**
  * @author Harald Pehl
  */
-public class JberetPresenter extends CircuitPresenter<JberetPresenter.MyView, JberetPresenter.MyProxy> {
+public class JberetMetricsPresenter
+        extends CircuitPresenter<JberetMetricsPresenter.MyView, JberetMetricsPresenter.MyProxy> {
 
     // @formatter:off
     @ProxyCodeSplit
-    @NameToken(NameTokens.BatchJberet)
-    @RequiredResources(resources = JberetStore.ROOT)
-    public interface MyProxy extends Proxy<JberetPresenter>, Place {}
+    @NameToken(NameTokens.BatchJberetMetrics)
+    @RequiredResources(resources = JberetStore.METRICS_ROOT)
+    public interface MyProxy extends Proxy<JberetMetricsPresenter>, Place {}
 
-    public interface MyView extends View, HasPresenter<JberetPresenter> {
-        void init(ModelNode defaults, List<Property> inMemoryRepositories, List<Property> jdbcRepositories,
-                List<Property> threadFactories, List<Property> threadPools);
+    public interface MyView extends View, HasPresenter<JberetMetricsPresenter> {
+        void refresh(ModelNode metric);
+        void refresh(List<Property> metrics);
     }
     // @formatter:on
 
@@ -66,7 +67,7 @@ public class JberetPresenter extends CircuitPresenter<JberetPresenter.MyView, Jb
     private final JberetStore store;
 
     @Inject
-    public JberetPresenter(EventBus eventBus, MyView view, MyProxy proxy,
+    public JberetMetricsPresenter(EventBus eventBus, MyView view, MyProxy proxy,
             Dispatcher circuit, RevealStrategy revealStrategy, JberetStore store) {
         super(eventBus, view, proxy, circuit);
         this.circuit = circuit;
@@ -83,21 +84,21 @@ public class JberetPresenter extends CircuitPresenter<JberetPresenter.MyView, Jb
 
     @Override
     protected void onAction(Action action) {
-        if (action instanceof JberetConfigAction) {
-            // since any action delegates to InitJberet we can just call View.init() no matter what action was triggered
-            getView().init(store.getDefaults(), store.getInMemoryRepositories(), store.getJdbcRepositories(),
-                    store.getThreadFactories(), store.getThreadPools());
+        if (action instanceof LoadThreadPoolMetrics) {
+            getView().refresh(store.getThreadPoolMetrics());
+        } else if (action instanceof RefreshThreadPoolMetric) {
+            getView().refresh(store.getCurrentThreadPoolMetric());
         }
     }
 
     @Override
     protected void revealInParent() {
-        revealStrategy.revealInParent(this);
+        revealStrategy.revealInRuntimeParent(this);
     }
 
     @Override
     protected void onReset() {
         super.onReset();
-        circuit.dispatch(new InitJberet());
+        circuit.dispatch(new LoadThreadPoolMetrics());
     }
 }

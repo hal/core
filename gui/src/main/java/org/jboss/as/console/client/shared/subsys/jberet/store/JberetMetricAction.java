@@ -21,26 +21,11 @@
  */
 package org.jboss.as.console.client.shared.subsys.jberet.store;
 
-import java.util.Map;
+import org.jboss.gwt.circuit.Action;
 
 /**
+ * Marker interface for actions handled by {@link JberetStore}.
  * @author Harald Pehl
  */
-public class ModifyJdbcRepository implements JberetConfigAction {
-
-    private final String name;
-    private final Map<String, Object> changedValues;
-
-    public ModifyJdbcRepository(final String name, final Map<String, Object> changedValues) {
-        this.name = name;
-        this.changedValues = changedValues;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Map<String, Object> getChangedValues() {
-        return changedValues;
-    }
+public interface JberetMetricAction extends Action {
 }

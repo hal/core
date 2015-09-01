@@ -77,6 +77,10 @@ public class JberetStore extends ChangeSupport {
     public static final AddressTemplate THREAD_FACTORY_ADDRESS = AddressTemplate.of(ROOT).append("thread-factory=*");
     public static final AddressTemplate THREAD_POOL_ADDRESS = AddressTemplate.of(ROOT).append("thread-pool=*");
 
+    public static final String METRICS_ROOT = "{selected.host}/{selected.server}/subsystem=batch-jberet";
+    public static final AddressTemplate METRICS_ROOT_ADDRESS = AddressTemplate.of(METRICS_ROOT);
+    public static final AddressTemplate THREAD_POOL_METRICS_ADDRESS = AddressTemplate.of(METRICS_ROOT).append("thread-pool=*");
+
     private final DispatchAsync dispatcher;
     private final StatementContext statementContext;
     private final CrudOperationDelegate operationDelegate;
@@ -85,6 +89,8 @@ public class JberetStore extends ChangeSupport {
     private final List<Property> jdbcRepositories;
     private final List<Property> threadFactories;
     private final List<Property> threadPools;
+    private final List<Property> threadPoolMetrics;
+    private ModelNode currentThreadPoolMetric;
 
     @Inject
     public JberetStore(final DispatchAsync dispatcher, StatementContext statementContext) {
@@ -97,6 +103,7 @@ public class JberetStore extends ChangeSupport {
         this.jdbcRepositories = new ArrayList<>();
         this.threadFactories = new ArrayList<>();
         this.threadPools = new ArrayList<>();
+        this.threadPoolMetrics = new ArrayList<>();
     }
 
 
@@ -250,6 +257,61 @@ public class JberetStore extends ChangeSupport {
     }
 
 
+    // ------------------------------------------------------ metrics
+
+    @Process(actionType = LoadThreadPoolMetrics.class)
+    public void loadMetrics(final LoadThreadPoolMetrics action, Channel channel) {
+        ResourceAddress address = METRICS_ROOT_ADDRESS.resolve(statementContext);
+        Operation operation = new Operation.Builder(READ_CHILDREN_RESOURCES_OPERATION, address)
+                .param(CHILD_TYPE, "thread-pool")
+                .param(INCLUDE_RUNTIME, true)
+                .build();
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    channel.nack(result.getFailureDescription());
+                } else {
+                    threadPoolMetrics.clear();
+                    threadPoolMetrics.addAll(result.get(RESULT).asPropertyList());
+                    channel.ack();
+                }
+            }
+        });
+    }
+
+    @Process(actionType = RefreshThreadPoolMetric.class)
+    public void refreshThreadPoolMetric(RefreshThreadPoolMetric action, Channel channel) {
+        ResourceAddress address = THREAD_POOL_METRICS_ADDRESS.resolve(statementContext, action.getName());
+        Operation operation = new Operation.Builder(READ_RESOURCE_OPERATION, address)
+                .param(INCLUDE_RUNTIME, true)
+                .build();
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(final Throwable caught) {
+                channel.nack(caught);
+            }
+
+            @Override
+            public void onSuccess(final DMRResponse response) {
+                ModelNode result = response.get();
+                if (result.isFailure()) {
+                    channel.nack(result.getFailureDescription());
+                } else {
+                    currentThreadPoolMetric = result.get(RESULT);
+                    channel.ack();
+                }
+            }
+        });
+    }
+
+
     // ------------------------------------------------------ state access
 
     public ModelNode getDefaults() {
@@ -270,5 +332,13 @@ public class JberetStore extends ChangeSupport {
 
     public List<Property> getThreadPools() {
         return threadPools;
+    }
+
+    public List<Property> getThreadPoolMetrics() {
+        return threadPoolMetrics;
+    }
+
+    public ModelNode getCurrentThreadPoolMetric() {
+        return currentThreadPoolMetric;
     }
 }
