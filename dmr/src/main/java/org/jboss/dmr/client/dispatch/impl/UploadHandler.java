@@ -25,7 +25,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import elemental.client.Browser;
-import elemental.html.Console;
 import elemental.html.FormData;
 import elemental.xml.XMLHttpRequest;
 import org.jboss.dmr.client.dispatch.ActionHandler;
@@ -53,26 +52,29 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     }
 
 
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String UPLOAD_HEADER_NAME = "X-Management-Client-Name";
+    private static final String UPLOAD_HEADER_VALUE = "HAL";
+
     private DMREndpointConfig endpointConfig = GWT.create(DMREndpointConfig.class);
 
     @Override
     public DispatchRequest execute(final UploadAction action, final AsyncCallback<UploadResponse> callback,
             final Map<String, String> properties) {
 
-        Console console = Browser.getWindow().getConsole();
-        FormData formData = createFormData(action.getFileInput(), action.getOperation().toJSONString(true));
+        FormData formData = createFormData(action.getFileInput(), action.getOperation().toBase64String());
         XMLHttpRequest xhr = Browser.getWindow().newXMLHttpRequest();
 
         xhr.setOnreadystatechange(event -> {
             int readyState = xhr.getReadyState();
-            String payload = xhr.getResponseText();
-            int status = xhr.getStatus();
 
-            console.log(
-                    "xhr.onreadystatechange(readyState: " + readyState + ", payload: '" + payload + "', status: " + status + ")");
             if (readyState == 4) {
+                int status = xhr.getStatus();
+                String contentType = xhr.getResponseHeader(HEADER_CONTENT_TYPE);
+                String payload = xhr.getResponseText();
+
                 if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
-                    callback.onSuccess(new UploadResponse(payload));
+                    callback.onSuccess(new UploadResponse(payload, contentType));
                 } else if (401 == status || 0 == status) {
                     callback.onFailure(new DispatchError("Authentication required.", status));
                 } else if (403 == status) {
@@ -90,6 +92,7 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
                 false);
 
         xhr.open("POST", endpointConfig.getUploadUrl(), true);
+        xhr.setRequestHeader(UPLOAD_HEADER_NAME, UPLOAD_HEADER_VALUE);
         xhr.setWithCredentials(true);
         xhr.send(formData);
 
@@ -99,7 +102,7 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     private native FormData createFormData(Element fileInput, String operation) /*-{
         var formData = new $wnd.FormData();
         formData.append(fileInput.name, fileInput.files[0]);
-        formData.append("operation", operation);
+        formData.append("operation", new Blob([operation], {type : "application/dmr-encoded"}));
         return formData;
     }-*/;
 

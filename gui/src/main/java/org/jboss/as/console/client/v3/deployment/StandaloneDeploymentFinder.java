@@ -60,6 +60,7 @@ import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -190,7 +191,11 @@ public class StandaloneDeploymentFinder
     }
 
     public void launchAddDeploymentWizard() {
-        addWizard.open("Add Deployment");
+        if (!UploadHandler.verifySupport()) {
+            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+        } else {
+            addWizard.open("Add Deployment");
+        }
     }
 
     public void launchReplaceDeploymentWizard(final Deployment deployment) {

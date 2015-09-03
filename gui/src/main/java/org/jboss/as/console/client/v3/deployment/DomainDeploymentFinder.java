@@ -73,6 +73,7 @@ import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.jboss.dmr.client.dispatch.impl.UploadHandler;
 import org.jboss.gwt.circuit.Dispatcher;
 import org.jboss.gwt.flow.client.Async;
 import org.jboss.gwt.flow.client.Function;
@@ -272,7 +273,11 @@ public class DomainDeploymentFinder
     }
 
     public void launchAddContentWizard() {
-        addContentWizard.open("Add Content");
+        if (!UploadHandler.verifySupport()) {
+            Console.warning("Uploads not supported", "Due to security reasons, your browser is not supported for uploads. Please use a more recent browser.");
+        } else {
+            addContentWizard.open("Add Content");
+        }
     }
 
     public void launchAssignContentDialog(Content content) {
