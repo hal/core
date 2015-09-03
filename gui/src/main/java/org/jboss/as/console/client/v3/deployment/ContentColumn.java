@@ -64,7 +64,8 @@ public class ContentColumn extends FinderColumn<Content> {
                         return item.getName();
                     }
                 },
-                NameTokens.DomainDeploymentFinder);
+                NameTokens.DomainDeploymentFinder,
+                999);
 
         setShowSize(true);
         setPreviewFactory((data, callback) -> callback.onSuccess(Templates.contentPreview(data)));

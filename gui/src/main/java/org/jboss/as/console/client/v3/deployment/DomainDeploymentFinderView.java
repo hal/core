@@ -129,8 +129,8 @@ public class DomainDeploymentFinderView extends SuspendableViewImpl implements D
                         return item.getName();
                     }
                 },
-                NameTokens.DomainDeploymentFinder);
-
+                NameTokens.DomainDeploymentFinder,
+                999);
         assignmentColumn.setShowSize(true);
 
         assignmentColumn.setTopMenuItems(

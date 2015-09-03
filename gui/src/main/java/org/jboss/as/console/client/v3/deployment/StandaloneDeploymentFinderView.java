@@ -37,7 +37,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.preview.PreviewContent;
 import org.jboss.as.console.client.preview.PreviewContentFactory;
 import org.jboss.as.console.client.widgets.nav.v3.ClearFinderSelectionEvent;
-import org.jboss.as.console.client.widgets.nav.v3.ColumnFilter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
@@ -100,17 +99,11 @@ public class StandaloneDeploymentFinderView extends SuspendableViewImpl
                         return item.getName();
                     }
                 },
-                NameTokens.StandaloneDeploymentFinder
-        );
+                NameTokens.StandaloneDeploymentFinder,
+                999);
 
-
-        deploymentColumn.setFilter(new ColumnFilter.Predicate<Deployment>() {
-            @Override
-            public boolean matches(Deployment item, String token) {
-                return item.getName().contains(token)
-                        || item.getRuntimeName().contains(token);
-            }
-        });
+        deploymentColumn.setFilter((item, token) -> item.getName().contains(token)
+                || item.getRuntimeName().contains(token));
 
         deploymentColumn.setTopMenuItems(new MenuDelegate<>("Add", item -> presenter.launchAddDeploymentWizard(),
                 Operation));

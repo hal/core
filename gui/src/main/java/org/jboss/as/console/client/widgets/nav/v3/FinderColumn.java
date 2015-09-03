@@ -103,6 +103,10 @@ public class FinderColumn<T>  {
     private PreviewFactory<T> previewFactory = DEFAULT_PREVIEW;
 
     public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider, String token) {
+        this(correlationId, title, display, keyProvider, token, 500);
+    }
+
+    public FinderColumn(final FinderId correlationId, final String title, final Display display, final ProvidesKey keyProvider, String token, int pageSize) {
         this.correlationId = correlationId;
         this.title = title;
         this.display = display;
@@ -115,7 +119,7 @@ public class FinderColumn<T>  {
 
         selectionModel = new SingleSelectionModel<T>(keyProvider);
 
-        cellTable = new CellTable<T>(500, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
+        cellTable = new CellTable<T>(pageSize, DefaultCellTable.DEFAULT_CELL_TABLE_RESOURCES , keyProvider);
         cellTable.setStyleName("navigation-cell-table");
         cellTable.getElement().setAttribute("style", "border:none!important");
         cellTable.setLoadingIndicator(new HTML());
