@@ -36,25 +36,41 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  */
 public class UploadResponse implements Result<ModelNode> {
 
-    private final String payload;
+    static final String APPLICATION_DMR_ENCODED = "application/dmr-encoded";
+    static final String APPLICATION_JSON = "application/json";
 
-    public UploadResponse(final String payload) {this.payload = payload;}
+    private final String payload;
+    private final String contentType;
+
+    public UploadResponse(final String payload, final String contentType) {
+        this.payload = payload;
+        this.contentType = contentType;
+    }
 
     @Override
     public ModelNode get() {
-        ModelNode node = new ModelNode();
-        JSONObject response = JSONParser.parseLenient(payload).isObject();
-        JSONString outcome = response.get(OUTCOME).isString();
-        node.get(OUTCOME).set(outcome.stringValue());
-        if (outcome.stringValue().equals(SUCCESS)) {
-            if (response.containsKey(RESULT) && response.get(RESULT).isObject() != null) {
-                node.get(RESULT).set(stringify(response.get(RESULT).isObject().getJavaScriptObject(), 2));
+        ModelNode node;
+        if (contentType.startsWith(APPLICATION_DMR_ENCODED)) {
+            node = ModelNode.fromBase64(payload);
+        } else if (contentType.startsWith(APPLICATION_JSON)) {
+            node = new ModelNode();
+            JSONObject response = JSONParser.parseLenient(payload).isObject();
+            JSONString outcome = response.get(OUTCOME).isString();
+            node.get(OUTCOME).set(outcome.stringValue());
+            if (outcome.stringValue().equals(SUCCESS)) {
+                if (response.containsKey(RESULT) && response.get(RESULT).isObject() != null) {
+                    node.get(RESULT).set(stringify(response.get(RESULT).isObject().getJavaScriptObject(), 2));
+                } else {
+                    node.get(RESULT).set(new ModelNode());
+                }
             } else {
-                node.get(RESULT).set(new ModelNode());
+                String failure = extractFailure(response);
+                node.get(FAILURE_DESCRIPTION).set(failure);
             }
         } else {
-            String failure = extractFailure(response);
-            node.get(FAILURE_DESCRIPTION).set(failure);
+            node = new ModelNode();
+            node.get(OUTCOME).set(FAILED);
+            node.get(FAILURE_DESCRIPTION).set("Unable to parse response with content-type " + contentType);
         }
         return node;
     }
