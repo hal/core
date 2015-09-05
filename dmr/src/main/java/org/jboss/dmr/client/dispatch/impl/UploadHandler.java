@@ -54,7 +54,7 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
     @Override
     public DispatchRequest execute(final UploadAction action, final AsyncCallback<UploadResponse> callback,
             final Map<String, String> properties) {
-        upload(endpointConfig.getUploadUrl(), action.getFileInput(), action.getOperation().toJSONString(true),
+        upload(endpointConfig.getUploadUrl(), action.getFileInput(), action.getOperation().toBase64String(),
                 callback);
         return new UploadDispatchRequest();
     }
@@ -70,7 +70,7 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
         var that = this;
         var formData = new $wnd.FormData();
         formData.append(fileInput.name, fileInput.files[0]);
-        formData.append("operation", operation);
+        formData.append("operation", new Blob([operation], {type : "application/dmr-encoded"}));
 
         var xhr;
         if ($wnd.XMLHttpRequest) {
@@ -83,22 +83,24 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
             }
         }
 
-        xhr.open("POST", endpoint, true);
-        xhr.withCredentials = true; // Do not set *before* xhr.open() - see https://xhr.spec.whatwg.org/#the-withcredentials-attribute
         xhr.onreadystatechange = function () {
-            var status, text, readyState;
+            var status, text, readyState, contentType;
             try {
                 readyState = xhr.readyState;
                 text = xhr.responseText;
                 status = xhr.status;
+                contentType = xhr.getResponseHeader("Content-Type");
             }
             catch (e) {
                 that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::onError(*)(e.message, callback);
             }
             if (readyState == 4) {
-                that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::processResponse(*)(status, text, callback);
+                that.@org.jboss.dmr.client.dispatch.impl.UploadHandler::processResponse(*)(status, text, contentType, callback);
             }
         };
+        xhr.open("POST", endpoint, true);
+        xhr.setRequestHeader("X-Management-Client-Name", "HAL");
+        xhr.withCredentials = true; // Do not set *before* xhr.open() - see https://xhr.spec.whatwg.org/#the-withcredentials-attribute
         xhr.send(formData);
     }-*/;
 
@@ -140,9 +142,9 @@ public class UploadHandler implements ActionHandler<UploadAction, UploadResponse
         callback.onFailure(new DispatchError(error, 500));
     }
 
-    private void processResponse(final int status, final String payload, final AsyncCallback<UploadResponse> callback) {
+    private void processResponse(final int status, final String payload, final String contentType, final AsyncCallback<UploadResponse> callback) {
         if (status == 200 || status == 500) { // 500 means outcome = failed, failure-description = ...
-            callback.onSuccess(new UploadResponse(payload));
+            callback.onSuccess(new UploadResponse(payload, contentType));
         } else if (401 == status || 0 == status) {
             callback.onFailure(new DispatchError("Authentication required.", status));
         } else if (403 == status) {
