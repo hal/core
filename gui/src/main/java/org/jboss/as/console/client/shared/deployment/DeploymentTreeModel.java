@@ -102,7 +102,7 @@ public class DeploymentTreeModel implements TreeViewModel {
         public void render(final Context context, final DeploymentRecord value, final SafeHtmlBuilder sb) {
             ImageResource res;
             String name = value.getName().length() > 30 ? value.getName().substring(0, 25) + " ..." : value.getName();
-            String iconTitle = name;
+            String iconTitle = value.getName();
             if ("FAILED".equalsIgnoreCase(value.getStatus())) {
                 res = Icons.INSTANCE.status_warn();
                 iconTitle += " failed to start, check log for details.";
