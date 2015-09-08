@@ -28,13 +28,13 @@ public interface ActivemqClusterConnection {
     Long getConnectionTTL();
     void setConnectionTTL(Long ttl);
 
-    @Binding(detypedName = "connector-ref")
-    String getConnectorRef();
-    void setConnectorRef(String name);
+    @Binding(detypedName = "connector-name")
+    String getConnectorName();
+    void setConnectorName(String name);
 
-    @Binding(detypedName = "discovery-group-name")
-    String getDiscoveryGroupName();
-    void setDiscoveryGroupName(String name);
+    @Binding(detypedName = "discovery-group")
+    String getDiscoveryGroup();
+    void setDiscoveryGroup(String name);
 
     @Binding(detypedName = "forward-when-no-consumers")
     boolean isForwardWhenNoConsumers();
