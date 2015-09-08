@@ -16,6 +16,8 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.shared.subsys.logger.wizard.HandlerContext;
+import org.jboss.as.console.client.shared.subsys.logger.wizard.TwoStepWizard;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
@@ -31,7 +33,6 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -53,13 +54,14 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
         @Override
         public void onSuccess(AddressTemplate address, String name) {
-            Console.info("Successfully saved resource "+address.resolve(statementContext));
+            Console.info("Successfully saved resource "+address.resolve(statementContext, name));
             loadData();
         }
 
         @Override
         public void onFailure(AddressTemplate address, String name, Throwable t) {
-            Console.error("Failed to save resource " + address.resolve(statementContext) + ": " + t.getMessage());
+            loadData();
+            Console.error("Failed to save resource " + address.resolve(statementContext, name), t.getMessage());
         }
     };
 
@@ -73,7 +75,6 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
     public ResourceDescriptionRegistry getDescriptionRegistry() {
         return descriptionRegistry;
     }
-
 
     @RequiredResources(
             resources = {
@@ -233,6 +234,10 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
         operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
     }
 
+    public void onSaveFileAttributes(AddressTemplate address, String name, ModelNode payload) {
+        operationDelegate.onSaveComplexAttribute(address, name, "file", payload, defaultOpCallbacks);
+    }
+
     public PlaceManager getPlaceManager() {
         return placeManager;
     }
@@ -268,5 +273,27 @@ public class LoggerPresenter extends Presenter<LoggerPresenter.MyView, LoggerPre
         window.center();
     }
 
+    public void onLaunchAddResourceDialogFile(AddressTemplate address) {
+        String type = address.getResourceType();
+
+        new TwoStepWizard(
+                this,
+                address,
+                Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                descriptionRegistry.lookup(address)
+
+        ).open(Console.MESSAGES.createTitle(type.toUpperCase()));
+
+    }
+
+    public void onCreateHandler(AddressTemplate address, HandlerContext context) {
+        ModelNode payload = context.getAttributes();
+        payload.get("file").set(context.getFileAttribute());
+
+        operationDelegate.onCreateResource(
+                address, payload.get("name").asString(), payload, defaultOpCallbacks
+        );
+
+    }
 
 }

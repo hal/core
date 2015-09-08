@@ -59,6 +59,39 @@ public class ModelNodeAdapter {
         operation.get(STEPS).set(steps);
         return operation;
     }
+    public ModelNode fromComplexAttribute(ResourceAddress resourceAddress, String attributeName, ModelNode payload) {
+
+           ModelNode operation = new ModelNode();
+           operation.get(ADDRESS).set(resourceAddress);
+           operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+           operation.get(NAME).set(attributeName);
+           operation.get(VALUE).set(payload);
+           return operation;
+       }
+
+    public ModelNode fromComplexAttributeChangeSet(ResourceAddress resourceAddress, String attributeName, Map<String, Object> changeSet) {
+
+        ModelNode operation = new ModelNode();
+        operation.get(ADDRESS).set(resourceAddress);
+        operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+        operation.get(NAME).set(attributeName);
+
+        ModelNode payload = new ModelNode();
+
+        for (String key : changeSet.keySet()) {
+            Object value = changeSet.get(key);
+
+            if (value.equals(FormItem.VALUE_SEMANTICS.UNDEFINED)) {
+                payload.get(key).set(ModelType.UNDEFINED);
+            } else {
+                // set value, including type conversion
+                setValue(payload.get(key), value);
+            }
+        }
+
+        operation.get(VALUE).set(payload);
+        return operation;
+    }
 
     private void setValue(ModelNode nodeToSetValueUpon, Object value) {
         Class type = value.getClass();

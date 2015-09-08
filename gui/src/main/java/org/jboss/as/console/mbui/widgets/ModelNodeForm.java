@@ -420,8 +420,13 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         Object obj = item.getValue();
                         Class baseType = obj.getClass();
 
+                        // UNDEFINED
+                        if (obj.equals(FormItem.VALUE_SEMANTICS.UNDEFINED)) {
+                            node.set(ModelType.UNDEFINED);
+                        }
+
                         // STRING
-                        if (baseType == String.class) {
+                        else if (baseType == String.class) {
                             String stringValue = (String) obj;
                             if(stringValue.startsWith("$"))
                                 node.setExpression(stringValue);

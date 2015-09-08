@@ -47,7 +47,6 @@ public class ModelNodeFormBuilder {
     private Set<String> excludes = new HashSet<>();
     private SafeHtml help;
 
-
     private boolean runtimeAttributes = true;
     private boolean configAttributes = true;
     private boolean requiredOnly;
@@ -212,6 +211,13 @@ public class ModelNodeFormBuilder {
                 // field label
                 String label = new String(attrName).replace("-", " ");
                 ModelNode attrDesc = attr.getValue();
+
+                // skip deprecated attributes
+                if(attrDesc.hasDefined("deprecated"))
+                {
+                    Log.error("Skip deprecated attribute '" + attr.getName() + "'");
+                    continue;
+                }
 
                 // type
                 ModelType type = ModelType.valueOf(attrDesc.get("type").asString().toUpperCase());

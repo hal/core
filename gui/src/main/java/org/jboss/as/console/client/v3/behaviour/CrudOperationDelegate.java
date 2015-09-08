@@ -118,6 +118,40 @@ public class CrudOperationDelegate {
         });
     }
 
+    public void onSaveComplexAttribute(final AddressTemplate addressTemplate, final String name, String attributeName,
+                                       ModelNode payload, final Callback... callback) {
+
+        final ResourceAddress address = addressTemplate.resolve(statementContext, name);
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode op = adapter.fromComplexAttribute(address, attributeName, payload);
+
+        dispatcher.execute(new DMRAction(op), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                for (Callback cb : callback) {
+                    cb.onFailure(addressTemplate, name, caught);
+                }
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to save " + name, response.getFailureDescription());
+                    for (Callback cb : callback) {
+                        cb.onFailure(addressTemplate, name,
+                                new RuntimeException("Failed to save resource " +
+                                        addressTemplate.replaceWildcards(name) + ":" + response.getFailureDescription()));
+                    }
+                } else {
+                    for (Callback cb : callback) {
+                        cb.onSuccess(addressTemplate, name);
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * Removes an existing resource specified by the address and name.
      * @param addressTemplate The address template for the resource. Might end with a wildcard,

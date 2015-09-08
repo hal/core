@@ -3,7 +3,6 @@ package org.jboss.as.console.client.shared.subsys.logger;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -36,6 +35,7 @@ public class MasterDetailTemplate {
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
     private SingleSelectionModel<Property> selectionModel;
+    private ModelNodeFormBuilder.FormAssets fileAssets;
 
     public MasterDetailTemplate(LoggerPresenter presenter, AddressTemplate address, String title) {
         this.presenter = presenter;
@@ -60,7 +60,10 @@ public class MasterDetailTemplate {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddResourceDialog(address);
+                if(fileAssets!=null)
+                    presenter.onLaunchAddResourceDialogFile(address);
+                else
+                    presenter.onLaunchAddResourceDialog(address);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
@@ -84,11 +87,12 @@ public class MasterDetailTemplate {
         SecurityContext securityContext = presenter.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
         ResourceDescription definition = presenter.getDescriptionRegistry().lookup(address);
 
-        final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
+        ModelNodeFormBuilder builder = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext);
 
+        final ModelNodeFormBuilder.FormAssets formAssets = builder.build();
 
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
@@ -102,20 +106,43 @@ public class MasterDetailTemplate {
             }
         });
 
-        VerticalPanel formPanel = new VerticalPanel();
-        formPanel.setStyleName("fill-layout-width");
-        formPanel.add(formAssets.getHelp().asWidget());
-        formPanel.add(formAssets.getForm().asWidget());
-
         // ----
-        MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
+        final MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline(title)
                 .setDescription(definition.get("description").asString())
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available(title), table)
-                .addDetail("Attributes", formPanel);
+                .addDetail("Attributes", formAssets.asWidget());
 
+        fileAssets = null;
+
+        if(definition.get("attributes").hasDefined("file"))
+        {
+            // complex attribute 'file'
+            ComplexAttributeForm fileAttributeForm = new ComplexAttributeForm("file", securityContext, definition);
+            fileAssets = fileAttributeForm.build();
+
+            // order matters
+            fileAssets.getForm().setToolsCallback(new FormCallback() {
+                @Override
+                public void onSave(Map changeset) {
+
+                    // ingore the changeset: complex attributes are written atomically, including all attributes
+
+                    presenter.onSaveFileAttributes(address, getCurrentSelection().getName(),
+                            fileAssets.getForm().getUpdatedEntity()
+                    );
+                }
+
+                @Override
+                public void onCancel(Object o) {
+                    fileAssets.getForm().cancel();
+                }
+            });
+
+            layoutBuilder.addDetail("File", fileAssets.asWidget());
+        }
 
         selectionModel = new SingleSelectionModel<Property>();
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -125,10 +152,16 @@ public class MasterDetailTemplate {
                 if(server!=null)
                 {
                     formAssets.getForm().edit(server.getValue());
+
+                    if(fileAssets!=null)
+                    {
+                        fileAssets.getForm().edit(server.getValue().get("file"));
+                    }
                 }
                 else
                 {
                     formAssets.getForm().clearValues();
+                    if(fileAssets!=null) fileAssets.getForm().clearValues();
                 }
             }
         });
