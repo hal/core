@@ -16,6 +16,10 @@ public interface PoolConfig {
     String getName();
     void setName(String name);
 
+    @Binding(detypedName = "initial-pool-size")
+    Integer getInitialPoolSize();
+    void setInitialPoolSize(Integer max);
+
     @Binding(detypedName = "max-pool-size")
     Integer getMaxPoolSize();
     void setMaxPoolSize(Integer max);
