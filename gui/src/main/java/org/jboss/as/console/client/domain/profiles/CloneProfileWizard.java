@@ -35,7 +35,7 @@ public class CloneProfileWizard  {
     Widget asWidget() {
         VerticalPanel layout = new VerticalPanel();
         layout.setStyleName("window-content");
-        layout.add(new HTML("<h3>Create a copy of pofile " + fromProfile.getName() + "</h3>"));
+        layout.add(new HTML("<h3>Create a copy of profile " + fromProfile.getName() + "</h3>"));
 
         Form<ProfileRecord> form = new Form<ProfileRecord>(ProfileRecord.class);
 
