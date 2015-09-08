@@ -560,7 +560,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
 
     public void onDeleteConnector(final ActivemqConnector entity) {
         ModelNode address = Baseadress.get();
-        address.add("subsystem", "messaging--activemq");
+        address.add("subsystem", "messaging-activemq");
         address.add("server", getCurrentServer());
         address.add(entity.getType().getResource(), entity.getName());
 
