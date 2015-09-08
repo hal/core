@@ -791,6 +791,31 @@ public class HostInfoStoreImpl implements HostInformationStore {
 
 
     @Override
+    public void restartServer(String host, final String configName, final AsyncCallback<Boolean> callback) {
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("restart");
+        operation.get(ADDRESS).add("host", host);
+        operation.get(ADDRESS).add("server-config", configName);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+                if (response.isFailure()) {
+                    callback.onSuccess(false);
+                } else {
+                    callback.onSuccess(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                callback.onSuccess(Boolean.FALSE);
+            }
+        });
+    }
+
+    @Override
     public void reloadServer(String host, final String configName, final AsyncCallback<Boolean> callback) {
         final ModelNode operation = new ModelNode();
         operation.get(OP).set("reload");

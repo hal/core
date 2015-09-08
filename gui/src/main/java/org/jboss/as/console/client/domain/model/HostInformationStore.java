@@ -50,6 +50,7 @@ public interface HostInformationStore {
 
     void resumeServer(String host, String configName, final AsyncCallback<Boolean> callback);
 
+    void restartServer(String host, String configName, final AsyncCallback<Boolean> callback);
     void reloadServer(String host, String configName, final AsyncCallback<Boolean> callback);
 
     void createServerConfig(String host, Server newServer, AsyncCallback<Boolean> callback);

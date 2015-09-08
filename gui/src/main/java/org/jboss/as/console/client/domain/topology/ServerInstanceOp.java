@@ -81,7 +81,7 @@ public class ServerInstanceOp extends TopologyOp {
                 hostInfoStore.reloadServer(host, server, bc);
                 break;
             case RESTART:
-                // not supported for server instances
+                hostInfoStore.restartServer(host, server, bc);
                 break;
             case SUSPEND:
                 hostInfoStore.suspendServer(host, server, params, bc);
@@ -118,7 +118,7 @@ public class ServerInstanceOp extends TopologyOp {
                                 lifecycleReached = "stopped".equalsIgnoreCase(status);
                                 break;
                             case RESTART:
-                                // not supported for server instances
+                                lifecycleReached = "started".equalsIgnoreCase(status);
                                 break;
                             case SUSPEND:
                             case RESUME:
