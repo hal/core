@@ -81,8 +81,8 @@ public class ClusterConnectionForm {
         NumberBoxItem checkPeriod = new NumberBoxItem("checkPeriod", "Check Period");
         TextBoxItem connectionAddress = new TextBoxItem("clusterConnectionAddress", "Connection Address");
         NumberBoxItem connectionTtl = new NumberBoxItem("connectionTTL", "Connection TTL");
-        TextBoxItem connectorRef = new TextBoxItem("connectorRef", "Connector Ref");
-        TextBoxItem groupName = new TextBoxItem("discoveryGroupName", "Discovery Group");
+        TextBoxItem connectorName = new TextBoxItem("connectorName", "Connector Name");
+        TextBoxItem groupName = new TextBoxItem("discoveryGroup", "Discovery Group");
         CheckBoxItem forward = new CheckBoxItem("forwardWhenNoConsumers", "Forward?");
         NumberBoxItem maxHops = new NumberBoxItem("maxHops", "Max Hops");
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
@@ -91,9 +91,9 @@ public class ClusterConnectionForm {
         CheckBoxItem duplicateDetection = new CheckBoxItem("duplicateDetection", "Duplicate Detection?");
 
         if (isCreate) {
-            form.setFields(name, groupName, connectorRef, connectionAddress);
+            form.setFields(name, groupName, connectorName, connectionAddress);
         } else {
-            form.setFields(name, groupName, connectorRef, connectionAddress,
+            form.setFields(name, groupName, connectorName, connectionAddress,
                     duplicateDetection, forward,
                     callTimeout, checkPeriod,
                     connectionTtl, maxHops,
