@@ -858,7 +858,7 @@ public class MsgConnectionsPresenter extends Presenter<MsgConnectionsPresenter.M
     public void loadExistingQueueNames(final AsyncCallback<List<String>> callback) {
         ModelNode address = Baseadress.get();
         address.add("subsystem", "messaging-activemq");
-        address.add("hornetq", getCurrentServer());
+        address.add("server", getCurrentServer());
 
         loadJMSCmd.execute(address, new SimpleCallback<AggregatedJMSModel>() {
             @Override
