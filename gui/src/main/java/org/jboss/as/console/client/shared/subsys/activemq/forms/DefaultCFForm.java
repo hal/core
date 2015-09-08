@@ -9,6 +9,7 @@ import org.jboss.as.console.client.widgets.forms.FormToolStrip;
 import org.jboss.as.console.client.widgets.forms.items.JndiNameItem;
 import org.jboss.ballroom.client.widgets.forms.CheckBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
+import org.jboss.ballroom.client.widgets.forms.ListItem;
 import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.forms.TextItem;
@@ -43,7 +44,7 @@ public class DefaultCFForm {
     public Widget asWidget() {
         JndiNameItem jndiName = new JndiNameItem("jndiName", "JNDI Name");
         TextBoxItem groupId = new TextBoxItem("groupId", "Group ID", false);
-        TextBoxItem connector = new TextBoxItem("connector", "Connector");
+        ListItem connectors = new ListItem("connectors", "Connectors");
         CheckBoxItem failoverInitial = new CheckBoxItem("failoverInitial", "Failover Initial?");
         CheckBoxItem globalPools = new CheckBoxItem("useGlobalPools", "Global Pools?");
         NumberBoxItem threadPool = new NumberBoxItem("threadPoolMax", "Thread Pool Max");
@@ -51,13 +52,21 @@ public class DefaultCFForm {
 
         if (isCreate) {
             TextBoxItem name = new TextBoxItem("name", "Name");
-            form.setFields(name, jndiName, connector);
+            form.setFields(name, jndiName, connectors);
+            form.addFormValidator((formItems, outcome) -> {
+                if (connectors.getValue() == null || connectors.getValue().isEmpty()) {
+                    outcome.addError("connectors");
+                    connectors.setErroneous(true);
+                } else {
+                    connectors.setErroneous(false);
+                }
+            });
         } else {
             TextItem name = new TextItem("name", "Name");
 
             form.setFields(
                     name, jndiName,
-                    connector, groupId,
+                    connectors, groupId,
                     failoverInitial,
                     threadPool, txBatch,
                     globalPools);

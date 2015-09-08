@@ -1,5 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.activemq;
 
+import com.google.common.collect.Lists;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.domain.model.LoggingCallback;
@@ -87,12 +88,10 @@ public class LoadJMSCmd implements AsyncCommand<AggregatedJMSModel> {
                     connectionFactory.setName(name);
                     connectionFactory.setJndiName(jndi);
 
-                    if (factoryValue.hasDefined("connector")) {
-                        List<Property> items = factoryValue.get("connector").asPropertyList();
-                        String list = "";
-                        for (Property item : items) { list += " " + item.getName(); }
-
-                        connectionFactory.setConnector(list);
+                    if (factoryValue.hasDefined("connectors")) {
+                        List<ModelNode> items = factoryValue.get("connectors").asList();
+                        List<String> list = Lists.transform(items, ModelNode::asString);
+                        connectionFactory.setConnectors(list);
                     }
                     factoryModels.add(connectionFactory);
                 }

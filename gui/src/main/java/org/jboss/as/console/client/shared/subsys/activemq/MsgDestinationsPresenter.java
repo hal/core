@@ -102,6 +102,8 @@ public class MsgDestinationsPresenter
         void enableEditQueue(boolean b);
         void enableEditTopic(boolean b);
     }
+
+
     // @formatter:on
 
 
@@ -809,6 +811,7 @@ public class MsgDestinationsPresenter
         return currentServer;
     }
 
+    @SuppressWarnings("unchecked")
     public void saveConnnectionFactory(String name, Map<String, Object> changeset) {
         ModelNode address = new ModelNode();
         address.get(ADDRESS).set(Baseadress.get());
@@ -896,7 +899,7 @@ public class MsgDestinationsPresenter
         address.add("server", getCurrentServer());
         address.add("connection-factory", entity.getName());
 
-        ModelNode operation = factoryAdapter.fromEntity(entity);
+        ModelNode operation = new ModelNode();
         operation.get(ADDRESS).set(address);
         operation.get(OP).set(ADD);
 
@@ -904,9 +907,10 @@ public class MsgDestinationsPresenter
         operation.get("entries").setEmptyList();
         operation.get("entries").add(entity.getJndiName());
 
-        ModelNode connector = new ModelNode();
-        connector.get(entity.getConnector()).set(new ModelNode());   // means undefined ...
-        operation.get("connector").set(connector);
+        // connectors
+        for (String connector : entity.getConnectors()) {
+            operation.get("connectors").add(connector);
+        }
 
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override

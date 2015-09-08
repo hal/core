@@ -22,6 +22,8 @@ package org.jboss.as.console.client.shared.subsys.activemq.model;
 import org.jboss.as.console.client.widgets.forms.Address;
 import org.jboss.as.console.client.widgets.forms.Binding;
 
+import java.util.List;
+
 /**
  * @author Heiko Braun
  * @date 5/10/11
@@ -41,9 +43,9 @@ public interface ActivemqConnectionFactory {
     String getJndiName();
     void setJndiName(String jndi);
 
-    @Binding(skip=true)
-    String getConnector();
-    void setConnector(String connector);
+    @Binding(listType = "java.lang.String")
+    List<String> getConnectors();
+    void setConnectors(List<String> connectors);
 
     @Binding(detypedName = "call-timeout")
     Long getCallTimeout();
