@@ -36,6 +36,10 @@ public interface PoolConfig {
     boolean isPoolStrictMin();
     void setPoolStrictMin(boolean b);
 
+    @Binding(detypedName = "use-fast-fail")
+    boolean isUseFastFail();
+    void setUseFastFail(boolean b);
+
     @Binding(detypedName = "flush-strategy")
     String getFlushStrategy();
     void setFlushStrategy(String name);
