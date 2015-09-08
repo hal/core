@@ -688,7 +688,8 @@ public class EntityAdapter<T> {
                 nodeToSetValueUpon.set(fromEntityList((List)value));
             }
         }
-        else if (Map.class.getName().equals(binding.getJavaTypeName())) {
+        // Don't use Map.class.getName() since this does not work in production mode (class metadata is disabled)
+        else if ("java.util.Map".equals(binding.getJavaTypeName())) {
             // Only Map<String, String> is supported!
             Map<String, String> map = (Map<String, String>) value;
             for (Map.Entry<String, String> entry : map.entrySet()) {
