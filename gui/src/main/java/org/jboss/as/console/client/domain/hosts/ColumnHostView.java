@@ -291,9 +291,12 @@ public class ColumnHostView extends SuspendableViewImpl
                     final String selectedHost = hosts.getSelectedItem();
                     columnManager.updateActiveSelection(hostColWidget);
 
-                    presenter.getPlaceManager().revealRelativePlace(
-                            new PlaceRequest(NameTokens.DomainRuntimePresenter)
-                    );
+                    if(!presenter.getPlaceManager().getCurrentPlaceRequest().matchesNameToken(NameTokens.DomainRuntimePresenter))
+                    {
+                        presenter.getPlaceManager().revealRelativePlace(
+                                new PlaceRequest(NameTokens.DomainRuntimePresenter)
+                        );
+                    }
 
                     Scheduler.get().scheduleDeferred(
                             new Scheduler.ScheduledCommand() {
