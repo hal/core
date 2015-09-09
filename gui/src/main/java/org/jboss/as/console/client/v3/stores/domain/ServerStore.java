@@ -393,9 +393,10 @@ public class ServerStore extends ChangeSupport {
     }
 
     public List<Server> getServerForHost(String host) {
-        List<Server> servers = host2server.get(host);
+        List<Server> serversOnHost = host2server.get(host);
+        List<Server> servers = serversOnHost!=null ? serversOnHost : new ArrayList<Server>();
         normalizeModel(servers);
-        return servers != null ? servers : new ArrayList<Server>();
+        return servers;
     }
 
     public List<Server> getServerForGroup(String group) {
