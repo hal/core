@@ -1,173 +1,101 @@
-@homepage-text-color: #4d5258;
-@homepage-link-color: #009bce;
-
-.homepage-primary-header {
-  font-family: @font-family;
-  font-size: 24px;
-  font-weight: 300;
-  color: @homepage-text-color;
-
-  &.intro {
-    font-family: @font-family;
-    font-size: 12px;
-    line-height: 18px;
-    font-weight: normal;
-    color: @homepage-text-color;
-    padding-top: 10px;
-  }
-}
-
-.homepage-secondary-header {
-  font-family: @font-family;
-  font-size: 18px;
-  font-weight: 300;
-  color: @homepage-text-color;
-}
-
-.homepage-sidebar-section-header {
-  font-family: @font-family;
-  font-size: 12px;
-  font-weight: 600;
-  color: @homepage-text-color;
-}
-
-.homepage-link {
-  font-family: @font-family;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 14px;
-  color: @homepage-link-color;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.homepage-main-root {
-  border-right: solid 1px #c8c8c8;
-}
-
-.homepage-main {
-  padding: 30px 15px 0 20px;
-  h1 {
-    margin: 0;
-    padding: 0;
-  }
-  h2 {
-    margin: 20px 0 0 0;
-    padding: 0;
-  }
-}
-
-.homepage-info-boxes, .homepage-content-boxes {
-  width: 100%;
-  td.column {
-    width: 50%;
-  }
-  td.left {
-    padding-right: 10px;
-  }
-  td.right {
-    padding-left: 10px;
-  }
-}
-
-.homepage-info-box-header {
-  margin: 10px 0 0 0;
-  padding: 0;
-}
-
-.homepage-info-box-body {
-  font-family: @font-family;
-  font-size: 12px;
-  line-height: 18px;
-  color: @homepage-text-color;
-}
-
-.homepage-content-box {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 1px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
-  width: 100%;
-  margin: 20px 0;
-}
-
-.homepage-content-box-header {
-  margin: 0;
-  padding: 10px 15px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  font-family: @font-family;
-  font-size: 13px;
-  font-weight: 700;
-  color: @homepage-text-color;
-}
-
-.homepage-content-box-icon {
-  float: right;
-  color: @homepage-link-color;
-}
-
-.homepage-content-box-body {
-  padding: 15px;
-  p, ol, li {
-    font-family: @font-family;
-    font-size: 12px;
-    line-height: 18px;
-    color: @homepage-text-color;
-  }
-  p, ol {
-    margin: 0 0 10px 0;
-  }
-  a:before {
-    content: "> ";
-  }
-  &:before {
-    content: " ";
-    display: table;
+.clearfix() {
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
   }
   &:after {
     clear: both;
   }
 }
 
-.homepage-sidebar-root {
-  background-color: #f6f6f6;
+.eap-home-row {
+  .clearfix();
+  padding: 1.5% 3%;
+  margin-left: -3%;
+  line-height: 1.5;
 }
 
-.homepage-sidebar {
-  padding: 30px 20px 0 15px;
+.eap-home-col {
+  float: left;
+  //  background: red;
+  width: 47%;
+  margin-left: 3%
+}
+
+.eap-home-title {
+  margin: 0 3% 3% 3%;
+  h1 {
+    font-weight: 300;
+  }
+  p {
+    float: right;
+  }
+}
+
+.eap-home-module {
+  .clearfix();
+}
+
+.eap-home-module-icon {
+  float: left;
+  img {
+    width: 40px;
+    height: auto;
+  }
+}
+
+.eap-home-module-container {
+  margin-left: 50px;
+  p {
+    margin: 0 0 5px 0;
+  }
+  ol {
+    margin: 0 0 5px 0;
+    padding: 0;
+    list-style-position: inside;
+  }
+  ul {
+    list-style: none;
+    margin: 0 0 5px 0;
+    padding: 0;
+  }
+}
+
+.eap-home-module-header {
+  margin-bottom: 20px;
   h2 {
-    margin: 0 0 20px 0;
+    margin: 0 0 3px 0;
+    font-weight: 300;
+    //    background: red;
+    line-height: 20px;
+    font-size: 1.5em;
+  }
+  p {
+    margin: 0;
   }
 }
 
-.homepage-sidebar-sections {
+.eap-home-module-col {
+  float: left;
+  width: 50%;
 }
 
-.homepage-sidebar-section {
-  padding: 20px 0;
-  border-bottom: 2px solid #e5e5e5;
-  &:first-child {
-    padding-top: 0;
-  }
-  &:last-child {
-    border-bottom: none;
-  }
-  h3 {
-    margin: 0 0 15px;
-  }
-}
-
-.homepage-sidebar-links {
+.eap-toggle-controls {
+  margin-bottom: 10px;
   a {
-    margin-bottom: 15px;
-    display: block;
+    display: inline-block;
+    padding: 0 20px;
+    border-right: 1px solid #ccc;
     &:last-child {
-      margin-bottom: 0;
+      border: none;
+    }
+    &:first-child {
+      padding-left: 0;
     }
   }
 }
 
+.eap-toggle-container {
+  margin-bottom: 10px;
+}

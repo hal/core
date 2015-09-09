@@ -37,7 +37,6 @@ public class ResourceLoader {
         } else {
             resources.productStyles().ensureInjected();
         }
-
         //resources.verticalTabPanelStyles().ensureInjected();
 
         resources.prettifyCss().ensureInjected();
