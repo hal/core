@@ -304,6 +304,8 @@ public class CachesPresenter extends Presenter<CachesPresenter.MyView, CachesPre
                 else {
                     Console.info("Successfully modified "+fqAddress);
                 }
+
+                loadContainer();
             }
         });
 
