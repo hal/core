@@ -147,8 +147,10 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
     }
 
     public void setData(List<Property> data) {
-        selectionModel.clear();
-        dataProvider.setList(data);
-        table.selectDefaultEntity();
+        if(selectionModel!=null) {
+            selectionModel.clear();
+            dataProvider.setList(data);
+            table.selectDefaultEntity();
+        }
     }
 }

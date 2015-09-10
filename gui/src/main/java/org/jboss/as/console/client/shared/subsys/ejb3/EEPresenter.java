@@ -59,7 +59,6 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         void setExecutor(List<Property> data);
         void setScheduledExecutor(List<Property> data);
         void setBindings(ModelNode data);
-        boolean isLegacyView();
     }
 
 
@@ -190,13 +189,12 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
                     getView().setModules(globalModules);
                     getView().updateFrom(data);
 
-                    if(!getView().isLegacyView()) {
-                        getView().setContextServices(failSafeGetProperties(data.get("context-service")));
-                        getView().setExecutor(failSafeGetProperties(data.get("managed-executor-service")));
-                        getView().setScheduledExecutor(failSafeGetProperties(data.get("managed-scheduled-executor-service")));
-                        getView().setThreadFactories(failSafeGetProperties(data.get("managed-thread-factory")));
-                        getView().setBindings(data.get("service").get("default-bindings").asObject());
-                    }
+                    getView().setContextServices(failSafeGetProperties(data.get("context-service")));
+                    getView().setExecutor(failSafeGetProperties(data.get("managed-executor-service")));
+                    getView().setScheduledExecutor(failSafeGetProperties(data.get("managed-scheduled-executor-service")));
+                    getView().setThreadFactories(failSafeGetProperties(data.get("managed-thread-factory")));
+                    getView().setBindings(data.get("service").get("default-bindings").asObject());
+
                 }
             }
         });
@@ -213,10 +211,10 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
 
     private static List<Property> failSafeGetProperties(ModelNode item) {
 
-            if(item.isDefined())
-                return item.asPropertyList();
-            else
-                return Collections.EMPTY_LIST;
+        if(item.isDefined())
+            return item.asPropertyList();
+        else
+            return Collections.EMPTY_LIST;
     }
 
     @Override

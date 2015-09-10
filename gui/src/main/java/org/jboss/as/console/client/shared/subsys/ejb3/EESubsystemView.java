@@ -43,28 +43,18 @@ public class EESubsystemView extends SuspendableViewImpl implements EEPresenter.
                 .addDetail("Deployments", attributesView.asWidget())
                 .addDetail("Global Modules", moduleView.asWidget());
 
-        if(!isLegacyView()) {
-            bindingsView = new BindingsView(presenter);
-            layout.addDetail("Default Bindings", bindingsView.asWidget());
-        }
+
+        bindingsView = new BindingsView(presenter);
+        layout.addDetail("Default Bindings", bindingsView.asWidget());
 
         tabLayoutpanel.add(layout.build(), "EE Subsystem", true);
 
-        if(!isLegacyView()) {
-            servicesView = new EEServicesView(presenter);
-            tabLayoutpanel.add(servicesView.asWidget(), "Services", true);
-        }
+        servicesView = new EEServicesView(presenter);
+        tabLayoutpanel.add(servicesView.asWidget(), "Services", true);
 
         tabLayoutpanel.selectTab(0);
 
         return tabLayoutpanel;
-    }
-
-    // see  https://issues.jboss.org/browse/HAL-491
-    // This can be removed as soon as the EE subsystem is uptodate in both branches
-    public boolean isLegacyView() {
-        return !productConfig.getProfile().equals(ProductConfig.Profile.COMMUNITY)
-                || productConfig.getProductName().equals("EAP");
     }
 
     @Override
