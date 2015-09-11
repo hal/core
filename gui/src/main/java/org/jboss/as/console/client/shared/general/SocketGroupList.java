@@ -12,6 +12,7 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.SimpleLayout;
 import org.jboss.as.console.client.widgets.tables.ViewLinkCell;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
+import org.jboss.ballroom.client.widgets.tables.DefaultPager;
 
 import java.util.List;
 
@@ -65,12 +66,16 @@ public class SocketGroupList {
 
         table.setSelectionModel(new SingleSelectionModel<String>());
 
+        DefaultPager pager = new DefaultPager();
+        pager.setDisplay(table);
+
         // ----
         SimpleLayout layoutBuilder = new SimpleLayout()
                 .setPlain(true)
                 .setHeadline("Socket Binding Groups")
                 .setDescription(Console.MESSAGES.pleaseChoseanItem())
-                .addContent(Console.MESSAGES.available("Groups"), table);
+                .addContent(Console.MESSAGES.available("Groups"), table)
+                .addContent("Pager", pager);
 
         return layoutBuilder.build();
     }
