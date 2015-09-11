@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -483,7 +484,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         }
 
                         // MAP
-                        else if (baseType == HashMap.class) {
+                        else if (baseType == LinkedHashMap.class || baseType == HashMap.class) {
                             node.clear();
                             Map<String,String> m = (Map<String,String>)obj;
                             for(String k : m.keySet())
@@ -492,7 +493,7 @@ public class ModelNodeForm extends AbstractForm<ModelNode> {
                         }
 
                         else {
-                            throw new IllegalArgumentException("Can not convert. This value is not of a recognized base type. Value =" + obj.toString());
+                            throw new IllegalArgumentException("Can not convert. This value is not of a recognized base type: " + obj.toString());
                         }
                     }
                 });
