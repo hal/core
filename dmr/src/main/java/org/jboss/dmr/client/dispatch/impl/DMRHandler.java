@@ -270,7 +270,7 @@ public class DMRHandler implements ActionHandler<DMRAction, DMRResponse> {
             request = requestBuilder.send();
             trace(Type.SEND, id, operation);
         }
-        catch (RequestException e)
+        catch (Throwable e)
         {
             resultCallback.onFailure(e);
         }
