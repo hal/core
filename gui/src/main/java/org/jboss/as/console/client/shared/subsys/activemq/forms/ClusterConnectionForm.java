@@ -78,16 +78,35 @@ public class ClusterConnectionForm {
         if (isCreate) { name = new TextBoxItem("name", "Name"); } else { name = new TextItem("name", "Name"); }
 
         NumberBoxItem callTimeout = new NumberBoxItem("callTimeout", "Call Timeout");
+        callTimeout.setRequired(false);
+
         NumberBoxItem checkPeriod = new NumberBoxItem("checkPeriod", "Check Period");
+        checkPeriod.setRequired(false);
+
         TextBoxItem connectionAddress = new TextBoxItem("clusterConnectionAddress", "Connection Address");
+
         NumberBoxItem connectionTtl = new NumberBoxItem("connectionTTL", "Connection TTL");
+        connectionTtl.setRequired(false);
+
         TextBoxItem connectorName = new TextBoxItem("connectorName", "Connector Name");
+
         TextBoxItem groupName = new TextBoxItem("discoveryGroup", "Discovery Group");
+        groupName.setRequired(false);
+
         CheckBoxItem forward = new CheckBoxItem("forwardWhenNoConsumers", "Forward?");
+
         NumberBoxItem maxHops = new NumberBoxItem("maxHops", "Max Hops");
+        maxHops.setRequired(false);
+
         NumberBoxItem retryInterval = new NumberBoxItem("retryInterval", "Retry Interval");
+        retryInterval.setRequired(false);
+
         NumberBoxItem maxRetryInterval = new NumberBoxItem("maxRetryInterval", "Max Retry Interval");
+        maxRetryInterval.setRequired(false);
+
         NumberBoxItem reconnect = new NumberBoxItem("reconnectAttempts", "Reconnect Attempts", -1, Integer.MAX_VALUE);
+        reconnect.setRequired(false);
+
         CheckBoxItem duplicateDetection = new CheckBoxItem("duplicateDetection", "Duplicate Detection?");
 
         if (isCreate) {
