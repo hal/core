@@ -1329,4 +1329,6 @@ public interface UIConstants extends Constants {
     String subsys_iiop_openjdk_desc();
 
     String wizard_back();
+
+    String homepage_help_need_help();
 }

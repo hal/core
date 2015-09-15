@@ -219,7 +219,7 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                 .end()
                 .div().css("eap-home-module-container")
                     .div().css("eap-home-module-header")
-                        .h(2).innerText("Need Help?").end()
+                        .h(2).innerText(constants.homepage_help_need_help()).end()
                     .end()
                     .div().css("eap-home-module-col")
                         .p().innerText(constants.homepage_help_general_resources()).end()
