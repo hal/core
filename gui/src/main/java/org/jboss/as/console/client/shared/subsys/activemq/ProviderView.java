@@ -7,6 +7,8 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.NumberBoxItem;
 import org.jboss.dmr.client.Property;
 
 import java.util.Map;
@@ -81,7 +83,19 @@ public class ProviderView implements MessagingAddress {
                 .setConfigOnly()
                 .setResourceDescription(definition)
                 .include(COMMON)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext)
+                .addFactory(
+                        "thread-pool-max-size",
+                        new ModelNodeFormBuilder.FormItemFactory(){
+                            @Override
+                            public FormItem create(Property attr) {
+                                FormItem formItem = new NumberBoxItem(attr.getName(), "Thread Pool Size", true);
+                                formItem.setRequired(false);
+                                formItem.setEnabled(true);
+                                return formItem;
+                            }
+                        }
+                ).build();
         commonForm.getForm().setToolsCallback(callback);
 
         // security

@@ -52,6 +52,13 @@ public class ModelNodeFormBuilder {
     private boolean requiredOnly;
     private boolean createMode;
 
+    private Map<String, FormItemFactory> itemFactories = new HashMap<>();
+
+    public interface FormItemFactory {
+
+        FormItem create(Property attributeDescription);
+    }
+
     public ModelNodeFormBuilder setSecurityContext(SecurityContext sc) {
         if(null==sc)
             throw new IllegalArgumentException("SecurityContext cannot be null!");
@@ -78,6 +85,11 @@ public class ModelNodeFormBuilder {
     public ModelNodeFormBuilder setConfigOnly() {
         this.configAttributes = true;
         this.runtimeAttributes = false;
+        return this;
+    }
+
+    public ModelNodeFormBuilder addFactory(String attributeName, FormItemFactory factory) {
+        itemFactories.put(attributeName, factory);
         return this;
     }
 
@@ -274,75 +286,83 @@ public class ModelNodeFormBuilder {
 
                 FormItem formItem = null;
 
-                switch (type) {
-                    case BOOLEAN:
-                        formItem = new CheckBoxItem(attr.getName(), label);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case DOUBLE:
-                        formItem = new NumberBoxItem(attr.getName(), label);
-                        formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case LONG:
-                        formItem = new NumberBoxItem(attr.getName(), label);
-                        formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case BIG_DECIMAL:
-                        formItem = new NumberBoxItem(attr.getName(), label);
-                        formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case INT:
-                        formItem = new NumberBoxItem(attr.getName(), label);
-                        formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case LIST:
-                        formItem = new ListItem(attr.getName(), label);
-                        formItem.setRequired(isRequired);
-                        formItem.setEnabled(!readOnly && !isRuntime);
-                        break;
-                    case STRING:
-                        if (attrDesc.get("allowed").isDefined()) {
-                            List<ModelNode> allowed = attrDesc.get("allowed").asList();
-                            Set<String> allowedValues = new HashSet<String>(allowed.size());
-                            for (ModelNode value : allowed)
-                                allowedValues.add(value.asString());
+                // exopliciyly created form items (monkey patching)
+                if(itemFactories.containsKey(attr.getName()))
+                {
+                    formItem = itemFactories.get(attr.getName()).create(attr);
+                }
 
-                            ComboBoxItem combo = new ComboBoxItem(attr.getName(), label);
-                            combo.setValueMap(allowedValues);
-                            combo.setEnabled(!readOnly && !isRuntime);
-                            combo.setRequired(isRequired);
-
-                            formItem = combo;
-                        } else {
-                            TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
-                            textBoxItem.setAllowWhiteSpace(true);
-
-                            textBoxItem.setRequired(isRequired);
-                            textBoxItem.setEnabled(!readOnly && !isRuntime);
-
-                            formItem = textBoxItem;
-                        }
-
-                        // TODO: Support for TextAreaItem
-
-                        break;
-                    case OBJECT:
-                        if(attrDesc.has("value-type") && attrDesc.get("value-type").asString().equals("STRING"))
-                        {
-                            PropertyListItem propList = new PropertyListItem(attr.getName(), label);
-                            propList.setRequired(isRequired);
-                            propList.setEnabled(!readOnly && !isRuntime);
-
-                            formItem = propList;
+                // not created by explicit factory
+                if(null==formItem) {
+                    switch (type) {
+                        case BOOLEAN:
+                            formItem = new CheckBoxItem(attr.getName(), label);
+                            formItem.setEnabled(!readOnly && !isRuntime);
                             break;
+                        case DOUBLE:
+                            formItem = new NumberBoxItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
+                            formItem.setEnabled(!readOnly && !isRuntime);
+                            break;
+                        case LONG:
+                            formItem = new NumberBoxItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
+                            formItem.setEnabled(!readOnly && !isRuntime);
+                            break;
+                        case BIG_DECIMAL:
+                            formItem = new NumberBoxItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
+                            formItem.setEnabled(!readOnly && !isRuntime);
+                            break;
+                        case INT:
+                            formItem = new NumberBoxItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
+                            formItem.setEnabled(!readOnly && !isRuntime);
+                            break;
+                        case LIST:
+                            formItem = new ListItem(attr.getName(), label);
+                            formItem.setRequired(isRequired);
+                            formItem.setEnabled(!readOnly && !isRuntime);
+                            break;
+                        case STRING:
+                            if (attrDesc.get("allowed").isDefined()) {
+                                List<ModelNode> allowed = attrDesc.get("allowed").asList();
+                                Set<String> allowedValues = new HashSet<String>(allowed.size());
+                                for (ModelNode value : allowed)
+                                    allowedValues.add(value.asString());
+
+                                ComboBoxItem combo = new ComboBoxItem(attr.getName(), label);
+                                combo.setValueMap(allowedValues);
+                                combo.setEnabled(!readOnly && !isRuntime);
+                                combo.setRequired(isRequired);
+
+                                formItem = combo;
+                            } else {
+                                TextBoxItem textBoxItem = new TextBoxItem(attr.getName(), label);
+                                textBoxItem.setAllowWhiteSpace(true);
+
+                                textBoxItem.setRequired(isRequired);
+                                textBoxItem.setEnabled(!readOnly && !isRuntime);
+
+                                formItem = textBoxItem;
+                            }
+
+                            // TODO: Support for TextAreaItem
+
+                            break;
+                        case OBJECT:
+                            if (attrDesc.has("value-type") && attrDesc.get("value-type").asString().equals("STRING")) {
+                                PropertyListItem propList = new PropertyListItem(attr.getName(), label);
+                                propList.setRequired(isRequired);
+                                propList.setEnabled(!readOnly && !isRuntime);
+
+                                formItem = propList;
+                                break;
+                            }
+                        default: {
+                            unsupportedTypes.add(new String[]{attr.getName(), type.toString()});
+                            Log.error("Unsupported ModelType " + type + ", attribute '" + attr.getName() + "'");
                         }
-                    default: {
-                        unsupportedTypes.add(new String[]{attr.getName(), type.toString()});
-                        Log.error("Unsupported ModelType " + type + ", attribute '" + attr.getName() + "'");
                     }
                 }
 
