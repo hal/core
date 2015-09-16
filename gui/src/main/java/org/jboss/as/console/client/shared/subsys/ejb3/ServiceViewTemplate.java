@@ -10,9 +10,8 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.layout.MultipleToOneLayout;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
@@ -29,29 +28,28 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 10/09/14
  */
-public class ServiceViewTemplate extends ModelDrivenWidget {
+public class ServiceViewTemplate {
 
     private final EEPresenter presenter;
 
-    private final String addressString;
+    private final AddressTemplate address;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
 
     private String title;
     private SingleSelectionModel<Property> selectionModel;
 
-    public ServiceViewTemplate(EEPresenter presenter, String title, String addressString) {
-        super(addressString);
+    public ServiceViewTemplate(EEPresenter presenter, String title, AddressTemplate address) {
+
         this.title = title;
         this.presenter = presenter;
-        this.addressString = addressString;
+        this.address = address;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
     }
 
-    @Override
-    public Widget buildWidget(final ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
         TextColumn<Property> nameColumn = new TextColumn<Property>() {
             @Override
             public String getValue(Property node) {
@@ -65,7 +63,7 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddResourceDialog(addressString);
+                presenter.onLaunchAddResourceDialog(address);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
@@ -78,7 +76,7 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
                             public void onConfirmation(boolean isConfirmed) {
                                 if (isConfirmed) {
                                     presenter.onRemoveResource(
-                                            addressString, getCurrentSelection().getName()
+                                            address, getCurrentSelection().getName()
                                     );
                                 }
                             }
@@ -86,6 +84,7 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
             }
         }));
 
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(address);
         SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
@@ -97,7 +96,7 @@ public class ServiceViewTemplate extends ModelDrivenWidget {
         formAssets.getForm().setToolsCallback(new FormCallback() {
             @Override
             public void onSave(Map changeset) {
-                presenter.onSaveResource(addressString, getCurrentSelection().getName(), changeset);
+                presenter.onSaveResource(address, getCurrentSelection().getName(), changeset);
             }
 
             @Override

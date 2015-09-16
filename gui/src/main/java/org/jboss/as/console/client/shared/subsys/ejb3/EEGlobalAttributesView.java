@@ -4,9 +4,8 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import org.jboss.as.console.client.Console;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.dmr.ResourceDefinition;
-import org.jboss.as.console.mbui.widgets.ModelDrivenWidget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeForm;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -19,14 +18,14 @@ import java.util.Map;
  * @author Heiko Braun
  * @since 09/09/14
  */
-public class EEGlobalAttributesView extends ModelDrivenWidget {
+public class EEGlobalAttributesView {
 
-    final static String RESOURCE_ADDRESS= "{selected.profile}/subsystem=ee";
+    final static AddressTemplate RESOURCE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=ee");
     private ModelNodeForm form;
 
     private final EEPresenter presenter;
     public EEGlobalAttributesView(EEPresenter presenter) {
-        super(RESOURCE_ADDRESS);
+
         this.presenter = presenter;
     }
 
@@ -45,8 +44,9 @@ public class EEGlobalAttributesView extends ModelDrivenWidget {
         }
     }
 
-    @Override
-    public Widget buildWidget(ResourceAddress address, ResourceDefinition definition) {
+    public Widget asWidget() {
+
+        ResourceDescription definition = presenter.getDescriptionRegistry().lookup(RESOURCE_ADDRESS);
         SecurityContext securityContext = Console.MODULES.getSecurityFramework().getSecurityContext(presenter.getProxy().getNameToken());
 
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()

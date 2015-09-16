@@ -14,13 +14,13 @@ import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.behaviour.CrudOperationDelegate;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
-import org.jboss.as.console.mbui.behaviour.CrudOperationDelegate;
-import org.jboss.as.console.mbui.behaviour.DefaultPresenterContract;
-import org.jboss.as.console.mbui.dmr.ResourceAddress;
-import org.jboss.as.console.mbui.widgets.AddResourceDialog;
-import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
@@ -40,12 +40,20 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.*;
  * @author Heiko Braun
  * @date 11/28/11
  */
-public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyProxy>
-        implements DefaultPresenterContract {
+public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyProxy> {
 
     @ProxyCodeSplit
     @NameToken(NameTokens.EEPresenter)
-    @AccessControl(resources = {"{selected.profile}/subsystem=ee"})
+    @RequiredResources(
+            resources = {
+                    "{selected.profile}/subsystem=ee",
+                    "{selected.profile}/subsystem=ee/service=default-bindings",
+                    "{selected.profile}/subsystem=ee/context-service=*",
+                    "{selected.profile}/subsystem=ee/managed-executor-service=*",
+                    "{selected.profile}/subsystem=ee/managed-scheduled-executor-service=*",
+                    "{selected.profile}/subsystem=ee/managed-thread-factory=*"
+            }
+    )
     @SearchIndex(keywords = {"thread-factory", "ee", "context-service", "scheduler", "executor", "managed-bean"})
     public interface MyProxy extends Proxy<EEPresenter>, Place {}
 
@@ -69,6 +77,7 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
     private ApplicationMetaData metaData;
     private DispatchAsync dispatcher;
     private final CoreGUIContext statementContext;
+    private final ResourceDescriptionRegistry resourceDescriptionRegistry;
 
     private DefaultWindow window;
     private List<ModelNode> globalModules = new ArrayList<ModelNode>();
@@ -78,27 +87,30 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
     public EEPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, DispatchAsync dispatcher,
-            RevealStrategy revealStrategy, CoreGUIContext statementContext) {
+            RevealStrategy revealStrategy, CoreGUIContext statementContext, ResourceDescriptionRegistry resourceDescriptionRegistry) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
         this.statementContext = statementContext;
+        this.resourceDescriptionRegistry = resourceDescriptionRegistry;
         this.operationDelegate = new CrudOperationDelegate(this.statementContext, dispatcher);
     }
 
     CrudOperationDelegate.Callback defaultOpCallbacks = new CrudOperationDelegate.Callback() {
+
         @Override
-        public void onSuccess(ResourceAddress address, String name) {
+        public void onSuccess(AddressTemplate addressTemplate, String name) {
 
             loadSubsystem();
         }
 
         @Override
-        public void onFailure(ResourceAddress address, String name, Throwable t) {
-            // noop
+        public void onFailure(AddressTemplate addressTemplate, String name, Throwable t) {
+            //
         }
+
     };
     @Override
     protected void onBind() {
@@ -147,14 +159,11 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
             @Override
             public void onSuccess(DMRResponse result) {
-                ModelNode response  = result.get();
+                ModelNode response = result.get();
 
-                if(response.isFailure())
-                {
+                if (response.isFailure()) {
                     Console.error(Console.MESSAGES.modificationFailed("Modules"), response.getFailureDescription());
-                }
-                else
-                {
+                } else {
                     Console.info(Console.MESSAGES.modified("Modules"));
                 }
 
@@ -241,29 +250,27 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         persistsModules(modules);
     }
 
-    @Override
-    public void onLaunchAddResourceDialog(final String addressString) {
-        ResourceAddress address = new ResourceAddress(addressString, statementContext);
-        String type = address.getResourceType();
+    public void onLaunchAddResourceDialog(final AddressTemplate address) {
 
-        window = new DefaultWindow(Console.MESSAGES.createTitle(type.toUpperCase()));
+
+        window = new DefaultWindow(Console.MESSAGES.createTitle(address.getResourceType().toUpperCase()));
         window.setWidth(480);
         window.setHeight(360);
 
         window.setWidget(
                 new AddResourceDialog(
-                        addressString,
-                        statementContext,
                         Console.MODULES.getSecurityFramework().getSecurityContext(getProxy().getNameToken()),
+                        getDescriptionRegistry().lookup(address),
                         new AddResourceDialog.Callback() {
+
                             @Override
-                            public void onAddResource(ResourceAddress address, ModelNode payload) {
+                            public void onAdd(ModelNode payload) {
                                 window.hide();
-                                operationDelegate.onCreateResource(addressString, payload, defaultOpCallbacks);
+                                operationDelegate.onCreateResource(address, payload.get("name").asString(), payload, defaultOpCallbacks);
                             }
 
                             @Override
-                            public void closeDialogue() {
+                            public void onCancel() {
                                 window.hide();
                             }
                         }
@@ -274,13 +281,15 @@ public class EEPresenter extends Presenter<EEPresenter.MyView, EEPresenter.MyPro
         window.center();
     }
 
-    @Override
-    public void onRemoveResource(String addressString, String name) {
-        operationDelegate.onRemoveResource(addressString, name, defaultOpCallbacks);
+    public void onRemoveResource(AddressTemplate address, String name) {
+        operationDelegate.onRemoveResource(address, name, defaultOpCallbacks);
     }
 
-    @Override
-    public void onSaveResource(String addressString, String name, Map<String, Object> changeset) {
-        operationDelegate.onSaveResource(addressString, name, changeset, defaultOpCallbacks);
+    public void onSaveResource(AddressTemplate address, String name, Map<String, Object> changeset) {
+        operationDelegate.onSaveResource(address, name, changeset, defaultOpCallbacks);
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return resourceDescriptionRegistry;
     }
 }

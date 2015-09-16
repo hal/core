@@ -3,6 +3,7 @@ package org.jboss.as.console.client.shared.subsys.ejb3;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.LayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.dmr.client.Property;
 
@@ -32,10 +33,10 @@ public class EEServicesView {
 
         panel = new PagedView(true);
 
-        contextView = new ServiceViewTemplate(presenter, "Context Services", "{selected.profile}/subsystem=ee/context-service=*");
-        executorView = new ServiceViewTemplate(presenter, "Executor", "{selected.profile}/subsystem=ee/managed-executor-service=*");
-        scheduledView = new ServiceViewTemplate(presenter, "Scheduler Executor", "{selected.profile}/subsystem=ee/managed-scheduled-executor-service=*");
-        threadView = new ServiceViewTemplate(presenter, "Thread factories", "{selected.profile}/subsystem=ee/managed-thread-factory=*");
+        contextView = new ServiceViewTemplate(presenter, "Context Services", AddressTemplate.of("{selected.profile}/subsystem=ee/context-service=*"));
+        executorView = new ServiceViewTemplate(presenter, "Executor", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-executor-service=*"));
+        scheduledView = new ServiceViewTemplate(presenter, "Scheduler Executor", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-scheduled-executor-service=*"));
+        threadView = new ServiceViewTemplate(presenter, "Thread factories", AddressTemplate.of("{selected.profile}/subsystem=ee/managed-thread-factory=*"));
          // TODO: default bindings
 
         panel.addPage("Context Service", contextView.asWidget());

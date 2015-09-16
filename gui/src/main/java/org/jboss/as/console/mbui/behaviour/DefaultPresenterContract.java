@@ -1,5 +1,7 @@
 package org.jboss.as.console.mbui.behaviour;
 
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+
 import java.util.Map;
 
 /**
@@ -11,7 +13,7 @@ import java.util.Map;
 @Deprecated
 public interface DefaultPresenterContract {
 
-    void onLaunchAddResourceDialog(String addressString);
+    void onLaunchAddResourceDialog(AddressTemplate addressString);
 
     void onRemoveResource(String addressString, String name);
 
