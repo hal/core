@@ -24,7 +24,7 @@ public class TransportView {
     private final Property cacheContainer;
 
     private static final AddressTemplate address =
-            AddressTemplate.of("{selected.profile}/subsystem=infinispan/cache-container=*/transport=TRANSPORT");
+            AddressTemplate.of("{selected.profile}/subsystem=infinispan/cache-container=*/transport=jgroups");
     private ModelNodeForm form;
 
     public TransportView(CacheFinderPresenter presenter, Property cacheContainer) {

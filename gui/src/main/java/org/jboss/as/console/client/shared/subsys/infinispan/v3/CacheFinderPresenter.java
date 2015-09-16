@@ -89,7 +89,8 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
     @NameToken(NameTokens.CacheFinderPresenter)
     @AccessControl(resources = {
             "{selected.profile}/subsystem=infinispan",
-            "{selected.profile}/subsystem=infinispan/cache-container=*"
+            "{selected.profile}/subsystem=infinispan/cache-container=*",
+            "{selected.profile}/subsystem=infinispan/cache-container=*/transport=jgroups"
     }, recursive = false)
     @SearchIndex(keywords = {
             "cache", "ejb", "hibernate", "web", "transport"
@@ -320,7 +321,7 @@ public class CacheFinderPresenter extends Presenter<CacheFinderPresenter.MyView,
         transportDialog.center();
 
         if(cacheContainer.getValue().hasDefined("transport"))
-            transportView.updateFrom(cacheContainer.getValue().get("transport").get("TRANSPORT"));
+            transportView.updateFrom(cacheContainer.getValue().get("transport").get("jgroups"));
         else
             transportView.updateFrom(new ModelNode());
     }
