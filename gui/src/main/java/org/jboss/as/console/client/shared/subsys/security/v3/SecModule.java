@@ -3,6 +3,7 @@ package org.jboss.as.console.client.shared.subsys.security.v3;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -15,12 +16,15 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.mbui.widgets.ModelNodeFormBuilder;
 import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.forms.FormCallback;
+import org.jboss.ballroom.client.widgets.forms.FormItem;
+import org.jboss.ballroom.client.widgets.forms.SuggestBoxItem;
 import org.jboss.ballroom.client.widgets.tables.DefaultCellTable;
 import org.jboss.ballroom.client.widgets.tools.ToolButton;
 import org.jboss.ballroom.client.widgets.tools.ToolStrip;
 import org.jboss.ballroom.client.widgets.window.Feedback;
 import org.jboss.dmr.client.Property;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +37,16 @@ public class SecModule {
     private final SecDomainPresenter presenter;
     private final AddressTemplate address;
     private final String title;
+    private final List<String> codes;
     private final DefaultCellTable table;
     private final ListDataProvider<Property> dataProvider;
     private SingleSelectionModel<Property> selectionModel;
 
-    public SecModule(SecDomainPresenter presenter, AddressTemplate address, String title) {
+    public SecModule(SecDomainPresenter presenter, AddressTemplate address, String title, List<String> codes) {
         this.presenter = presenter;
         this.address = address;
         this.title = title;
+        this.codes = codes;
         this.table = new DefaultCellTable(5);
         this.dataProvider = new ListDataProvider<Property>();
         this.dataProvider.addDataDisplay(table);
@@ -60,7 +66,7 @@ public class SecModule {
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_add(), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                presenter.onLaunchAddWizard(address);
+                presenter.onLaunchAddWizard(address, codes);
             }
         }));
         tools.addToolButtonRight(new ToolButton(Console.CONSTANTS.common_label_delete(), new ClickHandler() {
@@ -87,7 +93,20 @@ public class SecModule {
         final ModelNodeFormBuilder.FormAssets formAssets = new ModelNodeFormBuilder()
                 .setConfigOnly()
                 .setResourceDescription(definition)
-                .setSecurityContext(securityContext).build();
+                .setSecurityContext(securityContext)
+                .addFactory(
+                        "code",
+                        new ModelNodeFormBuilder.FormItemFactory() {
+                            @Override
+                            public FormItem create(Property attributeDescription) {
+                                SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
+                                MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+                                oracle.setDefaultSuggestionsFromText(codes);
+                                item.setOracle(oracle);
+                                return item;
+                            }
+                        }
+                ).build();
 
 
         formAssets.getForm().setToolsCallback(new FormCallback() {

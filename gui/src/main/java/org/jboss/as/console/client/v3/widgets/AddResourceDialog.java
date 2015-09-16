@@ -51,13 +51,27 @@ public class AddResourceDialog implements IsWidget {
     private final SecurityContext securityContext;
     private final ResourceDescription resourceDescription;
     private final Callback callback;
+    private NamedFactory factory = null;
     private ModelNodeForm form;
+
+    public interface NamedFactory {
+        String getAttributeName();
+        ModelNodeFormBuilder.FormItemFactory getFactory();
+    }
 
     public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback) {
         this.securityContext = securityContext;
         this.resourceDescription = resourceDescription;
         this.callback = callback;
     }
+
+    public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback, NamedFactory factory) {
+            this.securityContext = securityContext;
+            this.resourceDescription = resourceDescription;
+            this.callback = callback;
+        this.factory = factory;
+    }
+
 
     public AddResourceDialog include(String... attributes) {
         this.includes = attributes;
@@ -71,6 +85,9 @@ public class AddResourceDialog implements IsWidget {
                 .setResourceDescription(resourceDescription)
                 .setRequiredOnly(true)
                 .setSecurityContext(securityContext);
+
+        if(factory!=null)
+            builder.addFactory(factory.getAttributeName(), factory.getFactory());
 
         if(includes!=null)
             builder.include(includes);

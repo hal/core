@@ -10,6 +10,7 @@ import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
 import org.jboss.dmr.client.Property;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -97,12 +98,57 @@ public class SecDomainView extends SuspendableViewImpl implements SecDomainPrese
     public Widget createWidget() {
         panel = new PagedView(true);
 
-        authenticationHandler = new SecModule(presenter, AUTHENTICATION, "Authentication Modules");
-        authorizationHandler = new SecModule(presenter, AUTHORIZATION, "Authorization Modules");
-        auditHandler = new SecModule(presenter, AUDIT, "Audit Modules");
-        aclHandler = new SecModule(presenter, ACL, "ACL Modules");
-        mappingHandler = new SecModule(presenter, MAPPING, "Mapping Modules");
-        trustHandler = new SecModule(presenter, TRUST, "Trust Modules");
+
+        List<String> auditModules = new LinkedList<>();
+        auditModules.add("LogAuditProvider");
+
+        final List<String> authModules  = new LinkedList<>();
+        authModules.add("RealmDirect");
+        authModules.add("Client");
+        authModules.add("Remoting");
+        authModules.add("Certificate");
+        authModules.add("CertificateRoles");
+        authModules.add("Database");
+        authModules.add("DatabaseCertificate");
+        authModules.add("Identity");
+        authModules.add("Ldap");
+        authModules.add("LdapExtended");
+        authModules.add("RoleMapping");
+        authModules.add("RunAs");
+        authModules.add("Simple");
+        authModules.add("ConfiguredIdentity");
+        authModules.add("SecureIdentity");
+        authModules.add("PropertiesUsers");
+        authModules.add("SimpleUsers");
+        authModules.add("LdapUsers");
+        authModules.add("Kerberos");
+        authModules.add("SPNEGO");
+        authModules.add("AdvancedLdap");
+        authModules.add("AdvancedADLdap");
+        authModules.add("UsersRoles");
+
+        final List<String> policyModules  = new LinkedList<>();
+        policyModules.add("DenyAll");
+        policyModules.add("PermitAll");
+        policyModules.add("Delegating");
+        policyModules.add("Web");
+        policyModules.add("JACC");
+        policyModules.add("XACML");
+
+        List<String> mappingModules = new LinkedList<>();
+        mappingModules.add("PropertiesRoles");
+        mappingModules.add("SimpleRoles");
+        mappingModules.add("DeploymentRoles");
+        mappingModules.add("DatabaseRoles");
+        mappingModules.add("LdapRoles");
+        mappingModules.add("LdapAttributes");
+
+        authenticationHandler = new SecModule(presenter, AUTHENTICATION, "Authentication Modules", authModules);
+        authorizationHandler = new SecModule(presenter, AUTHORIZATION, "Authorization Modules", policyModules);
+        auditHandler = new SecModule(presenter, AUDIT, "Audit Modules", auditModules);
+        aclHandler = new SecModule(presenter, ACL, "ACL Modules", Collections.EMPTY_LIST);
+        mappingHandler = new SecModule(presenter, MAPPING, "Mapping Modules", mappingModules);
+        trustHandler = new SecModule(presenter, TRUST, "Trust Modules", Collections.EMPTY_LIST);
 
         panel.addPage("Authentication", authenticationHandler.asWidget());
         panel.addPage("Authorization", authorizationHandler.asWidget());
