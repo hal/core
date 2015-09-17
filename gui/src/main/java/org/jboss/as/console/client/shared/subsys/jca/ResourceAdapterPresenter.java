@@ -17,8 +17,6 @@ import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
-import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
 import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
 import org.jboss.as.console.client.v3.dmr.AddressTemplate;
 import org.jboss.as.console.client.v3.dmr.ResourceAddress;
@@ -26,7 +24,6 @@ import org.jboss.as.console.client.v3.dmr.ResourceDescription;
 import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
-import org.jboss.as.console.spi.AccessControl;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
 import org.jboss.ballroom.client.rbac.SecurityContext;
@@ -38,9 +35,7 @@ import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -400,9 +395,9 @@ public class ResourceAdapterPresenter
         return placeManager;
     }
 
-    public void onDoFlush(ConnectionDefinition entity, String flushOp) {
+  /*  public void onDoFlush(ConnectionDefinition entity, String flushOp) {
 
-       /* ModelNode operation = connectionMetaData.getAddress().asResource(
+        ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, entity.getName());
 
         operation.get(OP).set(flushOp);
@@ -418,12 +413,12 @@ public class ResourceAdapterPresenter
                 else
                     Console.info(Console.MESSAGES.successful("Flush Pool"));
             }
-        });*/
-    }
+        });
+    }*/
 
     // https://issues.jboss.org/browse/AS7-3259
-    public void enOrDisbaleConnection(ConnectionDefinition selection) {
-        /*ModelNode operation = connectionMetaData.getAddress().asResource(
+   /* public void enOrDisbaleConnection(ConnectionDefinition selection) {
+        ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
 
@@ -442,11 +437,11 @@ public class ResourceAdapterPresenter
                     Console.info(Console.MESSAGES.modified("Connection Definition"));
                 loadAdapter(true);
             }
-        });*/
-    }
+        });
+    }*/
 
-    public void enOrDisbaleAdminObject(AdminObject selection) {
-       /* ModelNode operation = adminMetaData.getAddress().asResource(
+   /* public void enOrDisbaleAdminObject(AdminObject selection) {
+        ModelNode operation = adminMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -463,6 +458,6 @@ public class ResourceAdapterPresenter
                     Console.info(Console.MESSAGES.modified("Admin Object"));
                 loadAdapter(true);
             }
-        });*/
-    }
+        });
+    }*/
 }

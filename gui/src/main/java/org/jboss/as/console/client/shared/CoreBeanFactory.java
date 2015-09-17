@@ -69,14 +69,12 @@ import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqSecurity
 import org.jboss.as.console.client.shared.subsys.activemq.model.ActivemqTopic;
 import org.jboss.as.console.client.shared.subsys.configadmin.model.ConfigAdminData;
 import org.jboss.as.console.client.shared.subsys.ejb3.model.Module;
-import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
-import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
+
 import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
 import org.jboss.as.console.client.shared.subsys.jca.model.JDBCDriver;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaBootstrapContext;
 import org.jboss.as.console.client.shared.subsys.jca.model.JcaWorkmanager;
 import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
-import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.shared.subsys.jca.model.WorkmanagerPool;
 import org.jboss.as.console.client.shared.subsys.jca.model.XADataSource;
 import org.jboss.as.console.client.shared.subsys.jgroups.JGroupsProtocol;
@@ -133,9 +131,6 @@ public interface CoreBeanFactory {
 
     AutoBean<DataSource> dataSource();
     AutoBean<XADataSource> xaDataSource();
-    AutoBean<ResourceAdapter> resourceAdapter();
-    AutoBean<ConnectionDefinition> ConnectionDefinition();
-    AutoBean<AdminObject> AdminObject();
     AutoBean<PoolConfig> poolConfig();
 
     // method names must reflect the type names. Hence the ActiveMQ autobeans are suffixed with 'Activemq'
