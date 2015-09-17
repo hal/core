@@ -27,8 +27,6 @@ import elemental.dom.Element;
 import org.jboss.as.console.client.v3.elemento.Elements;
 import org.jboss.as.console.client.v3.elemento.IsElement;
 
-import static org.jboss.as.console.client.v3.elemento.EventType.click;
-
 /**
  * @author Harald Pehl
  */
@@ -44,7 +42,7 @@ public class HomepageSection implements IsElement {
         Elements.Builder builder = new Elements.Builder()
             .div()
                 .div().css("eap-toggle-controls")
-                    .a().css("clickable").on(click, event -> toggle())
+                    .a().css("clickable").rememberAs("toggle")
                         .start("i").css("icon-angle-down").rememberAs("icon").end()
                         .span().innerText(" " + header).end()
                     .end()
@@ -59,6 +57,7 @@ public class HomepageSection implements IsElement {
                 .end()
             .end();
         // @formatter:on
+        wireToggle(builder.referenceFor("toggle"));
 
         Document document = Browser.getDocument();
         Element ol = builder.referenceFor("steps");
@@ -91,4 +90,11 @@ public class HomepageSection implements IsElement {
     public Element asElement() {
         return root;
     }
+
+    native void wireToggle(Element element) /*-{
+        var that = this;
+        element.onclick = function() {
+            that.@org.jboss.as.console.client.shared.homepage.HomepageSection::toggle()();
+        };
+    }-*/;
 }

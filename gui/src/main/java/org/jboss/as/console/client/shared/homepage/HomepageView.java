@@ -31,7 +31,6 @@ import org.jboss.as.console.client.core.UIMessages;
 import org.jboss.as.console.client.v3.elemento.Elements;
 
 import static org.jboss.as.console.client.ProductConfig.Profile.COMMUNITY;
-import static org.jboss.as.console.client.v3.elemento.EventType.click;
 
 /**
  * @author Harald Pehl
@@ -77,19 +76,21 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
                     .end().build();
         } else {
             // @formatter:off
-            header = new Elements.Builder()
+            Elements.Builder headerBuilder = new Elements.Builder()
                 .div().css("eap-home-title")
                     .p()
                         .span().innerText(constants.homepage_new_to_eap() + " ").end()
                         .a()
                             .css("clickable")
-                            .on(click, event -> presenter.launchGuidedTour())
+                            .rememberAs("tour")
                             .innerText(constants.homepage_take_a_tour())
                         .end()
                     .end()
                     .h(1).innerText("Red Hat Jboss Enterprise Application Platform").end()
-                .end().build();
+                .end();
             // @formatter:on
+            wireTour(headerBuilder.referenceFor("tour"));
+            header = headerBuilder.build();
         }
 
         if (standalone) {
@@ -310,5 +311,16 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
     @Override
     public void setPresenter(final HomepagePresenter presenter) {
         this.presenter = presenter;
+    }
+
+    native void wireTour(Element element) /*-{
+        var that = this;
+        element.onclick = function() {
+            that.@org.jboss.as.console.client.shared.homepage.HomepageView::launchGuidedTour()();
+        };
+    }-*/;
+
+    private void launchGuidedTour() {
+        presenter.launchGuidedTour();
     }
 }
