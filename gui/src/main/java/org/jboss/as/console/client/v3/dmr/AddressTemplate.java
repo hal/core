@@ -212,6 +212,9 @@ public class AddressTemplate {
 
     // ------------------------------------------------------ resolve
 
+    public ResourceAddress resolve(StatementContext context, String... wildcards) {
+        return resolve(context, Arrays.asList(wildcards));
+    }
     /**
      * Resolve this address template against the specified statement context.
      *
@@ -219,7 +222,7 @@ public class AddressTemplate {
      * @param wildcards An optional list of wildcards which are used to resolve any wildcards in this address template
      * @return a full qualified resource address which might be empty, but which does not contain any tokens
      */
-    public ResourceAddress resolve(StatementContext context, String... wildcards) {
+    public ResourceAddress resolve(StatementContext context, List<String> wildcards) {
 
         int wildcardCount = 0;
         ModelNode model = new ModelNode();
@@ -282,8 +285,8 @@ public class AddressTemplate {
 
                 // wildcards
                 String addressValue = resolvedValue;
-                if ("*".equals(resolvedValue) && wildcards != null && wildcards.length > 0 && wildcardCount < wildcards.length) {
-                    addressValue = wildcards[wildcardCount];
+                if ("*".equals(resolvedValue) && wildcards != null && wildcards.size() > 0 && wildcardCount < wildcards.size()) {
+                    addressValue = wildcards.get(wildcardCount);
                     wildcardCount++;
                 }
                 model.add(resolvedKey, addressValue);

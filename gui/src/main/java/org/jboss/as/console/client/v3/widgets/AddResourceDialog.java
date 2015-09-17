@@ -35,6 +35,9 @@ import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.TrappedFocusPanel;
 import org.jboss.dmr.client.ModelNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Harald Pehl
  */
@@ -51,8 +54,8 @@ public class AddResourceDialog implements IsWidget {
     private final SecurityContext securityContext;
     private final ResourceDescription resourceDescription;
     private final Callback callback;
-    private NamedFactory factory = null;
     private ModelNodeForm form;
+    private List<NamedFactory> factories = new ArrayList<>();
 
     public interface NamedFactory {
         String getAttributeName();
@@ -65,13 +68,11 @@ public class AddResourceDialog implements IsWidget {
         this.callback = callback;
     }
 
-    public AddResourceDialog(SecurityContext securityContext, ResourceDescription resourceDescription, Callback callback, NamedFactory factory) {
-            this.securityContext = securityContext;
-            this.resourceDescription = resourceDescription;
-            this.callback = callback;
-        this.factory = factory;
-    }
 
+    public AddResourceDialog addFactory(NamedFactory factory) {
+        factories.add(factory);
+        return this;
+    }
 
     public AddResourceDialog include(String... attributes) {
         this.includes = attributes;
@@ -86,8 +87,9 @@ public class AddResourceDialog implements IsWidget {
                 .setRequiredOnly(true)
                 .setSecurityContext(securityContext);
 
-        if(factory!=null)
+        for (NamedFactory factory : factories) {
             builder.addFactory(factory.getAttributeName(), factory.getFactory());
+        }
 
         if(includes!=null)
             builder.include(includes);

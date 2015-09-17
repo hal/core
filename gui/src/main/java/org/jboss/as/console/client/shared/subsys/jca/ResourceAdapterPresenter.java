@@ -1,9 +1,6 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.allen_sauer.gwt.log.client.Log;
-import com.google.gwt.event.logical.shared.CloseEvent;
-import com.google.gwt.event.logical.shared.CloseHandler;
-import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
 import com.gwtplatform.mvp.client.Presenter;
@@ -17,39 +14,32 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.model.ModelAdapter;
-import org.jboss.as.console.client.shared.model.ResponseWrapper;
-import org.jboss.as.console.client.shared.properties.NewPropertyWizard;
-import org.jboss.as.console.client.shared.properties.PropertyManagement;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
 import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
 import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
-import org.jboss.as.console.client.shared.subsys.jca.model.PoolConfig;
-import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
-import org.jboss.as.console.client.shared.subsys.jca.wizard.NewAdapterWizard;
-import org.jboss.as.console.client.shared.subsys.jca.wizard.NewAdminWizard;
-import org.jboss.as.console.client.shared.subsys.jca.wizard.NewConnectionWizard;
-import org.jboss.as.console.client.widgets.forms.AddressBinding;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
-import org.jboss.as.console.client.widgets.forms.KeyAssignment;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
+import org.jboss.as.console.mbui.behaviour.ModelNodeAdapter;
 import org.jboss.as.console.spi.AccessControl;
+import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
-import org.jboss.dmr.client.ModelNodeUtil;
 import org.jboss.dmr.client.Property;
 import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
+import org.useware.kernel.gui.behaviour.StatementContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,57 +54,58 @@ public class ResourceAdapterPresenter
     private final PlaceManager placeManager;
     private RevealStrategy revealStrategy;
     private DispatchAsync dispatcher;
-    private BeanFactory factory;
     private DefaultWindow window;
-    private DefaultWindow propertyWindow;
 
-    private ApplicationMetaData metaData;
+    private final ResourceDescriptionRegistry descriptionRegistry;
+    private final SecurityFramework securityFramework;
+    private final CoreGUIContext statementContext;
 
-    private BeanMetaData raMetaData;
-    private BeanMetaData connectionMetaData;
-    private BeanMetaData adminMetaData;
     private String selectedAdapter;
 
-    private EntityAdapter<ConnectionDefinition> connectionAdapter;
-    private EntityAdapter<ResourceAdapter> adapter;
-    private EntityAdapter<PropertyRecord> propertyAdapter;
-    private EntityAdapter<PoolConfig> poolAdapter;
-    private EntityAdapter<AdminObject> adminAdapter;
+    public StatementContext getStatementContext() {
+        return statementContext;
+    }
+
+    public DispatchAsync getDispatcher() {
+        return dispatcher;
+    }
+
 
     @ProxyCodeSplit
     @NameToken(NameTokens.ResourceAdapterPresenter)
-    @AccessControl(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
+    @RequiredResources(
+            resources = {
+                    "{selected.profile}/subsystem=resource-adapters/resource-adapter=*",
+                    "{selected.profile}/subsystem=resource-adapters/resource-adapter=*/config-properties=*",
+                    "{selected.profile}/subsystem=resource-adapters/resource-adapter=*/admin-objects=*",
+                    "{selected.profile}/subsystem=resource-adapters/resource-adapter=*/connection-definitions=*"
+            }
+    )
     @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
     public interface MyProxy extends Proxy<ResourceAdapterPresenter>, Place {
     }
 
     public interface MyView extends View {
         void setPresenter(ResourceAdapterPresenter presenter);
-        void setAdapter(ResourceAdapter ra);
+        void setAdapter(Property payload);
     }
 
     @Inject
     public ResourceAdapterPresenter(
             EventBus eventBus, MyView view, MyProxy proxy,
             PlaceManager placeManager, RevealStrategy revealStrategy,
-            DispatchAsync dispatcher, BeanFactory factory, ApplicationMetaData propertyMetaData) {
+            DispatchAsync dispatcher, ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework,
+            CoreGUIContext statementContext) {
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
-        this.factory = factory;
-        this.metaData = propertyMetaData;
 
-        this.raMetaData = metaData.getBeanMetaData(ResourceAdapter.class);
-        this.connectionMetaData = metaData.getBeanMetaData(ConnectionDefinition.class);
-        this.adminMetaData = metaData.getBeanMetaData(AdminObject.class);
+        this.descriptionRegistry = descriptionRegistry;
+        this.securityFramework = securityFramework;
+        this.statementContext = statementContext;
 
-        adapter  = new EntityAdapter<ResourceAdapter>(ResourceAdapter.class, metaData);
-        connectionAdapter = new EntityAdapter<ConnectionDefinition>(ConnectionDefinition.class, metaData);
-        propertyAdapter = new EntityAdapter<PropertyRecord>(PropertyRecord.class, metaData);
-        poolAdapter = new EntityAdapter<PoolConfig>(PoolConfig.class, metaData);
-        adminAdapter = new EntityAdapter<AdminObject>(AdminObject.class, metaData);
     }
 
     @Override
@@ -131,10 +122,10 @@ public class ResourceAdapterPresenter
     @Override
     protected void onReset() {
         super.onReset();
-        loadAdapter(true);
+        loadAdapter();
     }
 
-    private void loadAdapter(final boolean refreshDetail) {
+    private void loadAdapter() {
 
         ModelNode operation = new ModelNode();
         operation.get(OP).set(READ_RESOURCE_OPERATION);
@@ -148,109 +139,10 @@ public class ResourceAdapterPresenter
             @Override
             public void onSuccess(DMRResponse response) {
                 ModelNode result = response.get();
-
-
-
-                ModelNode raModel = result.get(RESULT).asObject();
-
-                ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
-                // The unique identifier of a resource adapter is its name (not the archive name)
-                resourceAdapter.setName(selectedAdapter);
-
-                List<PropertyRecord> props = parseConfigProperties(raModel);
-                resourceAdapter.setProperties(props);
-
-                resourceAdapter.setConnectionDefinitions(new ArrayList<ConnectionDefinition>());
-
-                // connection definition
-                if (raModel.hasDefined("connection-definitions")) {
-                    List<Property> connections = raModel.get("connection-definitions").asPropertyList();
-                    for (final Property con : connections) {
-                        ModelNode connectionModel = con.getValue();
-                        ConnectionDefinition connectionDefinition = connectionAdapter
-                                .with(new KeyAssignment() {
-                                    @Override
-                                    public Object valueForKey(String key) {
-                                        return con.getName();
-                                    }
-                                })
-                                .fromDMR(connectionModel);
-
-                        // config properties
-                        List<PropertyRecord> connectionProps = parseConfigProperties(connectionModel);
-                        connectionDefinition.setProperties(connectionProps);
-
-                        // pool
-                        PoolConfig poolConfig = poolAdapter.with(new KeyAssignment() {
-                            @Override
-                            public Object valueForKey(String key) {
-                                //return connectionModel.get("");
-                                return "";
-                            }
-                        }).fromDMR(connectionModel);
-                        connectionDefinition.setPoolConfig(poolConfig);
-
-                        resourceAdapter.getConnectionDefinitions().add(connectionDefinition);
-
-                    }
-
-                }
-
-
-                // admin objects
-                if (raModel.hasDefined("admin-objects")) {
-                    List<Property> admins = raModel.get("admin-objects").asPropertyList();
-                    List<AdminObject> adminEntities = new ArrayList<AdminObject>(admins.size());
-
-                    for (final Property admin : admins) {
-                        ModelNode adminModel = admin.getValue();
-                        AdminObject adminObject = adminAdapter
-                                .with(new KeyAssignment() {
-                                    @Override
-                                    public Object valueForKey(String key) {
-                                        return admin.getName();
-                                    }
-                                }).fromDMR(adminModel);
-
-                        adminObject.setName(admin.getName()); // just to make sure
-                        List<PropertyRecord> adminConfig = parseConfigProperties(adminModel);
-                        adminObject.setProperties(adminConfig);
-
-                        adminEntities.add(adminObject);
-                    }
-
-                    resourceAdapter.setAdminObjects(adminEntities);
-                } else {
-                    resourceAdapter.setAdminObjects(Collections.<AdminObject>emptyList());
-                }
-
-                getView().setAdapter(resourceAdapter);
-
+                ModelNode resourceAdapter = result.get(RESULT).asObject();
+                getView().setAdapter(new Property(selectedAdapter, resourceAdapter));
             }
         });
-    }
-
-    private List<PropertyRecord> parseConfigProperties(ModelNode modelNode) {
-
-        List<PropertyRecord> result;
-        // connection properties
-        if(modelNode.hasDefined("config-properties"))
-        {
-            List<Property> model = modelNode.get("config-properties").asPropertyList();
-            result = new ArrayList<PropertyRecord>(model.size());
-            for(Property prop : model)
-            {
-                PropertyRecord record = propertyAdapter.fromDMR(prop.getValue());
-                record.setKey(prop.getName());
-                result.add(record);
-            }
-        }
-        else
-        {
-            result = Collections.emptyList();
-        }
-
-        return result;
     }
 
     @Override
@@ -259,529 +151,258 @@ public class ResourceAdapterPresenter
     }
 
 
-    public void onSave(final ResourceAdapter ra, Map<String, Object> changedValues) {
+    /*public void onCreate(AddressTemplate address, String name, ModelNode entity) {
 
-        AddressBinding address = raMetaData.getAddress();
-        ModelNode addressModel = address.asResource(Baseadress.get(), ra.getName());
-        addressModel.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
+        ResourceAddress fqAddress = address.resolve(statementContext, name);
 
+        entity.get(OP).set(ADD);
+        entity.get(ADDRESS).set(fqAddress);
 
-        EntityAdapter<ResourceAdapter> adapter = new EntityAdapter<ResourceAdapter>(
-                ResourceAdapter.class, metaData
-        );
-
-        ModelNode operation = adapter.fromChangeset(
-                changedValues,
-                addressModel
-        );
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(entity), new SimpleCallback<DMRResponse>() {
 
             @Override
             public void onSuccess(DMRResponse result) {
                 ModelNode response = result.get();
-                boolean success = response.get(OUTCOME).asString().equals(SUCCESS);
 
-                if (success)
-                    Console.info(Console.MESSAGES.saved("Resource Adapter " + ra.getName()));
-                else
-                    Console.error(Console.MESSAGES.saveFailed("Resource Adapter " + ra.getName()),
-                            response.getFailureDescription());
+                if (response.isFailure()) {
+                    Console.error("Failed to create resource " + fqAddress, response.getFailureDescription());
+                } else {
 
-                loadAdapter(false);
+                    Console.info("Successfully created " + fqAddress);
+                }
+
+                loadAdapter();
+            }
+        });
+    }*/
+
+    public void onCreateProperty(AddressTemplate address, ModelNode entity, String... names) {
+        LinkedList<String> args = new LinkedList<>();
+        args.add(0, selectedAdapter);
+        for (String name : names) {
+            args.add(name);
+        }
+
+        ResourceAddress fqAddress = address.resolve(statementContext, args);
+        entity.get(OP).set(ADD);
+        entity.get(ADDRESS).set(fqAddress);
+
+        dispatcher.execute(new DMRAction(entity), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to create resource " + fqAddress, response.getFailureDescription());
+                } else {
+
+                    Console.info("Successfully created " + fqAddress);
+                }
+
+                loadAdapter();
+            }
+        });
+    }
+
+
+
+    public void onSaveChildResource(AddressTemplate address, String name, Map changeset) {
+        ResourceAddress fqAddress = address.resolve(statementContext, selectedAdapter, name);
+
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                } else {
+                    Console.info("Successfully saved " + fqAddress);
+                }
+
+                loadAdapter();
             }
         });
 
+
+    }
+
+    public void onRemoveChildResource(AddressTemplate address, Property resource) {
+
+        ResourceAddress fqAddress = address.resolve(statementContext, selectedAdapter, resource.getName());
+
+        ModelNode op = new ModelNode();
+        op.get(OP).set(REMOVE);
+        op.get(ADDRESS).set(fqAddress);
+
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                super.onFailure(caught);
+                loadAdapter();
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+
+                ModelNode response = dmrResponse.get();
+                if(response.isFailure())
+                {
+                    Console.error("Failed to remove resource "+fqAddress, response.getFailureDescription());
+                }
+                else
+                {
+                    Console.info("Successfully removed " + fqAddress);
+                }
+
+                loadAdapter();
+            }
+        });
+
+
+    }
+
+
+    public void onRemoveProperty(AddressTemplate address, String... names) {
+
+        LinkedList<String> args = new LinkedList<>();
+        args.add(0, selectedAdapter);
+        for (String name : names) {
+            args.add(name);
+        }
+
+        ResourceAddress fqAddress = address.resolve(statementContext, args);
+        ModelNode op = new ModelNode();
+        op.get(OP).set(REMOVE);
+        op.get(ADDRESS).set(fqAddress);
+
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
+
+            @Override
+            public void onSuccess(DMRResponse result) {
+                ModelNode response = result.get();
+
+                if (response.isFailure()) {
+                    Console.error("Failed to remove resource " + fqAddress, response.getFailureDescription());
+                } else {
+
+                    Console.info("Successfully removed " + fqAddress);
+                }
+
+                loadAdapter();
+            }
+        });
+    }
+
+
+    public void onSave(AddressTemplate address, String name, Map<String, Object> changeset) {
+        ResourceAddress fqAddress = address.resolve(statementContext, name);
+
+        final ModelNodeAdapter adapter = new ModelNodeAdapter();
+        ModelNode operation = adapter.fromChangeset(changeset, fqAddress);
+
+        dispatcher.execute(new DMRAction(operation), new AsyncCallback<DMRResponse>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                Console.error("Failed to modify resource " + fqAddress, caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(DMRResponse dmrResponse) {
+                ModelNode response = dmrResponse.get();
+                if (response.isFailure()) {
+                    Console.error("Failed to modify resource " + fqAddress, response.getFailureDescription());
+                } else {
+                    Console.info("Successfully saved " + fqAddress);
+                }
+
+                loadAdapter();
+            }
+        });
+
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
+    }
+
+    public void onLaunchAddWizard(AddressTemplate address) {
+
+
+        final SecurityContext securityContext =
+                getSecurityFramework().getSecurityContext(getProxy().getNameToken());
+
+        final ResourceDescription resourceDescription = getDescriptionRegistry().lookup(address);
+
+        final DefaultWindow dialog = new DefaultWindow("New "+address.getResourceType());
+        AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        dialog.hide();
+
+                        final ResourceAddress fqAddress =
+                                address.resolve(statementContext, selectedAdapter, payload.get("name").asString());
+
+                        payload.get(OP).set(ADD);
+                        payload.get(ADDRESS).set(fqAddress);
+
+                        dispatcher.execute(new DMRAction(payload), new SimpleCallback<DMRResponse>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                super.onFailure(caught);
+                                loadAdapter();
+                            }
+
+                            @Override
+                            public void onSuccess(DMRResponse dmrResponse) {
+                                Console.info("Successfully added "+fqAddress);
+                                loadAdapter();
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        dialog.hide();
+                    }
+                });
+        dialog.setWidth(640);
+        dialog.setHeight(480);
+        dialog.setWidget(addDialog);
+        dialog.setGlassEnabled(true);
+        dialog.center();
     }
 
     public void closeDialoge() {
         window.hide();
     }
 
-    public void createProperty(final ResourceAdapter ra, final PropertyRecord prop) {
-        closePropertyDialoge();
 
-        ModelNode createProp = new ModelNode();
-        createProp.get(OP).set(ADD);
-        createProp.get(ADDRESS).set(Baseadress.get());
-        createProp.get(ADDRESS).add("subsystem","resource-adapters");
-        createProp.get(ADDRESS).add("resource-adapter", ra.getName());
-        //createProp.get(ADDRESS).add("connection-definitions", ra.getJndiName());
-        createProp.get(ADDRESS).add("config-properties", prop.getKey());
-        createProp.get("value").set(prop.getValue());
-
-        dispatcher.execute(new DMRAction(createProp), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                super.onFailure(caught);
-                loadAdapter(false);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.added("Property " + prop.getKey()));
-                else
-                    Console.error(Console.MESSAGES.addingFailed("Property " + prop.getKey()), result.toString());
-
-                loadAdapter(false);
-            }
-        });
-
-    }
-
-    public void onDeleteProperty(ResourceAdapter ra, final PropertyRecord prop) {
-
-        ModelNode operation = new ModelNode();
-        operation.get(OP).set(REMOVE);
-        operation.get(ADDRESS).set(Baseadress.get());
-        operation.get(ADDRESS).add("subsystem","resource-adapters");
-        operation.get(ADDRESS).add("resource-adapter", ra.getName());
-        //operation.get(ADDRESS).add("connection-definitions", ra.getJndiName());
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                super.onFailure(caught);
-                loadAdapter(false);
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if(ModelNodeUtil.indicatesSuccess(result))
-                    Console.info(Console.MESSAGES.deleted("Property " + prop.getKey()));
-                else
-                    Console.error(Console.MESSAGES.deletionFailed("Property " + prop.getKey()), result.toString());
-
-                loadAdapter(false);
-            }
-        });
-    }
-
-    public void launchNewPropertyDialoge(final ResourceAdapter ra) {
-        propertyWindow = new DefaultWindow(Console.MESSAGES.createTitle("Config Property"));
-        propertyWindow.setWidth(480);
-        propertyWindow.setHeight(360);
-        propertyWindow.addCloseHandler(new CloseHandler<PopupPanel>() {
-            @Override
-            public void onClose(CloseEvent<PopupPanel> event) {
-
-            }
-        });
-
-        propertyWindow.trapWidget(
-                new NewPropertyWizard(new PropertyManagement() {
-                    @Override
-                    public void onCreateProperty(String reference, PropertyRecord prop) {
-                        createProperty(ra, prop);
-                    }
-
-                    @Override
-                    public void onDeleteProperty(String reference, PropertyRecord prop) {
-
-                    }
-
-                    @Override
-                    public void onChangeProperty(String reference, PropertyRecord prop) {
-
-                    }
-
-                    @Override
-                    public void launchNewPropertyDialoge(String reference) {
-
-                    }
-
-                    @Override
-                    public void closePropertyDialoge() {
-                        propertyWindow.hide();
-                    }
-                }, "").asWidget()
-        );
-
-        propertyWindow.setGlassEnabled(true);
-        propertyWindow.center();
-    }
-
-    public void onSavePoolConfig(final ConnectionDefinition connection, Map<String, Object> changeset) {
-
-        if(null==selectedAdapter)
-            throw new RuntimeException("selected adapter is null!");
-
-
-        ModelNode proto = new ModelNode();
-        proto.get(ADDRESS).set(Baseadress.get());
-        proto.get(ADDRESS).add("subsystem", "resource-adapters");
-        proto.get(ADDRESS).add("resource-adapter", selectedAdapter);
-        proto.get(ADDRESS).add("connection-definitions", connection.getName());
-
-        ModelNode operation = poolAdapter.fromChangeset(changeset, proto);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ResponseWrapper<Boolean> response = ModelAdapter.wrapBooleanResponse(result);
-                if(response.getUnderlying())
-                    Console.info(Console.MESSAGES.saved("Pool Settings"));
-                else
-                    Console.error(Console.MESSAGES.saveFailed("Pool Settings "+ connection.getName()), response.getResponse().toString());
-
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onDeletePoolConfig(final ConnectionDefinition ra) {
-        Map<String, Object> resetValues = new HashMap<String, Object>();
-        resetValues.put("minPoolSize", 0);
-        resetValues.put("maxPoolSize", 20);
-        resetValues.put("poolStrictMin", false);
-        resetValues.put("poolPrefill", false);
-
-        onSavePoolConfig(ra, resetValues);
-
-    }
-
-    public BeanFactory getFactory() {
-        return factory;
-    }
-
-    public void closePropertyDialoge() {
-        propertyWindow.hide();
-    }
 
     public PlaceManager getPlaceManager() {
         return placeManager;
     }
 
-    public void launchNewConnectionWizard() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Connection Definition"));
-        window.setWidth(480);
-        window.setHeight(360);
-
-        window.trapWidget(
-                new NewConnectionWizard(this).asWidget()
-        );
-
-        window.setGlassEnabled(true);
-        window.center();
-    }
-
-    public void onDeleteConnection(ConnectionDefinition selection) {
-        ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(),
-                selectedAdapter, selection.getName()
-        );
-
-        operation.get(OP).set(REMOVE);
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.deletionFailed("Connection Definition"));
-                else
-                    Console.info(Console.MESSAGES.deleted("Connection Definition"));
-
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onCreateConnection(ConnectionDefinition connectionDefinition) {
-        closeDialoge();
-
-        ModelNode operation = new ModelNode();
-        operation.get(ADDRESS).setEmptyList();
-        operation.get(OP).set(COMPOSITE);
-
-        List<ModelNode> steps = new ArrayList<ModelNode>();
-
-        ModelNode createConnectionOp = connectionAdapter.fromEntity(connectionDefinition);
-        createConnectionOp.get(OP).set(ADD);
-        ModelNode addressModel = connectionMetaData.getAddress().asResource(
-                Baseadress.get(),
-                selectedAdapter,
-                connectionDefinition.getName());
-
-        createConnectionOp.get(ADDRESS).set(addressModel.get(ADDRESS));
-
-        steps.add(createConnectionOp);
-
-        // --
-
-        if(connectionDefinition.getProperties()!=null && !connectionDefinition.getProperties().isEmpty())
-        {
-
-            ModelNode createPropOp = new ModelNode();
-            createPropOp.get(OP).set(ADD);
-            createPropOp.get(ADDRESS).set(addressModel.get(ADDRESS));
-
-            for(PropertyRecord prop : connectionDefinition.getProperties())
-            {
-                createPropOp.get(ADDRESS).add("config-properties", prop.getKey());
-                createPropOp.get(VALUE).set(prop.getValue());
-            }
-
-            steps.add(createPropOp);
-        }
-
-
-        operation.get(STEPS).set(steps);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.addingFailed("Connection Definition"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.added("Connection Definition"));
-                loadAdapter(true);
-
-            }
-        });
-
-    }
-
-    public void onSaveConnection(ConnectionDefinition entity, Map<String, Object> changedValues) {
-
-        ModelNode address = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, entity.getName());
-        ModelNode operation = connectionAdapter.fromChangeset(changedValues, address);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.modificationFailed("Connection Definition"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.modified("Connection Definition"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onCreateConnectionProperty(ConnectionDefinition connection, PropertyRecord prop) {
-        ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, connection.getName());
-
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-        operation.get(OP).set(ADD);
-        operation.get(VALUE).set(prop.getValue());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.addingFailed("Connection Property"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.added("Connection Property"));
-                loadAdapter(true);
-            }
-        });
-
-    }
-
-    public void onDeleteConnectionProperty(ConnectionDefinition connection, PropertyRecord prop) {
-
-        if(null==selectedAdapter)
-            throw new RuntimeException("selected adapter is null!");
-
-        ModelNode operation = connectionMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter, connection.getName());
-
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.deletionFailed("Connection Property"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.deleted("Connection Property"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-
-    public void onCreateAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
-        ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getName());
-
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-        operation.get(OP).set(ADD);
-        operation.get(VALUE).set(prop.getValue());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.addingFailed("Config Property"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.added("Config Property"));
-                loadAdapter(false);
-            }
-        });
-
-    }
-
-    public void onRemoveAdapterProperty(ResourceAdapter adapter, PropertyRecord prop) {
-        ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), adapter.getName());
-
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.deletionFailed("Config Property"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.deleted("Config Property"));
-                loadAdapter(false);
-            }
-        });
-    }
-
-    public void onCreateAdminProperty(AdminObject entity, PropertyRecord prop) {
-        ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter);
-        operation.get(ADDRESS).add("admin-objects", entity.getName());
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-
-        operation.get(OP).set(ADD);
-        operation.get(VALUE).set(prop.getValue());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.addingFailed("Config Property"));
-                else
-                    Console.info(Console.MESSAGES.added("Config Property"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onRemoveAdminProperty(AdminObject entity, PropertyRecord prop) {
-        ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter);
-        operation.get(ADDRESS).add("admin-objects", entity.getName());
-        operation.get(ADDRESS).add("config-properties", prop.getKey());
-
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.deletionFailed("Config Property"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.deleted("Config Property"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onSaveAdmin(AdminObject entity, Map<String, Object> changeset) {
-        ModelNode addressModel = raMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter);
-        addressModel.get(ADDRESS).add("admin-objects", entity.getName());
-
-        ModelNode operation = adminAdapter.fromChangeset(changeset, addressModel);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.modificationFailed("Admin Object"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.modified("Admin Object"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void launchNewAdminWizard() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("admin object"));
-        window.setWidth(480);
-        window.setHeight(360);
-
-        window.trapWidget(
-                new NewAdminWizard(this).asWidget()
-        );
-
-        window.setGlassEnabled(true);
-        window.center();
-    }
-
-    public void onCreateAdmin(AdminObject entity) {
-
-        closeDialoge();
-
-        ModelNode addressModel = raMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter);
-        addressModel.get(ADDRESS).add("admin-objects", entity.getName());
-
-        ModelNode operation = adminAdapter.fromEntity(entity);
-        operation.get(OP).set(ADD);
-        operation.get(ADDRESS).set(addressModel.get(ADDRESS).asObject());
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.addingFailed("Admin Object"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.added("Admin Object"));
-                loadAdapter(true);
-            }
-        });
-    }
-
-    public void onRemoveAdmin(AdminObject entity) {
-        ModelNode operation = raMetaData.getAddress().asResource(
-                Baseadress.get(), selectedAdapter);
-        operation.get(ADDRESS).add("admin-objects", entity.getName());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-            @Override
-            public void onSuccess(DMRResponse result) {
-                ModelNode response = result.get();
-                if(response.isFailure())
-                    Console.error(Console.MESSAGES.deletionFailed("Admin Object"), response.getFailureDescription());
-                else
-                    Console.info(Console.MESSAGES.deleted("Admin Object"));
-                loadAdapter(true);
-            }
-        });
-    }
-
     public void onDoFlush(ConnectionDefinition entity, String flushOp) {
 
-        ModelNode operation = connectionMetaData.getAddress().asResource(
+       /* ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, entity.getName());
 
         operation.get(OP).set(flushOp);
@@ -797,12 +418,12 @@ public class ResourceAdapterPresenter
                 else
                     Console.info(Console.MESSAGES.successful("Flush Pool"));
             }
-        });
+        });*/
     }
 
     // https://issues.jboss.org/browse/AS7-3259
     public void enOrDisbaleConnection(ConnectionDefinition selection) {
-        ModelNode operation = connectionMetaData.getAddress().asResource(
+        /*ModelNode operation = connectionMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
 
@@ -821,11 +442,11 @@ public class ResourceAdapterPresenter
                     Console.info(Console.MESSAGES.modified("Connection Definition"));
                 loadAdapter(true);
             }
-        });
+        });*/
     }
 
     public void enOrDisbaleAdminObject(AdminObject selection) {
-        ModelNode operation = adminMetaData.getAddress().asResource(
+       /* ModelNode operation = adminMetaData.getAddress().asResource(
                 Baseadress.get(), selectedAdapter, selection.getName());
 
         operation.get(OP).set(WRITE_ATTRIBUTE_OPERATION);
@@ -842,6 +463,6 @@ public class ResourceAdapterPresenter
                     Console.info(Console.MESSAGES.modified("Admin Object"));
                 loadAdapter(true);
             }
-        });
+        });*/
     }
 }

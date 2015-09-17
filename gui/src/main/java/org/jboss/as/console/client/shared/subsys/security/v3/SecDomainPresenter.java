@@ -381,27 +381,34 @@ public class SecDomainPresenter extends Presenter<SecDomainPresenter.MyView, Sec
                     public void onCancel() {
                         dialog.hide();
                     }
-                }, new AddResourceDialog.NamedFactory() {
-            @Override
-            public String getAttributeName() {
-                return "code";
-            }
+                }
 
-            @Override
-            public ModelNodeFormBuilder.FormItemFactory getFactory() {
+        )
+                // custom field for code attribute
+                .addFactory(
+                        new AddResourceDialog.NamedFactory() {
+                            @Override
+                            public String getAttributeName() {
+                                return "code";
+                            }
 
-                return new ModelNodeFormBuilder.FormItemFactory() {
-                    @Override
-                    public FormItem create(Property attributeDescription) {
-                        SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
-                        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-                        oracle.setDefaultSuggestionsFromText(codes);
-                        item.setOracle(oracle);
-                        return item;
-                    }
-                };
-            }
-        });
+                            @Override
+                            public ModelNodeFormBuilder.FormItemFactory getFactory() {
+
+                                return new ModelNodeFormBuilder.FormItemFactory() {
+                                    @Override
+                                    public FormItem create(Property attributeDescription) {
+                                        SuggestBoxItem item = new SuggestBoxItem("code", "Code", true);
+                                        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
+                                        oracle.setDefaultSuggestionsFromText(codes);
+                                        item.setOracle(oracle);
+                                        return item;
+                                    }
+                                };
+                            }
+                        }
+                );
+
         dialog.setWidth(640);
         dialog.setHeight(480);
         dialog.setWidget(addDialog);

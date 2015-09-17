@@ -2,12 +2,12 @@ package org.jboss.as.console.client.shared.subsys.jca;
 
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Widget;
-import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.pages.PagedView;
 import org.jboss.as.console.client.widgets.tabs.DefaultTabLayoutPanel;
+import org.jboss.dmr.client.Property;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,10 +18,10 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
 
     private ResourceAdapterPresenter presenter;
     private PagedView panel;
-    private AdapterList adapterList;
 
-    private ConnectionList connectionList;
+    private AdapterDetails details;
     private AdminObjectList adminObjects;
+    private ConnectionDefList connectionDefs;
 
     @Override
     public void setPresenter(ResourceAdapterPresenter presenter) {
@@ -35,13 +35,13 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
         layout.addStyleName("default-tabpanel");
         panel = new PagedView(true);
 
-        this.adapterList = new AdapterList(presenter);
-        this.connectionList = new ConnectionList(presenter);
+        this.details = new AdapterDetails(presenter);
         this.adminObjects = new AdminObjectList(presenter);
+        this.connectionDefs = new ConnectionDefList(presenter);
 
-        panel.addPage("Configuration", adapterList.asWidget());
-        panel.addPage("Connection Definitions", connectionList.asWidget());
-        panel.addPage("Admin Objects", adminObjects.asWidget()) ;
+        panel.addPage("Configuration", details.asWidget());
+        panel.addPage("Connection Definitions", connectionDefs.asWidget());
+        panel.addPage("Admin Objects", adminObjects.asWidget());
 
         // default page
         panel.showPage(0);
@@ -53,11 +53,18 @@ public class ResourceAdapterView extends SuspendableViewImpl implements Resource
     }
 
     @Override
-    public void setAdapter(ResourceAdapter ra) {
+    public void setAdapter(Property payload) {
 
-        adapterList.setAdapter(ra);
-        connectionList.setAdapter(ra);
-        adminObjects.setAdapter(ra);
+        details.setAdapter(payload);
+
+        List<Property> admins = payload.getValue().hasDefined("admin-objects") ?
+                payload.getValue().get("admin-objects").asPropertyList() : Collections.EMPTY_LIST;
+
+        List<Property> cons = payload.getValue().hasDefined("connection-definitions") ?
+                payload.getValue().get("connection-definitions").asPropertyList() : Collections.EMPTY_LIST;
+
+        adminObjects.setData(admins);
+        connectionDefs.setData(cons);
 
     }
 }

@@ -66,6 +66,8 @@ import static org.jboss.dmr.client.ModelDescriptionConstants.VALUE;
  * launched when a new property is added. This predefined dialog is wired to the property manager.</dd>
  * </dl>
  *
+ * <b>Deprecated:</b> Use model driven widgets instead
+ *
  * @author Heiko Braun
  * @author David Bosschaert
  * @author Harald Pehl

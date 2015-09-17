@@ -37,7 +37,7 @@ public class SubResourceAddPropertyDialog extends AddPropertyDialog {
     private final AddResourceDialog dialog;
 
     public SubResourceAddPropertyDialog(final PropertyManager propertyManager, final SecurityContext securityContext,
-            final ResourceDescription resourceDescription) {
+                                        final ResourceDescription resourceDescription) {
         super(Console.CONSTANTS.common_label_add());
         this.dialog = new AddResourceDialog(securityContext, resourceDescription,
                 new AddResourceDialog.Callback() {

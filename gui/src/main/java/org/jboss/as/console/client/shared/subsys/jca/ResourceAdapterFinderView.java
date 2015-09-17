@@ -16,13 +16,12 @@ import com.gwtplatform.mvp.shared.proxy.PlaceRequest;
 import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
-import org.jboss.as.console.client.shared.subsys.jca.model.DataSource;
-import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
 import org.jboss.as.console.client.widgets.nav.v3.ColumnManager;
 import org.jboss.as.console.client.widgets.nav.v3.ContextualCommand;
 import org.jboss.as.console.client.widgets.nav.v3.FinderColumn;
 import org.jboss.as.console.client.widgets.nav.v3.MenuDelegate;
 import org.jboss.ballroom.client.widgets.window.Feedback;
+import org.jboss.dmr.client.Property;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
     private final PlaceManager placeManager;
     private LayoutPanel previewCanvas;
     private SplitLayoutPanel layout;
-    private FinderColumn<ResourceAdapter> adapter;
+    private FinderColumn<Property> adapter;
     private ResourceAdapterFinder presenter;
     private ColumnManager columnManager;
     private Widget adapterCol;
@@ -60,7 +59,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
     }
 
     @Override
-    public void updateFrom(List<ResourceAdapter> list) {
+    public void updateFrom(List<Property> list) {
         adapter.updateFrom(list);
     }
 
@@ -72,39 +71,39 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
         layout = new SplitLayoutPanel(2);
         columnManager = new ColumnManager(layout, FinderColumn.FinderId.CONFIGURATION);
 
-        adapter = new FinderColumn<ResourceAdapter>(
+        adapter = new FinderColumn<Property>(
                 FinderColumn.FinderId.CONFIGURATION,
                 "Resource Adapter",
-                new FinderColumn.Display<ResourceAdapter>() {
+                new FinderColumn.Display<Property>() {
 
                     @Override
-                    public boolean isFolder(ResourceAdapter data) {
+                    public boolean isFolder(Property data) {
                         return false;
                     }
 
                     @Override
-                    public SafeHtml render(String baseCss, ResourceAdapter data) {
+                    public SafeHtml render(String baseCss, Property data) {
                         return TEMPLATE.item(baseCss, data.getName());
                     }
 
                     @Override
-                    public String rowCss(ResourceAdapter data) {
+                    public String rowCss(Property data) {
                         return "";
                     }
                 },
-                new ProvidesKey<ResourceAdapter>() {
+                new ProvidesKey<Property>() {
                     @Override
-                    public Object getKey(ResourceAdapter item) {
+                    public Object getKey(Property item) {
                         return item.getName();
                     }
                 }, presenter.getProxy().getNameToken())
         ;
 
         adapter.setTopMenuItems(
-                new MenuDelegate<ResourceAdapter>(
-                        "Add", new ContextualCommand<ResourceAdapter>() {
+                new MenuDelegate<Property>(
+                        "Add", new ContextualCommand<Property>() {
                     @Override
-                    public void executeOn(ResourceAdapter ra) {
+                    public void executeOn(Property ra) {
                         presenter.launchNewAdapterWizard();
                     }
                 }, MenuDelegate.Role.Operation)
@@ -112,19 +111,19 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
 
 
         adapter.setMenuItems(
-                new MenuDelegate<ResourceAdapter>(
-                        "View", new ContextualCommand<ResourceAdapter>() {
+                new MenuDelegate<Property>(
+                        "View", new ContextualCommand<Property>() {
                     @Override
-                    public void executeOn(ResourceAdapter ra) {
+                    public void executeOn(Property ra) {
                         placeManager.revealRelativePlace(
                                 new PlaceRequest(NameTokens.ResourceAdapterPresenter).with("name", ra.getName())
                         );
                     }
                 }),
-                new MenuDelegate<ResourceAdapter>(
-                        "Remove", new ContextualCommand<ResourceAdapter>() {
+                new MenuDelegate<Property>(
+                        "Remove", new ContextualCommand<Property>() {
                     @Override
-                    public void executeOn(ResourceAdapter ra) {
+                    public void executeOn(Property ra) {
                         Feedback.confirm(
                                 Console.MESSAGES.deleteTitle("Resource Adapter"),
                                 Console.MESSAGES.deleteConfirm("Resource Adapter " + ra.getName()),
@@ -145,7 +144,7 @@ public class ResourceAdapterFinderView extends SuspendableViewImpl implements Re
             public void onSelectionChange(SelectionChangeEvent event) {
                 if(adapter.hasSelectedItem())
                 {
-                    ResourceAdapter item = adapter.getSelectedItem();
+                    Property item = adapter.getSelectedItem();
                     columnManager.updateActiveSelection(adapterCol);
                 }
             }

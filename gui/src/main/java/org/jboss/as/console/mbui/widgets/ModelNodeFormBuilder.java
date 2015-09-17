@@ -433,7 +433,6 @@ public class ModelNodeFormBuilder {
         form.setDefaults(defaultValues);
         form.setHasWritableAttributes(numWritable > 0);
 
-
         FormAssets formAssets = new FormAssets(form, helpTexts.toSafeHtml());
         formAssets.setUnsupportedTypes(unsupportedTypes);
         return formAssets;

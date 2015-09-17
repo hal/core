@@ -1,6 +1,5 @@
 package org.jboss.as.console.client.shared.subsys.jca;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.inject.Inject;
 import com.google.web.bindery.event.shared.EventBus;
@@ -17,22 +16,20 @@ import org.jboss.as.console.client.Console;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.domain.model.SimpleCallback;
 import org.jboss.as.console.client.domain.profiles.ProfileMgmtPresenter;
-import org.jboss.as.console.client.shared.BeanFactory;
-import org.jboss.as.console.client.shared.properties.PropertyRecord;
+import org.jboss.as.console.client.rbac.SecurityFramework;
 import org.jboss.as.console.client.shared.subsys.Baseadress;
 import org.jboss.as.console.client.shared.subsys.RevealStrategy;
-import org.jboss.as.console.client.shared.subsys.jca.model.AdminObject;
-import org.jboss.as.console.client.shared.subsys.jca.model.ConnectionDefinition;
-import org.jboss.as.console.client.shared.subsys.jca.model.ResourceAdapter;
-import org.jboss.as.console.client.shared.subsys.jca.wizard.NewAdapterWizard;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
-import org.jboss.as.console.client.widgets.forms.AddressBinding;
-import org.jboss.as.console.client.widgets.forms.ApplicationMetaData;
-import org.jboss.as.console.client.widgets.forms.BeanMetaData;
-import org.jboss.as.console.client.widgets.forms.EntityAdapter;
+import org.jboss.as.console.client.v3.ResourceDescriptionRegistry;
+import org.jboss.as.console.client.v3.dmr.AddressTemplate;
+import org.jboss.as.console.client.v3.dmr.ResourceAddress;
+import org.jboss.as.console.client.v3.dmr.ResourceDescription;
+import org.jboss.as.console.client.v3.widgets.AddResourceDialog;
 import org.jboss.as.console.client.widgets.nav.v3.PreviewEvent;
+import org.jboss.as.console.mbui.behaviour.CoreGUIContext;
 import org.jboss.as.console.spi.RequiredResources;
 import org.jboss.as.console.spi.SearchIndex;
+import org.jboss.ballroom.client.rbac.SecurityContext;
 import org.jboss.ballroom.client.widgets.window.DefaultWindow;
 import org.jboss.dmr.client.ModelNode;
 import org.jboss.dmr.client.ModelNodeUtil;
@@ -41,8 +38,6 @@ import org.jboss.dmr.client.dispatch.DispatchAsync;
 import org.jboss.dmr.client.dispatch.impl.DMRAction;
 import org.jboss.dmr.client.dispatch.impl.DMRResponse;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.jboss.dmr.client.ModelDescriptionConstants.*;
@@ -56,43 +51,43 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
     private final PlaceManager placeManager;
     private final RevealStrategy revealStrategy;
     private final DispatchAsync dispatcher;
-    private final BeanFactory beanFactory;
-    private final EntityAdapter<ResourceAdapter> adapter;
-    private final BeanMetaData beanMetaData;
-
+    private final ResourceDescriptionRegistry descriptionRegistry;
+    private final SecurityFramework securityFramework;
+    private final CoreGUIContext statementContext;
 
     private DefaultWindow window;
 
+    private final static AddressTemplate BASE_ADDRESS = AddressTemplate.of("{selected.profile}/subsystem=resource-adapters/resource-adapter=*");
+
     @ProxyCodeSplit
     @NameToken(NameTokens.ResourceAdapterFinder)
-    @RequiredResources(resources = {"/{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
+    @RequiredResources(resources = {"{selected.profile}/subsystem=resource-adapters/resource-adapter=*"})
     @SearchIndex(keywords = {"jca", "resource-adapter", "connector", "workmanager", "bootstrap-context"})
     public interface MyProxy extends Proxy<ResourceAdapterFinder>, Place {}
 
 
     public interface MyView extends View {
         void setPresenter(ResourceAdapterFinder presenter);
-        void updateFrom(List<ResourceAdapter> list);
+        void updateFrom(List<Property> list);
         void setPreview(SafeHtml html);
     }
 
-
-
     @Inject
-    public ResourceAdapterFinder(EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
-                                 DispatchAsync dispatcher, RevealStrategy revealStrategy, ApplicationMetaData metaData,
-                                 BeanFactory beanFactory) {
+    public ResourceAdapterFinder(
+            EventBus eventBus, MyView view, MyProxy proxy, PlaceManager placeManager,
+            DispatchAsync dispatcher, RevealStrategy revealStrategy,
+            ResourceDescriptionRegistry descriptionRegistry, SecurityFramework securityFramework,
+            CoreGUIContext statementContext) {
 
         super(eventBus, view, proxy);
 
         this.placeManager = placeManager;
         this.revealStrategy = revealStrategy;
         this.dispatcher = dispatcher;
-        this.beanFactory = beanFactory;
-        this.beanMetaData = metaData.getBeanMetaData(ResourceAdapter.class);
-        this.adapter = new EntityAdapter<ResourceAdapter>(ResourceAdapter.class, metaData);
+        this.descriptionRegistry = descriptionRegistry;
 
-
+        this.securityFramework = securityFramework;
+        this.statementContext = statementContext;
     }
 
     @Override
@@ -109,6 +104,14 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
     @Override
     public void prepareFromRequest(PlaceRequest request) {
 
+    }
+
+    public ResourceDescriptionRegistry getDescriptionRegistry() {
+        return descriptionRegistry;
+    }
+
+    public SecurityFramework getSecurityFramework() {
+        return securityFramework;
     }
 
     @Override
@@ -131,25 +134,7 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
             @Override
             public void onSuccess(DMRResponse response) {
                 ModelNode result = response.get();
-
-                List<Property> children = result.get(RESULT).asPropertyList();
-                List<ResourceAdapter> resourceAdapters = new ArrayList<ResourceAdapter>(children.size());
-
-                for (Property child : children) {
-                    ModelNode raModel = child.getValue();
-
-                    ResourceAdapter resourceAdapter = adapter.fromDMR(raModel);
-                    // The unique identifier of a resource adapter is its name (not the archive name)
-                    resourceAdapter.setName(child.getName());
-
-                    // sub resources are not loaded
-                    resourceAdapter.setProperties(Collections.<PropertyRecord>emptyList());
-                    resourceAdapter.setConnectionDefinitions(new ArrayList<ConnectionDefinition>());
-                    resourceAdapter.setAdminObjects(Collections.<AdminObject>emptyList());
-
-                    resourceAdapters.add(resourceAdapter);
-                }
-
+                List<Property> resourceAdapters = result.get(RESULT).asPropertyList();
                 getView().updateFrom(resourceAdapters);
 
             }
@@ -171,65 +156,69 @@ public class ResourceAdapterFinder extends Presenter<ResourceAdapterFinder.MyVie
     }
 
     public void launchNewAdapterWizard() {
-        window = new DefaultWindow(Console.MESSAGES.createTitle("Resource Adapter"));
-        window.setWidth(480);
-        window.setHeight(360);
+        final SecurityContext securityContext =
+                securityFramework.getSecurityContext(getProxy().getNameToken());
 
-        window.trapWidget(
-                new NewAdapterWizard(this, beanFactory.resourceAdapter().as()).asWidget()
-        );
+        final ResourceDescription resourceDescription = descriptionRegistry.lookup(BASE_ADDRESS);
 
-        window.setGlassEnabled(true);
-        window.center();
+        final DefaultWindow dialog = new DefaultWindow("New Resource Adapter");
+        AddResourceDialog addDialog = new AddResourceDialog(securityContext, resourceDescription,
+                new AddResourceDialog.Callback() {
+                    @Override
+                    public void onAdd(ModelNode payload) {
+                        dialog.hide();
+
+                        final ResourceAddress fqAddress =
+                                BASE_ADDRESS.resolve(statementContext, payload.get("name").asString());
+
+                        payload.get(OP).set(ADD);
+                        payload.get(ADDRESS).set(fqAddress);
+
+                        dispatcher.execute(new DMRAction(payload), new SimpleCallback<DMRResponse>() {
+
+                            @Override
+                            public void onFailure(Throwable caught) {
+                                super.onFailure(caught);
+                                loadAdapter();
+                            }
+
+                            @Override
+                            public void onSuccess(DMRResponse dmrResponse) {
+                                Console.info("Successfully added "+fqAddress);
+                                loadAdapter();
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        dialog.hide();
+                    }
+                })
+                .include("archive","module", "transaction-support");
+
+        dialog.setWidth(640);
+        dialog.setHeight(480);
+        dialog.setWidget(addDialog);
+        dialog.setGlassEnabled(true);
+        dialog.center();
     }
 
     public void closeDialoge() {
         window.hide();
     }
 
-    public void onCreateAdapter(final ResourceAdapter ra) {
-        closeDialoge();
+    public void onDelete(final Property ra) {
 
-        ModelNode addressModel = beanMetaData.getAddress().asResource(Baseadress.get(), ra.getName());
+        ResourceAddress fqAddress = BASE_ADDRESS.resolve(statementContext, ra.getName());
 
-        ModelNode operation = adapter.fromEntity(ra);
-        operation.get(OP).set(ADD);
-        operation.get(ADDRESS).set(addressModel.get(ADDRESS).asObject());
+        ModelNode op = new ModelNode();
+        op.get(OP).set(REMOVE);
+        op.get(ADDRESS).set(fqAddress);
 
-        operation.remove("name"); // work around
-
-        System.out.println(operation);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
-
-            @Override
-            public void onFailure(Throwable caught) {
-                Log.error("Adding resource adapter failed: " + caught.getMessage(), caught);
-                Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), caught.getMessage());
-                loadAdapter();
-            }
-
-            @Override
-            public void onSuccess(DMRResponse dmrResponse) {
-                ModelNode result = dmrResponse.get();
-                if (ModelNodeUtil.indicatesSuccess(result)) {
-                    Console.info(Console.MESSAGES.added("Resource Adapter " + ra.getName()));
-                } else {
-                    Console.error(Console.MESSAGES.addingFailed("Resource Adapter " + ra.getName()), result.toString());
-                }
-                loadAdapter();
-            }
-        });
-
-    }
-
-    public void onDelete(final ResourceAdapter ra) {
-
-        AddressBinding address = beanMetaData.getAddress();
-        ModelNode operation = address.asResource(Baseadress.get(), ra.getName());
-        operation.get(OP).set(REMOVE);
-
-        dispatcher.execute(new DMRAction(operation), new SimpleCallback<DMRResponse>() {
+        dispatcher.execute(new DMRAction(op), new SimpleCallback<DMRResponse>() {
 
             @Override
             public void onFailure(Throwable caught) {
