@@ -102,6 +102,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>org.jboss.hal</groupId>
+            <artifactId>hal-guided-tour</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.enterprise</groupId>
             <artifactId>cdi-api</artifactId>
             <version>1.2</version>
@@ -193,6 +198,11 @@
                                 <artifactId>redhat-support-plugin</artifactId>
                                 <type>jar</type>
                                 <classifier>resources</classifier>
+                            </overlay>
+                            <overlay>
+                                <groupId>org.jboss.hal</groupId>
+                                <artifactId>hal-guided-tour</artifactId>
+                                <type>jar</type>
                             </overlay>
                         </overlays>
                         <packagingExcludes>**/*.*</packagingExcludes>

@@ -27,17 +27,14 @@ import com.gwtplatform.mvp.client.annotations.NoGatekeeper;
 import com.gwtplatform.mvp.client.annotations.ProxyCodeSplit;
 import com.gwtplatform.mvp.client.proxy.Place;
 import com.gwtplatform.mvp.client.proxy.Proxy;
-import org.jboss.as.console.client.core.HasPresenter;
 import org.jboss.as.console.client.core.Header;
 import org.jboss.as.console.client.core.MainLayoutPresenter;
 import org.jboss.as.console.client.core.NameTokens;
-import org.jboss.as.console.client.v3.presenter.Finder;
 
 /**
  * @author Harald Pehl
  */
-public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy>
-    implements Finder {
+public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, HomepagePresenter.MyProxy> {
 
     // @formatter:off
     @NoGatekeeper
@@ -45,7 +42,7 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     @NameToken(NameTokens.HomepagePresenter)
     public interface MyProxy extends Proxy<HomepagePresenter>, Place {}
 
-    public interface MyView extends View, HasPresenter<HomepagePresenter> {}
+    public interface MyView extends View {}
     // @formatter:on
 
     private final Header header;
@@ -53,7 +50,6 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     @Inject
     public HomepagePresenter(final EventBus eventBus, final MyView view, final MyProxy proxy,
             final Header header) {
-
         super(eventBus, view, proxy, MainLayoutPresenter.TYPE_MainContent);
         this.header = header;
     }
@@ -62,9 +58,5 @@ public class HomepagePresenter extends Presenter<HomepagePresenter.MyView, Homep
     protected void onReset() {
         super.onReset();
         header.highlight(NameTokens.HomepagePresenter);
-    }
-
-    public void launchGuidedTour() {
-
     }
 }

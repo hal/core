@@ -18,7 +18,6 @@
  */
 package org.jboss.as.console.client.core;
 
-import com.google.gwt.storage.client.Storage;
 import com.google.inject.Inject;
 import org.jboss.as.console.client.ProductConfig;
 

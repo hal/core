@@ -18,11 +18,16 @@
  */
 package org.jboss.as.console.client.shared.homepage;
 
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.ui.Frame;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import elemental.dom.Element;
+import elemental.events.KeyboardEvent;
 import org.jboss.as.console.client.ProductConfig;
+import org.jboss.as.console.client.core.ApplicationProperties;
 import org.jboss.as.console.client.core.BootstrapContext;
 import org.jboss.as.console.client.core.NameTokens;
 import org.jboss.as.console.client.core.SuspendableViewImpl;
@@ -41,7 +46,7 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
     private final BootstrapContext bootstrapContext;
     private final UIConstants constants;
     private final UIMessages messages;
-    private HomepagePresenter presenter;
+    private PopupPanel guidedTour;
 
     @Inject
     public HomepageView(final ProductConfig productConfig, final BootstrapContext bootstrapContext,
@@ -91,6 +96,30 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
             // @formatter:on
             wireTour(headerBuilder.referenceFor("tour"));
             header = headerBuilder.build();
+
+            String url = bootstrapContext.getProperty(ApplicationProperties.GUIDED_TOUR) + "/" +
+                    (bootstrapContext.isStandalone() ? "standalone" : "domain") + "/step1.html";
+
+            Frame tourFrame = new Frame(url);
+            tourFrame.setWidth("100%");
+            tourFrame.setHeight("100%");
+
+            guidedTour = new PopupPanel(true, true) {
+                @Override
+                protected void onPreviewNativeEvent(Event.NativePreviewEvent event) {
+                    if (Event.ONKEYUP == event.getTypeInt()) {
+                        if (event.getNativeEvent().getKeyCode() == KeyboardEvent.KeyCode.ESC) {
+                            hide();
+                        }
+                    }
+                }
+            };
+            guidedTour.setGlassEnabled(true);
+            guidedTour.setAnimationEnabled(false);
+            guidedTour.setWidget(tourFrame);
+            guidedTour.setWidth("1120px");
+            guidedTour.setHeight("800px");
+            guidedTour.setStyleName("default-window");
         }
 
         if (standalone) {
@@ -308,11 +337,6 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
         return new Elements.Builder().li().a().attr("href", href).innerText(text).end().end().build();
     }
 
-    @Override
-    public void setPresenter(final HomepagePresenter presenter) {
-        this.presenter = presenter;
-    }
-
     native void wireTour(Element element) /*-{
         var that = this;
         element.onclick = function() {
@@ -321,6 +345,6 @@ public class HomepageView extends SuspendableViewImpl implements HomepagePresent
     }-*/;
 
     private void launchGuidedTour() {
-        presenter.launchGuidedTour();
+        guidedTour.center();
     }
 }

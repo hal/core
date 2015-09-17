@@ -24,7 +24,7 @@
         <circuit.version>0.1.4</circuit.version>
         <freemarker.version>2.3.23</freemarker.version>
         <gin.version>2.1.2</gin.version>
-        <guava.version>19.0-rc1</guava.version>
+        <guava.version>19.0.20150826</guava.version>
         <guice.version>3.0</guice.version>
         <gwtp.version>1.4</gwtp.version>
         <gwt-log.version>3.3.2</gwt-log.version>
@@ -34,6 +34,7 @@
         <mockito.version>1.9.5</mockito.version>
         <protovis.version>0.4.1-jboss</protovis.version>
         <csp.plugin.version>0.9.36.Final-jboss1</csp.plugin.version>
+        <guided.tour.version>0.0.3</guided.tour.version>
         <gwt.bindAddress>127.0.0.1</gwt.bindAddress>
         <gwt.bindPort>9990</gwt.bindPort>
     </properties>
@@ -163,6 +164,11 @@
                 <artifactId>redhat-support-plugin</artifactId>
                 <classifier>resources</classifier>
                 <version>${csp.plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.hal</groupId>
+                <artifactId>hal-guided-tour</artifactId>
+                <version>${guided.tour.version}</version>
             </dependency>
 
             <!-- GWT related -->

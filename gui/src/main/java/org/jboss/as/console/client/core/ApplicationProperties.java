@@ -30,6 +30,7 @@ public interface ApplicationProperties {
     String UPLOAD_API = "upload-api";
     String LOGOUT_API = "logout";
     String CSP_API = "csp";
+    String GUIDED_TOUR = "tour";
 
     void setProperty(String key, String value);
 
