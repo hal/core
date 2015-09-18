@@ -34,13 +34,18 @@ import org.jboss.as.console.client.administration.accesscontrol.AccessControlFin
 import org.jboss.as.console.client.administration.accesscontrol.store.AccessControlStore;
 import org.jboss.as.console.client.administration.accesscontrol.store.AddPrincipal;
 import org.jboss.as.console.client.administration.accesscontrol.store.Principal;
+import org.jboss.as.console.client.administration.accesscontrol.store.Role;
 import org.jboss.as.console.client.shared.help.StaticHelpPanel;
+import org.jboss.ballroom.client.widgets.forms.ComboBoxItem;
 import org.jboss.ballroom.client.widgets.forms.Form;
 import org.jboss.ballroom.client.widgets.forms.FormValidation;
 import org.jboss.ballroom.client.widgets.forms.TextBoxItem;
 import org.jboss.ballroom.client.widgets.window.DialogueOptions;
 import org.jboss.ballroom.client.widgets.window.WindowContentBuilder;
 import org.jboss.gwt.circuit.Dispatcher;
+
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author Harald Pehl
@@ -54,7 +59,8 @@ public class PrincipalDialog implements IsWidget {
         HelpPanel() {
             super(new SafeHtmlBuilder().append(
                     TEMPLATES.help(Console.CONSTANTS.administration_assignment_user_group_desc(),
-                            Console.CONSTANTS.administration_assignment_realm_desc())).toSafeHtml());
+                            Console.CONSTANTS.administration_assignment_realm_desc(),
+                            Console.CONSTANTS.administration_assignment_roles_desc())).toSafeHtml());
         }
 
         interface Templates extends SafeHtmlTemplates {
@@ -62,8 +68,9 @@ public class PrincipalDialog implements IsWidget {
             @Template("<table style=\"vertical-align:top\" cellpadding=\"3\">" +
                     "<tr><td>Name</td><td>{0}</td></tr>" +
                     "<tr><td>Realm</td><td>{1}</td></tr>" +
+                    "<tr><td>Realm</td><td>{2}</td></tr>" +
                     "</table>")
-            SafeHtml help(String nameDesc, String realmDesc);
+            SafeHtml help(String nameDesc, String realmDesc, String roleDesc);
         }
     }
 
@@ -72,6 +79,8 @@ public class PrincipalDialog implements IsWidget {
     private final AccessControlStore accessControlStore;
     private final Dispatcher circuit;
     private final AccessControlFinder presenter;
+    private final SortedMap<String, Role> roles;
+
 
     public PrincipalDialog(final Principal.Type type,
             final AccessControlStore accessControlStore,
@@ -81,19 +90,34 @@ public class PrincipalDialog implements IsWidget {
         this.accessControlStore = accessControlStore;
         this.circuit = circuit;
         this.presenter = presenter;
+
+        this.roles = new TreeMap<>();
+        for (Role role : accessControlStore.getRoles()) {
+            roles.put(role.getName(), role);
+        }
     }
 
     public Widget asWidget() {
         TextBoxItem name = new TextBoxItem("name", "Name", true);
         TextBoxItem realm = new TextBoxItem("realm", "Realm", false);
+        ComboBoxItem role = new ComboBoxItem("role", "Role");
+        role.setValueMap(roles.keySet());
+        role.setDefaultToFirstOption(true);
 
         Form<PrincipalBean> form = new Form<>(PrincipalBean.class);
-        form.setFields(name, realm);
+        form.setFields(name, realm, role);
         form.addFormValidator((formItems, outcome) -> {
             if (accessControlStore.getPrincipals().contains(beanToModel(form.getUpdatedEntity()))) {
                 outcome.addError("name");
                 name.setErrMessage(type == Principal.Type.USER ? "User already exists" : "Group already exists");
                 name.setErroneous(true);
+            }
+        });
+        form.addFormValidator((formItems, outcome) -> {
+            if (!roles.containsKey(role.getValue())) {
+                outcome.addError("role");
+                role.setErrMessage("Please select a role");
+                role.setErroneous(true);
             }
         });
 
@@ -102,16 +126,15 @@ public class PrincipalDialog implements IsWidget {
         layout.add(new HelpPanel().asWidget());
         layout.add(form.asWidget());
 
-        DialogueOptions options = new DialogueOptions(
-                event -> {
-                    FormValidation validation = form.validate();
-                    if (!validation.hasErrors()) {
-                        circuit.dispatch(new AddPrincipal(beanToModel(form.getUpdatedEntity())));
-                        presenter.closeWindow();
-                    }
-                },
-                event -> presenter.closeWindow()
-        );
+        DialogueOptions options = new DialogueOptions(event -> {
+            FormValidation validation = form.validate();
+            if (!validation.hasErrors()) {
+                Principal principal = beanToModel(form.getUpdatedEntity());
+                Role matchingRole = roles.get(role.getValue());
+                circuit.dispatch(new AddPrincipal(principal, matchingRole));
+                presenter.closeWindow();
+            }
+        }, event -> presenter.closeWindow());
 
         return new WindowContentBuilder(layout, options).build();
     }

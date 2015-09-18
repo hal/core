@@ -24,21 +24,29 @@ package org.jboss.as.console.client.administration.accesscontrol.store;
 import org.jboss.gwt.circuit.Action;
 
 /**
+ * This is much like the {@link AddAssignment} action but with slightly different semantics.
+ *
  * @author Harald Pehl
  */
 public class AddPrincipal implements Action, ModifiesPrincipal, HasSuccessMessage {
 
-    private final Principal principal;
+    private final Assignment assignment;
 
-    public AddPrincipal(final Principal principal) {this.principal = principal;}
+    public AddPrincipal(final Principal principal, final Role role) {
+        this.assignment = new Assignment(principal, role, true);
+    }
+
+    public Assignment getAssignment() {
+        return assignment;
+    }
 
     @Override
     public Principal getPrincipal() {
-        return principal;
+        return assignment.getPrincipal();
     }
 
     @Override
     public String getMessage() {
-        return (principal.getType() == Principal.Type.USER ? "User" : "Group") + " successfully added.";
+        return (assignment.getPrincipal().getType() == Principal.Type.USER ? "User" : "Group") + " successfully added.";
     }
 }

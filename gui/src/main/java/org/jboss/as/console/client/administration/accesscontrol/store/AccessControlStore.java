@@ -278,15 +278,8 @@ public class AccessControlStore extends ChangeSupport {
 
     @Process(actionType = AddPrincipal.class)
     public void addPrincipal(final AddPrincipal action, final Channel channel) {
-        Principal principal = action.getPrincipal();
-        if (principals.contains(principal)) {
-            channel.nack(new DuplicateResourceException(principal.getName()));
-        } else {
-            // Add a transient principal; the management model is not changed.
-            // Only if an assignment is added to this user, we have enough information to update the management model.
-            principals.add(principal);
-            channel.ack();
-        }
+        Assignment assignment = action.getAssignment();
+        internalAddAssignment(assignment, channel);
     }
 
     @Process(actionType = RemovePrincipal.class)
@@ -312,7 +305,7 @@ public class AccessControlStore extends ChangeSupport {
     // ------------------------------------------------------ roles
 
     @Process(actionType = ModifyStandardRole.class)
-    public void modifyStandardRole(final ModifyStandardRole action, Channel channel) {
+    public void modifyStandardRole(final ModifyStandardRole action, final Channel channel) {
         Role role = action.getRole();
         new Async<FunctionContext>().waterfall(new FunctionContext(), new ReloadOutcome(channel),
                 new AccessControlFunctions.CheckAssignment(dispatcher, role),
@@ -321,7 +314,7 @@ public class AccessControlStore extends ChangeSupport {
     }
 
     @Process(actionType = AddScopedRole.class)
-    public void addScopedRole(final AddScopedRole action, Channel channel) {
+    public void addScopedRole(final AddScopedRole action, final Channel channel) {
         Role role = action.getRole();
         String scopeType = role.getType() == Role.Type.HOST ? "hosts" : "server-groups";
         Collection<ModelNode> scope = Collections2.transform(role.getScope(), input -> new ModelNode().set(input));
@@ -348,7 +341,7 @@ public class AccessControlStore extends ChangeSupport {
     }
 
     @Process(actionType = ModifyScopedRole.class)
-    public void modifyScopedRole(final ModifyScopedRole action, Channel channel) {
+    public void modifyScopedRole(final ModifyScopedRole action, final Channel channel) {
         Role role = action.getRole();
         ResourceAddress scopedRoleAddress = AddressHelper.scopedRole(role);
         String scopeType = role.getType() == Role.Type.HOST ? "hosts" : "server-groups";
@@ -375,7 +368,7 @@ public class AccessControlStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveScopedRole.class)
-    public void removeScopedRole(final RemoveScopedRole action, Channel channel) {
+    public void removeScopedRole(final RemoveScopedRole action, final Channel channel) {
         Role role = action.getRole();
         if (!role.isScoped()) {
             channel.nack(new IllegalArgumentException("Standard roles cannot be removed!"));
@@ -407,10 +400,14 @@ public class AccessControlStore extends ChangeSupport {
     // ------------------------------------------------------ assignment
 
     @Process(actionType = AddAssignment.class)
-    public void addAssignment(final AddAssignment action, Channel channel) {
+    public void addAssignment(final AddAssignment action, final Channel channel) {
         Assignment assignment = action.getAssignment();
+        internalAddAssignment(assignment, channel);
+    }
 
-        Operation.Builder builder = new Operation.Builder(ADD, AddressHelper.assignment(assignment))
+    private void internalAddAssignment(final Assignment assignment, final Channel channel) {
+        Operation.Builder builder = new Operation.Builder(ADD, AddressHelper
+                .assignment(assignment))
                 .param(NAME, assignment.getPrincipal().getName())
                 .param("type", assignment.getPrincipal().getType().name());
         if (assignment.getPrincipal().getRealm() != null) {
@@ -427,7 +424,7 @@ public class AccessControlStore extends ChangeSupport {
     }
 
     @Process(actionType = RemoveAssignment.class)
-    public void removeAssignment(final RemoveAssignment action, Channel channel) {
+    public void removeAssignment(final RemoveAssignment action, final Channel channel) {
         Assignment assignment = action.getAssignment();
         Operation operation = new Operation.Builder(REMOVE, AddressHelper.assignment(assignment)).build();
         dispatcher.execute(new DMRAction(operation), new ReloadCallback(channel));
