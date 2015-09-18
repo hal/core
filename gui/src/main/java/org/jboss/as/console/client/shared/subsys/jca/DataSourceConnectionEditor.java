@@ -83,6 +83,7 @@ public class DataSourceConnectionEditor {
         });
 
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_dataSourceDetails());
+        verifyBtn.setOperationAddress("/{selected.profile}/subsystem=datasources/data-source=*", "test-connection-in-pool");
 
         FormToolStrip<DataSource> formTools = new FormToolStrip<DataSource>(form,callback);
         formTools.providesDeleteOp(false);

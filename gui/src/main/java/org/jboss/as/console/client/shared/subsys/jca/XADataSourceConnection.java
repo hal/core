@@ -78,7 +78,7 @@ public class XADataSourceConnection {
             }
         });
         verifyBtn.ensureDebugId(Console.DEBUG_CONSTANTS.debug_label_verify_xADataSourceDetails());
-
+        verifyBtn.setOperationAddress("/{selected.profile}/subsystem=datasources/xa-data-source=*", "test-connection-in-pool");
 
         FormToolStrip<XADataSource> formTools = new FormToolStrip<XADataSource>(form, callback);
         formTools.providesDeleteOp(false);
