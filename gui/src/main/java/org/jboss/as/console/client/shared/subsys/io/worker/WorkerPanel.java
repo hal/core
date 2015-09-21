@@ -56,7 +56,7 @@ public class WorkerPanel extends IOPanel {
         MultipleToOneLayout layoutBuilder = new MultipleToOneLayout()
                 .setPlain(true)
                 .setHeadline("Workers")
-                .setDescription(SafeHtmlUtils.fromString("Please chose a worker from below for specific settings."))
+                .setDescription(SafeHtmlUtils.fromString("Please choose a worker from below for specific settings."))
                 .setMasterTools(tools)
                 .setMaster(Console.MESSAGES.available("Worker"), table)
                 .addDetail("Attributes", formPanel);

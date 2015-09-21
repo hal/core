@@ -254,6 +254,8 @@ import org.jboss.as.console.client.standalone.ColumnServerView;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerView;
+import org.jboss.as.console.client.standalone.deploymentscanner.DeploymentScannerPresenter;
+import org.jboss.as.console.client.standalone.deploymentscanner.DeploymentScannerView;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimeView;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
@@ -398,6 +400,11 @@ public class CoreUIModule extends AbstractPresenterModule {
                 StandaloneDeploymentFinder.MyView.class,
                 StandaloneDeploymentFinderView.class,
                 StandaloneDeploymentFinder.MyProxy.class);
+
+        bindPresenter(DeploymentScannerPresenter.class,
+                DeploymentScannerPresenter.MyView.class,
+                DeploymentScannerView.class,
+                DeploymentScannerPresenter.MyProxy.class);
 
         bindPresenter(HostMgmtPresenter.class,
                 HostMgmtPresenter.MyView.class,

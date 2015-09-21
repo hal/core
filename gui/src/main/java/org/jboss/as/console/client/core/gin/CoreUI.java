@@ -142,6 +142,7 @@ import org.jboss.as.console.client.shared.subsys.ws.StandaloneEndpointStrategy;
 import org.jboss.as.console.client.shared.subsys.ws.WebServicePresenter;
 import org.jboss.as.console.client.standalone.ServerMgmtApplicationPresenter;
 import org.jboss.as.console.client.standalone.StandaloneServerPresenter;
+import org.jboss.as.console.client.standalone.deploymentscanner.DeploymentScannerPresenter;
 import org.jboss.as.console.client.standalone.runtime.StandaloneRuntimePresenter;
 import org.jboss.as.console.client.standalone.runtime.VMMetricsPresenter;
 import org.jboss.as.console.client.tools.BrowserPresenter;
@@ -370,6 +371,7 @@ public interface CoreUI {
     AsyncProvider<IiopOpenJdkPresenter> getIiopOpenJdkPresenter();
     AsyncProvider<DomainDeploymentFinder> getDomainDeploymentFinder();
     AsyncProvider<StandaloneDeploymentFinder> getStandaloneDeploymentFinder();
+    AsyncProvider<DeploymentScannerPresenter> getDeploymentScannerPresenter();
 
     Dispatcher getCircuitDispatcher();
 

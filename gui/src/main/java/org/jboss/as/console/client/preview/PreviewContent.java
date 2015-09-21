@@ -90,6 +90,9 @@ public interface PreviewContent extends ClientBundleWithLookup {
     @Source("content/datasources.html")
     ExternalTextResource ds_finder();
 
+    @Source("content/deployment_scanner.html")
+    ExternalTextResource deployment_scanner();
+
     @Source("content/mail_sessions.html")
     ExternalTextResource mail_sessions();
 
